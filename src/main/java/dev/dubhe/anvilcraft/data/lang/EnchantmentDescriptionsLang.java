@@ -14,5 +14,7 @@ public class EnchantmentDescriptionsLang {
             "Harvest and replant mature crops, higher level increases range.");
         provider.add("enchantment.anvilcraft.beheading.desc",
             "Increase drop chance of Wither Skeleton Skull and make other mobs drop their head.");
+        provider.add("enchantment.anvilcraft.smelting.desc",
+            "Smelts block drop (after Silk Touch and Fortune), higher levels provide chances of doubling ores outcome");
     }
 }

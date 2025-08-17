@@ -1,0 +1,26 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:item/transcendence_heavy_halberd",
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [0, -90, -135],
+			"translation": [0, -6.75, 1.5],
+			"scale": [0.95, 0.95, 0.95]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [0, 90, 135],
+			"translation": [0, -6.75, 1.5],
+			"scale": [0.95, 0.95, 0.95]
+		},
+		"firstperson_righthand": {
+			"rotation": [-80, -90, 0],
+			"translation": [5, 3.75, 1.5],
+			"scale": [0.7, 0.7, 0.7]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-80, 90, 0],
+			"translation": [5, 3.75, 1.5],
+			"scale": [0.7, 0.7, 0.7]
+		}
+	}
+}

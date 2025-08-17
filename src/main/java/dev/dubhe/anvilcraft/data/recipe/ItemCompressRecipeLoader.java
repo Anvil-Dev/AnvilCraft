@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -33,5 +34,21 @@ public class ItemCompressRecipeLoader {
             .requires(ModItems.CHOCOLATE)
             .result(new ItemStack(ModBlocks.CHOCOLATE_CREAM_BLOCK))
             .save(provider);
+
+        ItemCompressRecipe.builder()
+            .requires(ModItems.NEUTRONIUM_INGOT)
+            .requires(ModItems.URANIUM_INGOT)
+            .result(ModItems.PLUTONIUM_NUGGET, 6)
+            .result(ModItems.LIME_POWDER)
+            .result(ModItems.NEUTRONIUM_INGOT)
+            .save(provider, AnvilCraft.of("item_compress/plutonium_nugget_from_neutronium_ingot"));
+
+        ItemCompressRecipe.builder()
+            .requires(ModItems.STABLE_NEUTRONIUM_INGOT)
+            .requires(ModItems.URANIUM_INGOT)
+            .result(ModItems.PLUTONIUM_NUGGET, 6)
+            .result(ModItems.LIME_POWDER)
+            .result(ModItems.STABLE_NEUTRONIUM_INGOT)
+            .save(provider, AnvilCraft.of("item_compress/plutonium_nugget_from_stable_neutronium_ingot"));
     }
 }

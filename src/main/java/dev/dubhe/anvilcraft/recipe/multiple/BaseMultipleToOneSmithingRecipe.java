@@ -1,21 +1,20 @@
 package dev.dubhe.anvilcraft.recipe.multiple;
 
-import com.google.common.collect.Collections2;
-import com.mojang.datafixers.util.Function5;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import dev.dubhe.anvilcraft.api.item.IMultipleResult;
+import com.tterrag.registrate.util.entry.ItemProviderEntry;
+import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import dev.dubhe.anvilcraft.util.CodecUtil;
+import dev.dubhe.anvilcraft.recipe.multiple.result.MultipleToOneResult;
+import dev.dubhe.anvilcraft.recipe.multiple.result.ResultContext;
+import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
 import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,7 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -36,65 +34,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
+@Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultipleResult>
-    implements Recipe<MultipleToOneSmithingRecipeInput> {
+public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<MultipleToOneSmithingRecipeInput> {
+    protected final ItemIngredientPredicate template;
+    protected final ItemIngredientPredicate material;
+    protected final List<ItemIngredientPredicate> inputs;
+    protected final MultipleToOneResult result;
 
-    @SuppressWarnings("unchecked")
-    protected static <T extends Item & IMultipleResult> Codec<T> resultCodec() {
-        return CodecUtil.ITEM_CODEC.flatXmap(
-            item -> item instanceof IMultipleResult
-                    ? DataResult.success((T) item)
-                    : DataResult.error(() -> "Item " + item + " is not instance of IMultipleResult"),
-            DataResult::success
-        );
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static <T extends Item & IMultipleResult> StreamCodec<RegistryFriendlyByteBuf, T> resultStreamCodec() {
-        return CodecUtil.ITEM_STREAM_CODEC.map(item -> (T) item, t -> t);
-    }
-
-    @Getter
-    protected final Ingredient template;
-    @Getter
-    protected final Ingredient material;
-    @Getter
-    protected final List<Ingredient> inputs;
-    @Getter
-    protected final T result;
-    protected final int recipeId;
-
-    protected BaseMultipleToOneSmithingRecipe(Ingredient template, Ingredient material, List<Ingredient> inputs, T result, int recipeId) {
+    protected BaseMultipleToOneSmithingRecipe(
+        ItemIngredientPredicate template, ItemIngredientPredicate material, List<ItemIngredientPredicate> inputs,
+        MultipleToOneResult result
+    ) {
         this.template = template;
         this.material = material;
         this.inputs = inputs;
         this.result = result;
-        this.recipeId = recipeId;
     }
 
-    protected BaseMultipleToOneSmithingRecipe(Data<T> data) {
+    protected BaseMultipleToOneSmithingRecipe(Data data) {
         this.template = data.template;
         this.material = data.material;
         this.inputs = data.inputs;
         this.result = data.result;
-        this.recipeId = data.recipeId;
-    }
-
-    protected static <T extends Item & IMultipleResult, R extends BaseMultipleToOneSmithingRecipe<T>>
-    Builder<T, R> builder(
-        Ingredient template, NonNullSupplier<T> resultGetter, int inputSize, int recipeId,
-        Function5<Ingredient, Ingredient, List<Ingredient>, T, Integer, R> factory
-    ) {
-        return new Builder<>(template, resultGetter, inputSize, recipeId, factory);
-    }
-
-    protected static <T extends Item & IMultipleResult, R extends BaseMultipleToOneSmithingRecipe<T>>
-    Builder<T, R> builder(
-        Ingredient template, T result, int inputSize, int recipeId, Function5<Ingredient, Ingredient, List<Ingredient>, T, Integer, R> factory
-    ) {
-        return new Builder<>(template, result, inputSize, recipeId, factory);
     }
 
     public int inputSize() {
@@ -105,37 +68,37 @@ public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultiple
     public boolean matches(MultipleToOneSmithingRecipeInput input, Level level) {
         if (input.inputs().size() != this.inputs.size()) return false;
         return this.isTemplateIngredient(input.template())
-               && this.isMaterialIngredient(input.material())
-               && input.inputs().size() == 1
-               ? this.inputs.getFirst().test(input.getItem(0))
-               : this.matchesInput(input);
+            && this.isMaterialIngredient(input.material())
+            && this.matchesInput(input);
     }
 
     protected boolean matchesInput(MultipleToOneSmithingRecipeInput input) {
-        int result = 0;
-        List<Ingredient> ingredientsCloned = new ArrayList<>(this.inputs);
+        List<ItemIngredientPredicate> ingredientsCloned = new ArrayList<>(this.inputs);
         List<ItemStack> inputsCloned = new ArrayList<>(input.inputs());
 
-        Iterator<Ingredient> ingredientIt = ingredientsCloned.iterator();
+        Iterator<ItemIngredientPredicate> ingredientIt = ingredientsCloned.iterator();
         while (ingredientIt.hasNext()) {
-            Ingredient ingredient = ingredientIt.next();
+            ItemIngredientPredicate ingredient = ingredientIt.next();
             Iterator<ItemStack> inputIt = inputsCloned.iterator();
             while (inputIt.hasNext()) {
                 ItemStack stack = inputIt.next();
                 if (ingredient.test(stack)) {
-                    result++;
                     ingredientIt.remove();
                     inputIt.remove();
                     break;
                 }
             }
         }
-        return result == this.inputSize();
+        return ingredientsCloned.isEmpty();
     }
 
     @Override
     public ItemStack assemble(MultipleToOneSmithingRecipeInput input, HolderLookup.Provider registries) {
-        return this.result.assemble(this.recipeId, input, registries);
+        return this.result.getResult(new ResultContext(
+            registries,
+            input.template(), input.material(),
+            input.inputs(),
+            this.result.getResult().copy()));
     }
 
     @Override
@@ -145,12 +108,7 @@ public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultiple
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return this.result.getDefaultInstance();
-    }
-
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return NonNullList.copyOf(this.inputs);
+        return this.result.getResult();
     }
 
     @Override
@@ -173,198 +131,224 @@ public abstract class BaseMultipleToOneSmithingRecipe<T extends Item & IMultiple
 
     public boolean isInputIngredient(int index, ItemStack input) {
         if (index >= this.inputSize()) return false;
-        for (Ingredient ingredient : this.inputs) {
+        for (ItemIngredientPredicate ingredient : this.inputs) {
             if (ingredient.test(input)) return true;
         }
         return false;
     }
 
-    private Data<T> toData() {
-        return new Data<>(this.template, this.material, this.inputs, this.result, this.recipeId);
+    @Override
+    public boolean isSpecial() {
+        return true;
     }
 
-    public record Data<T extends Item & IMultipleResult>(
-        Ingredient template, Ingredient material, List<Ingredient> inputs, T result, int recipeId
+    private Data toData() {
+        return new Data(this.template, this.material, this.inputs, this.result);
+    }
+
+    public record Data(
+        ItemIngredientPredicate template,
+        ItemIngredientPredicate material,
+        List<ItemIngredientPredicate> inputs,
+        MultipleToOneResult result
     ) {
-        public static <T extends Item & IMultipleResult> Codec<Data<T>> createCodec() {
-            return Data.<T>createMapCodec().codec();
-        }
+        public static final MapCodec<Data> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+            ItemIngredientPredicate.CODEC.fieldOf("template").forGetter(Data::template),
+            ItemIngredientPredicate.CODEC.fieldOf("material").forGetter(Data::material),
+            ItemIngredientPredicate.CODEC.listOf().fieldOf("inputs").forGetter(Data::inputs),
+            MultipleToOneResult.CODEC.fieldOf("result").forGetter(Data::result)
+        ).apply(ins, Data::new));
 
-        public static <T extends Item & IMultipleResult> MapCodec<Data<T>> createMapCodec() {
-            return RecordCodecBuilder.mapCodec(ins -> ins.group(
-                Ingredient.CODEC.fieldOf("template").forGetter(Data::template),
-                Ingredient.CODEC.fieldOf("material").forGetter(Data::material),
-                Ingredient.CODEC.listOf().fieldOf("inputs").forGetter(Data::inputs),
-                BaseMultipleToOneSmithingRecipe.<T>resultCodec().fieldOf("result").forGetter(Data::result),
-                Codec.INT.fieldOf("recipeId").forGetter(Data::recipeId)
-            ).apply(ins, Data::new));
-        }
-
-        public static <T extends Item & IMultipleResult> StreamCodec<RegistryFriendlyByteBuf, Data<T>> createStreamCodec() {
-            return StreamCodec.composite(
-                Ingredient.CONTENTS_STREAM_CODEC, Data::template,
-                Ingredient.CONTENTS_STREAM_CODEC, Data::material,
-                Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), Data::inputs,
-                resultStreamCodec(), Data::result,
-                ByteBufCodecs.VAR_INT, Data::recipeId,
-                Data::new
-            );
-        }
+        public static final StreamCodec<RegistryFriendlyByteBuf, Data> STREAM_CODEC = StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC, Data::template,
+            ItemIngredientPredicate.STREAM_CODEC, Data::material,
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()), Data::inputs,
+            MultipleToOneResult.STREAM_CODEC, Data::result,
+            Data::new
+        );
     }
 
-    public static class Serializer<T extends Item & IMultipleResult, R extends BaseMultipleToOneSmithingRecipe<T>>
-        implements RecipeSerializer<R> {
-        private final Function<Data<T>, R> factory;
+    public abstract static class BaseSerializer<R extends BaseMultipleToOneSmithingRecipe> implements RecipeSerializer<R> {
+        private final Function<Data, R> fromData = this::fromData;
 
-        public Serializer(Function<Data<T>, R> factory) {
-            this.factory = factory;
-        }
+        protected abstract R fromData(Data data);
 
         @Override
         public MapCodec<R> codec() {
-            return Data.<T>createMapCodec().xmap(factory, BaseMultipleToOneSmithingRecipe::toData);
+            return Data.CODEC.xmap(this.fromData, BaseMultipleToOneSmithingRecipe::toData);
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, R> streamCodec() {
-            return StreamCodec.composite(Data.createStreamCodec(), BaseMultipleToOneSmithingRecipe::toData, factory);
+            return StreamCodec.composite(Data.STREAM_CODEC, BaseMultipleToOneSmithingRecipe::toData, this.fromData);
         }
     }
 
-    public static class Builder<T extends Item & IMultipleResult, R extends BaseMultipleToOneSmithingRecipe<T>>
-        extends AbstractRecipeBuilder<R> {
-
-        protected final Ingredient template;
-        protected Ingredient material;
-        protected final List<Ingredient> inputs;
+    public abstract static class BaseBuilder<R extends BaseMultipleToOneSmithingRecipe> extends AbstractRecipeBuilder<R> {
+        protected final ItemIngredientPredicate template;
+        protected ItemIngredientPredicate material;
+        protected final ImmutableList.Builder<ItemIngredientPredicate> inputs;
         protected final int inputSize;
-        protected final T result;
-        protected final int recipeId;
-        protected final Function5<Ingredient, Ingredient, List<Ingredient>, T, Integer, R> factory;
+        protected MultipleToOneResult result;
 
-        protected Builder(
-            Ingredient template, NonNullSupplier<T> resultGetter, int inputSize, int recipeId,
-            Function5<Ingredient, Ingredient, List<Ingredient>, T, Integer, R> factory
-        ) {
-            this(template, resultGetter.get(), inputSize, recipeId, factory);
-        }
-
-        protected Builder(
-            Ingredient template, T result, int inputSize, int recipeId,
-            Function5<Ingredient, Ingredient, List<Ingredient>, T, Integer, R> factory
-        ) {
+        protected BaseBuilder(ItemIngredientPredicate template, int inputSize) {
             this.template = template;
-            this.inputs = new ArrayList<>(inputSize);
+            this.inputs = ImmutableList.builderWithExpectedSize(inputSize);
             this.inputSize = inputSize;
-            this.result = result;
-            this.recipeId = recipeId;
-            this.factory = factory;
         }
 
-        @SafeVarargs
-        public final Builder<T, R> material(NonNullSupplier<? extends Item>... materialGetters) {
-            this.material = Ingredient.of(Collections2.transform(List.of(materialGetters), NonNullSupplier::get).toArray(new Item[0]));
+        public final BaseBuilder<R> material(ItemIngredientPredicate.Builder materialBuilder) {
+            this.material = materialBuilder.build();
             return this;
         }
 
-        public Builder<T, R> material(int count, NonNullSupplier<? extends Item> materialGetter) {
-            for (int i = 0; i < count; i++) {
-                this.input(Ingredient.of(materialGetter.get()));
-            }
+        public final BaseBuilder<R> material(int count, ItemStack material) {
+            return this.material(
+                ItemIngredientPredicate.of(material.getItem())
+                    .withCount(count)
+                    .hasComponents(DataComponentPredicate.allOf(material.getComponents())));
+        }
+
+        public final BaseBuilder<R> material(ItemStack material) {
+            return this.material(1, material);
+        }
+
+        public final BaseBuilder<R> material(int count, ItemLike... materials) {
+            return this.material(ItemIngredientPredicate.of(materials).withCount(count));
+        }
+
+        public final BaseBuilder<R> material(ItemLike... materials) {
+            return this.material(1, materials);
+        }
+
+        public final BaseBuilder<R> material(int count, TagKey<Item> materialTag) {
+            return this.material(ItemIngredientPredicate.of(materialTag).withCount(count));
+        }
+
+        public final BaseBuilder<R> material(TagKey<Item> materialTag) {
+            return this.material(1, materialTag);
+        }
+
+        public final BaseBuilder<R> input(ItemIngredientPredicate.Builder inputBuilder) {
+            this.inputs.add(inputBuilder.build());
             return this;
         }
 
-        public Builder<T, R> material(ItemStack... materials) {
-            this.material = Ingredient.of(materials);
+        public final BaseBuilder<R> input(int count, ItemStack input) {
+            return this.input(
+                ItemIngredientPredicate.of(input.getItem())
+                    .withCount(count)
+                    .hasComponents(DataComponentPredicate.allOf(input.getComponents())));
+        }
+
+        public final BaseBuilder<R> input(ItemStack input) {
+            return this.input(1, input);
+        }
+
+        public final BaseBuilder<R> input(int count, ItemLike... inputs) {
+            return this.input(ItemIngredientPredicate.of(inputs).withCount(count));
+        }
+
+        public final BaseBuilder<R> input(ItemLike... inputs) {
+            return this.input(1, inputs);
+        }
+
+        public final BaseBuilder<R> input(int count, TagKey<Item> inputTag) {
+            return this.input(ItemIngredientPredicate.of(inputTag).withCount(count));
+        }
+
+        public final BaseBuilder<R> input(TagKey<Item> inputTag) {
+            return this.input(1, inputTag);
+        }
+
+        public final BaseBuilder<R> result(MultipleToOneResult.Builder resultBuilder) {
+            this.result = resultBuilder.build();
             return this;
         }
 
-        public Builder<T, R> material(int count, ItemStack material) {
-            for (int i = 0; i < count; i++) {
-                this.input(Ingredient.of(material));
-            }
-            return this;
+        public final BaseBuilder<R> result(int count, ItemStack result) {
+            return this.result(MultipleToOneResult.builder().result(result.copyWithCount(count)));
         }
 
-        public Builder<T, R> material(Ingredient material) {
-            this.material = material;
-            return this;
+        public final BaseBuilder<R> result(ItemStack result) {
+            return this.result(1, result);
         }
 
-        public final Builder<T, R> input(ItemLike... inputs) {
-            for (ItemLike input : inputs) {
-                this.input(Ingredient.of(input));
-            }
-            return this;
+        public final BaseBuilder<R> result(int count, ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result, count).copyData(data));
         }
 
-        public Builder<T, R> input(int count, ItemLike input) {
-            for (int i = 0; i < count; i++) {
-                this.input(Ingredient.of(input));
-            }
-            return this;
+        public final BaseBuilder<R> result(int count, ItemProviderEntry<?, ?> result) {
+            return this.result(MultipleToOneResult.builder().result(result, count));
         }
 
-        public Builder<T, R> input(ItemStack... inputs) {
-            for (ItemStack input : inputs) {
-                this.input(Ingredient.of(input));
-            }
-            return this;
+        public final BaseBuilder<R> result(ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result).copyData(data));
         }
 
-        public Builder<T, R> input(int count, ItemStack input) {
-            for (int i = 0; i < count; i++) {
-                this.input(Ingredient.of(input));
-            }
-            return this;
+        public final BaseBuilder<R> result(ItemProviderEntry<?, ?> result) {
+            return this.result(MultipleToOneResult.builder().result(result));
         }
 
-        public Builder<T, R> input(TagKey<Item> inputTag) {
-            return this.input(Ingredient.of(inputTag));
+        public final BaseBuilder<R> result(int count, ItemLike result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result, count).copyData(data));
         }
 
-        public Builder<T, R> input(Ingredient input) {
-            this.inputs.add(input);
-            return this;
+        public final BaseBuilder<R> result(int count, ItemLike result) {
+            return this.result(MultipleToOneResult.builder().result(result, count));
         }
+
+        public final BaseBuilder<R> result(ItemLike result, ICustomDataComponent<?>... data) {
+            return this.result(1, result, data);
+        }
+
+        public final BaseBuilder<R> result(ItemLike result) {
+            return this.result(1, result);
+        }
+
+        protected abstract R of(
+            ItemIngredientPredicate template,
+            ItemIngredientPredicate material,
+            List<ItemIngredientPredicate> inputs,
+            MultipleToOneResult result
+        );
 
         @Override
         public R buildRecipe() {
-            return this.factory.apply(this.template, this.material, this.inputs, this.result, this.recipeId);
+            return this.of(this.template, this.material, this.inputs.build(), this.result);
         }
 
         @Override
         public void validate(ResourceLocation pId) {
-            if (this.template.isEmpty()) {
+            if (this.template.items().isEmpty()) {
                 throw new IllegalArgumentException("The template of multiple to one recipe must not be empty, RecipeId: " + pId);
             }
-            if (this.material.isEmpty()) {
+            if (this.material.items().isEmpty()) {
                 throw new IllegalArgumentException("The material of multiple to one recipe must not be empty, RecipeId: " + pId);
             }
-            for (int i = 0; i < this.inputs.size(); i++) {
-                Ingredient input = this.inputs.get(i);
-                if (input.isEmpty()) {
-                    throw new IllegalArgumentException(
-                        "The " + i + "th input of multiple to one recipe must not be empty, RecipeId: " + pId
-                    );
-                }
+            List<ItemIngredientPredicate> cache = this.inputs.build();
+            for (int i = 0; i < cache.size(); i++) {
+                ItemIngredientPredicate input = cache.get(i);
+                if (input.items().isPresent()) continue;
+                throw new IllegalArgumentException("The " + i + "th input of multiple to one recipe must not be empty, RecipeId: " + pId);
             }
         }
 
         @Override
         public String getType() {
-            String name = switch (this.inputs.size()) {
+            int size = this.inputs.build().size();
+            String name = switch (size) {
                 case 2 -> "two";
                 case 4 -> "four";
                 case 8 -> "eight";
-                default -> throw new IllegalArgumentException("Illegal input size! get " + this.inputs.size());
+                default -> throw new IllegalArgumentException("Illegal input size! get " + size);
             };
             return name + "_to_one_smithing";
         }
 
         @Override
         public Item getResult() {
-            return this.result;
+            return this.result.getResult().getItem();
         }
     }
 }

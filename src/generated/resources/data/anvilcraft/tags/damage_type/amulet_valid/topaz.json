@@ -1,0 +1,9 @@
+{
+  "values": [
+    "#minecraft:is_lightning",
+    {
+      "id": "immersiveengineering:wire_shock",
+      "required": false
+    }
+  ]
+}

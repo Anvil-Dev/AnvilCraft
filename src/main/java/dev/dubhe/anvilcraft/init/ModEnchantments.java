@@ -21,6 +21,7 @@ public class ModEnchantments {
     public static final ResourceKey<Enchantment> FELLING_KEY = key("felling");
     public static final ResourceKey<Enchantment> HARVEST_KEY = key("harvest");
     public static final ResourceKey<Enchantment> BEHEADING_KEY = key("beheading");
+    public static final ResourceKey<Enchantment> SMELTING_KEY = key("smelting");
 
     public static ResourceKey<Enchantment> key(String name) {
         return ResourceKey.create(Registries.ENCHANTMENT, AnvilCraft.of(name));
@@ -86,6 +87,21 @@ public class ModEnchantments {
                     itemHolderGetter.getOrThrow(ItemTags.SWORDS),
                     5,
                     3,
+                    Enchantment.dynamicCost(1, 10),
+                    Enchantment.dynamicCost(15, 10),
+                    2,
+                    EquipmentSlotGroup.MAINHAND
+                )
+            )
+        );
+        register(
+            context,
+            SMELTING_KEY,
+            Enchantment.enchantment(
+                Enchantment.definition(
+                    itemHolderGetter.getOrThrow(ItemTags.MINING_LOOT_ENCHANTABLE),
+                    5,
+                    5,
                     Enchantment.dynamicCost(1, 10),
                     Enchantment.dynamicCost(15, 10),
                     2,

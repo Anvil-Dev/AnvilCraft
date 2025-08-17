@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.network.ChargerSyncPacket;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.util.StateListener;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -25,6 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,9 +38,12 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Setter
     private boolean isCharger;
+    @Setter
     private int timeLeft = 0;
+    @Setter
+    private int timeTotalCache = 0;
     private int powerValue = 0;
-    private boolean powered = false;
+    private int signalCache = 0;
 
     @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
@@ -104,7 +110,7 @@ public class ChargerBlockEntity extends BlockEntity
         return null;
     }
 
-    private boolean checkRecipeItemNotValid(@Nullable ChargerChargingRecipe recipe, ItemStack stack) {
+    private boolean checkRecipeItemNotValid(@Nullable ChargerChargingRecipe recipe, @SuppressWarnings("unused") ItemStack stack) {
         if (recipe != null) {
             if (recipe.power == 0) return true;
             return isCharger != recipe.power < 0;
@@ -126,7 +132,12 @@ public class ChargerBlockEntity extends BlockEntity
             itemHandler.setStackInSlot(1, transformed);
         }
         timeLeft = recipe.time + 1; //since there is a "timeLeft--" after this, here +1 to negate
+        timeTotalCache = recipe.time; //make a total time cache for client display
         powerValue = recipe.power;
+        if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
+        PacketDistributor.sendToPlayersTrackingChunk(
+            serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache));
     }
 
     private void moveItemToTransformedOverSlot() {
@@ -154,7 +165,7 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Override
-    public Level getCurrentLevel() {
+    public @Nullable Level getCurrentLevel() {
         return getLevel();
     }
 
@@ -189,8 +200,19 @@ public class ChargerBlockEntity extends BlockEntity
         return !isCharger ? powerValue : 0;
     }
 
+    public double getProgress() {
+        if (this.timeTotalCache != 0) return 1 - (double) timeLeft / timeTotalCache;
+        return 0;
+    }
+
+    public int getAnalogRedstoneSignal() {
+        double progress = this.getProgress();
+        if (itemHandler.getStackInSlot(0).isEmpty() && itemHandler.getStackInSlot(1).isEmpty()) return 0;
+        return (int) Math.round(progress * 15);
+    }
+
     @Override
-    public FilteredItemStackHandler getFilteredItemDepository() {
+    public FilteredItemStackHandler getFilteredItemStackHandler() {
         return itemHandler;
     }
 
@@ -242,7 +264,7 @@ public class ChargerBlockEntity extends BlockEntity
     public void tick(Level level1, BlockPos blockPos) {
         this.flushState(level1, blockPos);
         BlockState state = level1.getBlockState(blockPos);
-        powered = state.getValue(ChargerBlock.POWERED);
+        boolean powered = state.getValue(ChargerBlock.POWERED);
         if (grid == null) return;
         if (powered) return;
         if (timeLeft == 0) {
@@ -256,6 +278,19 @@ public class ChargerBlockEntity extends BlockEntity
         }
         if (timeLeft == 0) {
             moveItemToTransformedOverSlot();
+            this.timeTotalCache = 0;
         }
+
+        int signal = this.getAnalogRedstoneSignal();
+        if (this.signalCache != signal) {
+            this.signalCache = signal;
+            level1.updateNeighborsAt(this.getBlockPos(), this.getBlockState().getBlock());
+        }
+
+        if (!(level1 instanceof ServerLevel level2)) return;
+        if (level2.getGameTime() % 10 != 0) return;
+        PacketDistributor.sendToPlayersTrackingChunk(
+            level2, level2.getChunk(this.getBlockPos()).getPos(),
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache));
     }
 }

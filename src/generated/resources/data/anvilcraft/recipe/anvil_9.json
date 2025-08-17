@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:heavy_iron_block"
+    },
+    "B": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "pattern": [
+    "AAA",
+    " B ",
+    "BBB"
+  ],
+  "result": {
+    "count": 9,
+    "id": "minecraft:anvil"
+  }
+}

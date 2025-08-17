@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.init;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.model.IonocraftBackpackModel;
 import dev.dubhe.anvilcraft.entity.model.IonocraftModel;
+import dev.dubhe.anvilcraft.entity.model.MagnetizedNodeModel;
 import dev.dubhe.anvilcraft.entity.model.ThrownHeavyHalberdModel;
 import lombok.Getter;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -12,7 +13,7 @@ public class ModModelLayers {
     public static final ModelLayerLocation IONOCRAFT = new ModelLayerLocation(AnvilCraft.of("ionocraft"), "main");
     public static final ModelLayerLocation IONOCRAFT_BACKPACK = new ModelLayerLocation(AnvilCraft.of("ionocraft_backpack"), "main");
     public static final ModelLayerLocation THROWN_HEAVY_HALBERD = new ModelLayerLocation(AnvilCraft.of("thrown_heavy_halberd"), "main");
-    //public static final ModelLayerLocation LAYER_LOCATION_OFF = new ModelLayerLocation(AnvilCraft.of("ionocraft_backpack_off"), "main");
+    public static final ModelLayerLocation MAGNETIZED_NODE = new ModelLayerLocation(AnvilCraft.of("magnetized_node"), "main");
 
     @Getter
     private static IonocraftBackpackModel ionocraftBackpackModel;
@@ -29,6 +30,10 @@ public class ModModelLayers {
         event.registerLayerDefinition(
             THROWN_HEAVY_HALBERD,
             ThrownHeavyHalberdModel::createBodyLayer
+        );
+        event.registerLayerDefinition(
+            MAGNETIZED_NODE,
+            MagnetizedNodeModel::createBodyLayer
         );
     }
 

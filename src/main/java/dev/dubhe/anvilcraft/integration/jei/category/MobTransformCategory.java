@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
-import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.TransformResult;
 import dev.dubhe.anvilcraft.util.RenderHelper;
@@ -109,15 +109,9 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
                 String name = result.resultEntityType().toShortString();
                 ItemStack x = Items.BARRIER.getDefaultInstance();
                 x.set(DataComponents.CUSTOM_NAME, Component.literal(name));
-                outputStacks.add(ChanceItemStack
-                    .of(x)
-                    .withChance((float) result.probability())
-                );
+                outputStacks.add(ChanceItemStack.of(x, (float) result.probability()));
             } else
-                outputStacks.add(ChanceItemStack
-                    .of(spawnEggOutput.getDefaultInstance())
-                    .withChance((float) result.probability())
-                );
+                outputStacks.add(ChanceItemStack.of(spawnEggOutput.getDefaultInstance(), (float) result.probability()));
         }
         JeiSlotUtil.addOutputSlots(builder, outputStacks);
 

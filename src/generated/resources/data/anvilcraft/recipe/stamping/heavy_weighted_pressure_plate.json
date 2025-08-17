@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "minecraft:iron_ingot"
+      "items": "minecraft:iron_ingot"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:heavy_weighted_pressure_plate"
-      }
+      "id": "minecraft:heavy_weighted_pressure_plate"
     }
   ]
 }

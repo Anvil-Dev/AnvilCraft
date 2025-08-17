@@ -1,0 +1,16 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/frost_metal"
+      }
+    }
+  ],
+  "type": "anvilcraft:mass_inject",
+  "ingredient": {
+    "tag": "c:ingots/frost_metal"
+  },
+  "mass": 3000
+}

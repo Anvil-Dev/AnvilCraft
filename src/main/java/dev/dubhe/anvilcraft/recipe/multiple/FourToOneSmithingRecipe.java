@@ -1,52 +1,68 @@
 package dev.dubhe.anvilcraft.recipe.multiple;
 
-import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import dev.dubhe.anvilcraft.api.item.IMultipleResult;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.multiple.result.MultipleToOneResult;
+import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class FourToOneSmithingRecipe<T extends Item & IMultipleResult>
-    extends BaseMultipleToOneSmithingRecipe<T> {
-
-    protected FourToOneSmithingRecipe(Ingredient template, Ingredient material, List<Ingredient> inputs, T result, int recipeId) {
-        super(template, material, inputs, result, recipeId);
+public class FourToOneSmithingRecipe extends BaseMultipleToOneSmithingRecipe {
+    public FourToOneSmithingRecipe(
+        ItemIngredientPredicate template,
+        ItemIngredientPredicate material,
+        List<ItemIngredientPredicate> inputs,
+        MultipleToOneResult result
+    ) {
+        super(template, material, inputs, result);
     }
 
-    public FourToOneSmithingRecipe(Data<T> data) {
+    public FourToOneSmithingRecipe(Data data) {
         super(data);
     }
 
-    public static <T extends Item & IMultipleResult> Builder<T, FourToOneSmithingRecipe<T>> builder(
-        NonNullSupplier<T> resultGetter, int recipeId
-    ) {
-        return BaseMultipleToOneSmithingRecipe.builder(
-            Ingredient.of(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE.get()), resultGetter, 4, recipeId, FourToOneSmithingRecipe::new
-        );
+    public static Builder builder(ItemIngredientPredicate template) {
+        return new Builder(template);
     }
 
-    public static <T extends Item & IMultipleResult> Builder<T, FourToOneSmithingRecipe<T>> builder(T result, int recipeId) {
-        return BaseMultipleToOneSmithingRecipe.builder(
-            Ingredient.of(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE.get()), result, 4, recipeId, FourToOneSmithingRecipe::new
-        );
-    }
-
-    @ApiStatus.Internal
-    public static <T extends Item & IMultipleResult> Serializer<T, FourToOneSmithingRecipe<T>> createSerializer() {
-        return new Serializer<>(FourToOneSmithingRecipe::new);
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRecipeTypes.FOUR_TO_ONE_SMITHING_SERIALIZER.get();
+    }
+
+    public static class Serializer extends BaseSerializer<FourToOneSmithingRecipe> {
+        @Override
+        protected FourToOneSmithingRecipe fromData(Data data) {
+            return new FourToOneSmithingRecipe(data);
+        }
+    }
+
+    public static class Builder extends BaseBuilder<FourToOneSmithingRecipe> {
+        protected Builder(ItemIngredientPredicate template) {
+            super(template, 4);
+        }
+
+        protected Builder() {
+            this(ItemIngredientPredicate.of(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE.get()).build());
+        }
+
+        @Override
+        protected FourToOneSmithingRecipe of(
+            ItemIngredientPredicate template,
+            ItemIngredientPredicate material,
+            List<ItemIngredientPredicate> inputs,
+            MultipleToOneResult result
+        ) {
+            return new FourToOneSmithingRecipe(template, material, inputs, result);
+        }
     }
 }

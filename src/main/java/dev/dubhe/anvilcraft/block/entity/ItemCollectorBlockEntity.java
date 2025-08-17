@@ -19,7 +19,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -27,6 +26,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -36,7 +36,10 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class ItemCollectorBlockEntity extends BlockEntity
@@ -65,13 +68,14 @@ public class ItemCollectorBlockEntity extends BlockEntity
             cd = thiz.get();
             this.setChanged();
         },
-        1,
+        0,
         2,
-        5,
-        15,
+        10,
         60
     );
     private int cd = cooldown.get();
+
+    public static final Map<Level, Map<ChunkPos, List<ItemCollectorBlockEntity>>> PoachingCollectorMap = new HashMap<>();
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
@@ -94,15 +98,24 @@ public class ItemCollectorBlockEntity extends BlockEntity
         return getBlockPos();
     }
 
+
+    private static final Map<Integer, Map<Integer, Integer>> powerConsumption =
+        Map.of(
+            0, Map.of(1, 8, 2, 12, 4, 20, 8, 32),
+            2, Map.of(1, 5, 2, 8, 4, 12, 8, 20),
+            10, Map.of(1, 3, 2, 5, 4, 8, 8, 12),
+            60, Map.of(1, 2, 2, 3, 4, 5, 8, 8)
+        );
+
     @Override
     public int getInputPower() {
-        int power = Mth.floor(30.0 + (15.0 * rangeRadius.get() / cooldown.get()));
+        int power = powerConsumption.get(cooldown.get()).get(rangeRadius.get());
         if (level == null) return power;
         return getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
     }
 
     @Override
-    public FilteredItemStackHandler getFilteredItemDepository() {
+    public FilteredItemStackHandler getFilteredItemStackHandler() {
         return itemHandler;
     }
 
@@ -112,7 +125,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.loadAdditional(tag, provider);
         itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
         cooldown.fromIndex(tag.getInt("Cooldown"));
@@ -121,7 +134,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", cooldown.index());
@@ -143,7 +156,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", cooldown.index());
@@ -151,9 +164,53 @@ public class ItemCollectorBlockEntity extends BlockEntity
         return tag;
     }
 
+    public List<ChunkPos> getPoachingMapPositions(int range) {
+        List<ChunkPos> chunkPosList = new ArrayList<>();
+        BlockPos center = getBlockPos();
+        int d = range * 2 + 1;
+        int minX = center.getX() - d;
+        int maxX = center.getX() + d;
+        int minZ = center.getZ() - d;
+        int maxZ = center.getZ() + d;
+        int minChunkX = minX >> 4;
+        int maxChunkX = maxX >> 4;
+        int minChunkZ = minZ >> 4;
+        int maxChunkZ = maxZ >> 4;
+        for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+            for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
+                chunkPosList.add(new ChunkPos(cx, cz));
+            }
+        }
+        return chunkPosList;
+    }
+
+    public void updatePoachingMapForThis() {
+        List<ChunkPos> chunkPosListMax = getPoachingMapPositions(8);
+        List<ChunkPos> chunkPosListReal = getPoachingMapPositions(rangeRadius.get());
+        for (ChunkPos chunkPos : chunkPosListMax) {
+            if (cooldown.get() == 0 && chunkPosListReal.contains(chunkPos)) {
+                if (!PoachingCollectorMap.containsKey(level)) PoachingCollectorMap.put(level, new HashMap<>());
+                if (!PoachingCollectorMap.get(level).containsKey(chunkPos))
+                    PoachingCollectorMap.get(level).put(chunkPos, new ArrayList<>());
+                List<ItemCollectorBlockEntity> list = PoachingCollectorMap.get(level).get(chunkPos);
+                if (!list.contains(this)) list.add(this);
+            } else {
+                if (PoachingCollectorMap.containsKey(level) && PoachingCollectorMap.get(level).containsKey(chunkPos)) {
+                    List<ItemCollectorBlockEntity> list = PoachingCollectorMap.get(level).get(chunkPos);
+                    list.remove(this);
+                }
+            }
+        }
+
+    }
+
     @Override
     public void gridTick() {
         if (level == null || level.isClientSide) return;
+        this.updatePoachingMapForThis();
+        //如果保持“截胡模式就不再主动吸取物品”的设定就把下面一行取消注释回来
+        //if (cooldown.get() == 0) return;
+
         if (cd > 1) {
             cd--;
             return;
@@ -180,7 +237,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
                 itemEntity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
-        cd = cooldown.get();
+        if (cooldown.get() > 0)
+            cd = cooldown.get();
+        else cd = 5; //这个地方是给“即便是截胡模式也主动吸取物品”的设定准备的，暂时随便写了个数值
     }
 
     public void tick(Level level, BlockPos blockPos) {

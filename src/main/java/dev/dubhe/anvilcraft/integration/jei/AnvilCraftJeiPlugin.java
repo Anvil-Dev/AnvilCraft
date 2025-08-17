@@ -1,6 +1,11 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.screen.BaseChuteScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
@@ -33,6 +38,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.UnpackCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.CanningFoodExtension;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
+import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ColoredConcreteRecipe;
@@ -43,20 +49,20 @@ import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -128,7 +134,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         createRecipeHolderType("jewel_crafting");
     public static final RecipeType<RecipeHolder<ChargerChargingRecipe>> CHARGER_CHARGING =
         createRecipeHolderType("charger_charging");
-    public static final RecipeType<RecipeHolder<BaseMultipleToOneSmithingRecipe<?>>> MULTIPLE_TO_ONE_SMITHING =
+    public static final RecipeType<RecipeHolder<BaseMultipleToOneSmithingRecipe>> MULTIPLE_TO_ONE_SMITHING =
         createRecipeHolderType("multiple_to_one_smithing");
 
     public static final RecipeType<RecipeHolder<MobTransformRecipe>> MOB_TRANSFORM =
@@ -287,6 +293,27 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             30,
             13,
             JEWEL_CRAFTING
+        );
+
+        registration.addGhostIngredientHandler(
+            FilterScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            BaseChuteScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            BatchCrafterScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            ItemDetectorScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            ItemCollectorScreen.class,
+            new GhostIngredientHandler<>()
         );
     }
 

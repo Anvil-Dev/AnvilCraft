@@ -2,20 +2,11 @@ package dev.dubhe.anvilcraft.mixin.plugin;
 
 import net.neoforged.fml.loading.LoadingModList;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
@@ -47,12 +38,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, @NotNull String mixinClassName) {
         if (mixinClassName.endsWith("PistonStructureResolverMixin")) return !hasZetaPiston;
         if (mixinClassName.endsWith("DefaultDisplayViewingScreenMixin")) return hasReiScreen;
-        if (mixinClassName.contains("Create")) {
-            return hasCreate;
-        }
-        if (mixinClassName.contains("BatchCrafterBlockMixin") || mixinClassName.contains("BatchCrafterBlockEntityMixin")) {
-            return hasAE2;
-        }
+        if (mixinClassName.contains("Create")) return hasCreate;
+        if (mixinClassName.contains("AE2")) return hasAE2;
         if (mixinClassName.contains("Cerbon")) return hasCerbonBetterBeacons;
         return true;
     }

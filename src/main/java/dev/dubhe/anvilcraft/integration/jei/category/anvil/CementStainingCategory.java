@@ -85,7 +85,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, CementStainingRecipe recipe, IFocusGroup focuses) {
-        JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
+        JeiSlotUtil.addInputSlots(builder, recipe.ingredients());
     }
 
     @Override
@@ -116,9 +116,9 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.ingredients().size());
 
-        RenderHelper.renderBlock(guiGraphics, recipe.resultBlock.defaultBlockState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+        RenderHelper.renderBlock(guiGraphics, recipe.resultBlock().defaultBlockState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         }
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
-                tooltip.add(recipe.resultBlock.getName());
+                tooltip.add(recipe.resultBlock().getName());
             }
         }
     }

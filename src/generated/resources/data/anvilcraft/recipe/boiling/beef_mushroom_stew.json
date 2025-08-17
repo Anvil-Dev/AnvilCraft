@@ -2,25 +2,21 @@
   "type": "anvilcraft:boiling",
   "ingredients": [
     {
-      "item": "minecraft:beef"
+      "items": "minecraft:beef"
     },
     {
-      "item": "minecraft:brown_mushroom"
+      "items": "minecraft:brown_mushroom"
     },
     {
-      "item": "minecraft:red_mushroom"
+      "items": "minecraft:red_mushroom"
     },
     {
-      "item": "minecraft:bowl"
+      "items": "minecraft:bowl"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:beef_mushroom_stew"
-      }
+      "id": "anvilcraft:beef_mushroom_stew"
     }
   ]
 }

@@ -1,0 +1,24 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:brown_cement",
+  "ingredients": [
+    {
+      "count": 2,
+      "items": "#c:gravels"
+    },
+    {
+      "count": 2,
+      "items": "#c:sands"
+    },
+    {
+      "count": 8,
+      "items": "minecraft:iron_bars"
+    }
+  ],
+  "results": [
+    {
+      "count": 16,
+      "id": "anvilcraft:reinforced_concrete_brown"
+    }
+  ]
+}

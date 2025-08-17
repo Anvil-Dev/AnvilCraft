@@ -30,6 +30,7 @@ public enum PowerBlockProvider implements IProbeInfoProvider {
         BlockState blockState,
         IProbeHitData hitData) {
         if (level.getBlockEntity(hitData.getPos()) instanceof IPowerComponent powerComponent) {
+            boolean original = player.isShiftKeyDown();
             PowerGrid grid = powerComponent.getGrid();
             if (grid != null) {
                 int generate = grid.getGenerate();
@@ -43,16 +44,58 @@ public enum PowerBlockProvider implements IProbeInfoProvider {
                     color = 0xFFFF0000;
                 }
 
-                probeInfo.progress(
-                    consume,
-                    generate,
-                    probeInfo
-                        .defaultProgressStyle()
-                        .alignment(ElementAlignment.ALIGN_CENTER)
-                        .suffix(" / " + generate + " kW")
-                        .backgroundColor(0xFF32CD32)
-                        .alternateFilledColor(color)
-                        .filledColor(color));
+                if (original) {
+                    probeInfo.progress(
+                        consume,
+                        generate,
+                        probeInfo
+                            .defaultProgressStyle()
+                            .alignment(ElementAlignment.ALIGN_CENTER)
+                            .suffix(" / " + generate + " kW")
+                            .backgroundColor(0xFF32CD32)
+                            .alternateFilledColor(color)
+                            .filledColor(color));
+                    return;
+                }
+
+                if (generate < 1000) {
+                    probeInfo.progress(
+                        consume,
+                        generate,
+                        probeInfo
+                            .defaultProgressStyle()
+                            .alignment(ElementAlignment.ALIGN_CENTER)
+                            .suffix(" / " + generate + " kW")
+                            .backgroundColor(0xFF32CD32)
+                            .alternateFilledColor(color)
+                            .filledColor(color));
+                } else if (generate < 1000000) {
+                    int consumeMW = (int) Math.floor((double) consume / 1000);
+                    int generateMW = (int) Math.floor((double) generate / 1000);
+                    probeInfo.progress(
+                        consumeMW,
+                        generateMW,
+                        probeInfo
+                            .defaultProgressStyle()
+                            .alignment(ElementAlignment.ALIGN_CENTER)
+                            .suffix("/" + generateMW + " MW")
+                            .backgroundColor(0xFF32CD32)
+                            .alternateFilledColor(color)
+                            .filledColor(color));
+                } else {
+                    int consumeGW = (int) Math.floor((double) consume / 1000000);
+                    int generateGW = (int) Math.floor((double) generate / 1000000);
+                    probeInfo.progress(
+                        consumeGW,
+                        generateGW,
+                        probeInfo
+                            .defaultProgressStyle()
+                            .alignment(ElementAlignment.ALIGN_CENTER)
+                            .suffix("/" + generateGW + " GW")
+                            .backgroundColor(0xFF32CD32)
+                            .alternateFilledColor(color)
+                            .filledColor(color));
+                }
             }
         }
     }

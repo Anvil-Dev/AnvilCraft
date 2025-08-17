@@ -1,5 +1,9 @@
 {
   "type": "anvilcraft:block_crush",
-  "input": "minecraft:netherrack",
-  "result": "anvilcraft:nether_dust"
+  "input": {
+    "blocks": "minecraft:netherrack"
+  },
+  "result": {
+    "block": "anvilcraft:nether_dust"
+  }
 }

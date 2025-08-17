@@ -2,16 +2,13 @@
   "type": "anvilcraft:unpack",
   "ingredients": [
     {
-      "item": "minecraft:prismarine"
+      "items": "minecraft:prismarine"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 4,
-        "id": "minecraft:prismarine_shard"
-      }
+      "count": 4,
+      "id": "minecraft:prismarine_shard"
     }
   ]
 }

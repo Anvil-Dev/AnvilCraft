@@ -5,12 +5,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
-import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-import lombok.Getter;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
+public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> results) {
 
     public static int maxRows;
 
@@ -27,37 +27,29 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
         maxRows = 1;
 
         List<MeshRecipe> recipes = JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.MESH_TYPE.get());
-        Multimap<Ingredient, MeshRecipe> ingredientGrouper = ArrayListMultimap.create();
+        Multimap<ItemIngredientPredicate, MeshRecipe> ingredientGrouper = ArrayListMultimap.create();
 
-        for (int i = 0; i < recipes.size(); i++) {
-            MeshRecipe recipe = recipes.get(i);
-            ingredientGrouper.put(recipe.getInput(), recipe);
-
-            for (int j = i + 1; j < recipes.size(); j++) {
-                MeshRecipe other = recipes.get(j);
-
-                if (RecipeUtil.isIngredientsEqual(recipe.getInput(), other.getInput())) {
-                    ingredientGrouper.put(recipe.getInput(), other);
-                    recipes.remove(other);
-                    j--;
-                }
+        for (MeshRecipe recipe : recipes) {
+            for (ItemIngredientPredicate ingredient : recipe.getInputItems()) {
+                ingredientGrouper.put(ingredient, recipe);
             }
         }
 
         ImmutableList.Builder<MeshRecipeGroup> jeiRecipes = ImmutableList.builder();
-        Comparator<Result> resultSorter =
-            Comparator.comparingDouble(Result::getExpectedCount).reversed();
+        Comparator<Result> resultSorter = Comparator.comparingDouble(Result::expectedCount).reversed();
 
-        for (Ingredient ingredient : ingredientGrouper.keySet()) {
+        for (ItemIngredientPredicate ingredient : ingredientGrouper.keySet()) {
             Collection<MeshRecipe> values = ingredientGrouper.get(ingredient);
 
             List<Result> results = new ArrayList<>(values.size());
 
             for (MeshRecipe recipe : values) {
-                int resultCount = recipe.getResultAmount() instanceof ConstantValue constantValue
-                    ? Math.round(constantValue.value())
-                    : 1;
-                results.add(new Result(recipe.getResult().copyWithCount(resultCount), recipe.getResultAmount()));
+                for (ChanceItemStack stack : recipe.getResultItems()) {
+                    int resultCount = stack.getCount() instanceof ConstantValue(float value)
+                        ? Math.round(value)
+                        : 1;
+                    results.add(new Result(stack.getStack().copyWithCount(resultCount), stack.getCount()));
+                }
             }
 
             results.sort(resultSorter);
@@ -71,17 +63,9 @@ public record MeshRecipeGroup(Ingredient ingredient, List<Result> results) {
         return jeiRecipes.build();
     }
 
-    public static final class Result {
-        public final ItemStack item;
-        public final NumberProvider provider;
-
-        @Getter
-        private final double expectedCount;
-
+    public record Result(ItemStack item, NumberProvider provider, double expectedCount) {
         public Result(ItemStack item, NumberProvider provider) {
-            this.item = item;
-            this.provider = provider;
-            this.expectedCount = RecipeUtil.getExpectedValue(provider);
+            this(item, provider, RecipeUtil.getExpectedValue(provider));
         }
     }
 }

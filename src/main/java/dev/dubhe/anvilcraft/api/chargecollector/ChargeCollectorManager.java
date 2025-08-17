@@ -7,7 +7,6 @@ import net.minecraft.world.level.Level;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -50,9 +49,9 @@ public class ChargeCollectorManager {
     }
 
     /**
-     * 获取最近的集电器的Collection集合(以从近至远排序)
+     * 获取最近的集电器的List集合(以从近至远排序)
      */
-    public Collection<Entry> getNearestChargeCollect(BlockPos blockPos) {
+    public List<Entry> getNearestChargeCollect(BlockPos blockPos) {
         List<Entry> distanceList = new ArrayList<>();
         for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : chargeCollectors.entrySet()) {
             double distance = Vector3f.distance(

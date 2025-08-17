@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:fortune",
+    "minecraft:looting",
+    {
+      "id": "anvilcraft:beheading",
+      "required": false
+    },
+    "minecraft:thorns",
+    "minecraft:luck_of_the_sea"
+  ]
+}

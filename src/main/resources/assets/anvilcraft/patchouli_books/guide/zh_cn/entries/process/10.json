@@ -1,0 +1,26 @@
+{
+  "name": "流程10-量产下界合金",
+  "category": "anvilcraft:process",
+  "icon": "minecraft:netherite_ingot",
+  "sortnum": 10,
+  "entry_color": "004400",
+  "pages": [
+    "将$(item)下界岩$()$(l:basic/block_processing#crush)粉碎$()成$(item)下界尘$()然后$(l:basic/item_processing#mesh)过筛$()可以获得$(item)钨粒$()。再将合成的$(item)钨块$()$(l:smithing/corrupted_beacon#time_warp)时移$()为$(item)粗钨块$()，用以让$(l:struct/mineral_fountain)矿物涌泉$()生产$(item)钨矿石$()。$(br2)$(#888888)80组下界尘有95%的把握筛出12个钨块$()",
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:netherite_ingot",
+      "text": "$(item)远古残骸$()经“$(item)下界合金碎片$()—$(item)下界合金晶核$()—$(item)远古残骸$()”三态循环实现倍产。$(br)从输入输出看，$(item)远古残骸$()+2*$(item)钨锭$()→2*$(item)远古残骸$()。详情$(l:apply/item_regeneration#ancient_debris)点我查询$()"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:basic/block_processing",
+        "anvilcraft:basic/item_processing",
+        "anvilcraft:basic/minerals",
+        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:apply/item_regeneration"
+      ],
+      "text": ""
+    }
+  ]
+}

@@ -13,6 +13,7 @@ public class RecipeHandler {
         StampingRecipeLoader.init(provider);
         SuperHeatingRecipeLoader.init(provider);
         TimeWarpRecipeLoader.init(provider);
+        BlockSmearRecipeLoader.init(provider);
         CookingRecipeLoader.init(provider);
         BulgingRecipeLoader.init(provider);
         ItemInjectRecipeLoader.init(provider);

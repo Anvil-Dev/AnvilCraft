@@ -1,52 +1,68 @@
 package dev.dubhe.anvilcraft.recipe.multiple;
 
-import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import dev.dubhe.anvilcraft.api.item.IMultipleResult;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.multiple.result.MultipleToOneResult;
+import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TwoToOneSmithingRecipe<T extends Item & IMultipleResult>
-    extends BaseMultipleToOneSmithingRecipe<T> {
-
-    protected TwoToOneSmithingRecipe(Ingredient template, Ingredient material, List<Ingredient> inputs, T result, int recipeId) {
-        super(template, material, inputs, result, recipeId);
+public class TwoToOneSmithingRecipe extends BaseMultipleToOneSmithingRecipe {
+    public TwoToOneSmithingRecipe(
+        ItemIngredientPredicate template,
+        ItemIngredientPredicate material,
+        List<ItemIngredientPredicate> inputs,
+        MultipleToOneResult result
+    ) {
+        super(template, material, inputs, result);
     }
 
-    public TwoToOneSmithingRecipe(Data<T> data) {
+    public TwoToOneSmithingRecipe(Data data) {
         super(data);
     }
 
-    public static <T extends Item & IMultipleResult> Builder<T, TwoToOneSmithingRecipe<T>> builder(
-        NonNullSupplier<T> resultGetter, int recipeId
-    ) {
-        return BaseMultipleToOneSmithingRecipe.builder(
-            Ingredient.of(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE.get()), resultGetter, 2, recipeId, TwoToOneSmithingRecipe::new
-        );
+    public static Builder builder(ItemIngredientPredicate template) {
+        return new Builder(template);
     }
 
-    public static <T extends Item & IMultipleResult> Builder<T, TwoToOneSmithingRecipe<T>> builder(T result, int recipeId) {
-        return BaseMultipleToOneSmithingRecipe.builder(
-            Ingredient.of(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE.get()), result, 2, recipeId, TwoToOneSmithingRecipe::new
-        );
-    }
-
-    @ApiStatus.Internal
-    public static <T extends Item & IMultipleResult> Serializer<T, TwoToOneSmithingRecipe<T>> createSerializer() {
-        return new Serializer<>(TwoToOneSmithingRecipe::new);
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRecipeTypes.TWO_TO_ONE_SMITHING_SERIALIZER.get();
+    }
+
+    public static class Serializer extends BaseSerializer<TwoToOneSmithingRecipe> {
+        @Override
+        protected TwoToOneSmithingRecipe fromData(Data data) {
+            return new TwoToOneSmithingRecipe(data);
+        }
+    }
+
+    public static class Builder extends BaseBuilder<TwoToOneSmithingRecipe> {
+        protected Builder(ItemIngredientPredicate template) {
+            super(template, 2);
+        }
+
+        protected Builder() {
+            this(ItemIngredientPredicate.of(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE.get()).build());
+        }
+
+        @Override
+        protected TwoToOneSmithingRecipe of(
+            ItemIngredientPredicate template,
+            ItemIngredientPredicate material,
+            List<ItemIngredientPredicate> inputs,
+            MultipleToOneResult result
+        ) {
+            return new TwoToOneSmithingRecipe(template, material, inputs, result);
+        }
     }
 }

@@ -1,8 +1,0 @@
-{
-  "type": "anvilcraft:block_compress",
-  "inputs": [
-    "minecraft:moss_block",
-    "minecraft:stone_bricks"
-  ],
-  "result": "minecraft:mossy_stone_bricks"
-}

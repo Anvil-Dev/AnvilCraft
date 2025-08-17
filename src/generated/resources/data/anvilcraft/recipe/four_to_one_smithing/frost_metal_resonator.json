@@ -2,24 +2,39 @@
   "type": "anvilcraft:four_to_one_smithing",
   "inputs": [
     {
-      "item": "anvilcraft:frost_metal_axe"
+      "items": "anvilcraft:frost_metal_axe"
     },
     {
-      "item": "anvilcraft:frost_metal_shovel"
+      "items": "anvilcraft:frost_metal_shovel"
     },
     {
-      "item": "anvilcraft:frost_metal_hoe"
+      "items": "anvilcraft:frost_metal_hoe"
     },
     {
-      "item": "anvilcraft:frost_metal_pickaxe"
+      "items": "anvilcraft:frost_metal_pickaxe"
     }
   ],
   "material": {
-    "item": "anvilcraft:resonator_core"
+    "items": "anvilcraft:resonator_core"
   },
-  "recipeId": 0,
-  "result": "anvilcraft:frost_metal_resonator",
+  "result": {
+    "item": {
+      "count": 1,
+      "id": "anvilcraft:frost_metal_resonator"
+    },
+    "modifiers": [
+      {
+        "type": "anvilcraft:copy_data",
+        "types": [
+          {
+            "type": "anvilcraft:multiphase",
+            "input_type": "four"
+          }
+        ]
+      }
+    ]
+  },
   "template": {
-    "item": "anvilcraft:four_to_one_smithing_template"
+    "items": "anvilcraft:four_to_one_smithing_template"
   }
 }

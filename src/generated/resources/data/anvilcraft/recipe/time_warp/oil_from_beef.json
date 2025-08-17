@@ -1,56 +1,11 @@
 {
   "type": "anvilcraft:time_warp",
-  "cauldron": "anvilcraft:oil_cauldron",
-  "consume_fluid": false,
+  "consume": -1,
   "ingredients": [
     {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "item": "minecraft:beef"
+      "count": 16,
+      "items": "minecraft:beef"
     }
   ],
-  "produce_fluid": true
+  "transform": "anvilcraft:oil"
 }

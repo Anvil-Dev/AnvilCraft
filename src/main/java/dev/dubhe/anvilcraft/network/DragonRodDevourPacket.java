@@ -17,9 +17,8 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-import java.util.Objects;
-
-public record DragonRodDevourPacket(ResourceKey<Level> levelKey, InteractionHand hand, BlockPos pos, Direction blockFace) implements CustomPacketPayload {
+public record DragonRodDevourPacket(ResourceKey<Level> levelKey, InteractionHand hand, BlockPos pos,
+                                    Direction blockFace) implements CustomPacketPayload {
     public static final Type<DragonRodDevourPacket> TYPE = new Type<>(AnvilCraft.of("dragon_rod_devour"));
     public static final StreamCodec<RegistryFriendlyByteBuf, DragonRodDevourPacket> STREAM_CODEC = StreamCodec.of(
         DragonRodDevourPacket::encode, DragonRodDevourPacket::decode

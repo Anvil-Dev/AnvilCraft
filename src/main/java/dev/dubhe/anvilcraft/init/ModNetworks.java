@@ -3,10 +3,14 @@ package dev.dubhe.anvilcraft.init;
 import dev.dubhe.anvilcraft.network.AddMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.AddTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
+import dev.dubhe.anvilcraft.network.ChargerSyncPacket;
+import dev.dubhe.anvilcraft.network.ComparatorSyncPacket;
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
+import dev.dubhe.anvilcraft.network.FilterContentSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.network.HeatableSyncPacket;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
 import dev.dubhe.anvilcraft.network.InspectionStateChangedPacket;
 import dev.dubhe.anvilcraft.network.ItemDetectorChangeRangePacket;
@@ -14,6 +18,7 @@ import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.network.MachineCycleFilterModePacket;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
+import dev.dubhe.anvilcraft.network.MultiphaseChangePacket;
 import dev.dubhe.anvilcraft.network.MutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
@@ -22,11 +27,14 @@ import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.RemoveTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
+import dev.dubhe.anvilcraft.network.SilencerSyncPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
+import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
+import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchPhasePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.SyncEmberGrindstonePacket;
@@ -182,6 +190,11 @@ public class ModNetworks {
             SwitchPhasePacket.STREAM_CODEC,
             SwitchPhasePacket.HANDLER
         );
+        registrar.playBidirectional(
+            MultiphaseChangePacket.TYPE,
+            MultiphaseChangePacket.STREAM_CODEC,
+            MultiphaseChangePacket.HANDLER
+        );
         registrar.playToServer(
             SyncEmberGrindstonePacket.TYPE,
             SyncEmberGrindstonePacket.STREAM_CODEC,
@@ -193,9 +206,44 @@ public class ModNetworks {
             DragonRodDevourPacket.HANDLER
         );
         registrar.playToServer(
+            FilterContentSyncPacket.TYPE,
+            FilterContentSyncPacket.STREAM_CODEC,
+            FilterContentSyncPacket.HANDLER
+        );
+        registrar.playBidirectional(
+            SilencerSyncPacket.TYPE,
+            SilencerSyncPacket.STREAM_CODEC,
+            SilencerSyncPacket.HANDLER
+        );
+        registrar.playToServer(
             SwitchResonateModePacket.TYPE,
             SwitchResonateModePacket.STREAM_CODEC,
             SwitchResonateModePacket.HANDLER
+        );
+        registrar.playToClient(
+            HeatableSyncPacket.TYPE,
+            HeatableSyncPacket.STREAM_CODEC,
+            HeatableSyncPacket.HANDLER
+        );
+        registrar.playToClient(
+            SlidingEntitySyncPacket.TYPE,
+            SlidingEntitySyncPacket.STREAM_CODEC,
+            SlidingEntitySyncPacket.HANDLER
+        );
+        registrar.playToClient(
+            ChargerSyncPacket.TYPE,
+            ChargerSyncPacket.STREAM_CODEC,
+            ChargerSyncPacket.HANDLER
+        );
+        registrar.playToClient(
+            ComparatorSyncPacket.TYPE,
+            ComparatorSyncPacket.STREAM_CODEC,
+            ComparatorSyncPacket.HANDLER
+        );
+        registrar.playToServer(
+            SwitchMultitoolModePacket.TYPE,
+            SwitchMultitoolModePacket.STREAM_CODEC,
+            SwitchMultitoolModePacket.HANDLER
         );
     }
 }

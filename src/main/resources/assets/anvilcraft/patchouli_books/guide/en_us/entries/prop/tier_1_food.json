@@ -1,0 +1,84 @@
+{
+  "name": "简单食品",
+  "category": "anvilcraft:special_props",
+  "icon": "anvilcraft:creamy_bread_roll",
+  "sortnum": 4005,
+  "extra_recipe_mappings": {
+    "anvilcraft:cocoa_powder": 6
+  },
+  "pages": [
+    "通过小手工生产，可以获得更加精致的精加工食品：$(li)$(l:prop/tier_1_food#creamy_bread_roll)奶油面包卷$() $(li)$(l:prop/tier_1_food#chocolate)巧克力$() $(li)$(l:prop/tier_1_food#beef_mushroom_stew)牛肉炖蘑菇$() $(li)$(l:prop/tier_1_food#utusan)五毒散$() $(br2)$(#666666)田园诗般的梦幻$()",
+    {
+      "type": "anvilcraft:item_crush",
+      "recipe": "anvilcraft:item_crush/flour",
+      "text": "将一个$(item)小麦$()粉碎，将得到平均1.5个面粉"
+    },
+    {
+      "type": "anvilcraft:bulging",
+      "recipe": "anvilcraft:bulging/dough",
+      "text": "将$(item)面粉$()膨发得到面团"
+    },
+    {
+      "type": "patchouli:smelting",
+      "recipe": "anvilcraft:smelting_cooking_bread",
+      "text": "将$(item)面团$()烧制成面包 $(br2)$(#666666)是的，小麦利用率相比原版提高350%$()"
+    },
+    {
+      "type": "anvilcraft:stamping",
+      "recipe": "anvilcraft:stamping/cream",
+      "recipe2": "anvilcraft:stamping/paper_from_sugar_cane",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "creamy_bread_roll",
+      "recipe": "anvilcraft:creamy_bread_roll",
+      "text": "食用奶油面包卷可以提供8点$(thing)饥饿值$()与8点$(thing)饱食度$() $(br2)$(#666666)奶桶的桶会返还$()"
+    },
+    {
+      "type": "anvilcraft:stamping",
+      "recipe": "anvilcraft:stamping/cocoa_butter",
+      "text": "将$(item)可可豆$()粉碎得到可可脂与可可粉"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "cocoa_liquor",
+      "recipe": "anvilcraft:cocoa_liquor",
+      "text": "再将两者混合获得可可液块，可用于制作三种$(thing)巧克力$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "chocolate",
+      "recipe": "anvilcraft:chocolate",
+      "recipe2": "anvilcraft:chocolate_black"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:chocolate_white",
+      "text": "不同巧克力提供效果不同：$(li)巧克力：2 饥饿值；16 饱食度 $(li)黑巧克力：2 饥饿值；8 饱食度；30秒急迫II $(li)白巧克力：2 饥饿值；8 饱食度；30秒跳跃提升II $(br)$(#666666)而且饱了也能吃$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:chocolate_block",
+      "recipe2": "anvilcraft:black_chocolate_block"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:white_chocolate_block",
+      "text": "站在巧克力块/楼梯/台阶上可以获得效果：$(li)巧克力：迅捷II $(li)黑巧克力：迅捷I 急迫I $(li)白巧克力：迅捷I 跳跃提升I $(br)$(#666666)原始信标$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "beef_mushroom_stew",
+      "item": "anvilcraft:beef_mushroom_stew",
+      "link_recipe": true,
+      "text": "食用牛肉炖蘑菇可以提供10点$(thing)饥饿值$()与16点$(thing)饱食度$()$(br2)用生牛肉+红蘑菇+白蘑菇+碗$(l:basic/item_processing#cooking)烹饪$()获得 $(br2)$(#666666)蘑菇牛真好吃$()"
+    },
+    {
+      "type": "anvilcraft:cooking",
+      "anchor": "utusan",
+      "recipe": "anvilcraft:cooking/utusan",
+      "text": "服用后可以清除身上的所有$(thing)有害效果$() $(br2)但如果本没有有害效果，则获得持续30秒的$(thing)中毒V$()效果 $(br2)$(#888888)是药三分毒$()"
+    }
+  ]
+}

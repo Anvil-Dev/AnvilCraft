@@ -1,0 +1,13 @@
+{
+  "values": [
+    "anvilcraft:uranium_block",
+    "anvilcraft:plutonium_block",
+    "anvilcraft:raw_uranium_block",
+    "anvilcraft:deepslate_uranium_ore",
+    "anvilcraft:uranium_nugget",
+    "anvilcraft:uranium_ingot",
+    "anvilcraft:plutonium_nugget",
+    "anvilcraft:plutonium_ingot",
+    "anvilcraft:raw_uranium"
+  ]
+}

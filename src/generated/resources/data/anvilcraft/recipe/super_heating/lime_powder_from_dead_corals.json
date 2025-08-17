@@ -2,16 +2,12 @@
   "type": "anvilcraft:super_heating",
   "ingredients": [
     {
-      "tag": "anvilcraft:dead_corals"
+      "items": "#anvilcraft:dead_corals"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:lime_powder"
-      }
+      "id": "anvilcraft:lime_powder"
     }
   ]
 }

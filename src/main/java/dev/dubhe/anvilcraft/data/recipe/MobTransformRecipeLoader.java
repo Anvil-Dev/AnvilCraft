@@ -43,10 +43,15 @@ public class MobTransformRecipeLoader {
                     .value(tag);
             })
             .save(provider);
+        MobTransformRecipe.from(EntityType.SKELETON)
+            .result(EntityType.STRAY, 0.8)
+            .result(EntityType.WITHER_SKELETON, 0.2)
+            .save(provider);
         MobTransformRecipe.from(EntityType.ZOMBIE)
             .result(EntityType.HUSK, 0.5)
             .result(EntityType.DROWNED, 0.5)
             .option(TransformOptions.KEEP_INVENTORY)
             .save(provider);
+
     }
 }

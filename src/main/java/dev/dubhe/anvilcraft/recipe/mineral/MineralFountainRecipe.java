@@ -76,6 +76,11 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
         return input.fromBlock == fromBlock;
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     public record Input(Block needBlock, Block fromBlock) implements RecipeInput {
 
         @Override

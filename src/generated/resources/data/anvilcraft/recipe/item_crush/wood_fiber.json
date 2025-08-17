@@ -2,23 +2,15 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "tag": "minecraft:logs"
+      "items": "#minecraft:logs"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:wood_fiber"
-      }
+      "id": "anvilcraft:wood_fiber"
     },
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:resin"
-      }
+      "id": "anvilcraft:resin"
     }
   ]
 }

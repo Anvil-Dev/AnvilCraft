@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class OverNestingShulkerBoxBlock extends BetterBlock {
+public class OverNestingShulkerBoxBlock extends BetterBlock implements IHammerRemovable {
 
     private static final int soundDelay = 8;
     public static final BooleanProperty COOLDOWN = BooleanProperty.create("cooldown");

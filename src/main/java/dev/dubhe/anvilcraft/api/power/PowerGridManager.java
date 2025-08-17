@@ -25,6 +25,7 @@ public class PowerGridManager {
 
     public synchronized void addComponent(@NotNull IPowerComponent component) {
         try {
+            if (component.getCurrentLevel() == null) return;
             addQueue.offer(Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -35,6 +36,7 @@ public class PowerGridManager {
         powerGrid.markedRemoval = true;
     }
 
+    @SuppressWarnings("unused")
     public synchronized void removeAll(Collection<PowerGrid> powerGrids) {
         powerGrids.forEach(this::remove);
     }
@@ -63,7 +65,7 @@ public class PowerGridManager {
                 }
             });
             grids.removeAll(remove);
-            if (grid.get() == null) {
+            if (grid.get() == null && component.getCurrentLevel() != null) {
                 grid.set(new PowerGrid(component.getCurrentLevel()));
             }
             grid.get().add(component);

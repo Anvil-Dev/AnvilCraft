@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public class MagnetoElectricCoreBlock extends Block {
+public class MagnetoElectricCoreBlock extends Block implements IHammerRemovable {
     public static final MapCodec<MagnetoElectricCoreBlock> CODEC = simpleCodec(MagnetoElectricCoreBlock::new);
     public static final VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);
 

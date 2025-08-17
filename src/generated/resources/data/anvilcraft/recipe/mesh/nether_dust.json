@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:mesh",
+  "ingredients": [
+    {
+      "items": "anvilcraft:nether_dust"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "anvilcraft:nether_dust"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "minecraft:redstone"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "anvilcraft:tungsten_nugget"
+    }
+  ]
+}

@@ -21,11 +21,12 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RenderRegion {
     public static final List<RenderType> BLOOM_RENDERTYPES = List.of(
@@ -34,7 +35,7 @@ public class RenderRegion {
     private final ChunkPos chunkPos;
     private final Map<RenderType, VertexBuffer> buffers = new HashMap<>();
     private Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
-    private final List<BlockEntity> blockEntityList = new ArrayList<>();
+    private final Set<BlockEntity> blockEntityList = new HashSet<>();
     private final CacheableBERenderingPipeline pipeline;
     private final Minecraft minecraft = Minecraft.getInstance();
     private RebuildTask lastRebuildTask;

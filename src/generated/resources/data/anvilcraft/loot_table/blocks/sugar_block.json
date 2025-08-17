@@ -1,0 +1,79 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "anvilcraft:sugar_block",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "fragmentation_degree": "0"
+                  }
+                }
+              ],
+              "name": "anvilcraft:sugar_block"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "anvilcraft:sugar_block",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "fragmentation_degree": "1"
+                  }
+                }
+              ],
+              "name": "anvilcraft:sugar_block"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "anvilcraft:sugar_block",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "fragmentation_degree": "2"
+                  }
+                }
+              ],
+              "name": "anvilcraft:sugar_block"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "anvilcraft:sugar_block",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "fragmentation_degree": "3"
+                  }
+                },
+                {
+                  "condition": "minecraft:survives_explosion"
+                }
+              ],
+              "functions": [
+                {
+                  "add": false,
+                  "count": 9.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:sugar"
+            }
+          ]
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:blocks/sugar_block"
+}

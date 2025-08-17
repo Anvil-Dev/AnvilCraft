@@ -3,7 +3,10 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +24,8 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        boolean original = player != null && player.isShiftKeyDown();
         CompoundTag serverData = accessor.getServerData();
         if (serverData.contains("generate") && serverData.contains("consume")) {
             IElementHelper elementHelper = IElementHelper.get();
@@ -37,7 +42,7 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
 
             tooltip.add(elementHelper.progress(
                 percent,
-                Component.translatable("tooltip.anvilcraft.jade.power_information", consume, generate),
+                Component.translatable("tooltip.anvilcraft.jade.power_information", UnitUtil.electricityUnit(consume, generate, original)),
                 elementHelper.progressStyle().color(color).textColor(-1),
                 Util.make(STYLE, boxStyle -> {
                     boxStyle.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};

@@ -18,7 +18,35 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class BatchCrafterUnpackingHandler implements UnpackingHandler {
+    public static final UnpackingHandler DEFAULT = (level, pos, state, side, items, orderContext, simulate) -> {
+        BlockEntity targetBE = level.getBlockEntity(pos);
+        if (!(targetBE instanceof BatchCrafterBlockEntity batchCrafter)) {
+            return false;
+        }
+        PollableFilteredItemStackHandler itemHandler = batchCrafter.getItemHandler();
+        List<ItemStack> copyItems = items.stream().map(ItemStack::copy).toList();
+        if (simulate) return itemHandler.canCompletelyInsert(items);
+        outer:
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            for (ItemStack item : copyItems) {
+                if (item.isEmpty()) continue;
+                ItemStack stack = itemHandler.insertItemNoPolling(i, item.copy(), false);
+                item.setCount(stack.getCount());
+                if (!stack.isEmpty()) continue outer;
+            }
+        }
+        if (copyItems.stream().anyMatch(stack -> !stack.isEmpty())) {
+            return false;
+        }
+        for (int i = 0; i < copyItems.size(); i++) {
+            ItemStack copy = copyItems.get(i);
+            ItemStack item = items.get(i);
+            item.setCount(copy.getCount());
+        }
+        return true;
+    };
     public static final BatchCrafterUnpackingHandler INSTANCE = new BatchCrafterUnpackingHandler();
 
     @Override
@@ -32,7 +60,7 @@ public class BatchCrafterUnpackingHandler implements UnpackingHandler {
         boolean simulate
     ) {
         if (!PackageOrderWithCrafts.hasCraftingInformation(orderContext)) {
-            return DEFAULT.unpack(level, pos, state, side, items, null, simulate);
+            return BatchCrafterUnpackingHandler.DEFAULT.unpack(level, pos, state, side, items, null, simulate);
         }
         BlockEntity targetBE = level.getBlockEntity(pos);
         if (targetBE instanceof BatchCrafterBlockEntity batchCrafter) {
@@ -42,6 +70,11 @@ public class BatchCrafterUnpackingHandler implements UnpackingHandler {
                 return false;
             }
             List<BigItemStack> craftingContext = orderContext.getCraftingInformation();
+            long inputCount = items.stream().filter(stack -> !stack.isEmpty()).count();
+            long needCount = craftingContext.stream().filter(stack -> !stack.stack.isEmpty()).count();
+            if (inputCount != needCount) {
+                return BatchCrafterUnpackingHandler.DEFAULT.unpack(level, pos, state, side, items, null, simulate);
+            }
             int max = Math.min(itemHandler.getSlots(), craftingContext.size());
             while (true) {
                 boolean allInsertFailed = true;

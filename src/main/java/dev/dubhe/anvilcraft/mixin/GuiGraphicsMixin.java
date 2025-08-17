@@ -29,10 +29,9 @@ public abstract class GuiGraphicsMixin {
     private PoseStack pose;
 
     @Shadow
-    private void renderItem(
+    protected abstract void renderItem(
         @Nullable LivingEntity entity, @Nullable Level level, ItemStack stack, int x, int y, int seed, int guiOffset
-    ) {
-    }
+    );
 
     @Inject(
         method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;IIII)V",

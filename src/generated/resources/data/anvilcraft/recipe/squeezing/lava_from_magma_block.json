@@ -1,6 +1,15 @@
 {
   "type": "anvilcraft:squeezing",
-  "cauldron": "anvilcraft:lava_cauldron",
-  "input_block": "minecraft:magma_block",
-  "result_block": "minecraft:netherrack"
+  "consume": -1,
+  "fluid": "anvilcraft:lava",
+  "ingredients": [
+    {
+      "blocks": "minecraft:magma_block"
+    }
+  ],
+  "results": [
+    {
+      "block": "minecraft:netherrack"
+    }
+  ]
 }

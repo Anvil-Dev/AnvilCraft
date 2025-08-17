@@ -2,16 +2,13 @@
   "type": "anvilcraft:unpack",
   "ingredients": [
     {
-      "item": "anvilcraft:hollow_magnet_block"
+      "items": "anvilcraft:hollow_magnet_block"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 8,
-        "id": "anvilcraft:magnet_ingot"
-      }
+      "count": 8,
+      "id": "anvilcraft:magnet_ingot"
     }
   ]
 }

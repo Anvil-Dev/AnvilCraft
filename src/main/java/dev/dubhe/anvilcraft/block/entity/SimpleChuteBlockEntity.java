@@ -78,18 +78,16 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                 getOutputDirection().getOpposite(),
                 level
             );
-            boolean success = false;
             if (targetList != null && !targetList.isEmpty()) {
                 for (IItemHandler target : targetList) {
-                    success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
+                    boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                     if (success) {
                         //特判溜槽cd7gt
                         if (isTargetEmpty) setChuteCD(targetBE);
                         break;
                     }
                 }
-            }
-            if (!success) {
+            } else {
                 Vec3 center = getBlockPos().relative(getDirection()).getCenter();
                 List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                     .getEntitiesOfClass(

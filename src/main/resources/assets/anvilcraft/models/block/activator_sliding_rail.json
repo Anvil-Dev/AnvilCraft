@@ -1,0 +1,11 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/powered_sliding_rail",
+	"textures": {
+		"0": "anvilcraft:block/powered_sliding_rail",
+		"1": "anvilcraft:block/activator_sliding_rail_bottom",
+		"2": "anvilcraft:block/activator_sliding_rail_side",
+		"3": "anvilcraft:block/activator_sliding_rail_top",
+		"particle": "anvilcraft:block/powered_sliding_rail"
+	}
+}

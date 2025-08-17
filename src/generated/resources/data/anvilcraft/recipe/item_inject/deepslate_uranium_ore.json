@@ -1,10 +1,14 @@
 {
   "type": "anvilcraft:item_inject",
+  "block_ingredient": {
+    "blocks": "minecraft:deepslate"
+  },
+  "block_result": {
+    "block": "anvilcraft:deepslate_uranium_ore"
+  },
   "ingredients": [
     {
-      "item": "anvilcraft:raw_uranium_block"
+      "items": "anvilcraft:raw_uranium_block"
     }
-  ],
-  "input_block": "minecraft:deepslate",
-  "result_block": "anvilcraft:deepslate_uranium_ore"
+  ]
 }

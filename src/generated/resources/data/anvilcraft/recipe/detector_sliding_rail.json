@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "P": [
+      {
+        "item": "minecraft:stone_pressure_plate"
+      },
+      {
+        "item": "minecraft:polished_blackstone_pressure_plate"
+      }
+    ],
+    "S": {
+      "item": "anvilcraft:sliding_rail"
+    }
+  },
+  "pattern": [
+    "SSS",
+    "SPS",
+    "SSS"
+  ],
+  "result": {
+    "count": 8,
+    "id": "anvilcraft:detector_sliding_rail"
+  }
+}

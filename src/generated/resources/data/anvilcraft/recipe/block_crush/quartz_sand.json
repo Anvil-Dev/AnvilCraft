@@ -1,5 +1,9 @@
 {
   "type": "anvilcraft:block_crush",
-  "input": "minecraft:diorite",
-  "result": "anvilcraft:quartz_sand"
+  "input": {
+    "blocks": "minecraft:diorite"
+  },
+  "result": {
+    "block": "anvilcraft:quartz_sand"
+  }
 }

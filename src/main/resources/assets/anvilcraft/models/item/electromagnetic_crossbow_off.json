@@ -1,0 +1,8 @@
+{
+	"parent": "anvilcraft:item/electromagnetic_crossbow",
+	"credit": "Made by XeKr with Blockbench",
+	"textures": {
+		"0": "anvilcraft:item/electromagnetic_crossbow_off",
+		"particle": "anvilcraft:item/electromagnetic_crossbow_off"
+	}
+}

@@ -4,14 +4,9 @@ import dev.dubhe.anvilcraft.api.item.property.Merciless;
 import dev.dubhe.anvilcraft.entity.ThrownFrostMetalHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.ModComponents;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Consumer;
 
 public class FrostMetalHeavyHalberdItem extends HeavyHalberdItem {
     public FrostMetalHeavyHalberdItem(Properties properties) {

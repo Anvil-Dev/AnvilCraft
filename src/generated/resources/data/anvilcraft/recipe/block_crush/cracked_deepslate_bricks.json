@@ -1,5 +1,9 @@
 {
   "type": "anvilcraft:block_crush",
-  "input": "minecraft:deepslate_bricks",
-  "result": "minecraft:cracked_deepslate_bricks"
+  "input": {
+    "blocks": "minecraft:deepslate_bricks"
+  },
+  "result": {
+    "block": "minecraft:cracked_deepslate_bricks"
+  }
 }

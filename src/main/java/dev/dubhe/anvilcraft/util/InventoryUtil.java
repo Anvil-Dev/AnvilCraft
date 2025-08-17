@@ -57,9 +57,9 @@ public class InventoryUtil {
     public static List<ItemStack> getItems(Inventory inventory) {
         List<ItemStack> items = new ArrayList<>();
 
+        items.addAll(inventory.offhand);
         items.addAll(inventory.items);
         items.addAll(inventory.armor);
-        items.addAll(inventory.offhand);
 
         return items;
     }

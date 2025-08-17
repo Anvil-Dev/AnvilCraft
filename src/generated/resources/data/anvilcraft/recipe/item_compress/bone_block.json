@@ -2,22 +2,13 @@
   "type": "anvilcraft:item_compress",
   "ingredients": [
     {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
+      "count": 3,
+      "items": "minecraft:bone"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:bone_block"
-      }
+      "id": "minecraft:bone_block"
     }
   ]
 }

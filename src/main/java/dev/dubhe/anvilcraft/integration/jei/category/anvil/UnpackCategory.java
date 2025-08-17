@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
-import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -28,7 +28,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class UnpackCategory extends AbstractItemProgressCategory<UnpackRecipe> {
+public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public UnpackCategory(IGuiHelper helper) {
         super(
             helper,
@@ -72,7 +72,7 @@ public class UnpackCategory extends AbstractItemProgressCategory<UnpackRecipe> {
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.getInputItems().size());
         JeiSlotUtil.drawOutputSlots(guiGraphics, slot, this.getResults(recipe).size());
     }
 

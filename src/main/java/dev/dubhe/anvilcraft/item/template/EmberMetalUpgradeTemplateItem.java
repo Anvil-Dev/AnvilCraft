@@ -13,8 +13,7 @@ public class EmberMetalUpgradeTemplateItem extends SmithingTemplateItem {
 
     private static final ChatFormatting TITLE_FORMAT = ChatFormatting.GRAY;
     private static final ChatFormatting DESCRIPTION_FORMAT = ChatFormatting.BLUE;
-    private static final Component APPLIES_TO = Component.translatable(
-            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to")
+    private static final Component APPLIES_TO = Component.translatable("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to")
         .withStyle(DESCRIPTION_FORMAT);
     private static final Component UPGRADE_INGREDIENTS =
         Component.translatable("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"

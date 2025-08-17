@@ -1,0 +1,61 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"0": "anvilcraft:block/powered_sliding_rail",
+		"1": "anvilcraft:block/detector_sliding_rail_bottom",
+		"2": "anvilcraft:block/detector_sliding_rail_side",
+		"3": "anvilcraft:block/detector_sliding_rail_top",
+		"4": "anvilcraft:block/sliding_rail_top",
+		"particle": "anvilcraft:block/powered_sliding_rail"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 6, 16],
+			"faces": {
+				"north": {"uv": [0, 10, 16, 16], "texture": "#0", "cullface": "north"},
+				"east": {"uv": [16, 10, 0, 16], "texture": "#2", "cullface": "east"},
+				"south": {"uv": [0, 10, 16, 16], "texture": "#0", "cullface": "south"},
+				"west": {"uv": [0, 10, 16, 16], "texture": "#2", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#4"},
+				"down": {"uv": [0, 16, 16, 0], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"from": [5, 15, 4],
+			"to": [11, 16, 12],
+			"faces": {
+				"north": {"uv": [5, 11, 11, 12], "texture": "#3", "cullface": "north"},
+				"south": {"uv": [5, 11, 11, 12], "texture": "#3", "cullface": "north"},
+				"up": {"uv": [5, 4, 11, 12], "texture": "#3"},
+				"down": {"uv": [5, 4, 11, 12], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"from": [11, 6, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 5, 10], "texture": "#0"},
+				"east": {"uv": [16, 0, 0, 10], "texture": "#2", "cullface": "east"},
+				"south": {"uv": [11, 0, 16, 10], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 10], "texture": "#2"},
+				"up": {"uv": [11, 0, 16, 16], "texture": "#3", "cullface": "up"},
+				"down": {"uv": [11, 0, 16, 16], "texture": "#3"}
+			}
+		},
+		{
+			"from": [0, 6, 0],
+			"to": [5, 16, 16],
+			"faces": {
+				"north": {"uv": [11, 0, 16, 10], "texture": "#0"},
+				"east": {"uv": [16, 0, 0, 10], "texture": "#2"},
+				"south": {"uv": [0, 0, 5, 10], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 10], "texture": "#2", "cullface": "west"},
+				"up": {"uv": [0, 0, 5, 16], "texture": "#3", "cullface": "up"},
+				"down": {"uv": [0, 0, 5, 16], "texture": "#3"}
+			}
+		}
+	]
+}

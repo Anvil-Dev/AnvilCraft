@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:stone"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.8
+      },
+      "id": "minecraft:cobblestone"
+    }
+  ]
+}

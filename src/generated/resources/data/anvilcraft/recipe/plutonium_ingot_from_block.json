@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "anvilcraft:plutonium_ingot",
+  "ingredients": [
+    {
+      "item": "anvilcraft:plutonium_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "anvilcraft:plutonium_ingot"
+  }
+}

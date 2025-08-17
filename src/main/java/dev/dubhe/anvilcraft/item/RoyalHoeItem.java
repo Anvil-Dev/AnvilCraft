@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Tiers;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -12,8 +10,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class RoyalHoeItem extends HoeItem {
     public RoyalHoeItem(Properties properties) {
         super(
-            Tiers.DIAMOND,
-            properties.attributes(AxeItem.createAttributes(Tiers.DIAMOND, -3, 0))
+            ModTiers.ROYAL,
+            properties.attributes(HoeItem.createAttributes(ModTiers.ROYAL, -3, 0))
         );
     }
 }

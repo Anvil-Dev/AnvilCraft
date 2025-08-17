@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "anvilcraft:sugar_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "minecraft:sugar"
+  }
+}

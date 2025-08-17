@@ -1,15 +1,12 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockSmearRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.Optional;
 
 public class BlockSmearRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -18,8 +15,8 @@ public class BlockSmearRecipeLoader {
         blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
 
         for (Holder<Block> holder : BuiltInRegistries.BLOCK.holders().toList()) {
-            Optional<BlockState> waxed = HoneycombItem.getWaxed(holder.value().defaultBlockState());
-            waxed.ifPresent(state -> blockSmear(provider, Blocks.HONEYCOMB_BLOCK, holder.value(), state.getBlock()));
+            HoneycombItem.getWaxed(holder.value().defaultBlockState())
+                .ifPresent(state -> blockSmear(provider, Blocks.HONEYCOMB_BLOCK, holder.value(), state.getBlock()));
         }
     }
 

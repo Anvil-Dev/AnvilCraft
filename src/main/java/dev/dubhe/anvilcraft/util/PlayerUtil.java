@@ -23,6 +23,13 @@ public class PlayerUtil {
         return hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
     }
 
+    public static InteractionHand anotherHand(InteractionHand hand) {
+        return switch (hand) {
+            case MAIN_HAND -> InteractionHand.OFF_HAND;
+            case OFF_HAND -> InteractionHand.MAIN_HAND;
+        };
+    }
+
     public static Optional<InteractionHand> getHand(ServerPlayer player, Predicate<ItemStack> filter) {
         if (filter.test(player.getMainHandItem())) {
             return Optional.of(InteractionHand.MAIN_HAND);

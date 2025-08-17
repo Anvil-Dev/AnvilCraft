@@ -14,7 +14,7 @@ public class EmberMetalAxeItem extends AxeItem {
         super(
             ModTiers.EMBER_METAL,
             properties.fireResistant()
-                .attributes(AxeItem.createAttributes(ModTiers.EMBER_METAL, 10, -3f))
+                .attributes(AxeItem.createAttributes(ModTiers.EMBER_METAL, 6, -3f))
                 .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
         );
     }

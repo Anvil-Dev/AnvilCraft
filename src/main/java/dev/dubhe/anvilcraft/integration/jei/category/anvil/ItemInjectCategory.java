@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -26,10 +26,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -84,9 +87,12 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     public void setRecipe(
         IRecipeLayoutBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses) {
         ItemInjectRecipe recipe = recipeHolder.value();
-        JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStack(new ItemStack(recipe.inputBlock));
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemStack(new ItemStack(recipe.resultBlock));
+        JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
+            .addIngredients(Ingredient.of(
+                recipe.getBlockIngredient().getBlocks().stream().map(state -> new ItemStack(state.value())).toArray(ItemStack[]::new)));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
+            .addItemStack(new ItemStack(recipe.getBlockResult().getState().getBlock()));
     }
 
     @Override
@@ -106,15 +112,19 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
             20,
             12,
             RenderHelper.SINGLE_BLOCK);
-        RenderHelper.renderBlock(
-            guiGraphics, recipe.inputBlock.defaultBlockState(), 81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
+
+        List<BlockState> input = recipe.getBlockIngredient().constructStatesForRender();
+        if (input.isEmpty()) return;
+        BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
+        if (renderedState == null) return;
+        RenderHelper.renderBlock(guiGraphics, renderedState, 81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.getInputItems().size());
         RenderHelper.renderBlock(
-            guiGraphics, recipe.resultBlock.defaultBlockState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.getBlockResult().getState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 
     @Override
@@ -127,12 +137,12 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         ItemInjectRecipe recipe = recipeHolder.value();
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(recipe.inputBlock.getName());
+                tooltip.add(recipe.getBlockIngredient().constructStatesForRender().getFirst().getBlock().getName());
             }
         }
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
-                tooltip.add(recipe.resultBlock.getName());
+                tooltip.add(recipe.getBlockResult().getState().getBlock().getName());
             }
         }
     }

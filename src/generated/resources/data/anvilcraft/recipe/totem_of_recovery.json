@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:totem_of_undying"
+    },
+    "B": {
+      "item": "anvilcraft:recovery_pearl"
+    },
+    "C": {
+      "item": "minecraft:echo_shard"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "BAB",
+    "CCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:totem_of_recovery"
+  }
+}

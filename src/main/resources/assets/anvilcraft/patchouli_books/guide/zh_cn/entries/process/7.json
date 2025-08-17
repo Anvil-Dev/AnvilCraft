@@ -1,0 +1,24 @@
+{
+  "name": "流程7-巨型铁砧与多方块合成",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:giant_anvil",
+  "sortnum": 7,
+  "entry_color": "004400",
+  "pages": [
+    "获得$(l:smithing/corrupted_beacon)腐化信标$()后，你就可以制造$(l:struct/multiblock#giant_anvil)巨型铁砧$()了。手持$(item)铁砧$()右键僵尸可以塞到它手上，再使用$(l:basic/more_device#resin_block)树脂块$()抓捕$(item)僵尸$()，将它放置在$(l:smithing/corrupted_beacon)腐化信标$()上，就会发生$(l:smithing/corrupted_beacon)生物转化$()。$(br)僵尸拿着的$(item)铁砧$()越多,就有越大的概率变为拿着$(l:struct/multiblock#giant_anvil)巨型铁砧$()的$(item)巨人僵尸$()。",
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:giant_anvil",
+      "text": "$(item)巨人僵尸$()被本模组添加了AI，极其强大，请确保周围提前围好方块困住它，或是作为PVE高手战胜它。$(br)在从它手中拿到第一个$(l:struct/multiblock#giant_anvil)巨型铁砧$()之后，就不必这么麻烦，可以通过$(l:struct/multiblock#conversion)多方块转化$()的方式轻松获得$(l:struct/multiblock#giant_anvil)巨型铁砧$()。"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:basic/more_device",
+        "anvilcraft:struct/multiblock"
+      ],
+      "text": ""
+    }
+  ]
+}

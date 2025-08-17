@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -104,11 +105,11 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
             .addItemStack(Blocks.BEACON.asItem().getDefaultInstance());
         IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 96)
             .addItemStack(ModBlocks.CORRUPTED_BEACON.asStack());
-        JeiRecipeUtil.addTooltips(slot, recipe.corruptedBeaconOutput.getAmount());
+        JeiRecipeUtil.addTooltips(slot, recipe.corruptedBeaconOutput.getStack().getCount(), recipe.corruptedBeaconOutput.getCount());
         if (recipe.chance < 1.0f) {
             slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 96)
                 .addItemStack(Blocks.BEACON.asItem().getDefaultInstance());
-            JeiRecipeUtil.addTooltips(slot, recipe.beaconOutput.getAmount());
+            JeiRecipeUtil.addTooltips(slot, recipe.beaconOutput.getStack().getCount(), recipe.beaconOutput.getCount());
         }
     }
 
@@ -121,7 +122,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
         double mouseY) {
         LevelLike level = cache.get(recipe);
         if (level == null) {
-            LevelLike beaconBase = new LevelLike(Minecraft.getInstance().level);
+            LevelLike beaconBase = new LevelLike(Objects.requireNonNull(Minecraft.getInstance().level));
             int layers = recipe.cursedGoldBlockLayers;
             for (int i = 0; i < layers; i++) {
                 for (int j = i; j <= 2 * layers - i; j++) {

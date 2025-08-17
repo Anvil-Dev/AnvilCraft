@@ -82,6 +82,11 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         return input.dimension.equals(dimension) && input.fromBlock == fromBlock;
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     public record Input(ResourceLocation dimension, Block fromBlock) implements RecipeInput {
 
         @Override

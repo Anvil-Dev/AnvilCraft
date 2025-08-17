@@ -56,7 +56,8 @@ public class GuiLayerRegistrationEventListener {
                 if (e == null) {
                     BlockState s = minecraft.level.getBlockState(blockPos);
                     if (s.is(BlockTags.AIR)) return;
-                    HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, s, partialTick, screenWidth, screenHeight);
+                    HudTooltipManager.INSTANCE.renderTooltip(
+                        guiGraphics, minecraft.level, blockPos, s, partialTick, screenWidth, screenHeight);
                     return;
                 }
                 HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, e, partialTick, screenWidth, screenHeight);

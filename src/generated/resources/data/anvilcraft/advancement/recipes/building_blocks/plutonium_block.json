@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingots/plutonium": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:ingots/plutonium"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:plutonium_block"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ingots/plutonium"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:plutonium_block"
+    ]
+  }
+}

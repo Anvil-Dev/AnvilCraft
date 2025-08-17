@@ -2,16 +2,13 @@
   "type": "anvilcraft:unpack",
   "ingredients": [
     {
-      "item": "minecraft:glowstone"
+      "items": "minecraft:glowstone"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 4,
-        "id": "minecraft:glowstone_dust"
-      }
+      "count": 4,
+      "id": "minecraft:glowstone_dust"
     }
   ]
 }

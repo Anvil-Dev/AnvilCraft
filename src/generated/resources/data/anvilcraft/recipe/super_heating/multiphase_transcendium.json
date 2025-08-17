@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "items": "anvilcraft:transcendium_ingot"
+    },
+    {
+      "items": "anvilcraft:multiphase_matter"
+    },
+    {
+      "items": "anvilcraft:resonator_core"
+    },
+    {
+      "items": "anvilcraft:heavy_halberd_core"
+    },
+    {
+      "items": "anvilcraft:void_matter"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:multiphase_transcendium"
+    }
+  ]
+}

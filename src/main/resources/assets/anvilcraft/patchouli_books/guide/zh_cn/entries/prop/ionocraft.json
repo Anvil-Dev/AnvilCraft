@@ -1,0 +1,28 @@
+{
+  "name": "飘升机背包",
+  "category": "anvilcraft:special_props",
+  "icon": "anvilcraft:ionocraft_backpack",
+  "sortnum": 4002,
+  "pages": [
+    {
+      "type": "text",
+      "text": "$(thing)飘升机背包$()可以让携带者如创造般飞行。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "ionocraft_backpack",
+      "recipe": "anvilcraft:ionocraft_backpack",
+      "recipe2": "anvilcraft:ionocraft"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:ionocraft_backpack",
+      "text": "可以作为胸甲穿戴。安装饰品栏模组时，可以放在饰品栏。$(br2)穿戴后，如果处在电网中，会持续吸收能量(64kW)为自己充能。如果背包中存在$(item)电容器$()，会消耗其中的能量为自己补充50%的能量。$(br2)满电量下，离开电网最多飞行20分钟。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:ionocraft",
+      "text": "放在电网中会飘起来"
+    }
+  ]
+}

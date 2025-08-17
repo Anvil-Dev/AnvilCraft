@@ -34,7 +34,12 @@ public class CrushingTableBlock extends Block
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
         Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
+    private static final VoxelShape REDUCE_AABB_INTERACTION = Shapes.or(
+        Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
+        Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape INTERACTION_BOX = Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
 
     public CrushingTableBlock(Properties properties) {
         super(properties);
@@ -55,6 +60,11 @@ public class CrushingTableBlock extends Block
         CollisionContext collisionContext
     ) {
         return AABB;
+    }
+
+    @Override
+    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return INTERACTION_BOX;
     }
 
     @Override

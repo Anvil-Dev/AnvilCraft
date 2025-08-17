@@ -2,16 +2,13 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "minecraft:milk_bucket"
+      "items": "minecraft:milk_bucket"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 4,
-        "id": "anvilcraft:cream"
-      }
+      "count": 4,
+      "id": "anvilcraft:cream"
     }
   ]
 }

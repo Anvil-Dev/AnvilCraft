@@ -40,7 +40,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 this.musicDiscs.add(holder.value());
             } else if (
                 DecoratedPotPatterns.getPatternFromItem(holder.value()) != null
-                && !holder.value().equals(Items.BRICK)
+                    && !holder.value().equals(Items.BRICK)
             ) {
                 logger.debug(
                     "Add a pottery sherd {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value()));

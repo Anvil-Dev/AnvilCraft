@@ -10,7 +10,8 @@ public class FourToOneTemplateItem extends BaseMultipleToOneTemplateItem {
     public static final Component MISSING_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.four.missing");
     public static final List<ResourceLocation> EMPTY_SLOT_TEXTURES = List.of(
-        AnvilCraft.of("item/empty_slot_multiphase_matter")
+        AnvilCraft.of("item/empty_slot_multiphase_matter"),
+        AnvilCraft.of("item/empty_slot_block")
     );
 
     public FourToOneTemplateItem(Properties properties) {

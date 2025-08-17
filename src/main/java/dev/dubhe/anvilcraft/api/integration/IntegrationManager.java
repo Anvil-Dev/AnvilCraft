@@ -5,19 +5,25 @@ import com.google.common.collect.MultimapBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
+import net.neoforged.fml.loading.moddiscovery.ModInfo;
+import net.neoforged.fml.loading.modscan.ModAnnotation;
 import net.neoforged.fml.loading.progress.ProgressMeter;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforgespi.language.ModFileScanData;
 
 import java.lang.annotation.ElementType;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class IntegrationManager {
-
     private final Multimap<String, IntegrationInstance> instances = MultimapBuilder.hashKeys().hashSetValues().build();
+    private final Multimap<String, IntegrationInstance> clientInstances = MultimapBuilder.hashKeys().hashSetValues().build();
+    private final Multimap<String, IntegrationInstance> dataInstances = MultimapBuilder.hashKeys().hashSetValues().build();
 
     public static final String INTEGRATION_NAME = "L" + Integration.class.getName().replace(".", "/") + ";";
 
+    @SuppressWarnings("UnstableApiUsage")
     public void compileContent() {
         ProgressMeter meter = StartupNotificationManager.addProgressBar("Load Integrations", LoadingModList.get().getModFiles().size());
         for (ModFileInfo modFile : LoadingModList.get().getModFiles()) {
@@ -26,47 +32,91 @@ public class IntegrationManager {
             for (ModFileScanData.AnnotationData annotation : scanData.getAnnotations()) {
                 if (annotation.annotationType().getDescriptor().equals(INTEGRATION_NAME) && annotation.targetType() == ElementType.TYPE) {
                     String modid = (String) annotation.annotationData().get("value");
-                    log.info("Considering integration {} for {}", annotation.memberName(), modid);
+                    String version = (String) annotation.annotationData().get("version");
+                    //noinspection unchecked
+                    List<ModAnnotation.EnumHolder> typeHolders = ((List<ModAnnotation.EnumHolder>) annotation.annotationData().get("type"));
+                    if (version == null) version = "*";
+                    List<IntegrationType> type = List.of(IntegrationType.SERVER, IntegrationType.CLIENT);
+                    if (typeHolders != null) {
+                        type = typeHolders.stream().map(
+                            holder -> switch (holder.value()) {
+                                case "SERVER" -> IntegrationType.SERVER;
+                                case "CLIENT" -> IntegrationType.CLIENT;
+                                case "DATA" -> IntegrationType.DATA;
+                                default -> throw new IllegalArgumentException("Unknown integration type: " + holder.value());
+                            }
+                        ).toList();
+                    }
+                    log.info("Considering integration {} for {id:{}, version:{}}", annotation.memberName(), modid, version);
                     IntegrationInstance instance = new IntegrationInstance(
                         modid,
-                        annotation.memberName()
+                        ModVersionRange.of(version),
+                        annotation.memberName(),
+                        type
                     );
-                    this.instances.put(modid, instance);
+                    if (instance.containsType(IntegrationType.SERVER)) {
+                        this.instances.put(modid, instance);
+                    }
+                    if (instance.containsType(IntegrationType.CLIENT)) {
+                        this.clientInstances.put(modid, instance);
+                    }
+                    if (instance.containsType(IntegrationType.DATA)) {
+                        this.dataInstances.put(modid, instance);
+                    }
                 }
             }
         }
         StartupNotificationManager.popBar(meter);
     }
 
-    public void load(String modid) {
+    @SuppressWarnings("DataFlowIssue")
+    public void load(String modid, ModInfo info) {
         for (IntegrationInstance instance : instances.get(modid)) {
+            if (!instance.is(info)) continue;
             instance.newInstance();
             log.info("Loading integration {} for {}.", instance.instance(), modid);
             instance.invoke();
         }
     }
 
-    public void loadClient(String modid) {
-        for (IntegrationInstance instance : instances.get(modid)) {
+    @SuppressWarnings("DataFlowIssue")
+    public void loadClient(String modid, ModInfo info) {
+        for (IntegrationInstance instance : clientInstances.get(modid)) {
+            if (!instance.is(info)) continue;
             instance.newInstance();
             log.info("Loading client integration {} for {}.", instance.instance(), modid);
             instance.invokeClient();
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
+    public void loadData(String modid, ModInfo info) {
+        for (IntegrationInstance instance : dataInstances.get(modid)) {
+            if (!instance.is(info)) continue;
+            instance.newInstance();
+            log.info("Loading data integration {} for {}.", instance.instance(), modid);
+            instance.invokeData();
+        }
+    }
+
     public void loadAllIntegrations() {
         for (String key : instances.keys()) {
-            if (LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals(key))) {
-                load(key);
-            }
+            Optional<ModInfo> info = LoadingModList.get().getMods().stream().filter(it -> it.getModId().equals(key)).findFirst();
+            info.ifPresent(modInfo -> load(key, modInfo));
         }
     }
 
     public void loadAllClientIntegrations() {
-        for (String key : instances.keys()) {
-            if (LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals(key))) {
-                loadClient(key);
-            }
+        for (String key : clientInstances.keys()) {
+            Optional<ModInfo> info = LoadingModList.get().getMods().stream().filter(it -> it.getModId().equals(key)).findFirst();
+            info.ifPresent(modInfo -> loadClient(key, modInfo));
+        }
+    }
+
+    public void loadAllDataIntegrations() {
+        for (String key : dataInstances.keys()) {
+            Optional<ModInfo> info = LoadingModList.get().getMods().stream().filter(it -> it.getModId().equals(key)).findFirst();
+            info.ifPresent(modInfo -> loadData(key, modInfo));
         }
     }
 }

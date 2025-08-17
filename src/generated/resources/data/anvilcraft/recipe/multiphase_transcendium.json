@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:transcendium_ingot"
+  },
+  "base": {
+    "item": "anvilcraft:multiphase_matter"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:multiphase_transcendium"
+  },
+  "template": {
+    "item": "anvilcraft:transcendium_upgrade_smithing_template"
+  }
+}

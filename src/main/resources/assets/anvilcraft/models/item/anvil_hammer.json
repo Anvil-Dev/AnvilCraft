@@ -1,4 +1,5 @@
 {
+	"format_version": "1.21.6",
 	"credit": "Made by XeKr with Blockbench",
 	"textures": {
 		"0": "anvilcraft:item/anvil_hammer",
@@ -118,12 +119,12 @@
 		},
 		"firstperson_righthand": {
 			"rotation": [-45, -90, 0],
-			"translation": [1.5, -0.5, 1.5],
+			"translation": [1.5, 1, 1.5],
 			"scale": [0.8, 0.8, 0.8]
 		},
 		"firstperson_lefthand": {
 			"rotation": [-45, 90, 0],
-			"translation": [1.5, -0.5, 1.5],
+			"translation": [1.5, 1, 1.5],
 			"scale": [0.8, 0.8, 0.8]
 		},
 		"ground": {
@@ -141,7 +142,7 @@
 			"scale": [2, 2, 2]
 		},
 		"fixed": {
-			"rotation": [0, 180, 0],
+			"rotation": [0, -180, 0],
 			"translation": [0.5, -0.5, 0],
 			"scale": [0.9, 0.9, 0.9]
 		}

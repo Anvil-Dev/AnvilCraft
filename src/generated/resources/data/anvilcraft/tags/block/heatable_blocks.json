@@ -1,0 +1,16 @@
+{
+  "values": [
+    "anvilcraft:ember_metal_block",
+    "anvilcraft:tungsten_block",
+    "anvilcraft:heated_netherite_block",
+    "anvilcraft:heated_tungsten_block",
+    "anvilcraft:redhot_netherite_block",
+    "anvilcraft:redhot_tungsten_block",
+    "anvilcraft:glowing_netherite_block",
+    "anvilcraft:glowing_tungsten_block",
+    "anvilcraft:incandescent_netherite_block",
+    "anvilcraft:incandescent_tungsten_block",
+    "anvilcraft:overheated_ember_metal_block",
+    "minecraft:netherite_block"
+  ]
+}

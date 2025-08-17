@@ -1,7 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "#anvilcraft:amulet",
-    { "id": "anvilcraft:cogwheel_amulet", "required": false }
-  ]
-}

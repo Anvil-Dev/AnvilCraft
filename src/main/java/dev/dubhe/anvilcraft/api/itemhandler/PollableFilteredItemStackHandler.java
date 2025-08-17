@@ -2,6 +2,9 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
     public PollableFilteredItemStackHandler(int size) {
@@ -16,6 +19,12 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
         } else {
             return getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
         }
+    }
+
+    @Override
+    public boolean isFiltered(int slot, ItemStack stack) {
+        ItemStack filter = this.getFilteredItems().get(slot);
+        return filter.isEmpty() || ItemStack.isSameItem(filter, stack);
     }
 
     private int getEmptyOrSmallerSlot(ItemStack stack) {
@@ -41,7 +50,23 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
         return slot;
     }
 
-    public ItemStack insertItemNoPolling(int slot, ItemStack stack, boolean simulate) {
+    public boolean canCompletelyInsert(@NotNull List<ItemStack> items) {
+        List<ItemStack> copyItems = items.stream().map(ItemStack::copy).toList();
+        for (int slot = 0; slot < this.getSlots(); slot++) {
+            for (ItemStack stack : copyItems) {
+                if (stack.isEmpty()) continue;
+                ItemStack existing = this.stacks.get(slot);
+                if (!ItemStack.isSameItemSameComponents(stack, existing) && !existing.isEmpty()) continue;
+                int limit = this.getStackLimit(slot, stack);
+                int shrink = Math.min(stack.getCount(), limit - existing.getCount());
+                stack.shrink(shrink);
+                if (!stack.isEmpty() || limit == shrink) break;
+            }
+        }
+        return copyItems.stream().allMatch(ItemStack::isEmpty);
+    }
+
+    public ItemStack insertItemNoPolling(int slot, @NotNull ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         } else if (!super.isItemValid(slot, stack)) {

@@ -2,28 +2,24 @@
   "type": "anvilcraft:cooking",
   "ingredients": [
     {
-      "item": "minecraft:spider_eye"
+      "items": "minecraft:spider_eye"
     },
     {
-      "item": "minecraft:pufferfish"
+      "items": "minecraft:pufferfish"
     },
     {
-      "item": "minecraft:poisonous_potato"
+      "items": "minecraft:poisonous_potato"
     },
     {
-      "item": "minecraft:lily_of_the_valley"
+      "items": "minecraft:lily_of_the_valley"
     },
     {
-      "item": "minecraft:wither_rose"
+      "items": "minecraft:wither_rose"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:utusan"
-      }
+      "id": "anvilcraft:utusan"
     }
   ]
 }

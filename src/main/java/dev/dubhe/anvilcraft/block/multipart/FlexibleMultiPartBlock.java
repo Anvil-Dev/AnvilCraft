@@ -52,7 +52,7 @@ public abstract class FlexibleMultiPartBlock<
         for (P part : getParts()) {
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
             if (level.getBlockState(partPos).is(this))
-              level.setBlock(partPos, state.setValue(getPart(), part), flag);
+                level.setBlock(partPos, state.setValue(getPart(), part), flag);
         }
     }
 

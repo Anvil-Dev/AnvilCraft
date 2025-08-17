@@ -1,0 +1,42 @@
+{
+  "type": "anvilcraft:mesh",
+  "ingredients": [
+    {
+      "items": "anvilcraft:end_dust"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "anvilcraft:end_dust"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.005
+      },
+      "id": "minecraft:chorus_flower"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "anvilcraft:titanium_nugget"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "anvilcraft:levitation_powder"
+    }
+  ]
+}

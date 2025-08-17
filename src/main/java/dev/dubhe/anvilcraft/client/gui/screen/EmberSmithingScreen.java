@@ -56,14 +56,14 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     );
 
     /**
-     * 皇家锻造台 GUI
+     * 余烬锻造台 GUI
      *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
+     * @param menu      菜单
+     * @param inventory 背包
+     * @param title     标题
      */
-    public EmberSmithingScreen(EmberSmithingMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, BACKGROUND);
+    public EmberSmithingScreen(EmberSmithingMenu menu, Inventory inventory, Component title) {
+        super(menu, inventory, title, BACKGROUND);
     }
 
     @Override
@@ -81,7 +81,8 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
             this.materialIcon.tick(templateOptional.get().getEmptySlotTextures());
             if (materialOptional.isPresent() && materialOptional.get().getItem() instanceof IMultipleMaterial material) {
                 this.inputIcons.forEach(
-                    icon -> icon.tick(material.getEmptySlotTextures(icon.slotIndex - 2, this.menu.getInputStacks())));
+                    icon -> icon.tick(material.getEmptySlotTextures(
+                        this.menu.getSlot(0).getItem(), icon.slotIndex - 2, this.menu.getInputStacks())));
             } else {
                 this.inputIcons.forEach(icon -> icon.tick(List.of()));
             }
@@ -158,10 +159,11 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
                         optional = Optional.of(templateItem.getMaterialTooltip());
                     } else if (
                         this.hoveredSlot.index >= 2 && this.hoveredSlot.index <= 9
-                        && material.getItem() instanceof IMultipleMaterial materialItem
-                        && this.isSlotEnabled(this.hoveredSlot.index)
+                            && material.getItem() instanceof IMultipleMaterial materialItem
+                            && this.isSlotEnabled(this.hoveredSlot.index)
                     ) {
-                        optional = Optional.of(materialItem.getInputTooltip());
+                        optional = Optional.of(materialItem.getInputTooltip(
+                            this.menu.getSlot(0).getItem(), this.menu.getInputStacks()));
                     }
                 }
             }

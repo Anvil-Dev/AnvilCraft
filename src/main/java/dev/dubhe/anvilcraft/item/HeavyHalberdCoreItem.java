@@ -32,12 +32,12 @@ public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
     }
 
     @Override
-    public Component getInputTooltip() {
+    public Component getInputTooltip(ItemStack template, List<ItemStack> inputs) {
         return MISSING_TOOLS_TOOLTIP;
     }
 
     @Override
-    public List<ResourceLocation> getEmptySlotTextures(int id, List<ItemStack> inputs) {
+    public List<ResourceLocation> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
         List<ResourceLocation> textures = ListUtil.cycle(EMPTY_SLOT_TEXTURES, id);
         for (ItemStack input : inputs) {
             if (input.is(ItemTags.SWORDS)) {

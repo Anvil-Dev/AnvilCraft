@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "anvilcraft:block_devourer"
+    },
+    {
+      "item": "anvilcraft:transcendence_anvil_hammer"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:transcendence_dragon_rod"
+  }
+}

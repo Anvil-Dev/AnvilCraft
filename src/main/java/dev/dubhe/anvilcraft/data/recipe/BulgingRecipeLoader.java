@@ -5,9 +5,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -39,33 +38,32 @@ public class BulgingRecipeLoader {
         });
 
         BulgingRecipe.builder()
-            .cauldron(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
+            .cauldron(Blocks.WATER_CAULDRON)
+            .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
             .requires(ModItems.LIME_POWDER, 4)
             .requires(ModBlocks.CINERITE)
-            .fromWater(true)
             .save(provider, AnvilCraft.of("bulging/cement_cauldron"));
 
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .requires(Items.RED_MUSHROOM)
-            .result(Blocks.RED_MUSHROOM_BLOCK.asItem().getDefaultInstance())
-            .result(Blocks.MUSHROOM_STEM.asItem().getDefaultInstance(), 0.1f)
+            .result(Blocks.RED_MUSHROOM_BLOCK)
+            .result(Blocks.MUSHROOM_STEM, 0.1f)
             .save(provider);
 
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .requires(Items.BROWN_MUSHROOM)
-            .result(Blocks.BROWN_MUSHROOM_BLOCK.asItem().getDefaultInstance())
-            .result(Blocks.MUSHROOM_STEM.asItem().getDefaultInstance(), 0.1f)
+            .result(Blocks.BROWN_MUSHROOM_BLOCK)
+            .result(Blocks.MUSHROOM_STEM, 0.1f)
             .save(provider);
     }
 
-    private static void bulging(
-        RegistrateRecipeProvider provider, ItemLike input, ItemLike result, boolean consumeFluid) {
+    private static void bulging(RegistrateRecipeProvider provider, ItemLike input, ItemLike result, boolean consumeFluid) {
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .requires(input)
-            .result(new ItemStack(result))
+            .result(result)
             .consumeFluid(consumeFluid)
             .save(provider);
     }
@@ -79,7 +77,7 @@ public class BulgingRecipeLoader {
         BulgingRecipe.builder()
             .cauldron(Blocks.POWDER_SNOW_CAULDRON)
             .requires(input)
-            .result(new ItemStack(result))
+            .result(result)
             .consumeFluid(consumeFluid)
             .save(provider);
     }

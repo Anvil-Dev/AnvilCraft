@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.mixin.invoker.BlockBehaviourInvoker;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -16,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -28,6 +31,7 @@ import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -50,21 +54,15 @@ import static dev.dubhe.anvilcraft.util.MultiPartBlockUtil.getChainableMainPartP
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class AnvilHammerItem extends Item implements Equipable {
-    public static final Property<?>[] SUPPORTED_PROPERTIES = {
-        BlockStateProperties.FACING,
-        BlockStateProperties.FACING_HOPPER,
-        BlockStateProperties.HORIZONTAL_FACING,
-        BlockStateProperties.ORIENTATION,
-        BlockStateProperties.AXIS,
-        BlockStateProperties.HORIZONTAL_AXIS
-    };
+    public static final Property<?>[] SUPPORTED_PROPERTIES = {BlockStateProperties.FACING, BlockStateProperties.FACING_HOPPER, BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.ORIENTATION, BlockStateProperties.AXIS, BlockStateProperties.HORIZONTAL_AXIS};
     private static final List<Predicate<Player>> isWearingPredicates = new ArrayList<>();
     public static boolean goggleEnabled = false;
-    private final ItemAttributeModifiers modifiers;
 
     static {
         isWearingPredicates.add(player -> player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem);
     }
+
+    private final ItemAttributeModifiers modifiers;
 
     /**
      * 初始化铁砧锤
@@ -73,31 +71,7 @@ public class AnvilHammerItem extends Item implements Equipable {
      */
     public AnvilHammerItem(Item.Properties properties) {
         super(properties);
-        modifiers = ItemAttributeModifiers.builder()
-            .add(
-                Attributes.ATTACK_DAMAGE,
-                new AttributeModifier(
-                    BASE_ATTACK_DAMAGE_ID,
-                    getAttackDamageModifierAmount(),
-                    AttributeModifier.Operation.ADD_VALUE),
-                EquipmentSlotGroup.MAINHAND
-            ).add(
-                Attributes.ATTACK_SPEED,
-                new AttributeModifier(
-                    BASE_ATTACK_SPEED_ID,
-                    -3F,
-                    AttributeModifier.Operation.ADD_VALUE
-                ),
-                EquipmentSlotGroup.MAINHAND
-            ).build();
-    }
-
-    protected float getAttackDamageModifierAmount() {
-        return 5;
-    }
-
-    public Block getAnvil() {
-        return Blocks.ANVIL;
+        modifiers = ItemAttributeModifiers.builder().add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, getAttackDamageModifierAmount(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -3F, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).build();
     }
 
     private static void breakBlock(ServerPlayer player, BlockPos pos, ServerLevel level, ItemStack tool) {
@@ -162,9 +136,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         player.getCooldowns().addCooldown(itemStack.getItem(), 5);
         FallingBlockEntity dummyAnvilEntity = new FallingBlockEntity(EntityType.FALLING_BLOCK, level);
         dummyAnvilEntity.blockState = anvilHammerItem.getAnvil().defaultBlockState();
-        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(
-            level, blockPos.above(), dummyAnvilEntity, player.fallDistance
-        );
+        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(level, blockPos.above(), dummyAnvilEntity, player.fallDistance);
         NeoForge.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
         itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
@@ -174,15 +146,20 @@ public class AnvilHammerItem extends Item implements Equipable {
     /**
      * 右键方块
      */
-    public static void useBlock(
-        ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer) {
+    public static void useBlock(ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer) {
         if (rocketJump(player, level, blockPos)) return;
         if (!player.getAbilities().mayBuild) return;
         if (player.isShiftKeyDown()) {
             breakBlock(player, blockPos, level, anvilHammer);
             return;
         }
-        Block block = level.getBlockState(blockPos).getBlock();
+        BlockState state = level.getBlockState(blockPos);
+        Block block = state.getBlock();
+        MenuProvider provider = ((BlockBehaviourInvoker) block).invokeGetMenuProvider(state, level, blockPos);
+        if (provider != null) {
+            ModMenuTypes.open(player, provider, blockPos);
+            return;
+        }
         HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
     }
 
@@ -191,51 +168,74 @@ public class AnvilHammerItem extends Item implements Equipable {
         ItemStack itemStack = serverPlayer.getInventory().offhand.getFirst();
         if (!itemStack.is(Items.FIREWORK_ROCKET)) return false;
         if (!itemStack.has(DataComponents.FIREWORKS)) return false;
-        int i = itemStack.get(DataComponents.FIREWORKS).flightDuration();
+        Fireworks fireworks = itemStack.get(DataComponents.FIREWORKS);
+        if (fireworks == null) return false;
+        int i = fireworks.flightDuration();
         if (serverPlayer.getRotationVector().x > 70) {
             if (!serverPlayer.getAbilities().instabuild) itemStack.shrink(1);
             double power = i * 0.75 + 0.5;
             serverPlayer.setDeltaMovement(0, power, 0);
             PacketDistributor.sendToPlayer(serverPlayer, new RocketJumpPacket(power));
-            level.sendParticles(
-                ParticleTypes.FIREWORK,
-                serverPlayer.getX(),
-                serverPlayer.getY(),
-                serverPlayer.getZ(),
-                20,
-                0,
-                0.5,
-                0,
-                0.05);
+            level.sendParticles(ParticleTypes.FIREWORK, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 20, 0, 0.5, 0, 0.05);
             level.playSound(null, blockPos, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0f, 1.0f);
             return true;
         }
         return false;
     }
 
+    public static void addIsWearingPredicate(Predicate<Player> predicate) {
+        isWearingPredicates.add(predicate);
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isWearing(Player player) {
+        return switch (AnvilCraft.config.goggleMode) {
+            case ALWAYS_SHOW -> true;
+            case WEARING_HAMMER -> {
+                for (var it : isWearingPredicates) if (it.test(player)) yield true;
+                yield false;
+            }
+            case HOLDING_HAMMER -> player.getMainHandItem().getItem() instanceof AnvilHammerItem;
+            case TOGGLE_WITH_KEY -> goggleEnabled;
+        };
+    }
 
     @Override
-    public boolean canAttackBlock(
-        BlockState state, Level level, BlockPos pos, Player player) {
-        return !player.isCreative();
+    public boolean isEnchantable(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getEnchantmentValue(ItemStack stack) {
+        return 14;
+    }
+
+    @Override
+    public boolean isValidRepairItem(ItemStack stack, ItemStack repairCandidate) {
+        return repairCandidate.is(Items.IRON_INGOT);
+    }
+
+    protected float getAttackDamageModifierAmount() {
+        return 5;
+    }
+
+    public Block getAnvil() {
+        return Blocks.ANVIL;
+    }
+
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
     }
 
     @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
-        return 1.0f;
+        return 0.0f;
     }
 
     @Override
-    public boolean mineBlock(
-        ItemStack stack,
-        Level level,
-        BlockState state,
-        BlockPos pos,
-        LivingEntity miningEntity) {
-        if (state.getDestroySpeed(level, pos) != 0.0f) {
-            stack.hurtAndBreak(2, miningEntity, LivingEntity.getSlotForHand(miningEntity.getUsedItemHand()));
-        }
-        return true;
+    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
+        return false;
     }
 
     protected float calculateFallDamageBonus(float fallDistance) {
@@ -248,24 +248,11 @@ public class AnvilHammerItem extends Item implements Equipable {
         float damageBonus = calculateFallDamageBonus(attacker.fallDistance);
         Level level = target.level();
         if (level instanceof ServerLevel serverLevel) {
-            EnchantmentHelper.modifyFallBasedDamage(
-                serverLevel,
-                stack,
-                attacker,
-                level.damageSources().anvil(attacker),
-                damageBonus
-            );
+            EnchantmentHelper.modifyFallBasedDamage(serverLevel, stack, attacker, level.damageSources().anvil(attacker), damageBonus);
         }
         target.hurt(target.level().damageSources().anvil(attacker), damageBonus);
         if (attacker.fallDistance >= 3) {
-            attacker.level()
-                .playSound(
-                    null,
-                    BlockPos.containing(attacker.position()),
-                    SoundEvents.ANVIL_LAND,
-                    SoundSource.BLOCKS,
-                    1f,
-                    attacker.fallDistance > 17 ? (float) 0.5 : 1 - attacker.fallDistance / 35);
+            attacker.level().playSound(null, BlockPos.containing(attacker.position()), SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, attacker.fallDistance > 17 ? (float) 0.5 : 1 - attacker.fallDistance / 35);
         }
         return true;
     }
@@ -283,21 +270,5 @@ public class AnvilHammerItem extends Item implements Equipable {
     @Override
     public EquipmentSlot getEquipmentSlot() {
         return EquipmentSlot.HEAD;
-    }
-
-    public static void addIsWearingPredicate(Predicate<Player> predicate) {
-        isWearingPredicates.add(predicate);
-    }
-
-    public static boolean isWearing(Player player) {
-        return switch (AnvilCraft.config.goggleMode) {
-            case ALWAYS_SHOW -> true;
-            case WEARING_HAMMER -> {
-                for (var it : isWearingPredicates) if (it.test(player)) yield true;
-                yield false;
-            }
-            case HOLDING_HAMMER -> player.getMainHandItem().getItem() instanceof AnvilHammerItem;
-            case TOGGLE_WITH_KEY -> goggleEnabled;
-        };
     }
 }

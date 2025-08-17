@@ -1,0 +1,16 @@
+{
+  "name": "电能武器",
+  "category": "anvilcraft:power_system",
+  "icon": "anvilcraft:tesla_tower",
+  "sortnum": 12008,
+  "entry_color": "004400",
+  "pages": [
+    "本章节将介绍电力系统的武器",
+    {
+      "type": "patchouli:crafting",
+      "anchor": "tesla_tower",
+      "recipe": "anvilcraft:tesla_tower",
+      "text": "未被红石信号关闭时，每4秒电击半径8格以内最近的生物或避雷针，造成$(thing)10点伤害$()。 $(p)可在GUI内设置白名单"
+    }
+  ]
+}

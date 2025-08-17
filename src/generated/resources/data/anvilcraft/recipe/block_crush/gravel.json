@@ -1,5 +1,9 @@
 {
   "type": "anvilcraft:block_crush",
-  "input": "minecraft:cobblestone",
-  "result": "minecraft:gravel"
+  "input": {
+    "blocks": "minecraft:cobblestone"
+  },
+  "result": {
+    "block": "minecraft:gravel"
+  }
 }

@@ -1,0 +1,16 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:nuggets/plutonium"
+      }
+    }
+  ],
+  "type": "anvilcraft:mass_inject",
+  "ingredient": {
+    "tag": "c:nuggets/plutonium"
+  },
+  "mass": 19
+}

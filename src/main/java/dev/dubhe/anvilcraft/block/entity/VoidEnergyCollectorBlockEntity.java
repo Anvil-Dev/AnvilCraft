@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
     private static final int COOLDOWN = 2;
-    private static final int DECAY_COOLDOWN = 60;
+//    private static final int DECAY_COOLDOWN = 60;
 
     private int cooldownCount = 2;
     //注意：这里的decayCooldownCount初始值为1会让机器第一次发电（2秒后）时同时衰变一次空气
@@ -120,7 +120,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
             voidEnergyCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
             if (this.decayCooldownCount-- <= 1) {
                 makeBlocksDecay();
-                this.decayCooldownCount = DECAY_COOLDOWN;
+                this.decayCooldownCount = level.getRandom().nextInt(0, 60);
             }
         }
         if (power != oldPower && grid != null) grid.markChanged();

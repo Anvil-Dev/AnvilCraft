@@ -3,15 +3,11 @@ package dev.dubhe.anvilcraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
-import dev.dubhe.anvilcraft.entity.ThrownEmberMetalHeavyHalberdEntity;
-import dev.dubhe.anvilcraft.entity.ThrownFrostMetalHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.model.ThrownHeavyHalberdModel;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -24,8 +20,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class ThrownHeavyHalberdRenderer<T extends ThrownHeavyHalberdEntity> extends EntityRenderer<T> {
-    private static final ResourceLocation EMBER_TEXTURE = AnvilCraft.of("textures/entity/heavy_halberd/ember_metal.png");
-    public static final ResourceLocation FROST_TEXTURE = AnvilCraft.of("textures/entity/heavy_halberd/frost_metal.png");
     private final ThrownHeavyHalberdModel<ThrownHeavyHalberdEntity> model;
 
     public ThrownHeavyHalberdRenderer(EntityRendererProvider.Context context) {
@@ -49,12 +43,6 @@ public class ThrownHeavyHalberdRenderer<T extends ThrownHeavyHalberdEntity> exte
 
     @Override
     public ResourceLocation getTextureLocation(T entity) {
-        if (entity instanceof ThrownFrostMetalHeavyHalberdEntity) {
-            return FROST_TEXTURE;
-        } else if (entity instanceof ThrownEmberMetalHeavyHalberdEntity) {
-            return EMBER_TEXTURE;
-        } else {
-            return ResourceLocation.withDefaultNamespace("missingno");
-        }
+        return entity.getTextureBase().withPrefix("textures/entity/heavy_halberd/").withSuffix(".png");
     }
 }

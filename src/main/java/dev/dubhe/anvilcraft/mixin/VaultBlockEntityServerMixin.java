@@ -14,9 +14,9 @@ public abstract class VaultBlockEntityServerMixin {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/item/ItemStack;"
-                     + "isSameItemSameComponents("
-                     + "Lnet/minecraft/world/item/ItemStack;"
-                     + "Lnet/minecraft/world/item/ItemStack;)Z"))
+                + "isSameItemSameComponents("
+                + "Lnet/minecraft/world/item/ItemStack;"
+                + "Lnet/minecraft/world/item/ItemStack;)Z"))
     private static boolean validKeyItemOnly(ItemStack stack, ItemStack other, Operation<Boolean> original) {
         if (other.getComponentsPatch().isEmpty()) return stack.is(other.getItem());
         return original.call(stack, other);

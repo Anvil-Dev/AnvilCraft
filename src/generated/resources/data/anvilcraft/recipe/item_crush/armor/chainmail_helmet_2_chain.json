@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:chainmail_helmet"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "minecraft:chain"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "minecraft:chain"
+    }
+  ]
+}

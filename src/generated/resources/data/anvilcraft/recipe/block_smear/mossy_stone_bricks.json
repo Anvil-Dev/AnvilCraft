@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": "minecraft:moss_block"
+    },
+    {
+      "blocks": "minecraft:stone_bricks"
+    }
+  ],
+  "result": {
+    "block": "minecraft:mossy_stone_bricks"
+  }
+}

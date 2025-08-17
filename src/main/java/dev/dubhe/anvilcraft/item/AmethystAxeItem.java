@@ -9,7 +9,8 @@ import net.minecraft.world.level.Level;
 
 public class AmethystAxeItem extends AxeItem {
     public AmethystAxeItem(Properties properties) {
-        super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 7, -3.2f)));
+        super(ModTiers.AMETHYST,
+            properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 7, -3.2f)));
     }
 
     @Override

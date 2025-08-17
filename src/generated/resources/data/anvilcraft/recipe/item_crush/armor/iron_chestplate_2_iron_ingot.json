@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:iron_chestplate"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "minecraft:iron_ingot"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "minecraft:iron_ingot"
+    }
+  ]
+}

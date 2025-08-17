@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "items": "#c:ingots/plutonium"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:plutonium_pressure_plate"
+    }
+  ]
+}

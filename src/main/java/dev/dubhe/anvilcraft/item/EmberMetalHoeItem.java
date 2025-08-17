@@ -14,7 +14,7 @@ public class EmberMetalHoeItem extends HoeItem {
         super(
             ModTiers.EMBER_METAL,
             properties.fireResistant()
-                .attributes(HoeItem.createAttributes(ModTiers.EMBER_METAL, 1, 0))
+                .attributes(HoeItem.createAttributes(ModTiers.EMBER_METAL, -3, 0))
                 .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
         );
     }

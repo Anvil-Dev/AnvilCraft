@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModFluidTags;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class MengerSpongeBlock extends SpongeBlock {
+public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
 
     private static final VoxelShape REDUCE_AABB = Stream.of(
             Block.box(5.325, 0, 5.325, 10.675, 16, 10.675),

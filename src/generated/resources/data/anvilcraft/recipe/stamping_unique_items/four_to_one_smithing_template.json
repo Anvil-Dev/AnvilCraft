@@ -16,11 +16,7 @@
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:four_to_one_smithing_template"
-      }
+      "id": "anvilcraft:four_to_one_smithing_template"
     }
   ]
 }

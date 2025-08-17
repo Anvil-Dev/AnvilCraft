@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "tag": "c:ingots/zinc"
+      "items": "#c:ingots/zinc"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:zinc_pressure_plate"
-      }
+      "id": "anvilcraft:zinc_pressure_plate"
     }
   ]
 }

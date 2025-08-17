@@ -27,7 +27,12 @@ public class FluidTagLoader {
             .add(findResourceKey(Fluids.WATER))
             .add(findResourceKey(Fluids.FLOWING_WATER))
             .add(findResourceKey(Fluids.LAVA))
-            .add(findResourceKey(Fluids.FLOWING_LAVA));
+            .add(findResourceKey(Fluids.FLOWING_LAVA))
+            .add(ModFluids.OIL.getKey())
+            .add(ModFluids.FLOWING_OIL.getKey())
+            .add(ModFluids.MELT_GEM.getKey())
+            .add(ModFluids.FLOWING_MELT_GEM.getKey())
+            .addTag(ModFluidTags.CEMENT);
         provider.addTag(ModFluidTags.OIL)
             .add(findResourceKey(ModFluids.OIL.get()))
             .add(findResourceKey(ModFluids.FLOWING_OIL.get()));

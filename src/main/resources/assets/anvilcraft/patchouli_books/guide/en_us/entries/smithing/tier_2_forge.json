@@ -1,0 +1,88 @@
+{
+  "name": "二阶锻造",
+  "category": "anvilcraft:smithing_system",
+  "icon": "anvilcraft:ember_smithing_table",
+  "sortnum": 23007,
+  "entry_color": "661100",
+  "pages": [
+    "本章将介绍如何锻造:$(li)$(l:smithing/tier_2_forge#heavy_halberd)重戟$() $(li)$(l:smithing/tier_2_forge#resonator)共振器$() $(li)$(l:smithing/tier_2_forge#multitool)多功能工具$() $(li)$(l:smithing/tier_2_forge#amulet)四合一护符$() $(p)$(#880000)注意$()：$(br)合并物品，需要$(l:smithing/tier_2_materials#multiple_templates)多合一模板$() $(br)余烬工具特性：$(l:advanced/tool_properties#reforging)重铸$(/l) $(br)浮霜工具特性：$(l:advanced/tool_properties#merciless)无情$(/l)",
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:ember_dragon_rod",
+      "text": "升级后功能不变，只是耐久不同。$(br2)同样可以通过锻造升级。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "heavy_halberd",
+      "recipe": "anvilcraft:heavy_halberd_core",
+      "text": "$(item)Heavy Halberd$() fused the attacking abilities from Sword, Axe, Mace and Trident. It's a powerful weapon. $(br2)$(item)Heavy Halberd Core$() is the core ingredient of crafting Heavy Halberd."
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_heavy_halberd",
+      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_heavy_halberd"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Use",
+      "text": "Heavy Halberd can be used with any one of the four weapons consumed while crafting. It can compat with all enchantments for Sword, Mace, and Trident. $(br2)Its attack damage is the same as Axe's, its attack speed is the same as Sword's, and it can mine all they can. Falling from a height can trigger the smash. It can also be thrown when holding right click like Tridents, but the damage will be calculated by the speed, similar to Arrows. When it has the Royalty enchantment and it touches the void, it will come back to the player."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Break",
+      "text": "Heavy Halberd will not be fully broken too; similar to Dragon Rods, it will lose all bonuses, abilities, attack damage will become 0, most enchantments will lose efficacy, and the $(thing)Merciless$() only in Frost Heavy Halberd will also lose efficacy."
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "resonator",
+      "recipe": "anvilcraft:resonator_core",
+      "text": "$(item)Resonator$() fused the mining abilities from Axe, Pickaxe, Shovel and Hoe. It's a powerful tool. $(br2)$(item)Resonator Core$() is the core ingredient of crafting Resonator."
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_resonator",
+      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_resonator"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Use",
+      "text": "Resonators have five modes: Auto and four tool modes. Different modes have different models. You can mine any minable blocks in Auto mode, but you don't have any special abilities when right-clicking."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Choose",
+      "text": "Hold [$(k:anvilcraft.switch_resonate_mode)] while holding resonators to open a wheel; it contains five modes of resonators. You can switch the resonator's mode by scrolling the mouse or dragging the cursor to a mode. $(br2)In tool-specific modes, you can only mine what the tool can, but you can also get their special abilities when right-clicking. For example, Axe mode can strip logs, remove one layer of oxidization or wax."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Break",
+      "text": "Resonator will not be fully broken too; similar to Dragon Rods, it will lose all bonuses, abilities, attack damage will become 0, most enchantments will lose efficacy, and the $(thing)Merciless$() only in Frost Resonator will also lose efficacy."
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "anchor": "multitool",
+      "recipe": "anvilcraft:eight_to_one_smithing/multitool",
+      "text": "携带了八个工具的所有功能，按住[$(k:anvilcraft.switch_resonate_mode)]可以打开一个轮盘选择界面。 $(p)默认全选模式下使用反而会对自己造成伤害，选择其他功能后，可作为对应工具使用。"
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "anchor": "amulet",
+      "recipe": "anvilcraft:four_to_one_smithing/gem_amulet",
+      "text": "合成而来的护符同时具有四种护符的功能，占用护符盒的3*3个槽位"
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "recipe": "anvilcraft:four_to_one_smithing/nature_amulet",
+      "text": "合成而来的护符同时具有四种护符的功能，占用护符盒的3*3个槽位"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/tier_2_materials",
+        "anvilcraft:advanced/tool_properties",
+        "anvilcraft:prop/amulet"
+      ],
+      "text": ""
+    }
+  ]
+}

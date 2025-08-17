@@ -1,0 +1,38 @@
+{
+  "name": "一阶锻造",
+  "category": "anvilcraft:smithing_system",
+  "icon": "anvilcraft:royal_smithing_table",
+  "sortnum": 13003,
+  "entry_color": "004400",
+  "pages": [
+    "本章将介绍如何锻造工具",
+    {
+      "type": "patchouli:crafting",
+      "anchor": "dragon_rod",
+      "recipe": "anvilcraft:dragon_rod",
+      "recipe2": "anvilcraft:royal_dragon_rod"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/royal_dragon_rod",
+      "text": "龙杖的操作十分简单。左键破坏一定范围内的方块，右键切换范围大小。有3x3、5x5、7x7、9x9四个范围，当手持龙杖准星指向方块时会显示范围框。3x3范围不消耗耐久，往后依次消耗1、2、4点耐久。当龙杖耐久消耗殆尽时不会完全损坏，而是失去所有功能，类似于$(item)鞘翅$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "龙杖挖掘",
+      "text": "龙杖遵循方块吞噬器的规则，当挖掘世界基底方块（$(item)石头$()、$(item)下界岩$()、$(item)末地石$()）时，只有5%的概率掉落。但是它无法连锁顶部的可下落方块。$(br2)龙杖在挖掘一次后会有一段冷却时间，默认为1秒。这段冷却时长只受$(thing)急迫$()效果和$(thing)挖掘疲劳$()效果影响，每级急迫会减少0.2秒，每级挖掘疲劳会增加1秒。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "你知道吗",
+      "text": "$(o)在砧艺元年，没有龙杖的古人是如何开掘隧道的呢？ $(li)放下方块吞噬器 $(li)铁砧锤敲击方块吞噬器 $(li)主手持铁砧锤潜行右键收回方块吞噬器"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/tier_1_materials"
+      ],
+      "text": ""
+    }
+  ]
+}

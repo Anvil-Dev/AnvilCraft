@@ -1,0 +1,33 @@
+{
+	"parent": "anvilcraft:item/ember_metal_resonator",
+	"textures": {
+		"0": "anvilcraft:item/transcendence_resonator",
+		"particle": "anvilcraft:item/transcendence_resonator"
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"custom_model_data": 1
+			},
+			"model": "anvilcraft:item/transcendence_resonance_axe"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 2
+			},
+			"model": "anvilcraft:item/transcendence_resonance_shovel"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 3
+			},
+			"model": "anvilcraft:item/transcendence_resonance_hoe"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 4
+			},
+			"model": "anvilcraft:item/transcendence_resonance_pickaxe"
+		}
+	]
+}

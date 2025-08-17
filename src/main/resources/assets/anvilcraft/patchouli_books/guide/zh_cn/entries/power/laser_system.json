@@ -1,0 +1,79 @@
+{
+  "name": "激光系统",
+  "category": "anvilcraft:power_system",
+  "icon": "anvilcraft:ruby_laser",
+  "sortnum": 12007,
+  "entry_color": "004400",
+  "pages": [
+    "要建立本模组的$(thing)激光系统$()，需要提前准备好足够的$(item)红宝石$()，可以参考这款$(l:machine/automation#gem_machine)宝石转化机$()。$(br)",
+    {
+      "type": "patchouli:crafting",
+      "anchor": "ruby_laser",
+      "recipe": "anvilcraft:ruby_laser",
+      "text": "耗电量16kW，收到红石信号停用。$(br)启用时发射$(thing)激光$()。$(thing)等级$()为1，$(thing)射程$()为128格。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "ruby_prism",
+      "recipe": "anvilcraft:ruby_prism",
+      "text": "不消耗电能，收集射向它的$(thing)激光$()并折射出激光，$(thing)等级$()为输入激光的$(thing)等级$()之和，$(thing)射程$()为128格。"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "laser",
+      "title": "激光",
+      "text": "$(thing)激光$()是由$(item)棱镜$()或$(item)激光器$()射出的，会被$(thing)方块$()阻挡的，笔直的光束。具有以下功能：$(li)提取矿石 $(li)造成伤害 $(li)加热$(l:advanced/heated_block)可加热方块$()"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "mine",
+      "title": "提取矿石",
+      "text": "$(thing)等级$()≥4的$(thing)激光$()可以提取$(thing)矿石$()。矿产会从射出该激光的最近$(item)棱镜$()的背部弹出，或存入棱镜背部相邻的$(thing)容器$()。 $(br2)如果棱镜背部是也是同方向的$(item)棱镜$()则从后一个$(item)棱镜$()的背部输出。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "效率计算",
+      "text": "提取效率=$(thing)激光等级$()/4(向下取整)，$(thing)提取效率$()与$(thing)提取时间$()的关系如下：$(li)效率=1：24s/次$(li)效率=2：6s/次$(li)效率=3：2s/次$(li)效率=4：1s/次"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "激光采矿系统",
+      "multiblock": {
+        "mapping": {
+          "A": "anvilcraft:deepslate_silver_ore",
+          "T": "anvilcraft:raw_silver_block",
+          "M": "anvilcraft:mineral_fountain",
+          "F": "anvilcraft:ruby_prism",
+          "W": "anvilcraft:ruby_laser[facing=west]",
+          "E": "anvilcraft:ruby_laser[facing=east]",
+          "N": "anvilcraft:ruby_laser[facing=north]",
+          "S": "anvilcraft:ruby_laser[facing=south]",
+          "C": "minecraft:barrel"
+        },
+        "pattern": [
+          ["   ", " C ", "   "],
+          [" E ", "SFN", " W "],
+          [" E ", "SFN", " W "],
+          [" E ", "SFN", " W "],
+          [" E ", "SFN", " W "],
+          ["   ", " 0 ", "   "],
+          ["   ", "   ", "   "],
+          ["   ", " A ", "   "],
+          [" T ", "TMT", " T "]
+        ]
+      },
+      "text": "这种结构可以自动提取粗矿并存放至上方容器内"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "attack",
+      "title": "伤害生物",
+      "text": "$(thing)等级$()>4的激光可以攻击$(thing)生物$()。每次造成的$(thing)伤害$()=$(thing)等级$()-4，单次最多造成16点伤害。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "加热方块",
+      "text": "激光可以加热$(l:advanced/heated_block)可加热方块$()，方块被激光照射时，根据$(thing)激光等级$()决定$(thing)温度等级$()，详情请看$(l:advanced/heated_block#laser)激光加热$()。"
+    }
+  ]
+}

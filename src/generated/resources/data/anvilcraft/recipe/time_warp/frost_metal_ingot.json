@@ -1,27 +1,21 @@
 {
   "type": "anvilcraft:time_warp",
-  "cauldron": "minecraft:powder_snow_cauldron",
-  "consume_fluid": true,
+  "consume": 3,
+  "fluid": "minecraft:powder_snow",
   "ingredients": [
     {
-      "item": "anvilcraft:titanium_ingot"
+      "items": "anvilcraft:titanium_ingot"
     },
     {
-      "item": "anvilcraft:silver_ingot"
+      "items": "anvilcraft:silver_ingot"
     },
     {
-      "item": "minecraft:iron_ingot"
+      "items": "minecraft:iron_ingot"
     }
   ],
-  "produce_fluid": false,
-  "requiredFluidLevel": 3,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:frost_metal_ingot"
-      }
+      "id": "anvilcraft:frost_metal_ingot"
     }
   ]
 }

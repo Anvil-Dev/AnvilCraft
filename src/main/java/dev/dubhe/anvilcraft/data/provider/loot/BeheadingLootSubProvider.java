@@ -23,7 +23,9 @@ import net.minecraft.world.level.storage.loot.functions.FillPlayerHead;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.InvertedLootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -92,16 +94,13 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         float bonusChancePerLevel
     ) {
         consumer.accept(lootTableKey, LootTable.lootTable()
-            .withPool(LootPool.lootPool()
-                .add(LootItem.lootTableItem(headItem))
-                .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(0.0f,
-                    LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
-                    new DummyHolder(ModEnchantments.BEHEADING_KEY)))
-                .when(LootItemKilledByPlayerCondition.killedByPlayer())
-                .when(InvertedLootItemCondition.invert(MatchDataComponent.component(
-                    DataComponentPredicate.builder().expect(ModComponents.MERCILESS, Merciless.DEFAULT)
-                )))
-            )
+            .withPool(generatePool(headItem, baseChance, bonusChancePerLevel))
+            .withPool(
+                generatePool(headItem, baseChance, bonusChancePerLevel)
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25f))))
+            .withPool(
+                generatePool(headItem, baseChance, bonusChancePerLevel)
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05f))))
         );
     }
 
@@ -114,18 +113,40 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         LootItemFunction.Builder extraFunction
     ) {
         consumer.accept(lootTableKey, LootTable.lootTable()
-            .withPool(LootPool.lootPool()
-                .add(LootItem.lootTableItem(headItem)
-                    .apply(extraFunction))
-                .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(0.0f,
-                    LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
-                    new DummyHolder(ModEnchantments.BEHEADING_KEY)))
-                .when(LootItemKilledByPlayerCondition.killedByPlayer())
-                .when(InvertedLootItemCondition.invert(MatchDataComponent.component(
-                    DataComponentPredicate.builder().expect(ModComponents.MERCILESS, Merciless.DEFAULT)
-                )))
-            )
+            .withPool(generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction))
+            .withPool(
+                generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25f))))
+            .withPool(
+                generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05f))))
         );
+    }
+
+    private LootPool.Builder generatePool(ItemLike headItem, float baseChance, float bonusChancePerLevel) {
+        return LootPool.lootPool()
+            .add(LootItem.lootTableItem(headItem))
+            .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
+                0.0f,
+                LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
+                new DummyHolder(ModEnchantments.BEHEADING_KEY)))
+            .when(LootItemKilledByPlayerCondition.killedByPlayer())
+            .when(InvertedLootItemCondition.invert(MatchDataComponent.component(
+                DataComponentPredicate.builder().expect(ModComponents.MERCILESS, Merciless.DEFAULT))));
+    }
+
+    private LootPool.Builder generatePool(
+        ItemLike headItem, float baseChance, float bonusChancePerLevel, LootItemFunction.Builder extraFunction
+    ) {
+        return LootPool.lootPool()
+            .add(LootItem.lootTableItem(headItem).apply(extraFunction))
+            .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
+                0.0f,
+                LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
+                new DummyHolder(ModEnchantments.BEHEADING_KEY)))
+            .when(LootItemKilledByPlayerCondition.killedByPlayer())
+            .when(InvertedLootItemCondition.invert(MatchDataComponent.component(
+                DataComponentPredicate.builder().expect(ModComponents.MERCILESS, Merciless.DEFAULT))));
     }
 
     private static class DummyHolder extends Holder.Reference<Enchantment> {

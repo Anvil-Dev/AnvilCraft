@@ -1,0 +1,38 @@
+{
+  "name": "核能发电",
+  "category": "anvilcraft:power_system",
+  "icon": "anvilcraft:uranium_ingot",
+  "sortnum": 22010,
+  "entry_color": "661100",
+  "pages": [
+    "本章节将会讲述：$(li)如何获得$(item)铀$()和$(item)钚$() $(li)如何借助核能产生大量的电力 $(p)$(#880000)注意$():携带18组铀/钚(块/锭/粒)会受到凋零效果",
+    {
+      "type": "patchouli:spotlight",
+      "item": ["anvilcraft:uranium_nugget","anvilcraft:uranium_ingot","anvilcraft:uranium_block"],
+      "link_recipe": true,
+      "text": "使用$(item)皇家铁砧$()（或更高级铁砧）$(l:struct/high_speed_impact)撞击$()$(item)红石块$()，平均获得8.5个$(item)铀粒$()。$(br2)之后可以通过$(item)矿物涌泉$()量产。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": ["anvilcraft:plutonium_nugget","anvilcraft:plutonium_ingot","anvilcraft:plutonium_block"],
+      "link_recipe": true,
+      "text": "在锅中用铁砧砸击$(item)铀锭$()和$(item)中子锭$()，获得6*$(item)钚粒$()+1*$(item)中子锭$()+1*$(item)石灰粉$()。$(br2)因为过于活跃而没有粗矿形式，无法通过$(item)矿物涌泉$()量产。"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "recipe": "anvilcraft:time_warp/raw_uranium_from_uranium_block",
+      "recipe2": "anvilcraft:time_warp/raw_uranium_from_plutonium_block"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "被动发热",
+      "text": "铀块和钚块可以为$(l:power/heat_collection)集热器$()提供热能用以发电: $(li)$(item)铀块$():2kW $(li)$(item)钚块$():8kW"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "nuclear_fission",
+      "title": "时移核衰变",
+      "text": "$(l:smithing/corrupted_beacon#time_warp)时移$()$(item)铀块$()或$(item)钚块$()会在一瞬间爆发出通常需要数万年才能释放大量的热能。$(br2)将与锅水平相邻的方块加热为$(thing)白炽$()并持续5/10分钟，可用于热能发电"
+    }
+  ]
+}

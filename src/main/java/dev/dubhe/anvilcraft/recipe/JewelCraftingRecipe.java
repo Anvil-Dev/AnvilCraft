@@ -27,22 +27,26 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
+    public final List<ICondition> conditions;
     public final NonNullList<Ingredient> ingredients;
     public final ItemStack result;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public Input cache;
     public int cacheTimes;
 
-    public JewelCraftingRecipe(NonNullList<Ingredient> ingredients, ItemStack result) {
+    public JewelCraftingRecipe(List<ICondition> conditions, NonNullList<Ingredient> ingredients, ItemStack result) {
+        this.conditions = conditions;
         this.ingredients = ingredients;
         this.result = result;
         this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
@@ -92,6 +96,11 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         return cacheTimes >= 1;
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     public record Input(ItemStack source, List<ItemStack> items) implements RecipeInput, IItemsInput {
 
         @Override
@@ -108,6 +117,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     public static class Serializer implements RecipeSerializer<JewelCraftingRecipe> {
 
         private static final MapCodec<JewelCraftingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+            ICondition.LIST_CODEC.optionalFieldOf("neoforge:conditions", new ArrayList<>()).forGetter(JewelCraftingRecipe::getConditions),
             CodecUtil.createIngredientListCodec("ingredients", 256, "jewel_crafting").forGetter(JewelCraftingRecipe::getIngredients),
             ItemStack.CODEC.fieldOf("result").forGetter(JewelCraftingRecipe::getResult)
         ).apply(ins, JewelCraftingRecipe::new));
@@ -139,15 +149,21 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
             ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-            return new JewelCraftingRecipe(ingredients, result);
+            return new JewelCraftingRecipe(new ArrayList<>(), ingredients, result);
         }
     }
 
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<JewelCraftingRecipe> {
+        private List<ICondition> conditions = new ArrayList<>();
         private NonNullList<Ingredient> ingredients = NonNullList.create();
         private ItemStack result = ItemStack.EMPTY;
+
+        public Builder withCondition(ICondition condition) {
+            this.conditions.add(condition);
+            return this;
+        }
 
         public Builder requires(Ingredient ingredient, int count) {
             for (int i = 0; i < count; i++) {
@@ -178,7 +194,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
         @Override
         public JewelCraftingRecipe buildRecipe() {
-            return new JewelCraftingRecipe(ingredients, result);
+            return new JewelCraftingRecipe(conditions, ingredients, result);
         }
 
         @Override

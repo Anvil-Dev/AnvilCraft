@@ -1,0 +1,114 @@
+{
+  "name": "基础材料",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "anvilcraft:circuit_board",
+  "sortnum": 1007,
+  "extra_recipe_mappings": {
+    "anvilcraft:resin": 10
+  },
+  "pages": [
+    "铁砧工艺在前期添加了若干材料：$(li)$(l:basic/material#magnet_ingot)磁铁$() $(li)$(l:basic/material#geode)晶洞&宝石$() $(li)$(l:basic/material#resin)树脂$() $(li)$(l:basic/material#circuit_board)电路板$() $(li)$(l:basic/material#lime_powder)石灰粉$()",
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "magnet_ingot",
+      "item": "anvilcraft:magnet_ingot",
+      "text": "首次获得磁铁，需要$(item)铁块$()被雷击转化为空心磁铁块，可以将其分解为磁铁锭。 $(br)$(li)之后可以$(thing)人工$()将铁锭$(thing)逐个$()丢入空心磁铁块中央的洞，将铁锭概率转化为磁铁锭。 $(li)具有发电能力后，可将铁锭充能为磁铁锭。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:magnet_ingot_from_hollow_block",
+      "recipe2": "anvilcraft:hollow_magnet_block"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "雷击转化磁铁块",
+      "multiblock": {
+        "mapping": {
+          "L": "minecraft:lightning_rod",
+          "I": "minecraft:iron_block",
+          "0": "minecraft:iron_block"
+        },
+        "pattern": [
+          ["   ", " L ", "   "],
+          ["III", "III", "III"],
+          ["III", "I0I", "III"]
+        ]
+      },
+      "enable_visualize": "false",
+      "text": "默认的雷击转化磁铁块范围，雷击后，图中铁块都将转化为空心磁铁块。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:topaz,minecraft:lightning_rod",
+      "title": "人工引雷",
+      "text": "如果你等不到雷雨天，使用$(item)黄玉$()右键避雷针会消耗黄玉制造一道闪电，后文会说明如何获得黄玉。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:ferrite_core_magnet_block",
+      "text": "铁芯磁铁块置于世界中逐渐转变为$(item)磁铁块$()，磁铁块可以拆解为9个磁铁锭，这是磁铁再生的另一种方法。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "magnet_block",
+      "recipe": "anvilcraft:magnet_block",
+      "text": "$(item)磁铁块$()可以吸引正下方5格内的铁砧，收到$(thing)红石信号$()消磁 $(br)可以帮助你简单地将铁砧抬起再砸下。$(p)$(#666666)铁芯磁铁块和空心磁铁块也具有这个功能$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "geode",
+      "item": "anvilcraft:geode",
+      "text": "获得$(item)晶洞$()有三种方法：$(br)挖掘$(item)紫水晶母岩$()掉落。$(br)若开局开启奖励箱，可在其中获取。$(br)与$(thing)珠宝商$()村民交易"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:geode",
+      "text": "$(item)晶洞$()有三种用途：$(br)手持右键定位附近的$(thing)紫水晶洞穴$()$(br)在冲压平台上被铁砧砸碎，获得$(item)红宝石$()、$(item)蓝宝石$()和$(item)黄玉$()三种宝石之一和大量$(item)紫水晶$()。$(br2)科技水平达到一定程度后，可以将其变为$(item)紫水晶母岩$()。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tag:anvilcraft:gems",
+      "link_recipe": true,
+      "text": "宝石：包括$(item)绿宝石$()、$(item)红宝石$()、$(item)蓝宝石$()和$(item)黄玉$()$(br2)$(#666666)晦涩来说，就是携带#anvilcraft:gems标签的物品$()"
+    },
+    {
+      "type": "anvilcraft:item_crush",
+      "anchor": "resin",
+      "recipe": "anvilcraft:item_crush/wood_fiber",
+      "text": "树脂可用于制作$(item)树脂块$()、$(l:basic/item_regeneration#slime_ball)黏液球$()、$(item)硬化树脂$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "resin_block",
+      "recipe": "anvilcraft:resin_block",
+      "text": "(发射器也可用)$(item)树脂块$()可以抓捕$(thing)碰撞箱$()的长宽小于1.5,高小于2的生物，但抓捕敌对和中立生物这要求其受到$(thing)虚弱效果$()。之后可以右键地面释放生物。$(br)举个例子，村民可以直接抓取，僵尸需要对其施加虚弱效果才能抓取。"
+    },
+    {
+      "type": "anvilcraft:cooking",
+      "anchor": "hardend_resin",
+      "recipe": "anvilcraft:cooking/hardend_resin",
+      "text": ""
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "circuit_board",
+      "recipe": "anvilcraft:circuit_board",
+      "text": "简单的电子原件，用于合成"
+    },
+    {
+      "type": "anvilcraft:super_heating",
+      "anchor": "lime_powder",
+      "recipe": "anvilcraft:super_heating/lime_powder_from_crab_claw",
+      "text": "除了$(item)蟹钳$()，还可以熔炼以下物品得到：$(li)失活的珊瑚扇：1$(li)滴水石锥：1$(li)鹦鹉螺壳：1$(li)失活的珊瑚块：4$(li)滴水石块：4$(li)方解石：4"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:smithing/jewelcrafting_table",
+        "anvilcraft:basic/item_processing"
+      ],
+      "text": ""
+    }
+  ]
+}

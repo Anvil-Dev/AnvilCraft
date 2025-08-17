@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:mesh",
+  "ingredients": [
+    {
+      "items": "minecraft:sand"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "minecraft:sand"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.25
+      },
+      "id": "minecraft:clay_ball"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.05
+      },
+      "id": "minecraft:gold_nugget"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.ModInspectionClient;
+import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -28,6 +28,6 @@ public record InspectionStateChangedPacket(ResourceLocation id, boolean state) i
     }
 
     public static void acceptClient(InspectionStateChangedPacket packet, IPayloadContext ctx) {
-        ModInspectionClient.INSTANCE.changeStateClient(packet.id, packet.state);
+        InspectionSupport.INSTANCE.changeStateClient(packet.id, packet.state);
     }
 }

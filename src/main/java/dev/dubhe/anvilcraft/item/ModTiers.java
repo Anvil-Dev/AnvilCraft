@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
 import com.google.common.base.Suppliers;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModItems;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
@@ -17,33 +19,41 @@ public enum ModTiers implements Tier {
         751,
         4.0f,
         1.0f,
-        10,
+        5,
         () -> Ingredient.of(Items.AMETHYST_SHARD),
-        ModBlockTags.INCORRECT_FOR_AMETHYST_TOOL
+        BlockTags.INCORRECT_FOR_STONE_TOOL
+    ),
+    ROYAL(
+        1561,
+        8.0f,
+        3.0f,
+        10,
+        () -> Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
+        BlockTags.INCORRECT_FOR_DIAMOND_TOOL
+    ),
+    FROST_METAL(
+        2031,
+        9.0f,
+        4.0f,
+        15,
+        () -> Ingredient.of(ModItems.FROST_METAL_INGOT),
+        BlockTags.INCORRECT_FOR_NETHERITE_TOOL
     ),
     EMBER_METAL(
         2031,
         10.0f,
-        1.0f,
+        5.0f,
         22,
         () -> Ingredient.of(ModItems.EMBER_METAL_INGOT),
         ModBlockTags.INCORRECT_FOR_EMBER_TOOL
     ),
-    MULTIPHASE(
-        2031,
-        10.0f,
-        1.0f,
-        22,
-        () -> Ingredient.of(ModItems.MULTIPHASE_MATTER),
-        ModBlockTags.INCORRECT_FOR_MULTIPHASE_TOOL
-    ),
-    FROST_METAL(
-        2031,
-        12.0f,
-        1.0f,
-        15,
-        () -> Ingredient.of(ModItems.FROST_METAL_INGOT),
-        ModBlockTags.INCORRECT_FOR_FROST_METAL_TOOL
+    TRANSCENDIUM(
+        3156,
+        14.0f,
+        7.0f,
+        28,
+        () -> Ingredient.of(ModItems.TRANSCENDIUM_INGOT),
+        ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL
     ),
     ;
 
@@ -67,6 +77,7 @@ public enum ModTiers implements Tier {
         this.enchantmentValue = enchantmentValue;
         this.repairIngredient = Suppliers.memoize(supplier::get);
         this.incorrectBlockTags = incorrectBlockTags;
+        AnvilCraft.LOGGER.info("tag: {}", incorrectBlockTags);
     }
 
     @Override

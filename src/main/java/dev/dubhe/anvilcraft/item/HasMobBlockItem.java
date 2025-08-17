@@ -19,6 +19,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.Villager;
@@ -111,8 +112,8 @@ public class HasMobBlockItem extends BlockItem {
             return;
         }
         SavedEntity savedEntity = SavedEntity.fromMob(entity);
-        if (entity instanceof Monster monster) {
-            MobEffectInstance instance = monster.getEffect(MobEffects.WEAKNESS);
+        if (entity.getType().getCategory() == MobCategory.MONSTER) {
+            MobEffectInstance instance = entity.getEffect(MobEffects.WEAKNESS);
             if (instance == null && !player.getAbilities().instabuild) return;
         }
         stack = stack.split(1);

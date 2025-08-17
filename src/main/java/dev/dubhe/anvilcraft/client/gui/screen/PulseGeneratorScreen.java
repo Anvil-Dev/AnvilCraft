@@ -64,7 +64,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     @Override
     public void onClose() {
         PacketDistributor.sendToServer(new PulseGeneratorUpdatePacket(
-            this.menu.getBlockEntity().getStartMode(),
+            this.menu.getBlockEntity().getStartMode().index(),
             this.menu.getBlockEntity().isOutputInvert(),
             this.menu.getBlockEntity().getWaitingTime(),
             this.menu.getBlockEntity().getSignalDuration()
@@ -145,16 +145,16 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.topPos + 38,
             32, 9,
             minecraft.font,
-            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getWaitingTime()))
+            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getWaitingTime(), 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
         this.signalDuration = new TextWidget(
             this.leftPos + 115,
             this.topPos + 38,
             32, 9,
             minecraft.font,
-            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getSignalDuration()))
+            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getSignalDuration(), 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
-        startMode.setCurrent(this.menu.getBlockEntity().getStartMode());
+        startMode.setCurrent(this.menu.getBlockEntity().getStartMode().index());
         outputMode.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
         this.addRenderableWidget(startMode);
         this.addRenderableWidget(outputMode);

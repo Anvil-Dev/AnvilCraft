@@ -2,34 +2,23 @@
   "type": "anvilcraft:super_heating",
   "ingredients": [
     {
-      "item": "minecraft:iron_block"
+      "count": 3,
+      "items": "minecraft:iron_block"
     },
     {
-      "item": "minecraft:iron_block"
+      "items": "minecraft:diamond_block"
     },
     {
-      "item": "minecraft:iron_block"
+      "count": 2,
+      "items": "minecraft:amethyst_block"
     },
     {
-      "item": "minecraft:diamond_block"
-    },
-    {
-      "item": "minecraft:amethyst_block"
-    },
-    {
-      "item": "minecraft:amethyst_block"
-    },
-    {
-      "tag": "anvilcraft:gem_blocks"
+      "items": "#anvilcraft:gem_blocks"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:royal_steel_block"
-      }
+      "id": "anvilcraft:royal_steel_block"
     }
   ]
 }

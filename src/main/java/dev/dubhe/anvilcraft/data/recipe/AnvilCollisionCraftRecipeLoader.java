@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.elements.InputBlock;
 import dev.dubhe.anvilcraft.recipe.elements.OutputBlock;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 
@@ -15,7 +16,7 @@ public class AnvilCollisionCraftRecipeLoader {
             .anvil(BlockTags.ANVIL)
             .hitBlock(ModBlocks.NEGATIVE_MATTER_BLOCK.get())
             .outputItem(ModBlocks.VOID_MATTER_BLOCK.asItem(), 8)
-            .save(provider, "negative_matter_block");
+            .save(provider);
         AnvilCollisionCraftRecipe.builder()
             .anvil(ModBlocks.EMBER_ANVIL.get())
             .hitBlock(ModBlocks.FROST_METAL_BLOCK.get())
@@ -58,15 +59,31 @@ public class AnvilCollisionCraftRecipeLoader {
             .anvil(ModBlocks.EMBER_ANVIL.get())
             .consume(false)
             .hitBlock(ModBlocks.LEVITATION_POWDER_BLOCK.get())
-            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2)
+            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 6)
+            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.5f)
             .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.25f)
             .save(provider);
         AnvilCollisionCraftRecipe.builder()
             .anvil(ModBlocks.ROYAL_ANVIL.get())
             .consume(false)
             .hitBlock(ModBlocks.LEVITATION_POWDER_BLOCK.get())
-            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2)
+            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 6)
+            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.5f)
             .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.25f)
+            .save(provider);
+        CompoundTag heatableData = new CompoundTag();
+        heatableData.putInt("duration", 200);
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(BlockTags.ANVIL)
+            .consume(false)
+            .hitBlock(ModBlocks.URANIUM_BLOCK.get())
+            .transformBlock(InputBlock.of(ModBlocks.EMBER_METAL_BLOCK), OutputBlock.of(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK, heatableData), 16)
+            .save(provider);
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(BlockTags.ANVIL)
+            .consume(false)
+            .hitBlock(ModBlocks.PLUTONIUM_BLOCK.get())
+            .transformBlock(InputBlock.of(ModBlocks.EMBER_METAL_BLOCK), OutputBlock.of(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK, heatableData), 16)
             .save(provider);
     }
 }

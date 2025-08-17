@@ -62,6 +62,14 @@ public class WheelWidget extends AbstractWidget {
 
     public WheelWidget(
         int x, int y, int width, int height,
+        float ringInnerRadius, float ringOuterRadius, float textScale, float degreeOffsetAngle,
+        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+    ) {
+        this(x, y, width, height, Component.empty(), ringInnerRadius, ringOuterRadius, textScale, degreeOffsetAngle, sections);
+    }
+
+    public WheelWidget(
+        int x, int y, int width, int height,
         float ringInnerRadius, float ringOuterRadius,
         List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
     ) {
@@ -70,7 +78,7 @@ public class WheelWidget extends AbstractWidget {
 
     public WheelWidget(
         int x, int y, int width, int height, Component message,
-        float ringInnerRadius, float ringOuterRadius, float textScale,
+        float ringInnerRadius, float ringOuterRadius, float textScale, float degreeOffsetAngle,
         List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
     ) {
         this(
@@ -79,7 +87,7 @@ public class WheelWidget extends AbstractWidget {
             150, 300, 150,
             0x88000000,
             0xddffff00, 20, 5f,
-            0xfdfdfd, textScale,
+            0xfdfdfd, textScale, degreeOffsetAngle,
             sections
         );
     }
@@ -95,7 +103,23 @@ public class WheelWidget extends AbstractWidget {
             150, 300, 150,
             0x88000000,
             0xddffff00, 20, 5f,
-            0xfdfdfd, 1f,
+            0xfdfdfd, 1f, 0f,
+            sections
+        );
+    }
+
+    public WheelWidget(
+        int x, int y, int width, int height, Component message,
+        float ringInnerRadius, float ringOuterRadius, float degreeOffsetAngle,
+        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+    ) {
+        this(
+            x, y, width, height, message,
+            ringInnerRadius, ringOuterRadius,
+            150, 300, 150,
+            0x88000000,
+            0xddffff00, 20, 5f,
+            0xfdfdfd, 1f, degreeOffsetAngle,
             sections
         );
     }
@@ -115,7 +139,7 @@ public class WheelWidget extends AbstractWidget {
             delay, animationMs, closingAnimationMs,
             ringColor,
             selectionEffectColor, selectionEffectRadius, selectionAnimationSpeedFactor,
-            textColor, textScale,
+            textColor, textScale, 0f,
             sections
         );
     }
@@ -126,7 +150,7 @@ public class WheelWidget extends AbstractWidget {
         int delay, int animationMs, int closingAnimationMs,
         int ringColor,
         int selectionEffectColor, int selectionEffectRadius, float selectionAnimationSpeedFactor,
-        int textColor, float textScale,
+        int textColor, float textScale, float degreeOffsetAngle,
         List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
     ) {
         super(x, y, width, height, message);
@@ -145,7 +169,7 @@ public class WheelWidget extends AbstractWidget {
         float degreeEachRotation = 360f / sections.size();
         for (int i = 0; i < sections.size(); i++) {
             Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>> section = sections.get(i);
-            float rotation = degreeEachRotation * i;
+            float rotation = MathUtil.clampWithProportion((degreeEachRotation * i + degreeOffsetAngle) % 360, 0, 360);
             Vector2f rotated = MathUtil.rotationDegrees(ROTATION_START, rotation)
                 .mul(1, -1)
                 .mul(this.getSectionCircleDiameter())

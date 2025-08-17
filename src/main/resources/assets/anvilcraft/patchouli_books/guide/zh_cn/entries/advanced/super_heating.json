@@ -1,0 +1,36 @@
+{
+  "name": "高温熔炼",
+  "category": "anvilcraft:advanced_features",
+  "icon": "anvilcraft:heater",
+  "sortnum": 7001,
+  "pages": [
+    "$(thing)高温熔炼$()是一种特殊加工方法，可以批量处理锅中的全部原料，具有以下功能：$(li)处理专属配方 $(li)双倍冶炼矿物 $(li)支持所有$(item)高炉/熔炉$()配方 $(br2)使用超温加热需要工作中的$(l:power/consumption#heater)加热器$()",
+    {
+      "type": "patchouli:multiblock",
+      "name": "高温熔炼",
+      "multiblock": {
+        "mapping": {
+          "V": "minecraft:anvil[facing=north]",
+          "A": "anvilcraft:arrow[facing=down]",
+          "C": "minecraft:cauldron",
+          "0": "anvilcraft:heater[overload=false]"
+        },
+        "pattern": [
+          ["V"],
+          ["A"],
+          ["C"],
+          ["0"],
+          [" "]
+        ]
+      },
+      "text": "执行高温熔炼所需的结构"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:power/consumption"
+      ],
+      "text": ""
+    }
+  ]
+}

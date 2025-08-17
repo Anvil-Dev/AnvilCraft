@@ -1,20 +1,14 @@
 {
   "type": "anvilcraft:time_warp",
-  "cauldron": "minecraft:cauldron",
-  "consume_fluid": false,
   "ingredients": [
     {
-      "item": "anvilcraft:tin_block"
+      "items": "anvilcraft:tin_block"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 3,
-        "id": "anvilcraft:raw_tin"
-      }
+      "count": 3,
+      "id": "anvilcraft:raw_tin"
     }
   ]
 }

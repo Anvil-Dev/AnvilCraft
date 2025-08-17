@@ -1,0 +1,32 @@
+{
+  "name": "红石元件(重要)",
+  "category": "anvilcraft:special_props",
+  "icon": "minecraft:redstone",
+  "sortnum": 4001,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "本章节将介绍本模组的全新红石元件：$(li)$(l:prop/redstone#block_comparator)方块比较器$(/l) $(li)$(l:prop/redstone#pulse_generator)脉冲发生器$(/l) $(li)$(l:prop/redstone#item_detector)物品探测器$(/l)"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "block_comparator",
+      "recipe": "anvilcraft:block_comparator",
+      "text": "$(item)方块比较器$()两侧的方块相同时，向前方发出红石信号，默认为普通模式，右键切换为精准模式。$(br)$(#aa2222)普通模式$()下，仅检查方块是否相同。$(br)$(#aa2222)精准模式$()下，会检查方块的状态是否完全相同。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "pulse_generator",
+      "recipe": "anvilcraft:pulse_generator",
+      "text": "通过$(item)脉冲发生器$()的gui可以设置其在什么时候、延迟多少时间发出多长时间的脉冲。"
+    },
+    "$(#aa2222)左上角$()的按钮控制三个模式：收到红石信号时工作/信号消失时工作/不受到信号时循环工作。$(br)在$(#aa2222)中间$()设置延时多久发出信号。$(br)在$(#aa2222)右边$()设置发出信号的持续时间。$(br)$(#aa2222)左下角$()的按钮控制输出信号符合正常模式/反转模式。",
+    {
+      "type": "patchouli:crafting",
+      "anchor": "item_detector",
+      "recipe": "anvilcraft:item_detector",
+      "text": "$(item)物品探测器$()可检测身后最多8格的$(thing)掉落物$()。打开gui可以设置范围和过滤。$(br2)$(#aa2222)不设置过滤$()时，输出$(thing)红石信号$()强度随掉落物的数量线性变化。数量达到64个时输出$(thing)满信号强度$()15。"
+    },
+    "$(#aa2222)设置过滤$()时，过滤的$(thing)掉落物$()都不存在则不输出信号。$(br)其他情况下，对每个检测到物品的过滤格分别根据$(thing)对应掉落物$()数量计算红石信号K1,K2…后($(n)数量达到[64*过滤数量]时计算$(thing)满信号强度$())。最终输出信号强度=Min{K1,K2…}。"
+  ]
+}

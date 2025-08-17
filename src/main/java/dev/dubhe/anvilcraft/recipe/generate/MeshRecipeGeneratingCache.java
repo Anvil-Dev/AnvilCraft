@@ -3,8 +3,7 @@ package dev.dubhe.anvilcraft.recipe.generate;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Table;
-import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,14 +12,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.AzaleaBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SaplingBlock;
-import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -75,16 +72,14 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
             Optional<ResourceKey<Item>> leavesKey = BuiltInRegistries.ITEM.getResourceKey(leaves);
             if (leavesKey.isEmpty()) continue;
             MeshRecipe recipeLeaves = MeshRecipe.builder()
-                .input(Ingredient.of(leaves))
-                .result(leaves.getDefaultInstance())
-                .resultAmount(BinomialDistributionGenerator.binomial(1, 0.5f))
+                .requires(leaves)
+                .result(leaves.getDefaultInstance(), 0.5f)
                 .buildRecipe();
             recipeHolders.add(new RecipeHolder<>(generateRecipeId("leaves", leaves, leaves), recipeLeaves));
             for (Item sapling : this.leavesAndSaplings.get(leaves)) {
                 MeshRecipe recipeSapling = MeshRecipe.builder()
-                    .input(Ingredient.of(leaves))
-                    .result(sapling.getDefaultInstance())
-                    .resultAmount(BinomialDistributionGenerator.binomial(1, 0.2f))
+                    .requires(leaves)
+                    .result(sapling.getDefaultInstance(), 0.2f)
                     .buildRecipe();
                 recipeHolders.add(new RecipeHolder<>(generateRecipeId("leaves", leaves, sapling), recipeSapling));
             }

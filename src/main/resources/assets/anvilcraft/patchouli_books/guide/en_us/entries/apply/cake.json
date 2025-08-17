@@ -1,0 +1,88 @@
+{
+  "name": "巨型蛋糕",
+  "category": "anvilcraft:technology_application",
+  "icon": "anvilcraft:large_cake",
+  "sortnum": 16005,
+  "entry_color": "004400",
+  "extra_recipe_mappings": {
+    "anvilcraft:cake_block": 4,
+    "anvilcraft:berry_cake_block": 4,
+    "anvilcraft:chocolate_cake_block": 4,
+    "anvilcraft:large_cake": 6
+  },
+  "pages": [
+    "利用$(l:struct/multiblock)多方块转化/合成$()，可以制造巨型蛋糕，每吃一口都能回复15$(thing)饱食度$()，12$(thing)饱和度$()$(br2)$(#666666)巨型蛋糕是个弥天大谎$()",
+    {
+      "type": "anvilcraft:cooking",
+      "recipe": "anvilcraft:cooking/cake_base_block",
+      "text": "首先，做出蛋糕胚$(br2)食用回复5$(thing)饱食度$()，4$(thing)饱和度$()"
+    },
+    {
+      "type": "anvilcraft:item_compress",
+      "recipe": "anvilcraft:item_compress/cream_block",
+      "recipe2": "anvilcraft:item_compress/berry_cream_block"
+    },
+    {
+      "type": "anvilcraft:item_compress",
+      "recipe": "anvilcraft:item_compress/chocolate_cream_block",
+      "text": "然后，做出三种奶油块。三者提供营养按序分别如下：$(li)5$(thing)饱食度$()，2$(thing)饱和度$()$(li)8$(thing)饱食度$()，3.2$(thing)饱和度$()$(li)12$(thing)饱食度$()，4.8$(thing)饱和度$()"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "压合",
+      "multiblock": {
+        "mapping": {
+          "A": "anvilcraft:cake_block",
+          "0": "anvilcraft:arrow[facing=west]",
+          "B": "anvilcraft:arrow[facing=west]",
+          "C": "anvilcraft:cake_base_block",
+          "D": "anvilcraft:berry_cake_block",
+          "E": "anvilcraft:chocolate_cake_block",
+          "F": "minecraft:anvil",
+          "G": "anvilcraft:cream_block",
+          "H": "anvilcraft:berry_cream_block",
+          "I": "anvilcraft:chocolate_cream_block"
+        },
+        "pattern": [
+          ["     ", "     ", "     ", "F F F", "     "],
+          ["     ", "     ", "     ", "     ", "     "],
+          ["     ", "F F F", "     ", "G H I", "     "],
+          ["     ", "A D E", "B 0 B", "C C C", "     "],
+          ["     ", "     ", "     ", "     ", "     "]
+        ]
+      },
+      "enable_visualize": false,
+      "text": "将奶油和蛋糕胚压在一起"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "营养值",
+      "text": "蛋糕块：$(br)10$(thing)饱食度$()，6$(thing)饱和度$()$(br)浆果蛋糕块：$(br)14$(thing)饱食度$()，8.4$(thing)饱和度$()$(br)巧克力蛋糕块：$(br)20$(thing)饱食度$()，12$(thing)饱和度$() $(br2)这些原料方块都可以被铲子可加速破坏，使用铲子右键将其整块吃掉。"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "摆放蛋糕块",
+      "multiblock": {
+        "mapping": {
+          "0": "anvilcraft:cake_block",
+          "A": "anvilcraft:cake_block",
+          "B": "anvilcraft:berry_cake_block",
+          "C": "anvilcraft:chocolate_cake_block"
+        },
+        "pattern": [
+          ["   ", " C ", "   "],
+          [" B ", "BBB", " B "],
+          ["AAA", "A0A", "AAA"]
+        ]
+      },
+      "text": "摆成如下形状后，使用$(l:struct/multiblock)多方块转化/合成$()可以获得巨型蛋糕。"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:struct/multiblock"
+      ],
+      "text": "$(#666666)来试试巨型蛋糕自动化，成为自动化“糕”手$()"
+    }
+  ]
+}

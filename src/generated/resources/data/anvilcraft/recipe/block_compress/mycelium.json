@@ -1,8 +1,16 @@
 {
   "type": "anvilcraft:block_compress",
   "inputs": [
-    "#anvilcraft:mushroom_block",
-    "minecraft:dirt"
+    {
+      "blocks": "#anvilcraft:mushroom_block"
+    },
+    {
+      "blocks": "minecraft:dirt"
+    }
   ],
-  "result": "minecraft:mycelium"
+  "results": [
+    {
+      "block": "minecraft:mycelium"
+    }
+  ]
 }

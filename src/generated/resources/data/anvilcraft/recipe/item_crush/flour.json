@@ -2,27 +2,20 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "tag": "c:crops/wheat"
+      "items": "#c:crops/wheat"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:flour"
-      }
+      "id": "anvilcraft:flour"
     },
     {
-      "amount": {
+      "count": {
         "type": "minecraft:binomial",
         "n": 1.0,
         "p": 0.5
       },
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:flour"
-      }
+      "id": "anvilcraft:flour"
     }
   ]
 }

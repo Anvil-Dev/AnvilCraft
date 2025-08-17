@@ -1,5 +1,9 @@
 {
   "type": "anvilcraft:block_crush",
-  "input": "minecraft:andesite",
-  "result": "anvilcraft:cinerite"
+  "input": {
+    "blocks": "minecraft:andesite"
+  },
+  "result": {
+    "block": "anvilcraft:cinerite"
+  }
 }

@@ -13,11 +13,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -40,6 +46,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -158,9 +165,6 @@ public abstract class ResonatorItem extends TieredItem implements IMultipleResul
                 stack.remove(DataComponents.TOOL);
             }
         } else {
-            if (stack.has(ModComponents.MERCILESS)) {
-                stack.set(ModComponents.MERCILESS, Merciless.DEFAULT);
-            }
             if (stack.has(DataComponents.STORED_ENCHANTMENTS) && !stack.has(ModComponents.MERCILESS)) {
                 ItemEnchantments enchantmentsStored = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
@@ -216,20 +220,24 @@ public abstract class ResonatorItem extends TieredItem implements IMultipleResul
             Object2IntMap<Holder<Enchantment>> enchantments = new Object2IntArrayMap<>();
             for (int i = 0; i < 4; i++) {
                 ItemStack inputStack = input.getInputItem(i);
-                for (
-                    Object2IntMap.Entry<Holder<Enchantment>> entry
-                    : inputStack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).entrySet()
-                ) {
+                DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
+                if (inputStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
+                    type = DataComponents.STORED_ENCHANTMENTS;
+                }
+                for (var entry : inputStack.getOrDefault(type, ItemEnchantments.EMPTY).entrySet()) {
                     enchantments.mergeInt(entry.getKey(), entry.getIntValue(), Integer::max);
                 }
             }
 
-            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(
-                defaultStack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY));
+            DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
+            if (defaultStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
+                type = DataComponents.STORED_ENCHANTMENTS;
+            }
+            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(defaultStack.getOrDefault(type, ItemEnchantments.EMPTY));
             for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.object2IntEntrySet()) {
                 mutable.set(entry.getKey(), entry.getIntValue());
             }
-            defaultStack.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
+            defaultStack.set(type, mutable.toImmutable());
 
             return defaultStack;
         }
@@ -395,5 +403,33 @@ public abstract class ResonatorItem extends TieredItem implements IMultipleResul
             case PICKAXE_MODE -> ItemAbilities.DEFAULT_PICKAXE_ACTIONS.contains(itemAbility);
             default -> false;
         };
+    }
+
+    public static class ResonatorHolder extends Holder.Reference<Item> {
+        public ResonatorHolder(Holder.Reference.Type type, HolderOwner<Item> owner, ResourceKey<Item> key, Item value) {
+            super(type, owner, key, value);
+        }
+
+        public boolean is(int mode, TagKey<Item> tagKey) {
+            if (mode == AUTO_MODE) return super.is(tagKey);
+            return switch (tagKey) {
+                case TagKey<Item> tag when tag.equals(ItemTags.AXES) -> super.is(tag) && mode == AXE_MODE;
+                case TagKey<Item> tag when tag.equals(ItemTags.SHOVELS) -> super.is(tag) && mode == SHOVEL_MODE;
+                case TagKey<Item> tag when tag.equals(ItemTags.HOES) -> super.is(tag) && mode == HOE_MODE;
+                case TagKey<Item> tag when tag.equals(ItemTags.PICKAXES) -> super.is(tag) && mode == PICKAXE_MODE;
+                default -> super.is(tagKey);
+            };
+        }
+
+        public boolean is(int mode, HolderSet<Item> holders) {
+            if (mode == AUTO_MODE) return holders.contains(this);
+            return switch (holders) {
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.AXES) -> h.contains(this) && mode == AXE_MODE;
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.SHOVELS) -> h.contains(this) && mode == SHOVEL_MODE;
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.HOES) -> h.contains(this) && mode == HOE_MODE;
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.PICKAXES) -> h.contains(this) && mode == PICKAXE_MODE;
+                default -> holders.contains(this);
+            };
+        }
     }
 }

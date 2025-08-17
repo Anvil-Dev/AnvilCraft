@@ -1,0 +1,11 @@
+{
+  "name": "Basic Introduction",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "minecraft:anvil",
+  "priority": "true",
+  "sortnum": 1000,
+  "pages": [
+    "AnvilCraft is a mod that triggers effects by falling an anvil on a block, item or mob.$(br)Placing different blocks underneath the anvil will trigger different effects. You can automate the production or recycle some items in this way. $(br)In order to facilitate the lifting of the anvil, the mod adds the $(item)Magnet Block$(). You can use vanilla redstone machinery or manual operation instead, but it is more complicated.",
+    "$(br)The drop of the anvil can also be used to generate electricity and even power the electrical appliances from other mods. Based on this, this mod adds a power system and machines. $(be)Anvils have a lot of room for improvement in enchantment and forging, and this mod adds forging gameplay to increase the enchantment cap.$(br)These two parts are covered in dedicated sections."
+  ]
+}

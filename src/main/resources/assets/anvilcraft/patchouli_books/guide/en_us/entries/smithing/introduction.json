@@ -1,0 +1,10 @@
+{
+  "name": "Smithing Introduction",
+  "category": "anvilcraft:smithing_system",
+  "icon": "minecraft:smithing_table",
+  "priority": "true",
+  "sortnum": 3000,
+  "pages": [
+    "Vanilla enchant system has lots of constraints. By using more powerful materials to upgrade your smithing workstation, like Anvils, to release the constraints. Some by-products in these progresses can also causing some interesting changes."
+  ]
+}

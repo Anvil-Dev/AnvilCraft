@@ -2,13 +2,12 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
@@ -18,32 +17,32 @@ public class ItemCrushRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
         ItemCrushRecipe.builder()
             .requires(Tags.Items.CROPS_WHEAT)
-            .result(new ItemStack(ModItems.FLOUR.get()))
-            .result(ChanceItemStack.of(new ItemStack(ModItems.FLOUR.get())).withChance(0.5f))
+            .result(ModItems.FLOUR)
+            .result(ModItems.FLOUR, 0.5f)
             .save(provider);
         ItemCrushRecipe.builder()
             .requires(ItemTags.LOGS)
-            .result(new ItemStack(ModItems.WOOD_FIBER.asItem()))
-            .result(new ItemStack(ModItems.RESIN.get()))
+            .result(ModItems.WOOD_FIBER)
+            .result(ModItems.RESIN)
             .save(provider);
         StampingRecipe.builder()
             .requires(ModItems.GEODE)
-            .result(new ItemStack(Items.AMETHYST_SHARD, 4))
-            .result(ChanceItemStack.of(new ItemStack(ModItems.TOPAZ.get())).withChance(0.25f))
-            .result(ChanceItemStack.of(new ItemStack(ModItems.SAPPHIRE.get())).withChance(0.25f))
-            .result(ChanceItemStack.of(new ItemStack(ModItems.RUBY.get())).withChance(0.25f))
+            .result(Items.AMETHYST_SHARD, 4)
+            .result(ModItems.TOPAZ.get(), 0.25f)
+            .result(ModItems.SAPPHIRE.get(), 0.25f)
+            .result(ModItems.RUBY.get(), 0.25f)
             .save(provider, AnvilCraft.of("stamping/geode_gems"));
         StampingRecipe.builder()
             .requires(Items.COCOA_BEANS)
-            .result(new ItemStack(ModItems.COCOA_BUTTER.asItem()))
-            .result(new ItemStack(ModItems.COCOA_POWDER.asItem()))
+            .result(ModItems.COCOA_BUTTER)
+            .result(ModItems.COCOA_POWDER)
             .save(provider);
         StampingRecipe.builder()
             .requires(ModItems.PRISMARINE_CLUSTER)
-            .result(new ItemStack(Items.PRISMARINE_CRYSTALS, 2))
-            .result(new ItemStack(Items.PRISMARINE_SHARD))
-            .result(ChanceItemStack.of(new ItemStack(Items.PRISMARINE_CRYSTALS)).withChance(0.5f))
-            .result(ChanceItemStack.of(new ItemStack(ModItems.PRISMARINE_BLADE.asItem())).withChance(0.15f))
+            .result(Items.PRISMARINE_CRYSTALS, 2)
+            .result(Items.PRISMARINE_SHARD)
+            .result(Items.PRISMARINE_CRYSTALS, 0.5f)
+            .result(ModItems.PRISMARINE_BLADE, 0.15f)
             .save(provider);
 
         ItemCrushRecipe.builder()
@@ -99,25 +98,46 @@ public class ItemCrushRecipeLoader {
         armor(provider, Items.DIAMOND_LEGGINGS, Items.DIAMOND);
         armor(provider, Items.DIAMOND_BOOTS, Items.DIAMOND);
         armor(provider, Items.DIAMOND_HORSE_ARMOR, Items.DIAMOND);
-    }
 
-    private static void itemCrush(RegistrateRecipeProvider provider, ItemLike input, ItemStack result) {
-        ItemCrushRecipe.builder().requires(input).result(result).save(provider);
+        blockCrush(provider, Items.STONE, Items.COBBLESTONE);
+        blockCrush(provider, Items.COBBLESTONE, Items.GRAVEL);
+        blockCrush(provider, Items.GRAVEL, Items.SAND);
+        blockCrush(provider, Items.POLISHED_GRANITE, Items.GRANITE);
+        blockCrush(provider, Items.GRANITE, Items.RED_SAND);
+        blockCrush(provider, Items.POLISHED_ANDESITE, Items.ANDESITE);
+        blockCrush(provider, Items.ANDESITE, ModBlocks.CINERITE.get());
+        blockCrush(provider, Items.POLISHED_DIORITE, Items.DIORITE);
+        blockCrush(provider, Items.DIORITE, ModBlocks.QUARTZ_SAND.get());
+        blockCrush(provider, Items.STONE_BRICKS, Items.CRACKED_STONE_BRICKS);
+        blockCrush(provider, Items.DEEPSLATE_BRICKS, Items.CRACKED_DEEPSLATE_BRICKS);
+        blockCrush(provider, Items.NETHER_BRICKS, Items.CRACKED_NETHER_BRICKS);
+        blockCrush(provider, Items.DEEPSLATE_TILES, Items.CRACKED_DEEPSLATE_TILES);
+        blockCrush(provider, Items.POLISHED_BLACKSTONE_BRICKS, Items.CRACKED_POLISHED_BLACKSTONE_BRICKS);
+        blockCrush(provider, Items.SOUL_SOIL, Items.SOUL_SAND);
+        blockCrush(provider, Items.NETHERRACK, ModBlocks.NETHER_DUST.get());
+        blockCrush(provider, Items.END_STONE, ModBlocks.END_DUST.get());
     }
 
     private static void tool(RegistrateRecipeProvider provider, ItemLike tool, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(tool)
-            .result(ChanceItemStack.of(new ItemStack(result)).withChance(0.5f))
-            .save(provider, AnvilCraft.of("item_crush/tool_%s_2_%s".formatted(getName(tool), getName(result))));
+            .result(result, 0.5f)
+            .save(provider, AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(getName(tool), getName(result))));
+    }
+
+    private static void blockCrush(RegistrateRecipeProvider provider, ItemLike input, ItemLike result) {
+        ItemCrushRecipe.builder()
+            .requires(input)
+            .result(result, 0.8f)
+            .save(provider, AnvilCraft.of("item_crush/block_crush/%s_from_%s".formatted(getName(result), getName(input))));
     }
 
     private static void armor(RegistrateRecipeProvider provider, ItemLike armor, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(armor)
-            .result(ChanceItemStack.of(new ItemStack(result)).withChance(0.5f))
-            .result(ChanceItemStack.of(new ItemStack(result)).withChance(0.5f))
-            .save(provider, AnvilCraft.of("item_crush/armor_%s_2_%s".formatted(getName(armor), getName(result))));
+            .result(result, 0.5f)
+            .result(result, 0.5f)
+            .save(provider, AnvilCraft.of("item_crush/armor/%s_2_%s".formatted(getName(armor), getName(result))));
     }
 
     private static @NotNull String getName(@NotNull ItemLike item) {

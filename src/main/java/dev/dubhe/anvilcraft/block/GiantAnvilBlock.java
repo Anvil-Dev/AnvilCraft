@@ -340,6 +340,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         this.falling(fallingBlockEntity);
     }
 
+    @Override
     public void removePartsAndUpdate(Level level, BlockPos pos) {
         for (Cube3x3PartHalf part : getParts()) {
             BlockPos bp = pos.offset(part.getOffset());

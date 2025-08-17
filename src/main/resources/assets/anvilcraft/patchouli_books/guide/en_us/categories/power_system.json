@@ -1,5 +1,6 @@
 {
   "name": "Power System",
   "description": "Stronger automation.",
+  "sortnum": 2,
   "icon": "anvilcraft:magnetoelectric_core"
 }

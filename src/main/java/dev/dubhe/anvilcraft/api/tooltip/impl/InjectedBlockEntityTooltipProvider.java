@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.injection.tooltip.IInjectedTooltipProducer;
+import dev.dubhe.anvilcraft.api.injection.tooltip.IInjectedTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.network.chat.Component;
@@ -14,9 +14,9 @@ public class InjectedBlockEntityTooltipProvider extends ITooltipProvider.BlockEn
     public InjectedBlockEntityTooltipProvider() {
     }
 
-    protected Optional<IInjectedTooltipProducer> cast(BlockEntity value) {
+    protected Optional<IInjectedTooltipProvider> cast(BlockEntity value) {
         try {
-            if (value instanceof IInjectedTooltipProducer producer) {
+            if (value instanceof IInjectedTooltipProvider producer) {
                 return Optional.of(producer);
             } else {
                 return Optional.empty();
@@ -34,7 +34,7 @@ public class InjectedBlockEntityTooltipProvider extends ITooltipProvider.BlockEn
     @Override
     public List<Component> tooltip(BlockEntity value) {
         if (Util.jadePresent.get() && AnvilCraft.config.doNotShowTooltipWhenJadePresent) return null;
-        return cast(value).map(IInjectedTooltipProducer::anvilcraft$getTooltip).orElse(null);
+        return cast(value).map(IInjectedTooltipProvider::anvilcraft$getTooltip).orElse(null);
     }
 
     @Override

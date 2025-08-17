@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:mesh",
+  "ingredients": [
+    {
+      "items": "minecraft:soul_sand"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "minecraft:soul_sand"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.005
+      },
+      "id": "minecraft:nether_wart"
+    }
+  ]
+}

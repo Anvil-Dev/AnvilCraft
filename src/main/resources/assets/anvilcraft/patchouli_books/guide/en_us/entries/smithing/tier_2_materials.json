@@ -1,0 +1,148 @@
+{
+  "name": "Tier 2 Materials",
+  "category": "anvilcraft:smithing_system",
+  "icon": "anvilcraft:ember_metal_ingot",
+  "sortnum": 23006,
+  "entry_color": "661100",
+  "pages": [
+    "This page shows all available $(thing)tier 2 materials$(): $(li)地核碎片 $(li)虚空物质 $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#multiphase_matter)多相物质$(/l) $(li)$(l:smithing/tier_2_materials#multiple_templates)多合一锻造模板$(/l) ",
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "earth_core_shard",
+      "item": ["anvilcraft:earth_core_shard","anvilcraft:earth_core_shard_block","anvilcraft:earth_core_shard_ore"],
+      "link_recipe": true,
+      "text": "$(item)地核碎片$()系列物品不受$(item)熔岩$()和$(item)火焰$()损害，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可参与$(item)余烬金属锭$()的制作 $(br2)方块形态具有同黑曜石的挖掘等级"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "void_matter",
+      "item": ["anvilcraft:void_matter","anvilcraft:void_matter_block","anvilcraft:void_stone"],
+      "link_recipe": true,
+      "text": "$(item)虚空物质$()系列物品在$(thing)虚空$()中会上升，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可用于制作$(l:power/void_energy_collection#void_energy_collector)虚空能收集器$() $(br2)方块形态具有同黑曜石的挖掘等级 $(br2)虚空物质块具有$(l:advanced/void_decay)特性：虚空衰变$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "frost_metal",
+      "item": "anvilcraft:frost_metal_ingot",
+      "text": "$(item)Frost Metal$() is a hard and cold metal."
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "title": "Frost Metal Template",
+      "recipe": "anvilcraft:time_warp/frost_metal_ingot",
+      "text": "Use time warp with 1 $(item)Titanium Ingot$(), 1 $(item)Silver Ingot$() and 1 $(item)Iron Ingot$() to craft it."
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "frost_metal_block_and_nugget",
+      "recipe": "anvilcraft:frost_metal_block",
+      "recipe2": "anvilcraft:frost_metal_nugget"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "recipe": "anvilcraft:time_warp/frost_metal_upgrade_smithing_template",
+      "text": "Use time warp with $(item)Royal Steel Upgrade Smithing Template$() to craft this. Can be used to upgrade $(thing)Royal Steel tools$() to $(thing)Frost Metal tools$()."
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "frost_metal_tools",
+      "recipe": "anvilcraft:smithing/frost_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/frost_metal_axe",
+      "text": "Use $(item)Frost Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#merciless)Merciless$(/l) property."
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/frost_metal_shovel",
+      "recipe2": "anvilcraft:smithing/frost_metal_hoe",
+      "text": "Use $(item)Frost Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#merciless)Merciless$(/l) property."
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/frost_metal_sword",
+      "text": "Use $(item)Frost Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#merciless)Merciless$(/l) property."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "ember_metal",
+      "item": "anvilcraft:ember_metal_ingot",
+      "text": "$(item)Ember Metal$() is a very hot metal. $(br)Use time warp with any $(thing)heated Netherite Blocks$() to craft this. You can add 1-3 $(item)Earth Core Shard$() to increase result. $(br)$(l:apply/oil)Click here$() to see how to get the Fire Cauldron"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "recipe": "anvilcraft:time_warp/ember_metal_ingot_0",
+      "recipe2": "anvilcraft:time_warp/ember_metal_ingot_1"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "recipe": "anvilcraft:time_warp/ember_metal_ingot_2",
+      "recipe2": "anvilcraft:time_warp/ember_metal_ingot_3"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:ember_metal_block",
+      "recipe2": "anvilcraft:ember_metal_nugget_from_ingot"
+    },
+    {
+      "type": "anvilcraft:stamping",
+      "recipe": "anvilcraft:stamping/ember_metal_upgrade_smithing_template",
+      "text": "Use Stamping with $(item)Royal Steel Upgrade Smithing Template$() to craft this. Can be used to upgrade $(thing)Royal Steel tools$() to $(thing)Ember Metal tools$()."
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_smithing_table",
+      "text": "This smithing table is used to smith recipes more complex. With this, you will be able to go further on Smithing."
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_anvil",
+      "text": "This anvil is similar to $(item)Royal Steel Anvil$(), but it can make you combine some conflict enchantments to items forcefully."
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_grindstone",
+      "recipe": "anvilcraft:smithing/ember_grindstone",
+      "text": "On $(item)Ember Grindstone$(), you can cost XP to extract enchantments from enchanted items. Only need to put the item and regular books in, select an enchantment, and you will be able to cost displayed XP to extract the selected enchantment. It will be no \"Too Expensive!\", but will still add repair cost to the item has been extracted."
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_metal_tools",
+      "recipe": "anvilcraft:smithing/ember_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/ember_metal_axe",
+      "text": "Use $(item)Ember Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#reforging)Fire Reforging$(/l) property."
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_metal_shovel",
+      "recipe2": "anvilcraft:smithing/ember_metal_hoe",
+      "text": "Use $(item)Ember Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#reforging)Fire Reforging$(/l) property."
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_metal_sword",
+      "recipe2": "anvilcraft:smithing/ember_anvil_hammer",
+      "text": "Use $(item)Ember Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#reforging)Fire Reforging$(/l) property."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "multiphase_matter",
+      "item": "anvilcraft:multiphase_matter",
+      "text": "$(item)Multiphase Matter$() is an artificial matter."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "(This will be Anvil Collision recipe, until it has support)Put a $(l:smithing/tier_2_materials#frost_metal_block_and_nugget)Frost Metal Block$(/l) on the tail of Collision facility and do it once to craft the Multiphase Matter."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:multiphase_matter_block"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "multiple_templates",
+      "item": "tag:anvilcraft:multiple_to_one_smithing_templates",
+      "title": "Multiple to One Smithing Template",
+      "link_recipe": true,
+      "text": "Use stamping with some different $(thing)Smithing Templates$() to craft them. The count of these templates decide you will get X to One Smithing Template. $(br2)It is used to participate in multiple_to_one smithing on the $(item)Embers smithing table$()"
+    }
+  ]
+}

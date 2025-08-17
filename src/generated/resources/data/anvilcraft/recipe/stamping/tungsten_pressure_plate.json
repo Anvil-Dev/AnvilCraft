@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "tag": "c:ingots/tungsten"
+      "items": "#c:ingots/tungsten"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:tungsten_pressure_plate"
-      }
+      "id": "anvilcraft:tungsten_pressure_plate"
     }
   ]
 }

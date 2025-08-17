@@ -1,0 +1,7 @@
+{
+	"parent": "anvilcraft:item/dragon_rod",
+	"textures": {
+		"0": "anvilcraft:item/transcendence_anvil_hammer",
+		"1": "anvilcraft:item/transcendence_dragon_rod"
+	}
+}

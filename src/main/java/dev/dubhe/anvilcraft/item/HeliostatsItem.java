@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.block.RedhotMetalBlock;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
+import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import io.netty.buffer.ByteBuf;
@@ -130,11 +130,9 @@ public class HeliostatsItem extends BlockItem {
             return InteractionResult.SUCCESS;
         }
         BlockState blockState = level.getBlockState(context.getClickedPos());
-        if (blockState.is(ModBlocks.TUNGSTEN_BLOCK.get())
-            || blockState.is(Blocks.NETHERITE_BLOCK)
-            || blockState.is(ModBlocks.HEATED_TUNGSTEN.get())
-            || blockState.is(ModBlocks.HEATED_NETHERITE.get())
-            || blockState.getBlock() instanceof RedhotMetalBlock) {
+        if (blockState.is(Blocks.NETHERITE_BLOCK)
+            || blockState.getBlock() instanceof HeatableBlock
+        ) {
             ItemStack stack = context.getItemInHand();
             if (hasDataStored(stack)) {
                 InteractionResult result = super.useOn(context);
@@ -181,8 +179,8 @@ public class HeliostatsItem extends BlockItem {
         @Override
         public boolean equals(Object obj) {
             if (obj == this) return true;
-            if (obj instanceof HeliostatsData heliostatsData) {
-                return heliostatsData.pos.equals(pos);
+            if (obj instanceof HeliostatsData(BlockPos pos1)) {
+                return pos1.equals(pos);
             } else {
                 return false;
             }

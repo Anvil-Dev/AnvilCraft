@@ -3,6 +3,11 @@
     "minecraft:water",
     "minecraft:flowing_water",
     "minecraft:lava",
-    "minecraft:flowing_lava"
+    "minecraft:flowing_lava",
+    "anvilcraft:oil",
+    "anvilcraft:flowing_oil",
+    "anvilcraft:melt_gem",
+    "anvilcraft:flowing_melt_gem",
+    "#c:cement"
   ]
 }

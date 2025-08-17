@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.api.chargecollector.HeatedBlockRecorder;
-import dev.dubhe.anvilcraft.client.PowerGridClient;
+import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -28,8 +27,8 @@ abstract class ClientLevelMixin {
         LevelRenderer levelRenderer,
         boolean isDebug,
         long biomeZoomSeed,
-        CallbackInfo ci) {
-        PowerGridClient.clearAllGrid();
-        HeatedBlockRecorder.clear();
+        CallbackInfo ci
+    ) {
+        PowerGridSupport.clearAllGrid();
     }
 }

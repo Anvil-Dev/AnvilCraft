@@ -10,11 +10,7 @@
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:two_to_one_smithing_template"
-      }
+      "id": "anvilcraft:two_to_one_smithing_template"
     }
   ]
 }

@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -54,6 +56,7 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
      */
     public void tick(@NotNull Level level, @NotNull BlockPos pos) {
         this.flushState(level, pos);
+        HeaterManager.addProducer(pos, level, ModHeaterInfos.HEATER);
     }
 
     @Override

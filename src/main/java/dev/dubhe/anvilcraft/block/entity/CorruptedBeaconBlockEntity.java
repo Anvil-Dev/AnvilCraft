@@ -50,6 +50,7 @@ import java.util.Optional;
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
     private List<BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
+    @Getter
     int levels;
     private int lastCheckY;
 
@@ -208,11 +209,20 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             result = recipe.apply(level.random, livingEntity, level);
         }
         if (result == null) return;
+        Entity vehicle = null;
+        if (livingEntity.isPassenger()) {
+            vehicle = livingEntity.getVehicle();
+        }
         livingEntity.discard();
+
         if (result instanceof ZombieHorse || result instanceof SkeletonHorse) {
             ((AbstractHorse) result).setTamed(true);
         }
-        level.tryAddFreshEntityWithPassengers(result);
+        if (level.tryAddFreshEntityWithPassengers(result)) {
+            if (vehicle != null) {
+                result.startRiding(vehicle);
+            }
+        }
     }
 
     private static void affectEntities(@NotNull Level level, BlockPos pos) {

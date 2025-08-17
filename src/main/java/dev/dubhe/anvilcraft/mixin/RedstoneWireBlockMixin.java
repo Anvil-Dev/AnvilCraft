@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.api.injection.tooltip.IInjectedTooltipProducer;
+import dev.dubhe.anvilcraft.api.injection.tooltip.IInjectedTooltipProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @Mixin(RedStoneWireBlock.class)
-public abstract class RedstoneWireBlockMixin implements IInjectedTooltipProducer {
+public abstract class RedstoneWireBlockMixin implements IInjectedTooltipProvider {
     @Shadow
     @Final
     public static IntegerProperty POWER;
@@ -25,7 +25,7 @@ public abstract class RedstoneWireBlockMixin implements IInjectedTooltipProducer
     public List<Component> anvilcraft$getTooltip(BlockState state) {
         final ArrayList<Component> lines = new ArrayList<>();
         lines.add(Component.translatable("tooltip.anvilcraft.redstone.title").withStyle(ChatFormatting.BLUE));
-        lines.add(Component.translatable("tooltip.anvilcraft.redstone.power", state.getValue(POWER)));
+        lines.add(Component.translatable("tooltip.anvilcraft.redstone.power", state.getValue(POWER)).withStyle(ChatFormatting.GRAY));
         return lines;
     }
 }

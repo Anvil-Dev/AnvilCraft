@@ -2,19 +2,15 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "anvilcraft:royal_steel_upgrade_smithing_template"
+      "items": "anvilcraft:royal_steel_upgrade_smithing_template"
     },
     {
-      "item": "anvilcraft:ember_metal_ingot"
+      "items": "anvilcraft:ember_metal_ingot"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:ember_metal_upgrade_smithing_template"
-      }
+      "id": "anvilcraft:ember_metal_upgrade_smithing_template"
     }
   ]
 }

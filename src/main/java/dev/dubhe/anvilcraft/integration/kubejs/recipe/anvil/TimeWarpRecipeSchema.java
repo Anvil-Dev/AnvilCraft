@@ -4,97 +4,134 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftKubeRecipe;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftRecipeComponents;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
-import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
+import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceItemStackComponent;
+import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ItemIngredientPredicateComponent;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
-import dev.latvian.mods.kubejs.recipe.component.BlockComponent;
-import dev.latvian.mods.kubejs.recipe.component.BooleanComponent;
-import dev.latvian.mods.kubejs.recipe.component.IngredientComponent;
+import dev.latvian.mods.kubejs.recipe.component.ComponentRole;
 import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
 import dev.latvian.mods.kubejs.recipe.schema.KubeRecipeFactory;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public interface TimeWarpRecipeSchema {
-    @SuppressWarnings({"DataFlowIssue", "unused"})
+    @SuppressWarnings({"unused"})
     class TimeWarpKubeRecipe extends AnvilCraftKubeRecipe {
-        public TimeWarpKubeRecipe requires(Ingredient... ingredient) {
-            computeIfAbsent(INGREDIENTS, ArrayList::new).addAll(Arrays.stream(ingredient).toList());
-            save();
+        public TimeWarpKubeRecipe cauldron(ResourceLocation fluid) {
+            this.setValue(FLUID, fluid);
+            this.save();
             return this;
         }
 
-        public TimeWarpKubeRecipe requires(Ingredient ingredient, int count) {
-            if (getValue(INGREDIENTS) == null) setValue(INGREDIENTS, new ArrayList<>());
-            for (int i = 0; i < count; i++) {
-                getValue(INGREDIENTS).add(ingredient);
-            }
-            save();
+        public TimeWarpKubeRecipe cauldron(Block cauldron) {
+            return this.cauldron(WrapUtils.cauldron2Fluid(cauldron));
+        }
+
+        public TimeWarpKubeRecipe transform(ResourceLocation transform) {
+            this.setValue(TRANSFORM, transform);
+            this.save();
             return this;
         }
 
-        public TimeWarpKubeRecipe exactRequires(Ingredient ingredient, int count) {
-            if (getValue(EXACT_INGREDIENTS) == null) setValue(EXACT_INGREDIENTS, new ArrayList<>());
-            for (int i = 0; i < count; i++) {
-                getValue(EXACT_INGREDIENTS).add(ingredient);
-            }
-            save();
-            return this;
-        }
-
-        public TimeWarpKubeRecipe exactRequires(Ingredient... ingredient) {
-            for (Ingredient ingredient1 : ingredient) {
-                exactRequires(ingredient1, 1);
-            }
-            return this;
-        }
-
-        public TimeWarpKubeRecipe result(ItemStack stack, float chance) {
-            if (getValue(RESULTS) == null) setValue(RESULTS, new ArrayList<>());
-            getValue(RESULTS).add(ChanceItemStack.of(stack).withChance(chance));
-            save();
-            return this;
-        }
-
-        public TimeWarpKubeRecipe result(ItemStack stack) {
-            return result(stack, 1.0f);
-        }
-
-        public TimeWarpKubeRecipe cauldron(Block block) {
-            setValue(CAULDRON, block);
-            save();
-            return this;
+        public TimeWarpKubeRecipe transform(Block transform) {
+            return this.transform(WrapUtils.cauldron2Fluid(transform));
         }
 
         public TimeWarpKubeRecipe produceFluid(boolean produceFluid) {
-            setValue(PRODUCE_FLUID, produceFluid);
-            save();
+            if (!produceFluid) return this;
+            this.setValue(CONSUME, -1);
+            this.save();
             return this;
         }
 
         public TimeWarpKubeRecipe consumeFluid(boolean consumeFluid) {
-            setValue(CONSUME_FLUID, consumeFluid);
-            save();
+            if (!consumeFluid) return this;
+            this.setValue(CONSUME, 1);
+            this.save();
             return this;
         }
 
-        public TimeWarpKubeRecipe fromWater(boolean fromWater) {
-            setValue(FROM_WATER, fromWater);
-            save();
+        public TimeWarpKubeRecipe requires(@NotNull TagKey<Item> ingredient, int count) {
+            this.computeIfAbsent(INGREDIENTS, ArrayList::new)
+                .add(ItemIngredientPredicate.Builder.item().of(ingredient).withCount(count).build());
+            this.save();
             return this;
         }
 
-        public TimeWarpKubeRecipe requiredFluidLevel(int level) {
-            setValue(REQUIRED_FLUID_LEVEL, level);
-            save();
+        public TimeWarpKubeRecipe requires(@NotNull TagKey<Item> ingredient) {
+            return this.requires(ingredient, 1);
+        }
+
+        public TimeWarpKubeRecipe requires(@NotNull ItemStack ingredient) {
+            this.computeIfAbsent(INGREDIENTS, ArrayList::new)
+                .add(ItemIngredientPredicate.Builder.item().of(ingredient).build());
+            this.save();
             return this;
+        }
+
+        public TimeWarpKubeRecipe requires(@NotNull ItemLike ingredient, int count) {
+            this.computeIfAbsent(INGREDIENTS, ArrayList::new)
+                .add(ItemIngredientPredicate.Builder.item().of(ingredient).withCount(count).build());
+            this.save();
+            return this;
+        }
+
+        public TimeWarpKubeRecipe requires(@NotNull ItemLike ingredient) {
+            return this.requires(ingredient, 1);
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemStack result, NumberProvider count) {
+            this.computeIfAbsent(RESULTS, ArrayList::new)
+                .add(ChanceItemStack.of(result, count));
+            this.save();
+            return this;
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemStack result, float chance) {
+            return this.result(result, BinomialDistributionGenerator.binomial(result.getCount(), chance));
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemStack result) {
+            return this.result(result, ConstantValue.exactly(result.getCount()));
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemLike result, NumberProvider count) {
+            this.computeIfAbsent(RESULTS, ArrayList::new)
+                .add(ChanceItemStack.of(result, count));
+            this.save();
+            return this;
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemLike result, int count, float chance) {
+            return this.result(result, BinomialDistributionGenerator.binomial(count, chance));
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemLike result, int count) {
+            return this.result(result, ConstantValue.exactly(count));
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemLike result, float chance) {
+            return this.result(result, 1, chance);
+        }
+
+        public TimeWarpKubeRecipe result(@NotNull ItemLike result) {
+            return this.result(result, ConstantValue.exactly(1.0f));
         }
 
         @Override
@@ -108,21 +145,33 @@ public interface TimeWarpRecipeSchema {
         }
     }
 
-    RecipeKey<List<Ingredient>> INGREDIENTS = IngredientComponent.INGREDIENT.asList().inputKey("ingredients").defaultOptional();
-    RecipeKey<List<Ingredient>> EXACT_INGREDIENTS = IngredientComponent.INGREDIENT.asList().otherKey("exactIngredients").defaultOptional();
-    RecipeKey<List<ChanceItemStack>> RESULTS = AnvilCraftRecipeComponents.CHANCE_ITEM_STACK.asList().inputKey("results").defaultOptional();
-    RecipeKey<Block> CAULDRON = BlockComponent.BLOCK.outputKey("cauldron").optional(Blocks.CAULDRON).alwaysWrite();
-    RecipeKey<Boolean> PRODUCE_FLUID = BooleanComponent.BOOLEAN.otherKey("produce_fluid").optional(false).alwaysWrite();
-    RecipeKey<Boolean> CONSUME_FLUID = BooleanComponent.BOOLEAN.otherKey("consume_fluid").optional(false).alwaysWrite();
-    RecipeKey<Boolean> FROM_WATER = BooleanComponent.BOOLEAN.otherKey("from_water").optional(false).alwaysWrite();
-    RecipeKey<Integer> REQUIRED_FLUID_LEVEL = NumberComponent.INT.otherKey("requiredFluidLevel").optional(0);
+    RecipeKey<List<ItemIngredientPredicate>> INGREDIENTS = ItemIngredientPredicateComponent.INSTANCE
+        .asList()
+        .key("ingredients", ComponentRole.INPUT)
+        .defaultOptional();
+    RecipeKey<List<ChanceItemStack>> RESULTS = ChanceItemStackComponent.INSTANCE
+        .asList()
+        .key("results", ComponentRole.OUTPUT)
+        .defaultOptional();
+    RecipeKey<ResourceLocation> FLUID = AnvilCraftRecipeComponents.RESOURCE_LOCATION
+        .key("fluid", ComponentRole.OUTPUT)
+        .optional(HasCauldron.EMPTY)
+        .alwaysWrite();
+    RecipeKey<Integer> CONSUME = NumberComponent.INT
+        .key("consume", ComponentRole.OUTPUT)
+        .optional(0)
+        .alwaysWrite();
+    RecipeKey<ResourceLocation> TRANSFORM = AnvilCraftRecipeComponents.RESOURCE_LOCATION
+        .key("transform", ComponentRole.OUTPUT)
+        .optional(HasCauldron.NULL)
+        .alwaysWrite();
 
-    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, EXACT_INGREDIENTS, RESULTS, CAULDRON, PRODUCE_FLUID, CONSUME_FLUID, FROM_WATER, REQUIRED_FLUID_LEVEL)
+    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, RESULTS, FLUID, CONSUME, TRANSFORM)
         .factory(new KubeRecipeFactory(AnvilCraft.of("time_warp"), TimeWarpKubeRecipe.class, TimeWarpKubeRecipe::new))
-        .constructor(INGREDIENTS, EXACT_INGREDIENTS, RESULTS, CAULDRON, PRODUCE_FLUID, CONSUME_FLUID, FROM_WATER, REQUIRED_FLUID_LEVEL)
+        .constructor(INGREDIENTS, RESULTS, FLUID, CONSUME, TRANSFORM)
+        .constructor(INGREDIENTS, RESULTS, FLUID, CONSUME)
+        .constructor(INGREDIENTS, RESULTS, FLUID)
         .constructor(INGREDIENTS, RESULTS)
-        .constructor(INGREDIENTS, RESULTS, CAULDRON)
-        .constructor(INGREDIENTS, RESULTS, CAULDRON, PRODUCE_FLUID, CONSUME_FLUID, REQUIRED_FLUID_LEVEL)
         .constructor(new IDRecipeConstructor())
         .constructor();
 }

@@ -4,6 +4,6 @@
     "anvilcraft:royal_steel_hoe",
     "anvilcraft:frost_metal_hoe",
     "anvilcraft:ember_metal_hoe",
-    "anvilcraft:multiphase_matter_hoe"
+    "#anvilcraft:tools/resonator"
   ]
 }

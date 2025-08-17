@@ -2,17 +2,15 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.ChanceItemStack;
-import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
-import dev.dubhe.anvilcraft.util.CauldronUtil;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
@@ -39,36 +37,35 @@ public class TimeWarpRecipeLoader {
         timeWarp(provider, ModBlocks.TUNGSTEN_BLOCK, 1, ModItems.RAW_TUNGSTEN, 3);
         timeWarp(provider, ModBlocks.LEAD_BLOCK, 1, ModItems.RAW_LEAD, 3);
         timeWarp(provider, ModBlocks.SILVER_BLOCK, 1, ModItems.RAW_SILVER, 3);
-        timeWarp(provider, ModBlocks.URANIUM_BLOCK, 1, ModItems.RAW_URANIUM, 3);
         timeWarp(provider, ModItems.SEA_HEART_SHELL_SHARD, 1, ModItems.SEA_HEART_SHELL, 1);
 
         TimeWarpRecipe.builder()
             .requires(Items.EMERALD)
-            .result(new ItemStack(Items.EMERALD_BLOCK))
-            .consumeFluid(true)
-            .cauldron(ModBlocks.MELT_GEM_CAULDRON.get())
+            .result(Items.EMERALD_BLOCK)
+            .consume(1)
+            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ModItems.RUBY)
-            .result(new ItemStack(ModBlocks.RUBY_BLOCK))
-            .consumeFluid(true)
-            .cauldron(ModBlocks.MELT_GEM_CAULDRON.get())
+            .result(ModBlocks.RUBY_BLOCK)
+            .consume(1)
+            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ModItems.TOPAZ)
-            .result(new ItemStack(ModBlocks.TOPAZ_BLOCK))
-            .consumeFluid(true)
-            .cauldron(ModBlocks.MELT_GEM_CAULDRON.get())
+            .result(ModBlocks.TOPAZ_BLOCK)
+            .consume(1)
+            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ModItems.SAPPHIRE)
-            .result(new ItemStack(ModBlocks.SAPPHIRE_BLOCK))
-            .consumeFluid(true)
-            .cauldron(ModBlocks.MELT_GEM_CAULDRON.get())
+            .result(ModBlocks.SAPPHIRE_BLOCK)
+            .consume(1)
+            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ItemTags.LOGS)
-            .result(new ItemStack(Items.COAL))
+            .result(Items.COAL)
             .save(provider, AnvilCraft.of("time_warp/coal_from_logs"));
 
         timeWarpToOilCauldron(provider, Items.ROTTEN_FLESH, 64);
@@ -85,93 +82,105 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
-            .cauldron(ModBlocks.FIRE_CAULDRON.get())
-            .result(ChanceItemStack.of(ModItems.EMBER_METAL_INGOT.asStack(3)))
-            .requiredFluidLevel(CauldronUtil.maxLevel(ModBlocks.FIRE_CAULDRON.get()))
-            .consumeFluid(true)
+            .transform(ModBlocks.FIRE_CAULDRON.get())
+            .result(ModItems.EMBER_METAL_INGOT, 3)
+            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .consume(1)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_0"));
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 1)
-            .cauldron(ModBlocks.FIRE_CAULDRON.get())
-            .result(ChanceItemStack.of(ModItems.EMBER_METAL_INGOT.asStack(4)))
-            .requiredFluidLevel(CauldronUtil.maxLevel(ModBlocks.FIRE_CAULDRON.get()))
-            .consumeFluid(true)
+            .transform(ModBlocks.FIRE_CAULDRON.get())
+            .result(ModItems.EMBER_METAL_INGOT, 4)
+            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .consume(1)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_1"));
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 2)
-            .cauldron(ModBlocks.FIRE_CAULDRON.get())
-            .result(ChanceItemStack.of(ModItems.EMBER_METAL_INGOT.asStack(5)))
-            .requiredFluidLevel(CauldronUtil.maxLevel(ModBlocks.FIRE_CAULDRON.get()))
-            .consumeFluid(true)
+            .transform(ModBlocks.FIRE_CAULDRON.get())
+            .result(ModItems.EMBER_METAL_INGOT, 5)
+            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .consume(1)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_2"));
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 3)
-            .cauldron(ModBlocks.FIRE_CAULDRON.get())
-            .result(ChanceItemStack.of(ModItems.EMBER_METAL_INGOT.asStack(6)))
-            .requiredFluidLevel(CauldronUtil.maxLevel(ModBlocks.FIRE_CAULDRON.get()))
-            .consumeFluid(true)
+            .transform(ModBlocks.FIRE_CAULDRON.get())
+            .result(ModItems.EMBER_METAL_INGOT, 6)
+            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .consume(1)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_3"));
 
         TimeWarpRecipe.builder()
             .requires(Items.SKELETON_SKULL)
             .requires(Items.COAL, 4)
-            .result(Items.WITHER_SKELETON_SKULL.getDefaultInstance())
+            .result(Items.WITHER_SKELETON_SKULL)
             .save(provider);
 
         TimeWarpRecipe.builder()
             .requires(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
-            .requiredFluidLevel(3)
-            .consumeFluid(true)
-            .cauldron(Blocks.POWDER_SNOW_CAULDRON)
-            .result(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE.asStack())
+            .consume(3)
+            .fluid(Blocks.POWDER_SNOW_CAULDRON)
+            .result(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE)
             .save(provider);
 
         TimeWarpRecipe.builder()
             .requires(ModItems.TITANIUM_INGOT)
             .requires(ModItems.SILVER_INGOT)
             .requires(Items.IRON_INGOT)
-            .requiredFluidLevel(3)
-            .consumeFluid(true)
-            .cauldron(Blocks.POWDER_SNOW_CAULDRON)
-            .result(ModItems.FROST_METAL_INGOT.asStack())
+            .consume(3)
+            .fluid(Blocks.POWDER_SNOW_CAULDRON)
+            .result(ModItems.FROST_METAL_INGOT)
             .save(provider);
 
         TimeWarpRecipe.builder()
             .requires(ItemTags.FLOWERS)
-            .result(Items.WITHER_ROSE.getDefaultInstance(), 0.2f)
+            .result(Items.WITHER_ROSE, 0.2f)
             .save(provider);
+
+        TimeWarpRecipe.builder()
+            .heat(HeatTier.INCANDESCENT, 6000)
+            .requires(ModBlocks.URANIUM_BLOCK)
+            .result(ModItems.RAW_URANIUM, 2)
+            .result(ModItems.RAW_LEAD.asStack())
+            .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_uranium_block"));
+        TimeWarpRecipe.builder()
+            .heat(HeatTier.INCANDESCENT, 12000)
+            .requires(ModBlocks.PLUTONIUM_BLOCK)
+            .result(ModItems.RAW_URANIUM, 3)
+            .result(ModItems.RAW_LEAD.asStack())
+            .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_plutonium_block"));
     }
 
     private static void timeWarp(
         RegistrateRecipeProvider provider, ItemLike input, int inputCount, ItemLike output, int outputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
-            .result(new ItemStack(output, outputCount))
+            .result(output, outputCount)
             .save(provider);
     }
 
     private static void timeWarpToOilCauldron(RegistrateRecipeProvider provider, ItemLike input, int inputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
-            .produceFluid(true)
-            .cauldron(ModBlocks.OIL_CAULDRON.get())
+            .consume(-1)
+            .transform(ModBlocks.OIL_CAULDRON.get())
             .save(
                 provider,
                 AnvilCraft.of("time_warp/oil_from_"
                     + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath()));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void timeWarpToOilCauldron(RegistrateRecipeProvider provider, TagKey<Item> input, int inputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
-            .produceFluid(true)
-            .cauldron(ModBlocks.OIL_CAULDRON.get())
+            .consume(-1)
+            .transform(ModBlocks.OIL_CAULDRON.get())
             .save(
                 provider,
                 AnvilCraft.of("time_warp/oil_from_" + input.location().getPath()));

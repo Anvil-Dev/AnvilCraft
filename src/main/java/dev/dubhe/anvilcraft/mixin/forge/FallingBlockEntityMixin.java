@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.DeflectionEntity;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -73,7 +74,7 @@ abstract class FallingBlockEntityMixin extends Entity {
     private void anvilFallOnGround(CallbackInfo ci, @Local BlockPos blockPos) {
         if (this.level().isClientSide()) return;
         if (!this.blockState.is(BlockTags.ANVIL)) return;
-        FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
+        FallingBlockEntity entity = Util.cast(this);
         AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, entity, this.anvilcraft$fallDistance);
         NeoForge.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
@@ -106,7 +107,7 @@ abstract class FallingBlockEntityMixin extends Entity {
         @Local Predicate<Entity> predicate,
         @Local(ordinal = 2) float f
     ) {
-        FallingBlockEntity anvil = (FallingBlockEntity) (Object) this;
+        FallingBlockEntity anvil = Util.cast(this);
         Level level = this.level();
         List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);
         for (Entity entity : entities) {

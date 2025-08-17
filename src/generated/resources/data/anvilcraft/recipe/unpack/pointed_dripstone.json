@@ -2,16 +2,13 @@
   "type": "anvilcraft:unpack",
   "ingredients": [
     {
-      "item": "minecraft:dripstone_block"
+      "items": "minecraft:dripstone_block"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 4,
-        "id": "minecraft:pointed_dripstone"
-      }
+      "count": 4,
+      "id": "minecraft:pointed_dripstone"
     }
   ]
 }

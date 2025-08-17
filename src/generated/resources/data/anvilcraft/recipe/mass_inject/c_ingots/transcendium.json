@@ -1,0 +1,16 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/transcendium"
+      }
+    }
+  ],
+  "type": "anvilcraft:mass_inject",
+  "ingredient": {
+    "tag": "c:ingots/transcendium"
+  },
+  "mass": 2500
+}

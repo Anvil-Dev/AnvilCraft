@@ -2,29 +2,39 @@ package dev.dubhe.anvilcraft.api.integration;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.neoforged.fml.loading.moddiscovery.ModInfo;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
 public final class IntegrationInstance {
     private final String modid;
+    private final ModVersionRange versionRange;
     private final String className;
+    private final List<IntegrationType> type;
     private Class<?> clazz;
     private Object instance;
     private MethodHandle constructor;
     private MethodHandle loader;
     private MethodHandle clientLoader;
+    private MethodHandle dataLoader;
 
     @SneakyThrows
     public IntegrationInstance(
         String modid,
-        String className
+        ModVersionRange versionRange,
+        String className,
+        List<IntegrationType> type
     ) {
         this.modid = modid;
+        this.versionRange = versionRange;
         this.className = className;
+        this.type = type;
     }
 
     @SneakyThrows
@@ -46,7 +56,13 @@ public final class IntegrationInstance {
                 loader = null;
             }
             this.clientLoader = loader;
-            if (this.loader == null && this.clientLoader == null) {
+            try {
+                loader = lookup.findVirtual(clazz, "applyData", MethodType.methodType(void.class));
+            } catch (Throwable e) {
+                loader = null;
+            }
+            this.dataLoader = loader;
+            if (this.loader == null && this.clientLoader == null && this.dataLoader == null) {
                 log.warn("Integration {} does not declare any loader method.", className);
             }
         }
@@ -67,6 +83,21 @@ public final class IntegrationInstance {
         if (clientLoader != null) {
             clientLoader.invoke(instance);
         }
+    }
+
+    @SneakyThrows
+    public void invokeData() {
+        if (dataLoader != null) {
+            dataLoader.invoke(instance);
+        }
+    }
+
+    public boolean containsType(IntegrationType type) {
+        return this.type.contains(type);
+    }
+
+    public boolean is(@NotNull ModInfo modInfo) {
+        return modid.equals(modInfo.getModId()) && versionRange.containsVersion(modInfo.getVersion());
     }
 
     public String modid() {

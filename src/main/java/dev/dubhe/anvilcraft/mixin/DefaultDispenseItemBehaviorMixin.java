@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -37,7 +37,7 @@ public abstract class DefaultDispenseItemBehaviorMixin {
         BlockPos targetBlockPos = blockSource.pos().relative(direction);
         BlockState targetState = blockSource.level().getBlockState(targetBlockPos);
         if (!(targetState.getBlock() instanceof AbstractCauldronBlock cauldronBlock)) return;
-        Player player = AnvilCraftBlockPlacer.anvilCraftBlockPlacer.getPlayer();
+        Player player = AnvilCraftFakePlayers.anvilCraftBlockPlacer.getPlayer();
         ItemStack itemStack = item.copy();
         itemStack.setCount(1);
         player.setItemInHand(player.getUsedItemHand(), itemStack);

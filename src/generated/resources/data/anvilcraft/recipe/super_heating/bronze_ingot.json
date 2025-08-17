@@ -2,22 +2,17 @@
   "type": "anvilcraft:super_heating",
   "ingredients": [
     {
-      "item": "minecraft:copper_ingot"
+      "count": 2,
+      "items": "minecraft:copper_ingot"
     },
     {
-      "item": "minecraft:copper_ingot"
-    },
-    {
-      "tag": "c:ingots/tin"
+      "items": "#c:ingots/tin"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 3,
-        "id": "anvilcraft:bronze_ingot"
-      }
+      "count": 3,
+      "id": "anvilcraft:bronze_ingot"
     }
   ]
 }

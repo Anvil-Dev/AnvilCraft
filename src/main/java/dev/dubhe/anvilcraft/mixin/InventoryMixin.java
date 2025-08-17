@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.item.amulet.AbstractAmuletItem;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
@@ -16,11 +17,14 @@ abstract class InventoryMixin {
     @Final
     public Player player;
 
+    @SuppressWarnings("PatternVariableHidesField")
     @Inject(
         method = "tick",
         at = @At(value = "HEAD")
     )
     private void preInventoryTick(CallbackInfo ci) {
-        AbstractAmuletItem.resetWorkingAmuletData(this.player);
+        if (this.player instanceof ServerPlayer player) {
+            AmuletManager.INSTANCE.inventoryTick(player);
+        }
     }
 }

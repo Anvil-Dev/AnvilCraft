@@ -1,13 +1,40 @@
 package dev.dubhe.anvilcraft.util;
 
+import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.tterrag.registrate.providers.RegistrateProvider;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import net.minecraft.advancements.critereon.EnchantmentPredicate;
+import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.ItemSubPredicates;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
+import java.util.List;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataGenUtil {
     public static void powerLevelPressurePlate(
         RegistrateBlockstateProvider provider, ResourceLocation id,
@@ -56,5 +83,46 @@ public class DataGenUtil {
                 new ConfiguredModel(diodeOn, 0, 180, false))
             .partialState().with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, true).addModels(
                 new ConfiguredModel(diodeOn, 0, 270, false));
+    }
+
+    @SuppressWarnings("unused")
+    public static <T extends RegistrateProvider> void noExtraModelOrState(DataGenContext<?, ?> context, T provider) {
+    }
+
+    @SuppressWarnings("unused")
+    public static <T> void noLoot(RegistrateBlockLootTables tables, T value) {
+    }
+
+    public static <E extends Block> void simple(DataGenContext<Block, E> context, RegistrateBlockstateProvider provider) {
+        provider.simpleBlock(
+            context.get(),
+            DangerUtil.genConfiguredModel("block/" + context.getId().getPath()).get()
+        );
+    }
+
+    public static LootItemCondition.Builder hasSilkTouch(HolderLookup.Provider registries) {
+        HolderLookup.RegistryLookup<Enchantment> lookup = registries.lookupOrThrow(Registries.ENCHANTMENT);
+        return MatchTool.toolMatches(
+            ItemPredicate.Builder.item()
+                .withSubPredicate(
+                    ItemSubPredicates.ENCHANTMENTS,
+                    ItemEnchantmentsPredicate.enchantments(
+                        List.of(new EnchantmentPredicate(lookup.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))
+                    )
+                )
+        );
+    }
+
+    public static void dropOtherAndSelfWhenSilkTouch(RegistrateBlockLootTables tables, Block block, ItemLike other) {
+        tables.add(block, LootTable.lootTable()
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(AlternativesEntry.alternatives(
+                        LootItem.lootTableItem(block).when(hasSilkTouch(tables.getRegistries())),
+                        LootItem.lootTableItem(other).when(ExplosionCondition.survivesExplosion())
+                    ))
+            )
+        );
     }
 }

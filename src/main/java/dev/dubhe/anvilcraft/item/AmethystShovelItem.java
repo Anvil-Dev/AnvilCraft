@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -10,7 +9,7 @@ import net.minecraft.world.level.Level;
 
 public class AmethystShovelItem extends ShovelItem {
     public AmethystShovelItem(Properties properties) {
-        super(ModTiers.AMETHYST, properties.attributes(AxeItem.createAttributes(ModTiers.AMETHYST, 1.5f, -3.0f)));
+        super(ModTiers.AMETHYST, properties.attributes(ShovelItem.createAttributes(ModTiers.AMETHYST, 1.5f, -3.0f)));
     }
 
     @Override

@@ -1,10 +1,14 @@
 {
   "type": "anvilcraft:item_inject",
+  "block_ingredient": {
+    "blocks": "minecraft:shulker_box"
+  },
+  "block_result": {
+    "block": "anvilcraft:over_nesting_shulker_box"
+  },
   "ingredients": [
     {
-      "item": "anvilcraft:nesting_shulker_box"
+      "items": "anvilcraft:nesting_shulker_box"
     }
-  ],
-  "input_block": "minecraft:shulker_box",
-  "result_block": "anvilcraft:over_nesting_shulker_box"
+  ]
 }

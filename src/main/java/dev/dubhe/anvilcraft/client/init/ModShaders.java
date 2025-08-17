@@ -53,7 +53,6 @@ public class ModShaders {
                 ),
                 it -> renderTypeColoredOverlayShader = it
             );
-
             event.registerShader(
                 new ShaderInstance(
                     event.getResourceProvider(),

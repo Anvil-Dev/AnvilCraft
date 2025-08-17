@@ -32,6 +32,7 @@ public class FullBrightLevel implements BlockAndTintGetter {
 
     @Override
     public LevelLightEngine getLightEngine() {
+        //noinspection DataFlowIssue
         return null;
     }
 

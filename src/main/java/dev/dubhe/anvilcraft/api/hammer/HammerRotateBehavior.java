@@ -27,24 +27,6 @@ public interface HammerRotateBehavior extends IHammerChangeable {
         }
     };
 
-    @Override
-    default boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
-        BlockState state = level.getBlockState(blockPos);
-        if (state.hasProperty(FACING)) {
-            state = HammerRotateBehavior.rotate(state);
-        } else {
-            if (state.hasProperty(FACING_HOPPER)) {
-                state = HammerRotateBehavior.hopperRotate(state);
-            } else {
-                if (state.hasProperty(HORIZONTAL_FACING)) {
-                    state = HammerRotateBehavior.horizontalRotate(state);
-                }
-            }
-        }
-        level.setBlockAndUpdate(blockPos, state);
-        return true;
-    }
-
     private static @NotNull BlockState rotate(@NotNull BlockState state) {
         Direction direction = state.getValue(FACING);
         return switch (direction) {
@@ -64,7 +46,6 @@ public interface HammerRotateBehavior extends IHammerChangeable {
         };
     }
 
-    @SuppressWarnings("SameParameterValue")
     private static @NotNull BlockState horizontalRotate(@NotNull BlockState state) {
         return state.setValue(
             HORIZONTAL_FACING,
@@ -73,7 +54,25 @@ public interface HammerRotateBehavior extends IHammerChangeable {
     }
 
     @Override
-    default Property<?> getChangeableProperty(BlockState state) {
+    default boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+        BlockState state = level.getBlockState(blockPos);
+        if (state.hasProperty(FACING)) {
+            state = HammerRotateBehavior.rotate(state);
+        } else {
+            if (state.hasProperty(FACING_HOPPER)) {
+                state = HammerRotateBehavior.hopperRotate(state);
+            } else {
+                if (state.hasProperty(HORIZONTAL_FACING)) {
+                    state = HammerRotateBehavior.horizontalRotate(state);
+                }
+            }
+        }
+        level.setBlockAndUpdate(blockPos, state);
+        return true;
+    }
+
+    @Override
+    default Property<?> getChangeableProperty(@NotNull BlockState state) {
         if (state.hasProperty(FACING)) {
             return FACING;
         } else if (state.hasProperty(FACING_HOPPER)) {

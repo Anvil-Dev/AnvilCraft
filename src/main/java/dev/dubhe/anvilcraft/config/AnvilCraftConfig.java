@@ -175,6 +175,18 @@ public class AnvilCraftConfig implements ConfigData {
     @Comment("Block Placer recursive retrieval of container max distance")
     public int blockPlacerRecursiveRetrievalDistanceMax = 7;
 
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Combining items with Enchanted Books beyond max level in Royal Anvil")
+    public boolean royalAnvilBeyondMaxLevel = false;
+
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Combining items with Enchanted Books beyond max level in Ember Anvil")
+    public boolean emberAnvilBeyondMaxLevel = false;
+
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Combining items with Enchanted Books beyond max level in Transcendence Anvil")
+    public boolean transcendenceAnvilBeyondMaxLevel = true;
+
     public static class PowerConverter implements ConfigData {
         @Comment("The working interval of power converters")
         @ConfigEntry.Gui.Tooltip
@@ -219,6 +231,14 @@ public class AnvilCraftConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 24, min = 1)
     public int anvilCollisionCraftSpeed = 16;
+
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Press shift and right click to take out all totem stored in the holding amulet box")
+    public boolean amuletBoxTakeOutAllTotem = true;
+
+    @ConfigEntry.Gui.Tooltip
+    @Comment("Pushing or pulling a sliding rail will chain to other rails")
+    public boolean slidingRailStickToEachOther = false;
 
     public enum GoggleMode implements ConfigData {
         ALWAYS_SHOW,

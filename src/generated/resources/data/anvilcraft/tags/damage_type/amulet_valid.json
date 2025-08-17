@@ -1,0 +1,28 @@
+{
+  "values": [
+    {
+      "id": "#anvilcraft:amulet_valid/topaz",
+      "required": false
+    },
+    {
+      "id": "#anvilcraft:amulet_valid/ruby",
+      "required": false
+    },
+    {
+      "id": "#anvilcraft:amulet_valid/sapphire",
+      "required": false
+    },
+    {
+      "id": "#anvilcraft:amulet_valid/anvil",
+      "required": false
+    },
+    {
+      "id": "#anvilcraft:amulet_valid/feather",
+      "required": false
+    },
+    {
+      "id": "#anvilcraft:amulet_valid/abnormal",
+      "required": false
+    }
+  ]
+}

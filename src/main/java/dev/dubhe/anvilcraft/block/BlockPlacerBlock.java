@@ -47,7 +47,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumSet;
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.api.entity.player.AnvilCraftBlockPlacer.anvilCraftBlockPlacer;
+import static dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers.anvilCraftBlockPlacer;
 import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getSourceItemHandlerRecursive;
 
 @ParametersAreNonnullByDefault

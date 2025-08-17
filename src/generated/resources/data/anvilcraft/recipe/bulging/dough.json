@@ -1,21 +1,14 @@
 {
   "type": "anvilcraft:bulging",
-  "cauldron": "minecraft:water_cauldron",
-  "consume_fluid": false,
-  "from_water": false,
+  "fluid": "minecraft:water",
   "ingredients": [
     {
-      "item": "anvilcraft:flour"
+      "items": "anvilcraft:flour"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:dough"
-      }
+      "id": "anvilcraft:dough"
     }
   ]
 }

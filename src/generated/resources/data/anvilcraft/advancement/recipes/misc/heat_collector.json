@@ -1,0 +1,76 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_blue_ice": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:blue_ice"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_charge_collector": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:charge_collector"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_plates/copper": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:plates/copper"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_royal_steel_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:royal_steel_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_sapphire": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:sapphire"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:heat_collector"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_sapphire",
+      "has_plates/copper",
+      "has_charge_collector",
+      "has_blue_ice",
+      "has_royal_steel_ingot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:heat_collector"
+    ]
+  }
+}

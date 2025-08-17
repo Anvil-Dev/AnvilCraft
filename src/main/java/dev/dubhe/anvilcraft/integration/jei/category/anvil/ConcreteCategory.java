@@ -84,8 +84,8 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, ColoredConcreteRecipe recipe, IFocusGroup focuses) {
-        JeiSlotUtil.addInputSlots(builder, recipe.mergedIngredients);
-        JeiSlotUtil.addOutputSlots(builder, List.of(recipe.result));
+        JeiSlotUtil.addInputSlots(builder, recipe.ingredients());
+        JeiSlotUtil.addOutputSlots(builder, List.of(recipe.result()));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
             RenderHelper.SINGLE_BLOCK);
         RenderHelper.renderBlock(
             guiGraphics,
-            ModBlocks.CEMENT_CAULDRONS.get(recipe.color).getDefaultState(),
+            ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(),
             81,
             40,
             10,
@@ -116,7 +116,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.ingredients().size());
         JeiSlotUtil.drawOutputSlots(guiGraphics, slot, 1);
     }
 
@@ -129,7 +129,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         double mouseY) {
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(ModBlocks.CEMENT_CAULDRONS.get(recipe.color).get().getName());
+                tooltip.add(ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).get().getName());
             }
         }
     }

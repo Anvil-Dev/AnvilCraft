@@ -1,0 +1,18 @@
+{
+  "name": "流程6-腐化信标与时移",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:corrupted_beacon",
+  "sortnum": 6,
+  "entry_color": "004400",
+  "pages": [
+    "在获得足够的$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$()和信标之后，可以通过使仅用$(item)诅咒金块$()作为底座的$(item)信标$()被$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$()激活，其有概率被转化为$(l:smithing/corrupted_beacon#corrupted_beacon)腐化信标$()。它可以执行$(l:smithing/corrupted_beacon#time_warp)时移$()操作，为你执行很多新奇且有用配方！包括但不限于：再生下界残骸和海洋之心、获得紫水晶母岩！$(br2)$(#888888)时移：锅中之物走过漫漫时间$()",
+    "$(#aa2222)Tips$()：可以通过建造小黑塔获得经验，不断修复木质物品积累再消耗其携带的$(thing)附魔惩罚$()，获得大量诅咒金。$(br)$(#aa2222)Tips$()：通过村民交易获得诅咒附魔书，以此也可以获得大量诅咒金。",
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/corrupted_beacon"
+      ],
+      "text": ""
+    }
+  ]
+}

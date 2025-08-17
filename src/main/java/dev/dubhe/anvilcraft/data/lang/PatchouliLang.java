@@ -13,6 +13,6 @@ public class PatchouliLang {
     public static void init(@NotNull RegistrateLangProvider provider) {
         provider.add("message.anvilcraft.need_patchouli_installed", "Patchouli needs to be installed");
 
-        provider.add("patchouli.anvilcraft.landing_text", "Welcome to AnvilCraft");
+        provider.add("patchouli.anvilcraft.landing_text", "Welcome to AnvilCraft.");
     }
 }

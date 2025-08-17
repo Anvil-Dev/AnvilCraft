@@ -1,0 +1,34 @@
+{
+  "name": "Power Transmission",
+  "category": "anvilcraft:power_system",
+  "icon": "anvilcraft:transmission_pole",
+  "sortnum": 2001,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Each transmission pole has its own range of power supply. The generators and consumers within the range are connected to the same power grid. Two transmission poles can be connected to the grid if they have any overlapping power supply range."
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "transmission_pole",
+      "recipe": "anvilcraft:transmission_pole",
+      "text": "The $(item)Transmission Pole$()'s power supply distance is 8. The range is centered on the head 17 x 17 x 17."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:remote_transmission_pole",
+      "text": "The $(item)Remote Transmission Pole$()'s power supply distance is 16. The range is centered on the head 33 x 33 x 33."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:load_monitor",
+      "text": "The $(item)Load Monitor$() can display the grid load. Use the comparator to output the redstone signal in proportion to the load. When overloaded, it will also directly output the redstone signal."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:charge_collector",
+      "title": "Generator",
+      "text": "Any $(thing)Generator$()'s power supply distance are 2. The range is centered on the head 5 x 5 x 5."
+    }
+  ]
+}

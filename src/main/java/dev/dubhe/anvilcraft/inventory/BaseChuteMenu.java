@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
+import dev.dubhe.anvilcraft.item.FilterItem;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -159,7 +160,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
             // 当前槽位没有禁用，并且要放入的物品就是当前槽位的过滤器要过滤的物品，返回true
             // 如果未设置保留物品过滤，即所有槽位都没有被禁用，此时过滤器不会过滤任何物品，所以当前过滤器要过滤的物品为空时也应该返回true
             ItemStack filterItem = depositorySlot.getFilterItem(9 - (45 - index));
-            return filterItem.isEmpty() || filterItem.is(stack.getItem());
+            return filterItem.isEmpty() || ItemStack.isSameItem(filterItem, stack) || FilterItem.filter(filterItem, stack);
         }
         return true;
     }

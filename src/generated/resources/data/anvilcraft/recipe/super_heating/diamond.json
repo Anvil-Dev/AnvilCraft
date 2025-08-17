@@ -2,37 +2,13 @@
   "type": "anvilcraft:super_heating",
   "ingredients": [
     {
-      "item": "minecraft:coal_block"
-    },
-    {
-      "item": "minecraft:coal_block"
-    },
-    {
-      "item": "minecraft:coal_block"
-    },
-    {
-      "item": "minecraft:coal_block"
-    },
-    {
-      "item": "minecraft:coal_block"
-    },
-    {
-      "item": "minecraft:coal_block"
-    },
-    {
-      "item": "minecraft:coal_block"
-    },
-    {
-      "item": "minecraft:coal_block"
+      "count": 8,
+      "items": "minecraft:coal_block"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:diamond"
-      }
+      "id": "minecraft:diamond"
     }
   ]
 }

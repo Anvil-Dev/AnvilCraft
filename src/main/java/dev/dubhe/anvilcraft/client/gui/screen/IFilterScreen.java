@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -15,12 +17,14 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.function.BiFunction;
 
 /**
  * 有过滤的 GUI
  */
-public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
+public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> extends IGhostIngredientScreen {
     ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
 
     T getFilterMenu();
@@ -157,5 +161,20 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> {
 
     default int getOffsetX() {
         return 0;
+    }
+
+    @Override
+    default Collection<Integer> getGhostSlots() {
+        if (!this.getFilterMenu().isFilterEnabled()) return List.of();
+        return IGhostIngredientScreen.range(36, 45, 1);
+    }
+
+    @Override
+    default void acceptGhost(Slot slot, ItemStack ingredient) {
+        if (!this.getFilterMenu().isFilterEnabled()) return;
+        int slotIndex = slot.getSlotIndex();
+        PacketDistributor.sendToServer(new SlotDisableChangePacket(slotIndex, false));
+        PacketDistributor.sendToServer(new SlotFilterChangePacket(slotIndex, ingredient.copyWithCount(1)));
+        this.getFilterMenu().setFilter(slotIndex, ingredient.copyWithCount(1));
     }
 }

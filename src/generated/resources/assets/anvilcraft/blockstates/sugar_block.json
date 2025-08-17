@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "fragmentation_degree=0": {
+      "model": "anvilcraft:block/sugar_block"
+    },
+    "fragmentation_degree=1": {
+      "model": "anvilcraft:block/sugar_block1"
+    },
+    "fragmentation_degree=2": {
+      "model": "anvilcraft:block/sugar_block2"
+    },
+    "fragmentation_degree=3": {
+      "model": "anvilcraft:block/sugar_block3"
+    }
+  }
+}

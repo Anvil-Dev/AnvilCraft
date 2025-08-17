@@ -13,20 +13,31 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SeedsPackItem extends Item {
     public SeedsPackItem(Properties properties) {
         super(properties);
     }
 
+    private List<Item> items = List.of();
+    private Level level = null;
+
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(
-        @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
+        @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand
+    ) {
         ItemStack stack = player.getItemInHand(usedHand);
-        List<Item> items = BuiltInRegistries.ITEM.getOrCreateTag(ModItemTags.SEEDS_PACK_CONTENT).stream()
-            .filter(Holder::isBound)
-            .map(Holder::value)
-            .toList();
+        if (items.isEmpty() || this.level == null || this.level != level) {
+            items = BuiltInRegistries.ITEM.getOrCreateTag(ModItemTags.SEEDS_PACK_CONTENT)
+                .stream()
+                .filter(Holder::isBound)
+                .map(Holder::value)
+                .collect(Collectors.toSet())
+                .stream()
+                .toList();
+            this.level = level;
+        }
         if (items.isEmpty()) return InteractionResultHolder.fail(stack);
         if (!level.isClientSide()) {
             RandomSource random = level.getRandom();

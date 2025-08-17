@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
@@ -12,6 +13,8 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
@@ -22,6 +25,7 @@ import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
@@ -31,9 +35,13 @@ import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ThermoelectricConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.heatable.OverheatedBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.heatable.RedhotBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCrafterRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
@@ -41,8 +49,10 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRender
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
@@ -172,9 +182,10 @@ public class ModBlockEntities {
         .renderer(() -> LaserBlockRenderer::new)
         .register();
 
-    public static final BlockEntityEntry<ThermoelectricConverterBlockEntity> THERMOELECTRIC_CONVERTER = REGISTRATE
-        .blockEntity("thermoelectric_converter", ThermoelectricConverterBlockEntity::new)
-        .validBlocks(ModBlocks.THERMOELECTRIC_CONVERTER)
+    public static final BlockEntityEntry<HeatCollectorBlockEntity> HEAT_COLLECTOR = REGISTRATE
+        .blockEntity("heat_collector", HeatCollectorBlockEntity::createBlockEntity)
+        .renderer(() -> HeatCollectorRenderer::new)
+        .validBlock(ModBlocks.HEAT_COLLECTOR)
         .register();
 
     public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRATE
@@ -233,6 +244,43 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<PulseGeneratorBlockEntity> PULSE_GENERATOR = REGISTRATE
         .blockEntity("pulse_generator", PulseGeneratorBlockEntity::createBlockEntity)
         .validBlocks(ModBlocks.PULSE_GENERATOR)
+        .register();
+
+    public static final BlockEntityEntry<HeatedBlockEntity> HEATED_BLOCK = REGISTRATE
+        .blockEntity("heated_block", HeatedBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.HEATED_NETHERITE_BLOCK, ModBlocks.HEATED_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<RedhotBlockEntity> REDHOT_BLOCK = REGISTRATE
+        .blockEntity("redhot_block", RedhotBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.REDHOT_NETHERITE_BLOCK, ModBlocks.REDHOT_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<GlowingBlockEntity> GLOWING_BLOCK = REGISTRATE
+        .blockEntity("glowing_block", GlowingBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.GLOWING_NETHERITE_BLOCK, ModBlocks.GLOWING_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<IncandescentBlockEntity> INCANDESCENT_BLOCK = REGISTRATE
+        .blockEntity("incandescent_block", IncandescentBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.INCANDESCENT_NETHERITE_BLOCK, ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<OverheatedBlockEntity> OVERHEATED_BLOCK = REGISTRATE
+        .blockEntity("overheated_block", OverheatedBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK)
+        .register();
+
+    public static final BlockEntityEntry<PlasmaJetsBlockEntity> PLASMA_JETS = REGISTRATE
+        .blockEntity("plasma_jets", PlasmaJetsBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.PLASMA_JETS)
+        .renderer(() -> PlasmaJetsRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<DetectorSlidingRailBlockEntity> DETECTOR_SLIDING_RAIL = REGISTRATE
+        .blockEntity("detector_sliding_rail", DetectorSlidingRailBlockEntity::new)
+        .validBlocks(ModBlocks.DETECTOR_SLIDING_RAIL)
+        .register();
+
+    public static final BlockEntityEntry<ActivatorSlidingRailBlockEntity> ACTIVATOR_SLIDING_RAIL = REGISTRATE
+        .blockEntity("activator_sliding_rail", ActivatorSlidingRailBlockEntity::new)
+        .validBlocks(ModBlocks.ACTIVATOR_SLIDING_RAIL)
         .register();
 
     public static void register() {

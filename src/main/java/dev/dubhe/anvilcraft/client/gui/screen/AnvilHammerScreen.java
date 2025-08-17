@@ -18,7 +18,8 @@ import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.integration.create.VisualizationUnsupported;
 import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
-import dev.dubhe.anvilcraft.util.FullBrightLevel;
+import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.util.FullBrightLevelProxy;
 import dev.dubhe.anvilcraft.util.MathUtil;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import net.minecraft.client.Camera;
@@ -36,6 +37,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -55,6 +57,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static dev.dubhe.anvilcraft.util.RenderHelper.L1;
 import static dev.dubhe.anvilcraft.util.RenderHelper.L2;
@@ -109,8 +112,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private final List<BlockState> possibleStates;
     private final Camera camera;
 
-    private final Level replacementLevel = VisualizationUnsupported.wrap(minecraft.level);
-    private final BlockAndTintGetter fullBrightLevel = new FullBrightLevel(minecraft.level);
+    private final Level replacementLevel = VisualizationUnsupported.wrap(Objects.requireNonNull(minecraft.level));
+    private final BlockAndTintGetter fullBrightLevel = new FullBrightLevelProxy(minecraft.level);
     private BlockState currentBlockState;
     private final List<SelectionItem> items = new ArrayList<>();
     private long displayTime = System.currentTimeMillis();
@@ -122,14 +125,22 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private float targetAngle = 0f;
     private boolean shouldRebuildChunk = true;
     private boolean validate = true;
+    private final InteractionHand hand;
 
-    public AnvilHammerScreen(BlockPos targetBlockPos, BlockState initialBlockState, Property<?> property, List<BlockState> possibleStates) {
+    public AnvilHammerScreen(
+        BlockPos targetBlockPos,
+        BlockState initialBlockState,
+        Property<?> property,
+        List<BlockState> possibleStates,
+        InteractionHand hand
+    ) {
         super(Component.translatable("screen.anvilcraft.anvil_hammer.title"));
         this.targetBlockPos = targetBlockPos;
         this.currentBlockState = initialBlockState;
         this.property = property;
         this.possibleStates = possibleStates;
         this.camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        this.hand = hand;
     }
 
     @Override
@@ -242,6 +253,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
+    @SuppressWarnings("unused")
     public void renderClosingAnimation(GuiGraphics guiGraphics, int mouseX, int mouseY, float particalTick) {
         if (!closingAnimationStarted) return;
         float delta = displayTime + CLOSING_ANIMATION_T - System.currentTimeMillis();
@@ -254,6 +266,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         renderProgressAnimation(guiGraphics, progress, centerX, centerY);
     }
 
+    @SuppressWarnings({"SameParameterValue", "deprecation"})
     private void renderRotatedBlock(
         PoseStack poseStack,
         BlockState block,
@@ -314,7 +327,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             );
             buffers.endLastBatch();
         }
-        BlockEntity blockEntity = minecraft.level.getBlockEntity(targetBlockPos);
+        BlockEntity blockEntity = Objects.requireNonNull(minecraft.level).getBlockEntity(targetBlockPos);
         if (blockEntity != null && blockEntity.getBlockState().is(block.getBlock())) {
             BlockEntityRenderer<BlockEntity> renderer = minecraft.getBlockEntityRenderDispatcher().getRenderer(blockEntity);
             if (renderer != null) {
@@ -330,7 +343,9 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                     LightTexture.FULL_BLOCK,
                     OverlayTexture.NO_OVERLAY
                 );
-                blockEntity.setLevel(originalLevel);
+                if (originalLevel != null) {
+                    blockEntity.setLevel(originalLevel);
+                }
                 blockEntity.setBlockState(originalBlockState);
             }
         }
@@ -564,11 +579,11 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             .set(radius * guiScale);
 
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        BufferUploader.drawWithShader(bufferBuilder.build());
+        BufferUploader.drawWithShader(Objects.requireNonNull(bufferBuilder.build()));
     }
 
     private boolean isValidState(BlockState selected) {
-        BlockState state = minecraft.level.getBlockState(targetBlockPos);
+        BlockState state = Objects.requireNonNull(minecraft.level).getBlockState(targetBlockPos);
         if (!state.is(selected.getBlock())) return false;
         BlockEntity entity = minecraft.level.getBlockEntity(targetBlockPos);
         return entity == null || entity.getType().isValid(selected);
@@ -588,18 +603,29 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             super.removed();
             return;
         }
-        Minecraft.getInstance().level.setBlock(
-            targetBlockPos,
-            currentBlockState,
-            Block.UPDATE_CLIENTS,
-            0
-        );
-        PacketDistributor.sendToServer(
-            new HammerChangeBlockPacket(
+        if (animationStarted) {
+            Objects.requireNonNull(Minecraft.getInstance().level).setBlock(
                 targetBlockPos,
-                currentBlockState
-            )
-        );
+                currentBlockState,
+                Block.UPDATE_CLIENTS,
+                0
+            );
+            PacketDistributor.sendToServer(
+                new HammerChangeBlockPacket(
+                    targetBlockPos,
+                    currentBlockState
+                )
+            );
+        } else {
+            PacketDistributor.sendToServer(
+                new HammerUsePacket(
+                    targetBlockPos,
+                    hand
+                )
+            );
+            super.removed();
+            return;
+        }
         Minecraft.getInstance().levelRenderer.setBlockDirty(
             targetBlockPos,
             false
@@ -676,7 +702,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             .set(outerDiameter * guiScale);
 
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        BufferUploader.drawWithShader(bufferBuilder.build());
+        BufferUploader.drawWithShader(Objects.requireNonNull(bufferBuilder.build()));
     }
 
     @Override

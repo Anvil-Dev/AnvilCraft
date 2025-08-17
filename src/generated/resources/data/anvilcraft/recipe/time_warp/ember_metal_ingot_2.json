@@ -1,27 +1,21 @@
 {
   "type": "anvilcraft:time_warp",
-  "cauldron": "anvilcraft:fire_cauldron",
-  "consume_fluid": true,
+  "consume": 1,
+  "fluid": "anvilcraft:fire",
   "ingredients": [
     {
-      "tag": "anvilcraft:netherite_block"
+      "items": "#anvilcraft:netherite_block"
     },
     {
-      "item": "anvilcraft:earth_core_shard"
-    },
-    {
-      "item": "anvilcraft:earth_core_shard"
+      "count": 2,
+      "items": "anvilcraft:earth_core_shard"
     }
   ],
-  "produce_fluid": false,
-  "requiredFluidLevel": 4,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 5,
-        "id": "anvilcraft:ember_metal_ingot"
-      }
+      "count": 5,
+      "id": "anvilcraft:ember_metal_ingot"
     }
-  ]
+  ],
+  "transform": "anvilcraft:fire"
 }

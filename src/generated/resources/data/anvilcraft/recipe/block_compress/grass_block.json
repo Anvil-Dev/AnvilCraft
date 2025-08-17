@@ -1,8 +1,0 @@
-{
-  "type": "anvilcraft:block_compress",
-  "inputs": [
-    "minecraft:moss_block",
-    "minecraft:dirt"
-  ],
-  "result": "minecraft:grass_block"
-}

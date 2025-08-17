@@ -18,15 +18,15 @@ public class ModItemGroups {
         DeferredRegister.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.MOD_ID);
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_TOOL =
-        DF.register("tools", () -> CreativeModeTab.builder()
+        DF.register("tools_and_utilities", () -> CreativeModeTab.builder()
             .icon(ModItems.ANVIL_HAMMER::asStack)
             .displayItems((ctx, entries) -> {
             })
-            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools"), "AnvilCraft: Utilities"))
+            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools_and_utilities"), "AnvilCraft: Tools and Utilities"))
             .withTabsAfter(
                 AnvilCraft.of("ingredients"),
-                AnvilCraft.of("functional_block"),
-                AnvilCraft.of("building_block"))
+                AnvilCraft.of("functional_blocks"),
+                AnvilCraft.of("building_blocks"))
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
             .build());
 
@@ -37,11 +37,11 @@ public class ModItemGroups {
             })
             .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
             .withTabsBefore(ANVILCRAFT_TOOL.getId())
-            .withTabsAfter(AnvilCraft.of("functional_block"), AnvilCraft.of("building_block"))
+            .withTabsAfter(AnvilCraft.of("functional_blocks"), AnvilCraft.of("building_blocks"))
             .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK =
-        DF.register("functional_block", () -> CreativeModeTab.builder()
+        DF.register("functional_blocks", () -> CreativeModeTab.builder()
             .icon(ModBlocks.ROYAL_ANVIL::asStack)
             .displayItems((ctx, entries) -> {
                 entries.accept(Items.IRON_TRAPDOOR.getDefaultInstance());
@@ -54,18 +54,18 @@ public class ModItemGroups {
                 entries.accept(Items.DAMAGED_ANVIL.getDefaultInstance());
             })
             .title(REGISTRATE.addLang(
-                "itemGroup", AnvilCraft.of("functional_block"), "AnvilCraft: Functional Block"))
+                "itemGroup", AnvilCraft.of("functional_blocks"), "AnvilCraft: Functional Blocks"))
             .withTabsBefore(ANVILCRAFT_TOOL.getId(), ANVILCRAFT_INGREDIENTS.getId())
-            .withTabsAfter(AnvilCraft.of("building_block"))
+            .withTabsAfter(AnvilCraft.of("building_blocks"))
             .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILD_BLOCK =
-        DF.register("building_block", () -> CreativeModeTab.builder()
+        DF.register("building_blocks", () -> CreativeModeTab.builder()
             .icon(ModBlocks.REINFORCED_CONCRETES.get(Color.WHITE)::asStack)
             .displayItems((ctx, entries) -> {
             })
             .title(REGISTRATE.addLang(
-                "itemGroup", AnvilCraft.of("building_block"), "AnvilCraft: Building Block"))
+                "itemGroup", AnvilCraft.of("building_blocks"), "AnvilCraft: Building Blocks"))
             .withTabsBefore(
                 ANVILCRAFT_TOOL.getId(), ANVILCRAFT_INGREDIENTS.getId(), ANVILCRAFT_FUNCTION_BLOCK.getId())
             .build());

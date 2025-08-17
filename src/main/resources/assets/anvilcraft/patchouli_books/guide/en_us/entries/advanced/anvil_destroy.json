@@ -1,0 +1,30 @@
+{
+  "name": "铁砧挖掘",
+  "category": "anvilcraft:advanced_features",
+  "icon": "minecraft:stonecutter",
+  "sortnum": 17001,
+  "entry_color": "004400",
+  "pages": [
+    "本章将介绍：$(li)$(thing)铁砧挖掘$()的各种实现 $(li)不同铁砧对$(thing)铁砧挖掘$()的影响",
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:stonecutter",
+      "text": "通过$(l:basic/block_processing#break)切石机配合铁砧$(/l)破坏单个方块"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:block_devourer",
+      "text": "通过$(l:basic/more_device#block_devourer)铁砧砸击触发方块吞噬器$(/l)破坏范围内方块"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:giant_anvil",
+      "text": "通过$(thing)巨型铁砧撼地$()破坏大范围内方块"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": ["minecraft:anvil","anvilcraft:spectral_anvil","anvilcraft:royal_anvil","anvilcraft:ember_anvil","anvilcraft:transcendence_anvil"],
+      "text": "使用不同的铁砧进行$(thing)铁砧挖掘$()，具有不同的破坏效果：$(li)普通铁砧：常规挖掘 $(li)幻灵铁砧：同上 $(li)$(#004400)皇家铁砧$()：精准采集 $(li)$(#661100)余烬铁砧$()：熔炼 $(li)$(#660066)超限铁砧$()：时运V "
+    }
+  ]
+}

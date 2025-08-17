@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.recipe.elements;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import lombok.Getter;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
@@ -22,6 +24,7 @@ public class OutputBlock {
     public static final Codec<OutputBlock> CODEC = RecordCodecBuilder.create(it -> it.group(
             CodecUtil.BLOCK_CODEC.fieldOf("id").forGetter(OutputBlock::getBlock),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("states", new HashMap<>()).forGetter(OutputBlock::getStates),
+            CompoundTag.CODEC.optionalFieldOf("beData", new CompoundTag()).forGetter(OutputBlock::getBeData),
             Codec.FLOAT.orElse(1f).fieldOf("chance").forGetter(OutputBlock::getChance)
         ).apply(it, OutputBlock::apply)
     );
@@ -43,10 +46,16 @@ public class OutputBlock {
     }
 
     final BlockState blockState;
+    final CompoundTag beData;
     final float chance;
 
     public OutputBlock(BlockState blockState, float chance) {
+        this(blockState, new CompoundTag(), chance);
+    }
+
+    public OutputBlock(BlockState blockState, CompoundTag beData, float chance) {
         this.blockState = blockState;
+        this.beData = beData;
         this.chance = chance;
     }
 
@@ -54,9 +63,14 @@ public class OutputBlock {
         return new OutputBlock(block.getDefaultState(), 1f);
     }
 
-    private static OutputBlock apply(Block block, Map<String, String> states, float chance) {
+    public static OutputBlock of(BlockEntry<? extends Block> block, CompoundTag beData) {
+        return new OutputBlock(block.getDefaultState(), beData, 1f);
+    }
+
+    private static OutputBlock apply(Block block, Map<String, String> states, CompoundTag beData, float chance) {
         return new OutputBlock(
             new BlockItemStateProperties(states).apply(block.defaultBlockState()),
+            beData,
             chance
         );
     }
@@ -75,9 +89,9 @@ public class OutputBlock {
     }
 
     @Nullable
-    public BlockState getResult(RandomSource randomSource) {
+    public Pair<BlockState, CompoundTag> getResult(RandomSource randomSource) {
         if (randomSource.nextFloat() <= chance) {
-            return blockState;
+            return new Pair<>(blockState, beData);
         } else return null;
     }
 }

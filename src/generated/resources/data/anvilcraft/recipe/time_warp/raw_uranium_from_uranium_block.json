@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:time_warp",
+  "ingredients": [
+    {
+      "items": "anvilcraft:uranium_block"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "anvilcraft:raw_uranium"
+    },
+    {
+      "id": "anvilcraft:raw_lead"
+    }
+  ]
+}

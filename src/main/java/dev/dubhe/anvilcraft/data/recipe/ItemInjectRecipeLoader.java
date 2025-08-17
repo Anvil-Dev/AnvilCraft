@@ -2,7 +2,8 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
@@ -39,63 +40,70 @@ public class ItemInjectRecipeLoader {
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_ZINC)
+            .requires(ModBlocks.RAW_ZINC_BLOCK)
             .inputBlock(Blocks.DEEPSLATE)
-            .resultBlock(ModBlocks.DEEPSLATE_ZINC_ORE.get())
+            .resultBlock(ModBlocks.DEEPSLATE_ZINC_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_TIN)
+            .requires(ModBlocks.RAW_TIN_BLOCK)
             .inputBlock(Blocks.DEEPSLATE)
-            .resultBlock(ModBlocks.DEEPSLATE_TIN_ORE.get())
+            .resultBlock(ModBlocks.DEEPSLATE_TIN_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_TITANIUM)
+            .requires(ModBlocks.RAW_TITANIUM_BLOCK)
             .inputBlock(Blocks.DEEPSLATE)
-            .resultBlock(ModBlocks.DEEPSLATE_TITANIUM_ORE.get())
+            .resultBlock(ModBlocks.DEEPSLATE_TITANIUM_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_TUNGSTEN)
+            .requires(ModBlocks.RAW_TUNGSTEN_BLOCK)
             .inputBlock(Blocks.DEEPSLATE)
-            .resultBlock(ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get())
+            .resultBlock(ModBlocks.DEEPSLATE_TUNGSTEN_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_LEAD)
+            .requires(ModBlocks.RAW_LEAD_BLOCK)
             .inputBlock(Blocks.DEEPSLATE)
-            .resultBlock(ModBlocks.DEEPSLATE_LEAD_ORE.get())
+            .resultBlock(ModBlocks.DEEPSLATE_LEAD_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_SILVER)
+            .requires(ModBlocks.RAW_SILVER_BLOCK)
             .inputBlock(Blocks.DEEPSLATE)
-            .resultBlock(ModBlocks.DEEPSLATE_SILVER_ORE.get())
+            .resultBlock(ModBlocks.DEEPSLATE_SILVER_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_URANIUM)
+            .requires(ModBlocks.RAW_URANIUM_BLOCK)
             .inputBlock(Blocks.DEEPSLATE)
-            .resultBlock(ModBlocks.DEEPSLATE_URANIUM_ORE.get())
+            .resultBlock(ModBlocks.DEEPSLATE_URANIUM_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
             .requires(Items.SHULKER_BOX)
             .inputBlock(Blocks.SHULKER_BOX)
-            .resultBlock(ModBlocks.NESTING_SHULKER_BOX.get())
+            .resultBlock(ModBlocks.NESTING_SHULKER_BOX)
             .save(provider);
 
         ItemInjectRecipe.builder()
             .requires(ModBlocks.NESTING_SHULKER_BOX)
             .inputBlock(Blocks.SHULKER_BOX)
-            .resultBlock(ModBlocks.OVER_NESTING_SHULKER_BOX.get())
+            .resultBlock(ModBlocks.OVER_NESTING_SHULKER_BOX)
             .save(provider);
 
         ItemInjectRecipe.builder()
             .requires(ModBlocks.OVER_NESTING_SHULKER_BOX)
             .inputBlock(Blocks.SHULKER_BOX)
-            .resultBlock(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.get())
+            .resultBlock(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX)
+            .save(provider);
+
+        ItemInjectRecipe.builder()
+            .requires(ModItems.CHARGED_NEUTRONIUM_INGOT)
+            .inputBlock(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())
+            .result(ModItems.NEUTRONIUM_INGOT.asStack(), 0.5f)
+            .resultBlock(ModBlocks.TRANSCENDIUM_BLOCK.get())
             .save(provider);
     }
 }

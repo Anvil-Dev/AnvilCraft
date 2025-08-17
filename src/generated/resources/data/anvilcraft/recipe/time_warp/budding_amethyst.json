@@ -1,20 +1,13 @@
 {
   "type": "anvilcraft:time_warp",
-  "cauldron": "minecraft:cauldron",
-  "consume_fluid": false,
   "ingredients": [
     {
-      "item": "anvilcraft:geode"
+      "items": "anvilcraft:geode"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:budding_amethyst"
-      }
+      "id": "minecraft:budding_amethyst"
     }
   ]
 }

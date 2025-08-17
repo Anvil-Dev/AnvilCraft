@@ -5,10 +5,14 @@ import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
+import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
+import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig;
 import dev.dubhe.anvilcraft.init.ModFluids;
 import dev.dubhe.anvilcraft.init.ModItems;
+import dev.dubhe.anvilcraft.init.ModParticles;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.model.HumanoidModel;
@@ -21,6 +25,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
@@ -39,11 +44,13 @@ public class AnvilCraftClient {
         modBus.addListener(ModKeyMappings::register);
         modBus.addListener(AnvilCraftClient::registerClientExtensions);
         modBus.addListener(AnvilCraftClient::registerCustomItemDecorations);
+        modBus.addListener(AnvilCraftClient::registerParticleProviders);
         modBus.addListener(ModShaders::register);
         modBus.addListener(ModModelLayers::register);
         modBus.addListener(ModModelLayers::createModel);
+        modBus.addListener(ModTooltipComponents::register);
         modBus.addListener(AnvilCraftClient::clientSetup);
-        ModInspectionClient.initializeClient();
+        InspectionSupport.initializeClient();
     }
 
     public static void clientSetup(FMLClientSetupEvent event) {
@@ -57,6 +64,10 @@ public class AnvilCraftClient {
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
         e.register(ModItems.IONOCRAFT_BACKPACK, new IonoCraftBackpackDecoration());
+    }
+
+    public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
+        e.registerSpriteSet(ModParticles.PLASMA_JETS.get(), PlasmaJetsParticle.Provider::new);
     }
 
     @ParametersAreNonnullByDefault

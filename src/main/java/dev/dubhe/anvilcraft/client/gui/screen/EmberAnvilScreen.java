@@ -137,6 +137,10 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
 
     @Override
     protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
+        if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
+            && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()) {
+            guiGraphics.blit(RoyalAnvilScreen.ERROR_SPRITE, x + 103, y + 47, 0, 0, 16, 16, 16, 16);
+        }
     }
 
     @Override

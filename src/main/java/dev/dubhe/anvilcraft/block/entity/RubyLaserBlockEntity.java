@@ -10,18 +10,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
 public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPowerConsumer {
+    @Nullable
     private PowerGrid grid;
 
     private RubyLaserBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
-    public static @NotNull RubyLaserBlockEntity createBlockEntity(
+    public static RubyLaserBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
@@ -35,8 +36,8 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
     }
 
     @Override
-    public void tick(@NotNull Level level) {
-        resetState();
+    public void tick(Level level) {
+        this.resetState();
         if (getGrid() != null && getBlockState().getValue(RubyLaserBlock.OVERLOAD) == getGrid().isWorking()) {
             level.setBlock(
                 getPos(),
@@ -78,12 +79,12 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
     }
 
     @Override
-    public Level getCurrentLevel() {
+    public @Nullable Level getCurrentLevel() {
         return level;
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return getBlockPos();
     }
 

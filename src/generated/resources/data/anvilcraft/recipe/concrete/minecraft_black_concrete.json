@@ -1,0 +1,20 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:black_cement",
+  "ingredients": [
+    {
+      "count": 4,
+      "items": "#c:gravels"
+    },
+    {
+      "count": 4,
+      "items": "#c:sands"
+    }
+  ],
+  "results": [
+    {
+      "count": 16,
+      "id": "minecraft:black_concrete"
+    }
+  ]
+}

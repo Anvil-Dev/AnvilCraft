@@ -1,0 +1,29 @@
+{
+  "type": "anvilcraft:four_to_one_smithing",
+  "inputs": [
+    {
+      "items": "anvilcraft:silence_amulet"
+    },
+    {
+      "items": "anvilcraft:feather_amulet"
+    },
+    {
+      "items": "anvilcraft:cat_amulet"
+    },
+    {
+      "items": "anvilcraft:dog_amulet"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_block"
+  },
+  "result": {
+    "item": {
+      "count": 1,
+      "id": "anvilcraft:nature_amulet"
+    }
+  },
+  "template": {
+    "items": "anvilcraft:four_to_one_smithing_template"
+  }
+}

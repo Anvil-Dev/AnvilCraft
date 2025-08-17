@@ -38,8 +38,8 @@ body:
     attributes:
       label: Mod Loader - 模组加载器
       options:
-        - Forge
         - NeoForge
+        - Forge
         - Fabric
         - Quilt
     validations:
@@ -50,8 +50,8 @@ body:
     attributes:
       label: Version Details - 版本信息
       description: |
-        What version of AnvilCraft do you use?
-        你使用的 AnvilCraft 版本是什么
+        What version of AnvilCraft do you use? Please check if your version number format is `x.x.x` or `x.x.x+build.x`, and if it is `x.x.x+pr.x`, please go to `Pull Request` for feedback.
+        你使用的 AnvilCraft 版本是什么？请检查你的版本号格式是否为 `x.x.x` 或 `x.x.x+build.x`，如果为 `x.x.x+pr.x`，请前往对于的 `Pull Request` 进行反馈。
       placeholder: AnvilCraft version
     validations:
       required: true

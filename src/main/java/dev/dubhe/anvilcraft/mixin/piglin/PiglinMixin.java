@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin.piglin;
 
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.item.ICursed;
+import dev.dubhe.anvilcraft.item.abnormal.ICursed;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;

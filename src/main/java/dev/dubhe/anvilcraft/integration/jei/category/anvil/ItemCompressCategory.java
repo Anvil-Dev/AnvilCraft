@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -26,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ItemCompressCategory extends AbstractItemProgressCategory<ItemCompressRecipe> {
+public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressRecipe> {
     public ItemCompressCategory(IGuiHelper helper) {
         super(
             helper,
@@ -63,14 +63,13 @@ public class ItemCompressCategory extends AbstractItemProgressCategory<ItemCompr
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.getInputItems().size());
         JeiSlotUtil.drawOutputSlots(guiGraphics, slot, this.getResults(recipe).size());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-            AnvilCraftJeiPlugin.ITEM_COMPRESS,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_COMPRESS_TYPE.get()));
+            AnvilCraftJeiPlugin.ITEM_COMPRESS, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_COMPRESS_TYPE.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

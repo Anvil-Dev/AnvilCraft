@@ -1,21 +1,14 @@
 {
   "type": "anvilcraft:bulging",
-  "cauldron": "minecraft:water_cauldron",
-  "consume_fluid": false,
-  "from_water": false,
+  "fluid": "minecraft:water",
   "ingredients": [
     {
-      "item": "minecraft:red_concrete_powder"
+      "items": "minecraft:red_concrete_powder"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:red_concrete"
-      }
+      "id": "minecraft:red_concrete"
     }
   ]
 }

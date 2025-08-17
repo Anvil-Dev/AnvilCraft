@@ -1,20 +1,14 @@
 {
   "type": "anvilcraft:time_warp",
-  "cauldron": "minecraft:cauldron",
-  "consume_fluid": false,
   "ingredients": [
     {
-      "item": "minecraft:iron_block"
+      "items": "minecraft:iron_block"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 3,
-        "id": "minecraft:raw_iron"
-      }
+      "count": 3,
+      "id": "minecraft:raw_iron"
     }
   ]
 }

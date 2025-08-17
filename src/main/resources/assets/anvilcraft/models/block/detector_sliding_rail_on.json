@@ -1,0 +1,12 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/detector_sliding_rail",
+	"textures": {
+		"0": "anvilcraft:block/powered_sliding_rail",
+		"1": "anvilcraft:block/detector_sliding_rail_bottom_on",
+		"2": "anvilcraft:block/detector_sliding_rail_side_on",
+		"3": "anvilcraft:block/detector_sliding_rail_top_on",
+		"4": "anvilcraft:block/sliding_rail_top",
+		"particle": "anvilcraft:block/powered_sliding_rail"
+	}
+}

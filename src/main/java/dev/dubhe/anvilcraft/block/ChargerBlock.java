@@ -77,7 +77,6 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-
     public void neighborChanged(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -108,7 +107,6 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-
     public void onRemove(
         @NotNull BlockState state,
         @NotNull Level level,
@@ -118,7 +116,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ChargerBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
-            FilteredItemStackHandler depository = entity.getFilteredItemDepository();
+            FilteredItemStackHandler depository = entity.getFilteredItemStackHandler();
             for (int slot = 0; slot < depository.getSlots(); slot++) {
                 Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
             }
@@ -128,7 +126,6 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-
     public void tick(
         @NotNull BlockState state,
         @NotNull ServerLevel level,
@@ -152,5 +149,16 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
         return null;
+    }
+
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        return blockEntity instanceof ChargerBlockEntity charger ? charger.getAnalogRedstoneSignal() : 0;
     }
 }

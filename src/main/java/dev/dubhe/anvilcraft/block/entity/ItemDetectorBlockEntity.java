@@ -243,7 +243,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    public FilteredItemStackHandler getFilteredItemDepository() {
+    public FilteredItemStackHandler getFilteredItemStackHandler() {
         return DUMMY_HANDLER;
     }
 

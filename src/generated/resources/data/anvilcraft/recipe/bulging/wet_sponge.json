@@ -1,21 +1,15 @@
 {
   "type": "anvilcraft:bulging",
-  "cauldron": "minecraft:water_cauldron",
-  "consume_fluid": true,
-  "from_water": false,
+  "consume": 1,
+  "fluid": "minecraft:water",
   "ingredients": [
     {
-      "item": "anvilcraft:sponge_gemmule"
+      "items": "anvilcraft:sponge_gemmule"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:wet_sponge"
-      }
+      "id": "minecraft:wet_sponge"
     }
   ]
 }

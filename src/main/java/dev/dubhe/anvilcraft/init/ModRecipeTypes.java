@@ -4,25 +4,25 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockSmearRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BulgingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ConcreteRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.MeshRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.TimeWarpRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.UnpackRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
@@ -42,12 +42,16 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-
 public class ModRecipeTypes {
     private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES =
         DeferredRegister.create(Registries.RECIPE_TYPE, AnvilCraft.MOD_ID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
         DeferredRegister.create(Registries.RECIPE_SERIALIZER, AnvilCraft.MOD_ID);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<InWorldRecipe>> IN_WORLD_RECIPE =
+        registerType("in_world_recipe");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<InWorldRecipe>> IN_WORLD_RECIPE_SERIALIZER =
+        RECIPE_SERIALIZERS.register("in_world_recipe", InWorldRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCrushRecipe>> BLOCK_CRUSH_TYPE =
         registerType("block_crush");
@@ -85,6 +89,10 @@ public class ModRecipeTypes {
         registerType("stamping");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingRecipe>> STAMPING_SERIALIZER =
         RECIPE_SERIALIZERS.register("stamping", StampingRecipe.Serializer::new);
+
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<StampingUniqueItemsRecipe>> STAMPING_UNIQUE_ITEMS_TYPE =
+        registerType("stamping_unique_items");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingUniqueItemsRecipe>> STAMPING_UNIQUE_ITEMS_SERIALIZER =
         RECIPE_SERIALIZERS.register("stamping_unique_items", StampingUniqueItemsRecipe.Serializer::new);
 
@@ -129,11 +137,6 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MeshRecipe>> MESH_SERIALIZER =
         RECIPE_SERIALIZERS.register("mesh", MeshRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<ConcreteRecipe>> CONCRETE_TYPE =
-        registerType("concrete");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ConcreteRecipe>> CONCRETE_SERIALIZER =
-        RECIPE_SERIALIZERS.register("concrete", ConcreteRecipe.Serializer::new);
-
     public static final DeferredHolder<RecipeType<?>, RecipeType<MobTransformRecipe>> MOB_TRANSFORM_TYPE =
         registerType("mob_transform");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformRecipe>>
@@ -177,17 +180,17 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ChargerChargingRecipe>> CHARGER_CHARGING_SERIALIZER =
         RECIPE_SERIALIZERS.register("charger_charging", ChargerChargingRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<BaseMultipleToOneSmithingRecipe<?>>> MULTIPLE_TO_ONE_SMITHING_TYPE =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BaseMultipleToOneSmithingRecipe>> MULTIPLE_TO_ONE_SMITHING_TYPE =
         registerType("multiple_to_one_smithing");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends TwoToOneSmithingRecipe<?>>>
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends TwoToOneSmithingRecipe>>
         TWO_TO_ONE_SMITHING_SERIALIZER =
-        RECIPE_SERIALIZERS.register("two_to_one_smithing", TwoToOneSmithingRecipe::createSerializer);
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends FourToOneSmithingRecipe<?>>>
+        RECIPE_SERIALIZERS.register("two_to_one_smithing", TwoToOneSmithingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends FourToOneSmithingRecipe>>
         FOUR_TO_ONE_SMITHING_SERIALIZER =
-        RECIPE_SERIALIZERS.register("four_to_one_smithing", FourToOneSmithingRecipe::createSerializer);
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends EightToOneSmithingRecipe<?>>>
+        RECIPE_SERIALIZERS.register("four_to_one_smithing", FourToOneSmithingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends EightToOneSmithingRecipe>>
         EIGHT_TO_ONE_SMITHING_SERIALIZER =
-        RECIPE_SERIALIZERS.register("eight_to_one_smithing", EightToOneSmithingRecipe::createSerializer);
+        RECIPE_SERIALIZERS.register("eight_to_one_smithing", EightToOneSmithingRecipe.Serializer::new);
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {

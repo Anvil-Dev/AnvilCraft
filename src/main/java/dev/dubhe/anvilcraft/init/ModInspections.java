@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.network.InspectionStateChangedPacket;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.commands.CommandSourceStack;
@@ -26,14 +27,14 @@ public class ModInspections {
     /**
      * 注册检查项
      * <p>
-     * 检查项需同时在{@link ModInspections}和{@link dev.dubhe.anvilcraft.client.ModInspectionClient}中注册
+     * 检查项需同时在{@link ModInspections}和{@link InspectionSupport}中注册
      * </p>
      * <p>
-     * 对于{@link dev.dubhe.anvilcraft.client.ModInspectionClient}
-     * 使用{@link dev.dubhe.anvilcraft.client.ModInspectionClient#registerActionClient} 注册检查项
+     * 对于{@link InspectionSupport}
+     * 使用{@link InspectionSupport#registerActionClient} 注册检查项
      * </p>
      *
-     * @see dev.dubhe.anvilcraft.client.ModInspectionClient
+     * @see InspectionSupport
      */
     public void registerActionServer(ResourceLocation id) {
         INSTANCE.inspectionOptions.add(id);

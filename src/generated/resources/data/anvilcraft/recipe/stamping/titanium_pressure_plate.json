@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "tag": "c:ingots/titanium"
+      "items": "#c:ingots/titanium"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:titanium_pressure_plate"
-      }
+      "id": "anvilcraft:titanium_pressure_plate"
     }
   ]
 }

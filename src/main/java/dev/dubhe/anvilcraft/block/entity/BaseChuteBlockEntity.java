@@ -91,7 +91,7 @@ public abstract class BaseChuteBlockEntity
     protected abstract boolean isEnabled();
 
     @Override
-    public FilteredItemStackHandler getFilteredItemDepository() {
+    public FilteredItemStackHandler getFilteredItemStackHandler() {
         return itemHandler;
     }
 
@@ -127,9 +127,6 @@ public abstract class BaseChuteBlockEntity
         if (cooldown <= 0) {
             if (isEnabled()) {
                 BlockPos targetPos = getBlockPos().relative(getOutputDirection());
-                BlockEntity targetBE = level.getBlockEntity(targetPos);
-                boolean isTargetEmpty = false;
-                if (targetBE != null) isTargetEmpty = isTargetEmpty(targetBE);
                 // 尝试向朝向容器输出
                 List<IItemHandler> targetList = getTargetItemHandlerList(
                     targetPos,
@@ -138,10 +135,12 @@ public abstract class BaseChuteBlockEntity
                 );
                 if (targetList != null && !targetList.isEmpty()) {
                     for (IItemHandler target : targetList) {
+                        BlockEntity targetBE = level.getBlockEntity(targetPos);
+                        boolean setChuteCD = targetBE != null && isTargetEmpty(targetBE);
                         boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                         if (success) {
                             //特判溜槽cd7gt
-                            if (isTargetEmpty) setChuteCD(targetBE);
+                            if (setChuteCD) setChuteCD(targetBE);
                             resetCD = true;
                             break;
                         }
@@ -194,27 +193,29 @@ public abstract class BaseChuteBlockEntity
 
                 }
                 // 尝试从上方容器输入
-                IItemHandler source = getSourceItemHandler(
-                    getBlockPos().relative(getInputDirection()),
-                    getInputDirection().getOpposite(),
-                    level
-                );
-                if (source != null) {
-                    resetCD |= ItemHandlerUtil.importFromTarget(getItemHandler(), 64, stack -> true, source);
-                } else {
-                    List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
-                        .getEntitiesOfClass(
-                            ItemEntity.class,
-                            new AABB(getBlockPos().relative(getInputDirection())),
-                            itemEntity -> !itemEntity.getItem().isEmpty());
-                    for (ItemEntity itemEntity : itemEntities) {
-                        ItemStack itemStack = itemEntity.getItem();
-                        ItemStack remaining =
-                            ItemHandlerHelper.insertItem(this.itemHandler, itemStack, true);
-                        if (remaining.getCount() == itemStack.getCount()) continue;
-                        ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
-                        itemEntity.setItem(remaining);
-                        resetCD = true;
+                if (!this.inventoryFull()) {
+                    IItemHandler source = getSourceItemHandler(
+                        getBlockPos().relative(getInputDirection()),
+                        getInputDirection().getOpposite(),
+                        level
+                    );
+                    if (source != null) {
+                        resetCD |= ItemHandlerUtil.importFromTarget(getItemHandler(), 64, stack -> true, source);
+                    } else {
+                        List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
+                            .getEntitiesOfClass(
+                                ItemEntity.class,
+                                new AABB(getBlockPos().relative(getInputDirection())),
+                                itemEntity -> !itemEntity.getItem().isEmpty());
+                        for (ItemEntity itemEntity : itemEntities) {
+                            ItemStack itemStack = itemEntity.getItem();
+                            ItemStack remaining =
+                                ItemHandlerHelper.insertItem(this.itemHandler, itemStack, true);
+                            if (remaining.getCount() == itemStack.getCount()) continue;
+                            ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
+                            itemEntity.setItem(remaining);
+                            resetCD = true;
+                        }
                     }
                 }
 
@@ -288,6 +289,15 @@ public abstract class BaseChuteBlockEntity
     public boolean isEmpty() {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             if (!itemHandler.getStackInSlot(i).isEmpty()) return false;
+        }
+        return true;
+    }
+
+    private boolean inventoryFull() {
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack itemstack = itemHandler.getStackInSlot(i);
+            if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize())
+                return false;
         }
         return true;
     }

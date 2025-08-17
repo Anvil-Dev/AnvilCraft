@@ -1,0 +1,148 @@
+{
+  "name": "二阶材料",
+  "category": "anvilcraft:smithing_system",
+  "icon": "anvilcraft:ember_metal_ingot",
+  "sortnum": 23006,
+  "entry_color": "661100",
+  "pages": [
+    "本页面展示了目前所有可用的$(thing)二阶材料$(): $(li)地核碎片 $(li)虚空物质 $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#multiphase_matter)多相物质$(/l) $(li)$(l:smithing/tier_2_materials#multiple_templates)多合一锻造模板$(/l) ",
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "earth_core_shard",
+      "item": ["anvilcraft:earth_core_shard","anvilcraft:earth_core_shard_block","anvilcraft:earth_core_shard_ore"],
+      "link_recipe": true,
+      "text": "$(item)地核碎片$()系列物品不受$(item)熔岩$()和$(item)火焰$()损害，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可参与$(item)余烬金属锭$()的制作 $(br2)方块形态具有同黑曜石的挖掘等级"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "void_matter",
+      "item": ["anvilcraft:void_matter","anvilcraft:void_matter_block","anvilcraft:void_stone"],
+      "link_recipe": true,
+      "text": "$(item)虚空物质$()系列物品在$(thing)虚空$()中会上升，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可用于制作$(l:power/void_energy_collection#void_energy_collector)虚空能收集器$() $(br2)方块形态具有同黑曜石的挖掘等级 $(br2)虚空物质块具有$(l:advanced/void_decay)特性：虚空衰变$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "frost_metal",
+      "item": "anvilcraft:frost_metal_ingot",
+      "text": "$(item)浮霜金属$()是一种坚固且寒冷的金属。"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "title": "浮霜锻造模板",
+      "recipe": "anvilcraft:time_warp/frost_metal_ingot",
+      "text": "使用1$(item)钛锭$()、1$(item)银锭$()、1$(item)铁锭$()进行时移来制作。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "frost_metal_block_and_nugget",
+      "recipe": "anvilcraft:frost_metal_block",
+      "recipe2": "anvilcraft:frost_metal_nugget"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "recipe": "anvilcraft:time_warp/frost_metal_upgrade_smithing_template",
+      "text": "使用$(item)皇家升级锻造模板$()进行时移配方以获得。可用于将$(thing)皇家钢系列工具$()升级为$(thing)浮霜金属系列工具$()。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "frost_metal_tools",
+      "recipe": "anvilcraft:smithing/frost_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/frost_metal_axe",
+      "text": "使用$(item)浮霜金属锭$()升级你的工具，它们将自带$(l:advanced/tool_properties#merciless)无情$(/l)属性。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/frost_metal_shovel",
+      "recipe2": "anvilcraft:smithing/frost_metal_hoe",
+      "text": "使用$(item)浮霜金属锭$()升级你的工具，它们将自带$(l:advanced/tool_properties#merciless)无情$(/l)属性。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/frost_metal_sword",
+      "text": "使用$(item)浮霜金属锭$()升级你的工具，它们将自带$(l:advanced/tool_properties#merciless)无情$(/l)属性。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "ember_metal",
+      "item": "anvilcraft:ember_metal_ingot",
+      "text": "$(item)余烬金属$()是一种炽热无比的金属。$(br)使用任意$(thing)高温的下界合金块$()进行时移来制作。加入1-3个$(item)地核碎片$()可以增加对应量的产出。$(br)$(l:apply/oil)点我$()查看如何获得$(item)燃烧的炼药锅$()"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "recipe": "anvilcraft:time_warp/ember_metal_ingot_0",
+      "recipe2": "anvilcraft:time_warp/ember_metal_ingot_1"
+    },
+    {
+      "type": "anvilcraft:time_warp",
+      "recipe": "anvilcraft:time_warp/ember_metal_ingot_2",
+      "recipe2": "anvilcraft:time_warp/ember_metal_ingot_3"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:ember_metal_block",
+      "recipe2": "anvilcraft:ember_metal_nugget_from_ingot"
+    },
+    {
+      "type": "anvilcraft:stamping",
+      "recipe": "anvilcraft:stamping/ember_metal_upgrade_smithing_template",
+      "text": "使用$(item)皇家升级锻造模板$()进行冲压配方以获得。可用于将$(thing)皇家钢系列工具$()升级为$(thing)余烬金属系列工具$()。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_smithing_table",
+      "text": "这个锻造台用于锻造更加复杂的配方，有了它之后你就有能力在锻造上更进一步了。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_anvil",
+      "text": "这个铁砧的功能与$(item)皇家铁砧$()几乎一致，但是它可以让你在生存模式下给物品强行添加一些不兼容的附魔。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_grindstone",
+      "recipe": "anvilcraft:smithing/ember_grindstone",
+      "text": "在$(item)余烬砂轮$()上，你可以消耗经验提取出附魔物品的附魔。只需放入待提取的物品和书，并选择一个附魔，就可以消耗其显示的经验提取出选择的附魔了。它不会有过于昂贵，但是仍会向提取的物品增加附魔惩罚。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_metal_tools",
+      "recipe": "anvilcraft:smithing/ember_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/ember_metal_axe",
+      "text": "使用$(item)余烬金属锭$()升级你的工具，它们将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_metal_shovel",
+      "recipe2": "anvilcraft:smithing/ember_metal_hoe",
+      "text": "使用$(item)余烬金属锭$()升级你的工具，它们将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_metal_sword",
+      "recipe2": "anvilcraft:smithing/ember_anvil_hammer",
+      "text": "使用$(item)余烬金属锭$()升级你的工具，它们将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "multiphase_matter",
+      "item": "anvilcraft:multiphase_matter",
+      "text": "$(item)多相物质$()是一种人造物质。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "（此处为对撞配方，等待对撞适配）在对撞装置尾部放上$(l:smithing/tier_2_materials#frost_metal_block_and_nugget)一块浮霜金属块$(/l)，并成功执行一次对撞获得。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:multiphase_matter_block"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "multiple_templates",
+      "item": "tag:anvilcraft:multiple_to_one_smithing_templates",
+      "title": "多合一锻造模板",
+      "link_recipe": true,
+      "text": "将多个互不相同的$(thing)锻造模板$()进行物品冲压加工获得，由模板数量决定获得的是几合一锻造模板。$(br2)用于在$(item)余烬锻造台$()上参与多合一锻造"
+    }
+  ]
+}

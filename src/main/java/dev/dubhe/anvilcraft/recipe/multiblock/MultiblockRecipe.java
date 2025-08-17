@@ -140,6 +140,11 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     }
 
     @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
+    @Override
     public String toDatagen() {
         StringBuilder codeBuilder = new StringBuilder("MultiblockRecipe.builder(\"%s\", %d)"
             .formatted(BuiltInRegistries.ITEM.getKey(result.getItem()), result.getCount()));

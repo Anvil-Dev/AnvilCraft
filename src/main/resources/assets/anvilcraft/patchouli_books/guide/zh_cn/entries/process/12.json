@@ -1,0 +1,19 @@
+{
+  "name": "流程12-发电升级",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:capacitor",
+  "sortnum": 12,
+  "entry_color": "661100",
+  "pages": [
+    "为工业区的发电量定个小目标，比如$(thing)3072kW$()，以下几种方法适合用来达成这个目标：$(li)太阳能热电 $(li)原油热电 $(li)虚空能发电 ",
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:power/heat_collection",
+        "anvilcraft:power/void_energy_collection",
+        "anvilcraft:machine/electricity_generation"
+      ],
+      "text": ""
+    }
+  ]
+}

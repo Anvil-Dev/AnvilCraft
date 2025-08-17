@@ -2,16 +2,13 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "item": "minecraft:creeper_head"
+      "items": "minecraft:creeper_head"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 64,
-        "id": "minecraft:gunpowder"
-      }
+      "count": 64,
+      "id": "minecraft:gunpowder"
     }
   ]
 }

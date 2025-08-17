@@ -22,6 +22,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -40,6 +41,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
+
+import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.PoachingCollectorMap;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -85,12 +89,23 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     ) {
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof ItemCollectorBlockEntity entity) {
+
+            List<ChunkPos> chunkPosList = entity.getPoachingMapPositions(8);
+            for (ChunkPos chunkPos : chunkPosList) {
+                if (PoachingCollectorMap.containsKey(level) && PoachingCollectorMap.get(level).containsKey(chunkPos)) {
+                    List<ItemCollectorBlockEntity> list = PoachingCollectorMap.get(level).get(chunkPos);
+                    list.remove(entity);
+                }
+            }
+            entity.setRemoved();
+
             Vec3 vec3 = entity.getBlockPos().getCenter();
             FilteredItemStackHandler depository = entity.getItemHandler();
             for (int slot = 0; slot < depository.getSlots(); slot++) {
                 Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
             }
             level.updateNeighbourForOutputSignal(pos, this);
+
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

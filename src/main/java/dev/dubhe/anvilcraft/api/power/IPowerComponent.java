@@ -20,7 +20,7 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     BooleanProperty OVERLOAD = BooleanProperty.create("overload");
     EnumProperty<Switch> SWITCH = EnumProperty.create("switch", Switch.class);
 
-    Level getCurrentLevel();
+    @Nullable Level getCurrentLevel();
 
     default void gridTick() {
     }

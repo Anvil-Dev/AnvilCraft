@@ -1,5 +1,6 @@
 {
   "values": [
+    "anvilcraft:flint_block",
     "minecraft:stone",
     "minecraft:deepslate",
     "minecraft:andesite",
@@ -17,12 +18,32 @@
     "minecraft:deepslate_copper_ore",
     "minecraft:gold_ore",
     "minecraft:deepslate_gold_ore",
+    "minecraft:dirt",
+    "minecraft:coarse_dirt",
+    "minecraft:rooted_dirt",
+    "minecraft:mud",
+    "minecraft:clay",
+    "minecraft:cobblestone",
+    "minecraft:mossy_cobblestone",
+    "minecraft:calcite",
+    "minecraft:tuff",
+    "minecraft:dripstone_block",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+    "minecraft:basalt",
+    "minecraft:smooth_basalt",
+    "minecraft:sculk",
+    "minecraft:moss_block",
+    "minecraft:infested_cobblestone",
+    "minecraft:infested_stone",
+    "minecraft:infested_deepslate",
+    "minecraft:nether_gold_ore",
+    "minecraft:gilded_blackstone",
+    "minecraft:nether_quartz_ore",
     "anvilcraft:void_stone",
     "anvilcraft:end_dust",
-    "anvilcraft:cursed_gold_block",
     "anvilcraft:deepslate_tin_ore",
     "anvilcraft:deepslate_zinc_ore",
-    "anvilcraft:deepslate_lead_ore",
-    "anvilcraft:deepslate_uranium_ore"
+    "anvilcraft:deepslate_lead_ore"
   ]
 }

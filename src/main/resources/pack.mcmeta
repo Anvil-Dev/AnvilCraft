@@ -1,7 +1,7 @@
 {
-    "pack": {
-        "description": "AnvilCraft resources",
-        "pack_format": 15,
-        "forge:server_data_pack_format": 12
-    }
+  "pack": {
+    "description": "AnvilCraft resources",
+    "pack_format": 35,
+    "forge:server_data_pack_format": 48
+  }
 }

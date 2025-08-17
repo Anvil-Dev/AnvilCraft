@@ -2,22 +2,18 @@
   "type": "anvilcraft:cooking",
   "ingredients": [
     {
-      "item": "anvilcraft:dough"
+      "items": "anvilcraft:dough"
     },
     {
-      "item": "minecraft:egg"
+      "items": "minecraft:egg"
     },
     {
-      "item": "minecraft:sugar"
+      "items": "minecraft:sugar"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:cake_base_block"
-      }
+      "id": "anvilcraft:cake_base_block"
     }
   ]
 }

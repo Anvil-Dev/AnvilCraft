@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
-import dev.dubhe.anvilcraft.recipe.anvil.SuperHeatingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -23,12 +23,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class SuperHeatingCategory extends AbstractItemProgressCategory<SuperHeatingRecipe> {
+public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingRecipe> {
     public SuperHeatingCategory(IGuiHelper helper) {
         super(
             helper,
@@ -74,16 +75,16 @@ public class SuperHeatingCategory extends AbstractItemProgressCategory<SuperHeat
         arrowIn.draw(guiGraphics, 54, 32);
         arrowOut.draw(guiGraphics, 92, 31);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.mergedIngredients.size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.getInputItems().size());
         JeiSlotUtil.drawOutputSlots(guiGraphics, slot, this.getResults(recipe).size());
 
-        if (recipe.blockResult != Blocks.AIR) {
-            RenderHelper.renderBlock(
-                guiGraphics, recipe.blockResult.defaultBlockState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+        if (!recipe.getResultBlocks().isEmpty()) {
+            BlockState result = recipe.getResultBlocks()
+                .get((int) ((System.currentTimeMillis() / 1000) % recipe.getResultBlocks().size())).getState();
+            RenderHelper.renderBlock(guiGraphics, result, 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
             guiGraphics.drawString(
                 Minecraft.getInstance().font,
-                Component.translatable(
-                    "gui.anvilcraft.category.super_heating.convert_to", recipe.blockResult.getName()),
+                Component.translatable("gui.anvilcraft.category.super_heating.convert_to", result.getBlock().getName()),
                 10,
                 54,
                 0xFF000000,

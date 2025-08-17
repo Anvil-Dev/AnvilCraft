@@ -40,6 +40,94 @@
         }
       ],
       "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance_with_enchanted_bonus",
+          "enchanted_chance": {
+            "type": "minecraft:linear",
+            "base": 1.0,
+            "per_level_above_first": 0.0
+          },
+          "enchantment": "anvilcraft:beheading",
+          "unenchanted_chance": 0.0
+        },
+        {
+          "condition": "minecraft:killed_by_player"
+        },
+        {
+          "condition": "minecraft:inverted",
+          "term": {
+            "condition": "anvilcraft:match_data_component",
+            "predicate": {
+              "anvilcraft:merciless": true
+            }
+          }
+        },
+        {
+          "chance": 0.25,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "entity": "this",
+              "function": "minecraft:fill_player_head"
+            }
+          ],
+          "name": "minecraft:player_head"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance_with_enchanted_bonus",
+          "enchanted_chance": {
+            "type": "minecraft:linear",
+            "base": 1.0,
+            "per_level_above_first": 0.0
+          },
+          "enchantment": "anvilcraft:beheading",
+          "unenchanted_chance": 0.0
+        },
+        {
+          "condition": "minecraft:killed_by_player"
+        },
+        {
+          "condition": "minecraft:inverted",
+          "term": {
+            "condition": "anvilcraft:match_data_component",
+            "predicate": {
+              "anvilcraft:merciless": true
+            }
+          }
+        },
+        {
+          "chance": 0.05,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "entity": "this",
+              "function": "minecraft:fill_player_head"
+            }
+          ],
+          "name": "minecraft:player_head"
+        }
+      ],
+      "rolls": 1.0
     }
   ],
   "random_sequence": "anvilcraft:entities/beheading/minecraft/player"

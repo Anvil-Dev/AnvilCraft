@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": "minecraft:honeycomb_block"
+    },
+    {
+      "blocks": "minecraft:weathered_copper_trapdoor"
+    }
+  ],
+  "result": {
+    "block": "minecraft:waxed_weathered_copper_trapdoor"
+  }
+}

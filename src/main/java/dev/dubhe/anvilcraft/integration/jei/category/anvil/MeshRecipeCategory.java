@@ -25,6 +25,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,14 +83,13 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MeshRecipeGroup recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 37, 14).addIngredients(recipe.ingredient());
+        builder.addSlot(RecipeIngredientRole.INPUT, 37, 14).addIngredients(Ingredient.of(recipe.ingredient().getItems()));
 
         for (int i = 0; i < recipe.results().size(); i++) {
             MeshRecipeGroup.Result result = recipe.results().get(i);
-            IRecipeSlotBuilder slot = builder.addSlot(
-                    RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9))
-                .addItemStack(result.item);
-            JeiRecipeUtil.addTooltips(slot, result.provider);
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9))
+                .addItemStack(result.item());
+            JeiRecipeUtil.addTooltips(slot, result.item().getCount(), result.provider());
         }
     }
 

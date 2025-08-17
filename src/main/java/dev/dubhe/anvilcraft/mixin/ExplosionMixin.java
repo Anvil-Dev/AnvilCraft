@@ -48,13 +48,6 @@ abstract class ExplosionMixin implements BlockTransformExplosion {
     @Final
     private Level level;
 
-    @Shadow
-    public abstract boolean interactsWithBlocks();
-
-    @Shadow
-    @Final
-    private Explosion.BlockInteraction blockInteraction;
-
     @Inject(
         method = "finalizeExplosion",
         at =

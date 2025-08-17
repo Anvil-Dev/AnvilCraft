@@ -14,7 +14,7 @@ public class FrostMetalAxeItem extends AxeItem {
         super(
             ModTiers.FROST_METAL,
             properties.fireResistant()
-                .attributes(AxeItem.createAttributes(ModTiers.FROST_METAL, 13, -3f))
+                .attributes(AxeItem.createAttributes(ModTiers.FROST_METAL, 9, -3f))
                 .component(ModComponents.MERCILESS, Merciless.DEFAULT)
         );
     }

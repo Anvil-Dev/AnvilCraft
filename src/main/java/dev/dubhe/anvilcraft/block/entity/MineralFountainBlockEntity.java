@@ -1,15 +1,15 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.heatable.HeatableBlockManager;
+import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -63,9 +63,8 @@ public class MineralFountainBlockEntity extends BlockEntity {
                 level.setBlockAndUpdate(getBlockPos().above(), Blocks.LAVA.defaultBlockState());
                 return;
             }
-            Block hotBlock = HeatableBlockManager.getHotBlock(aboveState.getBlock());
-            if (hotBlock == null) return;
-            level.setBlockAndUpdate(getBlockPos().above(), hotBlock.defaultBlockState());
+            HeaterManager.addProducer(getBlockPos(), getLevel(), ModHeaterInfos.LAVA_MINERAL_FOUNTAIN);
+            return;
         } else if (aboveState.is(Blocks.AIR)) {
             level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.CINERITE.getDefaultState());
         } else {
@@ -97,13 +96,14 @@ public class MineralFountainBlockEntity extends BlockEntity {
                         recipe.value().getToBlock().defaultBlockState());
                 });
         }
+        HeaterManager.removeProducer(getBlockPos(), getLevel(), ModHeaterInfos.LAVA_MINERAL_FOUNTAIN);
     }
 
     private static final Direction[] HORIZONTAL_DIRECTION = {
         Direction.NORTH, Direction.WEST, Direction.EAST, Direction.SOUTH
     };
 
-    private BlockState getAroundBlock() {
+    public BlockState getAroundBlock() {
         if (level == null) {
             return Blocks.AIR.defaultBlockState();
         }

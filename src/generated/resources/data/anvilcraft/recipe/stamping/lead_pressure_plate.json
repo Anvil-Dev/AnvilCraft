@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "tag": "c:ingots/lead"
+      "items": "#c:ingots/lead"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:lead_pressure_plate"
-      }
+      "id": "anvilcraft:lead_pressure_plate"
     }
   ]
 }

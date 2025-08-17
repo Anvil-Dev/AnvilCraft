@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:deepslate_tiles"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.8
+      },
+      "id": "minecraft:cracked_deepslate_tiles"
+    }
+  ]
+}

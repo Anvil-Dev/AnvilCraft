@@ -1,8 +1,11 @@
 {
-  "net/minecraft/world/level/block/RedStoneWireBlock": [
-    "dev/dubhe/anvilcraft/api/injection/tooltip/IInjectedTooltipProducer"
+  "net/minecraft/world/level/block/Block": [
+    "dev/dubhe/anvilcraft/api/injection/block/IBlockExtension"
   ],
-  "net/minecraft/world/level/block/entity/ComparatorBlockEntity": [
-    "dev/dubhe/anvilcraft/api/injection/tooltip/IInjectedTooltipProducer"
+  "net/minecraft/world/item/crafting/RecipeManager": [
+    "dev/dubhe/anvilcraft/util/injection/IRecipeManager"
+  ],
+  "net/minecraft/world/level/block/state/BlockState": [
+    "dev/dubhe/anvilcraft/api/injection/block/state/IBlockStateExtension"
   ]
 }

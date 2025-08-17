@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    [
+      {
+        "item": "minecraft:anvil"
+      },
+      {
+        "item": "minecraft:chipped_anvil"
+      },
+      {
+        "item": "minecraft:damaged_anvil"
+      }
+    ],
+    {
+      "item": "minecraft:book"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:guide_book"
+  }
+}

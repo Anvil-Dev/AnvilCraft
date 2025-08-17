@@ -2,31 +2,19 @@
   "type": "anvilcraft:item_compress",
   "ingredients": [
     {
-      "item": "anvilcraft:cream"
+      "count": 4,
+      "items": "anvilcraft:cream"
     },
     {
-      "item": "anvilcraft:cream"
+      "items": "minecraft:sugar"
     },
     {
-      "item": "anvilcraft:cream"
-    },
-    {
-      "item": "anvilcraft:cream"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sweet_berries"
+      "items": "minecraft:sweet_berries"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:berry_cream_block"
-      }
+      "id": "anvilcraft:berry_cream_block"
     }
   ]
 }

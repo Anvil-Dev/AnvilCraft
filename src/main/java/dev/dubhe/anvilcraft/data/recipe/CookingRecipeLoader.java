@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.data.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.anvil.BoilingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 

@@ -1,0 +1,18 @@
+{
+  "name": "Process 5-Royal Steel&Cursed Gold",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:royal_steel_ingot",
+  "sortnum": 5,
+  "entry_color": "004400",
+  "pages": [
+    "准备好足够的$(item)铁锭$()、$(item)钻石$()、$(item)宝石$()（包括绿宝石、红宝石、蓝宝石、黄玉）、$(item)紫水晶$()后，按照$(thing)3:1:1:1$()的黄金比例放入锅中，保证下方有工作的$(item)加热器$()，在锅被$(item)铁砧$()砸击可生产出$(l:smithing/tier_1_materials#royal_steel_ingot)皇家钢$()。",
+    "在村庄$(thing)铁匠铺$()或与$(l:smithing/jewelcrafting_table)珠宝匠$(/l)村民交易得到$(l:smithing/tier_1_materials#royal_template)锻造模板：皇家钢升级$()后，制造$(l:smithing/tier_1_materials#royal_smithing_table)皇家锻造台$()、$(l:smithing/tier_1_materials#royal_grindstone)皇家砂轮$()。$(br)使用带有$(thing)附魔惩罚$()或带有$(thing)诅咒$()的物品和$(item)金锭$()在$(item)皇家砂轮$()中消去$(thing)附魔惩罚$()并获得$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$()。$(br)这两种全新材料会让你达到全新的发展高度！",
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/tier_1_materials"
+      ],
+      "text": ""
+    }
+  ]
+}

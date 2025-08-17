@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "minecraft:ancient_debris",
+  "pattern": [
+    "XGX",
+    "GKG",
+    "XGX"
+  ],
+  "key": {
+    "G": {
+      "tag": "c:plates/tungsten"
+    },
+    "X": {
+      "item": "minecraft:nether_star"
+    },
+    "K": {
+      "item": "minecraft:magma_block"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:ancient_debris"
+  }
+}

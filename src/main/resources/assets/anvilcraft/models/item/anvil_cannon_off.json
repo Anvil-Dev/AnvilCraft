@@ -1,0 +1,8 @@
+{
+	"parent": "anvilcraft:item/anvil_cannon",
+	"credit": "Made by XeKr with Blockbench",
+	"textures": {
+		"0": "anvilcraft:item/anvil_cannon_off",
+		"particle": "anvilcraft:item/anvil_cannon_off"
+	}
+}

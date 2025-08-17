@@ -1,0 +1,27 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "tag": "minecraft:anvil"
+  },
+  "consume": false,
+  "hitBlock": {
+    "id": "anvilcraft:uranium_block"
+  },
+  "output_items": [],
+  "transform_blocks": [
+    {
+      "chance": 1.0,
+      "input": {
+        "id": "anvilcraft:ember_metal_block"
+      },
+      "max_count": 16,
+      "output": {
+        "beData": {
+          "duration": 200
+        },
+        "chance": 1.0,
+        "id": "anvilcraft:overheated_ember_metal_block"
+      }
+    }
+  ]
+}

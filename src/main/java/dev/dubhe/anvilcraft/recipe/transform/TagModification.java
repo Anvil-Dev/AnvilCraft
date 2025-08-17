@@ -73,7 +73,7 @@ public class TagModification implements Consumer<Tag> {
     @Override
     public void accept(Tag input) {
         String path = this.path;
-        if (op == ModifyOperation.SET) {
+        if (op == ModifyOperation.SET || op == ModifyOperation.ROOT_SET) {
             try {
                 int index = path.lastIndexOf('.');
                 path = this.path.substring(0, index == -1 ? path.length() : index);
@@ -155,6 +155,20 @@ public class TagModification implements Consumer<Tag> {
                     listTag.add(0, tag);
                 } else {
                     throw new RuntimeException("Expected list, got " + inputSrc.getAsString());
+                }
+            }
+        },
+        ROOT_SET {
+            @Override
+            public void accept(Tag inputSrc, Tag tag, int index, String key) {
+                if (inputSrc instanceof CompoundTag src && tag instanceof CompoundTag target) {
+                    src.merge(target);
+                } else {
+                    throw new RuntimeException("Expected Compound Tag, got "
+                        + inputSrc.getAsString()
+                        + " and "
+                        + tag.getAsString()
+                    );
                 }
             }
         };

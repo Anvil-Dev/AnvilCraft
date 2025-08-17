@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:transcendium_block"
+  },
+  "base": {
+    "item": "anvilcraft:ember_dragon_rod"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:transcendence_dragon_rod"
+  },
+  "template": {
+    "item": "anvilcraft:transcendium_upgrade_smithing_template"
+  }
+}

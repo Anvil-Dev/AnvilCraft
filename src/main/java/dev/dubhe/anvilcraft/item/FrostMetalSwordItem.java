@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.item;
 import dev.dubhe.anvilcraft.api.item.property.Merciless;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.SwordItem;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -15,7 +14,7 @@ public class FrostMetalSwordItem extends SwordItem {
         super(
             ModTiers.FROST_METAL,
             properties.fireResistant()
-                .attributes(AxeItem.createAttributes(ModTiers.FROST_METAL, 10, -2.4f))
+                .attributes(SwordItem.createAttributes(ModTiers.FROST_METAL, 7, -2.4f))
                 .component(ModComponents.MERCILESS, Merciless.DEFAULT)
         );
     }

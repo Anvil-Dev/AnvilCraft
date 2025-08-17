@@ -1,0 +1,30 @@
+{
+  "name": "负物质发电",
+  "category": "anvilcraft:power_system",
+  "icon": "anvilcraft:negative_matter",
+  "sortnum": 22009,
+  "entry_color": "661100",
+  "extra_recipe_mappings": {
+    "anvilcraft:negative_matter_nugget": 1,
+    "anvilcraft:negative_matter": 1,
+    "anvilcraft:negative_matter_block": 1
+  },
+  "pages": [
+    "本章节将会讲述：$(li)如何获得$(item)负物质$() $(li)如何借助负物质产生大量的电力",
+    {
+      "type": "patchouli:spotlight",
+      "item": ["anvilcraft:negative_matter_nugget", "anvilcraft:negative_matter", "anvilcraft:negative_matter_block"],
+      "text": "使用$(item)皇家铁砧$()（或更高级铁砧）$(l:struct/high_speed_impact)撞击$()$(item)飘浮粉块$()平均获得7.5个$(item)负物质粒$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:negative_matter_block",
+      "title": "增强虚空发电",
+      "text": "负物质块蕴含了极为丰富的虚空能，可以增强$(l:power/void_energy_collection)虚空能发电机$()的发电能力。 $(p)对发电机而言，检测范围内每一个的负物质会抵消物质带来的影响。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "多余的负物质可以增加发电量：$(li)11个及以上：1024kW $(li)21个及以上：2048kW $(li)41个及以上：4096kW $(p)负物质块相对稳定，可以用其配合$(item)虚空物质块$()填充发电机的检测范围，使其$(thing)无法生成物质方块$()，搭建一个无需维护的发电机。"
+    }
+  ]
+}

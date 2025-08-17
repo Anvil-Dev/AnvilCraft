@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Position;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -93,7 +94,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     public static double getThrownBaseDamage(ItemStack stack) {
         for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
             if ((entry.matches(Attributes.ATTACK_DAMAGE, BASE_ATTACK_DAMAGE_ID)
-                 || entry.matches(Attributes.ATTACK_DAMAGE, Merciless.MERCILESS_ID))
+                || entry.matches(Attributes.ATTACK_DAMAGE, Merciless.MERCILESS_ID))
                 && entry.modifier().operation().equals(AttributeModifier.Operation.ADD_VALUE)
             ) {
                 return entry.modifier().amount() / 3;
@@ -149,9 +150,6 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
                 stack.remove(DataComponents.TOOL);
             }
         } else {
-            if (stack.has(ModComponents.MERCILESS)) {
-                stack.set(ModComponents.MERCILESS, Merciless.DEFAULT);
-            }
             if (stack.has(DataComponents.STORED_ENCHANTMENTS) && !stack.has(ModComponents.MERCILESS)) {
                 ItemEnchantments enchantmentsStored = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
@@ -216,20 +214,24 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
             Object2IntMap<Holder<Enchantment>> enchantments = new Object2IntArrayMap<>();
             for (int i = 0; i < 4; i++) {
                 ItemStack inputStack = input.getInputItem(i);
-                for (
-                    Object2IntMap.Entry<Holder<Enchantment>> entry
-                    : inputStack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).entrySet()
-                ) {
+                DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
+                if (inputStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
+                    type = DataComponents.STORED_ENCHANTMENTS;
+                }
+                for (var entry : inputStack.getOrDefault(type, ItemEnchantments.EMPTY).entrySet()) {
                     enchantments.mergeInt(entry.getKey(), entry.getIntValue(), Integer::max);
                 }
             }
 
-            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(
-                defaultStack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY));
+            DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
+            if (defaultStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
+                type = DataComponents.STORED_ENCHANTMENTS;
+            }
+            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(defaultStack.getOrDefault(type, ItemEnchantments.EMPTY));
             for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.object2IntEntrySet()) {
                 mutable.set(entry.getKey(), entry.getIntValue());
             }
-            defaultStack.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
+            defaultStack.set(type, mutable.toImmutable());
 
             return defaultStack;
         }
@@ -381,8 +383,8 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         }
 
         return entity.level() instanceof ServerLevel level
-               ? damageBonus + EnchantmentHelper.modifyFallBasedDamage(level, entity.getWeaponItem(), target, source, 0.0F) * fallDistance
-               : damageBonus;
+            ? damageBonus + EnchantmentHelper.modifyFallBasedDamage(level, entity.getWeaponItem(), target, source, 0.0F) * fallDistance
+            : damageBonus;
     }
 
     @Override
@@ -400,6 +402,6 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        return ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility);
+        return ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility) || ItemAbilities.DEFAULT_SWORD_ACTIONS.contains(itemAbility);
     }
 }

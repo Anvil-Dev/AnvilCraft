@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
-import dev.dubhe.anvilcraft.client.PowerGridClient;
+import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -52,7 +52,7 @@ public class PowerGridSyncPacket implements CustomPacketPayload {
     }
 
     public static void clientHandler(PowerGridSyncPacket data, IPayloadContext context) {
-        context.enqueueWork(() -> PowerGridClient.getGridMap().compute(
+        context.enqueueWork(() -> PowerGridSupport.getGridMap().compute(
             data.grid.getId(),
             (integer, simplePowerGrid) -> {
                 if (simplePowerGrid != null) simplePowerGrid.destroy();

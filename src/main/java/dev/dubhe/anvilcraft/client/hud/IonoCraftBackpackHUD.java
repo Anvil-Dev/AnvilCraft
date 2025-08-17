@@ -22,6 +22,7 @@ public class IonoCraftBackpackHUD {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
+        if (mc.options.hideGui) return;
         LocalPlayer player = mc.player;
         if (player == null) {
             return;

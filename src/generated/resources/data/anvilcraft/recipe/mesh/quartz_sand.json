@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:mesh",
+  "ingredients": [
+    {
+      "items": "anvilcraft:quartz_sand"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "anvilcraft:quartz_sand"
+    },
+    {
+      "id": "minecraft:quartz"
+    }
+  ]
+}

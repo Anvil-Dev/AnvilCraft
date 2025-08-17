@@ -1,0 +1,136 @@
+{
+  "name": "热能收集",
+  "category": "anvilcraft:power_system",
+  "icon": "anvilcraft:heat_collector",
+  "sortnum": 12005,
+  "entry_color": "004400",
+  "pages": [
+    "使用集热器来收集$(thing)可集热方块$()的热能。后文会依次介绍：$(li)什么是$(thing)可集热方块$() $(li)$(l:power/heat_collection#method)如何搭建发电设施$()",
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:heat_collector",
+      "text": "$(item)集热器$()是发热设施的核心部件，发电功率上限为4096KW。工作范围是以自己为中心5x5x5，在集热器范围内的可集热方块决定了它的发电功率，不同的可集热方块能产出不等量的热能。周期默认为1秒。"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "changed_block",
+      "text": "有些可集热方块在被集热后会冷却并变化。以下是符合描述的方块：$(li)$(item)岩浆块$()→$(item)下界岩$()+2kW $(li)$(item)点亮的营火$()→$(item)熄灭的营火$()+4kW $(li)$(item)熔岩$()→$(item)黑曜石$()+4kW"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "unchanged_block",
+      "text": "有些可集热方块在被集热后不会变化。以下是符合描述的方块：$(li)$(item)余烬金属块$():4kW $(li)$(l:advanced/heated_block)高温方块$() $(br2)不同温度等级的高温方块效果如下:$(li)高温:4kW $(li)红热:16kW $(li)炽热:64kW $(li)白炽:256kW"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "method",
+      "title": "发电方法",
+      "text": "虽然加热方法众多，但前中期可用于发电的仅有以下三种：$(li)$(l:power/heat_collection#heliostats)太阳能发电$() $(li)$(l:power/heat_collection#oil)油离子发电$() $(li)$(l:power/heat_collection#campfire)营火发电$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "heliostats",
+      "title": "太阳能发电",
+      "recipe": "anvilcraft:heliostats_electrical",
+      "recipe2": "anvilcraft:heliostats_biological",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "太阳能发电",
+      "text": "通过大量$(item)定日镜$()可以将太阳能收集到可加热方块上作为热能再被集热器吸收。$(br2)优点是耗材简单，且无须后续投入，但是占地较大，且光路上不可有方块阻挡。$(br2)$(l:advanced/heated_block#heliostats)点我$()查看具体数值。"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "光电",
+      "multiblock": {
+        "mapping": {
+          "A": "anvilcraft:heliostats",
+          "B": "anvilcraft:smooth_royal_steel_block",
+          "0": "anvilcraft:smooth_royal_steel_block",
+          "C": "anvilcraft:glowing_tungsten_block",
+          "D": "anvilcraft:heat_collector"
+        },
+        "pattern": [
+          ["             ", "             ", "             ", "             ", "             ", "             ", "      D      ", "             ", "             ", "             ", "             ", "             ", "             "],
+          ["             ", "             ", "             ", "             ", "             ", "             ", "      C      ", "             ", "             ", "             ", "             ", "             ", "             "],
+          ["             ", "             ", "             ", "             ", "             ", "             ", "      C      ", "             ", "             ", "             ", "             ", "             ", "             "],
+          ["             ", "             ", "             ", "             ", "             ", "             ", "      B      ", "             ", "             ", "             ", "             ", "             ", "             "],
+          ["             ", "             ", "             ", "             ", "             ", "             ", "      B      ", "             ", "             ", "             ", "             ", "             ", "             "],
+          ["     A A     ", "             ", "  A A A A A  ", "             ", "  A A A A A  ", "A           A", "  A A 0 A A  ", "A           A", "  A A A A A  ", "             ", "  A A A A A  ", "             ", "     A A     "],
+          ["             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             ", "             "]
+        ]
+      },
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "oil",
+      "item": "anvilcraft:oil_bucket",
+      "title": "油离子发电",
+      "text": "燃烧原油发热需要大量的肉，但是发电量绝对够本。$(br2)优点是占地面积小，效率高，但是需要持续消耗肉类，自动运行需要配套的牧场/刷怪塔/刷怪笼。$(br2)$(l:advanced/heated_block#plasma_jets)点我$()查看具体数值。"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "油电",
+      "multiblock": {
+        "mapping": {
+          "0": "anvilcraft:heater[overload=false]",
+          "B": "anvilcraft:fire_cauldron",
+          "C": "anvilcraft:charge_collector",
+          "D": "anvilcraft:magnet_block[lit=false]",
+          "E": "anvilcraft:glowing_tungsten_block",
+          "F": "anvilcraft:heat_collector",
+          "G": "anvilcraft:plasma_jets"
+        },
+        "pattern": [
+          ["     ", "     ", "     ", "     ", "     "],
+          ["     ", " CEC ", " D D ", " CEC ", "     "],
+          ["     ", " CEC ", " D D ", " CEC ", "     "],
+          ["     ", " CEC ", " D DF", " CEC ", "     "],
+          ["     ", " CEC ", " D D ", " CEC ", "     "],
+          ["     ", "     ", "  B  ", "     ", "     "],
+          ["     ", "     ", "  0  ", "     ", "     "]
+        ]
+      },
+      "text": ""
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "campfire",
+      "item": ["minecraft:campfire","anvilcraft:flint_block","minecraft:iron_block"],
+      "title": "营火发电",
+      "text": "集热器会吸收营火产生能量，而燧石块摩擦铁块可以$(l:prop/storage_block#flint_block)点火$()。$(br2)优点是耗材简单，且无须后续投入，占地也较小。 $(br2)但是单发电机发电量不可能超过500kW，效率较低，需要堆叠。"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "火电",
+      "multiblock": {
+        "mapping": {
+          "A": "anvilcraft:heat_collector",
+          "B": "minecraft:campfire[waterlogged=false,lit=true,facing=west]",
+          "C": "minecraft:piston[facing=east]",
+          "E": "minecraft:piston[facing=west]",
+          "F": "minecraft:smooth_stone",
+          "G": "anvilcraft:block_comparator[facing=east]",
+          "H": "anvilcraft:flint_block",
+          "I": "anvilcraft:block_comparator[facing=west]",
+          "J": "minecraft:iron_block"
+        },
+        "pattern": [
+          ["  CF ", " BJGJ", "ABJH0", " B IJ", "  EF "]
+        ]
+      },
+      "text": "尽可能用营火填满集热器的检测范围，可以获得更高的发电量"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:advanced/heated_block",
+        "anvilcraft:apply/oil",
+        "anvilcraft:prop/storage_block"
+      ],
+      "text": ""
+    }
+  ]
+}

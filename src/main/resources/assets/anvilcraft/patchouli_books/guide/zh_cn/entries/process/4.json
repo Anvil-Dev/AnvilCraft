@@ -1,0 +1,48 @@
+{
+  "name": "流程4-发电与熔炼",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:magnetoelectric_core",
+  "sortnum": 4,
+  "pages": [
+    "$(l:power/basic_generation#charge_collector)集电器$()、$(l:power/transmission#transmission_pole)输电杆$()、$(l:power/consumption#heater)加热器$()是构建前期电网和合成材料的必备物品。$(br)首先，需要使用$(item)集电器$()使用本模组的特殊方法发电。然后使用$(item)输电杆$()传输电力，它的存在可以使附近内所有电力设施连接在一起！最后放上$(item)加热器$()，准备制造本模组下一阶段的核心材料——$(l:smithing/tier_1_materials#royal_steel_ingot)皇家钢$()$(br)$(#aa2222)Tps:$()点击本书中深蓝色的文本。可以跳转至详细介绍它的页面！",
+    {
+      "type": "patchouli:multiblock",
+      "name": "也许是你的第一个电网",
+      "multiblock": {
+        "mapping": {
+          "A": "anvilcraft:charge_collector",
+          "0": "anvilcraft:transmission_pole[half=bottom]",
+          "C": "anvilcraft:heater",
+          "D": "anvilcraft:transmission_pole[half=mid]",
+          "E": "minecraft:cauldron",
+          "F": "anvilcraft:transmission_pole[half=top,overload=false]",
+          "G": "minecraft:anvil[facing=west]",
+          "H": "anvilcraft:magnet_block[lit=false]"
+        },
+        "pattern": [
+          ["     ","     ","     ","     ","  H  "],
+          ["     ","     ","     ","     ","  G  "],
+          ["     ","     ","  F  ","     ","     "],
+          ["     ","     ","  D  ","     ","  E  "],
+          ["  A  ","     ","  0  ","     ","  C  "]
+        ]
+      },
+      "text": "在$(item)加热器$()工作时，使用铁砧可以对$(item)炼药锅$()中的物品执行$(l:advanced/super_heating)高温熔炼$()操作——可以生产$(item)皇家钢$()。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:anvil_hammer",
+      "text": "本模组的$(l:power/introduction#anvil_hammer)铁砧锤$()不仅是$(thing)扳手$()，还具有多种用途，为游戏带来诸多便利性，你会用到它的。"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:power/introduction",
+        "anvilcraft:power/transmission",
+        "anvilcraft:power/basic_generation",
+        "anvilcraft:power/consumption"
+      ],
+      "text": "对电力系统的详细介绍，可以查看$(thing)第二章：电力系统$()的基础章节。$(br)本书也会向你介绍前期可用发电机结构。"
+    }
+  ]
+}

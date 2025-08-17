@@ -1,5 +1,10 @@
 package dev.dubhe.anvilcraft.util;
 
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import org.joml.Vector2f;
 
 import static java.lang.Math.atan2;
@@ -58,6 +63,16 @@ public class MathUtil {
         return a / b;
     }
 
+    public static boolean isInRange(double value, double min, double max) {
+        if (min > max) {
+            double min1 = min;
+            min = max;
+            max = min1;
+        }
+
+        return value > min && value < max;
+    }
+
     public static boolean isInRange(double valueX, double valueY, double minX, double minY, double maxX, double maxY) {
         if (minX > maxX) {
             double minX1 = minX;
@@ -71,5 +86,44 @@ public class MathUtil {
         }
 
         return valueX > minX && valueX < maxX && valueY > minY && valueY < maxY;
+    }
+
+    public static Vec3i dist(BlockPos a, BlockPos b) {
+        return new Vec3i(a.getX() - b.getX(), a.getY() - b.getY(), a.getZ() - b.getZ());
+    }
+
+    public static Direction getDirection(BlockPos from, BlockPos to) {
+        return Direction.fromDelta(from.getX() - to.getX(), from.getY() - to.getY(), from.getZ() - to.getZ());
+    }
+
+    private static final Int2DoubleMap FACTORIAL_CACHE = new Int2DoubleOpenHashMap();
+
+    public static double factorial(int value) {
+        if (value < 1) return 1;
+        if (FACTORIAL_CACHE.containsKey(value)) return FACTORIAL_CACHE.get(value);
+        double result = 1;
+        for (int i = 2; i <= value; i++) {
+            result *= i;
+        }
+        FACTORIAL_CACHE.put(value, result);
+        return result;
+    }
+
+    public static float clampWithProportion(float value, float min, float max) {
+        float length = Math.abs(max - min);
+        if (length == 0) throw new IllegalArgumentException("The min value " + min + " cannot be equal to the max value" + max + "!");
+
+        if (value > max) {
+            while (value > max + length) {
+                value -= length;
+            }
+            return max - (max - value);
+        } else if (value < min) {
+            while (value < min + length) {
+                value += length;
+            }
+            return min + (value - min);
+        }
+        return value;
     }
 }

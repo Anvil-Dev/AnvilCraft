@@ -1,10 +1,14 @@
 {
   "type": "anvilcraft:item_inject",
+  "block_ingredient": {
+    "blocks": "minecraft:deepslate"
+  },
+  "block_result": {
+    "block": "anvilcraft:deepslate_zinc_ore"
+  },
   "ingredients": [
     {
-      "item": "anvilcraft:raw_zinc_block"
+      "items": "anvilcraft:raw_zinc_block"
     }
-  ],
-  "input_block": "minecraft:deepslate",
-  "result_block": "anvilcraft:deepslate_zinc_ore"
+  ]
 }

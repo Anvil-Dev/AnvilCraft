@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.api.block;
 
-import dev.dubhe.anvilcraft.init.ModFluidTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -13,6 +12,7 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -54,7 +54,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                 } else {
                     BlockState blockState = level.getBlockState(checkedPos);
                     FluidState fluidState = level.getFluidState(checkedPos);
-                    if (!fluidState.is(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)) {
+                    if (!fluidState.is(Fluids.WATER)) {
                         return false;
                     } else {
                         Block block = blockState.getBlock();

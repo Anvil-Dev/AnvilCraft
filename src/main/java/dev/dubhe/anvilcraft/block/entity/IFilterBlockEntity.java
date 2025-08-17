@@ -13,7 +13,7 @@ public interface IFilterBlockEntity {
      *
      * @return 有过滤的物品存储
      */
-    FilteredItemStackHandler getFilteredItemDepository();
+    FilteredItemStackHandler getFilteredItemStackHandler();
 
     /**
      * 获取是否开启过滤
@@ -21,7 +21,7 @@ public interface IFilterBlockEntity {
      * @return 是否开启过滤
      */
     default boolean isFilterEnabled() {
-        return this.getFilteredItemDepository().isFilterEnabled();
+        return this.getFilteredItemStackHandler().isFilterEnabled();
     }
 
     /**
@@ -30,7 +30,7 @@ public interface IFilterBlockEntity {
      * @param enable 是否开启过滤
      */
     default void setFilterEnabled(boolean enable) {
-        this.getFilteredItemDepository().setFilterEnabled(enable);
+        this.getFilteredItemStackHandler().setFilterEnabled(enable);
     }
 
     /**
@@ -39,7 +39,7 @@ public interface IFilterBlockEntity {
      * @param slot 槽位
      */
     default boolean isSlotDisabled(int slot) {
-        return this.getFilteredItemDepository().isSlotDisabled(slot);
+        return this.getFilteredItemStackHandler().isSlotDisabled(slot);
     }
 
     /**
@@ -49,7 +49,7 @@ public interface IFilterBlockEntity {
      * @param disable 是否禁用
      */
     default void setSlotDisabled(int slot, boolean disable) {
-        this.getFilteredItemDepository().setSlotDisabled(slot, disable);
+        this.getFilteredItemStackHandler().setSlotDisabled(slot, disable);
     }
 
     /**
@@ -58,7 +58,7 @@ public interface IFilterBlockEntity {
      * @return 过滤物品
      */
     default NonNullList<ItemStack> getFilteredItems() {
-        return this.getFilteredItemDepository().getFilteredItems();
+        return this.getFilteredItemStackHandler().getFilteredItems();
     }
 
     /**
@@ -67,7 +67,7 @@ public interface IFilterBlockEntity {
      * @param slot 槽位
      */
     default ItemStack getFilter(int slot) {
-        return this.getFilteredItemDepository().getFilter(slot);
+        return this.getFilteredItemStackHandler().getFilter(slot);
     }
 
     /**
@@ -77,6 +77,6 @@ public interface IFilterBlockEntity {
      * @param filter 过滤
      */
     default boolean setFilter(int slot, ItemStack filter) {
-        return this.getFilteredItemDepository().setFilter(slot, filter);
+        return this.getFilteredItemStackHandler().setFilter(slot, filter);
     }
 }

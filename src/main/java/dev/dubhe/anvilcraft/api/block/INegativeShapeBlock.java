@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.api.block;
 
-public interface INegativeShapeBlock<T> {
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+
+public interface INegativeShapeBlock<T> extends IHammerRemovable {
     Class<T> getBlockType();
 }

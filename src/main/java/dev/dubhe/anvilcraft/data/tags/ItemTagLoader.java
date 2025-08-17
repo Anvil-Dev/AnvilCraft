@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.tags;
 
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
@@ -119,9 +120,7 @@ public class ItemTagLoader {
             .add(findResourceKey(Items.SWEET_BERRIES))
             .add(findResourceKey(Items.GLOW_BERRIES));
         provider.addTag(ModItemTags.WRENCH)
-            .add(ModItems.ANVIL_HAMMER.getKey())
-            .add(ModItems.ROYAL_ANVIL_HAMMER.getKey())
-            .add(ModItems.EMBER_ANVIL_HAMMER.getKey());
+            .addTag(ModItemTags.ANVIL_HAMMER);
         provider.addTag(ModItemTags.FIRE_STARTER)
             .add(findResourceKey(Items.TORCH))
             .add(findResourceKey(Items.SOUL_TORCH))
@@ -129,19 +128,19 @@ public class ItemTagLoader {
             .add(findResourceKey(Items.SOUL_CAMPFIRE))
             .add(findResourceKey(Items.BLAZE_POWDER));
         provider.addTag(ModItemTags.UNBROKEN_FIRE_STARTER)
-            .add(findResourceKey(ModBlocks.REDHOT_NETHERITE.asItem()))
-            .add(findResourceKey(ModBlocks.GLOWING_NETHERITE.asItem()))
-            .add(findResourceKey(ModBlocks.HEATED_NETHERITE.asItem()))
-            .add(findResourceKey(ModBlocks.INCANDESCENT_NETHERITE.asItem()))
-            .add(findResourceKey(ModBlocks.REDHOT_TUNGSTEN.asItem()))
-            .add(findResourceKey(ModBlocks.GLOWING_TUNGSTEN.asItem()))
-            .add(findResourceKey(ModBlocks.HEATED_TUNGSTEN.asItem()))
-            .add(findResourceKey(ModBlocks.INCANDESCENT_TUNGSTEN.asItem()));
+            .add(findResourceKey(ModBlocks.REDHOT_NETHERITE_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.GLOWING_NETHERITE_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.HEATED_NETHERITE_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.INCANDESCENT_NETHERITE_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.REDHOT_TUNGSTEN_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.GLOWING_TUNGSTEN_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.HEATED_TUNGSTEN_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK.asItem()));
         provider.addTag(ModItemTags.NETHERITE_BLOCK)
-            .add(findResourceKey(ModBlocks.REDHOT_NETHERITE.asItem()))
-            .add(findResourceKey(ModBlocks.GLOWING_NETHERITE.asItem()))
-            .add(findResourceKey(ModBlocks.HEATED_NETHERITE.asItem()))
-            .add(findResourceKey(ModBlocks.INCANDESCENT_NETHERITE.asItem()));
+            .add(findResourceKey(ModBlocks.REDHOT_NETHERITE_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.GLOWING_NETHERITE_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.HEATED_NETHERITE_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.INCANDESCENT_NETHERITE_BLOCK.asItem()));
         provider.addTag(ModItemTags.EXPLOSION_PROOF)
             .add(findResourceKey(ModBlocks.EARTH_CORE_SHARD_BLOCK.asItem()))
             .add(findResourceKey(ModBlocks.EARTH_CORE_SHARD_ORE.asItem()))
@@ -173,9 +172,43 @@ public class ItemTagLoader {
         provider.addTag(ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
             .add(ModItems.NEUTRONIUM_INGOT.getKey())
             .add(ModItems.STABLE_NEUTRONIUM_INGOT.getKey());
+        provider.addTag(ModItemTags.HEATABLE_BLOCKS)
+            .add(findResourceKey(Items.NETHERITE_BLOCK));
+
+        provider.addTag(ModItemTags.AMULET)
+            .addOptional(AnvilCraft.of("cogwheel_amulet"));
+
+        provider.addTag(ModItemTags.CURIOS_HEAD)
+            .replace(false)
+            .addTag(ModItemTags.ANVIL_HAMMER);
+        provider.addTag(ModItemTags.CURIOS_NECKLACE)
+            .replace(false)
+            .addTag(ModItemTags.AMULET);
+        provider.addTag(ModItemTags.CURIOS_IONOCRAFT_BACKPACK)
+            .replace(false)
+            .add(ModItems.IONOCRAFT_BACKPACK.getKey());
+
+        provider.addTag(ModItemTags.TOTEM)
+            .add(findResourceKey(Items.TOTEM_OF_UNDYING));
+
+        provider.addTag(ItemTags.AXES)
+            .addTag(ModItemTags.RESONATOR);
+        provider.addTag(ItemTags.SHOVELS)
+            .addTag(ModItemTags.RESONATOR);
+        provider.addTag(ItemTags.HOES)
+            .addTag(ModItemTags.RESONATOR);
+        provider.addTag(ItemTags.PICKAXES)
+            .addTag(ModItemTags.RESONATOR);
+
+        provider.addTag(ItemTags.CLUSTER_MAX_HARVESTABLES)
+            .addTag(ModItemTags.DRAGON_ROD)
+            .addTag(ModItemTags.RESONATOR);
+
+        provider.addTag(ItemTags.DURABILITY_ENCHANTABLE)
+            .add(findResourceKey(ModItems.MAGNET.get()));
     }
 
-    private static ResourceKey<Item> findResourceKey(Item item) {
+    private static @NotNull ResourceKey<Item> findResourceKey(Item item) {
         return ResourceKey.create(Registries.ITEM, BuiltInRegistries.ITEM.getKey(item));
     }
 }

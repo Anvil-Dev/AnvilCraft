@@ -4,9 +4,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.ai.goal.GenericZombieAttackGoal;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
+import dev.dubhe.anvilcraft.util.Util;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -18,8 +21,9 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Giant;
+import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -44,24 +48,31 @@ import static dev.dubhe.anvilcraft.init.ModDataAttachments.SCARE_ENTITIES;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LivingEntityEventListener {
-
     @SubscribeEvent
-    public static void onSkeletonChangeTarget(LivingChangeTargetEvent event) {
-        if (
-            event.getEntity() instanceof AbstractSkeleton
-                && event.getNewAboutToBeSetTarget() instanceof Player player && player.getData(SCARE_ENTITIES).getBoolean("skeletons")
+    public static void onChangeTarget(LivingChangeTargetEvent event) {
+        Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
+        if (entity == null) return;
+        if (!(event.getNewAboutToBeSetTarget() instanceof Player player)) return;
+        EntityType<?> type = entity.getType();
+        if ((type.is(EntityTypeTags.SKELETONS) && player.getData(SCARE_ENTITIES).getBoolean("skeletons"))
+            || (entity instanceof Creeper && player.getData(SCARE_ENTITIES).getBoolean("creepers"))
+            || (entity instanceof Phantom && player.getData(SCARE_ENTITIES).getBoolean("phantoms"))
         ) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    public static void onSkeletonTick(EntityTickEvent.Post event) {
-        if (
-            event.getEntity() instanceof AbstractSkeleton skeleton
-                && skeleton.getTarget() instanceof Player player && player.getData(SCARE_ENTITIES).getBoolean("skeletons")
+    public static void onTick(EntityTickEvent.Post event) {
+        Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
+        if (entity == null) return;
+        if (!(entity.getTarget() instanceof Player player)) return;
+        EntityType<?> type = entity.getType();
+        if ((type.is(EntityTypeTags.SKELETONS) && player.getData(SCARE_ENTITIES).getBoolean("skeletons"))
+            || (entity instanceof Creeper && player.getData(SCARE_ENTITIES).getBoolean("creepers"))
+            || (entity instanceof Phantom && player.getData(SCARE_ENTITIES).getBoolean("phantoms"))
         ) {
-            skeleton.setTarget(null);
+            entity.setTarget(null);
         }
     }
 
@@ -124,9 +135,6 @@ public class LivingEntityEventListener {
                     break;
                 }
             }
-
         }
-
     }
-
 }

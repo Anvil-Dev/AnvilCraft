@@ -1,0 +1,20 @@
+{
+  "name": "流程8-宝石再生与转化",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:melt_gem_bucket",
+  "sortnum": 8,
+  "entry_color": "004400",
+  "pages": [
+    "获得$(l:smithing/corrupted_beacon)腐化信标$()后，你就可以转化$(item)宝石$()了。$(br2)将一块$(item)绿宝石块$()$(thing)高温熔炼$()为一锅$(item)熔融宝石$()。$(br2)再丢入一颗$(thing)宝石$()进行$(thing)时移$()加工，产出对应的$(thing)宝石块$()。$(br2)$(#888888)别看这章很短，在模组开发早期，独立设计宝石转化机称得上是新手村boss，做出来标志着——你上道了$()",
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:apply/gem_transformation",
+        "anvilcraft:machine/automation",
+        "anvilcraft:power/consumption",
+        "anvilcraft:smithing/corrupted_beacon"
+      ],
+      "text": "更详细的加工流程可看$(l:apply/gem_transformation)宝石转化流程$()；可以使用手册自带的$(l:machine/automation#gem_machine)自动宝石再生机$()"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.item.FilterItem;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
@@ -90,9 +91,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
 
     @Override
     public void setStackInSlot(int slot, ItemStack stack) {
-        if (filterEnabled) {
-            this.setFilter(slot, stack);
-        } else if (!stack.isEmpty()) {
+        if (!filterEnabled && !stack.isEmpty()) {
             this.setSlotDisabled(slot, false);
         }
         super.setStackInSlot(slot, stack);
@@ -147,7 +146,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
      */
     public boolean isFiltered(int slot, ItemStack stack) {
         ItemStack filter = this.filteredItems.get(slot);
-        return filter.isEmpty() || ItemStack.isSameItem(filter, stack);
+        return filter.isEmpty() || ItemStack.isSameItem(filter, stack) || FilterItem.filter(filter, stack);
     }
 
     /**
@@ -160,7 +159,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         if (slot < 0 || slot >= this.filteredItems.size()) return false;
         if (stack.isEmpty()) return false;
         this.setSlotDisabled(slot, false);
-        this.filteredItems.set(slot, new ItemStack(stack.getItem(), 1));
+        this.filteredItems.set(slot, stack.copyWithCount(1));
         return true;
     }
 

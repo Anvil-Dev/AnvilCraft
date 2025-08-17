@@ -1,8 +1,16 @@
 {
   "type": "anvilcraft:block_compress",
   "inputs": [
-    "minecraft:stone",
-    "minecraft:stone"
+    {
+      "blocks": "minecraft:stone"
+    },
+    {
+      "blocks": "minecraft:stone"
+    }
   ],
-  "result": "minecraft:deepslate"
+  "results": [
+    {
+      "block": "minecraft:deepslate"
+    }
+  ]
 }

@@ -3,33 +3,24 @@ package dev.dubhe.anvilcraft.data.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public class SqueezingRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
-        SqueezingRecipe.builder()
-            .inputBlock(Blocks.WET_SPONGE)
-            .resultBlock(Blocks.SPONGE)
-            .cauldron(Blocks.WATER_CAULDRON)
-            .save(provider, AnvilCraft.of("squeezing/water_from_wet_sponge"));
+        squeezing(provider, Blocks.WET_SPONGE, Blocks.SPONGE, Blocks.WATER_CAULDRON, "water_from_wet_sponge");
+        squeezing(provider, Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, Blocks.WATER_CAULDRON, "water_from_moss_block");
+        squeezing(provider, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK, ModBlocks.LAVA_CAULDRON.get(), "lava_from_magma_block");
+        squeezing(provider, Blocks.SNOW_BLOCK, Blocks.ICE, Blocks.POWDER_SNOW_CAULDRON, "power_snow_from_ice");
+    }
 
+    public static void squeezing(RegistrateRecipeProvider provider, Block requires, Block result, Block cauldron, String save) {
         SqueezingRecipe.builder()
-            .inputBlock(Blocks.MOSS_BLOCK)
-            .resultBlock(Blocks.MOSS_CARPET)
-            .cauldron(Blocks.WATER_CAULDRON)
-            .save(provider, AnvilCraft.of("squeezing/water_from_moss_block"));
-
-        SqueezingRecipe.builder()
-            .inputBlock(Blocks.MAGMA_BLOCK)
-            .resultBlock(Blocks.NETHERRACK)
-            .cauldron(ModBlocks.LAVA_CAULDRON.get())
-            .save(provider, AnvilCraft.of("squeezing/lava_from_magma_block"));
-
-        SqueezingRecipe.builder()
-            .inputBlock(Blocks.SNOW_BLOCK)
-            .resultBlock(Blocks.ICE)
-            .cauldron(Blocks.POWDER_SNOW_CAULDRON)
-            .save(provider, AnvilCraft.of("squeezing/power_snow_from_ice"));
+            .requires(requires)
+            .result(result)
+            .cauldron(cauldron)
+            .produceFluid(true)
+            .save(provider, AnvilCraft.of("squeezing/%s".formatted(save)));
     }
 }

@@ -2,24 +2,39 @@
   "type": "anvilcraft:four_to_one_smithing",
   "inputs": [
     {
-      "item": "anvilcraft:ember_metal_sword"
+      "items": "anvilcraft:ember_metal_sword"
     },
     {
-      "item": "anvilcraft:ember_metal_axe"
+      "items": "anvilcraft:ember_metal_axe"
     },
     {
-      "item": "minecraft:trident"
+      "items": "minecraft:trident"
     },
     {
-      "tag": "c:tools/mace"
+      "items": "#c:tools/mace"
     }
   ],
   "material": {
-    "item": "anvilcraft:heavy_halberd_core"
+    "items": "anvilcraft:heavy_halberd_core"
   },
-  "recipeId": 0,
-  "result": "anvilcraft:ember_metal_heavy_halberd",
+  "result": {
+    "item": {
+      "count": 1,
+      "id": "anvilcraft:ember_metal_heavy_halberd"
+    },
+    "modifiers": [
+      {
+        "type": "anvilcraft:copy_data",
+        "types": [
+          {
+            "type": "anvilcraft:multiphase",
+            "input_type": "four"
+          }
+        ]
+      }
+    ]
+  },
   "template": {
-    "item": "anvilcraft:four_to_one_smithing_template"
+    "items": "anvilcraft:four_to_one_smithing_template"
   }
 }

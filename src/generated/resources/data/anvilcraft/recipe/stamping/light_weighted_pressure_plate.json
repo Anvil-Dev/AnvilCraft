@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "minecraft:gold_ingot"
+      "items": "minecraft:gold_ingot"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:light_weighted_pressure_plate"
-      }
+      "id": "minecraft:light_weighted_pressure_plate"
     }
   ]
 }

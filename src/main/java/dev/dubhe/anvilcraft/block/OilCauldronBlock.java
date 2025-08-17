@@ -15,6 +15,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -27,8 +28,8 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
         super(properties, ModInteractionMap.OIL);
     }
 
-    public static void ignite(Level level, BlockPos pos, BlockState beforeConvert) {
-        level.setBlockAndUpdate(pos, ModBlocks.FIRE_CAULDRON.get().copyLevelFrom(beforeConvert));
+    public static void ignite(LevelAccessor level, BlockPos pos, BlockState beforeConvert) {
+        level.setBlock(pos, ModBlocks.FIRE_CAULDRON.get().copyLevelFrom(beforeConvert), 3);
     }
 
     @Override

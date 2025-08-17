@@ -1,0 +1,33 @@
+{
+  "name": "流体系统",
+  "category": "anvilcraft:special_props",
+  "icon": "anvilcraft:menger_sponge",
+  "sortnum": 14010,
+  "entry_color": "004400",
+  "pages": [
+    "本章节将介绍与流体相关的方块",
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:menger_sponge",
+      "link_recipe": true,
+      "text": "具有无限表面积的海绵。接触到流体时，可以吸收半径6格及以内的任何流体，且永不饱和。 $(p)液体相当于被销毁 $(p)$(#888888)门格海绵首先由奥地利数学家卡尔·门格在1926年描述。其每一个面都是谢尔宾斯基地毯$()"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "门格海绵",
+      "multiblock": {
+        "mapping": {
+          "A": "minecraft:sponge",
+          "B": "anvilcraft:void_matter_block"
+        },
+        "pattern": [
+          ["AAA", "A A", "AAA"],
+          ["A A", " B ", "A A"],
+          ["AAA", "A0A", "AAA"]
+        ]
+      },
+      "text": "仅可以通过$(l:struct/multiblock#craft)多方块合成$()而来 $(p)论如何$(l:basic/item_regeneration#sponge)量产海绵$()"
+    },
+    "流体系统正在锐意制作中……"
+  ]
+}

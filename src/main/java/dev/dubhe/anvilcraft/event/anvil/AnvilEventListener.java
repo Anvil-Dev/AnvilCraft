@@ -3,30 +3,28 @@ package dev.dubhe.anvilcraft.event.anvil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
 import dev.dubhe.anvilcraft.api.event.anvil.AnvilHurtEntityEvent;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
-import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.BlockCrushRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.ItemInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.SqueezingRecipe;
+import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.init.ModRecipeTriggers;
+import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeManager;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import dev.dubhe.anvilcraft.util.CauldronUtil;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,17 +32,13 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static dev.dubhe.anvilcraft.util.AnvilUtil.dropItems;
 
@@ -76,14 +70,7 @@ public class AnvilEventListener {
             brokeBlock(level, hitBlockPos, event);
             return;
         }
-
-        handleBlockCompressRecipe(level, hitBlockPos);
-        handleBlockCrushRecipe(level, hitBlockPos);
-        handleBlockSmearRecipe(level, hitBlockPos);
-        handleItemInjectRecipe(level, hitBlockPos, hitBlockState);
-        handleSqueezingRecipe(level, hitBlockPos, hitBlockState);
-
-
+        handleNeoAnvilRecipe(event);
         for (IAnvilBehavior behavior : IAnvilBehavior.findMatching(hitBlockState)) {
             if (behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event)) {
                 return;
@@ -91,106 +78,40 @@ public class AnvilEventListener {
         }
     }
 
-    private static void handleBlockCrushRecipe(Level level, final BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        level.getRecipeManager()
-            .getRecipeFor(
-                ModRecipeTypes.BLOCK_CRUSH_TYPE.get(), new BlockCrushRecipe.Input(state.getBlock()), level)
-            .ifPresent(recipe ->
-                level.setBlockAndUpdate(pos, recipe.value().result.defaultBlockState()));
-    }
-
-    private static void handleBlockCompressRecipe(Level level, final BlockPos pos) {
-        List<Block> inputs = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            inputs.add(level.getBlockState(pos.below(i)).getBlock());
-        }
-        level.getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(), new BlockCompressRecipe.Input(inputs), level)
-            .ifPresent(recipe -> {
-                for (int i = 0; i < recipe.value().inputs.size(); i++) {
-                    level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
-                }
-                level.setBlockAndUpdate(
-                    pos.below(recipe.value().inputs.size() - 1),
-                    recipe.value().result.defaultBlockState());
-            });
-    }
-
-    private static void handleBlockSmearRecipe(Level level, final BlockPos pos) {
-        List<Block> inputs = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            inputs.add(level.getBlockState(pos.below(i)).getBlock());
-        }
-        level.getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(), new BlockCompressRecipe.Input(inputs), level)
-            .ifPresent(recipe -> {
-                for (int i = 1; i < recipe.value().inputs.size(); i++) {
-                    level.setBlockAndUpdate(pos.below(i), Blocks.AIR.defaultBlockState());
-                }
-                level.setBlockAndUpdate(
-                    pos.below(recipe.value().inputs.size() - 1),
-                    recipe.value().result.defaultBlockState());
-            });
-    }
-
-    private static void handleItemInjectRecipe(Level level, final BlockPos pos, BlockState state) {
-        Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos.above())).stream()
-            .map(it -> Map.entry(it, it.getItem()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        if (items.isEmpty()) return;
-        ItemInjectRecipe.Input input =
-            new ItemInjectRecipe.Input(items.values().stream().toList(), state.getBlock());
-        level.getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.ITEM_INJECT_TYPE.get(), input, level)
-            .ifPresent(recipe -> {
-                for (Ingredient ingredient : recipe.value().getIngredients()) {
-                    for (ItemStack stack : input.items()) {
-                        if (ingredient.test(stack)) {
-                            stack.shrink(1);
-                            break;
-                        }
-                    }
-                }
-                level.setBlockAndUpdate(pos, recipe.value().resultBlock.defaultBlockState());
-                items.forEach((k, v) -> {
-                    if (v.isEmpty()) {
-                        k.discard();
-                        return;
-                    }
-                    k.setItem(v.copy());
-                });
-            });
-    }
-
-    private static void handleSqueezingRecipe(Level level, final BlockPos pos, BlockState state) {
-        BlockPos belowPos = pos.below();
-        BlockState belowState = level.getBlockState(belowPos);
-        if (!(belowState.getBlock() instanceof AbstractCauldronBlock)) return;
-        SqueezingRecipe.Input input = new SqueezingRecipe.Input(state.getBlock(), belowState);
-        level.getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.SQUEEZING_TYPE.get(), input, level)
-            .map(RecipeHolder::value)
-            .ifPresent(recipe -> {
-                CauldronUtil.fill(level, belowPos, recipe.getCauldron(), 1, false);
-                level.setBlockAndUpdate(pos, recipe.resultBlock.defaultBlockState());
-            });
+    public static void handleNeoAnvilRecipe(@NotNull AnvilFallOnLandEvent event) {
+        Level level = event.getLevel();
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        BlockPos pos = event.getPos();
+        FallingBlockEntity entity = event.getEntity();
+        InWorldRecipeManager manager = level.getRecipeManager().anc$getInWorldRecipeManager();
+        InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getCenter(), entity);
+        manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON.get(), context);
+        boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
+        if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
+        context.accept();
     }
 
     private static void brokeBlock(@NotNull Level level, BlockPos pos, AnvilFallOnLandEvent event) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockState state = level.getBlockState(pos);
+        //noinspection deprecation
         if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
         if (state.getDestroySpeed(level, pos) < 0) return;
-        boolean smeltDrop = Optional.ofNullable(event.getEntity())
+        boolean smeltDrop = Optional.of(event.getEntity())
             .map(FallingBlockEntity::getBlockState)
             .map(b -> b.getBlock() instanceof EmberAnvilBlock)
             .orElse(false);
-        boolean silkTouch = Optional.ofNullable(event.getEntity())
+        boolean silkTouch = Optional.of(event.getEntity())
             .map(FallingBlockEntity::getBlockState)
             .map(b -> b.getBlock() instanceof RoyalAnvilBlock)
             .orElse(false);
-        ItemStack dummyTool = silkTouch ? BreakBlockUtil.getDummySilkTouchTool(serverLevel) : ItemStack.EMPTY;
+        boolean fortune5 = Optional.of(event.getEntity())
+            .map(FallingBlockEntity::getBlockState)
+            .map(b -> b.getBlock() instanceof TranscendenceAnvilBlock)
+            .orElse(false);
+        ItemStack dummyTool = silkTouch ? BreakBlockUtil.getDummySilkTouchTool(serverLevel)
+            : fortune5 ? BreakBlockUtil.getDummyFortune5Tool(serverLevel)
+            : ItemStack.EMPTY;
         state.spawnAfterBreak(serverLevel, pos, dummyTool, false);
         if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
             multiBlock.onRemove(level, pos, state);
@@ -200,6 +121,8 @@ public class AnvilEventListener {
             drops = BreakBlockUtil.dropSmelt(serverLevel, pos);
         } else if (silkTouch) {
             drops = BreakBlockUtil.dropSilkTouch(serverLevel, pos);
+        } else if (fortune5) {
+            drops = BreakBlockUtil.dropFortune5(serverLevel, pos);
         } else {
             drops = BreakBlockUtil.drop(serverLevel, pos);
         }
@@ -223,17 +146,30 @@ public class AnvilEventListener {
         if (rate < 0.4) return;
         FallingBlockEntity eventEntity = event.getEntity();
         DamageSource source = entity.level().damageSources().anvil(eventEntity);
-        LootParams.Builder builder = new LootParams.Builder(serverLevel);
-        builder.withParameter(LootContextParams.DAMAGE_SOURCE, source);
-        builder.withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, eventEntity);
-        builder.withOptionalParameter(LootContextParams.ATTACKING_ENTITY, eventEntity);
-        builder.withParameter(LootContextParams.THIS_ENTITY, entity);
         Vec3 pos = entity.position();
-        builder.withParameter(LootContextParams.ORIGIN, pos);
+        LootParams.Builder builder = new LootParams.Builder(serverLevel)
+            .withParameter(LootContextParams.DAMAGE_SOURCE, source)
+            .withOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, eventEntity)
+            .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, eventEntity)
+            .withParameter(LootContextParams.THIS_ENTITY, entity)
+            .withParameter(LootContextParams.ORIGIN, pos);
+        Block anvil = eventEntity.getBlockState().getBlock();
+        Optional<ServerPlayer> killerOp = Optional.empty();
+        if (Util.instanceOfAny(anvil, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) {
+            ServerPlayer killer = AnvilCraftFakePlayers.anvilCraftKiller.offerPlayer(serverLevel);
+            builder.withParameter(LootContextParams.DAMAGE_SOURCE, entity.level().damageSources().playerAttack(killer))
+                .withParameter(LootContextParams.ATTACKING_ENTITY, killer)
+                .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, killer);
+            if (anvil instanceof TranscendenceAnvilBlock) {
+                AnvilCraftFakePlayers.anvilCraftKiller.enableLooting5(serverLevel, killer);
+            }
+            killerOp = Optional.of(killer);
+        }
         LootParams lootParams = builder.create(LootContextParamSets.ENTITY);
         LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(entity.getLootTable());
         dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
         if (rate >= 0.6) dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
         if (rate >= 0.8) dropItems(lootTable.getRandomItems(lootParams), serverLevel, pos);
+        killerOp.ifPresent(killer -> AnvilCraftFakePlayers.anvilCraftKiller.disable(killer));
     }
 }

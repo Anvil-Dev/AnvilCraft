@@ -1,0 +1,32 @@
+{
+  "name": "虚空衰变",
+  "category": "anvilcraft:advanced_features",
+  "icon": "anvilcraft:void_matter_block",
+  "sortnum": 17002,
+  "entry_color": "004400",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "虚空衰变",
+      "text": "$(item)虚空物质块$()相邻至少5个面接触到$(item)虚空物质块$()时会发生$(thing)虚空衰变$()：接收到$(thing)随机刻$()时，自身随机转化为以下方块：$(li)三界的各种岩石、砂岩 $(li)泥土、砂土、缠根泥土 $(li)泥巴、黏土、冰 $(li)铁、铜、金矿石 $(li)粗铁块，氧化铜块 $(li)燧石块、苔藓块、幽匿块 $(li)石英矿、虚空石、末地尘 $(li)锌、锡、铅矿石 $(li)各种虫蚀石"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "虚空衰变",
+      "multiblock": {
+        "mapping": {
+          "V": "anvilcraft:void_matter_block",
+          "A": "anvilcraft:arrow",
+          "G": "minecraft:granite"
+        },
+        "pattern": [
+          ["       "," V   V ","       "],
+          [" V   V ","VGVAVVV","       "],
+          ["       "," V 0 V ","       "]
+        ]
+      },
+      "enable_visualize": false,
+      "text": ""
+    }
+  ]
+}

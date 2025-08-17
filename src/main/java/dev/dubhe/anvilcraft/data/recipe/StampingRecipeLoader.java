@@ -5,8 +5,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -24,6 +24,7 @@ public class StampingRecipeLoader {
         stamping(provider, ModItemTags.LEAD_INGOTS, ModBlocks.LEAD_PRESSURE_PLATE);
         stamping(provider, ModItemTags.SILVER_INGOTS, ModBlocks.SILVER_PRESSURE_PLATE);
         stamping(provider, ModItemTags.URANIUM_INGOTS, ModBlocks.URANIUM_PRESSURE_PLATE);
+        stamping(provider, ModItemTags.PLUTONIUM_INGOTS, ModBlocks.PLUTONIUM_PRESSURE_PLATE);
         stamping(provider, ModItemTags.BRONZE_INGOTS, ModBlocks.BRONZE_PRESSURE_PLATE);
         stamping(provider, ModItemTags.BRASS_INGOTS, ModBlocks.BRASS_PRESSURE_PLATE);
         stamping(provider, Items.SNOWBALL, Items.SNOW);
@@ -45,8 +46,8 @@ public class StampingRecipeLoader {
         StampingRecipe.builder()
             .requires(Items.HEART_OF_THE_SEA)
             .result(ModItems.SEA_HEART_SHELL_SHARD, 3)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 1, 0.5f)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 1, 0.5f)
+            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
+            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
             .result(ModItems.SAPPHIRE)
             .save(provider);
         StampingRecipe.builder()
@@ -94,6 +95,7 @@ public class StampingRecipeLoader {
             .save(provider);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void stamping(RegistrateRecipeProvider provider, ItemLike input, ItemLike result, int count) {
         StampingRecipe.builder()
             .requires(input)

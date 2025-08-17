@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
 import dev.dubhe.anvilcraft.api.event.LightningBoltStrikeEvent;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LightningBolt;
 import net.neoforged.neoforge.common.NeoForge;
@@ -18,7 +19,7 @@ abstract class LightningBoltMixin {
     @SuppressWarnings("UnreachableCode")
     @Inject(method = "powerLightningRod", at = @At("HEAD"))
     private void powerLightningRod(CallbackInfo ci) {
-        LightningBolt bolt = (LightningBolt) (Object) this;
+        LightningBolt bolt = Util.cast(this);
         NeoForge.EVENT_BUS.post(new LightningBoltStrikeEvent(bolt, bolt.level(), this.getStrikePosition()));
     }
 }

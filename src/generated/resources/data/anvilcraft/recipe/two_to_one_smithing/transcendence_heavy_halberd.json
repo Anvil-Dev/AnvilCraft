@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:two_to_one_smithing",
+  "inputs": [
+    {
+      "items": "anvilcraft:ember_metal_heavy_halberd"
+    },
+    {
+      "items": "anvilcraft:frost_metal_heavy_halberd"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_transcendium"
+  },
+  "result": {
+    "item": {
+      "count": 1,
+      "id": "anvilcraft:transcendence_heavy_halberd"
+    },
+    "modifiers": [
+      {
+        "type": "anvilcraft:copy_data",
+        "types": [
+          {
+            "type": "anvilcraft:multiphase",
+            "input_type": "two"
+          }
+        ]
+      }
+    ]
+  },
+  "template": {
+    "items": "anvilcraft:two_to_one_smithing_template"
+  }
+}

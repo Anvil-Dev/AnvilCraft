@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.dubhe.anvilcraft.api.event.FallingBlockCollisionEvent;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.util.DeflectionEntity;
+import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -28,17 +29,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
-@SuppressWarnings("DuplicatedCode")
 @Mixin(Entity.class)
 public abstract class EntityMixin implements DeflectionEntity {
     @Unique
     public Vec3 anvil$fixedDeltaMovement;
     @Unique
     public Boolean anvil$isDeflected;
-
-    @Shadow
-    private Vec3 deltaMovement;
 
     @Shadow
     private Level level;
@@ -74,9 +72,6 @@ public abstract class EntityMixin implements DeflectionEntity {
     protected abstract AABB makeBoundingBox();
 
     @Shadow
-    public abstract float distanceTo(Entity entity);
-
-    @Shadow
     public boolean horizontalCollision;
 
     @Shadow
@@ -101,8 +96,7 @@ public abstract class EntityMixin implements DeflectionEntity {
     public void anvilcraft$fixFallingBlockEntity(Entity instance, double x, double y, double z, Operation<Void> original, @Share("isFixed") LocalBooleanRef isFixed) {
         isFixed.set(false);
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
-        if (((Object) this instanceof Projectile || (Object) this instanceof FallingBlockEntity
-            || (Object) this instanceof Player) && vec3.length() > 0.98) {
+        if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class, Player.class) && vec3.length() > 0.98) {
             Vec3 s = position();
             Vec3 e = vec3.add(s);
             ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
@@ -158,10 +152,10 @@ public abstract class EntityMixin implements DeflectionEntity {
 
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
     public void anvilcraft$changeProjectilePosSetResult(double x, double y, double z, CallbackInfo ci) {
-        if (!((Object) this instanceof Projectile)) return;
+        if (!Util.instanceOfAny(this, Projectile.class)) return;
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
         if (vec3.add(getDeltaMovement().scale(-1)).length() > 0.5) return;
-        if (((Object) this instanceof Projectile || (Object) this instanceof FallingBlockEntity) && vec3.length() > 0.98) {
+        if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class) && vec3.length() > 0.98) {
             Vec3 s = position();
             Vec3 e = vec3.add(s);
             ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
@@ -195,14 +189,22 @@ public abstract class EntityMixin implements DeflectionEntity {
     }
 
     @Inject(method = "move", at = @At("HEAD"))
-    public void anvil$recordMovement(MoverType type, Vec3 pos, CallbackInfo ci, @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement) {
+    public void anvil$recordMovement(
+        MoverType type, Vec3 pos, CallbackInfo ci, @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
+    ) {
         beforeBoundingMovement.set(this.getDeltaMovement());
     }
 
     @Inject(method = "move", at = @At("RETURN"))
-    public void anvil$collisionCraft(MoverType type, Vec3 pos, CallbackInfo ci, @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement) {
-        if (!((Object) this instanceof FallingBlockEntity) || !this.horizontalCollision) return;
-        BlockPos blockPos = BlockPos.containing(this.position.add(beforeBoundingMovement.get().scale(0.55 / beforeBoundingMovement.get().length()).multiply(1, 0, 1)));
-        NeoForge.EVENT_BUS.post(new FallingBlockCollisionEvent((FallingBlockEntity) (Object) this, blockPos, level, beforeBoundingMovement.get().length()));
+    public void anvil$collisionCraft(
+        MoverType type, Vec3 pos, CallbackInfo ci, @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
+    ) {
+        Optional<FallingBlockEntity> entityOp = Util.castSafely(this, FallingBlockEntity.class);
+        if (entityOp.isEmpty() || !this.horizontalCollision) return;
+        FallingBlockEntity thiS = entityOp.get();
+        BlockPos blockPos = BlockPos.containing(
+            this.position.add(beforeBoundingMovement.get().scale(0.55 / beforeBoundingMovement.get().length()).multiply(1, 0, 1))
+        );
+        NeoForge.EVENT_BUS.post(new FallingBlockCollisionEvent(thiS, blockPos, level, beforeBoundingMovement.get().length()));
     }
 }

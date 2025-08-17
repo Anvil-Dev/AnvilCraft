@@ -24,6 +24,8 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
         AnvilCraft.of("textures/gui/container/smithing/text_field.png");
     private static final ResourceLocation TEXT_DISABLE_LOCATION =
         AnvilCraft.of("textures/gui/container/smithing/text_field_disabled.png");
+    public static final ResourceLocation ERROR_SPRITE =
+        AnvilCraft.of("textures/gui/container/smithing/error.png");
     private EditBox name;
     private final Player player;
 
@@ -132,6 +134,10 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
 
     @Override
     protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
+        if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
+            && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()) {
+            guiGraphics.blit(ERROR_SPRITE, x + 103, y + 47, 0, 0, 16, 16, 16, 16);
+        }
     }
 
     @Override

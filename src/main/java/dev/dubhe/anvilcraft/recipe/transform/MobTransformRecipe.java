@@ -202,6 +202,11 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
         return new TransformRecipeBuilder(type);
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     public static final class Serializer implements RecipeSerializer<MobTransformRecipe> {
         public static final MapCodec<MobTransformRecipe> MAP_CODEC =
             RecordCodecBuilder.mapCodec(ins -> ins.group(

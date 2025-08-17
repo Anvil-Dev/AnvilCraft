@@ -15,14 +15,15 @@ public interface IMultipleMaterial {
      *
      * @return 需要显示的tooltip
      */
-    Component getInputTooltip();
+    Component getInputTooltip(ItemStack template, List<ItemStack> inputs);
 
     /**
      * 获取在余烬锻造台内对应空槽位显示的纹理集
      *
-     * @param id 槽位id
-     * @param inputs 其它槽位内已有的输入
+     * @param template 作为模板的物品
+     * @param id       槽位id
+     * @param inputs   其它槽位内的物品
      * @return 该槽位应显示的纹理集
      */
-    List<ResourceLocation> getEmptySlotTextures(int id, List<ItemStack> inputs);
+    List<ResourceLocation> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs);
 }

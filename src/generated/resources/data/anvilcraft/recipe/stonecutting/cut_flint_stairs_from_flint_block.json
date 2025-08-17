@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:flint_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:cut_flint_stairs"
+  }
+}

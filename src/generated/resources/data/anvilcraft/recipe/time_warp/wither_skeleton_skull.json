@@ -1,32 +1,17 @@
 {
   "type": "anvilcraft:time_warp",
-  "cauldron": "minecraft:cauldron",
-  "consume_fluid": false,
   "ingredients": [
     {
-      "item": "minecraft:skeleton_skull"
+      "items": "minecraft:skeleton_skull"
     },
     {
-      "item": "minecraft:coal"
-    },
-    {
-      "item": "minecraft:coal"
-    },
-    {
-      "item": "minecraft:coal"
-    },
-    {
-      "item": "minecraft:coal"
+      "count": 4,
+      "items": "minecraft:coal"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:wither_skeleton_skull"
-      }
+      "id": "minecraft:wither_skeleton_skull"
     }
   ]
 }

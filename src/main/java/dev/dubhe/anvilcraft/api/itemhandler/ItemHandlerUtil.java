@@ -34,26 +34,36 @@ public class ItemHandlerUtil {
         IItemHandler target
     ) {
         boolean success = false;
-        Item filterItem = null;
+        ItemStack filterStack = null;
+        boolean lockFilterItem = false;
+        outerLoop:
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extractItem(srcIndex, Integer.MAX_VALUE, true);
-            if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
-                continue;
-            }
-            if (filterItem == null) {
-                filterItem = sourceStack.getItem();
-                maxAmount = maxAmount / 64 * sourceStack.getMaxStackSize(); //根据最大堆叠设置maxAmount 默认情况完全等于最大堆叠
-            }
-            if (sourceStack.getItem() != filterItem) continue;
-
-            ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
-            int amountToInsert = sourceStack.getCount() - remainder.getCount();
-            if (amountToInsert > 0) {
-                sourceStack = source.extractItem(srcIndex, Math.min(maxAmount, amountToInsert), false);
-                ItemHandlerHelper.insertItem(target, sourceStack, false);
-                success = true;
-                maxAmount -= amountToInsert;
-                if (maxAmount <= 0) break;
+            if (sourceStack.isEmpty() || !predicate.test(sourceStack)) continue;
+            if (filterStack == null) {
+                filterStack = sourceStack.copy();
+                maxAmount = (int) (maxAmount / 64f * sourceStack.getMaxStackSize());
+            } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) continue;
+            for (int i = 0; i < maxAmount; i++) {
+                ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
+                int amountToInsert = sourceStack.getCount() - remainder.getCount();
+                sourceStack = remainder;
+                if (amountToInsert > 0) {
+                    ItemStack extracted = source.extractItem(srcIndex, Math.min(maxAmount, amountToInsert), false);
+                    ItemStack actualRemainder = ItemHandlerHelper.insertItem(target, extracted, false);
+                    if (!actualRemainder.isEmpty()) {
+                        source.insertItem(srcIndex, actualRemainder, false);
+                        amountToInsert -= actualRemainder.getCount();
+                    }
+                    success = true;
+                    lockFilterItem = true;
+                    maxAmount -= amountToInsert;
+                    if (maxAmount <= 0) break outerLoop;
+                    if (remainder.getCount() == 0) break;
+                } else {
+                    if (!lockFilterItem) filterStack = null;
+                    break;
+                }
             }
         }
         return success;
@@ -65,31 +75,36 @@ public class ItemHandlerUtil {
         Predicate<ItemStack> predicate,
         IItemHandler source
     ) {
-        int amount = 64;
         boolean success = false;
-        Item filterItem = null;
+        ItemStack filterStack = null;
+        boolean lockFilterItem = false;
+        outerLoop:
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extractItem(srcIndex, Integer.MAX_VALUE, true);
-            if (sourceStack.isEmpty() || !predicate.test(sourceStack)) {
-                continue;
-            }
-            if (filterItem == null) {
-                filterItem = sourceStack.getItem();
-                amount = maxAmount / 64 * sourceStack.getMaxStackSize(); //根据最大堆叠设置maxAmount 默认情况完全等于最大堆叠
-            }
-            if (sourceStack.getItem() != filterItem) continue;
-            ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
-            int amountToInsert = sourceStack.getCount() - remainder.getCount();
-            if (amountToInsert == 0) {
-                filterItem = null;
-                continue;
-            }
-            if (amountToInsert > 0) {
-                sourceStack = source.extractItem(srcIndex, Math.min(amount, amountToInsert), false);
-                ItemHandlerHelper.insertItem(target, sourceStack, false);
-                success = true;
-                amount -= amountToInsert;
-                if (amount <= 0) break;
+            if (sourceStack.isEmpty() || !predicate.test(sourceStack)) continue;
+            if (filterStack == null) {
+                filterStack = sourceStack.copy();
+                maxAmount = (int) (maxAmount / 64f * sourceStack.getMaxStackSize());
+            } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) continue;
+            for (int i = 0; i < maxAmount; i++) {
+                ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
+                int amountToInsert = sourceStack.getCount() - remainder.getCount();
+                if (amountToInsert > 0) {
+                    ItemStack extracted = source.extractItem(srcIndex, Math.min(maxAmount, amountToInsert), false);
+                    ItemStack actualRemainder = ItemHandlerHelper.insertItem(target, extracted, false);
+                    if (!actualRemainder.isEmpty()) {
+                        source.insertItem(srcIndex, actualRemainder, false);
+                        amountToInsert -= actualRemainder.getCount();
+                    }
+                    success = true;
+                    lockFilterItem = true;
+                    maxAmount -= amountToInsert;
+                    if (maxAmount <= 0) break outerLoop;
+                    if (remainder.getCount() == 0) break;
+                } else {
+                    if (!lockFilterItem) filterStack = null;
+                    break;
+                }
             }
         }
         return success;

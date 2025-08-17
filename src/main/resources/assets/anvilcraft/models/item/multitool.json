@@ -1,0 +1,59 @@
+{
+  "parent": "anvilcraft:item/multitool_all",
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "anvilcraft:item/multitool_shears"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 2
+      },
+      "model": "anvilcraft:item/multitool_flint_and_steel"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 3
+      },
+      "model": "anvilcraft:item/multitool_brush"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 4
+      },
+      "model": "anvilcraft:item/multitool_spyglass"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 5
+      },
+      "model": "anvilcraft:item/multitool_magnet"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 6
+      },
+      "model": "anvilcraft:item/multitool_fishing_rod"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 7
+      },
+      "model": "anvilcraft:item/multitool_carrot_on_a_stick"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 8
+      },
+      "model": "anvilcraft:item/multitool_warped_fungus_on_a_stick"
+    },
+    {
+      "predicate": {
+        "cast": 1
+      },
+      "model": "anvilcraft:item/multitool_fishing_rod_cast"
+    }
+  ]
+}

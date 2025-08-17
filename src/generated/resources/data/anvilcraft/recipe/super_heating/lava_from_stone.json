@@ -1,21 +1,13 @@
 {
   "type": "anvilcraft:super_heating",
-  "block_result": "minecraft:lava_cauldron",
   "ingredients": [
     {
-      "tag": "c:stones"
+      "count": 4,
+      "items": "#c:stones"
     },
     {
-      "tag": "c:stones"
-    },
-    {
-      "tag": "c:stones"
-    },
-    {
-      "tag": "c:stones"
-    },
-    {
-      "item": "anvilcraft:lime_powder"
+      "items": "anvilcraft:lime_powder"
     }
-  ]
+  ],
+  "transform": "minecraft:lava"
 }

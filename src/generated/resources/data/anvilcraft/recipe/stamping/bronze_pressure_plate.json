@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "tag": "c:ingots/bronze"
+      "items": "#c:ingots/bronze"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:bronze_pressure_plate"
-      }
+      "id": "anvilcraft:bronze_pressure_plate"
     }
   ]
 }

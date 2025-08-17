@@ -174,6 +174,11 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         return ItemStack.EMPTY;
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     private static void datagenForPattern(StringBuilder codeBuilder, BlockPattern pattern, String role) {
         for (List<String> layer : pattern.getLayers()) {
             codeBuilder.append("    .")

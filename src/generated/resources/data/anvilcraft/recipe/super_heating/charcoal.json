@@ -2,19 +2,13 @@
   "type": "anvilcraft:super_heating",
   "ingredients": [
     {
-      "item": "anvilcraft:wood_fiber"
-    },
-    {
-      "item": "anvilcraft:wood_fiber"
+      "count": 2,
+      "items": "anvilcraft:wood_fiber"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:charcoal"
-      }
+      "id": "minecraft:charcoal"
     }
   ]
 }

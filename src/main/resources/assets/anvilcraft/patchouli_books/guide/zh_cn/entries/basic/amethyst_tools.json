@@ -1,0 +1,34 @@
+{
+  "name": "紫水晶工具",
+  "category": "anvilcraft:basic_gameplay",
+  "icon": "anvilcraft:amethyst_pickaxe",
+  "sortnum": 1008,
+  "pages": [
+    "使用$(item)紫水晶碎片$()制作的工具比铁工具还耐用，并且做出来携带特有附魔，有助于游戏初期快速发展。",
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:amethyst_pickaxe",
+      "text": "$(item)紫水晶镐$()拥有时运III，可以帮助你获得更多铁矿，但是它挖掘等级低于铁镐。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:amethyst_axe",
+      "text": "$(item)紫水晶斧$()拥有伐木I，这是本模组新增的附魔，每级可以额外破坏2个相连的原木，上限为III。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:amethyst_shovel",
+      "text": "$(item)紫水晶锹$()拥有效率III，可以帮助你更快整地。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:amethyst_hoe",
+      "text": "$(item)紫水晶锄$()拥有收割I，这是本模组新增的附魔，右键成熟的庄稼使用收获庄稼并补种，每级可以额外收割一圈范围，上限为III。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:amethyst_sword",
+      "text": "$(item)紫水晶剑$()拥有斩首I，这是本模组新增的附魔，每级可以额外增加一些生物掉落头颅的概率，对于玩家和末影龙这个概率非常高，上限为III。"
+    }
+  ]
+}

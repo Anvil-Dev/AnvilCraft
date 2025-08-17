@@ -6,9 +6,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,10 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -153,19 +151,53 @@ public class Util {
         return true;
     }
 
-    public static <T> boolean allMatch(Collection<T> collection, Predicate<T> matcher) {
-        for (T t : collection) {
-            if (!matcher.test(t)) return false;
-        }
-
-        return true;
-    }
-
     public static <T> boolean anyMatch(Collection<T> collection, Predicate<T> matcher) {
         for (T t : collection) {
             if (matcher.test(t)) return true;
         }
 
         return false;
+    }
+
+    /**
+     * 将传入的值强转为{@code T}类型
+     *
+     * @param <T> 想要转为的类型
+     * @param o   一个值
+     * @return 传入的值，但是类型为{@code T}
+     * @throws ClassCastException 当无法将传入的值强转时抛出
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T cast(@NotNull Object o) {
+        return (T) o;
+    }
+
+    /**
+     * 若传入的值可被强转为{@code T}类型，则返回包含传入的值的{@link Optional}
+     *
+     * @param <T> 想要转为的类型
+     * @param o   一个值，可为null
+     * @return 一个可能包含传入的值的{@link Optional}
+     */
+    public static <T> Optional<T> castSafely(@Nullable Object o, Class<T> clazz) {
+        return Optional.ofNullable(o)
+            .filter(clazz::isInstance)
+            .map(Util::cast);
+    }
+
+    /**
+     * 若传入的值可被强转为传入的任意类型，则返回true
+     *
+     * @param o 一个值，可为null
+     * @return 传入的值，但是类型为{@code T}
+     */
+    @SuppressWarnings("TypeParameterExplicitlyExtendsObject")
+    @SafeVarargs
+    public static boolean instanceOfAny(@Nullable Object o, Class<? extends Object>... classes) {
+        Optional<Object> op = Optional.empty();
+        for (Class<?> clazz : classes) {
+            op = op.or(() -> Util.castSafely(o, clazz));
+        }
+        return op.isPresent();
     }
 }

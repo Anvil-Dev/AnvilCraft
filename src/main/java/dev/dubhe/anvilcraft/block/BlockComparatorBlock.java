@@ -94,7 +94,7 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
         if (level.isClientSide || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING)))
             return;
         boolean newPowered = checkBlocks(level, pos, state);
-        level.setBlock(pos, state.setValue(POWERED, newPowered), 2);
+        level.setBlock(pos, state.setValue(POWERED, newPowered), 3);
         this.updateNeighborsInFront(level, pos, state);
     }
 

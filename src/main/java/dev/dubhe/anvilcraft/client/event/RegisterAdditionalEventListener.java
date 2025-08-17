@@ -21,6 +21,7 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head_sunflower")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/creative_generator_cube")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/charge_collector_cube")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/heat_collector_cube")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/void_energy_collector_head")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/laser")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/axis")));

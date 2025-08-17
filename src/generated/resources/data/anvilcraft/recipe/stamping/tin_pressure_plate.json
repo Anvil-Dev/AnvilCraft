@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "tag": "c:ingots/tin"
+      "items": "#c:ingots/tin"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:tin_pressure_plate"
-      }
+      "id": "anvilcraft:tin_pressure_plate"
     }
   ]
 }

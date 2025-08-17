@@ -1,0 +1,38 @@
+{
+  "name": "一阶锻造",
+  "category": "anvilcraft:smithing_system",
+  "icon": "anvilcraft:royal_smithing_table",
+  "sortnum": 13003,
+  "entry_color": "004400",
+  "pages": [
+    "本章将介绍如何锻造工具",
+    {
+      "type": "patchouli:crafting",
+      "anchor": "dragon_rod",
+      "recipe": "anvilcraft:dragon_rod",
+      "recipe2": "anvilcraft:royal_dragon_rod"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/royal_dragon_rod",
+      "text": "The ability of dragon rods is very simple. Left click to devour blocks in the range, and right click to change the range size. There are four range sizes: 3x3, 5x5, 7x7, and 9x9. When targeting a block while holding dragon rods, the range box will display. The 3x3 size will not damage the dragon rods, but 5x5 will damage 1, 7x7 will damage 2, and 9x9 will damage 4. The dragon rod will not be fully broken; instead, it will lose all its abilities, similar to $(item)Elytra$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "龙杖挖掘",
+      "text": "The devouring of dragon rods is similar to the Block Devourer. When devouring the base blocks of worlds (like $(item)Stone$(), $(item)Netherrack$(), $(item)End Stone$()), there is a 5% chance to drop. But it cannot chain devour the fallible blocks. $(br)There will be a cooldown after mining; the default is 1 second. The length of the cooldown is only affected by $(thing)Haste$() and $(thing)Mining Fatigue$() effects. Haste will reduce 0.2 second, and Mining Fatigue will increase 1 second."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Story",
+      "text": "$(o)how did the ancients, who did not have the dragon rod, dig tunnels? $(li)Put down $(item)Block Devourer$() $(li)Punch it with $(item)Anvil Hammer$() $(li)Take the devourer back"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/tier_1_materials"
+      ],
+      "text": ""
+    }
+  ]
+}

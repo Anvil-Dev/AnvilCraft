@@ -2,23 +2,15 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "minecraft:sugar_cane"
+      "items": "minecraft:sugar_cane"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:paper"
-      }
+      "id": "minecraft:paper"
     },
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:sugar"
-      }
+      "id": "minecraft:sugar"
     }
   ]
 }

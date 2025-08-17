@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "tag": "c:ingots/uranium"
+      "items": "#c:ingots/uranium"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:uranium_pressure_plate"
-      }
+      "id": "anvilcraft:uranium_pressure_plate"
     }
   ]
 }

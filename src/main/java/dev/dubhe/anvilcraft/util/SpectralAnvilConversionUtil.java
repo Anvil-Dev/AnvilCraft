@@ -15,6 +15,7 @@ public class SpectralAnvilConversionUtil {
         SPECTRAL_ANVIL_CONVERSION_CHANCE.put(Blocks.ANVIL, 0.03);
         SPECTRAL_ANVIL_CONVERSION_CHANCE.put(ModBlocks.ROYAL_ANVIL.get(), 0.5);
         SPECTRAL_ANVIL_CONVERSION_CHANCE.put(ModBlocks.EMBER_ANVIL.get(), 1.0);
+        SPECTRAL_ANVIL_CONVERSION_CHANCE.put(ModBlocks.TRANSCENDENCE_ANVIL.get(), 1.0);
     }
 
     public static double chance(Block block) {

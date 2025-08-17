@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
@@ -117,15 +116,5 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
             );
         }
         return super.getTicker(level, state, type);
-    }
-
-    @Override
-    protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getValue(POWERED) ? 15 : 0;
-    }
-
-    @Override
-    protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return direction == Direction.UP && state.getValue(POWERED) ? 15 : 0;
     }
 }

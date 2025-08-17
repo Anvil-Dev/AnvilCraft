@@ -103,7 +103,50 @@ enum DestroyMode {
             }
             return itemStacks;
         }
-    };
+    },
+    FORTUNE {
+        public static ItemStack TOOL;
+        public static ItemStack FOR_SNOW_TOOL;
+
+        @Override
+        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext, ItemStack tool) {
+            LootParams.Builder builder = new LootParams.Builder((ServerLevel) shockContext.level())
+                .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
+                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()))
+                .withParameter(LootContextParams.TOOL, tool);
+            return blockState.getDrops(builder);
+        }
+
+        @Override
+        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
+            createTool((ServerLevel) shockContext.level());
+            LootParams.Builder builder = new LootParams.Builder((ServerLevel) shockContext.level())
+                .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
+                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()));
+            if (blockState.is(Blocks.SNOW)) {
+                builder.withParameter(LootContextParams.TOOL, FOR_SNOW_TOOL);
+            } else {
+                builder.withParameter(LootContextParams.TOOL, TOOL);
+            }
+            return blockState.getDrops(builder);
+        }
+
+        private void createTool(ServerLevel serverLevel) {
+            if (TOOL == null) {
+                ItemStack itemStack = Items.NETHERITE_PICKAXE.getDefaultInstance();
+                itemStack.enchant(serverLevel.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.FORTUNE), 5);
+                TOOL = itemStack;
+            }
+            if (FOR_SNOW_TOOL == null) {
+                ItemStack itemStack = Items.NETHERITE_SHOVEL.getDefaultInstance();
+                itemStack.enchant(serverLevel.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.FORTUNE), 5);
+                FOR_SNOW_TOOL = itemStack;
+            }
+        }
+    },
+    ;
 
     public abstract List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext);
 

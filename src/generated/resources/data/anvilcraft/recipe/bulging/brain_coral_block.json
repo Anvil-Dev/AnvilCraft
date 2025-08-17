@@ -1,21 +1,14 @@
 {
   "type": "anvilcraft:bulging",
-  "cauldron": "minecraft:water_cauldron",
-  "consume_fluid": false,
-  "from_water": false,
+  "fluid": "minecraft:water",
   "ingredients": [
     {
-      "item": "minecraft:brain_coral"
+      "items": "minecraft:brain_coral"
     }
   ],
-  "produce_fluid": false,
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "minecraft:brain_coral_block"
-      }
+      "id": "minecraft:brain_coral_block"
     }
   ]
 }

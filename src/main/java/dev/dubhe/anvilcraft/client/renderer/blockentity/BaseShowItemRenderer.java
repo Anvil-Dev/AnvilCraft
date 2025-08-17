@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntityRenderer<B> {
+public abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntityRenderer<B> {
     private static final float ITEM_BUNDLE_OFFSET_SCALE = 0.15F;
     private static final int ITEM_COUNT_FOR_5_BUNDLE = 48;
     private static final int ITEM_COUNT_FOR_4_BUNDLE = 32;

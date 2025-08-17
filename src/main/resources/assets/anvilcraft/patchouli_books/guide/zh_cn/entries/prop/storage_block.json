@@ -1,0 +1,33 @@
+{
+  "name": "材料方块",
+  "category": "anvilcraft:special_props",
+  "icon": "anvilcraft:sugar_block",
+  "sortnum": 4003,
+  "pages": [
+    "模组为腐肉等材料添加了9合1制作对于存储方块的配方，便于存储。$(br2)同时，每个方块都有$(thing)独特$()的性质。",
+    {
+      "type": "patchouli:crafting",
+      "anchor": "flint_block",
+      "recipe": "anvilcraft:flint_block",
+      "text": "$(li)木镐可挖掘 $(li)可被切石为建筑方块 $(li)若$(item)铁块$()或$(item)燧石块$()因活塞推动而与另一种方块摩擦。则在推之后以自身为中心的3x3x3范围内，点燃油锅和营火(此项优先)，或燃起火焰。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "sugar_block",
+      "recipe": "anvilcraft:sugar_block",
+      "text": "$(li)木镐可挖掘 $(li)被$(thing)铁砧砸击$()时，始终产生1个$(l:power/basic_generation)电荷$() $(li)被砸时有5%概率碎裂一次，4次以后碎为9个糖，而非通常挖掘掉落的自身"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "gunpowder_block",
+      "recipe": "anvilcraft:gunpowder_block",
+      "text": "$(li)木镐可挖掘 $(li)被铁砧(除巨型铁砧外)$(thing)砸击$()或打火石与烈焰弹$(thing)点燃$()时，产生冲击波，仅造成击退效果，并将砸在上方的铁砧弹回原位。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "rotten_flesh_block",
+      "recipe": "anvilcraft:rotten_flesh_block",
+      "text": "$(li)$(thing)徒手$()/$(thing)锄头$()可挖掘 $(li)像干草捆一样可以降低摔落伤害，但接触者获得30秒反胃buff $(li)可被冶炼为$(item)下界岩$()"
+    }
+  ]
+}

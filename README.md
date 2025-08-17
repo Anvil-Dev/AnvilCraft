@@ -41,7 +41,7 @@
 
 ## 联系我们：
 
-* 请前往我们的[KOOK服务器（mFBCbM）](https://kook.top/mFBCbM)进行交流和反馈。
+* 请前往我们的[黑盒语音服务器（378432）](https://chat.xiaoheihe.cn/378432)进行交流和反馈。
 
 ## 贡献者名单:
 

@@ -38,8 +38,8 @@ public record SwitchPhasePacket() implements CustomPacketPayload {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (!(player.level() instanceof ServerLevel)) return;
-            Optional.of(player.getMainHandItem()).filter(stack -> stack.get(ModComponents.MULTIPHASE) != null)
-                .or(() -> Optional.of(player.getOffhandItem()).filter(stack -> stack.get(ModComponents.MULTIPHASE) != null))
+            Optional.of(player.getMainHandItem()).filter(stack -> stack.has(ModComponents.MULTIPHASE))
+                .or(() -> Optional.of(player.getOffhandItem()).filter(stack -> stack.has(ModComponents.MULTIPHASE)))
                 .ifPresent(stack -> Objects.requireNonNull(stack.get(ModComponents.MULTIPHASE)).cyclePhases(stack));
         });
     }

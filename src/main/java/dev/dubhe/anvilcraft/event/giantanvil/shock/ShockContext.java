@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.anvil.GiantAnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -12,7 +13,9 @@ import net.minecraft.world.level.block.Block;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ShockContext(Level level, BlockPos centerPos, List<BlockPos> rangePosList, float fallDistance) {
+public record ShockContext(
+    Level level, BlockPos centerPos, FallingGiantAnvilEntity fallingGiantAnvil, List<BlockPos> rangePosList, float fallDistance
+) {
 
     public static final Direction[] HORIZONTAL = {
         Direction.NORTH,
@@ -42,7 +45,7 @@ public record ShockContext(Level level, BlockPos centerPos, List<BlockPos> range
                 rangePosList.add(pos);
             }
         }
-        return new ShockContext(event.getLevel(), detectCenter, rangePosList, event.getFallDistance());
+        return new ShockContext(event.getLevel(), detectCenter, event.getEntity(), rangePosList, event.getFallDistance());
     }
 
     public boolean testCorner(TagKey<Block> tagKey) {

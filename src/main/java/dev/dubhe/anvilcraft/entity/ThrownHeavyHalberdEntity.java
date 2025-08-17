@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -60,6 +61,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         this.entityData.set(ID_FOIL, pickupItemStack.hasFoil());
     }
 
+    public abstract ResourceLocation getTextureBase();
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
@@ -106,7 +109,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     private boolean isAcceptableReturnOwner() {
         Entity entity = this.getOwner();
         return entity != null && entity.isAlive()
-               && (!(entity instanceof ServerPlayer) || !entity.isSpectator());
+            && (!(entity instanceof ServerPlayer) || !entity.isSpectator());
     }
 
     public boolean isFoil() {
@@ -216,8 +219,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
 
     private byte getLoyaltyFromItem(ItemStack stack) {
         return this.level() instanceof ServerLevel serverlevel
-               ? (byte) Mth.clamp(EnchantmentHelper.getTridentReturnToOwnerAcceleration(serverlevel, stack, this), 0, 127)
-               : 0;
+            ? (byte) Mth.clamp(EnchantmentHelper.getTridentReturnToOwnerAcceleration(serverlevel, stack, this), 0, 127)
+            : 0;
     }
 
     @Override

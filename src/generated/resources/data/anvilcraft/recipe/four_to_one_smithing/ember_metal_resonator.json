@@ -2,24 +2,39 @@
   "type": "anvilcraft:four_to_one_smithing",
   "inputs": [
     {
-      "item": "anvilcraft:ember_metal_axe"
+      "items": "anvilcraft:ember_metal_axe"
     },
     {
-      "item": "anvilcraft:ember_metal_shovel"
+      "items": "anvilcraft:ember_metal_shovel"
     },
     {
-      "item": "anvilcraft:ember_metal_hoe"
+      "items": "anvilcraft:ember_metal_hoe"
     },
     {
-      "item": "anvilcraft:ember_metal_pickaxe"
+      "items": "anvilcraft:ember_metal_pickaxe"
     }
   ],
   "material": {
-    "item": "anvilcraft:resonator_core"
+    "items": "anvilcraft:resonator_core"
   },
-  "recipeId": 0,
-  "result": "anvilcraft:ember_metal_resonator",
+  "result": {
+    "item": {
+      "count": 1,
+      "id": "anvilcraft:ember_metal_resonator"
+    },
+    "modifiers": [
+      {
+        "type": "anvilcraft:copy_data",
+        "types": [
+          {
+            "type": "anvilcraft:multiphase",
+            "input_type": "four"
+          }
+        ]
+      }
+    ]
+  },
   "template": {
-    "item": "anvilcraft:four_to_one_smithing_template"
+    "items": "anvilcraft:four_to_one_smithing_template"
   }
 }

@@ -136,6 +136,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
 
+            sourceStack.setCount(copyOfSourceStack.getCount());
             sourceSlot.onTake(player, copyOfSourceStack);
             if (index == RESULT_SLOT) {
                 player.drop(copyOfSourceStack, false);

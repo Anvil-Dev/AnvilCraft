@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": "minecraft:honeycomb_block"
+    },
+    {
+      "blocks": "minecraft:oxidized_copper_grate"
+    }
+  ],
+  "result": {
+    "block": "minecraft:waxed_oxidized_copper_grate"
+  }
+}

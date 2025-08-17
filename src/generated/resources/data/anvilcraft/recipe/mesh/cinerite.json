@@ -1,0 +1,66 @@
+{
+  "type": "anvilcraft:mesh",
+  "ingredients": [
+    {
+      "items": "anvilcraft:cinerite"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.5
+      },
+      "id": "anvilcraft:cinerite"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "minecraft:lapis_lazuli"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "minecraft:gunpowder"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "anvilcraft:zinc_nugget"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "anvilcraft:lead_nugget"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "anvilcraft:tin_nugget"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "anvilcraft:silver_nugget"
+    }
+  ]
+}

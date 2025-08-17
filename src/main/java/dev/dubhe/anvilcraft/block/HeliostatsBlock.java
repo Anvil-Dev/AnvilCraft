@@ -86,20 +86,4 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
             ModBlockEntities.HELIOSTATS.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());
     }
-
-    @Override
-    public void onRemove(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        BlockState newState,
-        boolean movedByPiston
-    ) {
-        if (state.hasBlockEntity()) {
-            HeliostatsBlockEntity be = (HeliostatsBlockEntity) level.getBlockEntity(pos);
-            if (be == null) return;
-            be.notifyRemoved();
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
 }

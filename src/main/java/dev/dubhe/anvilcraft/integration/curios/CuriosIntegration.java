@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.curios;
 
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.integration.Integration;
 import dev.dubhe.anvilcraft.config.AnvilCraftConfig.GoggleMode;
 import dev.dubhe.anvilcraft.init.ModItems;
@@ -9,7 +10,7 @@ import dev.dubhe.anvilcraft.integration.curios.renderer.GogglesCurioRenderer;
 import dev.dubhe.anvilcraft.integration.curios.renderer.IonoCraftBackpackCurioRenderer;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
-import dev.dubhe.anvilcraft.util.AmuletUtil;
+import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -24,8 +25,12 @@ import top.theillusivec4.curios.api.CuriosCapability;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
+import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
+import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 @Integration("curios")
 public class CuriosIntegration {
@@ -48,13 +53,14 @@ public class CuriosIntegration {
                     .forEach(result -> items.add(result.stack()))
             )
         );
-        AmuletUtil.hasAmuletInInventory = AmuletUtil.hasAmuletInInventory.or((player, type) -> {
+        AmuletManager.INSTANCE.registerFinders((player, holders) -> {
             if (CuriosApi.getCuriosInventory(player).isPresent()) {
-                return CuriosApi.getCuriosInventory(player).get()
-                    .isEquipped(type.getEntry().asItem());
+                CuriosApi.getCuriosInventory(player).get()
+                    .getStacksHandler("necklace")
+                    .map(ICurioStacksHandler::getStacks)
+                    .map(handler -> getItems(handler, stack -> stack.getItem() instanceof AmuletItem))
+                    .ifPresent(stacks -> stacks.forEach(stack -> AmuletManager.processFoundStack(stack, holders)));
             }
-
-            return false;
         });
         if (ModList.get().isLoaded("create")) {
             GogglesItem.addIsWearingPredicate(player ->
@@ -111,5 +117,16 @@ public class CuriosIntegration {
             GogglesCurioRenderer.LAYER,
             () -> LayerDefinition.create(GogglesCurioRenderer.mesh(), 1, 1)
         );
+    }
+
+    private static List<ItemStack> getItems(IDynamicStackHandler dynamicStackHandler, Predicate<ItemStack> filter) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (int i = 0; i < dynamicStackHandler.getSlots(); i++) {
+            ItemStack stack = dynamicStackHandler.getStackInSlot(i);
+            if (filter.test(stack)) {
+                stacks.add(stack);
+            }
+        }
+        return stacks;
     }
 }

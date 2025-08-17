@@ -2,16 +2,12 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "item": "minecraft:copper_ingot"
+      "items": "minecraft:copper_ingot"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 1,
-        "id": "anvilcraft:copper_pressure_plate"
-      }
+      "id": "anvilcraft:copper_pressure_plate"
     }
   ]
 }

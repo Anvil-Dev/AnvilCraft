@@ -1,0 +1,41 @@
+{
+  "type": "anvilcraft:eight_to_one_smithing",
+  "inputs": [
+    {
+      "items": "minecraft:shears"
+    },
+    {
+      "items": "minecraft:flint_and_steel"
+    },
+    {
+      "items": "minecraft:brush"
+    },
+    {
+      "items": "minecraft:spyglass"
+    },
+    {
+      "items": "anvilcraft:magnet"
+    },
+    {
+      "items": "minecraft:fishing_rod"
+    },
+    {
+      "items": "minecraft:carrot_on_a_stick"
+    },
+    {
+      "items": "minecraft:warped_fungus_on_a_stick"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_matter"
+  },
+  "result": {
+    "item": {
+      "count": 1,
+      "id": "anvilcraft:multitool"
+    }
+  },
+  "template": {
+    "items": "anvilcraft:eight_to_one_smithing_template"
+  }
+}

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
@@ -10,12 +11,19 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.SoundActions;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+import net.neoforged.neoforge.fluids.FluidInteractionRegistry;
+import net.neoforged.neoforge.fluids.FluidInteractionRegistry.InteractionInformation;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -145,13 +153,13 @@ public class ModFluids {
             .temperature(1300)
         )
     );
-    public static final DeferredHolder<Fluid, BaseFlowingFluid> MELT_GEM = FLUIDS.register(
+    public static final DeferredHolder<Fluid, MeltGemFluid> MELT_GEM = FLUIDS.register(
         "melt_gem",
-        () -> new BaseFlowingFluid.Source(ModFluids.MELT_GEM_PROPERTIES)
+        () -> new MeltGemFluid.Source(ModFluids.MELT_GEM_PROPERTIES)
     );
-    public static final DeferredHolder<Fluid, BaseFlowingFluid> FLOWING_MELT_GEM = FLUIDS.register(
+    public static final DeferredHolder<Fluid, MeltGemFluid> FLOWING_MELT_GEM = FLUIDS.register(
         "flowing_melt_gem",
-        () -> new BaseFlowingFluid.Flowing(ModFluids.MELT_GEM_PROPERTIES)
+        () -> new MeltGemFluid.Flowing(ModFluids.MELT_GEM_PROPERTIES)
     );
     public static final BaseFlowingFluid.Properties MELT_GEM_PROPERTIES = new BaseFlowingFluid.Properties(MELT_GEM_TYPE, MELT_GEM, FLOWING_MELT_GEM)
         .block(ModBlocks.MELT_GEM)
@@ -162,6 +170,22 @@ public class ModFluids {
     public static void register(IEventBus eventBus) {
         FLUID_TYPES.register(eventBus);
         FLUIDS.register(eventBus);
+    }
+
+    public static final Block[] FLOWING_MELT_GEM_CONVERTIBLE = {Blocks.DIORITE, Blocks.GRANITE, Blocks.ANDESITE};
+
+    public static void registerFluidInteractions(FMLCommonSetupEvent event) {
+        FluidInteractionRegistry.addInteraction(MELT_GEM.get().getFluidType(),
+            new InteractionInformation((level, currentPos, relativePos, currentState) ->
+                level.getFluidState(relativePos).getFluidType() == Fluids.WATER.getFluidType(),
+                (level, currentPos, relativePos, currentState) -> {
+                    Block block;
+                    if (level.getFluidState(currentPos).isSource()) block = Blocks.TERRACOTTA;
+                    else block = FLOWING_MELT_GEM_CONVERTIBLE[level.getRandom().nextInt(3)];
+                    level.setBlockAndUpdate(currentPos, EventHooks.fireFluidPlaceBlockEvent(level, currentPos, currentPos, block.defaultBlockState()));
+                    level.levelEvent(1501, currentPos, 0);
+                }
+            ));
     }
 
     public static void onRegisterFluidType(RegisterClientExtensionsEvent e) {

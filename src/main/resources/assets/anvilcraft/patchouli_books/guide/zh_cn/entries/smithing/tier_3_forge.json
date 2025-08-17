@@ -1,0 +1,32 @@
+{
+  "name": "三阶锻造",
+  "category": "anvilcraft:smithing_system",
+  "icon": "anvilcraft:transcendence_resonator",
+  "sortnum": 33009,
+  "entry_color": "660066",
+  "pages": [
+    "本章将介绍如何:$(li)升级工具至$(thing)超限$()等级 $(br2)超限工具特性：$(l:advanced/tool_properties#eternal)永恒$(/l)|$(l:advanced/tool_properties#providence)强运$(/l)",
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:multiphase_transcendium",
+      "text": "锻造超限工具的关键材料 $(br2)赋予共振器和重戟$(l:advanced/tool_properties#multiphase)多相$(/l)"
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "recipe": "anvilcraft:two_to_one_smithing/transcendence_resonator",
+      "recipe2": "anvilcraft:two_to_one_smithing/transcendence_heavy_halberd"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:transcendence_dragon_rod",
+      "text": "升级后拥有无限耐久，且没有挖掘冷却。$(br2)同样可以通过锻造升级。"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:advanced/tool_properties"
+      ],
+      "text": ""
+    }
+  ]
+}

@@ -78,11 +78,21 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.REPEATER))
             .add(findResourceKey(Blocks.COMPARATOR))
             .add(findResourceKey(Blocks.TARGET))
+            .add(findResourceKey(Blocks.COPPER_BULB))
+            .add(findResourceKey(Blocks.EXPOSED_COPPER_BULB))
+            .add(findResourceKey(Blocks.WEATHERED_COPPER_BULB))
+            .add(findResourceKey(Blocks.OXIDIZED_COPPER_BULB))
+            .add(findResourceKey(Blocks.WAXED_COPPER_BULB))
+            .add(findResourceKey(Blocks.WAXED_EXPOSED_COPPER_BULB))
+            .add(findResourceKey(Blocks.WAXED_WEATHERED_COPPER_BULB))
+            .add(findResourceKey(Blocks.WAXED_OXIDIZED_COPPER_BULB))
             .add(findResourceKey(Blocks.CAULDRON))
             .add(findResourceKey(Blocks.LAVA_CAULDRON))
             .add(findResourceKey(Blocks.WATER_CAULDRON))
             .add(findResourceKey(Blocks.POWDER_SNOW_CAULDRON))
             .add(findResourceKey(Blocks.CAMPFIRE))
+            .add(findResourceKey(Blocks.STONECUTTER))
+            .add(findResourceKey(Blocks.SCAFFOLDING))
             .add(findResourceKey(Blocks.ANVIL))
             .add(findResourceKey(Blocks.CHIPPED_ANVIL))
             .add(findResourceKey(Blocks.DAMAGED_ANVIL))
@@ -124,26 +134,22 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.GLASS_PANES)
             .addTag(BlockTags.REPLACEABLE);
 
-        provider.addTag(ModBlockTags.INCORRECT_FOR_AMETHYST_TOOL)
-            .addTag(BlockTags.INCORRECT_FOR_STONE_TOOL);
-
-        provider.addTag(ModBlockTags.INCORRECT_FOR_EMBER_TOOL);
-
-        provider.addTag(ModBlockTags.INCORRECT_FOR_MULTIPHASE_TOOL)
-            .addTag(ModBlockTags.INCORRECT_FOR_EMBER_TOOL);
-
-        provider.addTag(ModBlockTags.INCORRECT_FOR_FROST_METAL_TOOL)
-            .addTag(BlockTags.INCORRECT_FOR_NETHERITE_TOOL);
-
         provider.addTag(ModBlockTags.END_PORTAL_UNABLE_CHANGE).add(findResourceKey(Blocks.DRAGON_EGG));
 
         provider.addTag(ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)
             .add(findResourceKey(Blocks.END_STONE))
             .add(findResourceKey(Blocks.BEDROCK))
+            .add(findResourceKey(Blocks.COMMAND_BLOCK))
+            .add(findResourceKey(Blocks.REPEATING_COMMAND_BLOCK))
+            .add(findResourceKey(Blocks.CHAIN_COMMAND_BLOCK))
+            .add(findResourceKey(Blocks.BARRIER))
+            .add(findResourceKey(Blocks.STRUCTURE_BLOCK))
+            .add(findResourceKey(Blocks.JIGSAW))
             .add(ModBlocks.END_DUST.getKey())
             .add(ModBlocks.NEGATIVE_MATTER_BLOCK.getKey());
 
         provider.addTag(ModBlockTags.VOID_DECAY_PRODUCTS)
+            .add(ModBlocks.FLINT_BLOCK.getKey())
             .add(findResourceKey(Blocks.STONE))
             .add(findResourceKey(Blocks.DEEPSLATE))
             .add(findResourceKey(Blocks.ANDESITE))
@@ -161,17 +167,37 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.DEEPSLATE_COPPER_ORE))
             .add(findResourceKey(Blocks.GOLD_ORE))
             .add(findResourceKey(Blocks.DEEPSLATE_GOLD_ORE))
+            .add(findResourceKey(Blocks.DIRT))
+            .add(findResourceKey(Blocks.COARSE_DIRT))
+            .add(findResourceKey(Blocks.ROOTED_DIRT))
+            .add(findResourceKey(Blocks.MUD))
+            .add(findResourceKey(Blocks.CLAY))
+            .add(findResourceKey(Blocks.COBBLESTONE))
+            .add(findResourceKey(Blocks.MOSSY_COBBLESTONE))
+            .add(findResourceKey(Blocks.CALCITE))
+            .add(findResourceKey(Blocks.TUFF))
+            .add(findResourceKey(Blocks.DRIPSTONE_BLOCK))
+            .add(findResourceKey(Blocks.SANDSTONE))
+            .add(findResourceKey(Blocks.RED_SANDSTONE))
+            .add(findResourceKey(Blocks.BASALT))
+            .add(findResourceKey(Blocks.SMOOTH_BASALT))
+            .add(findResourceKey(Blocks.SCULK))
+            .add(findResourceKey(Blocks.MOSS_BLOCK))
+            .add(findResourceKey(Blocks.INFESTED_COBBLESTONE))
+            .add(findResourceKey(Blocks.INFESTED_STONE))
+            .add(findResourceKey(Blocks.INFESTED_DEEPSLATE))
+            .add(findResourceKey(Blocks.NETHER_GOLD_ORE))
+            .add(findResourceKey(Blocks.GILDED_BLACKSTONE))
+            .add(findResourceKey(Blocks.NETHER_QUARTZ_ORE))
             .add(ModBlocks.VOID_STONE.getKey())
             .add(ModBlocks.END_DUST.getKey())
-            .add(ModBlocks.CURSED_GOLD_BLOCK.getKey())
             .add(ModBlocks.DEEPSLATE_TIN_ORE.getKey())
             .add(ModBlocks.DEEPSLATE_ZINC_ORE.getKey())
-            .add(ModBlocks.DEEPSLATE_LEAD_ORE.getKey())
-            .add(ModBlocks.DEEPSLATE_URANIUM_ORE.getKey());
+            .add(ModBlocks.DEEPSLATE_LEAD_ORE.getKey());
 
         provider.addTag(ModBlockTags.CRAFTING_MATRIX_ELEMENT)
-                .add(ModBlocks.SPACE_OVERCOMPRESSOR.getKey())
-                .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES);
+            .add(ModBlocks.SPACE_OVERCOMPRESSOR.getKey())
+            .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES);
 
         //mekanism integration
         provider.addTag(ModBlockTags.MEKANISM_CARDBOARD_BOX_BLACKLIST)
@@ -240,5 +266,12 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.GLASS_BLOCKS)
             .addTag(Tags.Blocks.GLASS_PANES)
             .addTag(BlockTags.LEAVES);
+
+        provider.addTag(ModBlockTags.HEATABLE_BLOCKS)
+            .add(findResourceKey(Blocks.NETHERITE_BLOCK));
+
+        provider.addTag(ModBlockTags.STICKABLE_WITH_SLIDING_RAILS)
+            .addTag(ModBlockTags.SLIDING_RAILS)
+            .add(ModBlocks.SLIDING_RAIL_STOP.getKey());
     }
 }

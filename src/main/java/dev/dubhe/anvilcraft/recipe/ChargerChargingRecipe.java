@@ -87,6 +87,11 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         return (this.power < 0 ? ModBlocks.CHARGER : ModBlocks.DISCHARGER).get();
     }
 
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
     public static class Serializer implements RecipeSerializer<ChargerChargingRecipe> {
 
         private static final MapCodec<ChargerChargingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(

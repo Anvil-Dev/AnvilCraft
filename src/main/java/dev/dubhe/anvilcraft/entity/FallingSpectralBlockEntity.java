@@ -87,7 +87,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         if (this.level().isClientSide) return;
         BlockPos current = this.blockPosition();
         BlockPos pos = this.blockPosition();
-        BlockPos below = pos.below();
+        BlockPos below = new BlockPos(pos.getX(), (int) Math.floor(pos.getY() - 0.04), pos.getZ());
         BlockState blockStateDown = this.level().getBlockState(below);
         if (pos.getY() < -160) this.discard();
         if (!shouldIgnoreBlockInMovement(blockStateDown)) {

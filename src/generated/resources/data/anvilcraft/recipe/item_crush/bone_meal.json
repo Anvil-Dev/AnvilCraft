@@ -2,16 +2,13 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "item": "minecraft:skeleton_skull"
+      "items": "minecraft:skeleton_skull"
     }
   ],
   "results": [
     {
-      "amount": 1.0,
-      "stack": {
-        "count": 64,
-        "id": "minecraft:bone_meal"
-      }
+      "count": 64,
+      "id": "minecraft:bone_meal"
     }
   ]
 }

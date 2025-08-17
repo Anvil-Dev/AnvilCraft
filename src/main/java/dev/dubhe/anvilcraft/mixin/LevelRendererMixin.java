@@ -12,10 +12,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
-import dev.dubhe.anvilcraft.client.PowerGridClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -103,7 +103,7 @@ public abstract class LevelRendererMixin {
         if (ModRenderTargets.getBloomTarget() != null) {
             ModRenderTargets.getBloomTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
         }
-        PowerGridClient.renderEnhancedTransmitterLine(
+        PowerGridSupport.renderEnhancedTransmitterLine(
             poseStack,
             bufferSource,
             camera.getPosition()
@@ -149,6 +149,4 @@ public abstract class LevelRendererMixin {
         RenderSystem.enableDepthTest();
         minecraft.getMainRenderTarget().bindWrite(false);
     }
-
-
 }

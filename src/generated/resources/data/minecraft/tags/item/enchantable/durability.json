@@ -1,11 +1,20 @@
 {
   "values": [
+    "anvilcraft:anvil_hammer",
+    "anvilcraft:royal_anvil_hammer",
+    "anvilcraft:ember_anvil_hammer",
+    "anvilcraft:transcendence_anvil_hammer",
     "anvilcraft:dragon_rod",
     "anvilcraft:royal_dragon_rod",
     "anvilcraft:ember_dragon_rod",
+    "anvilcraft:transcendence_dragon_rod",
     "anvilcraft:frost_metal_heavy_halberd",
     "anvilcraft:ember_metal_heavy_halberd",
+    "anvilcraft:transcendence_heavy_halberd",
     "anvilcraft:frost_metal_resonator",
-    "anvilcraft:ember_metal_resonator"
+    "anvilcraft:ember_metal_resonator",
+    "anvilcraft:transcendence_resonator",
+    "anvilcraft:multitool",
+    "anvilcraft:magnet"
   ]
 }

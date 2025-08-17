@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": "minecraft:honeycomb_block"
+    },
+    {
+      "blocks": "minecraft:exposed_copper_bulb"
+    }
+  ],
+  "result": {
+    "block": "minecraft:waxed_exposed_copper_bulb"
+  }
+}

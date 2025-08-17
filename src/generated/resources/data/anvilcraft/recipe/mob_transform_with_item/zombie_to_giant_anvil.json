@@ -1,10 +1,12 @@
 {
   "type": "anvilcraft:mob_transform_with_item",
   "chancePercentPerItem": 5,
+  "ingredients": [
+    {
+      "items": "minecraft:anvil"
+    }
+  ],
   "input": "minecraft:zombie",
-  "itemInput": {
-    "item": "minecraft:anvil"
-  },
   "itemResult": {
     "count": 1,
     "id": "anvilcraft:giant_anvil"
