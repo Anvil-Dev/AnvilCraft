@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.data.worldgen;
+package dev.dubhe.anvilcraft.init.worldgen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModBlockTags;

@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.data.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.worldgen.ModBiomes;
-import dev.dubhe.anvilcraft.data.worldgen.ModDimensionTypes;
-import dev.dubhe.anvilcraft.data.worldgen.ModDimensions;
-import dev.dubhe.anvilcraft.data.worldgen.ModNoiseGeneratorSettings;
+import dev.dubhe.anvilcraft.init.worldgen.ModBiomes;
+import dev.dubhe.anvilcraft.init.worldgen.ModDimensionTypes;
+import dev.dubhe.anvilcraft.init.worldgen.ModDimensions;
+import dev.dubhe.anvilcraft.init.worldgen.ModNoiseGeneratorSettings;
 import dev.dubhe.anvilcraft.init.ModEnchantments;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
