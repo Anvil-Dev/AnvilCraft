@@ -4754,7 +4754,6 @@ public class ModBlocks {
                 .save(provider, of("stonecutting/cut_flint_pillar_from_cut_flint_block"));
         })
         .register();
-        .register();
 
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
