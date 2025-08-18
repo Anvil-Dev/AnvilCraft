@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
@@ -73,7 +74,8 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             comparator.getInputtingSignal()
         ));
         Level level = comparator.getLevel();
-        if (level != null) level.scheduleTick(comparator.getBlockPos(), comparator.getBlockState().getBlock(), 1);
+        if (level != null)
+            level.scheduleTick(comparator.getBlockPos(), comparator.getBlockState().getBlock(), AdvancedComparatorBlock.getDelay());
         super.onClose();
     }
 

@@ -108,7 +108,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-        level.scheduleTick(pos, this, 1);
+        level.scheduleTick(pos, this, getDelay());
     }
 
     @Override
@@ -123,13 +123,13 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        level.scheduleTick(pos, state.getBlock(), 1);
+        level.scheduleTick(pos, this, getDelay());
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, level, pos, oldState, isMoving);
-        level.scheduleTick(pos, state.getBlock(), 1);
+        level.scheduleTick(pos, this, getDelay());
     }
 
     @Override
@@ -220,7 +220,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         blockEntity.updateInputtingSignal(level, pos, state);
         this.updateBlockAndNeighbours(level, pos, state, blockEntity);
         this.update(level, pos, state);
-        level.scheduleTick(pos, this, 0);
+        level.scheduleTick(pos, this, getDelay());
     }
 
     protected void updateBlockAndNeighbours(Level level, BlockPos pos, BlockState state, AdvancedComparatorBlockEntity blockEntity) {
@@ -241,6 +241,10 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     @Override
     public boolean getWeakChanges(BlockState state, LevelReader world, BlockPos pos) {
         return true;
+    }
+
+    public static int getDelay() {
+        return 1;
     }
 
     @Override
