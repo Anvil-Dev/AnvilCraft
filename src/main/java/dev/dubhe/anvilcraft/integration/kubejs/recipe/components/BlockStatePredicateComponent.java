@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.integration.kubejs.recipe.components;
 
 import com.mojang.serialization.Codec;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
 import dev.latvian.mods.rhino.type.TypeInfo;
 import org.jetbrains.annotations.NotNull;

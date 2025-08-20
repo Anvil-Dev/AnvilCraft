@@ -8,8 +8,6 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
-import dev.dubhe.anvilcraft.api.item.property.Eternal;
-import dev.dubhe.anvilcraft.api.item.property.Providence;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.item.AmethystAxeItem;
@@ -32,6 +30,7 @@ import dev.dubhe.anvilcraft.item.EmberMetalResonatorItem;
 import dev.dubhe.anvilcraft.item.EmberMetalShovelItem;
 import dev.dubhe.anvilcraft.item.EmberMetalSwordItem;
 import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
+import dev.dubhe.anvilcraft.item.EmptySuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import dev.dubhe.anvilcraft.item.FrostMetalAxeItem;
 import dev.dubhe.anvilcraft.item.FrostMetalHeavyHalberdItem;
@@ -60,6 +59,7 @@ import dev.dubhe.anvilcraft.item.RoyalShovelItem;
 import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.StructureToolItem;
+import dev.dubhe.anvilcraft.item.SuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.TranscendenceAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.TranscendenceHeavyHalberdItem;
@@ -74,6 +74,8 @@ import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
+import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.item.template.EightToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FourToOneTemplateItem;
@@ -1031,6 +1033,14 @@ public class ModItems {
             .unlockedBy("has_resin", RegistrateRecipeProvider.has(ModItems.RESIN))
             .save(provider))
         .register();
+    public static final ItemEntry<SuperCapacitorItem> SUPER_CAPACITOR = REGISTRATE
+        .item("supercapacitor", SuperCapacitorItem::new)
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+    public static final ItemEntry<EmptySuperCapacitorItem> SUPER_CAPACITOR_EMPTY = REGISTRATE
+        .item("supercapacitor_empty", EmptySuperCapacitorItem::new)
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
     public static final ItemEntry<Item> CHOCOLATE = REGISTRATE
         .item("chocolate", properties -> new Item(properties.food(ModFoods.CHOCOLATE)))
         .tag(Tags.Items.FOODS)
@@ -1119,7 +1129,7 @@ public class ModItems {
         .item("tin_can", Item::new)
         .register();
     public static final ItemEntry<CannedFoodItem> CANNED_FOOD = REGISTRATE
-        .item("canned_food", p -> new CannedFoodItem(p, TIN_CAN))
+        .item("canned_food", CannedFoodItem::new)
         .tag(Tags.Items.FOODS)
         .register();
 

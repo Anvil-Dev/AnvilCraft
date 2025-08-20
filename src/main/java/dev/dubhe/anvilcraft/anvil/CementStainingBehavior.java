@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -22,7 +22,8 @@ public class CementStainingBehavior implements IAnvilBehavior {
         BlockPos hitBlockPos,
         BlockState hitBlockState,
         float fallDistance,
-        AnvilFallOnLandEvent event) {
+        AnvilEvent.OnLand event
+    ) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()
             .map(it -> Map.entry(it, it.getItem()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

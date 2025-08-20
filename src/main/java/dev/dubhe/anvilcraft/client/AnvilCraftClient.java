@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.integration.IntegrationHook;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
@@ -29,13 +30,18 @@ import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 public class AnvilCraftClient {
+    public static IEventBus modEventBus = null;
+    public static ModContainer modContainer = null;
 
-    public AnvilCraftClient(IEventBus modBus, ModContainer container) {
+    public AnvilCraftClient(@NotNull IEventBus modBus, @NotNull ModContainer container) {
+        modEventBus = modBus;
+        modContainer = container;
         modBus.addListener(GuiLayerRegistrationEventListener::onRegister);
         container.registerExtensionPoint(
             IConfigScreenFactory.class,
@@ -54,6 +60,8 @@ public class AnvilCraftClient {
     }
 
     public static void clientSetup(FMLClientSetupEvent event) {
+        IntegrationHook.setModEventBus(modEventBus);
+        IntegrationHook.setModContainer(modContainer);
         AnvilCraft.getIntegrationManager().loadAllClientIntegrations();
     }
 
@@ -62,11 +70,11 @@ public class AnvilCraftClient {
         e.registerItem(new ItemExtensionImpl(), ModItems.IONOCRAFT_BACKPACK);
     }
 
-    public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
+    public static void registerCustomItemDecorations(@NotNull RegisterItemDecorationsEvent e) {
         e.register(ModItems.IONOCRAFT_BACKPACK, new IonoCraftBackpackDecoration());
     }
 
-    public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
+    public static void registerParticleProviders(@NotNull RegisterParticleProvidersEvent e) {
         e.registerSpriteSet(ModParticles.PLASMA_JETS.get(), PlasmaJetsParticle.Provider::new);
     }
 

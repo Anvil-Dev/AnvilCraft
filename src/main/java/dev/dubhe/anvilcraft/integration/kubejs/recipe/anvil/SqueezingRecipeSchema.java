@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.BlockStatePredicateComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceBlockStateComponent;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
@@ -19,10 +19,6 @@ import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public interface SqueezingRecipeSchema {
     @SuppressWarnings("unused")
@@ -61,46 +57,40 @@ public interface SqueezingRecipeSchema {
             return this;
         }
 
-        public SqueezingKubeRecipe input(Block... block) {
-            this.computeIfAbsent(INGREDIENTS, ArrayList::new)
-                .add(BlockStatePredicate.builder().of(block).build());
+        public SqueezingKubeRecipe input(Block block) {
+            this.setValue(INGREDIENT, BlockStatePredicate.builder().of(block).build());
             this.save();
             return this;
         }
 
-        @SafeVarargs
-        public final SqueezingKubeRecipe inputTag(TagKey<Block>... block) {
-            this.computeIfAbsent(INGREDIENTS, ArrayList::new)
-                .addAll(Arrays.stream(block).map(tag -> BlockStatePredicate.builder().of(tag).build()).toList());
+        public final SqueezingKubeRecipe inputTag(TagKey<Block> block) {
+            this.setValue(INGREDIENT, BlockStatePredicate.builder().of(block).build());
             this.save();
             return this;
         }
 
-        public SqueezingKubeRecipe result(Block... block) {
-            this.computeIfAbsent(RESULTS, ArrayList::new)
-                .addAll(Arrays.stream(block).map(b -> new ChanceBlockState(b.defaultBlockState(), 1.0f)).toList());
+        public SqueezingKubeRecipe result(Block block) {
+            this.setValue(RESULT, new ChanceBlockState(block.defaultBlockState(), 1.0f));
             this.save();
             return this;
         }
 
         @Override
         protected void validate() {
-            if (this.computeIfAbsent(INGREDIENTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Inputs is Empty!").source(sourceLine);
+            if (this.getValue(INGREDIENT) == null) {
+                throw new KubeRuntimeException("Input is null!").source(sourceLine);
             }
-            if (this.computeIfAbsent(RESULTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Result is Empty!").source(sourceLine);
+            if (this.getValue(RESULT) == null) {
+                throw new KubeRuntimeException("Result is null!").source(sourceLine);
             }
         }
     }
 
-    RecipeKey<List<BlockStatePredicate>> INGREDIENTS = BlockStatePredicateComponent.INSTANCE
-        .asList()
-        .key("ingredients", ComponentRole.INPUT)
+    RecipeKey<BlockStatePredicate> INGREDIENT = BlockStatePredicateComponent.INSTANCE
+        .key("ingredient", ComponentRole.INPUT)
         .defaultOptional();
-    RecipeKey<List<ChanceBlockState>> RESULTS = ChanceBlockStateComponent.INSTANCE
-        .asList()
-        .key("results", ComponentRole.OUTPUT)
+    RecipeKey<ChanceBlockState> RESULT = ChanceBlockStateComponent.INSTANCE
+        .key("result", ComponentRole.OUTPUT)
         .defaultOptional();
     RecipeKey<ResourceLocation> FLUID = AnvilCraftRecipeComponents.RESOURCE_LOCATION
         .key("fluid", ComponentRole.OUTPUT)
@@ -115,12 +105,12 @@ public interface SqueezingRecipeSchema {
         .optional(HasCauldron.NULL)
         .alwaysWrite();
 
-    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, RESULTS, FLUID, CONSUME, TRANSFORM)
+    RecipeSchema SCHEMA = new RecipeSchema(INGREDIENT, RESULT, FLUID, CONSUME, TRANSFORM)
         .factory(new KubeRecipeFactory(AnvilCraft.of("squeezing"), SqueezingKubeRecipe.class, SqueezingKubeRecipe::new))
-        .constructor(INGREDIENTS, RESULTS, FLUID, CONSUME, TRANSFORM)
-        .constructor(INGREDIENTS, RESULTS, FLUID, CONSUME)
-        .constructor(INGREDIENTS, RESULTS, FLUID)
-        .constructor(INGREDIENTS, RESULTS)
+        .constructor(INGREDIENT, RESULT, FLUID, CONSUME, TRANSFORM)
+        .constructor(INGREDIENT, RESULT, FLUID, CONSUME)
+        .constructor(INGREDIENT, RESULT, FLUID)
+        .constructor(INGREDIENT, RESULT)
         .constructor(new IDRecipeConstructor())
         .constructor();
 }

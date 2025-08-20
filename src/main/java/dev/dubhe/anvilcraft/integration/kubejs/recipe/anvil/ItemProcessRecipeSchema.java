@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftKubeRecipe;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceItemStackComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ItemIngredientPredicateComponent;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
@@ -16,7 +16,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import org.jetbrains.annotations.NotNull;
@@ -52,10 +51,6 @@ public interface ItemProcessRecipeSchema {
             return this;
         }
 
-        public ItemProcessKubeRecipe requires(@NotNull ItemLike ingredient) {
-            return this.requires(ingredient, 1);
-        }
-
         public ItemProcessKubeRecipe result(@NotNull ItemStack result, NumberProvider count) {
             this.computeIfAbsent(RESULTS, ArrayList::new)
                 .add(ChanceItemStack.of(result, count));
@@ -63,35 +58,8 @@ public interface ItemProcessRecipeSchema {
             return this;
         }
 
-        public ItemProcessKubeRecipe result(@NotNull ItemStack result, float chance) {
-            return this.result(result, BinomialDistributionGenerator.binomial(result.getCount(), chance));
-        }
-
         public ItemProcessKubeRecipe result(@NotNull ItemStack result) {
             return this.result(result, ConstantValue.exactly(result.getCount()));
-        }
-
-        public ItemProcessKubeRecipe result(@NotNull ItemLike result, NumberProvider count) {
-            this.computeIfAbsent(RESULTS, ArrayList::new)
-                .add(ChanceItemStack.of(result, count));
-            this.save();
-            return this;
-        }
-
-        public ItemProcessKubeRecipe result(@NotNull ItemLike result, int count, float chance) {
-            return this.result(result, BinomialDistributionGenerator.binomial(count, chance));
-        }
-
-        public ItemProcessKubeRecipe result(@NotNull ItemLike result, int count) {
-            return this.result(result, ConstantValue.exactly(count));
-        }
-
-        public ItemProcessKubeRecipe result(@NotNull ItemLike result, float chance) {
-            return this.result(result, 1, chance);
-        }
-
-        public ItemProcessKubeRecipe result(@NotNull ItemLike result) {
-            return this.result(result, ConstantValue.exactly(1.0f));
         }
 
         @Override
@@ -100,7 +68,7 @@ public interface ItemProcessRecipeSchema {
                 throw new KubeRuntimeException("Ingredients is Empty!").source(sourceLine);
             }
             if (computeIfAbsent(RESULTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Ingredients is Empty!").source(sourceLine);
+                throw new KubeRuntimeException("Results is Empty!").source(sourceLine);
             }
         }
     }

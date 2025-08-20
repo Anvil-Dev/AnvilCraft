@@ -8,9 +8,7 @@
       "blocks": "minecraft:netherrack"
     }
   ],
-  "results": [
-    {
-      "block": "minecraft:warped_nylium"
-    }
-  ]
+  "result": {
+    "block": "minecraft:warped_nylium"
+  }
 }

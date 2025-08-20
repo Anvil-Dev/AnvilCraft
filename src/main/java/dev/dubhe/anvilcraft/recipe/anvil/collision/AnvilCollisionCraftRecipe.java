@@ -37,15 +37,23 @@ import java.util.Map;
 /**
  * 铁砧碰撞工艺配方类，用于定义铁砧与方块碰撞时的工艺配方
  * 该类定义了铁砧碰撞特定方块时的输入、输出和转换规则
+ *
+ * @param anvil 铁砧输入方块
+ * @param consume 是否消耗铁砧
+ * @param hitBlock 碰撞的方块
+ * @param transformBlocks 方块转换列表
+ * @param outputItems 输出物品列表
+ * @param speed 最低撞击速度(m/tick)
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public record AnvilCollisionCraftRecipe(
-    InputBlock anvil, // 铁砧输入方块
-    boolean consume, // 是否消耗铁砧
-    InputBlock hitBlock, // 碰撞的方块
-    List<BlockTransform> transformBlocks, // 方块转换列表
-    List<OutputItem> outputItems // 输出物品列表
+    InputBlock anvil,
+    boolean consume,
+    InputBlock hitBlock,
+    List<BlockTransform> transformBlocks,
+    List<OutputItem> outputItems,
+    int speed
 ) implements Recipe<AnvilCollisionCraftRecipe.Input> {
 
     /**
@@ -171,7 +179,8 @@ public record AnvilCollisionCraftRecipe(
             Codec.BOOL.fieldOf("consume").forGetter(AnvilCollisionCraftRecipe::consume),
             InputBlock.CODEC.fieldOf("hitBlock").forGetter(AnvilCollisionCraftRecipe::hitBlock),
             BlockTransform.CODEC.listOf().fieldOf("transform_blocks").forGetter(AnvilCollisionCraftRecipe::transformBlocks),
-            OutputItem.CODEC.listOf().fieldOf("output_items").forGetter(AnvilCollisionCraftRecipe::outputItems)
+            OutputItem.CODEC.listOf().fieldOf("output_items").forGetter(AnvilCollisionCraftRecipe::outputItems),
+            Codec.INT.fieldOf("speed").forGetter(AnvilCollisionCraftRecipe::speed)
         ).apply(it, AnvilCollisionCraftRecipe::new));
 
         /**
@@ -213,6 +222,7 @@ public record AnvilCollisionCraftRecipe(
             InputBlock.STREAM_CODEC.encode(buf, recipe.hitBlock);
             writeList(buf, recipe.transformBlocks, BlockTransform.STREAM_CODEC);
             writeList(buf, recipe.outputItems, OutputItem.STREAM_CODEC);
+            buf.writeVarInt(recipe.speed);
         }
 
         /**
@@ -227,7 +237,8 @@ public record AnvilCollisionCraftRecipe(
                 buf.readBoolean(),
                 InputBlock.STREAM_CODEC.decode(buf),
                 readList(buf, BlockTransform.STREAM_CODEC),
-                readList(buf, OutputItem.STREAM_CODEC)
+                readList(buf, OutputItem.STREAM_CODEC),
+                buf.readVarInt()
             );
         }
 
@@ -296,6 +307,7 @@ public record AnvilCollisionCraftRecipe(
          */
         @Setter
         private List<OutputItem> outputItems = new ArrayList<>();
+        private int speed = 32;
 
         /**
          * 设置铁砧方块
@@ -462,6 +474,11 @@ public record AnvilCollisionCraftRecipe(
             return outputItem(new OutputItem(new ItemStack(item, 1), 1f));
         }
 
+        public Builder speed(int speed) {
+            this.speed = speed;
+            return this;
+        }
+
         /**
          * 获取配方结果物品
          *
@@ -482,7 +499,7 @@ public record AnvilCollisionCraftRecipe(
          */
         @Override
         public AnvilCollisionCraftRecipe buildRecipe() {
-            return new AnvilCollisionCraftRecipe(anvil, consume, hitBlock, transformBlocks, outputItems);
+            return new AnvilCollisionCraftRecipe(anvil, consume, hitBlock, transformBlocks, outputItems, speed);
         }
 
         /**
@@ -519,8 +536,9 @@ public record AnvilCollisionCraftRecipe(
         public void save(RecipeOutput recipeOutput) {
             save(
                 recipeOutput,
-                AnvilCraft.of(this.anvil.getKey() + "_and_" + this.hitBlock.getKey())
-                    .withPrefix(getType() + "/"));
+                AnvilCraft.of(this.anvil.getKey() + "_and_" + this.hitBlock.getKey() + "_" + this.speed)
+                    .withPrefix(getType() + "/")
+            );
         }
     }
 

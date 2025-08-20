@@ -1,0 +1,29 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "id": "anvilcraft:royal_anvil"
+  },
+  "consume": false,
+  "hitBlock": {
+    "id": "minecraft:redstone_block"
+  },
+  "output_items": [
+    {
+      "chance": 1.0,
+      "count": 6,
+      "id": "anvilcraft:uranium_nugget"
+    },
+    {
+      "chance": 0.5,
+      "count": 4,
+      "id": "anvilcraft:uranium_nugget"
+    },
+    {
+      "chance": 0.25,
+      "count": 2,
+      "id": "anvilcraft:uranium_nugget"
+    }
+  ],
+  "speed": 32,
+  "transform_blocks": []
+}

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin.forge;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.DeflectionEntity;
 import dev.dubhe.anvilcraft.util.Util;
@@ -68,8 +68,15 @@ abstract class FallingBlockEntityMixin extends Entity {
         at =
         @At(
             value = "INVOKE",
-            target =
-                "Lnet/minecraft/world/level/block/Fallable;onLand(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/item/FallingBlockEntity;)V")
+            target = "Lnet/minecraft/world/level/block/Fallable;"
+                + "onLand("
+                + "Lnet/minecraft/world/level/Level;"
+                + "Lnet/minecraft/core/BlockPos;"
+                + "Lnet/minecraft/world/level/block/state/BlockState;"
+                + "Lnet/minecraft/world/level/block/state/BlockState;"
+                + "Lnet/minecraft/world/entity/item/FallingBlockEntity;"
+                + ")V"
+        )
     )
     private void anvilFallOnGround(CallbackInfo ci, @Local BlockPos blockPos) {
         if (this.level().isClientSide()) return;
@@ -96,8 +103,13 @@ abstract class FallingBlockEntityMixin extends Entity {
         at =
         @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;"
-                + "Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;")
+            target = "Lnet/minecraft/world/level/Level;"
+                + "getEntities("
+                + "Lnet/minecraft/world/entity/Entity;"
+                + "Lnet/minecraft/world/phys/AABB;"
+                + "Ljava/util/function/Predicate;"
+                + ")Ljava/util/List;"
+        )
     )
     private void anvilHurtEntity(
         float pFallDistance,
@@ -137,7 +149,13 @@ abstract class FallingBlockEntityMixin extends Entity {
                 ((DeflectionEntity) this).isDeflected() ? ((DeflectionEntity) this).getFixedDeltaMovement() : this.getDeltaMovement()
             ),
             this.position().subtract(0, 0.5, 0),
-            this.getBoundingBox().expandTowards((((DeflectionEntity) this).isDeflected() ? ((DeflectionEntity) this).getFixedDeltaMovement() : this.getDeltaMovement()).multiply(-1, -1, -1)).inflate(1.0),
+            this.getBoundingBox()
+                .expandTowards(
+                    (((DeflectionEntity) this).isDeflected()
+                        ? ((DeflectionEntity) this).getFixedDeltaMovement()
+                        : this.getDeltaMovement()).multiply(-1, -1, -1)
+                )
+                .inflate(1.0),
             Entity::isAttackable
         );
         if (hitResult == null) return;

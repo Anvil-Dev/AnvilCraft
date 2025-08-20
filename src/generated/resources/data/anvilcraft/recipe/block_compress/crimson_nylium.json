@@ -8,9 +8,7 @@
       "blocks": "minecraft:netherrack"
     }
   ],
-  "results": [
-    {
-      "block": "minecraft:crimson_nylium"
-    }
-  ]
+  "result": {
+    "block": "minecraft:crimson_nylium"
+  }
 }

@@ -7,9 +7,8 @@ import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -86,15 +85,13 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockCompressRecipe> recipeHolder, IFocusGroup focuses) {
         BlockCompressRecipe recipe = recipeHolder.value();
-        for (BlockStatePredicate input : recipe.getInputs()) {
+        for (BlockStatePredicate input : recipe.getInputBlocks()) {
             builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
                 .addIngredients(Ingredient.of(
                     input.getBlocks().stream().map(holder -> new ItemStack(holder.value())).toArray(ItemStack[]::new)));
         }
-        for (ChanceBlockState output : recipe.getResults()) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-                .addItemStack(new ItemStack(output.getState().getBlock()));
-        }
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
+            .addItemStack(new ItemStack(recipe.getFirstResultBlock().getState().getBlock()));
     }
 
     @Override
@@ -119,8 +116,8 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
             RenderHelper.SINGLE_BLOCK
         );
 
-        for (int i = recipe.getInputs().size() - 1; i >= 0; i--) {
-            List<BlockState> input = recipe.getInputs().get(i).constructStatesForRender();
+        for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
+            List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) continue;
@@ -131,14 +128,16 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
                 30 + 10 * i,
                 10 - 10 * i,
                 12,
-                RenderHelper.SINGLE_BLOCK);
+                RenderHelper.SINGLE_BLOCK
+            );
         }
 
         RenderHelper.renderBlock(
-            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK
+        );
         RenderHelper.renderBlock(
-            guiGraphics, recipe.getResults().get((int) ((System.currentTimeMillis() / 1000) % recipe.getResults().size())).getState(),
-            110, 40, 0, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.getFirstResultBlock().getState(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK
+        );
     }
 
     @Override
@@ -154,17 +153,15 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
 
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY < 42) {
-                tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputs().getFirst()));
+                tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getFirst()));
             }
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputs().getLast()));
+                tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getLast()));
             }
         }
         if (mouseX >= 100 && mouseX <= 120) {
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(
-                    recipe.getResults().get((int) ((System.currentTimeMillis() / 1000) % recipe.getResults().size()))
-                        .getState().getBlock().getName());
+                tooltip.add(recipe.getFirstResultBlock().getState().getBlock().getName());
             }
         }
     }

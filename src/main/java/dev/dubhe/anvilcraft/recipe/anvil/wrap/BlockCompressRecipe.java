@@ -4,10 +4,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
-import lombok.Getter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,7 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,37 +28,26 @@ import java.util.List;
  * 该配方用于在铁砧下落时压缩方块，是方块级别的压缩处理配方
  * </p>
  */
-@Getter
 public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressRecipe> {
-    /**
-     * 输入方块列表
-     */
-    private final List<BlockStatePredicate> inputs;
-
-    /**
-     * 结果方块列表
-     */
-    private final List<ChanceBlockState> results;
-
     /**
      * 构造一个方块压缩配方
      *
-     * @param inputs  输入方块列表
-     * @param results 结果方块列表
+     * @param inputs 输入方块列表
+     * @param result 结果方块
      */
     public BlockCompressRecipe(
         List<BlockStatePredicate> inputs,
-        List<ChanceBlockState> results
+        ChanceBlockState result
     ) {
         super(
             new AbstractProcessRecipe.Property()
-                .setBlockInputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockInputOffset(new Vec3i(0, -1, 0))
+                .setConsumeInputBlocks(true)
                 .setInputBlocks(inputs)
-                .setBlockOutputOffset(new Vec3(0.0, -1.0, 0.0))
-                .setResultBlocks(results)
+                .setBlockOutputOffset(new Vec3i(0, -2, 0))
+                .setResultBlocks(result)
         );
-        this.inputs = inputs;
-        this.results = results;
+        if (inputs.size() != 2) throw new IllegalArgumentException("AnvilItemProcessRecipe only support 2 inputs");
     }
 
     @Override
@@ -92,11 +80,10 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
             BlockStatePredicate.CODEC
                 .listOf()
                 .fieldOf("inputs")
-                .forGetter(BlockCompressRecipe::getInputs),
+                .forGetter(BlockCompressRecipe::getInputBlocks),
             ChanceBlockState.CODEC.codec()
-                .listOf()
-                .fieldOf("results")
-                .forGetter(BlockCompressRecipe::getResults)
+                .fieldOf("result")
+                .forGetter(BlockCompressRecipe::getFirstResultBlock)
         ).apply(instance, BlockCompressRecipe::new));
 
         /**
@@ -104,9 +91,9 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
          */
         private static final StreamCodec<RegistryFriendlyByteBuf, BlockCompressRecipe> STREAM_CODEC = StreamCodec.composite(
             BlockStatePredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            BlockCompressRecipe::getInputs,
-            ChanceBlockState.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            BlockCompressRecipe::getResults,
+            BlockCompressRecipe::getInputBlocks,
+            ChanceBlockState.STREAM_CODEC,
+            BlockCompressRecipe::getFirstResultBlock,
             BlockCompressRecipe::new
         );
 
@@ -131,9 +118,9 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
         private final List<BlockStatePredicate> inputs = new ArrayList<>();
 
         /**
-         * 结果方块列表
+         * 结果方块
          */
-        private final List<ChanceBlockState> results = new ArrayList<>();
+        private ChanceBlockState result = null;
 
         /**
          * 添加输入方块
@@ -175,7 +162,7 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
          * @return 构建器实例
          */
         public Builder result(ChanceBlockState result) {
-            this.results.add(result);
+            this.result = result;
             return this;
         }
 
@@ -186,21 +173,21 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
          * @return 构建器实例
          */
         public Builder result(@NotNull Block result) {
-            this.results.add(new ChanceBlockState(result.defaultBlockState(), 1.0f));
+            this.result = new ChanceBlockState(result.defaultBlockState(), 1.0f);
             return this;
         }
 
         @Override
         public @NotNull BlockCompressRecipe buildRecipe() {
-            return new BlockCompressRecipe(inputs, results);
+            return new BlockCompressRecipe(inputs, result);
         }
 
         @Override
         public void validate(@NotNull ResourceLocation pId) {
-            if (inputs.isEmpty()) {
-                throw new IllegalArgumentException("Recipe inputs must not be empty, RecipeId: " + pId);
+            if (inputs.size() != 2) {
+                throw new IllegalArgumentException("Recipe input list size must in 2, RecipeId: " + pId);
             }
-            if (results.isEmpty()) {
+            if (result == null) {
                 throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + pId);
             }
         }
@@ -212,7 +199,7 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
 
         @Override
         public @NotNull Item getResult() {
-            return WrapUtils.getItem(results);
+            return WrapUtils.getItem(result);
         }
     }
 }

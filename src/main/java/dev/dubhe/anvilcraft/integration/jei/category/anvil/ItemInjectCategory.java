@@ -90,9 +90,9 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
             .addIngredients(Ingredient.of(
-                recipe.getBlockIngredient().getBlocks().stream().map(state -> new ItemStack(state.value())).toArray(ItemStack[]::new)));
+                recipe.getFirstInputBlock().getBlocks().stream().map(state -> new ItemStack(state.value())).toArray(ItemStack[]::new)));
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getBlockResult().getState().getBlock()));
+            .addItemStack(new ItemStack(recipe.getFirstResultBlock().getState().getBlock()));
     }
 
     @Override
@@ -113,7 +113,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
             12,
             RenderHelper.SINGLE_BLOCK);
 
-        List<BlockState> input = recipe.getBlockIngredient().constructStatesForRender();
+        List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         if (input.isEmpty()) return;
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
         if (renderedState == null) return;
@@ -124,7 +124,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slot, recipe.getInputItems().size());
         RenderHelper.renderBlock(
-            guiGraphics, recipe.getBlockResult().getState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+            guiGraphics, recipe.getFirstResultBlock().getState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
     }
 
     @Override
@@ -137,12 +137,12 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         ItemInjectRecipe recipe = recipeHolder.value();
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(recipe.getBlockIngredient().constructStatesForRender().getFirst().getBlock().getName());
+                tooltip.add(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock().getName());
             }
         }
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
-                tooltip.add(recipe.getBlockResult().getState().getBlock().getName());
+                tooltip.add(recipe.getFirstResultBlock().getState().getBlock().getName());
             }
         }
     }

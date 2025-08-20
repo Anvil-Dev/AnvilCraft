@@ -27,7 +27,6 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -124,7 +123,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         } else if (recipe.isProduceFluid()) {
             state = Blocks.CAULDRON.defaultBlockState();
         } else {
-            state = CauldronUtil.fullState(BuiltInRegistries.BLOCK.get(recipe.getHasCauldron().getTransform().withSuffix("_cauldron")));
+            state = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
         }
         RenderHelper.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
 
@@ -144,7 +143,8 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
                     Component.translatable(
                         "gui.anvilcraft.category.bulging.consume_fluid",
                         hasCauldron.getConsume(),
-                        Component.translatable("block." + hasCauldron.getFluid().toString().replace(':', '.'))),
+                        hasCauldron.getFluidCauldron().getName()
+                    ),
                     0,
                     70,
                     0xFF000000,
@@ -159,8 +159,9 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
                     Minecraft.getInstance().font,
                     Component.translatable(
                         "gui.anvilcraft.category.bulging.produce_fluid",
-                        -hasCauldron.getConsume(),
-                        Component.translatable("block." + hasCauldron.getTransform().toString().replace(':', '.'))),
+                        hasCauldron.getConsume(),
+                        hasCauldron.getTransformCauldron().getName()
+                    ),
                     0,
                     70,
                     0xFF000000,

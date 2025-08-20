@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import net.minecraft.core.BlockPos;
@@ -16,7 +16,7 @@ public class HitBeeNestBehavior implements IAnvilBehavior {
         BlockPos pos,
         BlockState state,
         float fallDistance,
-        AnvilFallOnLandEvent event
+        AnvilEvent.OnLand event
     ) {
         if (!state.hasBlockEntity()) return false;
         int honeyLevel = state.getValue(BeehiveBlock.HONEY_LEVEL);

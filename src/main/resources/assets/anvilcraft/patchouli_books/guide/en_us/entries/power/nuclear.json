@@ -10,7 +10,7 @@
       "type": "patchouli:spotlight",
       "item": ["anvilcraft:uranium_nugget","anvilcraft:uranium_ingot","anvilcraft:uranium_block"],
       "link_recipe": true,
-      "text": "使用$(item)皇家铁砧$()（或更高级铁砧）$(l:struct/high_speed_impact)撞击$()$(item)红石块$()，平均获得8.5个$(item)铀粒$()。$(br2)之后可以通过$(item)矿物涌泉$()量产。"
+      "text": "使用$(item)皇家铁砧$()[速度>32m/t](或更高级铁砧)$(l:struct/high_speed_impact)撞击$()$(item)红石块$()，平均获得8.5个$(item)铀粒$()。$(br2)之后可以通过$(item)矿物涌泉$()量产。"
     },
     {
       "type": "patchouli:spotlight",
@@ -33,6 +33,11 @@
       "anchor": "nuclear_fission",
       "title": "时移核衰变",
       "text": "$(l:smithing/corrupted_beacon#time_warp)时移$()$(item)铀块$()或$(item)钚块$()会在一瞬间爆发出通常需要数万年才能释放大量的热能。$(br2)将与锅水平相邻的方块加热为$(thing)白炽$()并持续5/10分钟，可用于热能发电"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "超温发电",
+      "text": "通过核燃料持续加热并维持至多16个$(l:advanced/special_heated_block)超温余烬金属块$()，用于热能发电可以生产16384kW."
     }
   ]
 }

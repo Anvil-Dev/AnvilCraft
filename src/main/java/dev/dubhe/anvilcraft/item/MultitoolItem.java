@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.item.UseMagnetEvent;
+import dev.dubhe.anvilcraft.api.event.UseMagnetEvent;
 import dev.dubhe.anvilcraft.api.item.IMultipleResult;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.init.ModEntities;
@@ -543,7 +543,7 @@ public class MultitoolItem extends Item implements IMultipleResult {
     }
 
     public static int getMode(ItemStack item) {
-        return item.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value();
+        return Math.clamp(item.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value(), 0, 8);
     }
 
     public static void setMode(Player player, InteractionHand hand, @Range(from = 0, to = 8) int mode) {

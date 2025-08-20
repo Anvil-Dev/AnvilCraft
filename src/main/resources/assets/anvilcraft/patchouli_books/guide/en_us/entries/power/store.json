@@ -1,0 +1,35 @@
+{
+  "name": "电力存储",
+  "category": "anvilcraft:power_system",
+  "icon": "anvilcraft:supercapacitor",
+  "sortnum": 12009,
+  "entry_color": "004400",
+  "extra_recipe_mappings": {
+    "anvilcraft:supercapacitor": 1
+  },
+  "pages": [
+    "本章节将会介绍那些方块和物品可以用来存储电力",
+    {
+      "type": "anvilcraft:item_compress",
+      "anchor": "supercapacitor",
+      "recipe": "anvilcraft:item_compress/supercapacitor_empty",
+      "text": "使用含苦力怕的$(l:basic/material#resin_block)树脂块$(/l)合成 $(p)$(#666666)如果是闪电苦力怕，则合成出满能量的超级电容器，但有50%概率在合成时爆炸$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": ["anvilcraft:supercapacitor","anvilcraft:capacitor","anvilcraft:neutronium_ingot"],
+      "title": "物品充放电信息",
+      "text": "充能功率/放能功率[持续时间] $(li)电容: 70/64kW [60s] $(li)超级电容: 700/640kW [120s] $(li)中子锭: 4000/3200kW [300s]"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": ["anvilcraft:charger","anvilcraft:discharger"],
+      "text": "电网负载低时，使用充电器存储能量 $(br)电网负载过高时，使用放电器释放能量"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:load_monitor",
+      "text": "检测电网负载，配合比较器转化为红石信号"
+    }
+  ]
+}

@@ -1,18 +1,15 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
-import io.netty.buffer.ByteBuf;
+import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -29,12 +26,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
-import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -56,7 +51,7 @@ public class HeliostatsItem extends BlockItem {
     @SuppressWarnings("DataFlowIssue")
     public static BlockPos getData(ItemStack stack) {
         HeliostatsData heliostatsData = stack.get(ModComponents.HELIOSTATS_DATA);
-        return heliostatsData.pos;
+        return heliostatsData.pos();
     }
 
     public static void deleteData(ItemStack stack) {
@@ -64,22 +59,22 @@ public class HeliostatsItem extends BlockItem {
     }
 
     @Override
-    public boolean isEnchantable(@NotNull ItemStack stack) {
+    public boolean isEnchantable(ItemStack stack) {
         return false;
     }
 
     @Override
-    public boolean isFoil(@NotNull ItemStack stack) {
+    public boolean isFoil(ItemStack stack) {
         return hasDataStored(stack);
     }
 
     @Override
     protected boolean updateCustomBlockEntityTag(
-        @NotNull BlockPos pos,
-        @NotNull Level level,
+        BlockPos pos,
+        Level level,
         @Nullable Player player,
-        @NotNull ItemStack stack,
-        @NotNull BlockState state) {
+        ItemStack stack,
+        BlockState state) {
         if (level.isClientSide) return false;
         if (!hasDataStored(stack)) {
             if (player != null) {
@@ -122,7 +117,7 @@ public class HeliostatsItem extends BlockItem {
     }
 
     @Override
-    public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
             && hasDataStored(context.getItemInHand())) {
@@ -141,7 +136,8 @@ public class HeliostatsItem extends BlockItem {
                         context.getPlayer(),
                         context.getClickedPos(),
                         blockState.getSoundType().getPlaceSound(),
-                        SoundSource.BLOCKS);
+                        SoundSource.BLOCKS
+                    );
                 }
                 return result;
             } else {
@@ -155,8 +151,8 @@ public class HeliostatsItem extends BlockItem {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(
-        Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
+    public InteractionResultHolder<ItemStack> use(
+        Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             if (hasDataStored(itemStack)) {
@@ -165,30 +161,5 @@ public class HeliostatsItem extends BlockItem {
             return InteractionResultHolder.success(itemStack);
         }
         return super.use(level, player, usedHand);
-    }
-
-    public record HeliostatsData(BlockPos pos) {
-
-        public static final Codec<HeliostatsData> CODEC = RecordCodecBuilder.create(
-            ins -> ins.group(BlockPos.CODEC.fieldOf("pos").forGetter(HeliostatsData::pos))
-                .apply(ins, HeliostatsData::new));
-
-        public static final StreamCodec<ByteBuf, HeliostatsData> STREAM_CODEC =
-            StreamCodec.composite(BlockPos.STREAM_CODEC, HeliostatsData::pos, HeliostatsData::new);
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj instanceof HeliostatsData(BlockPos pos1)) {
-                return pos1.equals(pos);
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(pos);
-        }
     }
 }

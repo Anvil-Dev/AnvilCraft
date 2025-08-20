@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
@@ -123,7 +123,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
                 tooltip.add(result.get((int) ((System.currentTimeMillis() / 1000) % result.size())).getState().getBlock().getName());
             }
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(BuiltInRegistries.BLOCK.get(recipe.getHasCauldron().getFluid().withSuffix("_cauldron")).getName());
+                tooltip.add(recipe.getHasCauldron().getTransformCauldron().getName());
             }
         }
     }

@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.item.amulet;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.item.property.BoxContents;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItemTags;
+import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -113,7 +113,7 @@ public class AmuletBoxItem extends Item {
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
             } else if (AnvilCraft.config.amuletBoxTakeOutAllTotem) {
                 boolean dropped = false;
-                for (int i = 0; i < contents.getTotems().size(); i++) {
+                for (int i = 0; i < contents.totems().size(); i++) {
                     ItemStack stack = mutable.popTotem();
                     if (stack.isEmpty()) break;
                     player.getInventory().placeItemBackInInventory(stack);
@@ -133,19 +133,19 @@ public class AmuletBoxItem extends Item {
     @Override
     public boolean isBarVisible(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return contents.getUsage() > 0;
+        return contents.usage() > 0;
     }
 
     @Override
     public int getBarWidth(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return (int) (Math.clamp(contents.getUsage() / (float) CAPACITY, 0f, 1f) * 13);
+        return (int) (Math.clamp(contents.usage() / (float) CAPACITY, 0f, 1f) * 13);
     }
 
     @Override
     public int getBarColor(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return lerpColor(contents.getUsage() / (float) CAPACITY, BAR_COLOR, FULL_BAR_COLOR);
+        return lerpColor(contents.usage() / (float) CAPACITY, BAR_COLOR, FULL_BAR_COLOR);
     }
 
     private int lerpColor(float ratio, int from, int to) {
@@ -183,7 +183,7 @@ public class AmuletBoxItem extends Item {
         }
         tooltipComponents.add(Component.empty());
         tooltipComponents.add(Component.translatable(
-            "tooltip.anvilcraft.item.amulet_box.fullness", contents.getUsage(), CAPACITY
+            "tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), CAPACITY
         ).withStyle(ChatFormatting.GRAY));
     }
 

@@ -44,25 +44,25 @@
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "Banner Patterns",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns",
       "text": "All Banner Patterns can be copy like this recipe."
     },
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "Music Discs",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs",
       "text": "All Music Discs can be copy like this recipe."
     },
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "Pottery Sherds",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_blade_pottery_sherd_from_minecraft_blade_pottery_sherd_for_pottery_sherds",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_blade_pottery_sherd_from_minecraft_blade_pottery_sherd_for_pottery_sherds",
       "text": "All Pottery Sherds can be copy like this recipe."
     },
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "Armor Trim Smithing Template",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates",
       "text": "All Armor Trim Smithing Templates can be copy like this recipe."
     }
   ]

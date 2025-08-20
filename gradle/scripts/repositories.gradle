@@ -60,7 +60,7 @@ repositories {
     maven {
         url "https://maven.su5ed.dev/releases"
     }
-    maven { // Create Mod
+    maven { // Create Mod, Ponder
         name = "Create Mod Maven"
         url = "https://maven.createmod.net"
     }

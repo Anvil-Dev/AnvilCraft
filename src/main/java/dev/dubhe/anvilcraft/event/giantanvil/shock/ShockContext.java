@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.anvil.GiantAnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,7 +34,7 @@ public record ShockContext(
         Direction.NORTH
     };
 
-    public static ShockContext inflate(GiantAnvilFallOnLandEvent event) {
+    public static ShockContext inflate(AnvilEvent.GiantOnLand event) {
         BlockPos detectCenter = event.getPos().below(2);
         BlockPos ground = detectCenter.above();
         List<BlockPos> rangePosList = new ArrayList<>();

@@ -3,11 +3,12 @@ package dev.dubhe.anvilcraft.recipe.anvil.predicate.item;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeData;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.ItemCache;
-import dev.dubhe.anvilcraft.recipe.anvil.util.IItemStackPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.cache.item.ICacheInput;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.IItemStackPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeData;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -65,11 +66,12 @@ public abstract class HasItemBase<T extends HasItemBase<T, P>, P extends IItemSt
      * @param context 配方上下文
      * @return 物品缓存输入
      */
-    public ItemCache.ICacheInput getItem(@NotNull InWorldRecipeContext context) {
-        final InWorldRecipeData<ItemCache.ICacheInput> cacheInput = InWorldRecipeData.of(
+    public ICacheInput getItem(@NotNull InWorldRecipeContext context) {
+        context.computeIfAbsent(ItemCache.ITEM_CACHE);
+        final InWorldRecipeData<ICacheInput> cacheInput = InWorldRecipeData.of(
             AnvilCraft.of("item_cache_input/%s".formatted(this.hashCode())),
             (ctx, key) -> {
-                ItemCache itemCache = ctx.computeIfAbsent(ItemCache.ITEM_CACHE);
+                ItemCache itemCache = ctx.get(ItemCache.ITEM_CACHE);
                 return itemCache.getInput(this.item.testIgnoreCount(), context.getPos().add(this.offset), this.range);
             }
         );

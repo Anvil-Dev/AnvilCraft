@@ -1,0 +1,102 @@
+{
+  "type": "anvilcraft:in_world_recipe",
+  "compatible": true,
+  "conflicting": [
+    {
+      "type": "anvilcraft:has_item_ingredient",
+      "item": {
+        "items": "anvilcraft:resin_block",
+        "predicates": {
+          "anvilcraft:saved_entity": {
+            "entityType": "minecraft:creeper",
+            "tagPredicates": [
+              {
+                "expected": 1,
+                "requirement": "GREATER_OR_EQUAL",
+                "tagKeyPath": "powered"
+              }
+            ]
+          }
+        }
+      },
+      "offset": [
+        0.0,
+        -0.375,
+        0.0
+      ],
+      "range": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    {
+      "type": "anvilcraft:has_item_ingredient",
+      "item": {
+        "count": 2,
+        "items": "#c:plates/iron"
+      },
+      "offset": [
+        0.0,
+        -0.375,
+        0.0
+      ],
+      "range": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    }
+  ],
+  "icon": {
+    "count": 1,
+    "id": "anvilcraft:supercapacitor"
+  },
+  "non_conflicting": [
+    {
+      "type": "anvilcraft:has_cauldron",
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    }
+  ],
+  "outcomes": [
+    {
+      "type": "anvilcraft:choose_one",
+      "chance": 1.0,
+      "choices": [
+        {
+          "outcome": {
+            "type": "anvilcraft:produce_explosion",
+            "chance": 0.5,
+            "fire": true,
+            "interact": "block",
+            "offset": [
+              0.0,
+              -0.75,
+              0.0
+            ],
+            "power": 1.0
+          },
+          "weight": 0.5
+        },
+        {
+          "outcome": {
+            "type": "anvilcraft:spawn_item",
+            "item": "anvilcraft:supercapacitor",
+            "offset": [
+              0.0,
+              -0.75,
+              0.0
+            ]
+          },
+          "weight": 0.5
+        }
+      ]
+    }
+  ],
+  "priority": 5,
+  "trigger": "anvilcraft:on_anvil_fall_on"
+}

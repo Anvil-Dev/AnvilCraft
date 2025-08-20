@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
-import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
@@ -37,13 +35,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings("LombokSetterMayBeUsed")
 public class AccelerationRingBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
     @Setter
@@ -63,7 +61,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
 
 
     @Override
-    public Level getCurrentLevel() {
+    public @Nullable Level getCurrentLevel() {
         return level;
     }
 
@@ -130,14 +128,10 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
                 blockPoses.add(checkPos.east(0));
             }
             if ((checkState.hasProperty(AccelerationRingBlock.HALF)
-                && checkState.getValue(AccelerationRingBlock.HALF) == DirectionCube3x3PartHalf.MID_CENTER
-                && checkState.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.ON
-                && !checkState.getValue(AccelerationRingBlock.OVERLOAD)
-                && checkState.getValue(AccelerationRingBlock.FACING) == direction)
-                || (checkState.hasProperty(DeflectionRingBlock.HALF)
-                && checkState.getValue(DeflectionRingBlock.HALF) == DirectionCube3x3PartHalf.MID_CENTER
-                && checkState.getValue(DeflectionRingBlock.SWITCH) == IPowerComponent.Switch.ON
-                && !checkState.getValue(DeflectionRingBlock.OVERLOAD))
+                    && checkState.getValue(AccelerationRingBlock.HALF) == DirectionCube3x3PartHalf.MID_CENTER
+                    && checkState.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.ON
+                    && !checkState.getValue(AccelerationRingBlock.OVERLOAD)
+                    && checkState.getValue(AccelerationRingBlock.FACING) == direction)
             ) {
                 found = true;
                 break;
@@ -152,21 +146,21 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         BlockPos end = getBlockPos().relative(direction.getOpposite(), 1);
         checkPos.move(direction, 2);
         AABB aabb = new AABB(
-            checkPos.getX() + 1,
-            checkPos.getY() + 1,
-            checkPos.getZ() + 1,
-            end.getX(),
-            end.getY(),
-            end.getZ()
+                checkPos.getX() + 1,
+                checkPos.getY() + 1,
+                checkPos.getZ() + 1,
+                end.getX(),
+                end.getY(),
+                end.getZ()
         );
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, aabb, AccelerationRingBlockEntity::canBeAccelerated);
         for (Entity entity : entities) {
-            if (Math.abs(entity.getDeltaMovement().get(direction.getAxis())) > AnvilCraft.config.maxAccelerationSpeed) {
+            if (entity instanceof Player && Math.abs(entity.getDeltaMovement().get(direction.getAxis())) > 20) {
                 entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
                 continue;
             }
             Vec3 fixMovement = getBlockPos().getCenter().subtract(
-                entity instanceof FallingBlockEntity || entity instanceof Player ? entity.position().add(0, 0.5, 0) : entity.position()
+                    entity instanceof FallingBlockEntity || entity instanceof Player ? entity.position().add(0, 0.5, 0) : entity.position()
             );
             Vec3 deltaMovement = entity.getDeltaMovement();
             fixMovement = switch (direction.getAxis()) {
@@ -213,16 +207,16 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
         Vector2d vector2d = new Vector2d(getBlockPos().getCenter().x, getBlockPos().getCenter().z);
         Optional<FallingGiantAnvilEntity> fallingGiantAnvilEntity = level.getEntitiesOfClass(FallingGiantAnvilEntity.class, new AABB(
-                getBlockPos().getX(),
-                getBlockPos().getY() - 2,
-                getBlockPos().getZ(),
-                getBlockPos().getX() + 1,
-                getBlockPos().getY() - 12,
-                getBlockPos().getZ() + 1
-            )).stream()
-            .sorted((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()))
-            .filter(entity -> vector2d.distance(entity.position().x, entity.position().z) <= 0.25)
-            .findFirst();
+                        getBlockPos().getX(),
+                        getBlockPos().getY() - 2,
+                        getBlockPos().getZ(),
+                        getBlockPos().getX() + 1,
+                        getBlockPos().getY() - 12,
+                        getBlockPos().getZ() + 1
+                )).stream()
+                .sorted((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()))
+                .filter(entity -> vector2d.distance(entity.position().x, entity.position().z) <= 0.25)
+                .findFirst();
         if (fallingGiantAnvilEntity.isPresent()) {
             if (giantAnvilPos != null && fallingGiantAnvilEntity.get().position().distanceTo(getBlockPos().getCenter()) < giantAnvilPos.getCenter().distanceTo(getBlockPos().getCenter())) {
                 giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.get().position());
@@ -252,8 +246,8 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         BlockPos newPos = getBlockPos().below(4);
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             level.setBlockAndUpdate(newPos.offset(part.getOffset()), ModBlocks.GIANT_ANVIL.getDefaultState()
-                .setValue(GiantAnvilBlock.HALF, part)
-                .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
+                    .setValue(GiantAnvilBlock.HALF, part)
+                    .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
         }
         fallingGiantAnvilEntity.ifPresent(Entity::kill);
@@ -266,8 +260,8 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
 
     public static boolean canBeAccelerated(Entity entity) {
         return entity instanceof FallingBlockEntity fallingBlockEntity && fallingBlockEntity.getBlockState().is(BlockTags.ANVIL) && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
-            || entity instanceof Projectile
-            || (entity instanceof Player player && isPlayerCanBeAccelerated(player));
+                || entity instanceof Projectile
+                || (entity instanceof Player player && isPlayerCanBeAccelerated(player));
     }
 
     private static boolean isPlayerCanBeAccelerated(Player player) {

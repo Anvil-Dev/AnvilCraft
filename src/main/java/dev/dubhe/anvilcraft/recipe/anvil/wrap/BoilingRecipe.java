@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -36,17 +37,18 @@ public class BoilingRecipe extends AbstractProcessRecipe<BoilingRecipe> {
     ) {
         super(
             new Property()
-                .setItemInputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
+                .setItemInputRange(new Vec3(0.75, 0.75, 0.75))
                 .setInputItems(itemIngredients)
-                .setItemOutputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setItemOutputOffset(new Vec3(0.0, -0.75, 0.0))
                 .setResultItems(results)
-                .setCauldronOffset(new Vec3(0.0, -1.0, 0.0))
+                .setCauldronOffset(new Vec3i(0, -1, 0))
                 .setHasCauldron(
                     HasCauldronSimple
                         .fluid(ResourceLocation.withDefaultNamespace("water"))
                         .build()
                 )
-                .setBlockInputOffset(new Vec3(0.0, -2.0, 0.0))
+                .setBlockInputOffset(new Vec3i(0, -2, 0))
                 .setInputBlocks(
                     BlockStatePredicate.builder()
                         .of(Blocks.CAMPFIRE)

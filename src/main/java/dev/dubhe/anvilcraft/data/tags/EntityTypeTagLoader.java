@@ -28,7 +28,7 @@ public class EntityTypeTagLoader {
 
         provider.addTag(ModEntityTypeTags.EMERALD_AMULET_VALID)
             .add(findResourceKey(EntityType.IRON_GOLEM))
-            .add(findResourceKey(EntityType.PILLAGER));
+            .addTag(EntityTypeTags.ILLAGER);
 
         provider.addTag(ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
             .add(findResourceKey(EntityType.GUARDIAN))

@@ -1,0 +1,28 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "id": "anvilcraft:ember_anvil"
+  },
+  "consume": false,
+  "hitBlock": {
+    "id": "anvilcraft:plutonium_block"
+  },
+  "output_items": [],
+  "speed": 256,
+  "transform_blocks": [
+    {
+      "chance": 1.0,
+      "input": {
+        "tag": "anvilcraft:overheatable"
+      },
+      "max_count": 16,
+      "output": {
+        "beData": {
+          "duration": 1200
+        },
+        "chance": 1.0,
+        "id": "anvilcraft:overheated_ember_metal_block"
+      }
+    }
+  ]
+}

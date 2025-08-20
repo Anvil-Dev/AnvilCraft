@@ -1,5 +1,11 @@
 {
   "type": "anvilcraft:time_warp",
+  "heat": [
+    {
+      "duration": 12000,
+      "tier": "incandescent"
+    }
+  ],
   "ingredients": [
     {
       "items": "anvilcraft:plutonium_block"

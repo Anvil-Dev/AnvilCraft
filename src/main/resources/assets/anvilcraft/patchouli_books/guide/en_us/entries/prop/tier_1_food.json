@@ -65,20 +65,20 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:white_chocolate_block",
-      "text": "站在巧克力块/楼梯/台阶上可以获得效果：$(li)巧克力：迅捷II $(li)黑巧克力：迅捷I 急迫I $(li)白巧克力：迅捷I 跳跃提升I $(br)$(#666666)原始信标$()"
+      "text": "站在巧克力块/楼梯/台阶上可以获得效果：$(li)巧克力：迅捷II $(li)黑巧克力：迅捷I 急迫I $(li)白巧克力：迅捷I 跳跃提升I $(p)$(#888888)原始信标$()"
     },
     {
       "type": "patchouli:spotlight",
       "anchor": "beef_mushroom_stew",
       "item": "anvilcraft:beef_mushroom_stew",
       "link_recipe": true,
-      "text": "食用牛肉炖蘑菇可以提供10点$(thing)饥饿值$()与16点$(thing)饱食度$()$(br2)用生牛肉+红蘑菇+白蘑菇+碗$(l:basic/item_processing#cooking)烹饪$()获得 $(br2)$(#666666)蘑菇牛真好吃$()"
+      "text": "食用牛肉炖蘑菇可以提供10点$(thing)饥饿值$()与16点$(thing)饱食度$()$(br2)用生牛肉+红蘑菇+棕蘑菇+碗$(l:basic/item_processing#cooking)烹饪$()获得 $(p)$(#888888)蘑菇牛真好吃$()"
     },
     {
       "type": "anvilcraft:cooking",
       "anchor": "utusan",
       "recipe": "anvilcraft:cooking/utusan",
-      "text": "服用后可以清除身上的所有$(thing)有害效果$() $(br2)但如果本没有有害效果，则获得持续30秒的$(thing)中毒V$()效果 $(br2)$(#888888)是药三分毒$()"
+      "text": "服用后可以清除身上的所有$(thing)有害效果$() $(br2)但如果本没有有害效果，则获得持续30秒的$(thing)中毒V$()效果 $(p)$(#888888)是药三分毒$()"
     }
   ]
 }

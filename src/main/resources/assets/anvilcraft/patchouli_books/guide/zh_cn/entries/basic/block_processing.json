@@ -118,7 +118,7 @@
       "enable_visualize": "false",
       "text": "使炼药锅中出现对应的单层液体。右侧列表给出了更多可以发生此种转化的例子。"
     },
-    "$(item)湿海绵$()→$(item)海绵$()+$(item)水$()$(br)$(item)苔藓块$()→$(item)覆地苔藓$()+$(item)水$()$(br)$(item)岩浆块$()→$(item)下界岩$()+$(item)熔岩$()$(br)$(item)雪块$()→$(item)冰$()+$(item)细雪$()$(br)$(item)满蜂巢$()→$(item)空蜂巢$()+$(item)蜂蜜$()（特殊地，当下方是三层$(item)蜂蜜$()时，继续砸$(item)满蜂巢$()会将所有$(item)蜂蜜$()压成一个$(item)蜂蜜块$()。上述$(item)蜂巢$()皆可换成$(item)蜂箱$()）",
+    "$(item)湿海绵$()→$(item)海绵$()+$(item)水$()$(br)$(item)苔藓块$()→$(item)覆地苔藓$()+$(item)水$()$(br)$(item)岩浆块$()→$(item)下界岩$()+$(item)熔岩$()$(br)$(item)雪块$()→$(item)冰$()+$(item)细雪$()$(br)$(item)满蜂巢$()→$(item)空蜂巢$()+$(item)蜂蜜$() $(br)当炼药锅集满4层蜂蜜时，可以用漏斗等方块取出$(item)蜂蜜块$()",
     {
       "type": "patchouli:multiblock",
       "anchor": "break",

@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftKubeRecipe;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.BlockStatePredicateComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceBlockStateComponent;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
@@ -46,11 +46,12 @@ public interface BlockSmearRecipeSchema {
 
         @Override
         protected void validate() {
-            if (this.computeIfAbsent(INPUTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Inputs is Empty!").source(sourceLine);
+            List<BlockStatePredicate> inputs = this.computeIfAbsent(INPUTS, ArrayList::new);
+            if (inputs.size() != 2) {
+                throw new KubeRuntimeException("Inputs must have 2 elements!").source(sourceLine);
             }
             if (getValue(RESULT) == null) {
-                throw new KubeRuntimeException("Result is Empty!").source(sourceLine);
+                throw new KubeRuntimeException("Result is null!").source(sourceLine);
             }
         }
     }
@@ -65,7 +66,7 @@ public interface BlockSmearRecipeSchema {
         .defaultOptional();
 
     RecipeSchema SCHEMA = new RecipeSchema(INPUTS, RESULT)
-        .factory(new KubeRecipeFactory(AnvilCraft.of("block_crush"), BlockSmearKubeRecipe.class, BlockSmearKubeRecipe::new))
+        .factory(new KubeRecipeFactory(AnvilCraft.of("block_smear"), BlockSmearKubeRecipe.class, BlockSmearKubeRecipe::new))
         .constructor(INPUTS, RESULT)
         .constructor(new IDRecipeConstructor())
         .constructor();

@@ -2,13 +2,13 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.api.item.property.BoxContents;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import net.minecraft.core.BlockPos;
@@ -96,7 +96,7 @@ public class PlayerEventListener {
         ) {
             ItemStack availableItem = player.getItemInHand(event.getHandHolding());
             BoxContents boxContents = availableItem.get(ModComponents.BOX_CONTENTS);
-            AmuletManager.INSTANCE.startRaffle(player, event.getSource(), !boxContents.getTotems().isEmpty());
+            AmuletManager.INSTANCE.startRaffle(player, event.getSource(), !boxContents.totems().isEmpty());
         }
     }
 

@@ -8,8 +8,7 @@
     "anvilcraft:multiphase_matter": 5
   },
   "pages": [
-    "铁砧以高速撞击一些特定的方块时，会产生特定的物质。$(br2)搭建一套环形加速器，需要若干$(l:power/large_electromagnet#acceleration_ring)加速环$()和$(l:power/large_electromagnet#deflection_ring)偏转环$()，并要提供至少3072kW的能量。$(br2)$(#888888)通过原版的堆叠TNT加速，水流防爆等机制，可以制作不需要电的对撞机，但较有挑战性。$()",
-    {
+    "铁砧以高速撞击一些特定的方块时，会产生特定的物质。$(br2)搭建一套环形加速器，需要若干$(l:power/large_electromagnet#acceleration_ring)加速环$()和$(l:power/large_electromagnet#deflection_ring)偏转环$()。$(br2)$(#888888)通过原版的堆叠TNT加速，水流防爆等机制，可以制作不需要电的对撞机，但较有挑战性。$()",    {
       "type": "patchouli:multiblock",
       "name": "建立环形加速器",
       "multiblock": {
@@ -29,7 +28,7 @@
           ["                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       ","                       "]
         ]
       },
-      "text": "结构越大，加速越稳定也越快。而过小的结构则无法加速到可撞击速度。"
+      "text": "这此提供一个样例"
     },
     {
       "type": "patchouli:multiblock",
@@ -54,19 +53,24 @@
     },
     {
       "type": "patchouli:spotlight",
+      "item": "minecraft:comparator",
+      "text": "$(thing)比较器$()可以从偏转环读取经过的铁砧的速度(单位: m/tick)，并按一定公式转化为红石信号输出： $(li)32<V≤45.25 : 强度 9 $(li)64<V≤90.51 : 强度 11 $(li)128<V≤181.02 : 强度 13 $(p)公式：红石信号=$(br)2*[(以2为底,速度的对数) - 1] $(br)向上取整，小于0的都是0"
+    },
+    {
+      "type": "patchouli:spotlight",
       "item": "anvilcraft:block_placer",
-      "text": "加速一段时间后，对一个拐角的$(item)偏转环$()施加红石信号使其失效，铁砧就可以从此处飞出加速装置，进入撞击室。$(br2)通过铁砧砸击$(l:basic/more_device#block_placer)方块放置器$()使其可以隔着墙壁放置被撞击方块；使用$(l:power/consumption#item_collector)物品收集器$()隔墙收集。"
+      "text": "检测加速到一定速度后，对一个拐角的$(item)偏转环$()施加红石信号使其失效，铁砧就可以从此处飞出加速装置，进入撞击室。$(br2)通过铁砧砸击$(l:basic/more_device#block_placer)方块放置器$()使其可以隔着墙壁放置被撞击方块；使用$(l:power/consumption#item_collector)物品收集器$()隔墙收集。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "minecraft:anvil",
       "title": "撞击合成配方",
-      "text": "部分撞击配方需要一定等级及以上的铁砧，部分撞击不消耗铁砧，具体如下：$(li)红石块+皇家铁砧(不消耗)→$(item)铀粒$()$(li)飘浮粉块+皇家铁砧(不消耗)→$(item)负物质粒$()"
+      "text": "撞击配方需要消耗被撞击的方块，需要铁砧的速度达到一定标注，部分撞击不消耗铁砧，具体如下：$(li)红石块+皇家铁砧(不消耗)(等级可更高)[>32m/t]→均8.5*$(item)铀粒$() $(li)飘浮粉块+皇家铁砧(不消耗)(等级可更高)[>32m/t]→均7.5*$(item)负物质粒$()"
     },
     {
       "type": "patchouli:text",
       "title": "撞击合成配方",
-      "text": "$(li)$(item)浮霜金属块$()+余烬铁砧→$(item)多相物质$()$(li)$(item)负物质块$()+铁砧→$(item)虚空物质$()$(br2)更多配方会在介绍新材料的合成方式时提及。"
+      "text": "$(li)$(item)负物质块$()+铁砧[>32m/t]→$(item)虚空物质$() $(br2)更多配方会在介绍新材料的合成方式时提及。"
     },
     {
       "type": "patchouli:relations",
@@ -75,4 +79,5 @@
       ],
       "text": ""
     }
-  ]}
+  ]
+}

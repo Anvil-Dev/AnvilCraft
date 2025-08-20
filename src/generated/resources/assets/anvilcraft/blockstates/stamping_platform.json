@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,waterlogged=false": {
+      "model": "anvilcraft:block/stamping_platform",
+      "y": 90
+    },
+    "facing=east,waterlogged=true": {
+      "model": "anvilcraft:block/stamping_platform",
+      "y": 90
+    },
+    "facing=north,waterlogged=false": {
+      "model": "anvilcraft:block/stamping_platform"
+    },
+    "facing=north,waterlogged=true": {
+      "model": "anvilcraft:block/stamping_platform"
+    },
+    "facing=south,waterlogged=false": {
+      "model": "anvilcraft:block/stamping_platform",
+      "y": 180
+    },
+    "facing=south,waterlogged=true": {
+      "model": "anvilcraft:block/stamping_platform",
+      "y": 180
+    },
+    "facing=west,waterlogged=false": {
+      "model": "anvilcraft:block/stamping_platform",
+      "y": 270
+    },
+    "facing=west,waterlogged=true": {
+      "model": "anvilcraft:block/stamping_platform",
+      "y": 270
+    }
+  }
+}

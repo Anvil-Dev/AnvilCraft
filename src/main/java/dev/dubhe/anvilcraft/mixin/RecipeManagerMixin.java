@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -10,7 +11,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeManager;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeManager;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import dev.dubhe.anvilcraft.recipe.generate.MeshRecipeGeneratingCache;
@@ -34,6 +35,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -85,14 +87,10 @@ abstract class RecipeManagerMixin implements IRecipeManager {
     )
     private void beforeBuildRecipe(
         Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
-        @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache,
-        @Share("meshesCache") LocalRef<MeshRecipeGeneratingCache> meshesCache
+        @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache
     ) {
         JewelCraftingRecipeGeneratingCache jewelsCache1 = new JewelCraftingRecipeGeneratingCache(this.registries);
         jewelsCache.set(jewelsCache1);
-
-        MeshRecipeGeneratingCache meshesCache1 = new MeshRecipeGeneratingCache(this.registries);
-        meshesCache.set(meshesCache1);
     }
 
     @Inject(
@@ -105,20 +103,12 @@ abstract class RecipeManagerMixin implements IRecipeManager {
         Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
         @Local ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byTypeBuilder,
         @Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byNameBuilder,
-        @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache,
-        @Share("meshesCache") LocalRef<MeshRecipeGeneratingCache> meshesCache
+        @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache
     ) {
         jewelsCache.get().buildRecipes()
             .ifPresent(recipeHolders -> {
                 byTypeBuilder.putAll(ModRecipeTypes.JEWEL_CRAFTING_TYPE.get(), recipeHolders);
                 for (RecipeHolder<JewelCraftingRecipe> holder : recipeHolders) {
-                    byNameBuilder.put(holder.id(), holder);
-                }
-            });
-        meshesCache.get().buildRecipes()
-            .ifPresent(recipeHolders -> {
-                byTypeBuilder.putAll(ModRecipeTypes.MESH_TYPE.get(), recipeHolders);
-                for (RecipeHolder<MeshRecipe> holder : recipeHolders) {
                     byNameBuilder.put(holder.id(), holder);
                 }
             });
@@ -144,7 +134,9 @@ abstract class RecipeManagerMixin implements IRecipeManager {
     @Override
     public void anc$addRecipes(@NotNull List<RecipeHolder<InWorldRecipe>> recipes) {
         ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byNameBuilder = ImmutableMap.builder();
-        ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byTypeBuilder = ImmutableMultimap.builder();
+        Multimap<RecipeType<?>, RecipeHolder<?>> byTypeBuilder = MultimapBuilder.hashKeys().<RecipeHolder<?>>treeSetValues(
+            Comparator.comparing(RecipeHolder::id)
+        ).build();
         Set<ResourceLocation> keys = new HashSet<>();
         this.byName.forEach((key, value) -> {
             if (key == null || value == null) return;
@@ -162,7 +154,16 @@ abstract class RecipeManagerMixin implements IRecipeManager {
             byNameBuilder.put(recipe.id(), recipe);
             byTypeBuilder.put(recipe.value().getType(), recipe);
         });
+        new MeshRecipeGeneratingCache(this.registries).buildRecipes()
+            .ifPresent(recipeHolders -> {
+                byTypeBuilder.putAll(ModRecipeTypes.MESH_TYPE.get(), recipeHolders);
+                for (RecipeHolder<MeshRecipe> holder : recipeHolders) {
+                    if (keys.contains(holder.id())) continue;
+                    keys.add(holder.id());
+                    byNameBuilder.put(holder.id(), holder);
+                }
+            });
         this.byName = byNameBuilder.build();
-        this.byType = byTypeBuilder.build();
+        this.byType = ImmutableMultimap.copyOf(byTypeBuilder);
     }
 }

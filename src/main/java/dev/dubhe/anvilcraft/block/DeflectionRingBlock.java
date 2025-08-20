@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import net.minecraft.core.BlockPos;
@@ -45,25 +46,6 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
             .setValue(OVERLOAD, true)
             .setValue(SWITCH, IPowerComponent.Switch.ON));
     }
-
-//    @Override
-//    public final void setPlacedBy(
-//        @NotNull Level level,
-//        @NotNull BlockPos pos,
-//        BlockState state,
-//        @Nullable LivingEntity placer,
-//        @NotNull ItemStack stack
-//    ) {
-//        if (!state.hasProperty(this.getPart())) return;
-//        for (DirectionCube3x3PartHalf part : this.getParts()) {
-//            BlockPos blockPos = pos.offset(part.getOffset(state.getValue(getAdditionalProperty())));
-//            if (pos.equals(blockPos)) continue;
-//            BlockState newState = placer == null ? placedState(part, state) :
-//                placedState(part, state)
-//                    .setValue(FACING, placer.isShiftKeyDown() ? Direction.orderedByNearest(placer)[0].getOpposite() : Direction.orderedByNearest(placer)[0]);
-//            level.setBlockAndUpdate(blockPos, newState);
-//        }
-//    }
 
     @Override
     public @NotNull Property<DirectionCube3x3PartHalf> getPart() {
@@ -146,17 +128,17 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    public boolean hasAnalogOutputSignal(@NotNull BlockState state) {
+    protected boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        BlockPos centerPos = pos.subtract(state.getValue(HALF).getOffset()).offset(0, 1, 0);
-        if (level.getBlockEntity(centerPos) instanceof DeflectionRingBlockEntity deflectionRingBlockEntity && deflectionRingBlockEntity.isOverSpeed()) {
-            return 15;
-        }
-        return 0;
+    protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+        if (!(blockState.getBlock() instanceof AbstractMultiPartBlock<?> abstractMultiPartBlock)) return 0;
+        BlockPos blockPos = abstractMultiPartBlock.getMainPartPos(pos, blockState);
+        if (!(level.getBlockEntity(blockPos) instanceof DeflectionRingBlockEntity blockEntity)) return 0;
+        if (blockEntity.getLastEntitySpeed() <= 0) return 0;
+        return Math.max(0, (int) (Math.log(blockEntity.getLastEntitySpeed()) / Math.log(2) * 2) - 1);
     }
 
     @Override

@@ -39,6 +39,7 @@ import dev.dubhe.anvilcraft.network.SwitchPhasePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.SyncEmberGrindstonePacket;
 import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
+import dev.dubhe.anvilcraft.network.UpdateDeflectionRingLastEntitySpeedPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -244,6 +245,11 @@ public class ModNetworks {
             SwitchMultitoolModePacket.TYPE,
             SwitchMultitoolModePacket.STREAM_CODEC,
             SwitchMultitoolModePacket.HANDLER
+        );
+        registrar.playToClient(
+            UpdateDeflectionRingLastEntitySpeedPacket.TYPE,
+            UpdateDeflectionRingLastEntitySpeedPacket.STREAM_CODEC,
+            UpdateDeflectionRingLastEntitySpeedPacket.HANDLER
         );
     }
 }

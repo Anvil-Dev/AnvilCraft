@@ -3,10 +3,9 @@ package dev.dubhe.anvilcraft.api.data;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.api.item.property.Multiphase;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModCustomDataComponents;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.core.component.DataComponentType;
@@ -22,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public abstract class MultiphaseData implements ICustomDataComponent<Multiphase> {
     private final Object2BooleanMap<Pair<Integer, DataComponentType<?>>> required;

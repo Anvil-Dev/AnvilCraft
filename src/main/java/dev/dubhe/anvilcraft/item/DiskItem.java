@@ -1,18 +1,14 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.init.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,10 +20,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 
 public class DiskItem extends Item {
 
@@ -70,21 +64,21 @@ public class DiskItem extends Item {
     }
 
     @Override
-    public boolean isEnchantable(@NotNull ItemStack stack) {
+    public boolean isEnchantable(ItemStack stack) {
         return false;
     }
 
     @Override
-    public boolean isFoil(@NotNull ItemStack stack) {
+    public boolean isFoil(ItemStack stack) {
         return hasDataStored(stack);
     }
 
     @Override
     public void appendHoverText(
-        @NotNull ItemStack stack,
-        @NotNull Item.TooltipContext context,
-        @NotNull List<Component> tooltipComponents,
-        @NotNull TooltipFlag isAdvanced) {
+        ItemStack stack,
+        Item.TooltipContext context,
+        List<Component> tooltipComponents,
+        TooltipFlag isAdvanced) {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
             ResourceLocation storedFrom = ResourceLocation.parse(getData(stack).getString("StoredFrom"));
@@ -99,7 +93,7 @@ public class DiskItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResult useOn(UseOnContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         if (level.isClientSide) return InteractionResult.PASS;
         Player player = context.getPlayer();
@@ -111,10 +105,7 @@ public class DiskItem extends Item {
         ItemStack stack = context.getItemInHand();
         if (hasDataStored(stack)) {
             CompoundTag tag = getData(stack);
-            if (!tag.getString("StoredFrom")
-                .equals(BuiltInRegistries.BLOCK_ENTITY_TYPE
-                    .getKey(blockEntity.getType())
-                    .toString())) {
+            if (!tag.getString("StoredFrom").equals(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()).toString())) {
                 player.displayClientMessage(MESSAGE_INCOMPATIBLE, true);
                 return InteractionResult.FAIL;
             }
@@ -124,9 +115,8 @@ public class DiskItem extends Item {
             CompoundTag tag = createData(stack);
             tag.putString(
                 "StoredFrom",
-                BuiltInRegistries.BLOCK_ENTITY_TYPE
-                    .getKey(blockEntity.getType())
-                    .toString());
+                BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()).toString()
+            );
             diskCloneable.storeDiskData(tag);
             player.displayClientMessage(MESSAGE_STORED, true);
         }
@@ -134,8 +124,8 @@ public class DiskItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(
-        Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
+    public InteractionResultHolder<ItemStack> use(
+        Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             if (hasDataStored(itemStack)) {
@@ -156,32 +146,9 @@ public class DiskItem extends Item {
         return Component.translatable(MESSAGE_PREFIX + suffix);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Component messageFailed(String suffix) {
         return Component.translatable(MESSAGE_PREFIX + suffix)
             .withStyle(ChatFormatting.RED);
-    }
-
-    public record DiskData(CompoundTag tag) {
-        public static final Codec<DiskData> CODEC = RecordCodecBuilder.create(
-            ins -> ins.group(CompoundTag.CODEC.fieldOf("tag").forGetter(DiskData::tag))
-                .apply(ins, DiskData::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, DiskData> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.COMPOUND_TAG, DiskData::tag, DiskData::new);
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj instanceof DiskData diskData) {
-                return tag.equals(diskData.tag);
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(tag);
-        }
     }
 }

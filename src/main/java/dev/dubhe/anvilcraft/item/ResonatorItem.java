@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.item.IMultipleResult;
-import dev.dubhe.anvilcraft.api.item.property.Merciless;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.ModItemTags;
+import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -122,7 +122,7 @@ public abstract class ResonatorItem extends TieredItem implements IMultipleResul
     }
 
     public static int getMode(ItemStack stack) {
-        return stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value();
+        return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value(), 0, 4);
     }
 
     public static void checkTooDamaged(Tier tier, ItemStack stack) {
@@ -266,7 +266,7 @@ public abstract class ResonatorItem extends TieredItem implements IMultipleResul
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        return switch (context.getItemInHand().getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value()) {
+        return switch (ResonatorItem.getMode(context.getItemInHand())) {
             case AXE_MODE -> this.useOnAsAxe(context);
             case SHOVEL_MODE -> this.useOnAsShovel(context);
             case HOE_MODE -> this.useOnAsHoe(context);

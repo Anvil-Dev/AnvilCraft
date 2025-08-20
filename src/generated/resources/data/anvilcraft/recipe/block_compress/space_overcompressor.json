@@ -8,9 +8,7 @@
       "blocks": "anvilcraft:supercritical_nesting_shulker_box"
     }
   ],
-  "results": [
-    {
-      "block": "anvilcraft:space_overcompressor"
-    }
-  ]
+  "result": {
+    "block": "anvilcraft:space_overcompressor"
+  }
 }

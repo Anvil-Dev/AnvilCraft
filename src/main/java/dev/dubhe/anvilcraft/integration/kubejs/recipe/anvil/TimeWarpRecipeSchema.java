@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceItemStackComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ItemIngredientPredicateComponent;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
@@ -138,9 +138,6 @@ public interface TimeWarpRecipeSchema {
         protected void validate() {
             if (computeIfAbsent(INGREDIENTS, ArrayList::new).isEmpty()) {
                 throw new KubeRuntimeException("Inputs is Empty!").source(sourceLine);
-            }
-            if (computeIfAbsent(RESULTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Result is Empty!").source(sourceLine);
             }
         }
     }

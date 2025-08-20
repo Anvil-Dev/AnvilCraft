@@ -8,9 +8,7 @@
       "blocks": "minecraft:dirt"
     }
   ],
-  "results": [
-    {
-      "block": "minecraft:mycelium"
-    }
-  ]
+  "result": {
+    "block": "minecraft:mycelium"
+  }
 }

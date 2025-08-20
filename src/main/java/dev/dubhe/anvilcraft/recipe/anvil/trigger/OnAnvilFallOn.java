@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.recipe.anvil.trigger;
 
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeTrigger;
-
 /**
  * 铁砧落下触发器
  * <p>

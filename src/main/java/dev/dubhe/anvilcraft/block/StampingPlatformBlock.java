@@ -4,8 +4,10 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -13,9 +15,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -25,8 +29,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
+public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, IRecipeResultOffsetBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final VoxelShape REDUCE_AABB = Shapes.or(
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
@@ -41,13 +46,18 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
 
     public StampingPlatformBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
+        this.registerDefaultState(
+            this.stateDefinition.any()
+                .setValue(WATERLOGGED, false)
+                .setValue(FACING, Direction.NORTH)
+        );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED);
+        builder.add(FACING);
     }
 
     @Override
@@ -72,12 +82,13 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
-        BlockPos blockPos = blockPlaceContext.getClickedPos();
-        FluidState fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
-        BlockState state = super.getStateForPlacement(blockPlaceContext);
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockPos blockPos = context.getClickedPos();
+        FluidState fluidState = context.getLevel().getFluidState(blockPos);
+        BlockState state = super.getStateForPlacement(context);
         state = null != state ? state : this.defaultBlockState();
-        return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+        Direction facing = context.getHorizontalDirection().getOpposite();
+        return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER).setValue(FACING, facing);
     }
 
     @Override
@@ -105,5 +116,12 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
     @Override
     protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return false;
+    }
+
+    @Override
+    public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
+        if (!(state.getBlock() instanceof StampingPlatformBlock)) return Vec3.ZERO;
+        Vec3i normal = state.getValue(FACING).getNormal();
+        return new Vec3(normal.getX(), normal.getY(), normal.getZ()).scale(0.7);
     }
 }

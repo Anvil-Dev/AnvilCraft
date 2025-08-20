@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.data;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import dev.dubhe.anvilcraft.recipe.anvil.ISerializer;
+import dev.dubhe.anvilcraft.recipe.anvil.util.ISerializer;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;

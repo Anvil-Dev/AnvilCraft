@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:charger_charging",
+  "ingredient": {
+    "item": "anvilcraft:supercapacitor"
+  },
+  "power": 640,
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:supercapacitor_empty"
+  },
+  "time": 2400
+}

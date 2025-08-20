@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.entity;
 
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModEntities;
@@ -115,7 +115,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                 new AABB(current),
                 predicate
             ).forEach(it -> it.hurt(level().damageSources().anvil(this), Math.min(40f, fallDistance * 2)));
-            NeoForge.EVENT_BUS.post(new AnvilFallOnLandEvent(level(), current, this, fallDistance));
+            NeoForge.EVENT_BUS.post(new AnvilEvent.OnLand(level(), current, this, fallDistance));
         }
         this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
     }

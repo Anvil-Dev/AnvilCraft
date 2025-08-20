@@ -59,9 +59,9 @@ public class MassInjectRecipeLoader {
             .put(ModItemTags.TRANSCENDIUM_NUGGETS, 250)
             .put(ModItemTags.TRANSCENDIUM_INGOTS, 2500)
             .put(ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM, 25000)
-            .put(ModItemTags.FROST_METAL_NUGGETS, 300)
-            .put(ModItemTags.FROST_METAL_INGOTS, 3000)
-            .put(ModItemTags.STORAGE_BLOCKS_FROST_METAL, 30000)
+            .put(ModItemTags.FROST_METAL_NUGGETS, 30)
+            .put(ModItemTags.FROST_METAL_INGOTS, 300)
+            .put(ModItemTags.STORAGE_BLOCKS_FROST_METAL, 3000)
             .build();
         tagRecipes.forEach((tag, mass) -> addTag(provider, tag, mass));
 

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.init.ModComponents;
-import dev.dubhe.anvilcraft.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -108,9 +108,9 @@ public abstract class HasMobBlockEntity extends BlockEntity {
     @Override
     protected void applyImplicitComponents(DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
-        HasMobBlockItem.SavedEntity savedEntity = componentInput.get(ModComponents.SAVED_ENTITY);
+        SavedEntity savedEntity = componentInput.get(ModComponents.SAVED_ENTITY);
         if (savedEntity == null) return;
-        this.setEntity(savedEntity.getTag());
+        this.setEntity(savedEntity.tag());
     }
 
     @Override
@@ -120,7 +120,7 @@ public abstract class HasMobBlockEntity extends BlockEntity {
             this.getEntity(this.level);
         }
         if (!(this.displayEntity instanceof Mob mob)) return;
-        components.set(ModComponents.SAVED_ENTITY, HasMobBlockItem.SavedEntity.fromMob(mob));
+        components.set(ModComponents.SAVED_ENTITY, SavedEntity.fromMob(mob));
     }
 
     @Override

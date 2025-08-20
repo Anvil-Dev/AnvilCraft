@@ -1,12 +1,14 @@
 package dev.dubhe.anvilcraft.api.anvil;
 
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,7 +24,7 @@ public interface IAnvilBehavior {
         BlockPos hitBlockPos,
         BlockState hitBlockState,
         float fallDistance,
-        AnvilFallOnLandEvent event
+        AnvilEvent.OnLand event
     );
 
     default int priority() {
@@ -37,7 +39,7 @@ public interface IAnvilBehavior {
         BEHAVIORS.put(pred, behavior);
     }
 
-    static List<IAnvilBehavior> findMatching(BlockState state) {
+    static @NotNull @Unmodifiable List<IAnvilBehavior> findMatching(BlockState state) {
         return BEHAVIORS.keySet().stream()
             .filter(it -> it.test(state))
             .map(BEHAVIORS::get)

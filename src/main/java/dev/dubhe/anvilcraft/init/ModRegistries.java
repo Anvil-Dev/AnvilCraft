@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeTrigger;
 import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.IRecipeOutcome;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.trigger.IRecipeTrigger;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;

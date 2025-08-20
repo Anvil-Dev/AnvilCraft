@@ -26,20 +26,18 @@ public class ChargerChargingRecipeLoader {
             .power(64)
             .time(20 * 60)
             .save(provider);
-        /* //Super Capacitor is not implemented yet
-        ChargingDischargingRecipe.builder()
+        ChargerChargingRecipe.builder()
             .requires(ModItems.SUPER_CAPACITOR_EMPTY)
             .result(ModItems.SUPER_CAPACITOR)
             .power(-700)
             .time(20 * 120)
             .save(provider);
-        ChargingDischargingRecipe.builder()
+        ChargerChargingRecipe.builder()
             .requires(ModItems.SUPER_CAPACITOR)
             .result(ModItems.SUPER_CAPACITOR_EMPTY)
             .power(640)
             .time(20 * 120)
             .save(provider);
-        * */
         ChargerChargingRecipe.builder()
             .requires(ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
             .result(ModItems.CHARGED_NEUTRONIUM_INGOT)

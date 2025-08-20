@@ -130,7 +130,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "（此处为对撞配方，等待对撞适配）在对撞装置尾部放上$(l:smithing/tier_2_materials#frost_metal_block_and_nugget)一块浮霜金属块$(/l)，并成功执行一次对撞获得。"
+      "text": "使用$(item)余烬铁砧$()[速度>32m/t]$(l:struct/high_speed_impact)撞击$()一块$(l:smithing/tier_2_materials#frost_metal_block_and_nugget)浮霜金属块$(/l)，获得4个$(item)多相物质$()"
     },
     {
       "type": "patchouli:crafting",

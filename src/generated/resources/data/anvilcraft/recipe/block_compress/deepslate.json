@@ -8,9 +8,7 @@
       "blocks": "minecraft:stone"
     }
   ],
-  "results": [
-    {
-      "block": "minecraft:deepslate"
-    }
-  ]
+  "result": {
+    "block": "minecraft:deepslate"
+  }
 }

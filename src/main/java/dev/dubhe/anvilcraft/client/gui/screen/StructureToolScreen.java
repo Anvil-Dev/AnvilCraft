@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
+import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
@@ -60,8 +61,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static dev.dubhe.anvilcraft.item.StructureToolItem.StructureData;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -200,9 +199,9 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             guiGraphics.drawString(font, "Z: " + structureData.getSizeZ(), 24, 60, 0xFFFFFFFF, true);
 
             int blockCount = 0;
-            for (int x = structureData.getMinX(); x <= structureData.getMaxX(); x++) {
-                for (int y = structureData.getMinY(); y <= structureData.getMaxY(); y++) {
-                    for (int z = structureData.getMinZ(); z <= structureData.getMaxZ(); z++) {
+            for (int x = structureData.minX(); x <= structureData.maxX(); x++) {
+                for (int y = structureData.minY(); y <= structureData.maxY(); y++) {
+                    for (int z = structureData.minZ(); z <= structureData.maxZ(); z++) {
                         if (!level.getBlockState(new BlockPos(x, y, z)).is(Blocks.AIR)) {
                             blockCount++;
                         }
@@ -377,11 +376,11 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             BlockPattern pattern = BlockPattern.create();
             currentSymbol = '@';
             BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
-            for (int y = data.getMinY(); y <= data.getMaxY(); y++) {
+            for (int y = data.minY(); y <= data.maxY(); y++) {
                 List<String> layer = new ArrayList<>();
-                for (int z = data.getMinZ(); z <= data.getMaxZ(); z++) {
+                for (int z = data.minZ(); z <= data.maxZ(); z++) {
                     StringBuilder sb = new StringBuilder();
-                    for (int x = data.getMinX(); x <= data.getMaxX(); x++) {
+                    for (int x = data.minX(); x <= data.maxX(); x++) {
                         BlockState state = level.getBlockState(mpos.set(x, y, z));
                         if (state.is(Blocks.AIR)) {
                             sb.append(' ');

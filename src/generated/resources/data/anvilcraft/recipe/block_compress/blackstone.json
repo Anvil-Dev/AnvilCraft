@@ -8,9 +8,7 @@
       "blocks": "minecraft:basalt"
     }
   ],
-  "results": [
-    {
-      "block": "minecraft:blackstone"
-    }
-  ]
+  "result": {
+    "block": "minecraft:blackstone"
+  }
 }

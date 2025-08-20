@@ -2,13 +2,16 @@ package dev.dubhe.anvilcraft.recipe.anvil.outcome;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.init.ModRecipeOutcomeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.block.IRecipeResultOffsetBlock;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipeOutcomeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.cache.BlockCache;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.ItemCache;
+import dev.dubhe.anvilcraft.recipe.anvil.cache.item.ICacheOutput;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,6 +19,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.phys.Vec3;
@@ -95,7 +99,15 @@ public class SpawnItem implements IRecipeOutcome<SpawnItem> {
     public void accept(@NotNull InWorldRecipeContext context) {
         ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
         ItemStack stack = this.item.copyWithCount(context.getInt(this.count, 0, 99));
-        ItemCache.ICacheOutput output = cache.getOutput(stack, context.getPos().add(this.offset));
+        BlockCache blockCache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        Vec3 offset = context.getPos().add(this.offset);
+        BlockPos blockPos = BlockPos.containing(offset);
+        BlockState state = blockCache.getBlockState(blockPos);
+        if (state.getBlock() instanceof IRecipeResultOffsetBlock block) {
+            Vec3 offset1 = block.getOffset(context.getLevel(), blockPos, state);
+            offset = offset.add(offset1);
+        }
+        ICacheOutput output = cache.getOutput(stack, offset);
         output.grow(stack, true);
         context.putAcceptor(ItemCache.ITEM_CACHE.location(), ItemCache.DEFAULT_ACCEPTOR);
     }

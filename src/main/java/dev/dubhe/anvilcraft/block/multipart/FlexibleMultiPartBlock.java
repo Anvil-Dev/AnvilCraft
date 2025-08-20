@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.multipart;
 
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
 import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.function.Function;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -28,10 +29,10 @@ import java.util.Arrays;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public abstract class FlexibleMultiPartBlock<
-    P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>,
-    T extends Property<E>,
-    E extends Comparable<E>
-    > extends AbstractMultiPartBlock<P> {
+        P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>,
+        T extends Property<E>,
+        E extends Comparable<E>
+        > extends AbstractMultiPartBlock<P> {
     final P mainPart;
 
     public FlexibleMultiPartBlock(Properties properties) {
@@ -44,6 +45,17 @@ public abstract class FlexibleMultiPartBlock<
     public abstract P[] getParts();
 
     public abstract T getAdditionalProperty();
+
+    public void forEachPart(Level level, BlockPos pos, Function<BlockPos> function) {
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(this)) return;
+        for (P part : getParts()) {
+            BlockPos partPos = pos.offset(this.offsetFrom(state, part));
+            if (level.getBlockState(partPos).is(this)) {
+                function.invoke(partPos);
+            }
+        }
+    }
 
     public <J extends Property<H>, H extends Comparable<H>> void updateState(Level level, BlockPos pos, J property, H value, int flag) {
         BlockState state = level.getBlockState(pos);
@@ -79,7 +91,7 @@ public abstract class FlexibleMultiPartBlock<
     @Override
     public BlockPos getMainPartPos(BlockPos pos, BlockState state) {
         return pos.subtract(this.getOffset(state))
-            .offset(this.mainPart.getOffset(state.getValue(this.getAdditionalProperty())));
+                .offset(this.mainPart.getOffset(state.getValue(this.getAdditionalProperty())));
     }
 
     /**
@@ -89,7 +101,7 @@ public abstract class FlexibleMultiPartBlock<
      * @param block    方块
      */
     public static <P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>, T extends Property<E>, E extends Comparable<E>> void loot(
-        BlockLootSubProvider provider, FlexibleMultiPartBlock<P, T, E> block
+            BlockLootSubProvider provider, FlexibleMultiPartBlock<P, T, E> block
     ) {
         for (P part : block.getParts()) {
             if (part.isMain()) {
@@ -121,35 +133,35 @@ public abstract class FlexibleMultiPartBlock<
 
     @Override
     protected ItemInteractionResult useItemOn(
-        ItemStack pStack,
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        InteractionHand pHand,
-        BlockHitResult pHitResult) {
+            ItemStack pStack,
+            BlockState pState,
+            Level pLevel,
+            BlockPos pPos,
+            Player pPlayer,
+            InteractionHand pHand,
+            BlockHitResult pHitResult) {
         return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
     }
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        BlockHitResult pHitResult
+            BlockState pState,
+            Level pLevel,
+            BlockPos pPos,
+            Player pPlayer,
+            BlockHitResult pHitResult
     ) {
         return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
     }
 
     @SuppressWarnings("unused")
     public InteractionResult use(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Player player,
-        InteractionHand hand,
-        BlockHitResult hit
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hit
     ) {
         return InteractionResult.PASS;
     }

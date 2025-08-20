@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilHurtEntityEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -30,7 +30,7 @@ public class AnvilHurtVillagerEventListener {
      * @param event 铁砧伤害实体事件
      */
     @SubscribeEvent
-    public static void onAnvilHurtEntity(@NotNull AnvilHurtEntityEvent event) {
+    public static void onAnvilHurtEntity(@NotNull AnvilEvent.HurtEntity event) {
         Entity entity = event.getHurtedEntity();
         Level level = event.getLevel();
         if (level.isClientSide()) return;

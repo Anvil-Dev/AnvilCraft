@@ -2,10 +2,9 @@ package dev.dubhe.anvilcraft.recipe.anvil.outcome;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.ModRecipeOutcomeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeData;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipeOutcomeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeData;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.item.property.Merciless;
 import dev.dubhe.anvilcraft.init.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.SwordItem;
 

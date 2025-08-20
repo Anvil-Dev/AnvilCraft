@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +18,7 @@ public class RedstoneEMPBehavior implements IAnvilBehavior {
         BlockPos pos,
         BlockState hitBlockState,
         float fallDistance,
-        AnvilFallOnLandEvent event
+        AnvilEvent.OnLand event
     ) {
         int radius = AnvilCraft.config.redstoneEmpRadius;
         int maxRadius = AnvilCraft.config.redstoneEmpMaxRadius;

@@ -19,7 +19,7 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:transcendence_dragon_rod",
-      "text": "升级后拥有无限耐久，且没有挖掘冷却。$(br2)同样可以通过锻造升级。"
+      "text": "升级后拥有无限耐久，且挖掘冷却降低为原来的20%。$(br2)同样可以通过锻造升级。"
     },
     {
       "type": "patchouli:relations",

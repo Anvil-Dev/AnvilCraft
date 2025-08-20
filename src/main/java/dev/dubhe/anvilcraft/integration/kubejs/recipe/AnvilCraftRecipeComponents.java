@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.integration.kubejs.recipe;
 
 import com.mojang.serialization.Codec;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeTrigger;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.IRecipeOutcome;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.trigger.IRecipeTrigger;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.recipe.transform.TagModification;

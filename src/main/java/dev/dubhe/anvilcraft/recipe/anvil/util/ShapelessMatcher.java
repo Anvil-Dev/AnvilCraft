@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.util;
 
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

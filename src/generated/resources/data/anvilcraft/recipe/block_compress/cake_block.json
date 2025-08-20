@@ -8,9 +8,7 @@
       "blocks": "anvilcraft:cake_base_block"
     }
   ],
-  "results": [
-    {
-      "block": "anvilcraft:cake_block"
-    }
-  ]
+  "result": {
+    "block": "anvilcraft:cake_block"
+  }
 }

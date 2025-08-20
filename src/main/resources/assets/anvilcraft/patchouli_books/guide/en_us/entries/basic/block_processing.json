@@ -118,7 +118,7 @@
       "enable_visualize": "false",
       "text": "A single layer of liquid will appear in the cauldron. The list on the right gives more examples of where such transformation can occur, some of which can occur consecutively."
     },
-    "$(item)Wet Sponge$() → $(item)Sponge$() + $(item)Water$();$(br)$(item)Moss blocks$() → $(item)Moss Carpet$() + $(item)Water$();$(br)$(item)Magma Block$() → $(item)Netherrack$() + $(item)Lava$();$(br)$(item)Snow Block$() → $(item)Ice$() + $(item)Powder Snow$();$(br)$(item)Full Bee Nest$() → $(item)Empty Bee Nest$() + $(item)Honey$()(Specially, when there are three layers of $(item)Honey$() below, if you continue to squeeze the $(item)Full Bee Nest$(), it will be crushed into a $(item)Honey Block$(). The above $(item)Bee Nest$() can be replaced with $(item)Beehive$())",
+    "$(item)Wet Sponge$() → $(item)Sponge$() + $(item)Water$();$(br)$(item)Moss blocks$() → $(item)Moss Carpet$() + $(item)Water$();$(br)$(item)Magma Block$() → $(item)Netherrack$() + $(item)Lava$();$(br)$(item)Snow Block$() → $(item)Ice$() + $(item)Powder Snow$();$(br)$(item)Full Bee Nest$() → $(item)Empty Bee Nest$() + $(item)Honey$() $(br)When the cauldron is filled with 4 layers of honey, you can use a funnel or chute to take out the $(item)honey block$()",
     {
       "type": "patchouli:multiblock",
       "anchor": "break",

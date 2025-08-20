@@ -273,5 +273,9 @@ public class BlockTagLoader {
         provider.addTag(ModBlockTags.STICKABLE_WITH_SLIDING_RAILS)
             .addTag(ModBlockTags.SLIDING_RAILS)
             .add(ModBlocks.SLIDING_RAIL_STOP.getKey());
+
+        provider.addTag(ModBlockTags.OVERHEATABLE)
+            .add(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getKey())
+            .add(ModBlocks.EMBER_METAL_BLOCK.getKey());
     }
 }

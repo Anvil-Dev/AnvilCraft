@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftKubeRecipe;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.BlockStatePredicateComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceBlockStateComponent;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
@@ -40,10 +40,10 @@ public interface BlockCrushRecipeSchema {
         @Override
         protected void validate() {
             if (getValue(INPUT) == null) {
-                throw new KubeRuntimeException("Inputs is Empty!").source(sourceLine);
+                throw new KubeRuntimeException("Inputs is null!").source(sourceLine);
             }
             if (getValue(RESULT) == null) {
-                throw new KubeRuntimeException("Result is Empty!").source(sourceLine);
+                throw new KubeRuntimeException("Result is null!").source(sourceLine);
             }
         }
     }

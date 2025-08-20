@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.util.injection;
 
 import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeManager;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeManager;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.crafting.RecipeHolder;
 

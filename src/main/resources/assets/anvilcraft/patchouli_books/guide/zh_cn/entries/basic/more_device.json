@@ -69,18 +69,30 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:magnetic_chute",
-      "text": "$(item)磁性溜槽$()是一种特殊的溜槽。相较于只能吸取上方物品的溜槽，可以吸取侧方甚至下方的物品。"
+      "text": "$(item)磁性溜槽$()是一种特殊的溜槽。相较于只能吸取上方物品的溜槽，可以吸取侧方甚至下方的物品。 $(p)会将物品以一定速度喷出"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "filter",
+      "recipe": "anvilcraft:filter",
+      "text": "提供了更强的过滤能力，右键打开gui设置过滤物品。$(br)$(#660000)左上角按钮$()切换是否匹配数据$(br)$(#660000)左下角按钮$()切换黑白名单 $()"
     },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:active_silencer",
-      "text": "$(item)主动消音器$()可以消除以其为中心31x31x31内的选定声音。打开gui可以搜索和屏蔽声音。"
+      "text": "$(item)主动消音器$()可以消除以其为中心31x31x31内的选定声音。打开gui可以搜索和屏蔽声音。$(p)设置可通过磁盘复制"
     },
     {
       "type": "patchouli:crafting",
       "anchor": "disk",
       "recipe": "anvilcraft:disk",
       "text": "首次右键复制方块过滤栏，后续右键其他方块粘贴，潜行右键清空。 $(p)不会改变方块朝向等设置"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "controllable_sand",
+      "recipe": "anvilcraft:controllable_sand",
+      "text": "本不受重力影响，$(thing)受到红石信号$()时会随机下落或升起。 $(p)若一个方向被方块阻挡，则必定朝反方向移动 $(p)移动时可以载人"
     }
   ]
 }

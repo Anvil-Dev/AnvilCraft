@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.inventory.container;
 
-import dev.dubhe.anvilcraft.api.item.property.FilterContent;
 import dev.dubhe.anvilcraft.init.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import dev.dubhe.anvilcraft.network.FilterContentSyncPacket;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
@@ -20,7 +21,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class FilterContainer implements Container {
-    private final FilterContent content;
+    @Setter
+    private FilterContent content;
     private final Player player;
     private final int position;
     private final ItemStack stack;
@@ -41,7 +43,7 @@ public class FilterContainer implements Container {
 
     @Override
     public int getContainerSize() {
-        return content.getList().size();
+        return content.list().size();
     }
 
     @Override
@@ -51,7 +53,7 @@ public class FilterContainer implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        return content.getList().get(slot);
+        return content.list().get(slot);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class FilterContainer implements Container {
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        content.getList().set(slot, stack);
+        content.list().set(slot, stack);
     }
 
     @Override

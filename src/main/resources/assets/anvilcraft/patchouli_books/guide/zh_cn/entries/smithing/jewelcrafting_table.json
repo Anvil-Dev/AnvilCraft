@@ -44,25 +44,25 @@
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "旗帜图案",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns",
       "text": "所有旗帜图案都可以通过这个配方来仿制。"
     },
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "音乐唱片",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs",
       "text": "所有音乐唱片都可以通过这个配方来仿制。"
     },
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "纹样陶片",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_blade_pottery_sherd_from_minecraft_blade_pottery_sherd_for_pottery_sherds",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_blade_pottery_sherd_from_minecraft_blade_pottery_sherd_for_pottery_sherds",
       "text": "所有纹样陶片都可以通过这个配方来仿制。"
     },
     {
       "type": "anvilcraft:jewel_crafting",
       "title": "盔甲纹饰锻造模板",
-      "recipe": "anvilcraft:jewel_crafting/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates",
+      "recipe": "anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates",
       "text": "所有盔甲纹饰锻造模板都可以通过这个配方来仿制。"
     }
   ]

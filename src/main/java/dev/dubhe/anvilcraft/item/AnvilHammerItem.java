@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -136,7 +136,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         player.getCooldowns().addCooldown(itemStack.getItem(), 5);
         FallingBlockEntity dummyAnvilEntity = new FallingBlockEntity(EntityType.FALLING_BLOCK, level);
         dummyAnvilEntity.blockState = anvilHammerItem.getAnvil().defaultBlockState();
-        AnvilFallOnLandEvent event = new AnvilFallOnLandEvent(level, blockPos.above(), dummyAnvilEntity, player.fallDistance);
+        AnvilEvent.OnLand event = new AnvilEvent.OnLand(level, blockPos.above(), dummyAnvilEntity, player.fallDistance);
         NeoForge.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
         itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));

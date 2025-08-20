@@ -3,9 +3,9 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.item.property.BoxContents;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
+import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -71,7 +71,7 @@ public class AmuletSelectorSupport {
         } else {
             AmuletSelectorSupport.layout = Layout.layout(contents);
             maxSelection = contents.getMaxSelection();
-            setCurrentSelectedIndex(contents.getSelection());
+            setCurrentSelectedIndex(contents.selection());
         }
     }
 
@@ -106,14 +106,14 @@ public class AmuletSelectorSupport {
 
     private static int getCurrentSelectedIndex() {
         if (contents == null) return -1;
-        return contents.getSelection();
+        return contents.selection();
     }
 
     private static void setCurrentSelectedIndex(int selection) {
         if (!hasHoveringItem() || contents == null) return;
         if (maxSelection <= 0) return;
         selection = Math.clamp(selection, 0, Math.max(0, maxSelection - 1));
-        if (contents.getSelection() == selection) return;
+        if (contents.selection() == selection) return;
         BoxContents.Mutable mutable = contents.mutable();
         mutable.select(selection);
         contents = mutable.immutable();
@@ -154,7 +154,7 @@ public class AmuletSelectorSupport {
         ) {
             @Override
             public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
-                List<ItemStack> amulets = content.getAmulets();
+                List<ItemStack> amulets = content.amulets();
                 if (amulets.isEmpty()) return;
 
                 PoseStack poseStack = guiGraphics.pose();
@@ -185,7 +185,7 @@ public class AmuletSelectorSupport {
         ) {
             @Override
             public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
-                List<ItemStack> amulets = content.getAmulets();
+                List<ItemStack> amulets = content.amulets();
                 if (amulets.isEmpty()) return;
 
                 PoseStack poseStack = guiGraphics.pose();
@@ -216,7 +216,7 @@ public class AmuletSelectorSupport {
         ) {
             @Override
             public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
-                List<ItemStack> amulets = content.getAmulets();
+                List<ItemStack> amulets = content.amulets();
                 if (amulets.size() < 2) return;
 
                 PoseStack poseStack = guiGraphics.pose();
@@ -264,7 +264,7 @@ public class AmuletSelectorSupport {
         }
 
         void renderTotem(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
-            List<ItemStack> totems = content.getTotems();
+            List<ItemStack> totems = content.totems();
             if (totems.isEmpty()) return;
             int index = 0;
             for (int i = 0; i < 16; i++) {
@@ -320,7 +320,7 @@ public class AmuletSelectorSupport {
             if (content.isAmuletEmpty()) {
                 return NO_AMULET;
             }
-            List<ItemStack> amulets = content.getAmulets();
+            List<ItemStack> amulets = content.amulets();
             boolean firstBigAmulet = amulets.getFirst().getItem() instanceof AmuletItem amuletItem && amuletItem.getWeight() > 6;
             boolean firstSmallAmulet = amulets.getFirst().getItem() instanceof AmuletItem amuletItem && amuletItem.getWeight() <= 6;
             if (firstBigAmulet) {

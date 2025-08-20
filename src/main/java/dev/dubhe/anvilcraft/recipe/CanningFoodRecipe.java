@@ -15,44 +15,64 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class CanningFoodRecipe extends CustomRecipe {
-
     public CanningFoodRecipe(CraftingBookCategory category) {
         super(category);
     }
 
-    public boolean isValidFood(ItemStack foodStack) {
+    public boolean isFood(ItemStack foodStack) {
         if (foodStack.is(ModItems.CANNED_FOOD)) return false;
-        return Optional.ofNullable(foodStack.getFoodProperties(null))
-            .filter(f -> f.nutrition() > 0f)
-            .isPresent();
+        return foodStack.has(DataComponents.FOOD) && !foodStack.is(ModItems.CANNED_FOOD);
     }
 
     public boolean matches(CraftingInput input, Level level) {
-        if (input.ingredientCount() != 2) return false;
-        int canIndex = IntStream.range(0, input.size())
-            .filter(i -> input.getItem(i).is(ModItems.TIN_CAN))
-            .findFirst().orElse(-1);
-        if (canIndex == -1) return false;
-        int foodIndex = IntStream.range(0, input.size())
-            .filter(i -> this.isValidFood(input.getItem(i)))
-            .findFirst().orElse(canIndex);
-        return foodIndex != canIndex;
+        List<ItemStack> items = new ArrayList<>();
+        for (ItemStack item : input.items()) {
+            if (!item.isEmpty()) {
+                items.add(item);
+            }
+        }
+        if (items.size() < 2 || items.size() > 6) {
+            return false;
+        }
+        int canCount = 0;
+        int foodCount = 0;
+        ItemStack food = ItemStack.EMPTY;
+        for (ItemStack item : items) {
+            if (item.is(ModItems.TIN_CAN)) {
+                canCount++;
+            } else if (isFood(item)) {
+                if (food.isEmpty()) {
+                    food = item.copy();
+                } else if (!food.is(item.getItem())) {
+                    return false;
+                }
+                foodCount++;
+            } else {
+                return false;
+            }
+        }
+        return canCount == 1 && foodCount >= 1 && foodCount <= 5;
     }
 
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-        ItemStack foodStack = IntStream.range(0, input.size())
-            .filter(i -> this.isValidFood(input.getItem(i)))
-            .mapToObj(input::getItem)
-            .findFirst()
-            .orElseThrow();
+        ItemStack food = ItemStack.EMPTY;
+        for (ItemStack item : input.items()) {
+            if (food.isEmpty() && isFood(item)) {
+                food = item.copy();
+                food.setCount(1);
+            } else if (isFood(item)) {
+                food.setCount(food.getCount() + 1);
+            }
+        }
 
-        return ModItems.CANNED_FOOD.get().setFood(ModItems.CANNED_FOOD.asStack(), foodStack);
+        return ModItems.CANNED_FOOD.get().setFood(ModItems.CANNED_FOOD.asStack(), food);
     }
 
     @Override

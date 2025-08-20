@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeManager;
-import dev.dubhe.anvilcraft.recipe.anvil.VanillaRecipesWrap;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeManager;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.VanillaRecipesWrap;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -39,8 +39,9 @@ public class ResourceEventListener {
         manager.anc$addRecipes(init);
         for (RecipeHolder<?> holder : manager.getRecipes()) {
             Recipe<?> value = holder.value();
-            if (!(value instanceof InWorldRecipe recipe)) continue;
-            manager1.register(recipe);
+            if (!(value instanceof InWorldRecipe)) continue;
+            //noinspection unchecked
+            manager1.register((RecipeHolder<InWorldRecipe>) holder);
         }
         manager.anc$setInWorldRecipeManager(manager1);
     }

@@ -21,6 +21,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -62,31 +64,57 @@ public class DataGenUtil {
             .partialState().with(PowerLevelPressurePlateBlock.POWER, 15).addModels(new ConfiguredModel(pressurePlateDown));
     }
 
-    public static void diodeBlock(RegistrateBlockstateProvider provider, ResourceLocation id, DiodeBlock block) {
+    public static void diodeBlock(@NotNull RegistrateBlockstateProvider provider, @NotNull ResourceLocation id, DiodeBlock block) {
         ModelFile diode = new ModelFile.ExistingModelFile(id.withPrefix("block/"), provider.models().existingFileHelper);
         ModelFile diodeOn = new ModelFile.ExistingModelFile(id.withPrefix("block/").withSuffix("_on"), provider.models().existingFileHelper);
 
         provider.getVariantBuilder(block)
-            .partialState().with(DiodeBlock.FACING, Direction.SOUTH).with(DiodeBlock.POWERED, false).addModels(
-                new ConfiguredModel(diode))
-            .partialState().with(DiodeBlock.FACING, Direction.WEST).with(DiodeBlock.POWERED, false).addModels(
-                new ConfiguredModel(diode, 0, 90, false))
-            .partialState().with(DiodeBlock.FACING, Direction.NORTH).with(DiodeBlock.POWERED, false).addModels(
-                new ConfiguredModel(diode, 0, 180, false))
-            .partialState().with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, false).addModels(
-                new ConfiguredModel(diode, 0, 270, false))
-            .partialState().with(DiodeBlock.FACING, Direction.SOUTH).with(DiodeBlock.POWERED, true).addModels(
-                new ConfiguredModel(diodeOn))
-            .partialState().with(DiodeBlock.FACING, Direction.WEST).with(DiodeBlock.POWERED, true).addModels(
-                new ConfiguredModel(diodeOn, 0, 90, false))
-            .partialState().with(DiodeBlock.FACING, Direction.NORTH).with(DiodeBlock.POWERED, true).addModels(
-                new ConfiguredModel(diodeOn, 0, 180, false))
-            .partialState().with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, true).addModels(
-                new ConfiguredModel(diodeOn, 0, 270, false));
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.SOUTH).with(DiodeBlock.POWERED, false)
+            .addModels(new ConfiguredModel(diode))
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.WEST).with(DiodeBlock.POWERED, false)
+            .addModels(new ConfiguredModel(diode, 0, 90, false))
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.NORTH).with(DiodeBlock.POWERED, false)
+            .addModels(new ConfiguredModel(diode, 0, 180, false))
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, false)
+            .addModels(new ConfiguredModel(diode, 0, 270, false))
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.SOUTH).with(DiodeBlock.POWERED, true)
+            .addModels(new ConfiguredModel(diodeOn))
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.WEST).with(DiodeBlock.POWERED, true)
+            .addModels(new ConfiguredModel(diodeOn, 0, 90, false))
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.NORTH).with(DiodeBlock.POWERED, true)
+            .addModels(new ConfiguredModel(diodeOn, 0, 180, false))
+            .partialState()
+            .with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, true)
+            .addModels(new ConfiguredModel(diodeOn, 0, 270, false));
     }
 
     @SuppressWarnings("unused")
     public static <T extends RegistrateProvider> void noExtraModelOrState(DataGenContext<?, ?> context, T provider) {
+    }
+
+    public static <T extends RegistrateBlockstateProvider> void horizontalFacingBlock(
+        @NotNull DataGenContext<Block, ?> context,
+        @NotNull T provider
+    ) {
+        ModelFile model = new ModelFile.ExistingModelFile(
+            context.getId().withPrefix("block/"),
+            provider.models().existingFileHelper
+        );
+
+        provider.getVariantBuilder(context.get())
+            .forAllStates(
+                state -> ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationY(((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + 180) % 360)
+                    .build()
+            );
     }
 
     @SuppressWarnings("unused")

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
@@ -26,7 +26,7 @@ public class MassInjectBehavior implements IAnvilBehavior {
         BlockPos hitBlockPos,
         BlockState hitBlockState,
         float fallDistance,
-        AnvilFallOnLandEvent event
+        AnvilEvent.OnLand event
     ) {
         BlockEntity blockEntity = level.getBlockEntity(hitBlockPos);
         if (!(blockEntity instanceof SpaceOvercompressorBlockEntity compressor)) return false;

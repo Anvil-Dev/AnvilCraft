@@ -94,6 +94,10 @@ public class InputBlock {
         return new InputBlock(block.get(), Map.of());
     }
 
+    public static InputBlock of(TagKey<Block> tag) {
+        return new InputBlock(tag);
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public boolean is(BlockState blockState) {
         StateDefinition<Block, BlockState> stateDef = blockState.getBlock().getStateDefinition();

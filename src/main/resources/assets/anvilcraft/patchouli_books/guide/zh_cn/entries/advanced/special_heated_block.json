@@ -25,7 +25,7 @@
     {
       "type": "patchouli:text",
       "title": "撞击裂变",
-      "text": "使用$(item)皇家铁砧$()（或更高级铁砧）$(l:struct/high_speed_impact)撞击$()$(item)铀块$()或$(item)钚块$()，会将附近最多16个余烬金属块加热为$(thing)超温$()。"
+      "text": "使用$(item)余烬铁砧$()$(n)[速度>256m/t](不消耗)$()(或更高级铁砧)$(l:struct/high_speed_impact)撞击$()$(item)铀块$()或$(item)钚块$()，会将附近最多16个余烬金属块加热为$(thing)超温$()，持续20s或60s。"
     }
   ]
 }

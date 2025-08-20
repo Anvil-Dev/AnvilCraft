@@ -3,12 +3,13 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import lombok.Getter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,16 +33,6 @@ import java.util.function.Supplier;
 @Getter
 public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
     /**
-     * 方块原料谓词
-     */
-    private final BlockStatePredicate blockIngredient;
-
-    /**
-     * 方块结果
-     */
-    private final ChanceBlockState blockResult;
-
-    /**
      * 构造一个物品注入配方
      *
      * @param itemIngredients 物品原料列表
@@ -61,13 +52,11 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
                 .setInputItems(itemIngredients)
                 .setItemOutputOffset(new Vec3(0.0, -1.0, 0.0))
                 .setResultItems(results)
-                .setBlockInputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockInputOffset(new Vec3i(0, -1, 0))
                 .setInputBlocks(blockIngredient)
-                .setBlockOutputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockOutputOffset(new Vec3i(0, -1, 0))
                 .setResultBlocks(blockResult)
         );
-        this.blockIngredient = blockIngredient;
-        this.blockResult = blockResult;
     }
 
     @Override
@@ -107,10 +96,10 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
                 .forGetter(ItemInjectRecipe::getResultItems),
             BlockStatePredicate.CODEC
                 .fieldOf("block_ingredient")
-                .forGetter(ItemInjectRecipe::getBlockIngredient),
+                .forGetter(ItemInjectRecipe::getFirstInputBlock),
             ChanceBlockState.CODEC.codec()
                 .fieldOf("block_result")
-                .forGetter(ItemInjectRecipe::getBlockResult)
+                .forGetter(ItemInjectRecipe::getFirstResultBlock)
         ).apply(instance, ItemInjectRecipe::new));
 
         /**
@@ -122,9 +111,9 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
             ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
             ItemInjectRecipe::getResultItems,
             BlockStatePredicate.STREAM_CODEC,
-            ItemInjectRecipe::getBlockIngredient,
+            ItemInjectRecipe::getFirstInputBlock,
             ChanceBlockState.STREAM_CODEC,
-            ItemInjectRecipe::getBlockResult,
+            ItemInjectRecipe::getFirstResultBlock,
             ItemInjectRecipe::new
         );
 

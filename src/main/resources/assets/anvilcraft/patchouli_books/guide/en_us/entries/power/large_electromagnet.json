@@ -27,6 +27,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:acceleration_ring",
+      "link_recipe": true,
       "text": "启用耗电量256kW，收到红石信号停用。$(br)两个相同方向的启用的加速环，可以形成加速区间，其可以将以下物品沿着加速轨道加速至上限为止:$(li)$(thing)大部分铁砧$()(不包括巨型铁砧、幻灵铁砧) $(li)$(thing)弹射物$() $(li)$(thing)玩家$()(装备至少两件装备且头戴铁砧锤)"
     },
     {
@@ -50,6 +51,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:deflection_ring",
+      "link_recipe": true,
       "text": "启用耗电量256kW，收到红石信号停用。$(br)启用时，扭曲前文中可受$(item)加速环$()加速的$(thing)实体$()的运动，使其前进方向沿$(thing)环外箭头$()所示方向旋转90°。$(br2)但是会略微降低速度。"
     },
     {

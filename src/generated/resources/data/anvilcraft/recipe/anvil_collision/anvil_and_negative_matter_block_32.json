@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "tag": "minecraft:anvil"
+  },
+  "consume": true,
+  "hitBlock": {
+    "id": "anvilcraft:negative_matter_block"
+  },
+  "output_items": [
+    {
+      "chance": 1.0,
+      "count": 8,
+      "id": "anvilcraft:void_matter_block"
+    }
+  ],
+  "speed": 32,
+  "transform_blocks": []
+}

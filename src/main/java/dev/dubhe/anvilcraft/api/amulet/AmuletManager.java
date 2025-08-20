@@ -3,12 +3,12 @@ package dev.dubhe.anvilcraft.api.amulet;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
-import dev.dubhe.anvilcraft.api.item.property.BoxContents;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
+import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
 import net.minecraft.core.Holder;
@@ -69,7 +69,7 @@ public class AmuletManager {
         if (found.is(ModItems.AMULET_BOX)) {
             BoxContents contents = found.get(ModComponents.BOX_CONTENTS);
             if (contents == null) return;
-            for (ItemStack stack : contents.getAmulets()) {
+            for (ItemStack stack : contents.amulets()) {
                 if (stack.getItem() instanceof AmuletItem) {
                     holders.add(stack.copy());
                 }

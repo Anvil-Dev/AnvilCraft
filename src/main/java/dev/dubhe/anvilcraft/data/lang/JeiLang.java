@@ -24,7 +24,9 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.stamping", "Stamping");
 
         provider.add("gui.anvilcraft.category.super_heating", "Super Heating");
-        provider.add("gui.anvilcraft.category.super_heating.convert_to", "Convert to %s");
+        provider.add("gui.anvilcraft.category.super_heating.consume_fluid", "Consume: %d layer of %s");
+        provider.add("gui.anvilcraft.category.super_heating.produce_fluid", "Produce: %d layer of %s");
+        provider.add("gui.anvilcraft.category.super_heating.need_activated", "Need Activated");
 
         provider.add("gui.anvilcraft.category.squeezing", "Squeezing");
 

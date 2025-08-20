@@ -9,5 +9,5 @@ public @interface Integration {
 
     String version() default "*";
 
-    IntegrationType[] type() default {IntegrationType.CLIENT, IntegrationType.SERVER};
+    IntegrationType[] type() default {IntegrationType.CLIENT, IntegrationType.DEDICATED_SERVER};
 }

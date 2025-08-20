@@ -7,10 +7,9 @@ import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
-import dev.dubhe.anvilcraft.init.ModRecipeOutcomeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipeOutcomeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.Distance;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.util.Util;
 import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
@@ -128,8 +127,8 @@ public class ProduceHeat implements IRecipeOutcome<ProduceHeat> {
          * Map编解码器
          */
         public static final MapCodec<ProduceHeat> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            HeatData.CODEC.listOf().fieldOf("heatData").forGetter(ProduceHeat::getHeatData),
-            Distance.CODEC.fieldOf("distance").forGetter(ProduceHeat::getDistance)
+            HeatData.CODEC.listOf().optionalFieldOf("heat", List.of()).forGetter(ProduceHeat::getHeatData),
+            Distance.CODEC.optionalFieldOf("distance", Distance.DEFAULT).forGetter(ProduceHeat::getDistance)
         ).apply(ins, ProduceHeat::new));
 
         /**

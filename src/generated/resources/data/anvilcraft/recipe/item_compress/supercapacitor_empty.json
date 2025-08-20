@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:item_compress",
+  "ingredients": [
+    {
+      "count": 2,
+      "items": "#c:plates/iron"
+    },
+    {
+      "items": "anvilcraft:resin_block",
+      "predicates": {
+        "anvilcraft:not": {
+          "anvilcraft:saved_entity": {
+            "entityType": "minecraft:creeper",
+            "tagPredicates": [
+              {
+                "expected": 1,
+                "requirement": "GREATER_OR_EQUAL",
+                "tagKeyPath": "powered"
+              }
+            ]
+          }
+        },
+        "anvilcraft:saved_entity": {
+          "entityType": "minecraft:creeper"
+        }
+      }
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:supercapacitor_empty"
+    }
+  ]
+}

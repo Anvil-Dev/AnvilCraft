@@ -7,6 +7,7 @@ jei = "19.21.0.247"
 rei = "16.0.762"
 emi = "1.1.13+1.21.1"
 jade = "15.3.4+neoforge"
+appleskin = "3.0.7+mc1.21"
 theoneprobe = "1.21_neo-12.0.3-5"
 kubejs = "2101.7.1-build.181"
 patchouli = "1.21-87-NEOFORGE"
@@ -18,7 +19,7 @@ machete = "1.+"
 anvillib = "1.1.0+build.97"
 curios = "9.0.15+1.21.1"
 create = "6.0.4-61"
-ponder = "1.0.43"
+ponder = "1.0.48"
 flywheel = "1.0.1-11"
 ae2 = "19.2.10"
 cerbonsApi = "5wbxkBQ1"
@@ -36,6 +37,7 @@ reiApi = { group = "me.shedaniel", name = "RoughlyEnoughItems-api-neoforge", ver
 reiForge = { group = "me.shedaniel", name = "RoughlyEnoughItems-neoforge", version.ref = "rei" }
 emi = { group = "dev.emi", name = "emi-neoforge", version.ref = "emi" }
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
+appleskin = { group = "maven.modrinth", name = "appleskin", version.ref = "appleskin" }
 theoneprobe = { group = "mcjty.theoneprobe", name = "theoneprobe", version.ref = "theoneprobe" }
 kubejs = { group = "dev.latvian.mods", name = "kubejs-neoforge", version.ref = "kubejs" }
 patchouli = { group = "vazkii.patchouli", name = "Patchouli", version.ref = "patchouli" }
@@ -45,7 +47,7 @@ create = { group = "com.simibubi.create", name = "create-1.21.1", version.ref = 
 ponder = { group = "net.createmod.ponder", name = "Ponder-NeoForge-1.21.1", version.ref = "ponder" }
 flywheelApi = { group = "dev.engine-room.flywheel", name = "flywheel-neoforge-api-1.21.1", version.ref = "flywheel" }
 flywheel = { group = "dev.engine-room.flywheel", name = "flywheel-neoforge-1.21.1", version.ref = "flywheel" }
-ae2 = {group = "org.appliedenergistics", name = "appliedenergistics2", version.ref = "ae2"}
+ae2 = { group = "org.appliedenergistics", name = "appliedenergistics2", version.ref = "ae2" }
 cerbonsApi = { group = "maven.modrinth", name = "cerbons-api", version.ref = "cerbonsApi" }
 cerbonsBetterBeacons = { group = "maven.modrinth", name = "cerbons-better-beacons", version.ref = "cerbonsBetterBeacons" }
 

@@ -362,7 +362,7 @@ abstract class ItemEntityMixin extends Entity implements MergeCooldownItemEntity
         at = @At("TAIL")
     )
     public void itemCollectorPoach0(CallbackInfo ci) {
-        this.anvilcraft$poach(ci);
+        this.anvilcraft$poach();
     }
 
     @Inject(
@@ -370,7 +370,7 @@ abstract class ItemEntityMixin extends Entity implements MergeCooldownItemEntity
         at = @At("TAIL")
     )
     public void itemCollectorPoach1(CallbackInfo ci) {
-        this.anvilcraft$poach(ci);
+        this.anvilcraft$poach();
     }
 
     @Inject(
@@ -378,14 +378,14 @@ abstract class ItemEntityMixin extends Entity implements MergeCooldownItemEntity
         at = @At("TAIL")
     )
     public void itemCollectorPoach2(CallbackInfo ci) {
-        this.anvilcraft$poach(ci);
+        this.anvilcraft$poach();
     }
 
     @Unique
     public boolean anvilcraft$discarded = false;
 
     @Unique
-    private void anvilcraft$poach(CallbackInfo ci) {
+    private void anvilcraft$poach() {
         Level level = this.level();
         if (level.isClientSide) return;
         Map<ChunkPos, List<ItemCollectorBlockEntity>> map = PoachingCollectorMap.get(level);

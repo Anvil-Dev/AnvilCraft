@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
-import dev.dubhe.anvilcraft.api.event.anvil.GiantAnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -21,7 +20,7 @@ public class AnvilHitPiezoelectricCrystalBlockEventListener {
      * @param event 铁砧落地事件
      */
     @SubscribeEvent
-    public static void onLand(@NotNull AnvilFallOnLandEvent event) {
+    public static void onLand(@NotNull AnvilEvent.OnLand event) {
         BlockPos anvilPos = event.getPos();
         Level level = event.getLevel();
         Block block = level.getBlockState(anvilPos.below()).getBlock();
@@ -38,7 +37,7 @@ public class AnvilHitPiezoelectricCrystalBlockEventListener {
      * @param event 大铁砧落地事件
      */
     @SubscribeEvent
-    public static void onLand(@NotNull GiantAnvilFallOnLandEvent event) {
+    public static void onLand(@NotNull AnvilEvent.GiantOnLand event) {
         Level level = event.getLevel();
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {

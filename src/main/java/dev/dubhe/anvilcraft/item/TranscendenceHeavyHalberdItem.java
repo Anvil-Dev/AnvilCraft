@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.item.IMultipleResult;
-import dev.dubhe.anvilcraft.api.item.property.Eternal;
-import dev.dubhe.anvilcraft.api.item.property.Merciless;
-import dev.dubhe.anvilcraft.api.item.property.Multiphase;
-import dev.dubhe.anvilcraft.api.item.property.Providence;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownTranscendenceHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.component.Merciless;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
+import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;

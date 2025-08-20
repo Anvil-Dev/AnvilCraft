@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import lombok.Getter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
@@ -38,7 +39,7 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
                 .setInputItems(itemIngredients)
                 .setItemOutputOffset(new Vec3(0.0, -1.0, 0.0))
                 .setResultItems(results)
-                .setBlockInputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockInputOffset(new Vec3i(0, -1, 0))
                 .setInputBlocks(
                     BlockStatePredicate.builder()
                         .of(Blocks.SCAFFOLDING)

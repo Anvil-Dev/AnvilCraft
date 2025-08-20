@@ -18,6 +18,13 @@ import java.util.Objects;
  */
 @Data
 public class Range implements Iterable<BlockPos> {
+    public static final Range EMPTY = new Range(Vec3.ZERO, Vec3.ZERO) {
+        @Override
+        public boolean isEmpty() {
+            return true;
+        }
+    };
+
     /**
      * 起始点
      */
@@ -57,7 +64,7 @@ public class Range implements Iterable<BlockPos> {
      * @return 范围实例
      */
     public static @NotNull Range of(@NotNull Vec3 pos, @NotNull Vec3 range) {
-        range = new Vec3(Math.abs(range.x()), Math.abs(range.y()), Math.abs(range.z()));
+        range = new Vec3(Math.abs(range.x()) / 2, Math.abs(range.y()) / 2, Math.abs(range.z()) / 2);
         return new Range(pos.subtract(range), pos.add(range));
     }
 
@@ -84,6 +91,7 @@ public class Range implements Iterable<BlockPos> {
      * @return 是否包含
      */
     public boolean contains(@NotNull Vec3 pos, @NotNull Vec3 range) {
+        if (this.isEmpty()) return false;
         return this.contains(Range.of(pos, range));
     }
 
@@ -94,6 +102,7 @@ public class Range implements Iterable<BlockPos> {
      * @return 是否交叉
      */
     public boolean cross(@NotNull Range range) {
+        if (this.isEmpty()) return false;
         return Math.max(range.start.x, this.start.x) < Math.min(range.end.x, this.end.x)
             && Math.max(range.start.y, this.start.y) < Math.min(range.end.y, this.end.y)
             && Math.max(range.start.z, this.start.z) < Math.min(range.end.z, this.end.z);
@@ -126,6 +135,10 @@ public class Range implements Iterable<BlockPos> {
             Math.max(range.end.y, this.end.y),
             Math.max(range.end.z, this.end.z)
         );
+    }
+
+    public boolean isEmpty() {
+        return false;
     }
 
     /**

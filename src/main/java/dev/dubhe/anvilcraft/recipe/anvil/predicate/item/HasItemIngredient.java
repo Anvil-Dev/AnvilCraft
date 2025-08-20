@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.recipe.anvil.predicate.item;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.init.ModRecipePredicateTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.ItemCache;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.cache.item.ICacheInput;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
 import lombok.Getter;
 import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.core.component.DataComponentPredicate;
@@ -42,13 +43,13 @@ public class HasItemIngredient extends HasItemBase<HasItemIngredient, ItemIngred
 
     @Override
     public void snapshot(@NotNull InWorldRecipeContext context) {
-        ItemCache.ICacheInput input = this.getItem(context);
+        ICacheInput input = this.getItem(context);
         input.shrink(this.item.count());
     }
 
     @Override
     public void rollback(@NotNull InWorldRecipeContext context) {
-        ItemCache.ICacheInput input = this.getItem(context);
+        ICacheInput input = this.getItem(context);
         input.rollbackShrink();
     }
 
@@ -88,6 +89,11 @@ public class HasItemIngredient extends HasItemBase<HasItemIngredient, ItemIngred
         @Override
         protected RecordCodecBuilder<HasItemIngredient, ItemIngredientPredicate> itemCodec() {
             return ItemIngredientPredicate.CODEC.fieldOf("item").forGetter(HasItemIngredient::getItem);
+        }
+
+        @Override
+        public boolean conflict() {
+            return true;
         }
     }
 

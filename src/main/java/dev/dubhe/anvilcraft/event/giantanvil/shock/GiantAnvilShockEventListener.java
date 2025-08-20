@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.event.giantanvil.shock;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.behavior.BehaviorTree;
 import dev.dubhe.anvilcraft.api.behavior.TreeNode;
-import dev.dubhe.anvilcraft.api.event.anvil.GiantAnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -145,7 +145,7 @@ public class GiantAnvilShockEventListener {
     }
 
     @SubscribeEvent
-    public static void onLand(@NotNull GiantAnvilFallOnLandEvent event) {
+    public static void onLand(@NotNull AnvilEvent.GiantOnLand event) {
         ShockContext context = ShockContext.inflate(event);
         behaviorTree.run(context);
     }

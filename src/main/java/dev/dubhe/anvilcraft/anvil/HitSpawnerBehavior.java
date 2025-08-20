@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.mixin.accessor.BaseSpawnerAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -33,7 +33,7 @@ public class HitSpawnerBehavior implements IAnvilBehavior {
         BlockPos pos,
         BlockState hitBlockState,
         float fallDistance,
-        AnvilFallOnLandEvent event
+        AnvilEvent.OnLand event
     ) {
         if (level instanceof ServerLevel serverLevel) {
             RandomSource randomSource = serverLevel.getRandom();

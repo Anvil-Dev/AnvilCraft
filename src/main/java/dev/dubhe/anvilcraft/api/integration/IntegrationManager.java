@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.integration;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import lombok.extern.slf4j.Slf4j;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
 import net.neoforged.fml.loading.moddiscovery.ModInfo;
@@ -18,8 +19,6 @@ import java.util.Optional;
 @Slf4j
 public class IntegrationManager {
     private final Multimap<String, IntegrationInstance> instances = MultimapBuilder.hashKeys().hashSetValues().build();
-    private final Multimap<String, IntegrationInstance> clientInstances = MultimapBuilder.hashKeys().hashSetValues().build();
-    private final Multimap<String, IntegrationInstance> dataInstances = MultimapBuilder.hashKeys().hashSetValues().build();
 
     public static final String INTEGRATION_NAME = "L" + Integration.class.getName().replace(".", "/") + ";";
 
@@ -36,11 +35,11 @@ public class IntegrationManager {
                     //noinspection unchecked
                     List<ModAnnotation.EnumHolder> typeHolders = ((List<ModAnnotation.EnumHolder>) annotation.annotationData().get("type"));
                     if (version == null) version = "*";
-                    List<IntegrationType> type = List.of(IntegrationType.SERVER, IntegrationType.CLIENT);
+                    List<IntegrationType> type = List.of(IntegrationType.DEDICATED_SERVER, IntegrationType.CLIENT);
                     if (typeHolders != null) {
                         type = typeHolders.stream().map(
                             holder -> switch (holder.value()) {
-                                case "SERVER" -> IntegrationType.SERVER;
+                                case "DEDICATED_SERVER" -> IntegrationType.DEDICATED_SERVER;
                                 case "CLIENT" -> IntegrationType.CLIENT;
                                 case "DATA" -> IntegrationType.DATA;
                                 default -> throw new IllegalArgumentException("Unknown integration type: " + holder.value());
@@ -54,15 +53,7 @@ public class IntegrationManager {
                         annotation.memberName(),
                         type
                     );
-                    if (instance.containsType(IntegrationType.SERVER)) {
-                        this.instances.put(modid, instance);
-                    }
-                    if (instance.containsType(IntegrationType.CLIENT)) {
-                        this.clientInstances.put(modid, instance);
-                    }
-                    if (instance.containsType(IntegrationType.DATA)) {
-                        this.dataInstances.put(modid, instance);
-                    }
+                    this.instances.put(modid, instance);
                 }
             }
         }
@@ -72,6 +63,7 @@ public class IntegrationManager {
     @SuppressWarnings("DataFlowIssue")
     public void load(String modid, ModInfo info) {
         for (IntegrationInstance instance : instances.get(modid)) {
+            if (FMLLoader.getDist().isDedicatedServer() && !instance.containsType(IntegrationType.DEDICATED_SERVER)) return;
             if (!instance.is(info)) continue;
             instance.newInstance();
             log.info("Loading integration {} for {}.", instance.instance(), modid);
@@ -81,7 +73,7 @@ public class IntegrationManager {
 
     @SuppressWarnings("DataFlowIssue")
     public void loadClient(String modid, ModInfo info) {
-        for (IntegrationInstance instance : clientInstances.get(modid)) {
+        for (IntegrationInstance instance : instances.get(modid)) {
             if (!instance.is(info)) continue;
             instance.newInstance();
             log.info("Loading client integration {} for {}.", instance.instance(), modid);
@@ -91,7 +83,7 @@ public class IntegrationManager {
 
     @SuppressWarnings("DataFlowIssue")
     public void loadData(String modid, ModInfo info) {
-        for (IntegrationInstance instance : dataInstances.get(modid)) {
+        for (IntegrationInstance instance : instances.get(modid)) {
             if (!instance.is(info)) continue;
             instance.newInstance();
             log.info("Loading data integration {} for {}.", instance.instance(), modid);
@@ -100,21 +92,21 @@ public class IntegrationManager {
     }
 
     public void loadAllIntegrations() {
-        for (String key : instances.keys()) {
+        for (String key : instances.keySet()) {
             Optional<ModInfo> info = LoadingModList.get().getMods().stream().filter(it -> it.getModId().equals(key)).findFirst();
             info.ifPresent(modInfo -> load(key, modInfo));
         }
     }
 
     public void loadAllClientIntegrations() {
-        for (String key : clientInstances.keys()) {
+        for (String key : instances.keySet()) {
             Optional<ModInfo> info = LoadingModList.get().getMods().stream().filter(it -> it.getModId().equals(key)).findFirst();
             info.ifPresent(modInfo -> loadClient(key, modInfo));
         }
     }
 
     public void loadAllDataIntegrations() {
-        for (String key : dataInstances.keys()) {
+        for (String key : instances.keySet()) {
             Optional<ModInfo> info = LoadingModList.get().getMods().stream().filter(it -> it.getModId().equals(key)).findFirst();
             info.ifPresent(modInfo -> loadData(key, modInfo));
         }

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.anvil.GiantAnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
@@ -54,7 +54,7 @@ public class GiantAnvilLandingEventListener {
     }
 
     @SubscribeEvent
-    public static void handleMultiblock(@NotNull GiantAnvilFallOnLandEvent event) {
+    public static void handleMultiblock(@NotNull AnvilEvent.GiantOnLand event) {
         Level level = event.getLevel();
         BlockPos landPos = event.getPos().below(2);
 

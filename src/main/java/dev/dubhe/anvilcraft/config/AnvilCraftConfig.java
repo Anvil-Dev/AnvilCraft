@@ -222,11 +222,6 @@ public class AnvilCraftConfig implements ConfigData {
         public int hudY = 8;
     }
 
-    @Comment("Max acceleration speed (m/tick)")
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.BoundedDiscrete(max = 256, min = 16)
-    public int maxAccelerationSpeed = 32;
-
     @Comment("Anvil collision craft speed (m/tick)")
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(max = 24, min = 1)

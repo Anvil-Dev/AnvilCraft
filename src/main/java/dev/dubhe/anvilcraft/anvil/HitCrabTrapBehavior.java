@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
-import dev.dubhe.anvilcraft.api.event.anvil.AnvilFallOnLandEvent;
+import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -20,7 +20,7 @@ public class HitCrabTrapBehavior implements IAnvilBehavior {
         BlockPos hitBlockPos,
         BlockState hitBlockState,
         float fallDistance,
-        AnvilFallOnLandEvent event
+        AnvilEvent.OnLand event
     ) {
         if (!hitBlockState.hasBlockEntity()) return false;
         CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(hitBlockPos);

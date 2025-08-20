@@ -121,7 +121,7 @@ public final class IntegrationInstance {
 
     @Override
     public int hashCode() {
-        return Objects.hash(modid, instance, loader, clientLoader);
+        return Objects.hash(modid, versionRange, className, instance, loader, clientLoader, dataLoader);
     }
 
     @Override

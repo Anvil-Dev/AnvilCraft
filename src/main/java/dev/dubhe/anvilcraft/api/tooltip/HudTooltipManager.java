@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.impl.AffectRangeProviderImpl;
 import dev.dubhe.anvilcraft.api.tooltip.impl.ChargerTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.DeflectionRingTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatCollectorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatableBlockTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltip;
@@ -58,6 +59,7 @@ public class HudTooltipManager {
         INSTANCE.registerBlockTooltip(new InjectedBlockTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new InjectedBlockEntityTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new HeatableBlockTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new DeflectionRingTooltipProvider());
     }
 
     private void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {

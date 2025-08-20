@@ -207,5 +207,8 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.multitool.title", "Switch tool");
         provider.add("screen.anvilcraft.multitool.all", "All");
+
+        provider.add("screen.anvilcraft.deflection_ring.state", "Deflection Ring State");
+        provider.add("screen.anvilcraft.deflection_ring.speed", "  Last Entity Speed: %d m/tick");
     }
 }

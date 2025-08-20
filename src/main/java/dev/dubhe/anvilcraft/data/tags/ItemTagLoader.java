@@ -206,6 +206,10 @@ public class ItemTagLoader {
 
         provider.addTag(ItemTags.DURABILITY_ENCHANTABLE)
             .add(findResourceKey(ModItems.MAGNET.get()));
+
+        provider.addTag(ModItemTags.COMPRESS_ITEM)
+            .add(findResourceKey(Items.SNOW_BLOCK))
+            .addTag(ItemTags.WOOL);
     }
 
     private static @NotNull ResourceKey<Item> findResourceKey(Item item) {

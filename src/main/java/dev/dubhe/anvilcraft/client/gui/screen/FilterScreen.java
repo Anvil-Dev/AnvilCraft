@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.item.property.FilterContent;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableImageButton;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.inventory.FilterMenu;
 import dev.dubhe.anvilcraft.inventory.component.FilterSlot;
+import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -47,13 +47,14 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
         super.init();
 
         FilterContent content = this.getMenu().getContainer().getContent();
+
         this.addRenderableWidget(
             new SwitchableImageButton(
                 this.leftPos + 25,
                 this.topPos + 25,
                 INCLUDE_COMPONENTS,
-                content::isIncludeComponents,
-                content::setIncludeComponents,
+                content::includeComponents,
+                flag -> this.getMenu().getContainer().setContent(content.setIncludeComponents(flag)),
                 this::sync
             )
         );
@@ -62,8 +63,8 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
                 this.leftPos + 25,
                 this.topPos + 43,
                 BLACK_LIST,
-                content::isBlackList,
-                content::setBlackList,
+                content::blackList,
+                flag -> this.getMenu().getContainer().setContent(content.setBlackList(flag)),
                 this::sync
             )
         );

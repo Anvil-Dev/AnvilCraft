@@ -1,16 +1,16 @@
 package dev.dubhe.anvilcraft.recipe.anvil.cache;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeData;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
@@ -70,7 +70,7 @@ public class BlockCache {
      * @param key   方块缓存数据键
      * @return 方块缓存实例
      */
-    private static @NotNull BlockCache of(@NotNull InWorldRecipeContext level, InWorldRecipeData<BlockCache> key) {
+    private static BlockCache of(InWorldRecipeContext level, InWorldRecipeData<BlockCache> key) {
         return new BlockCache(level.getLevel());
     }
 
@@ -80,7 +80,7 @@ public class BlockCache {
      * @param pos 方块位置
      * @return 方块状态
      */
-    public BlockState getBlockState(@NotNull BlockPos pos) {
+    public BlockState getBlockState(BlockPos pos) {
         cache.computeIfAbsent(pos, level::getBlockState);
         cacheEntity.computeIfAbsent(pos, level::getBlockEntity);
         simulatedEntity.computeIfAbsent(pos, level::getBlockEntity);
@@ -93,7 +93,7 @@ public class BlockCache {
      * @param pos 方块位置
      * @return 方块实体
      */
-    public BlockEntity getBlockEntity(BlockPos pos) {
+    public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
         cache.computeIfAbsent(pos, level::getBlockState);
         cacheEntity.computeIfAbsent(pos, level::getBlockEntity);
         simulated.computeIfAbsent(pos, level::getBlockState);
@@ -106,7 +106,7 @@ public class BlockCache {
      * @param pos   方块位置
      * @param state 方块状态
      */
-    public void setBlock(@NotNull BlockPos pos, BlockState state) {
+    public void setBlock(BlockPos pos, @Nullable BlockState state) {
         if (state == null) state = Blocks.AIR.defaultBlockState();
         this.getBlockState(pos);
         simulated.put(pos, state);
@@ -119,7 +119,7 @@ public class BlockCache {
      * @param pos   方块位置
      * @param block 方块
      */
-    public void setBlock(@NotNull BlockPos pos, Block block) {
+    public void setBlock(BlockPos pos, @Nullable Block block) {
         if (block == null) block = Blocks.AIR;
         this.setBlock(pos, block.defaultBlockState());
     }
@@ -129,7 +129,7 @@ public class BlockCache {
      *
      * @param pos 方块位置
      */
-    public void removeBlock(@NotNull BlockPos pos) {
+    public void removeBlock(BlockPos pos) {
         this.setBlock(pos, Blocks.AIR);
     }
 

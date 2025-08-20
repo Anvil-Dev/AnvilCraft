@@ -21,9 +21,9 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.mineral.MineralFountainCha
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.mineral.MineralFountainRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.multiblock.MultiblockRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.transform.MobTransformRecipeSchema;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeTrigger;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.IRecipeOutcome;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.trigger.IRecipeTrigger;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;

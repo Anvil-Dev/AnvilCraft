@@ -130,7 +130,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "(This will be Anvil Collision recipe, until it has support)Put a $(l:smithing/tier_2_materials#frost_metal_block_and_nugget)Frost Metal Block$(/l) on the tail of Collision facility and do it once to craft the Multiphase Matter."
+      "text": "Using $(item)Ember anvil$()[speed>32m/t]$(l:struct/high_speed_impact)to Collide $()$(l:smithing/tier_2_materials#frost_metal_block_and_nugget)Frost Metal Block$(/l), you will get four $(item)Multiphase Matter$()"
     },
     {
       "type": "patchouli:crafting",

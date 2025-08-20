@@ -8,9 +8,7 @@
       "blocks": "minecraft:packed_ice"
     }
   ],
-  "results": [
-    {
-      "block": "minecraft:blue_ice"
-    }
-  ]
+  "result": {
+    "block": "minecraft:blue_ice"
+  }
 }

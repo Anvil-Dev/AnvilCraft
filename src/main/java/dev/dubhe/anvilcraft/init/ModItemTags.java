@@ -167,6 +167,7 @@ public class ModItemTags {
     public static final TagKey<Item> HEATABLE_BLOCKS = bind("heatable_blocks");
     public static final TagKey<Item> LEVITATIONALS = bind("levitationals");
     public static final TagKey<Item> RADIATIONS = bind("radiations");
+    public static final TagKey<Item> COMPRESS_ITEM = bind("compress_item");
 
     public static final TagKey<Item> CURIOS_HEAD = bindCurios("head");
     public static final TagKey<Item> CURIOS_IONOCRAFT_BACKPACK = bindCurios("ionocraft_backpack");

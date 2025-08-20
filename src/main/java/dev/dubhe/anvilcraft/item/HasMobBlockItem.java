@@ -1,18 +1,16 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
+import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModComponents;
-import io.netty.buffer.ByteBuf;
-import lombok.Getter;
+import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -33,12 +31,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @ParametersAreNonnullByDefault
@@ -46,6 +42,28 @@ import java.util.Optional;
 public class HasMobBlockItem extends BlockItem {
     public HasMobBlockItem(Block block, Properties properties) {
         super(block, properties);
+    }
+
+    @Override
+    public void verifyComponentsAfterLoad(ItemStack stack) {
+        super.verifyComponentsAfterLoad(stack);
+        if (stack.has(ModComponents.SAVED_ENTITY)) return;
+        if (
+            !stack.is(ModBlocks.MOB_AMBER_BLOCK.asItem())
+                && !stack.is(ModBlocks.RESENTFUL_AMBER_BLOCK.asItem())
+        ) return;
+        ResourceLocation id;
+        boolean isMonster = false;
+        if (stack.is(ModBlocks.RESENTFUL_AMBER_BLOCK.asItem())) {
+            isMonster = true;
+            id = BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.ZOMBIE);
+        } else {
+            id = BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.MOOSHROOM);
+        }
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", id.toString());
+        SavedEntity savedEntity = new SavedEntity(tag, isMonster);
+        stack.set(ModComponents.SAVED_ENTITY, savedEntity);
     }
 
     @Override
@@ -74,7 +92,7 @@ public class HasMobBlockItem extends BlockItem {
         return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
     }
 
-    public static boolean hasMob(@NotNull ItemStack stack) {
+    public static boolean hasMob(ItemStack stack) {
         return stack.has(ModComponents.SAVED_ENTITY);
     }
 
@@ -165,57 +183,5 @@ public class HasMobBlockItem extends BlockItem {
         }
         entity.remove(Entity.RemovalReason.DISCARDED);
         return stack;
-    }
-
-    public static class SavedEntity {
-        public static final Codec<SavedEntity> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                CompoundTag.CODEC.fieldOf("tag").forGetter(o -> o.tag),
-                Codec.BOOL.fieldOf("isMonster").forGetter(o -> o.isMonster))
-            .apply(ins, SavedEntity::new));
-
-        public static final StreamCodec<ByteBuf, SavedEntity> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.COMPOUND_TAG, o -> o.tag, ByteBufCodecs.BOOL, o -> o.isMonster, SavedEntity::new);
-
-        @Getter
-        private final CompoundTag tag;
-        private final boolean isMonster;
-
-        public SavedEntity(CompoundTag tag, boolean isMonster) {
-            this.tag = tag;
-            this.isMonster = isMonster;
-        }
-
-        @Nullable
-        public Entity toEntity(Level level) {
-            Optional<EntityType<?>> optional = EntityType.by(tag);
-            if (optional.isEmpty()) return null;
-            EntityType<?> type = optional.get();
-            Entity entity = type.create(level);
-            if (entity == null) return null;
-            entity.load(tag);
-            return entity;
-        }
-
-        public static SavedEntity fromMob(Mob entity) {
-            CompoundTag entityTag = new CompoundTag();
-            entity.saveAsPassenger(entityTag);
-            entityTag.remove(Entity.UUID_TAG);
-            return new SavedEntity(entityTag, entity instanceof Monster);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj instanceof SavedEntity savedEntity) {
-                return tag.equals(savedEntity.tag);
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(tag);
-        }
     }
 }

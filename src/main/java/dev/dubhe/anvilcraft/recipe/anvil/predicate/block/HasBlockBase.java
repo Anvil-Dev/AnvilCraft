@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.recipe.anvil.predicate.block;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.BlockCache;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;

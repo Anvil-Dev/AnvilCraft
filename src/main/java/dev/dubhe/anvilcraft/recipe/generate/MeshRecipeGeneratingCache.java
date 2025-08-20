@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.recipe.generate;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Table;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -28,7 +30,7 @@ import java.util.Optional;
 public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
     private static final Logger logger = logger();
 
-    private final HashMultimap<Item, Item> leavesAndSaplings = HashMultimap.create();
+    private final SetMultimap<Item, Item> leavesAndSaplings = MultimapBuilder.hashKeys().hashSetValues().build();
 
     public MeshRecipeGeneratingCache(HolderLookup.Provider registries) {
         super(registries, "mesh", "mesh recipe");
@@ -71,18 +73,15 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
         for (Item leaves : this.leavesAndSaplings.keySet()) {
             Optional<ResourceKey<Item>> leavesKey = BuiltInRegistries.ITEM.getResourceKey(leaves);
             if (leavesKey.isEmpty()) continue;
-            MeshRecipe recipeLeaves = MeshRecipe.builder()
+            MeshRecipe.Builder recipeBuilder = MeshRecipe.builder()
                 .requires(leaves)
-                .result(leaves.getDefaultInstance(), 0.5f)
-                .buildRecipe();
-            recipeHolders.add(new RecipeHolder<>(generateRecipeId("leaves", leaves, leaves), recipeLeaves));
+                .result(leaves.getDefaultInstance(), 0.5f);
             for (Item sapling : this.leavesAndSaplings.get(leaves)) {
-                MeshRecipe recipeSapling = MeshRecipe.builder()
-                    .requires(leaves)
-                    .result(sapling.getDefaultInstance(), 0.2f)
-                    .buildRecipe();
-                recipeHolders.add(new RecipeHolder<>(generateRecipeId("leaves", leaves, sapling), recipeSapling));
+                recipeBuilder.result(sapling.getDefaultInstance(), 0.2f);
             }
+            ResourceLocation leavesId = leavesKey.get().location();
+            ResourceLocation newId = AnvilCraft.of("mesh/generated/%s".formatted(leavesId.toString().replace(':', '_')));
+            recipeHolders.add(new RecipeHolder<>(newId, recipeBuilder.buildRecipe()));
         }
 
         return Optional.of(recipeHolders);

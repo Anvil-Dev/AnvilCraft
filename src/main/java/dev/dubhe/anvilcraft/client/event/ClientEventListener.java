@@ -69,9 +69,13 @@ public class ClientEventListener {
     public static void onKeyPress(Key event) {
         if (ModKeyMappings.TOGGLE_GOGGLE.get().isDown()) AnvilHammerItem.goggleEnabled = !AnvilHammerItem.goggleEnabled;
 
+        // 以下是界面部分
+
         switchPhase:
         if (event.getKey() == ModKeyMappings.SWITCH_PHASE.get().getKey().getValue()) {
-            if (event.getAction() == InputConstants.REPEAT && !(Minecraft.getInstance().screen instanceof MultiphaseScreen)) {
+            if (event.getAction() == InputConstants.REPEAT
+                && Minecraft.getInstance().screen == null
+            ) {
                 LocalPlayer player = Minecraft.getInstance().player;
                 if (player == null) return;
                 ItemStack stack = player.getMainHandItem();
@@ -92,14 +96,14 @@ public class ClientEventListener {
                 PacketDistributor.sendToServer(new SwitchPhasePacket());
             } else if (
                 lastSwitchPhasePressAction == InputConstants.REPEAT
-                    && Minecraft.getInstance().screen instanceof MultiphaseScreen screen
+                && Minecraft.getInstance().screen instanceof MultiphaseScreen screen
             ) {
                 screen.wheel.onClosing();
             }
         }
 
         if (event.getKey() == ModKeyMappings.SWITCH_RESONATE_MODE.get().getKey().getValue()) {
-            if (event.getAction() == InputConstants.PRESS) {
+            if (event.getAction() == InputConstants.PRESS && Minecraft.getInstance().screen == null) {
                 LocalPlayer player = Minecraft.getInstance().player;
                 if (player == null) return;
                 ItemStack stack = player.getMainHandItem();

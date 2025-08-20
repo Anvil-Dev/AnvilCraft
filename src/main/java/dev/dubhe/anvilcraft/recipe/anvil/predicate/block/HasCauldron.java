@@ -3,11 +3,10 @@ package dev.dubhe.anvilcraft.recipe.anvil.predicate.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.init.ModRecipePredicateTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.BlockCache;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
@@ -19,6 +18,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,7 +36,7 @@ import java.util.Optional;
  * </p>
  */
 @Getter
-public class HasCauldron extends HasBlockBase<HasCauldron> {
+public class HasCauldron implements IRecipePredicate<HasCauldron> {
     /**
      * 空炼药锅标识
      */
@@ -46,6 +47,7 @@ public class HasCauldron extends HasBlockBase<HasCauldron> {
      */
     public static final ResourceLocation NULL = ResourceLocation.withDefaultNamespace("null");
 
+    private final Vec3 offset;
     /**
      * 流体ID
      */
@@ -70,7 +72,7 @@ public class HasCauldron extends HasBlockBase<HasCauldron> {
      * @param transform 转换后的流体ID
      */
     public HasCauldron(Vec3 offset, ResourceLocation fluid, int consume, ResourceLocation transform) {
-        super(offset, HasCauldron.ofFluid(fluid, consume));
+        this.offset = offset;
         this.fluid = fluid;
         this.consume = consume;
         this.transform = transform;
@@ -86,35 +88,56 @@ public class HasCauldron extends HasBlockBase<HasCauldron> {
         return new HasCauldron(offset, EMPTY, 0, NULL);
     }
 
-    /**
-     * 根据流体和消耗量创建方块状态谓词
-     *
-     * @param fluid   流体ID
-     * @param consume 消耗量
-     * @return 方块状态谓词
-     */
-    public static BlockStatePredicate ofFluid(@NotNull ResourceLocation fluid, int consume) {
-        if (fluid.equals(EMPTY)) {
-            return BlockStatePredicate.builder()
-                .of(Blocks.CAULDRON)
-                .build();
+    @Override
+    public boolean test(@NotNull InWorldRecipeContext context) {
+        Vec3 pos = context.getPos().add(this.offset);
+        BlockPos blockPos = BlockPos.containing(pos);
+        BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        BlockState curState = cache.getBlockState(blockPos);
+        if (!curState.is(BlockTags.CAULDRONS)) return false;
+        Block fluidCauldron = this.getFluidCauldron();
+        if (curState.is(fluidCauldron)) return true;
+        if (HasCauldron.isNotEmpty(this.fluid)) return false;
+        if (!HasCauldron.isNotEmpty(this.transform)) return false;
+        Block targetCauldron = this.getTransformCauldron();
+        BlockState targetState = targetCauldron.defaultBlockState();
+        Optional<Tuple<IntegerProperty, Integer>> optionalTarget = HasCauldron.getFluidLevel(targetState);
+        int max = optionalTarget.map(tuple -> tuple.getA().max).orElse(0);
+        Optional<Tuple<IntegerProperty, Integer>> optionalCur = getFluidLevel(curState);
+        int cur = optionalCur.map(Tuple::getB).orElse(0);
+        return cur < max;
+    }
+
+    @Override
+    public void accept(@NotNull InWorldRecipeContext context) {
+        if (this.fluid.equals(EMPTY) && !HasCauldron.isNotEmpty(this.transform)) return;
+        BlockPos blockPos = BlockPos.containing(context.getPos().add(this.offset));
+        BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        BlockState curState = cache.getBlockState(blockPos);
+        Block emptyCauldron = Blocks.CAULDRON;
+        Block fluidCauldron = this.getFluidCauldron();
+        Block transformCauldron = this.getTransformCauldron();
+        Block targetCauldron = HasCauldron.isNotEmpty(this.transform) ? transformCauldron : fluidCauldron;
+        BlockState targetState = targetCauldron.defaultBlockState();
+        Optional<Tuple<IntegerProperty, Integer>> optionalCur = getFluidLevel(curState);
+        Optional<Tuple<IntegerProperty, Integer>> optionalTarget = HasCauldron.getFluidLevel(targetState);
+        int cur;
+        if (!curState.is(emptyCauldron) && (curState.is(fluidCauldron) || curState.is(transformCauldron))) {
+            cur = optionalCur.map(Tuple::getB).orElse(0);
+        } else {
+            cur = 0;
         }
-        Block block = HasCauldron.getDefaultCauldron(fluid);
-        BlockState state = block.defaultBlockState();
-        IntegerProperty property = CauldronUtil.LEVEL_4;
-        Optional<Integer> optionalValue = state.getOptionalValue(CauldronUtil.LEVEL_4);
-        if (optionalValue.isEmpty()) {
-            property = CauldronUtil.LEVEL_3;
+        int target = cur - this.consume;
+        if (target <= 0) {
+            targetState = emptyCauldron.defaultBlockState();
+        } else {
+            target = Math.clamp(target, 1, optionalTarget.map(tuple -> tuple.getA().max).orElse(1));
+            if (optionalTarget.isPresent()) {
+                targetState = targetState.setValue(optionalTarget.get().getA(), target);
+            }
         }
-        if (consume > 0) {
-            return BlockStatePredicate.builder()
-                .of(block)
-                .withMin(property, consume)
-                .build();
-        }
-        return BlockStatePredicate.builder()
-            .of(block, Blocks.CAULDRON)
-            .build();
+        cache.setBlock(blockPos, targetState);
+        context.putAcceptor(BlockCache.BLOCK_CACHE.location(), BlockCache.DEFAULT_ACCEPTOR);
     }
 
     /**
@@ -124,48 +147,6 @@ public class HasCauldron extends HasBlockBase<HasCauldron> {
      */
     public static @NotNull Builder builder() {
         return new Builder();
-    }
-
-    @Override
-    public void accept(@NotNull InWorldRecipeContext context) {
-        if (this.fluid.equals(EMPTY)) return;
-        BlockPos blockPos = BlockPos.containing(context.getPos().add(this.offset));
-        BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
-        BlockState state = cache.getBlockState(blockPos);
-        if (state.is(Blocks.CAULDRON)) {
-            Block block = this.getFluidCauldron();
-            state = block.defaultBlockState();
-        }
-        IntegerProperty property = CauldronUtil.LEVEL_4;
-        Optional<Integer> fluidLevel = state.getOptionalValue(property);
-        if (fluidLevel.isEmpty()) {
-            property = CauldronUtil.LEVEL_3;
-            fluidLevel = state.getOptionalValue(property);
-        }
-        if (fluidLevel.isPresent()) {
-            fluidLevel = Optional.of(Math.clamp(fluidLevel.orElse(0) - this.consume, 0, property.max));
-            if (fluidLevel.orElse(0) == 0) {
-                state = Blocks.CAULDRON.defaultBlockState();
-            } else {
-                state = state.setValue(property, fluidLevel.orElse(0));
-            }
-        }
-        if (
-            fluidLevel.orElse(0) > 0
-                && this.transform != null
-                && !this.transform.equals(this.fluid)
-                && !this.transform.equals(HasCauldron.NULL)
-        ) {
-            Block block = this.getTransformCauldron();
-            state = block.defaultBlockState();
-            property = CauldronUtil.LEVEL_4;
-            Optional<Integer> transformLevel = state.getOptionalValue(property);
-            if (transformLevel.isEmpty()) property = CauldronUtil.LEVEL_3;
-            transformLevel = Optional.of(Math.clamp(fluidLevel.orElse(0), 1, property.max));
-            state = state.setValue(property, transformLevel.orElse(1));
-        }
-        cache.setBlock(blockPos, state);
-        context.putAcceptor(BlockCache.BLOCK_CACHE.location(), BlockCache.DEFAULT_ACCEPTOR);
     }
 
     /**
@@ -183,6 +164,20 @@ public class HasCauldron extends HasBlockBase<HasCauldron> {
         Block block = Blocks.WATER_CAULDRON;
         if (reference != null) block = reference.value();
         return block;
+    }
+
+    public static boolean isNotEmpty(@NotNull ResourceLocation fluid) {
+        return !fluid.equals(HasCauldron.NULL) && !fluid.equals(HasCauldron.EMPTY);
+    }
+
+    public static @NotNull Optional<Tuple<IntegerProperty, Integer>> getFluidLevel(@NotNull BlockState state) {
+        IntegerProperty property = CauldronUtil.LEVEL_4;
+        Optional<Integer> value = state.getOptionalValue(property);
+        if (value.isEmpty()) {
+            property = CauldronUtil.LEVEL_3;
+            value = state.getOptionalValue(property);
+        }
+        return value.isPresent() ? Optional.of(new Tuple<>(property, value.get())) : Optional.empty();
     }
 
     /**

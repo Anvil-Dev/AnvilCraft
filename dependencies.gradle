@@ -39,19 +39,21 @@ dependencies {
     compileOnly(libs.theoneprobe)
     compileOnly(libs.kubejs)
 
-    // Create
-    implementation(libs.create) { transitive = false }
+    // Ponder
     implementation(libs.ponder)
+
+    // Create
     implementation(libs.flywheelApi)
     implementation(libs.flywheel)
+    implementation(libs.create) { transitive = false }
+
+    // AE2
     compileOnly(libs.ae2)
 
     // CERBON's Better Beacons
-    implementation(libs.cerbonsApi)
-    implementation(libs.cerbonsBetterBeacons)
+    compileOnly(libs.cerbonsApi)
+    compileOnly(libs.cerbonsBetterBeacons)
 
-//    compileOnly("org.sinytra.forgified-fabric-api:fabric-api-base:0.4.42+d1308ded19")
-//    compileOnly("org.sinytra.forgified-fabric-api:fabric-renderer-api-v1:3.4.0+acb05a3919")
-//    compileOnly("org.sinytra.forgified-fabric-api:fabric-block-view-api-v2:1.0.10+9afaaf8c19")
-//    compileOnly("org.sinytra.forgified-fabric-api:fabric-rendering-data-attachment-v1:0.3.48+73761d2e19")
+    // Apple Skin
+    implementation(libs.appleskin)
 }

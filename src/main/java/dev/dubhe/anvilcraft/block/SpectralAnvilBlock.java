@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import com.mojang.math.MethodsReturnNonnullByDefault;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
+import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.util.MagnetUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -80,7 +81,7 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
             .setValue(FACING, context.getHorizontalDirection().getClockWise())
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+            .setValue(POWERED, context.getLevel().getBlockState(context.getClickedPos().above()).is(ModBlockTags.MAGNET));
     }
 
     @Override

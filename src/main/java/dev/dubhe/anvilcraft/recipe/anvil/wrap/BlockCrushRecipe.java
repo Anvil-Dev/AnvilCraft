@@ -4,10 +4,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
-import lombok.Getter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +16,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,18 +24,7 @@ import org.jetbrains.annotations.NotNull;
  * 该配方用于在铁砧下落时粉碎方块，是方块级别的粉碎处理配方
  * </p>
  */
-@Getter
 public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
-    /**
-     * 输入方块谓词
-     */
-    private final BlockStatePredicate input;
-
-    /**
-     * 结果方块
-     */
-    private final ChanceBlockState result;
-
     /**
      * 构造一个方块粉碎配方
      *
@@ -49,13 +37,12 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
     ) {
         super(
             new AbstractProcessRecipe.Property()
-                .setBlockInputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockInputOffset(new Vec3i(0, -1, 0))
+                .setConsumeInputBlocks(true)
                 .setInputBlocks(input)
-                .setBlockOutputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockOutputOffset(new Vec3i(0, -1, 0))
                 .setResultBlocks(result)
         );
-        this.input = input;
-        this.result = result;
     }
 
     @Override
@@ -87,10 +74,10 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
         private static final MapCodec<BlockCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockStatePredicate.CODEC
                 .fieldOf("input")
-                .forGetter(BlockCrushRecipe::getInput),
+                .forGetter(BlockCrushRecipe::getFirstInputBlock),
             ChanceBlockState.CODEC.codec()
                 .fieldOf("result")
-                .forGetter(BlockCrushRecipe::getResult)
+                .forGetter(BlockCrushRecipe::getFirstResultBlock)
         ).apply(instance, BlockCrushRecipe::new));
 
         /**
@@ -98,9 +85,9 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
          */
         private static final StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> STREAM_CODEC = StreamCodec.composite(
             BlockStatePredicate.STREAM_CODEC,
-            BlockCrushRecipe::getInput,
+            BlockCrushRecipe::getFirstInputBlock,
             ChanceBlockState.STREAM_CODEC,
-            BlockCrushRecipe::getResult,
+            BlockCrushRecipe::getFirstResultBlock,
             BlockCrushRecipe::new
         );
 

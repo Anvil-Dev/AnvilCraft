@@ -19,7 +19,7 @@ public class SqueezingRecipeLoader {
         SqueezingRecipe.builder()
             .requires(requires)
             .result(result)
-            .cauldron(cauldron)
+            .transform(cauldron)
             .produceFluid(true)
             .save(provider, AnvilCraft.of("squeezing/%s".formatted(save)));
     }

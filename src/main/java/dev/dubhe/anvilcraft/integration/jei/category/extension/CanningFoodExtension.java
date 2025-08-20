@@ -44,7 +44,7 @@ public class CanningFoodExtension implements ICraftingCategoryExtension<CanningF
                 .stream()
                 .map(Holder::value)
                 .map(Item::getDefaultInstance)
-                .filter(recipe::isValidFood)
+                .filter(recipe::isFood)
             )
         ), 0, 0);
         craftingGridHelper.createAndSetOutputs(builder, List.of(ModItems.CANNED_FOOD.asStack()));
@@ -60,7 +60,7 @@ public class CanningFoodExtension implements ICraftingCategoryExtension<CanningF
             .filter(slot -> slot.getRole() == RecipeIngredientRole.INPUT)
             .map(IRecipeSlotView::getDisplayedItemStack)
             .flatMap(Optional::stream)
-            .filter(recipe::isValidFood)
+            .filter(recipe::isFood)
             .findFirst()
             .orElse(ItemStack.EMPTY);
         if (displayedFood.isEmpty()) return;

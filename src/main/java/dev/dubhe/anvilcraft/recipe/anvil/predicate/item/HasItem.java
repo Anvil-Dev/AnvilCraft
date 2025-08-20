@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.recipe.anvil.predicate.item;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.init.ModRecipePredicateTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemPredicate;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipePredicateTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemPredicate;
 import lombok.Getter;
 import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;

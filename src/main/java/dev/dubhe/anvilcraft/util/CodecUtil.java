@@ -9,22 +9,26 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.IRecipeTrigger;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.IRecipeOutcome;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.trigger.IRecipeTrigger;
 import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -43,9 +47,12 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CodecUtil {
@@ -114,7 +121,8 @@ public class CodecUtil {
             } else {
                 return DataResult.success(key.toString());
             }
-        });
+        }
+    );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Item> ITEM_STREAM_CODEC = StreamCodec.of(
         (buf, item) -> buf.writeUtf(BuiltInRegistries.ITEM.getKey(item).toString()),
@@ -167,7 +175,8 @@ public class CodecUtil {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, EntityType<?>> ENTITY_STREAM_CODEC = StreamCodec.of(
         (buf, e) -> buf.writeResourceLocation(BuiltInRegistries.ENTITY_TYPE.getKey(e)),
-        buf -> BuiltInRegistries.ENTITY_TYPE.get(buf.readResourceLocation()));
+        buf -> BuiltInRegistries.ENTITY_TYPE.get(buf.readResourceLocation())
+    );
 
     public static final Codec<Character> CHAR_CODEC =
         Codec.STRING.flatXmap(s -> DataResult.success(s.charAt(0)), c -> DataResult.success(c.toString()));
@@ -338,5 +347,41 @@ public class CodecUtil {
                 codec8.encode(buffer, getter8.apply(value));
             }
         };
+    }
+
+    public static <K, V, T> Codec<T> byMap(
+        @NotNull Codec<Map<K, V>> mapCodec,
+        Function<T, K> keyGetter,
+        Function<T, V> valueGetter,
+        BiFunction<K, V, T> factory
+    ) {
+        return mapCodec.xmap(
+            map -> {
+                for (Map.Entry<K, V> entry : map.entrySet()) {
+                    return factory.apply(entry.getKey(), entry.getValue());
+                }
+                return null;
+            },
+            value -> Map.of(keyGetter.apply(value), valueGetter.apply(value))
+        );
+    }
+
+    public static <T> @NotNull StreamCodec<RegistryFriendlyByteBuf, T> byCodec(Registry<?> registry, Codec<T> codec) {
+        return StreamCodec.of(
+            (buffer, value) -> {
+                RegistryOps<Tag> ops = HolderLookup.Provider
+                    .create(Stream.of(registry.asLookup()))
+                    .createSerializationContext(NbtOps.INSTANCE);
+                DataResult<Tag> encode = codec.encode(value, ops, ops.empty());
+                Tag tag = encode.getOrThrow();
+                buffer.writeNbt(tag);
+            },
+            buffer -> {
+                RegistryOps<Tag> ops = HolderLookup.Provider
+                    .create(Stream.of(registry.asLookup()))
+                    .createSerializationContext(NbtOps.INSTANCE);
+                return codec.decode(ops, buffer.readNbt()).getOrThrow().getFirst();
+            }
+        );
     }
 }

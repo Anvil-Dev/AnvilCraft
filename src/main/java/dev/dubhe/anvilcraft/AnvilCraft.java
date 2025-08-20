@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tterrag.registrate.Registrate;
+import dev.dubhe.anvilcraft.api.integration.IntegrationHook;
 import dev.dubhe.anvilcraft.api.integration.IntegrationManager;
 import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
@@ -24,6 +25,7 @@ import dev.dubhe.anvilcraft.init.ModEntities;
 import dev.dubhe.anvilcraft.init.ModFluids;
 import dev.dubhe.anvilcraft.init.ModInspections;
 import dev.dubhe.anvilcraft.init.ModItemGroups;
+import dev.dubhe.anvilcraft.init.ModItemSubPredicates;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.init.ModLootContextParamSets;
 import dev.dubhe.anvilcraft.init.ModLootItemConditions;
@@ -33,12 +35,10 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModParticles;
-import dev.dubhe.anvilcraft.init.ModRecipeOutcomeTypes;
-import dev.dubhe.anvilcraft.init.ModRecipePredicateTypes;
-import dev.dubhe.anvilcraft.init.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.ModVillagers;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipeInits;
 import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -50,6 +50,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
@@ -79,7 +80,7 @@ public class AnvilCraft {
 
     public static final Registrate REGISTRATE = Registrate.create(MOD_ID);
 
-    public AnvilCraft(IEventBus modEventBus) {
+    public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
         MOD_BUS = modEventBus;
         ModAttatchments.register(modEventBus);
         ModItemGroups.register(modEventBus);
@@ -96,6 +97,7 @@ public class AnvilCraft {
         ModParticles.register(modEventBus);
         ModMobEffects.register(modEventBus);
         ModInspections.initialize();
+        ModItemSubPredicates.initialize(modEventBus);
 
         ModLootContextParamSets.registerAll();
         ModEnchantmentEffectComponents.register(modEventBus);
@@ -110,6 +112,8 @@ public class AnvilCraft {
 
         registerEvents(modEventBus);
         StartupNotificationManager.addModMessage("[AnvilCraft] Loading Integrations");
+        IntegrationHook.setModEventBus(modEventBus);
+        IntegrationHook.setModContainer(modContainer);
         integrationManager.compileContent();
         integrationManager.loadAllIntegrations();
         StartupNotificationManager.addModMessage("[AnvilCraft] Ciallo~");
@@ -117,9 +121,8 @@ public class AnvilCraft {
         LOGGER.info("Ciallo～(∠・ω< )⌒★");
         LOGGER.info("let's 0721");
 
-        ModRecipeTriggers.TRIGGER.register(modEventBus);
-        ModRecipePredicateTypes.PREDICATE_TYPE.register(modEventBus);
-        ModRecipeOutcomeTypes.OUTCOME_TYPE.register(modEventBus);
+        ModRecipeInits.init(modEventBus);
+
         ModResultModifierTypes.register(modEventBus);
         ModCustomDataComponents.register(modEventBus);
     }

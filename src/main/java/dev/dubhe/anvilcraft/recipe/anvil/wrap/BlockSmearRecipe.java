@@ -4,10 +4,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
-import lombok.Getter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,7 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,18 +28,7 @@ import java.util.List;
  * 该配方用于在铁砧下落时将多个方块涂抹成一个方块
  * </p>
  */
-@Getter
 public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
-    /**
-     * 输入方块列表
-     */
-    private final List<BlockStatePredicate> inputs;
-
-    /**
-     * 结果方块
-     */
-    private final ChanceBlockState result;
-
     /**
      * 构造一个方块涂抹配方
      *
@@ -53,13 +41,11 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
     ) {
         super(
             new Property()
-                .setBlockInputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockInputOffset(new Vec3i(0, -1, 0))
                 .setInputBlocks(inputs)
-                .setBlockOutputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setBlockOutputOffset(new Vec3i(0, -2, 0))
                 .setResultBlocks(result)
         );
-        this.inputs = inputs;
-        this.result = result;
     }
 
     @Override
@@ -92,10 +78,10 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
             BlockStatePredicate.CODEC
                 .listOf()
                 .fieldOf("inputs")
-                .forGetter(BlockSmearRecipe::getInputs),
+                .forGetter(BlockSmearRecipe::getInputBlocks),
             ChanceBlockState.CODEC.codec()
                 .fieldOf("result")
-                .forGetter(BlockSmearRecipe::getResult)
+                .forGetter(BlockSmearRecipe::getFirstResultBlock)
         ).apply(instance, BlockSmearRecipe::new));
 
         /**
@@ -103,9 +89,9 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
          */
         private static final StreamCodec<RegistryFriendlyByteBuf, BlockSmearRecipe> STREAM_CODEC = StreamCodec.composite(
             BlockStatePredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            BlockSmearRecipe::getInputs,
+            BlockSmearRecipe::getInputBlocks,
             ChanceBlockState.STREAM_CODEC,
-            BlockSmearRecipe::getResult,
+            BlockSmearRecipe::getFirstResultBlock,
             BlockSmearRecipe::new
         );
 

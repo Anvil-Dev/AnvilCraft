@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
+import dev.dubhe.anvilcraft.client.renderer.item.IExtraItemDisplayRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 
 @Mixin(GuiGraphics.class)
 public abstract class GuiGraphicsMixin {
-
     @Unique
     private static int ANVILCRAFT$RECURSION = 0;
     @Unique
@@ -40,17 +39,19 @@ public abstract class GuiGraphicsMixin {
         )
     )
     private void renderExtra(LivingEntity entity, Level level, ItemStack stack, int x, int y, int seed, int guiOffset, CallbackInfo ci) {
-        if (ANVILCRAFT$RECURSION >= ANVILCRAFT$MAX_RECURSION) return;
-        if (!(stack.getItem() instanceof IExtraItemDisplay item)) return;
-        ItemStack innerStack = item.getDisplayedItem(stack);
-        if (innerStack.isEmpty()) return;
-        ANVILCRAFT$RECURSION++;
-        pose.pushPose();
-        pose.translate(x + item.xOffset(stack), y + item.yOffset(stack), 0);
-        float scale = item.scale(stack);
-        pose.scale(scale, scale, 1.0f);
-        this.renderItem(entity, level, innerStack, 0, 0, seed, guiOffset + 10);
-        ANVILCRAFT$RECURSION--;
-        pose.popPose();
+        IExtraItemDisplayRenderer.renderGuiExtra(
+            this.pose,
+            this::renderItem,
+            entity,
+            level,
+            stack,
+            x,
+            y,
+            seed,
+            guiOffset,
+            ANVILCRAFT$RECURSION,
+            ANVILCRAFT$MAX_RECURSION,
+            i -> ANVILCRAFT$RECURSION = i
+        );
     }
 }

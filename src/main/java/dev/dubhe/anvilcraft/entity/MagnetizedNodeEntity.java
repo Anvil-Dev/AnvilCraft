@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 public class MagnetizedNodeEntity extends Entity {
     private static final EntityDataAccessor<BlockPos> DATA_BLOCK_POS =
@@ -72,7 +71,7 @@ public class MagnetizedNodeEntity extends Entity {
             blockPos.getZ() + 1.01
         );
         level()
-            .getEntities(EntityType.ITEM, aabb, it -> ((AdsorbableItemEntity) it).anvilcraft$isAdsorbable())
+            .getEntities(EntityType.ITEM, aabb, AdsorbableItemEntity::anvilcraft$isAdsorbable)
             .forEach(entity -> {
                 entity.teleportTo(position().x, position().y, position().z);
                 entity.setDeltaMovement(Vec3.ZERO);
@@ -102,7 +101,7 @@ public class MagnetizedNodeEntity extends Entity {
     }
 
     @Override
-    protected @NotNull AABB makeBoundingBox() {
+    protected AABB makeBoundingBox() {
         return EntityDimensions.scalable(0.25f, 0.25f).makeBoundingBox(this.position());
     }
 

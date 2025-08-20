@@ -2,23 +2,18 @@ package dev.dubhe.anvilcraft.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHandHeldItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.ModComponents;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
+import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
-import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -34,7 +29,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Contract;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
@@ -131,9 +125,9 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
         StructureData data = stack.get(ModComponents.STRUCTURE_DATA);
         if (data != null) {
             tooltipComponents.add(Component.translatable(
-                "tooltip.anvilcraft.item.structure_tool.min_pos", data.minX, data.minY, data.minZ));
+                "tooltip.anvilcraft.item.structure_tool.min_pos", data.minX(), data.minY(), data.minZ()));
             tooltipComponents.add(Component.translatable(
-                "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX, data.maxY, data.maxZ));
+                "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX(), data.maxY(), data.maxZ()));
             tooltipComponents.add(SHIFT_TO_CLEAR_TOOLTIP);
         } else {
             tooltipComponents.add(DEVELOPER_TOOLTIP);
@@ -152,8 +146,8 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
         PoseStack poseStack, VertexConsumer consumer, ItemStack itemStack, double camX, double camY, double camZ) {
         StructureData data = itemStack.get(ModComponents.STRUCTURE_DATA);
         if (data != null) {
-            BlockPos minPos = data.getMinPos();
-            BlockPos maxPos = data.getMaxPos();
+            BlockPos minPos = data.minPos();
+            BlockPos maxPos = data.maxPos();
             VoxelShape shape = Shapes.create(AABB.encapsulatingFullBlocks(minPos, maxPos));
             TooltipRenderHelper.renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xFFFFFFFF);
         }
@@ -166,120 +160,5 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
     @Override
     public int priority() {
         return 0;
-    }
-
-    @Getter
-    public static class StructureData {
-        public static final Codec<StructureData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                Codec.INT.fieldOf("minX").forGetter(StructureData::getMinX),
-                Codec.INT.fieldOf("minY").forGetter(StructureData::getMinY),
-                Codec.INT.fieldOf("minZ").forGetter(StructureData::getMinZ),
-                Codec.INT.fieldOf("maxX").forGetter(StructureData::getMaxX),
-                Codec.INT.fieldOf("maxY").forGetter(StructureData::getMaxY),
-                Codec.INT.fieldOf("maxZ").forGetter(StructureData::getMaxZ))
-            .apply(ins, StructureData::new));
-
-        public static final StreamCodec<ByteBuf, StructureData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            StructureData::getMinX,
-            ByteBufCodecs.VAR_INT,
-            StructureData::getMinY,
-            ByteBufCodecs.VAR_INT,
-            StructureData::getMinZ,
-            ByteBufCodecs.VAR_INT,
-            StructureData::getMaxX,
-            ByteBufCodecs.VAR_INT,
-            StructureData::getMaxY,
-            ByteBufCodecs.VAR_INT,
-            StructureData::getMaxZ,
-            StructureData::new);
-
-        final int minX, minY, minZ;
-        final int maxX, maxY, maxZ;
-
-        public StructureData(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-            this.minX = minX;
-            this.minY = minY;
-            this.minZ = minZ;
-            this.maxX = maxX;
-            this.maxY = maxY;
-            this.maxZ = maxZ;
-        }
-
-        public StructureData(BlockPos initPos) {
-            minX = initPos.getX();
-            minY = initPos.getY();
-            minZ = initPos.getZ();
-            maxX = initPos.getX();
-            maxY = initPos.getY();
-            maxZ = initPos.getZ();
-        }
-
-        @Contract(" _ -> new")
-        public StructureData addPos(BlockPos pos) {
-            int newMinX, newMinY, newMinZ;
-            int newMaxX, newMaxY, newMaxZ;
-            newMinX = Math.min(minX, pos.getX());
-            newMinY = Math.min(minY, pos.getY());
-            newMinZ = Math.min(minZ, pos.getZ());
-            newMaxX = Math.max(maxX, pos.getX());
-            newMaxY = Math.max(maxY, pos.getY());
-            newMaxZ = Math.max(maxZ, pos.getZ());
-            return new StructureData(newMinX, newMinY, newMinZ, newMaxX, newMaxY, newMaxZ);
-        }
-
-        public BlockPos getMinPos() {
-            return new BlockPos(minX, minY, minZ);
-        }
-
-        public BlockPos getMaxPos() {
-            return new BlockPos(maxX, maxY, maxZ);
-        }
-
-        public int getSizeX() {
-            return maxX - minX + 1;
-        }
-
-        public int getSizeY() {
-            return maxY - minY + 1;
-        }
-
-        public int getSizeZ() {
-            return maxZ - minZ + 1;
-        }
-
-        public boolean isCube() {
-            return this.getSizeX() == this.getSizeY() && this.getSizeY() == this.getSizeZ();
-        }
-
-        public boolean isOddCubeWithinSize(int maxSize) {
-            return this.isCube() && this.getSizeX() % 2 == 1 && this.getSizeX() <= maxSize;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = Integer.hashCode(minX);
-            result = prime * result + Integer.hashCode(minY);
-            result = prime * result + Integer.hashCode(minZ);
-            result = prime * result + Integer.hashCode(maxX);
-            result = prime * result + Integer.hashCode(maxY);
-            result = prime * result + Integer.hashCode(maxZ);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj instanceof StructureData data) {
-                return minX == data.minX
-                    && minY == data.minY
-                    && minZ == data.minZ
-                    && maxX == data.maxX
-                    && maxY == data.maxY
-                    && maxZ == data.maxZ;
-            }
-            return false;
-        }
     }
 }

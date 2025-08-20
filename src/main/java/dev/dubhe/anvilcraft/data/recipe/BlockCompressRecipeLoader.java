@@ -23,14 +23,16 @@ public class BlockCompressRecipeLoader {
             provider,
             ModBlocks.CHOCOLATE_CREAM_BLOCK.get(),
             ModBlocks.CAKE_BASE_BLOCK.get(),
-            ModBlocks.CHOCOLATE_CAKE_BLOCK.get());
+            ModBlocks.CHOCOLATE_CAKE_BLOCK.get()
+        );
         blockCompress(provider, BlockTags.LEAVES, Blocks.DIRT, Blocks.PODZOL);
         blockCompress(provider, ModBlockTags.MUSHROOM_BLOCK, Blocks.DIRT, Blocks.MYCELIUM);
         blockCompress(
             provider,
             ModBlocks.VOID_MATTER_BLOCK.get(),
             ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.get(),
-            ModBlocks.SPACE_OVERCOMPRESSOR.get());
+            ModBlocks.SPACE_OVERCOMPRESSOR.get()
+        );
     }
 
     private static void blockCompress(RegistrateRecipeProvider provider, Block block1, Block block2, Block result) {

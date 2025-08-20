@@ -14,6 +14,7 @@ public class ModEntityTypeTags {
     public static final TagKey<EntityType<?>> DOG_AMULET_VALID = bind("amulet_valid/dog");
     public static final TagKey<EntityType<?>> SILENCE_AMULET_VALID = bind("amulet_valid/silence");
 
+    @SuppressWarnings("unused")
     private static TagKey<EntityType<?>> bindC(String id) {
         return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("c", id));
     }

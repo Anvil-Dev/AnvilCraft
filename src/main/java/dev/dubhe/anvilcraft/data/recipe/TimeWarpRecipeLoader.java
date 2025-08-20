@@ -43,25 +43,25 @@ public class TimeWarpRecipeLoader {
             .requires(Items.EMERALD)
             .result(Items.EMERALD_BLOCK)
             .consume(1)
-            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
+            .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ModItems.RUBY)
             .result(ModBlocks.RUBY_BLOCK)
             .consume(1)
-            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
+            .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ModItems.TOPAZ)
             .result(ModBlocks.TOPAZ_BLOCK)
             .consume(1)
-            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
+            .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ModItems.SAPPHIRE)
             .result(ModBlocks.SAPPHIRE_BLOCK)
             .consume(1)
-            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
+            .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
             .requires(ItemTags.LOGS)
@@ -167,20 +167,20 @@ public class TimeWarpRecipeLoader {
     private static void timeWarpToOilCauldron(RegistrateRecipeProvider provider, ItemLike input, int inputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
-            .consume(-1)
             .transform(ModBlocks.OIL_CAULDRON.get())
+            .produce(1)
             .save(
                 provider,
-                AnvilCraft.of("time_warp/oil_from_"
-                    + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath()));
+                AnvilCraft.of("time_warp/oil_from_" + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath())
+            );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void timeWarpToOilCauldron(RegistrateRecipeProvider provider, TagKey<Item> input, int inputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
-            .consume(-1)
             .transform(ModBlocks.OIL_CAULDRON.get())
+            .produce(1)
             .save(
                 provider,
                 AnvilCraft.of("time_warp/oil_from_" + input.location().getPath()));

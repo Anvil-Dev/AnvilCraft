@@ -5,12 +5,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.util.BlockStatePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.util.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -45,13 +47,14 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
     ) {
         super(
             new Property()
-                .setItemInputOffset(Vec3.ZERO)
+                .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
+                .setItemInputRange(new Vec3(0.75, 0.75, 0.75))
                 .setInputItems(itemIngredients)
-                .setItemOutputOffset(new Vec3(0.0, -1.0, 0.0))
+                .setItemOutputOffset(new Vec3(0.0, -0.75, 0.0))
                 .setResultItems(results)
-                .setCauldronOffset(new Vec3(0.0, -1.0, 0.0))
+                .setCauldronOffset(new Vec3i(0, -1, 0))
                 .setHasCauldron(hasCauldron)
-                .setBlockInputOffset(new Vec3(0.0, -2.0, 0.0))
+                .setBlockInputOffset(new Vec3i(0, -2, 0))
                 .setInputBlocks(
                     BlockStatePredicate.builder()
                         .of(ModBlocks.HEATER.get())
@@ -78,6 +81,26 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
      */
     public static @NotNull Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * 是否消耗流体
+     *
+     * @return 如果消耗流体返回true，否则返回false
+     */
+    public boolean isConsumeFluid() {
+        HasCauldronSimple hasCauldron = this.getHasCauldron();
+        return HasCauldron.isNotEmpty(hasCauldron.getFluid()) && this.getHasCauldron().getConsume() > 0;
+    }
+
+    /**
+     * 是否产生流体
+     *
+     * @return 如果产生流体返回true，否则返回false
+     */
+    public boolean isProduceFluid() {
+        HasCauldronSimple hasCauldron = this.getHasCauldron();
+        return HasCauldron.isNotEmpty(hasCauldron.getTransform()) && this.getHasCauldron().getConsume() > 0;
     }
 
     /**
@@ -143,6 +166,17 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         }
 
         /**
+         * 设置炼药锅方块
+         *
+         * @param cauldron 炼药锅方块
+         * @return 构建器实例
+         */
+        public @NotNull Builder fluid(Block cauldron) {
+            this.fluid(WrapUtils.cauldron2Fluid(cauldron));
+            return this;
+        }
+
+        /**
          * 设置转换后的流体
          *
          * @param transform 转换后的流体ID
@@ -172,6 +206,17 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          */
         public Builder consume(int consume) {
             this.hasCauldron.consume(consume);
+            return this;
+        }
+
+        /**
+         * 设置产生量
+         *
+         * @param produce 产量
+         * @return 构建器实例
+         */
+        public Builder produce(int produce) {
+            this.consume(-produce);
             return this;
         }
 

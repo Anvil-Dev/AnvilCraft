@@ -5,7 +5,7 @@
   "sortnum": 7,
   "entry_color": "004400",
   "pages": [
-    "获得$(l:smithing/corrupted_beacon)腐化信标$()后，你就可以制造$(l:struct/multiblock#giant_anvil)巨型铁砧$()了。手持$(item)铁砧$()右键僵尸可以塞到它手上，再使用$(l:basic/more_device#resin_block)树脂块$()抓捕$(item)僵尸$()，将它放置在$(l:smithing/corrupted_beacon)腐化信标$()上，就会发生$(l:smithing/corrupted_beacon)生物转化$()。$(br)僵尸拿着的$(item)铁砧$()越多,就有越大的概率变为拿着$(l:struct/multiblock#giant_anvil)巨型铁砧$()的$(item)巨人僵尸$()。",
+    "获得$(l:smithing/corrupted_beacon)腐化信标$()后，你就可以制造$(l:struct/multiblock#giant_anvil)巨型铁砧$()了。手持$(item)铁砧$()右键僵尸可以塞到它手上，再使用$(l:basic/material#resin_block)树脂块$()抓捕$(item)僵尸$()，将它放置在$(l:smithing/corrupted_beacon)腐化信标$()上，就会发生$(l:smithing/corrupted_beacon)生物转化$()。$(br)僵尸拿着的$(item)铁砧$()越多,就有越大的概率变为拿着$(l:struct/multiblock#giant_anvil)巨型铁砧$()的$(item)巨人僵尸$()。",
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:giant_anvil",
