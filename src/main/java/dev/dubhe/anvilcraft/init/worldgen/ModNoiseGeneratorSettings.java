@@ -113,7 +113,7 @@ public class ModNoiseGeneratorSettings {
             0,
             false,
             true,
-            true,
+            false,
             false
         );
     }
@@ -137,8 +137,8 @@ public class ModNoiseGeneratorSettings {
                             ).clamp(0.0, 0.5)
                         )
                     ), getFunction(ENTRANCES)
-                ), DensityFunctions.add(
-                    getFunction(SPAGHETTI_2D), getFunction(SPAGHETTI_ROUGHNESS_FUNCTION))
+                ),
+                DensityFunctions.add(getFunction(SPAGHETTI_2D), getFunction(SPAGHETTI_ROUGHNESS_FUNCTION))
             ), DensityFunctions.rangeChoice(
                 pillars, -1000000.0, 0.03, DensityFunctions.constant(-1000000.0), pillars
             )

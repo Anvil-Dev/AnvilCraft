@@ -25,7 +25,6 @@ public class ModBiomes {
             .generationSettings(
                 new BiomeGenerationSettings.Builder(context.lookup(Registries.PLACED_FEATURE), context.lookup(Registries.CONFIGURED_CARVER))
                     .addCarver(GenerationStep.Carving.AIR, Carvers.CAVE)
-                    .addCarver(GenerationStep.Carving.AIR, Carvers.CAVE_EXTRA_UNDERGROUND)
                     .addCarver(GenerationStep.Carving.AIR, Carvers.CANYON)
                     .build()
             )
