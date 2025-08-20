@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.reicpe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.ChangeDimension;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ChooseOneOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.IRecipeOutcome;
@@ -33,4 +34,7 @@ public class ModRecipeOutcomeTypes {
 
     public static final DeferredHolder<IRecipeOutcome.Type<?>, ChooseOneOutcome.Type> CHOOSE_ONE = OUTCOME_TYPE
         .register("choose_one", ChooseOneOutcome.Type::new);
+
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, ChangeDimension.Type> CHANGE_DIMENSION = OUTCOME_TYPE
+        .register("change_dimension", ChangeDimension.Type::new);
 }

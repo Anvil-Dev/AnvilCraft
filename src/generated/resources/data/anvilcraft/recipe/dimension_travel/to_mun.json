@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:dimension_travel",
+  "destination": "anvilcraft:mun",
+  "height": 349.0,
+  "offset": [
+    5.0,
+    5.0
+  ],
+  "origin": "minecraft:overworld",
+  "speed": 10.0
+}

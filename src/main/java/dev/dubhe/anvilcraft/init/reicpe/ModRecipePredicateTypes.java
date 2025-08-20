@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasBlock;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasBlockIngredient;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.entity.HasEnderPearl;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasItem;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasItemIngredient;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -38,5 +39,10 @@ public class ModRecipePredicateTypes {
     public static final DeferredHolder<IRecipePredicate.Type<?>, HasCauldron.Type> HAS_CAULDRON = PREDICATE_TYPE.register(
         "has_cauldron",
         HasCauldron.Type::new
+    );
+
+    public static final DeferredHolder<IRecipePredicate.Type<?>, HasEnderPearl.Type> HAS_ENDER_PEARL = PREDICATE_TYPE.register(
+        "has_ender_pearl",
+        HasEnderPearl.Type::new
     );
 }

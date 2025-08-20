@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -40,6 +41,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
+import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -258,6 +260,25 @@ public class CodecUtil {
         }
         return Either.left((ConstantValue) provider);
     });
+
+    public static final Codec<Vec2> VEC2_CODEC = Codec.FLOAT.listOf(2, 2)
+        .comapFlatMap(
+            list -> Util.fixedSize(list, 2).map(floats -> new Vec2(floats.getFirst(), floats.get(1))),
+            vec2 -> List.of(vec2.x, vec2.y)
+        );
+
+    public static final StreamCodec<ByteBuf, Vec2> VEC2_STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public @NotNull Vec2 decode(ByteBuf buffer) {
+            return new Vec2(buffer.readFloat(), buffer.readFloat());
+        }
+
+        @Override
+        public void encode(ByteBuf buffer, Vec2 value) {
+            buffer.writeFloat(value.x);
+            buffer.writeFloat(value.y);
+        }
+    };
 
     public static <B, C, T1, T2, T3, T4, T5, T6, T7> StreamCodec<B, C> composite(
         final StreamCodec<? super B, T1> codec1,

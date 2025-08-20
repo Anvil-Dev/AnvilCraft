@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.DimensionTravelRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
@@ -192,6 +193,16 @@ public class ModRecipeTypes {
         EIGHT_TO_ONE_SMITHING_SERIALIZER =
         RECIPE_SERIALIZERS.register("eight_to_one_smithing", EightToOneSmithingRecipe.Serializer::new);
 
+    public static final DeferredHolder<RecipeType<?>, RecipeType<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT =
+        registerType("anvil_collision");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT_SERIALIZER =
+        RECIPE_SERIALIZERS.register("anvil_collision", AnvilCollisionCraftRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<DimensionTravelRecipe>> DIMENSION_TRAVEL_TYPE =
+        registerType("dimension_travel");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<DimensionTravelRecipe>> DIMENSION_TRAVEL_SERIALIZER =
+        RECIPE_SERIALIZERS.register("dimension_travel", DimensionTravelRecipe.Serializer::new);
+
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {
             @Override
@@ -200,11 +211,6 @@ public class ModRecipeTypes {
             }
         });
     }
-
-    public static final DeferredHolder<RecipeType<?>, RecipeType<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT =
-        registerType("anvil_collision");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT_SERIALIZER =
-        RECIPE_SERIALIZERS.register("anvil_collision", AnvilCollisionCraftRecipe.Serializer::new);
 
     public static void register(IEventBus bus) {
         RECIPE_TYPES.register(bus);
