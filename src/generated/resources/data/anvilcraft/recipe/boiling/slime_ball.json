@@ -2,7 +2,7 @@
   "type": "anvilcraft:boiling",
   "ingredients": [
     {
-      "items": "anvilcraft:resin"
+      "items": "#c:resin"
     }
   ],
   "results": [

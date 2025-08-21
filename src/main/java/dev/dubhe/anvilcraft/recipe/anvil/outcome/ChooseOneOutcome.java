@@ -239,7 +239,9 @@ public class ChooseOneOutcome implements IRecipeOutcome<ChooseOneOutcome> {
          * 编解码器
          */
         public static final Codec<ChooseOneOutcome> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            NumberProviders.CODEC.fieldOf("chance").forGetter(ChooseOneOutcome::getChance),
+            NumberProviders.CODEC
+                .optionalFieldOf("chance", ConstantValue.exactly(1f))
+                .forGetter(ChooseOneOutcome::getChance),
             ChooseOneOutcome.Choice.CODEC.listOf().fieldOf("choices").forGetter(ChooseOneOutcome::getChoices)
         ).apply(ins, ChooseOneOutcome::new));
 
@@ -247,7 +249,9 @@ public class ChooseOneOutcome implements IRecipeOutcome<ChooseOneOutcome> {
          * 映射编解码器
          */
         public static final MapCodec<ChooseOneOutcome> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            NumberProviders.CODEC.fieldOf("chance").forGetter(ChooseOneOutcome::getChance),
+            NumberProviders.CODEC
+                .optionalFieldOf("chance", ConstantValue.exactly(1f))
+                .forGetter(ChooseOneOutcome::getChance),
             ChooseOneOutcome.Choice.CODEC.listOf().fieldOf("choices").forGetter(ChooseOneOutcome::getChoices)
         ).apply(ins, ChooseOneOutcome::new));
 

@@ -11,6 +11,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 /**
  * 世界内配方管理器类，用于管理和触发世界内配方
@@ -61,5 +62,15 @@ public class InWorldRecipeManager {
             }
             if (accept) break;
         }
+    }
+
+    /**
+     * 触发指定的配方触发器并执行匹配的配方
+     *
+     * @param trigger 配方触发器
+     * @param ctx     配方上下文
+     */
+    public void trigger(@NotNull Supplier<IRecipeTrigger> trigger, @NotNull InWorldRecipeContext ctx) {
+        this.trigger(trigger.get(), ctx);
     }
 }

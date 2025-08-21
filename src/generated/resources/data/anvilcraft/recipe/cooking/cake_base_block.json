@@ -2,7 +2,7 @@
   "type": "anvilcraft:cooking",
   "ingredients": [
     {
-      "items": "anvilcraft:dough"
+      "items": "#c:dough"
     },
     {
       "items": "minecraft:egg"

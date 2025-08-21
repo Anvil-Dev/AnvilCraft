@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.integration.patchouli.page;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.patchouli.util.PatchouliRenderHelper;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
+import dev.dubhe.anvilcraft.recipe.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.component.ChanceBlockState;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;

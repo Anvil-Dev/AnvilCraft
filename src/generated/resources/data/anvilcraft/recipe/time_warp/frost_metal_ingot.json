@@ -4,10 +4,10 @@
   "fluid": "minecraft:powder_snow",
   "ingredients": [
     {
-      "items": "anvilcraft:titanium_ingot"
+      "items": "#c:ingots/titanium"
     },
     {
-      "items": "anvilcraft:silver_ingot"
+      "items": "#c:ingots/silver"
     },
     {
       "items": "minecraft:iron_ingot"

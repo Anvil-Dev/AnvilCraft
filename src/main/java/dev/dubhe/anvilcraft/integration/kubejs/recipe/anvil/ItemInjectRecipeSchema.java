@@ -7,11 +7,10 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.BlockStatePredi
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceBlockStateComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceItemStackComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ItemIngredientPredicateComponent;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
-import dev.latvian.mods.kubejs.error.KubeRuntimeException;
+import dev.dubhe.anvilcraft.recipe.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.component.ChanceBlockState;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.component.ItemIngredientPredicate;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.ComponentRole;
 import dev.latvian.mods.kubejs.recipe.schema.KubeRecipeFactory;
@@ -119,15 +118,6 @@ public interface ItemInjectRecipeSchema {
 
         @Override
         protected void validate() {
-            if (computeIfAbsent(INGREDIENTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Ingredients is Empty!").source(sourceLine);
-            }
-            if (getValue(BLOCK_INGREDIENT) == null) {
-                throw new KubeRuntimeException("input_block is null!").source(sourceLine);
-            }
-            if (getValue(BLOCK_RESULT) == null) {
-                throw new KubeRuntimeException("output_block is null!").source(sourceLine);
-            }
         }
     }
 

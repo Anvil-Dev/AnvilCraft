@@ -5,9 +5,8 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftKubeRecipe;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceItemStackComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ItemIngredientPredicateComponent;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
-import dev.latvian.mods.kubejs.error.KubeRuntimeException;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.component.ItemIngredientPredicate;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.ComponentRole;
 import dev.latvian.mods.kubejs.recipe.schema.KubeRecipeFactory;
@@ -64,12 +63,6 @@ public interface ItemProcessRecipeSchema {
 
         @Override
         protected void validate() {
-            if (computeIfAbsent(INGREDIENTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Ingredients is Empty!").source(sourceLine);
-            }
-            if (computeIfAbsent(RESULTS, ArrayList::new).isEmpty()) {
-                throw new KubeRuntimeException("Results is Empty!").source(sourceLine);
-            }
         }
     }
 

@@ -10,6 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
@@ -135,8 +136,7 @@ public class ItemCrushRecipeLoader {
     private static void armor(RegistrateRecipeProvider provider, ItemLike armor, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(armor)
-            .result(result, 0.5f)
-            .result(result, 0.5f)
+            .result(result, UniformGenerator.between(0.0f, 2.0f))
             .save(provider, AnvilCraft.of("item_crush/armor/%s_2_%s".formatted(getName(armor), getName(result))));
     }
 

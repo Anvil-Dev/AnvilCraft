@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.HasCauldronSimple;
+import dev.dubhe.anvilcraft.recipe.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
+import dev.dubhe.anvilcraft.recipe.component.ItemIngredientPredicate;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.crafting.RecipeSerializer;

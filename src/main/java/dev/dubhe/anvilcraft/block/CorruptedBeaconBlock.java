@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -49,12 +48,12 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return Objects.requireNonNull(super.getStateForPlacement(context)).setValue(LIT, false);
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(LIT);
     }
@@ -66,14 +65,14 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
     }
 
     @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CorruptedBeaconBlockEntity(pos, state);
     }
 
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
+        Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         return CorruptedBeaconBlock.createTickerHelper(
             blockEntityType,
             ModBlockEntities.CORRUPTED_BEACON.get(),

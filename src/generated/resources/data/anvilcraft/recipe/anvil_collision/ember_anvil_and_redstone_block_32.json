@@ -1,26 +1,35 @@
 {
   "type": "anvilcraft:anvil_collision",
   "anvil": {
-    "id": "anvilcraft:ember_anvil"
+    "blocks": "anvilcraft:ember_anvil"
   },
   "consume": false,
   "hitBlock": {
-    "id": "minecraft:redstone_block"
+    "blocks": "minecraft:redstone_block"
   },
   "output_items": [
     {
-      "chance": 1.0,
-      "count": 6,
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 6.0,
+        "p": 1.0
+      },
       "id": "anvilcraft:uranium_nugget"
     },
     {
-      "chance": 0.5,
-      "count": 4,
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 4.0,
+        "p": 0.5
+      },
       "id": "anvilcraft:uranium_nugget"
     },
     {
-      "chance": 0.25,
-      "count": 2,
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 2.0,
+        "p": 0.25
+      },
       "id": "anvilcraft:uranium_nugget"
     }
   ],

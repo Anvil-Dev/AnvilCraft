@@ -2,7 +2,7 @@
   "type": "anvilcraft:time_warp",
   "ingredients": [
     {
-      "items": "anvilcraft:tungsten_block"
+      "items": "#c:storage_blocks/tungsten"
     }
   ],
   "results": [

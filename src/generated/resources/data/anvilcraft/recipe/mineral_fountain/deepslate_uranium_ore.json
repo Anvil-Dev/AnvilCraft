@@ -1,6 +1,10 @@
 {
   "type": "anvilcraft:mineral_fountain",
-  "from_block": "minecraft:deepslate",
-  "need_block": "anvilcraft:raw_uranium_block",
+  "from_block": {
+    "blocks": "minecraft:deepslate"
+  },
+  "need_block": {
+    "blocks": "#c:storage_blocks/raw_uranium"
+  },
   "to_block": "anvilcraft:deepslate_uranium_ore"
 }

@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.HasCauldronSimple;
+import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.ITickTimer;

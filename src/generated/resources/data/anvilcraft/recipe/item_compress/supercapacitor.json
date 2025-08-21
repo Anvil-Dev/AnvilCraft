@@ -65,12 +65,10 @@
   "outcomes": [
     {
       "type": "anvilcraft:choose_one",
-      "chance": 1.0,
       "choices": [
         {
           "outcome": {
             "type": "anvilcraft:produce_explosion",
-            "chance": 0.5,
             "fire": true,
             "interact": "block",
             "offset": [

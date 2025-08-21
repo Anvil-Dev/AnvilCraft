@@ -2,6 +2,8 @@
   "type": "anvilcraft:mineral_fountain_chance",
   "chance": 0.2,
   "dimension": "minecraft:the_end",
-  "from_block": "minecraft:deepslate",
+  "from_block": {
+    "blocks": "minecraft:deepslate"
+  },
   "to_block": "anvilcraft:void_stone"
 }

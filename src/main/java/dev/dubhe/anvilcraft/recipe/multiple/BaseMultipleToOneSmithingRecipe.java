@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.multiple.result.MultipleToOneResult;
 import dev.dubhe.anvilcraft.recipe.multiple.result.ResultContext;
 import lombok.Getter;

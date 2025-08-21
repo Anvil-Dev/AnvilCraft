@@ -30,19 +30,19 @@ public class MineralFountainBlockEntity extends BlockEntity {
         super(type, pos, blockState);
     }
 
-    public static @NotNull MineralFountainBlockEntity createBlockEntity(
+    public static MineralFountainBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new MineralFountainBlockEntity(type, pos, blockState);
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
         this.tickCount = tag.getInt("tickCount");
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
         tag.putInt("tickCount", this.tickCount);
     }
@@ -55,8 +55,9 @@ public class MineralFountainBlockEntity extends BlockEntity {
         if (tickCount > -1) tickCount--;
         if (tickCount != 0) return;
         BlockState aroundState = getAroundBlock();
-        if (level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > level.getMinBuildHeight() + 8)
+        if (level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > level.getMinBuildHeight() + 8) {
             return;
+        }
         BlockState aboveState = level.getBlockState(getBlockPos().above());
         if (aroundState.is(Blocks.LAVA)) {
             if (aboveState.is(Blocks.AIR)) {
@@ -68,8 +69,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         } else if (aboveState.is(Blocks.AIR)) {
             level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.CINERITE.getDefaultState());
         } else {
-            MineralFountainRecipe.Input input =
-                new MineralFountainRecipe.Input(aroundState.getBlock(), aboveState.getBlock());
+            MineralFountainRecipe.Input input = new MineralFountainRecipe.Input(aroundState.getBlock(), aboveState.getBlock());
             level.getRecipeManager()
                 .getRecipeFor(ModRecipeTypes.MINERAL_FOUNTAIN.get(), input, level)
                 .ifPresent(recipe -> {
@@ -80,27 +80,32 @@ public class MineralFountainBlockEntity extends BlockEntity {
                         .filter(r -> r.value()
                             .getDimension()
                             .equals(level.dimension().location()))
-                        .filter(r -> r.value().getFromBlock() == aboveState.getBlock())
+                        .filter(r -> r.value().getFromBlock().test(level, aboveState, null))
                         .toList();
                     for (var changeRecipe : chanceList) {
                         if (level.getRandom().nextDouble()
                             <= changeRecipe.value().getChance()) {
                             level.setBlockAndUpdate(
                                 getBlockPos().above(),
-                                changeRecipe.value().getToBlock().defaultBlockState());
+                                changeRecipe.value().getToBlock().defaultBlockState()
+                            );
                             return;
                         }
                     }
                     level.setBlockAndUpdate(
                         getBlockPos().above(),
-                        recipe.value().getToBlock().defaultBlockState());
+                        recipe.value().getToBlock().defaultBlockState()
+                    );
                 });
         }
         HeaterManager.removeProducer(getBlockPos(), getLevel(), ModHeaterInfos.LAVA_MINERAL_FOUNTAIN);
     }
 
     private static final Direction[] HORIZONTAL_DIRECTION = {
-        Direction.NORTH, Direction.WEST, Direction.EAST, Direction.SOUTH
+        Direction.NORTH,
+        Direction.WEST,
+        Direction.EAST,
+        Direction.SOUTH
     };
 
     public BlockState getAroundBlock() {
@@ -113,7 +118,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         BlockState firstState = blockStates.getFirst();
         long count = blockStates.stream()
             .filter(s ->
-                s.is(firstState.getBlock()) && (s.getFluidState().isEmpty() || s.getFluidState().isSource())
+                        s.is(firstState.getBlock()) && (s.getFluidState().isEmpty() || s.getFluidState().isSource())
             ).count();
         return count == 4 ? firstState : Blocks.AIR.defaultBlockState();
     }

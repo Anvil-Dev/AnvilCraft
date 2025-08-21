@@ -11,8 +11,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.HasCauldronSimple;
+import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -29,7 +28,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 

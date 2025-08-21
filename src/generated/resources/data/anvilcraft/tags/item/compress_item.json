@@ -1,6 +1,8 @@
 {
   "values": [
     "minecraft:snow_block",
-    "#minecraft:wool"
+    "minecraft:white_wool",
+    "#c:ingots",
+    "#c:storage_blocks"
   ]
 }

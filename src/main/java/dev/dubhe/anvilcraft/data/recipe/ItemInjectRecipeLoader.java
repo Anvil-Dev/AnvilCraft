@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import net.minecraft.world.item.Items;
@@ -40,43 +41,43 @@ public class ItemInjectRecipeLoader {
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_ZINC_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_ZINC)
             .inputBlock(Blocks.DEEPSLATE)
             .resultBlock(ModBlocks.DEEPSLATE_ZINC_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_TIN_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TIN)
             .inputBlock(Blocks.DEEPSLATE)
             .resultBlock(ModBlocks.DEEPSLATE_TIN_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_TITANIUM_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TITANIUM)
             .inputBlock(Blocks.DEEPSLATE)
             .resultBlock(ModBlocks.DEEPSLATE_TITANIUM_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_TUNGSTEN_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN)
             .inputBlock(Blocks.DEEPSLATE)
             .resultBlock(ModBlocks.DEEPSLATE_TUNGSTEN_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_LEAD_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_LEAD)
             .inputBlock(Blocks.DEEPSLATE)
             .resultBlock(ModBlocks.DEEPSLATE_LEAD_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_SILVER_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_SILVER)
             .inputBlock(Blocks.DEEPSLATE)
             .resultBlock(ModBlocks.DEEPSLATE_SILVER_ORE)
             .save(provider);
 
         ItemInjectRecipe.builder()
-            .requires(ModBlocks.RAW_URANIUM_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_URANIUM)
             .inputBlock(Blocks.DEEPSLATE)
             .resultBlock(ModBlocks.DEEPSLATE_URANIUM_ORE)
             .save(provider);

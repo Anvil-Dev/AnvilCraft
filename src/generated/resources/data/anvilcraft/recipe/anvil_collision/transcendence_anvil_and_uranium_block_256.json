@@ -1,27 +1,25 @@
 {
   "type": "anvilcraft:anvil_collision",
   "anvil": {
-    "id": "anvilcraft:transcendence_anvil"
+    "blocks": "anvilcraft:transcendence_anvil"
   },
   "consume": false,
   "hitBlock": {
-    "id": "anvilcraft:uranium_block"
+    "blocks": "anvilcraft:uranium_block"
   },
   "output_items": [],
   "speed": 256,
   "transform_blocks": [
     {
-      "chance": 1.0,
       "input": {
-        "tag": "anvilcraft:overheatable"
+        "blocks": "#anvilcraft:overheatable"
       },
       "max_count": 16,
       "output": {
-        "beData": {
+        "block": "anvilcraft:overheated_ember_metal_block",
+        "nbt": {
           "duration": 400
-        },
-        "chance": 1.0,
-        "id": "anvilcraft:overheated_ember_metal_block"
+        }
       }
     }
   ]

@@ -8,17 +8,9 @@
   "results": [
     {
       "count": {
-        "type": "minecraft:binomial",
-        "n": 1.0,
-        "p": 0.5
-      },
-      "id": "minecraft:diamond"
-    },
-    {
-      "count": {
-        "type": "minecraft:binomial",
-        "n": 1.0,
-        "p": 0.5
+        "type": "minecraft:uniform",
+        "max": 2.0,
+        "min": 0.0
       },
       "id": "minecraft:diamond"
     }

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.recipe;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.init.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 

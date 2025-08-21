@@ -17,4 +17,11 @@ public interface IRecipeTrigger extends IPrioritized {
     default ResourceLocation getId() {
         return ModRegistries.TRIGGER_REGISTRY.getKey(this);
     }
+
+    record Impl(ResourceLocation id) implements IRecipeTrigger {
+        @Override
+        public ResourceLocation getId() {
+            return this.id();
+        }
+    }
 }

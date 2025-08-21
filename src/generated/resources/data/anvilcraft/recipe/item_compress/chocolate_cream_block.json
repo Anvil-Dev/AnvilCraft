@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "count": 4,
-      "items": "anvilcraft:cream"
+      "items": "#c:cream"
     },
     {
       "items": "minecraft:sugar"

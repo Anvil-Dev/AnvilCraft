@@ -4,7 +4,7 @@
   "fluid": "anvilcraft:melt_gem",
   "ingredients": [
     {
-      "items": "anvilcraft:ruby"
+      "items": "#c:gems/ruby"
     }
   ],
   "results": [

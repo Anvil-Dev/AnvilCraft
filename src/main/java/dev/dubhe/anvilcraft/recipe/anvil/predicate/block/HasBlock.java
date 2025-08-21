@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.anvil.predicate.block;
 
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipePredicateTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.component.BlockStatePredicate;
 import lombok.Getter;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -282,8 +282,8 @@ public class HasBlock extends HasBlockBase<HasBlock> {
          *
          * @return HasBlockIngredient实例
          */
-        public HasBlockIngredient build() {
-            return new HasBlockIngredient(offset, predicate.build());
+        public HasBlock build() {
+            return new HasBlock(offset, predicate.build());
         }
     }
 }

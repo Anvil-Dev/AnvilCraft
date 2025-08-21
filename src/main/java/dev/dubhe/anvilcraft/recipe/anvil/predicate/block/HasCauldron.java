@@ -123,7 +123,7 @@ public class HasCauldron implements IRecipePredicate<HasCauldron> {
         Optional<Tuple<IntegerProperty, Integer>> optionalTarget = HasCauldron.getFluidLevel(targetState);
         int cur;
         if (!curState.is(emptyCauldron) && (curState.is(fluidCauldron) || curState.is(transformCauldron))) {
-            cur = optionalCur.map(Tuple::getB).orElse(0);
+            cur = optionalCur.map(Tuple::getB).orElse(1);
         } else {
             cur = 0;
         }

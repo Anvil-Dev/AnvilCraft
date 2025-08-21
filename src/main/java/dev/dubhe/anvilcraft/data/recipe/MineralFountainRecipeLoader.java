@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -13,13 +15,13 @@ public class MineralFountainRecipeLoader {
         mineralFountainDeepslate(provider, Blocks.RAW_COPPER_BLOCK, Blocks.DEEPSLATE_COPPER_ORE);
         mineralFountainDeepslate(provider, Blocks.RAW_IRON_BLOCK, Blocks.DEEPSLATE_IRON_ORE);
         mineralFountainDeepslate(provider, Blocks.RAW_GOLD_BLOCK, Blocks.DEEPSLATE_GOLD_ORE);
-        mineralFountainDeepslate(provider, ModBlocks.RAW_ZINC_BLOCK.get(), ModBlocks.DEEPSLATE_ZINC_ORE.get());
-        mineralFountainDeepslate(provider, ModBlocks.RAW_TIN_BLOCK.get(), ModBlocks.DEEPSLATE_TIN_ORE.get());
-        mineralFountainDeepslate(provider, ModBlocks.RAW_LEAD_BLOCK.get(), ModBlocks.DEEPSLATE_LEAD_ORE.get());
-        mineralFountainDeepslate(provider, ModBlocks.RAW_SILVER_BLOCK.get(), ModBlocks.DEEPSLATE_SILVER_ORE.get());
-        mineralFountainDeepslate(provider, ModBlocks.RAW_TITANIUM_BLOCK.get(), ModBlocks.DEEPSLATE_TITANIUM_ORE.get());
-        mineralFountainDeepslate(provider, ModBlocks.RAW_TUNGSTEN_BLOCK.get(), ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get());
-        mineralFountainDeepslate(provider, ModBlocks.RAW_URANIUM_BLOCK.get(), ModBlocks.DEEPSLATE_URANIUM_ORE.get());
+        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_ZINC, ModBlocks.DEEPSLATE_ZINC_ORE.get());
+        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TIN, ModBlocks.DEEPSLATE_TIN_ORE.get());
+        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_LEAD, ModBlocks.DEEPSLATE_LEAD_ORE.get());
+        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_SILVER, ModBlocks.DEEPSLATE_SILVER_ORE.get());
+        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TITANIUM, ModBlocks.DEEPSLATE_TITANIUM_ORE.get());
+        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TUNGSTEN, ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get());
+        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_URANIUM, ModBlocks.DEEPSLATE_URANIUM_ORE.get());
 
 
         MineralFountainChanceRecipe.builder()
@@ -52,6 +54,14 @@ public class MineralFountainRecipeLoader {
     }
 
     private static void mineralFountainDeepslate(RegistrateRecipeProvider provider, Block require, Block result) {
+        MineralFountainRecipe.builder()
+            .needBlock(require)
+            .fromBlock(Blocks.DEEPSLATE)
+            .toBlock(result)
+            .save(provider);
+    }
+
+    private static void mineralFountainDeepslate(RegistrateRecipeProvider provider, TagKey<Block> require, Block result) {
         MineralFountainRecipe.builder()
             .needBlock(require)
             .fromBlock(Blocks.DEEPSLATE)

@@ -3,7 +3,7 @@
   "fluid": "minecraft:water",
   "ingredients": [
     {
-      "items": "anvilcraft:flour"
+      "items": "#c:flour"
     }
   ],
   "results": [

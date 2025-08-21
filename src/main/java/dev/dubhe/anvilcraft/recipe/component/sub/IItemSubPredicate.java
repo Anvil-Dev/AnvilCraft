@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.sub;
+package dev.dubhe.anvilcraft.recipe.component.sub;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.recipe.anvil.util.ISerializer;

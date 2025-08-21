@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,6 +92,24 @@ abstract class ItemEntityMixin extends Entity implements MergeCooldownItemEntity
 
     public ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
+    }
+
+    @Unique
+    private BlockPos anvilCraft$blockPos;
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void tickReturn(CallbackInfo ci) {
+        BlockPos blockPos = BlockPos.containing(this.position());
+        if (!blockPos.equals(this.anvilCraft$blockPos)) {
+            NeoForge.EVENT_BUS.post(new ItemEntityEvent.InToBlock(
+                this.level(),
+                (ItemEntity) (Object) this,
+                blockPos,
+                this.position(),
+                this.getDeltaMovement()
+            ));
+        }
+        this.anvilCraft$blockPos = blockPos;
     }
 
     @Redirect(
@@ -195,7 +215,6 @@ abstract class ItemEntityMixin extends Entity implements MergeCooldownItemEntity
     }
 
     // 以下是中子锭运动相关mixin
-
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$neutroniumTick(CallbackInfo ci) {
         ItemEntity thiz = Util.cast(this);

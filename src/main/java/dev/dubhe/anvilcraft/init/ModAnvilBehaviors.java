@@ -14,12 +14,14 @@ import dev.dubhe.anvilcraft.anvil.MassInjectBehavior;
 import dev.dubhe.anvilcraft.anvil.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.anvil.ResetVaultBehavior;
 import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
+import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -48,5 +50,6 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof GunpowderBlock, new GunpowderBlockBehavior());
         event.registerBehavior(state -> state.is(ModBlocks.IMPACT_PILE), new ImpactPileBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
+        event.registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpPlayerBehavior());
     }
 }

@@ -7,10 +7,9 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.IDRecipeConstructor;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.BlockStatePredicateComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceBlockStateComponent;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
-import dev.latvian.mods.kubejs.error.KubeRuntimeException;
+import dev.dubhe.anvilcraft.recipe.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.component.ChanceBlockState;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.ComponentRole;
 import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
@@ -77,12 +76,6 @@ public interface SqueezingRecipeSchema {
 
         @Override
         protected void validate() {
-            if (this.getValue(INGREDIENT) == null) {
-                throw new KubeRuntimeException("Input is null!").source(sourceLine);
-            }
-            if (this.getValue(RESULT) == null) {
-                throw new KubeRuntimeException("Result is null!").source(sourceLine);
-            }
         }
     }
 

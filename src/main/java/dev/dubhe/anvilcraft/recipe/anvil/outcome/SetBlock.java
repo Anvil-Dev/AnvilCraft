@@ -10,10 +10,14 @@ import dev.dubhe.anvilcraft.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
@@ -32,6 +36,11 @@ public class SetBlock implements IRecipeOutcome<SetBlock> {
     private final BlockState state;
 
     /**
+     * NBT 数据
+     */
+    private final CompoundTag nbt;
+
+    /**
      * 偏移量
      */
     private final Vec3 offset;
@@ -48,8 +57,9 @@ public class SetBlock implements IRecipeOutcome<SetBlock> {
      * @param offset 偏移量
      * @param chance 概率
      */
-    public SetBlock(BlockState state, Vec3 offset, NumberProvider chance) {
+    public SetBlock(BlockState state, CompoundTag nbt, Vec3 offset, NumberProvider chance) {
         this.state = state;
+        this.nbt = nbt;
         this.offset = offset;
         this.chance = chance;
     }
@@ -81,7 +91,15 @@ public class SetBlock implements IRecipeOutcome<SetBlock> {
     @Override
     public void accept(@NotNull InWorldRecipeContext context) {
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
-        cache.setBlock(BlockPos.containing(context.getPos().add(this.offset)), this.state);
+        BlockPos blockPos = BlockPos.containing(context.getPos().add(this.offset));
+        cache.setBlock(blockPos, this.state);
+        if (this.state.hasBlockEntity() && this.state.getBlock() instanceof EntityBlock entityBlock) {
+            BlockEntity entity = entityBlock.newBlockEntity(blockPos, this.state);
+            if (entity != null) {
+                entity.loadWithComponents(this.nbt, context.getLevel().registryAccess());
+                cache.setBlockEntity(blockPos, entity);
+            }
+        }
         context.putAcceptor(BlockCache.BLOCK_CACHE.location(), BlockCache.DEFAULT_ACCEPTOR);
     }
 
@@ -96,6 +114,9 @@ public class SetBlock implements IRecipeOutcome<SetBlock> {
             instance -> instance.group(
                 IBlockStateExtension.MAP_CODEC
                     .forGetter(SetBlock::getState),
+                CompoundTag.CODEC
+                    .optionalFieldOf("nbt", null)
+                    .forGetter(SetBlock::getNbt),
                 Vec3.CODEC
                     .fieldOf("offset")
                     .forGetter(SetBlock::getOffset),
@@ -110,6 +131,8 @@ public class SetBlock implements IRecipeOutcome<SetBlock> {
         private static final StreamCodec<RegistryFriendlyByteBuf, SetBlock> STREAM_CODEC = StreamCodec.composite(
             BlockState.STREAM_CODEC,
             SetBlock::getState,
+            ByteBufCodecs.COMPOUND_TAG,
+            SetBlock::getNbt,
             RecipeUtil.VEC3_STREAM_CODEC,
             SetBlock::getOffset,
             RecipeUtil.NUMBER_PROVIDER_STREAM_CODEC,
@@ -146,6 +169,11 @@ public class SetBlock implements IRecipeOutcome<SetBlock> {
          * 方块状态
          */
         private BlockState state = Blocks.AIR.defaultBlockState();
+
+        /**
+         * NBT 数据
+         */
+        private CompoundTag nbt;
 
         /**
          * 偏移量
@@ -263,12 +291,23 @@ public class SetBlock implements IRecipeOutcome<SetBlock> {
         }
 
         /**
+         * 设置NBT数据
+         *
+         * @param nbt NBT数据
+         * @return 构建器实例
+         */
+        public Builder nbt(CompoundTag nbt) {
+            this.nbt = nbt;
+            return this;
+        }
+
+        /**
          * 构建设置方块配方结果
          *
          * @return 设置方块配方结果
          */
         public SetBlock build() {
-            return new SetBlock(state, offset, chance);
+            return new SetBlock(state, nbt, offset, chance);
         }
     }
 }

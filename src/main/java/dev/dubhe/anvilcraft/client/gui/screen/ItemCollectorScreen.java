@@ -140,7 +140,6 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
-        if (type == ClickType.PICKUP) {
             if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
                 ItemStack carriedItem = this.menu.getCarried();
                 int realSlotId = slot.getContainerSlot();
@@ -159,7 +158,6 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                     }
                 }
             }
-        }
         super.slotClicked(slot, slotId, mouseButton, type);
     }
 

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.anvil.wrap.components;
+package dev.dubhe.anvilcraft.recipe.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

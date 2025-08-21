@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component;
+package dev.dubhe.anvilcraft.recipe.component;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;

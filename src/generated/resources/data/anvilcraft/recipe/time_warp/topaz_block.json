@@ -4,7 +4,7 @@
   "fluid": "anvilcraft:melt_gem",
   "ingredients": [
     {
-      "items": "anvilcraft:topaz"
+      "items": "#c:gems/topaz"
     }
   ],
   "results": [

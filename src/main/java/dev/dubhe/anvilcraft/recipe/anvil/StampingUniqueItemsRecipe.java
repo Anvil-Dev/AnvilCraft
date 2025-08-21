@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;

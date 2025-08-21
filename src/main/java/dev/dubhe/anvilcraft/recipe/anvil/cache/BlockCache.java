@@ -4,9 +4,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.recipe.anvil.util.InWorldRecipeData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -81,10 +84,10 @@ public class BlockCache {
      * @return 方块状态
      */
     public BlockState getBlockState(BlockPos pos) {
-        cache.computeIfAbsent(pos, level::getBlockState);
-        cacheEntity.computeIfAbsent(pos, level::getBlockEntity);
-        simulatedEntity.computeIfAbsent(pos, level::getBlockEntity);
-        return simulated.computeIfAbsent(pos, level::getBlockState);
+        this.cache.computeIfAbsent(pos, level::getBlockState);
+        this.cacheEntity.computeIfAbsent(pos, level::getBlockEntity);
+        this.simulatedEntity.computeIfAbsent(pos, level::getBlockEntity);
+        return this.simulated.computeIfAbsent(pos, level::getBlockState);
     }
 
     /**
@@ -94,10 +97,10 @@ public class BlockCache {
      * @return 方块实体
      */
     public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
-        cache.computeIfAbsent(pos, level::getBlockState);
-        cacheEntity.computeIfAbsent(pos, level::getBlockEntity);
-        simulated.computeIfAbsent(pos, level::getBlockState);
-        return simulatedEntity.computeIfAbsent(pos, level::getBlockEntity);
+        this.cache.computeIfAbsent(pos, level::getBlockState);
+        this.cacheEntity.computeIfAbsent(pos, level::getBlockEntity);
+        this.simulated.computeIfAbsent(pos, level::getBlockState);
+        return this.simulatedEntity.computeIfAbsent(pos, level::getBlockEntity);
     }
 
     /**
@@ -109,8 +112,12 @@ public class BlockCache {
     public void setBlock(BlockPos pos, @Nullable BlockState state) {
         if (state == null) state = Blocks.AIR.defaultBlockState();
         this.getBlockState(pos);
-        simulated.put(pos, state);
-        simulatedEntity.put(pos, null);
+        this.simulated.put(pos, state);
+        if (state.getBlock() instanceof EntityBlock entityBlock) {
+            this.simulatedEntity.put(pos, entityBlock.newBlockEntity(pos, state));
+        } else {
+            this.simulatedEntity.put(pos, null);
+        }
     }
 
     /**
@@ -125,24 +132,48 @@ public class BlockCache {
     }
 
     /**
+     * 设置指定位置的方块实体
+     *
+     * @param pos    方块位置
+     * @param entity 方块实体
+     */
+    public void setBlockEntity(BlockPos pos, @Nullable BlockEntity entity) {
+        this.getBlockEntity(pos);
+        this.simulatedEntity.put(pos, entity);
+    }
+
+    /**
      * 移除指定位置的方块
      *
      * @param pos 方块位置
      */
     public void removeBlock(BlockPos pos) {
         this.setBlock(pos, Blocks.AIR);
+        this.setBlockEntity(pos, null);
     }
 
     /**
      * 提交所有模拟的方块更改到实际世界中
      */
     public void accept() {
-        simulated.forEach((pos, state) -> {
-            BlockState old = cache.get(pos);
+        this.simulated.forEach((pos, state) -> {
+            BlockState old = this.cache.get(pos);
             if (old == null) throw new IllegalStateException("Block at " + pos + " was not found in the cache!");
-            if (old.equals(state)) return;
-            level.setBlock(pos, state, 3);
-            cache.put(pos, state);
+            if (state.equals(old)) return;
+            this.level.setBlock(pos, state, 3);
+            this.cache.put(pos, state);
+            this.simulated.put(pos, state);
+        });
+        this.simulatedEntity.forEach((pos, entity) -> {
+            if (entity == null) return;
+            BlockEntity oldEntity = this.level.getBlockEntity(pos);
+            if (oldEntity == null) return;
+            if (entity.equals(oldEntity)) return;
+            RegistryAccess access = this.level.registryAccess();
+            CompoundTag oldTag = oldEntity.saveWithFullMetadata(access);
+            CompoundTag newTag = entity.saveWithFullMetadata(access);
+            if (oldTag.equals(newTag)) return;
+            oldEntity.loadWithComponents(newTag, access);
         });
     }
 }

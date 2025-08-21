@@ -1,16 +1,19 @@
 {
   "type": "anvilcraft:anvil_collision",
   "anvil": {
-    "tag": "minecraft:anvil"
+    "blocks": "#minecraft:anvil"
   },
   "consume": true,
   "hitBlock": {
-    "id": "anvilcraft:negative_matter_block"
+    "blocks": "anvilcraft:negative_matter_block"
   },
   "output_items": [
     {
-      "chance": 1.0,
-      "count": 8,
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 8.0,
+        "p": 1.0
+      },
       "id": "anvilcraft:void_matter_block"
     }
   ],

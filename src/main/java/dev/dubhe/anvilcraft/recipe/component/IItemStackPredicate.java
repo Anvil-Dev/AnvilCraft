@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component;
+package dev.dubhe.anvilcraft.recipe.component;
 
 import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.core.HolderSet;

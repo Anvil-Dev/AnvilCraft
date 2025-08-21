@@ -23,15 +23,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity> {
-    public static final ResourceLocation BEAM_LOCATION =
-        ResourceLocation.withDefaultNamespace("textures/entity/beacon_beam.png");
+    public static final ResourceLocation BEAM_LOCATION = ResourceLocation.withDefaultNamespace("textures/entity/beacon_beam.png");
     public static final int MAX_RENDER_Y = 1024;
-
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState defaultLightState = Blocks.WHITE_CONCRETE.defaultBlockState();
 
@@ -42,10 +39,10 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
 
     @Override
     public void render(
-        @NotNull CorruptedBeaconBlockEntity blockEntity,
+        CorruptedBeaconBlockEntity blockEntity,
         float partialTick,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource buffer,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
         int packedLight,
         int packedOverlay
     ) {
@@ -63,7 +60,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
                 l,
                 i,
                 j == list.size() - 1 ? MAX_RENDER_Y : beaconBeamSection.getHeight(),
-                beaconBeamSection.getColor());
+                beaconBeamSection.getColor()
+            );
             i += beaconBeamSection.getHeight();
         }
 
@@ -102,7 +100,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         long pGameTime,
         int pYOffset,
         int pHeight,
-        int pColor) {
+        int pColor
+    ) {
         renderBeaconBeam(
             pPoseStack,
             pBufferSource,
@@ -114,7 +113,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             pHeight,
             pColor,
             0.2F,
-            0.25F);
+            0.25F
+        );
     }
 
     public static void renderBeaconBeam(
@@ -128,7 +128,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         int pHeight,
         int pColor,
         float pBeamRadius,
-        float pGlowRadius) {
+        float pGlowRadius
+    ) {
         int i = pYOffset + pHeight;
         pPoseStack.pushPose();
         pPoseStack.translate(0.5, 0.0, 0.5);
@@ -160,7 +161,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             0.0F,
             1.0F,
             f13,
-            f12);
+            f12
+        );
         pPoseStack.popPose();
         f3 = -pGlowRadius;
         float f4 = -pGlowRadius;
@@ -185,7 +187,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             0.0F,
             1.0F,
             f13,
-            f12);
+            f12
+        );
         pPoseStack.popPose();
     }
 
@@ -206,7 +209,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float pMinU,
         float pMaxU,
         float pMinV,
-        float pMaxV) {
+        float pMaxV
+    ) {
         PoseStack.Pose posestack$pose = pPoseStack.last();
         renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX1, pZ1, pX2, pZ2, pMinU, pMaxU, pMinV, pMaxV);
         renderQuad(posestack$pose, pConsumer, pColor, pMinY, pMaxY, pX4, pZ4, pX3, pZ3, pMinU, pMaxU, pMinV, pMaxV);
@@ -227,7 +231,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float pMinU,
         float pMaxU,
         float pMinV,
-        float pMaxV) {
+        float pMaxV
+    ) {
         addVertex(pPose, pConsumer, pColor, pMaxY, pMinX, pMinZ, pMaxU, pMinV);
         addVertex(pPose, pConsumer, pColor, pMinY, pMinX, pMinZ, pMaxU, pMaxV);
         addVertex(pPose, pConsumer, pColor, pMinY, pMaxX, pMaxZ, pMinU, pMaxV);
@@ -242,7 +247,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float pX,
         float pZ,
         float pU,
-        float pV) {
+        float pV
+    ) {
         pConsumer
             .addVertex(pPose, pX, (float) pY, pZ)
             .setColor(pColor)
@@ -254,7 +260,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     @Override
-    public boolean shouldRenderOffScreen(@NotNull CorruptedBeaconBlockEntity blockEntity) {
+    public boolean shouldRenderOffScreen(CorruptedBeaconBlockEntity blockEntity) {
         return true;
     }
 
@@ -264,7 +270,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     @Override
-    public boolean shouldRender(@NotNull CorruptedBeaconBlockEntity blockEntity, @NotNull Vec3 cameraPos) {
+    public boolean shouldRender(CorruptedBeaconBlockEntity blockEntity, Vec3 cameraPos) {
         return Vec3.atCenterOf(blockEntity.getBlockPos())
             .multiply(1.0, 0.0, 1.0)
             .closerThan(cameraPos.multiply(1.0, 0.0, 1.0), this.getViewDistance());

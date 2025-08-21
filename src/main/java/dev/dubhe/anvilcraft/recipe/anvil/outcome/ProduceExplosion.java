@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +39,7 @@ public class ProduceExplosion implements IRecipeOutcome<ProduceExplosion> {
     /**
      * 爆炸发生的概率，范围为0f到1.0f
      */
-    private final float chanceValue;
+    public final NumberProvider chance;
 
     /**
      * 构建一个新的产生爆炸配方结果
@@ -49,12 +50,12 @@ public class ProduceExplosion implements IRecipeOutcome<ProduceExplosion> {
      * @param explodeInteraction 爆炸的方块交互类型
      * @param chance             爆炸发生的概率
      */
-    public ProduceExplosion(Vec3 offset, float power, boolean fire, Level.ExplosionInteraction explodeInteraction, float chance) {
+    public ProduceExplosion(Vec3 offset, float power, boolean fire, Level.ExplosionInteraction explodeInteraction, NumberProvider chance) {
         this.offset = offset;
         this.power = power;
         this.fire = fire;
         this.explodeInteraction = explodeInteraction;
-        this.chanceValue = chance;
+        this.chance = chance;
     }
 
     /**
@@ -65,11 +66,6 @@ public class ProduceExplosion implements IRecipeOutcome<ProduceExplosion> {
     @Override
     public Type getType() {
         return ModRecipeOutcomeTypes.PRODUCE_EXPLOSION.get();
-    }
-
-    @Override
-    public NumberProvider getChance() {
-        return ConstantValue.exactly(this.chanceValue);
     }
 
     /**
@@ -89,19 +85,21 @@ public class ProduceExplosion implements IRecipeOutcome<ProduceExplosion> {
          * 编解码器
          */
         public static final Codec<ProduceExplosion> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Vec3.CODEC.fieldOf("offset").forGetter(ProduceExplosion::getOffset),
+            Vec3.CODEC.optionalFieldOf("offset", Vec3.ZERO).forGetter(ProduceExplosion::getOffset),
             Codec.FLOAT.fieldOf("power").forGetter(ProduceExplosion::getPower),
             Codec.BOOL.fieldOf("fire").forGetter(ProduceExplosion::isFire),
             Level.ExplosionInteraction.CODEC.fieldOf("interact").forGetter(ProduceExplosion::getExplodeInteraction),
-            Codec.FLOAT.fieldOf("chance").forGetter(ProduceExplosion::getChanceValue)
+            NumberProviders.CODEC
+                .optionalFieldOf("chance", ConstantValue.exactly(1f))
+                .forGetter(ProduceExplosion::getChance)
         ).apply(ins, ProduceExplosion::new));
 
         public static final MapCodec<ProduceExplosion> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            Vec3.CODEC.fieldOf("offset").forGetter(ProduceExplosion::getOffset),
+            Vec3.CODEC.optionalFieldOf("offset", Vec3.ZERO).forGetter(ProduceExplosion::getOffset),
             Codec.FLOAT.fieldOf("power").forGetter(ProduceExplosion::getPower),
             Codec.BOOL.fieldOf("fire").forGetter(ProduceExplosion::isFire),
             Level.ExplosionInteraction.CODEC.fieldOf("interact").forGetter(ProduceExplosion::getExplodeInteraction),
-            Codec.FLOAT.fieldOf("chance").forGetter(ProduceExplosion::getChanceValue)
+            NumberProviders.CODEC.optionalFieldOf("chance", ConstantValue.exactly(1f)).forGetter(ProduceExplosion::getChance)
         ).apply(ins, ProduceExplosion::new));
 
         /**
@@ -152,5 +150,4 @@ public class ProduceExplosion implements IRecipeOutcome<ProduceExplosion> {
             return ProduceExplosion.Type.STREAM_CODEC;
         }
     }
-
 }

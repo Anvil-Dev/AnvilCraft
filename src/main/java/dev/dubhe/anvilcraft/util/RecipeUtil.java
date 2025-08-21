@@ -94,11 +94,10 @@ public class RecipeUtil {
     public static double getExpectedValue(NumberProvider numberProvider) {
         return switch (numberProvider) {
             case ConstantValue constantValue -> constantValue.value();
-            case UniformGenerator uniformGenerator -> (getExpectedValue(uniformGenerator.min())
-                + getExpectedValue(uniformGenerator.max()))
-                / 2;
-            case BinomialDistributionGenerator binomialDistributionGenerator -> getExpectedValue(
-                binomialDistributionGenerator.n())
+            case UniformGenerator uniformGenerator -> (
+                getExpectedValue(uniformGenerator.min()) + getExpectedValue(uniformGenerator.max())
+            ) / 2;
+            case BinomialDistributionGenerator binomialDistributionGenerator -> getExpectedValue(binomialDistributionGenerator.n())
                 * getExpectedValue(binomialDistributionGenerator.p());
             default -> -1;
         };

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.anvil.wrap.components;
+package dev.dubhe.anvilcraft.recipe.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,14 +12,20 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 表示一个带概率的物品堆栈
@@ -205,8 +211,11 @@ public class ChanceItemStack {
      */
     public DataComponentPatch getComponentsPatch() {
         DataComponentMap components = this.stack.getComponents();
-        if (components instanceof PatchedDataComponentMap patched) return patched.asPatch();
-        else return DataComponentPatch.EMPTY;
+        if (components instanceof PatchedDataComponentMap patched) {
+            return patched.asPatch();
+        } else {
+            return DataComponentPatch.EMPTY;
+        }
     }
 
     /**
@@ -217,5 +226,10 @@ public class ChanceItemStack {
      */
     public SpawnItem toSpawnItem(Vec3 offset) {
         return SpawnItem.builder().item(this.stack).count(this.count).offset(offset).build();
+    }
+
+    public ItemStack getResult(ServerLevel level) {
+        LootContext context = new LootContext.Builder(new LootParams(level, Map.of(), Map.of(), 0)).create(Optional.empty());
+        return this.getStack().copyWithCount(Math.clamp(this.getCount().getInt(context), 1, 99));
     }
 }

@@ -39,6 +39,7 @@ public class BlockCompressRecipeLoader {
         BlockCompressRecipe.builder().input(block1).input(block2).result(result).save(provider);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void blockCompress(RegistrateRecipeProvider provider, TagKey<Block> tag1, Block block2, Block result) {
         BlockCompressRecipe.builder().input(tag1).input(block2).result(result).save(provider);
     }

@@ -5,7 +5,7 @@
       "items": "anvilcraft:neutronium_ingot"
     },
     {
-      "items": "anvilcraft:uranium_ingot"
+      "items": "#c:ingots/uranium"
     }
   ],
   "results": [

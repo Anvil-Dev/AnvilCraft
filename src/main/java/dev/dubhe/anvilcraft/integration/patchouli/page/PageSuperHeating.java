@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceBlockState;
+import dev.dubhe.anvilcraft.recipe.component.ChanceBlockState;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import net.minecraft.client.gui.GuiGraphics;

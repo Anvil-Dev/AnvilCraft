@@ -11,8 +11,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.commands.data.EntityDataAccessor;
@@ -42,26 +40,26 @@ import java.util.UUID;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class MobTransformRecipe implements Recipe<MobTransformInput> {
-
     public static final Codec<MobTransformRecipe> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            CodecUtil.ENTITY_CODEC.fieldOf("input").forGetter(o -> o.input),
-            TransformResult.CODEC.listOf().fieldOf("results").forGetter(o -> o.results),
-            NumericTagValuePredicate.CODEC
-                .listOf()
-                .optionalFieldOf("tagPredicates")
-                .forGetter(o -> Util.intoOptional(o.predicates)),
-            TagModification.CODEC
-                .listOf()
-                .optionalFieldOf("tagModifications")
-                .forGetter(o -> Util.intoOptional(o.tagModifications)),
-            TransformOptions.CODEC
-                .listOf()
-                .optionalFieldOf("transformOptions")
-                .forGetter(o -> Util.intoOptional(o.options)))
-        .apply(ins, MobTransformRecipe::new));
+        CodecUtil.ENTITY_CODEC.fieldOf("input").forGetter(o -> o.input),
+        TransformResult.CODEC.listOf().fieldOf("results").forGetter(o -> o.results),
+        NumericTagValuePredicate.CODEC
+            .listOf()
+            .optionalFieldOf("tagPredicates")
+            .forGetter(o -> Util.intoOptional(o.predicates)),
+        TagModification.CODEC
+            .listOf()
+            .optionalFieldOf("tagModifications")
+            .forGetter(o -> Util.intoOptional(o.tagModifications)),
+        TransformOptions.CODEC
+            .listOf()
+            .optionalFieldOf("transformOptions")
+            .forGetter(o -> Util.intoOptional(o.options))
+    ).apply(ins, MobTransformRecipe::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> STREAM_CODEC = StreamCodec.of(
-        (buf, recipe) -> buf.writeNbt(intoTag(recipe)), friendlyByteBuf -> fromTag(friendlyByteBuf.readNbt()));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> STREAM_CODEC = CodecUtil.byCodec(
+        MobTransformRecipe.CODEC
+    );
 
     public final EntityType<?> input;
     public final List<TransformResult> results;
@@ -72,18 +70,21 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
     /**
      * 生物转化配方
      */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public MobTransformRecipe(
         EntityType<?> input,
         List<TransformResult> results,
         Optional<List<NumericTagValuePredicate>> tagPredicates,
         Optional<List<TagModification>> tagModifications,
-        Optional<List<TransformOptions>> options) {
+        Optional<List<TransformOptions>> options
+    ) {
         this(
             input,
             results,
             tagPredicates.orElseGet(List::of),
             tagModifications.orElseGet(List::of),
-            options.orElseGet(List::of));
+            options.orElseGet(List::of)
+        );
     }
 
     public MobTransformRecipe(
@@ -91,7 +92,8 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
         List<TransformResult> results,
         List<NumericTagValuePredicate> predicates,
         List<TagModification> tagModifications,
-        List<TransformOptions> options) {
+        List<TransformOptions> options
+    ) {
         this.input = input;
         this.results = results;
         this.predicates = predicates;
@@ -103,7 +105,7 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
     public boolean matches(MobTransformInput in, Level level) {
         boolean typeMatches = in.getInputEntity().getType() == input;
         if (!typeMatches) return false;
-        return predicates.stream().allMatch(it -> it.test(new EntityDataAccessor(in.getInputEntity()).getData()));
+        return this.getPredicates().stream().allMatch(it -> it.test(new EntityDataAccessor(in.getInputEntity()).getData()));
     }
 
     @Override
@@ -132,10 +134,13 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
     }
 
     private EntityType<?> getResult(RandomSource rand) {
-        if (results.size() == 1) return results.getFirst().resultEntityType();
-        List<TransformResult> sorted = new ArrayList<>(results.stream()
-            .sorted(Comparator.comparingDouble(TransformResult::probability))
-            .toList());
+        if (this.getResults().size() == 1) return this.getResults().getFirst().resultEntityType();
+        List<TransformResult> sorted = new ArrayList<>(
+            this.getResults()
+                .stream()
+                .sorted(Comparator.comparingDouble(TransformResult::probability))
+                .toList()
+        );
         List<Double> probList = new ArrayList<>(List.of(0d));
         for (TransformResult transformResult : sorted) {
             probList.add(probList.getLast() + transformResult.probability());
@@ -156,17 +161,21 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
         EntityType<?> entityType = getResult(rand);
         CompoundTag tag = new CompoundTag();
         tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
-        Entity newEntity = EntityType.loadEntityRecursive(tag, level, (e) -> {
-            e.moveTo(
-                livingEntity.position().x,
-                livingEntity.position().y,
-                livingEntity.position().z,
-                e.getYRot(),
-                e.getXRot());
-            return e;
-        });
+        Entity newEntity = EntityType.loadEntityRecursive(
+            tag, level, (e) -> {
+                e.moveTo(
+                    livingEntity.position().x,
+                    livingEntity.position().y,
+                    livingEntity.position().z,
+                    e.getYRot(),
+                    e.getXRot()
+                );
+                return e;
+            }
+        );
         if (newEntity == null) return null;
         if (newEntity instanceof Mob mob) {
+            //noinspection deprecation,OverrideOnly
             mob.finalizeSpawn(
                 level,
                 level.getCurrentDifficultyAt(newEntity.blockPosition()),
@@ -174,28 +183,22 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
                 null
             );
         }
-        for (TransformOptions option : options.stream()
+        for (
+            TransformOptions option : this.getOptions()
+            .stream()
             .sorted(Comparator.comparingInt(TransformOptions::getPriority).reversed())
             .toList()
         ) {
             option.accept(livingEntity, newEntity);
         }
         CompoundTag compoundTag = newEntity.saveWithoutId(new CompoundTag());
-        for (TagModification tagModification : tagModifications) {
+        for (TagModification tagModification : this.getTagModifications()) {
             tagModification.accept(compoundTag);
         }
         UUID uuid = newEntity.getUUID();
         newEntity.load(compoundTag);
         newEntity.setUUID(uuid);
         return newEntity;
-    }
-
-    public static MobTransformRecipe fromTag(Tag tag) {
-        return CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
-    }
-
-    public static Tag intoTag(MobTransformRecipe recipe) {
-        return CODEC.encodeStart(NbtOps.INSTANCE, recipe).getOrThrow();
     }
 
     public static TransformRecipeBuilder from(EntityType<?> type) {
@@ -210,33 +213,33 @@ public class MobTransformRecipe implements Recipe<MobTransformInput> {
     public static final class Serializer implements RecipeSerializer<MobTransformRecipe> {
         public static final MapCodec<MobTransformRecipe> MAP_CODEC =
             RecordCodecBuilder.mapCodec(ins -> ins.group(
-                    CodecUtil.ENTITY_CODEC.fieldOf("input").forGetter(o -> o.input),
-                    TransformResult.CODEC
-                        .listOf()
-                        .fieldOf("results")
-                        .forGetter(o -> o.results),
-                    NumericTagValuePredicate.CODEC
-                        .listOf()
-                        .optionalFieldOf("tagPredicates")
-                        .forGetter(o -> Util.intoOptional(o.predicates)),
-                    TagModification.CODEC
-                        .listOf()
-                        .optionalFieldOf("tagModifications")
-                        .forGetter(o -> Util.intoOptional(o.tagModifications)),
-                    TransformOptions.CODEC
-                        .listOf()
-                        .optionalFieldOf("transformOptions")
-                        .forGetter(o -> Util.intoOptional(o.options)))
-                .apply(ins, MobTransformRecipe::new));
+                CodecUtil.ENTITY_CODEC.fieldOf("input").forGetter(o -> o.input),
+                TransformResult.CODEC
+                    .listOf()
+                    .fieldOf("results")
+                    .forGetter(o -> o.results),
+                NumericTagValuePredicate.CODEC
+                    .listOf()
+                    .optionalFieldOf("tagPredicates")
+                    .forGetter(o -> Util.intoOptional(o.predicates)),
+                TagModification.CODEC
+                    .listOf()
+                    .optionalFieldOf("tagModifications")
+                    .forGetter(o -> Util.intoOptional(o.tagModifications)),
+                TransformOptions.CODEC
+                    .listOf()
+                    .optionalFieldOf("transformOptions")
+                    .forGetter(o -> Util.intoOptional(o.options))
+            ).apply(ins, MobTransformRecipe::new));
 
         @Override
         public MapCodec<MobTransformRecipe> codec() {
-            return MAP_CODEC;
+            return Serializer.MAP_CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> streamCodec() {
-            return STREAM_CODEC;
+            return MobTransformRecipe.STREAM_CODEC;
         }
     }
 }

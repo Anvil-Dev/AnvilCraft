@@ -7,9 +7,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
-import dev.dubhe.anvilcraft.recipe.elements.InputBlock;
-import dev.dubhe.anvilcraft.recipe.elements.OutputBlock;
-import dev.dubhe.anvilcraft.recipe.elements.OutputItem;
+import dev.dubhe.anvilcraft.recipe.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.recipe.component.ChanceBlockState;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -38,21 +38,21 @@ import java.util.Map;
  * 铁砧碰撞工艺配方类，用于定义铁砧与方块碰撞时的工艺配方
  * 该类定义了铁砧碰撞特定方块时的输入、输出和转换规则
  *
- * @param anvil 铁砧输入方块
- * @param consume 是否消耗铁砧
- * @param hitBlock 碰撞的方块
+ * @param anvil           铁砧输入方块
+ * @param consume         是否消耗铁砧
+ * @param hitBlock        碰撞的方块
  * @param transformBlocks 方块转换列表
- * @param outputItems 输出物品列表
- * @param speed 最低撞击速度(m/tick)
+ * @param outputItems     输出物品列表
+ * @param speed           最低撞击速度(m/tick)
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public record AnvilCollisionCraftRecipe(
-    InputBlock anvil,
+    BlockStatePredicate anvil,
     boolean consume,
-    InputBlock hitBlock,
+    BlockStatePredicate hitBlock,
     List<BlockTransform> transformBlocks,
-    List<OutputItem> outputItems,
+    List<ChanceItemStack> outputItems,
     int speed
 ) implements Recipe<AnvilCollisionCraftRecipe.Input> {
 
@@ -100,10 +100,10 @@ public record AnvilCollisionCraftRecipe(
      */
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        if (anvil.getBlock() == null) {
+        if (anvil.getStatesCache().isEmpty()) {
             return Blocks.ANVIL.asItem().getDefaultInstance();
         }
-        return anvil.getBlock().asItem().getDefaultInstance();
+        return anvil.getStatesCache().getFirst().getBlock().asItem().getDefaultInstance();
     }
 
     /**
@@ -175,11 +175,11 @@ public record AnvilCollisionCraftRecipe(
          * Map编解码器
          */
         private static final MapCodec<AnvilCollisionCraftRecipe> CODEC = RecordCodecBuilder.mapCodec(it -> it.group(
-            InputBlock.CODEC.fieldOf("anvil").forGetter(AnvilCollisionCraftRecipe::anvil),
+            BlockStatePredicate.CODEC.fieldOf("anvil").forGetter(AnvilCollisionCraftRecipe::anvil),
             Codec.BOOL.fieldOf("consume").forGetter(AnvilCollisionCraftRecipe::consume),
-            InputBlock.CODEC.fieldOf("hitBlock").forGetter(AnvilCollisionCraftRecipe::hitBlock),
+            BlockStatePredicate.CODEC.fieldOf("hitBlock").forGetter(AnvilCollisionCraftRecipe::hitBlock),
             BlockTransform.CODEC.listOf().fieldOf("transform_blocks").forGetter(AnvilCollisionCraftRecipe::transformBlocks),
-            OutputItem.CODEC.listOf().fieldOf("output_items").forGetter(AnvilCollisionCraftRecipe::outputItems),
+            ChanceItemStack.CODEC.listOf().fieldOf("output_items").forGetter(AnvilCollisionCraftRecipe::outputItems),
             Codec.INT.fieldOf("speed").forGetter(AnvilCollisionCraftRecipe::speed)
         ).apply(it, AnvilCollisionCraftRecipe::new));
 
@@ -217,11 +217,11 @@ public record AnvilCollisionCraftRecipe(
          * @param recipe 配方
          */
         private static void encode(RegistryFriendlyByteBuf buf, AnvilCollisionCraftRecipe recipe) {
-            InputBlock.STREAM_CODEC.encode(buf, recipe.anvil);
+            BlockStatePredicate.STREAM_CODEC.encode(buf, recipe.anvil);
             buf.writeBoolean(recipe.consume);
-            InputBlock.STREAM_CODEC.encode(buf, recipe.hitBlock);
+            BlockStatePredicate.STREAM_CODEC.encode(buf, recipe.hitBlock);
             writeList(buf, recipe.transformBlocks, BlockTransform.STREAM_CODEC);
-            writeList(buf, recipe.outputItems, OutputItem.STREAM_CODEC);
+            writeList(buf, recipe.outputItems, ChanceItemStack.STREAM_CODEC);
             buf.writeVarInt(recipe.speed);
         }
 
@@ -233,11 +233,11 @@ public record AnvilCollisionCraftRecipe(
          */
         private static AnvilCollisionCraftRecipe decode(RegistryFriendlyByteBuf buf) {
             return new AnvilCollisionCraftRecipe(
-                InputBlock.STREAM_CODEC.decode(buf),
+                BlockStatePredicate.STREAM_CODEC.decode(buf),
                 buf.readBoolean(),
-                InputBlock.STREAM_CODEC.decode(buf),
+                BlockStatePredicate.STREAM_CODEC.decode(buf),
                 readList(buf, BlockTransform.STREAM_CODEC),
-                readList(buf, OutputItem.STREAM_CODEC),
+                readList(buf, ChanceItemStack.STREAM_CODEC),
                 buf.readVarInt()
             );
         }
@@ -245,10 +245,10 @@ public record AnvilCollisionCraftRecipe(
         /**
          * 将列表编码到字节缓冲区
          *
-         * @param buf 字节缓冲区
-         * @param list 列表
+         * @param buf        字节缓冲区
+         * @param list       列表
          * @param steamCodec 流编解码器
-         * @param <T> 列表元素类型
+         * @param <T>        列表元素类型
          */
         private static <T> void writeList(RegistryFriendlyByteBuf buf, List<T> list, StreamCodec<RegistryFriendlyByteBuf, T> steamCodec) {
             buf.writeVarInt(list.size());
@@ -260,9 +260,9 @@ public record AnvilCollisionCraftRecipe(
         /**
          * 从字节缓冲区解码列表
          *
-         * @param buf 字节缓冲区
+         * @param buf        字节缓冲区
          * @param steamCodec 流编解码器
-         * @param <T> 列表元素类型
+         * @param <T>        列表元素类型
          * @return 列表
          */
         private static <T> List<T> readList(RegistryFriendlyByteBuf buf, StreamCodec<RegistryFriendlyByteBuf, T> steamCodec) {
@@ -284,7 +284,7 @@ public record AnvilCollisionCraftRecipe(
         /**
          * 铁砧输入方块
          */
-        private InputBlock anvil;
+        private BlockStatePredicate anvil;
 
         /**
          * 是否消耗铁砧
@@ -294,7 +294,7 @@ public record AnvilCollisionCraftRecipe(
         /**
          * 碰撞的方块
          */
-        private InputBlock hitBlock;
+        private BlockStatePredicate hitBlock;
 
         /**
          * 方块转换列表
@@ -306,7 +306,7 @@ public record AnvilCollisionCraftRecipe(
          * 输出物品列表
          */
         @Setter
-        private List<OutputItem> outputItems = new ArrayList<>();
+        private List<ChanceItemStack> outputItems = new ArrayList<>();
         private int speed = 32;
 
         /**
@@ -316,7 +316,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder anvil(Block anvil) {
-            this.anvil = new InputBlock(anvil, Map.of());
+            this.anvil = BlockStatePredicate.builder().of(anvil).build();
             return this;
         }
 
@@ -327,7 +327,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder anvil(TagKey<Block> anvil) {
-            this.anvil = new InputBlock(anvil);
+            this.anvil = BlockStatePredicate.builder().of(anvil).build();
             return this;
         }
 
@@ -348,7 +348,7 @@ public record AnvilCollisionCraftRecipe(
          * @param hitBlock 碰撞的方块
          * @return 构建器实例
          */
-        public Builder hitBlock(InputBlock hitBlock) {
+        public Builder hitBlock(BlockStatePredicate hitBlock) {
             this.hitBlock = hitBlock;
             return this;
         }
@@ -360,18 +360,18 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder hitBlock(TagKey<Block> blockTagKey) {
-            return hitBlock(new InputBlock(blockTagKey));
+            return hitBlock(BlockStatePredicate.builder().of(blockTagKey).build());
         }
 
         /**
          * 设置碰撞的方块
          *
-         * @param block 方块
+         * @param block  方块
          * @param states 方块状态
          * @return 构建器实例
          */
         public Builder hitBlock(Block block, Map<String, String> states) {
-            return hitBlock(new InputBlock(block, states));
+            return hitBlock(BlockStatePredicate.builder().of(block).build());
         }
 
         /**
@@ -381,42 +381,24 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder hitBlock(Block block) {
-            return hitBlock(new InputBlock(block, Map.of()));
+            return hitBlock(BlockStatePredicate.builder().of(block).build());
         }
 
         /**
          * 添加方块转换
          *
-         * @param inputBlock 输入方块
+         * @param inputBlock  输入方块
          * @param outputBlock 输出方块
-         * @param chance 转换概率
-         * @param maxCount 最大数量
+         * @param maxCount    最大数量
          * @return 构建器实例
          */
         public Builder transformBlock(
-            InputBlock inputBlock,
-            OutputBlock outputBlock,
-            float chance,
+            BlockStatePredicate inputBlock,
+            ChanceBlockState outputBlock,
             int maxCount
         ) {
-            this.transformBlocks.add(new BlockTransform(inputBlock, outputBlock, chance, maxCount));
+            this.transformBlocks.add(new BlockTransform(inputBlock, outputBlock, maxCount));
             return this;
-        }
-
-        /**
-         * 添加方块转换
-         *
-         * @param inputBlock 输入方块
-         * @param outputBlock 输出方块
-         * @param maxCount 最大数量
-         * @return 构建器实例
-         */
-        public Builder transformBlock(
-            InputBlock inputBlock,
-            OutputBlock outputBlock,
-            int maxCount
-        ) {
-            return transformBlock(inputBlock, outputBlock, 1f, maxCount);
         }
 
         /**
@@ -425,7 +407,7 @@ public record AnvilCollisionCraftRecipe(
          * @param outputItem 输出物品
          * @return 构建器实例
          */
-        public Builder outputItem(OutputItem outputItem) {
+        public Builder outputItem(ChanceItemStack outputItem) {
             this.outputItems.add(outputItem);
             return this;
         }
@@ -433,35 +415,35 @@ public record AnvilCollisionCraftRecipe(
         /**
          * 添加输出物品
          *
-         * @param item 物品
-         * @param count 数量
+         * @param item   物品
+         * @param count  数量
          * @param chance 概率
          * @return 构建器实例
          */
         public Builder outputItem(Item item, int count, float chance) {
-            return outputItem(new OutputItem(new ItemStack(item, count), chance));
+            return outputItem(ChanceItemStack.of(new ItemStack(item, count), chance));
         }
 
         /**
          * 添加输出物品
          *
-         * @param item 物品
+         * @param item  物品
          * @param count 数量
          * @return 构建器实例
          */
         public Builder outputItem(Item item, int count) {
-            return outputItem(new OutputItem(new ItemStack(item, count), 1f));
+            return outputItem(ChanceItemStack.of(new ItemStack(item, count), 1f));
         }
 
         /**
          * 添加输出物品
          *
-         * @param item 物品
+         * @param item   物品
          * @param chance 概率
          * @return 构建器实例
          */
         public Builder outputItem(Item item, float chance) {
-            return outputItem(new OutputItem(new ItemStack(item, 1), chance));
+            return outputItem(ChanceItemStack.of(new ItemStack(item, 1), chance));
         }
 
         /**
@@ -471,7 +453,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder outputItem(Item item) {
-            return outputItem(new OutputItem(new ItemStack(item, 1), 1f));
+            return outputItem(ChanceItemStack.of(new ItemStack(item, 1), 1f));
         }
 
         public Builder speed(int speed) {
@@ -486,10 +468,10 @@ public record AnvilCollisionCraftRecipe(
          */
         @Override
         public Item getResult() {
-            if (anvil.getBlock() == null) {
+            if (anvil.getStatesCache().isEmpty()) {
                 return Blocks.ANVIL.asItem();
             }
-            return anvil.getBlock().asItem();
+            return anvil.getStatesCache().getFirst().getBlock().asItem();
         }
 
         /**
@@ -536,7 +518,7 @@ public record AnvilCollisionCraftRecipe(
         public void save(RecipeOutput recipeOutput) {
             save(
                 recipeOutput,
-                AnvilCraft.of(this.anvil.getKey() + "_and_" + this.hitBlock.getKey() + "_" + this.speed)
+                AnvilCraft.of(this.anvil.getKey().getPath() + "_and_" + this.hitBlock.getKey().getPath() + "_" + this.speed)
                     .withPrefix(getType() + "/")
             );
         }

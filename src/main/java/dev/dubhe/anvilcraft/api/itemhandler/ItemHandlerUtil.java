@@ -29,20 +29,21 @@ import static dev.dubhe.anvilcraft.block.BlockPlacerBlock.ORIENTATION;
 public class ItemHandlerUtil {
     public static boolean exportToTarget(
         IItemHandler source,
-        int maxAmount,
+        int maxAmountWeight,
         Predicate<ItemStack> predicate,
         IItemHandler target
     ) {
         boolean success = false;
         ItemStack filterStack = null;
         boolean lockFilterItem = false;
+        int maxAmount = maxAmountWeight;
         outerLoop:
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extractItem(srcIndex, Integer.MAX_VALUE, true);
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) continue;
             if (filterStack == null) {
                 filterStack = sourceStack.copy();
-                maxAmount = (int) (maxAmount / 64f * sourceStack.getMaxStackSize());
+                maxAmount = (int) (maxAmountWeight / 64f * sourceStack.getMaxStackSize());
             } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) continue;
             for (int i = 0; i < maxAmount; i++) {
                 ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
@@ -71,20 +72,21 @@ public class ItemHandlerUtil {
 
     public static boolean importFromTarget(
         IItemHandler target,
-        int maxAmount,
+        int maxAmountWeight,
         Predicate<ItemStack> predicate,
         IItemHandler source
     ) {
         boolean success = false;
         ItemStack filterStack = null;
         boolean lockFilterItem = false;
+        int maxAmount = maxAmountWeight;
         outerLoop:
         for (int srcIndex = 0; srcIndex < source.getSlots(); srcIndex++) {
             ItemStack sourceStack = source.extractItem(srcIndex, Integer.MAX_VALUE, true);
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) continue;
             if (filterStack == null) {
                 filterStack = sourceStack.copy();
-                maxAmount = (int) (maxAmount / 64f * sourceStack.getMaxStackSize());
+                maxAmount = (int) (maxAmountWeight / 64f * sourceStack.getMaxStackSize());
             } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) continue;
             for (int i = 0; i < maxAmount; i++) {
                 ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
@@ -242,10 +244,11 @@ public class ItemHandlerUtil {
     }
 
     public static boolean isEmptyContainer(IItemHandler handler) {
-        if (handler != null)
+        if (handler != null) {
             for (int i = 0; i < handler.getSlots(); i++) {
                 if (!handler.getStackInSlot(i).isEmpty()) return true;
             }
+        }
         return false;
     }
 

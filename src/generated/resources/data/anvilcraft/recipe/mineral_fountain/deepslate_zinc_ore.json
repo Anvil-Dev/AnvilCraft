@@ -1,6 +1,10 @@
 {
   "type": "anvilcraft:mineral_fountain",
-  "from_block": "minecraft:deepslate",
-  "need_block": "anvilcraft:raw_zinc_block",
+  "from_block": {
+    "blocks": "minecraft:deepslate"
+  },
+  "need_block": {
+    "blocks": "#c:storage_blocks/raw_zinc"
+  },
   "to_block": "anvilcraft:deepslate_zinc_ore"
 }

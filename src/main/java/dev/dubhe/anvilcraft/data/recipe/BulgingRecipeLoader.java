@@ -4,9 +4,12 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.ModBlocks;
+import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.init.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -24,7 +27,7 @@ public class BulgingRecipeLoader {
         bulging(provider, Items.HORN_CORAL, Items.HORN_CORAL_BLOCK);
         bulging(provider, Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK);
         bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, true);
-        bulging(provider, ModItems.FLOUR, ModItems.DOUGH);
+        bulging(provider, ModItemTags.FLOUR, ModItems.DOUGH);
         bulging(provider, Items.DRIED_KELP, Items.KELP);
         crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, true);
 
@@ -69,6 +72,21 @@ public class BulgingRecipeLoader {
     }
 
     private static void bulging(RegistrateRecipeProvider provider, ItemLike input, ItemLike result) {
+        bulging(provider, input, result, false);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static void bulging(RegistrateRecipeProvider provider, TagKey<Item> input, ItemLike result, boolean consumeFluid) {
+        BulgingRecipe.builder()
+            .cauldron(Blocks.WATER_CAULDRON)
+            .requires(input)
+            .result(result)
+            .consumeFluid(consumeFluid)
+            .save(provider);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static void bulging(RegistrateRecipeProvider provider, TagKey<Item> input, ItemLike result) {
         bulging(provider, input, result, false);
     }
 

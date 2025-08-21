@@ -24,15 +24,24 @@ public class JeiRecipeUtil {
     private static final DecimalFormat FORMATTER = new DecimalFormat();
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<T> getRecipesFromType(RecipeType<T> recipeType) {
-        return Minecraft.getInstance().getConnection().getRecipeManager().getAllRecipesFor(recipeType).stream()
+        return Minecraft.getInstance()
+            .getConnection()
+            .getRecipeManager()
+            .getAllRecipesFor(recipeType)
+            .stream()
             .map(RecipeHolder::value)
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipeHoldersFromType(
-        RecipeType<T> recipeType) {
+        RecipeType<T> recipeType
+    ) {
         return new ArrayList<>(
-            Minecraft.getInstance().getConnection().getRecipeManager().getAllRecipesFor(recipeType));
+            Minecraft.getInstance()
+                .getConnection()
+                .getRecipeManager()
+                .getAllRecipesFor(recipeType)
+        );
     }
 
     public static void addTooltips(IRecipeSlotBuilder slot, int count, NumberProvider provider) {

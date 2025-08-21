@@ -31,12 +31,12 @@ public class TimeWarpRecipeLoader {
         timeWarp(provider, ModBlocks.END_DUST, 1, Items.END_STONE, 1);
         timeWarp(provider, ModItems.LIME_POWDER, 8, Items.CALCITE, 1);
         timeWarp(provider, ModItems.NETHERITE_CRYSTAL_NUCLEUS, 1, Items.ANCIENT_DEBRIS, 1);
-        timeWarp(provider, ModBlocks.ZINC_BLOCK, 1, ModItems.RAW_ZINC, 3);
-        timeWarp(provider, ModBlocks.TIN_BLOCK, 1, ModItems.RAW_TIN, 3);
-        timeWarp(provider, ModBlocks.TITANIUM_BLOCK, 1, ModItems.RAW_TITANIUM, 3);
-        timeWarp(provider, ModBlocks.TUNGSTEN_BLOCK, 1, ModItems.RAW_TUNGSTEN, 3);
-        timeWarp(provider, ModBlocks.LEAD_BLOCK, 1, ModItems.RAW_LEAD, 3);
-        timeWarp(provider, ModBlocks.SILVER_BLOCK, 1, ModItems.RAW_SILVER, 3);
+        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_ZINC, 1, ModItems.RAW_ZINC, 3);
+        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TIN, 1, ModItems.RAW_TIN, 3);
+        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TITANIUM, 1, ModItems.RAW_TITANIUM, 3);
+        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TUNGSTEN, 1, ModItems.RAW_TUNGSTEN, 3);
+        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_LEAD, 1, ModItems.RAW_LEAD, 3);
+        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_SILVER, 1, ModItems.RAW_SILVER, 3);
         timeWarp(provider, ModItems.SEA_HEART_SHELL_SHARD, 1, ModItems.SEA_HEART_SHELL, 1);
 
         TimeWarpRecipe.builder()
@@ -46,19 +46,19 @@ public class TimeWarpRecipeLoader {
             .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
-            .requires(ModItems.RUBY)
+            .requires(ModItemTags.GEMS_RUBY)
             .result(ModBlocks.RUBY_BLOCK)
             .consume(1)
             .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
-            .requires(ModItems.TOPAZ)
+            .requires(ModItemTags.GEMS_TOPAZ)
             .result(ModBlocks.TOPAZ_BLOCK)
             .consume(1)
             .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
             .save(provider);
         TimeWarpRecipe.builder()
-            .requires(ModItems.SAPPHIRE)
+            .requires(ModItemTags.GEMS_SAPPHIRE)
             .result(ModBlocks.SAPPHIRE_BLOCK)
             .consume(1)
             .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
@@ -129,8 +129,8 @@ public class TimeWarpRecipeLoader {
             .save(provider);
 
         TimeWarpRecipe.builder()
-            .requires(ModItems.TITANIUM_INGOT)
-            .requires(ModItems.SILVER_INGOT)
+            .requires(ModItemTags.TITANIUM_INGOTS)
+            .requires(ModItemTags.SILVER_INGOTS)
             .requires(Items.IRON_INGOT)
             .consume(3)
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
@@ -157,7 +157,26 @@ public class TimeWarpRecipeLoader {
     }
 
     private static void timeWarp(
-        RegistrateRecipeProvider provider, ItemLike input, int inputCount, ItemLike output, int outputCount) {
+        RegistrateRecipeProvider provider,
+        ItemLike input,
+        int inputCount,
+        ItemLike output,
+        int outputCount
+    ) {
+        TimeWarpRecipe.builder()
+            .requires(input, inputCount)
+            .result(output, outputCount)
+            .save(provider);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static void timeWarp(
+        RegistrateRecipeProvider provider,
+        TagKey<Item> input,
+        int inputCount,
+        ItemLike output,
+        int outputCount
+    ) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
             .result(output, outputCount)
@@ -183,6 +202,7 @@ public class TimeWarpRecipeLoader {
             .produce(1)
             .save(
                 provider,
-                AnvilCraft.of("time_warp/oil_from_" + input.location().getPath()));
+                AnvilCraft.of("time_warp/oil_from_" + input.location().getPath())
+            );
     }
 }

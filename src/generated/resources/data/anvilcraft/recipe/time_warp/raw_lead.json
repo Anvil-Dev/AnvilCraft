@@ -2,7 +2,7 @@
   "type": "anvilcraft:time_warp",
   "ingredients": [
     {
-      "items": "anvilcraft:lead_block"
+      "items": "#c:storage_blocks/lead"
     }
   ],
   "results": [

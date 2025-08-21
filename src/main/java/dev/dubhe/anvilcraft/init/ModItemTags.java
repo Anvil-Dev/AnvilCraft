@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class ModItemTags {
+    public static final TagKey<Item> RESIN = bindC("resin");
+    public static final TagKey<Item> CREAM = bindC("cream");
     public static final TagKey<Item> FLOUR = bindC("flour");
     public static final TagKey<Item> WHEAT_FLOUR = bindC("flour/wheat");
     public static final TagKey<Item> DOUGH = bindC("dough");

@@ -24,7 +24,7 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.transform.MobTransformReci
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.IRecipeOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.IRecipePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.trigger.IRecipeTrigger;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.components.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.recipe.transform.TagModification;

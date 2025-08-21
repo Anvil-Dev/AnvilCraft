@@ -84,7 +84,7 @@ public class AnvilEventListener {
         FallingBlockEntity entity = event.getEntity();
         InWorldRecipeManager manager = level.getRecipeManager().anc$getInWorldRecipeManager();
         InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
-        manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON.get(), context);
+        manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
         boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
         if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
         context.accept();

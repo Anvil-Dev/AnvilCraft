@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemTagLoader {
@@ -209,7 +210,9 @@ public class ItemTagLoader {
 
         provider.addTag(ModItemTags.COMPRESS_ITEM)
             .add(findResourceKey(Items.SNOW_BLOCK))
-            .addTag(ItemTags.WOOL);
+            .add(findResourceKey(Items.WHITE_WOOL))
+            .addTag(Tags.Items.INGOTS)
+            .addTag(Tags.Items.STORAGE_BLOCKS);
     }
 
     private static @NotNull ResourceKey<Item> findResourceKey(Item item) {

@@ -15,7 +15,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasItem;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasItemIngredient;
 import dev.dubhe.anvilcraft.recipe.anvil.trigger.IRecipeTrigger;
-import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.BooleanComponent;
 import dev.latvian.mods.kubejs.recipe.component.ComponentRole;
@@ -506,9 +505,6 @@ public interface InWorldRecipeSchema {
 
         @Override
         protected void validate() {
-            if (getValue(TRIGGER) == null) {
-                throw new KubeRuntimeException("Trigger is Empty!").source(sourceLine);
-            }
         }
     }
 

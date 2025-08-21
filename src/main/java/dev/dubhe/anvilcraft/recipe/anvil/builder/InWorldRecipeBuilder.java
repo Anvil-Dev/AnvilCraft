@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 世界内配方构建器
@@ -117,6 +118,16 @@ public class InWorldRecipeBuilder implements RecipeBuilder {
     }
 
     /**
+     * 创建一个兼容的世界内配方构建器
+     *
+     * @param trigger 配方触发器
+     * @return 兼容的世界内配方构建器
+     */
+    public static @NotNull InWorldRecipeBuilder compatible(@NotNull Supplier<IRecipeTrigger> trigger) {
+        return InWorldRecipeBuilder.compatible(trigger.get());
+    }
+
+    /**
      * 创建一个不兼容的世界内配方构建器
      *
      * @param trigger 配方触发器
@@ -124,6 +135,16 @@ public class InWorldRecipeBuilder implements RecipeBuilder {
      */
     public static @NotNull InWorldRecipeBuilder incompatible(@NotNull IRecipeTrigger trigger) {
         return new InWorldRecipeBuilder(trigger, false);
+    }
+
+    /**
+     * 创建一个不兼容的世界内配方构建器
+     *
+     * @param trigger 配方触发器
+     * @return 不兼容的世界内配方构建器
+     */
+    public static @NotNull InWorldRecipeBuilder incompatible(@NotNull Supplier<IRecipeTrigger> trigger) {
+        return InWorldRecipeBuilder.incompatible(trigger.get());
     }
 
     /**

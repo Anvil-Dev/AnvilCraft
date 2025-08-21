@@ -14,13 +14,14 @@ import dev.dubhe.anvilcraft.recipe.anvil.outcome.ChooseOneOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceExplosion;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasItemIngredient;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
 
 public class ItemCompressRecipeLoader {
@@ -33,26 +34,26 @@ public class ItemCompressRecipeLoader {
         ItemCompressRecipe.builder()
             .requires(ModItems.CREAM, 4)
             .requires(Items.SUGAR)
-            .result(new ItemStack(ModBlocks.CREAM_BLOCK))
+            .result(ModBlocks.CREAM_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(ModItems.CREAM, 4)
+            .requires(ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
             .requires(Items.SWEET_BERRIES)
-            .result(new ItemStack(ModBlocks.BERRY_CREAM_BLOCK))
+            .result(ModBlocks.BERRY_CREAM_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(ModItems.CREAM, 4)
+            .requires(ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
             .requires(ModItems.CHOCOLATE)
-            .result(new ItemStack(ModBlocks.CHOCOLATE_CREAM_BLOCK))
+            .result(ModBlocks.CHOCOLATE_CREAM_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()
             .requires(ModItems.NEUTRONIUM_INGOT)
-            .requires(ModItems.URANIUM_INGOT)
+            .requires(ModItemTags.URANIUM_INGOTS)
             .result(ModItems.PLUTONIUM_NUGGET, 6)
             .result(ModItems.LIME_POWDER)
             .result(ModItems.NEUTRONIUM_INGOT)
@@ -60,7 +61,7 @@ public class ItemCompressRecipeLoader {
 
         ItemCompressRecipe.builder()
             .requires(ModItems.STABLE_NEUTRONIUM_INGOT)
-            .requires(ModItems.URANIUM_INGOT)
+            .requires(ModItemTags.URANIUM_INGOTS)
             .result(ModItems.PLUTONIUM_NUGGET, 6)
             .result(ModItems.LIME_POWDER)
             .result(ModItems.STABLE_NEUTRONIUM_INGOT)
@@ -92,7 +93,7 @@ public class ItemCompressRecipeLoader {
             .result(ModItems.SUPER_CAPACITOR_EMPTY)
             .save(provider);
 
-        InWorldRecipeBuilder.compatible(ModRecipeTriggers.ON_ANVIL_FALL_ON.get())
+        InWorldRecipeBuilder.compatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .with(
                 HasItemIngredient.builder()
                     .of(ModBlocks.RESIN_BLOCK.asItem())
@@ -126,7 +127,8 @@ public class ItemCompressRecipeLoader {
                             1f,
                             true,
                             Level.ExplosionInteraction.BLOCK,
-                            0.5f
+                            //同权重二选一已经包含50%概率了，这里的概率要填1.0
+                            ConstantValue.exactly(1f)
                         ),
                         0.5f
                     )

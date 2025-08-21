@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.integration.patchouli.util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.mixin.accessor.ScreenAccessor;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.util.RenderHelper;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.gui.GuiGraphics;

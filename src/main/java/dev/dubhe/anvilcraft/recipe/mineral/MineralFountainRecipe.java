@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
+import dev.dubhe.anvilcraft.recipe.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,11 +32,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input> {
-    private final Block needBlock;
-    private final Block fromBlock;
+    private final BlockStatePredicate needBlock;
+    private final BlockStatePredicate fromBlock;
     private final Block toBlock;
 
-    public MineralFountainRecipe(Block needBlock, Block fromBlock, Block toBlock) {
+    public MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePredicate fromBlock, Block toBlock) {
         this.needBlock = needBlock;
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
@@ -57,7 +59,7 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
 
     @Override
     public ItemStack assemble(Input input, HolderLookup.Provider provider) {
-        return toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(needBlock);
+        return this.toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(this.needBlock.getStatesCache().getFirst().getBlock());
     }
 
     @Override
@@ -67,13 +69,13 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(needBlock);
+        return this.toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(this.needBlock.getStatesCache().getFirst().getBlock());
     }
 
     @Override
     public boolean matches(Input input, Level level) {
-        if (input.needBlock != needBlock) return false;
-        return input.fromBlock == fromBlock;
+        if (this.needBlock.test(level, input.needBlock.defaultBlockState(), null)) return false;
+        return this.fromBlock.test(level, input.fromBlock.defaultBlockState(), null);
     }
 
     @Override
@@ -102,20 +104,27 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
     public static class Serializer implements RecipeSerializer<MineralFountainRecipe> {
 
         private static final MapCodec<MineralFountainRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                CodecUtil.BLOCK_CODEC.fieldOf("need_block").forGetter(MineralFountainRecipe::getNeedBlock),
-                CodecUtil.BLOCK_CODEC.fieldOf("from_block").forGetter(MineralFountainRecipe::getFromBlock),
-                CodecUtil.BLOCK_CODEC.fieldOf("to_block").forGetter(MineralFountainRecipe::getToBlock))
-            .apply(ins, MineralFountainRecipe::new));
+            BlockStatePredicate.CODEC
+                .fieldOf("need_block")
+                .forGetter(MineralFountainRecipe::getNeedBlock),
+            BlockStatePredicate.CODEC
+                .fieldOf("from_block")
+                .forGetter(MineralFountainRecipe::getFromBlock),
+            CodecUtil.BLOCK_CODEC
+                .fieldOf("to_block")
+                .forGetter(MineralFountainRecipe::getToBlock)
+        ).apply(ins, MineralFountainRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainRecipe> STREAM_CODEC =
             StreamCodec.composite(
-                CodecUtil.BLOCK_STREAM_CODEC,
+                BlockStatePredicate.STREAM_CODEC,
                 MineralFountainRecipe::getNeedBlock,
-                CodecUtil.BLOCK_STREAM_CODEC,
+                BlockStatePredicate.STREAM_CODEC,
                 MineralFountainRecipe::getFromBlock,
                 CodecUtil.BLOCK_STREAM_CODEC,
                 MineralFountainRecipe::getToBlock,
-                MineralFountainRecipe::new);
+                MineralFountainRecipe::new
+            );
 
         @Override
         public MapCodec<MineralFountainRecipe> codec() {
@@ -131,9 +140,29 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<MineralFountainRecipe> {
-        private Block needBlock;
-        private Block fromBlock;
+        private BlockStatePredicate needBlock;
+        private BlockStatePredicate fromBlock;
         private Block toBlock;
+
+        public Builder needBlock(Block needBlock) {
+            this.needBlock = BlockStatePredicate.builder().of(needBlock).build();
+            return this;
+        }
+
+        public Builder needBlock(TagKey<Block> needBlock) {
+            this.needBlock = BlockStatePredicate.builder().of(needBlock).build();
+            return this;
+        }
+
+        public Builder fromBlock(Block fromBlock) {
+            this.fromBlock = BlockStatePredicate.builder().of(fromBlock).build();
+            return this;
+        }
+
+        public Builder fromBlock(TagKey<Block> fromBlock) {
+            this.fromBlock = BlockStatePredicate.builder().of(fromBlock).build();
+            return this;
+        }
 
         @Override
         public MineralFountainRecipe buildRecipe() {

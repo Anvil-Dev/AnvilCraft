@@ -96,7 +96,6 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
 
     @Override
     protected void slotClicked(@NotNull Slot slot, int slotId, int mouseButton, @NotNull ClickType type) {
-        if (type == ClickType.PICKUP) {
             if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
                 ItemStack carriedItem = this.menu.getCarried();
                 int realSlotId = slot.getContainerSlot();
@@ -115,7 +114,6 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
                     }
                 }
             }
-        }
         super.slotClicked(slot, slotId, mouseButton, type);
     }
 

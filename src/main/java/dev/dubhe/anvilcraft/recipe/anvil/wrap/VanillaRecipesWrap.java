@@ -6,7 +6,7 @@ import com.google.common.collect.Multimaps;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModItemTags;
 import dev.dubhe.anvilcraft.recipe.anvil.InWorldRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.component.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.component.ItemIngredientPredicate;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -135,7 +135,7 @@ public class VanillaRecipesWrap {
         Ingredient first = ingredients.getFirst();
         if (ingredients.size() <= 1) return;
         ItemStack result = recipe.getResultItem(registries).copy();
-        if (!result.is(Tags.Items.STORAGE_BLOCKS) && !result.is(ModItemTags.COMPRESS_ITEM)) return;
+        if (!result.is(ModItemTags.COMPRESS_ITEM)) return;
         for (Ingredient ingredient : ingredients) {
             if (!ingredient.equals(first)) return;
         }

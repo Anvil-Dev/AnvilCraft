@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.ModBlockTags;
 import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
-import dev.dubhe.anvilcraft.recipe.elements.OutputItem;
+import dev.dubhe.anvilcraft.recipe.component.ChanceItemStack;
 import dev.dubhe.anvilcraft.util.BlockTransformExplosion;
 import dev.dubhe.anvilcraft.util.MergeCooldownItemEntity;
 import net.minecraft.core.BlockPos;
@@ -29,6 +29,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -51,9 +52,11 @@ public class FallingBlockCollisionEventListener {
         AnvilCollisionCraftRecipe resultRecipe = null;
         List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getRecipeManager()
             .getAllRecipesFor(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
+        BlockState state = level.getBlockState(pos);
+        BlockEntity entity = level.getBlockEntity(pos);
         for (RecipeHolder<AnvilCollisionCraftRecipe> recipe : recipes) {
-            if (!recipe.value().anvil().is(event.getEntity().blockState)) continue;
-            if (!recipe.value().hitBlock().is(level.getBlockState(pos))) continue;
+            if (!recipe.value().anvil().test(level, event.getEntity().getBlockState(), null)) continue;
+            if (!recipe.value().hitBlock().test(level, state, entity)) continue;
             if (event.getSpeed() < recipe.value().speed()) continue;
             if (resultRecipe != null && resultRecipe.speed() > recipe.value().speed()) continue;
             resultRecipe = recipe.value();
@@ -63,19 +66,19 @@ public class FallingBlockCollisionEventListener {
             return;
         }
         if (event.getEntity().getBlockState().is(BlockTags.ANVIL)) {
-            if (level.getBlockState(pos).getDestroySpeed(level, pos) > 0) {
+            if (state.getDestroySpeed(level, pos) > 0) {
                 removeBlock(level, pos);
             }
             level.explode(
-                    null,
-                    Explosion.getDefaultDamageSource(level, null),
-                    null,
-                    pos.getCenter().x,
-                    pos.getCenter().y,
-                    pos.getCenter().z,
-                    4F,
-                    true,
-                    Level.ExplosionInteraction.TNT
+                null,
+                Explosion.getDefaultDamageSource(level, null),
+                null,
+                pos.getCenter().x,
+                pos.getCenter().y,
+                pos.getCenter().z,
+                4F,
+                true,
+                Level.ExplosionInteraction.TNT
             );
         }
     }
@@ -87,9 +90,11 @@ public class FallingBlockCollisionEventListener {
         BlockPos pos,
         Vec3 entityPos
     ) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
         removeBlock(level, pos);
-        if (recipe.consume())
+        if (recipe.consume()) {
             event.getEntity().kill();
+        }
 
         DamageSource damageSource = Explosion.getDefaultDamageSource(level, null);
         ExplosionDamageCalculator damageCalculator = new ItemImmuneExplosionDamage();
@@ -103,53 +108,51 @@ public class FallingBlockCollisionEventListener {
         ParticleOptions largeExplosionParticles = ParticleTypes.EXPLOSION_EMITTER;
         Holder<SoundEvent> explosionSound = SoundEvents.GENERIC_EXPLODE;
         Explosion.BlockInteraction blockInteraction =
-                level.getGameRules().getBoolean(GameRules.RULE_TNT_EXPLOSION_DROP_DECAY)
-                        ? Explosion.BlockInteraction.DESTROY_WITH_DECAY
-                        : Explosion.BlockInteraction.DESTROY;
+            level.getGameRules().getBoolean(GameRules.RULE_TNT_EXPLOSION_DROP_DECAY)
+            ? Explosion.BlockInteraction.DESTROY_WITH_DECAY
+            : Explosion.BlockInteraction.DESTROY;
         Explosion explosion = new Explosion(
-                level,
-                null,
-                damageSource,
-                damageCalculator,
-                x,
-                y,
-                z,
-                radius,
-                fire,
-                blockInteraction,
-                smallExplosionParticles,
-                largeExplosionParticles,
-                explosionSound
+            level,
+            null,
+            damageSource,
+            damageCalculator,
+            x,
+            y,
+            z,
+            radius,
+            fire,
+            blockInteraction,
+            smallExplosionParticles,
+            largeExplosionParticles,
+            explosionSound
         );
         ((BlockTransformExplosion) explosion).setBlockTransformExplosion(recipe.transformBlocks());
         explosion.explode();
         explosion.finalizeExplosion(spawnParticles);
-        if (level instanceof ServerLevel serverLevel) {
-            for (ServerPlayer serverplayer : serverLevel.players()) {
-                if (serverplayer.distanceToSqr(x, y, z) < 4096.0) {
-                    serverplayer.connection
-                            .send(
-                                    new ClientboundExplodePacket(
-                                            x,
-                                            y,
-                                            z,
-                                            radius,
-                                            explosion.getToBlow(),
-                                            explosion.getHitPlayers().get(serverplayer),
-                                            explosion.getBlockInteraction(),
-                                            explosion.getSmallExplosionParticles(),
-                                            explosion.getLargeExplosionParticles(),
-                                            explosion.getExplosionSound()
-                                    )
-                            );
-                }
+        for (ServerPlayer serverplayer : serverLevel.players()) {
+            if (serverplayer.distanceToSqr(x, y, z) < 4096.0) {
+                serverplayer.connection
+                    .send(
+                        new ClientboundExplodePacket(
+                            x,
+                            y,
+                            z,
+                            radius,
+                            explosion.getToBlow(),
+                            explosion.getHitPlayers().get(serverplayer),
+                            explosion.getBlockInteraction(),
+                            explosion.getSmallExplosionParticles(),
+                            explosion.getLargeExplosionParticles(),
+                            explosion.getExplosionSound()
+                        )
+                    );
             }
         }
 
         ArrayList<ItemStack> itemEntities = new ArrayList<>();
-        for (OutputItem outputItem : recipe.outputItems()) {
+        for (ChanceItemStack outputItem : recipe.outputItems()) {
             ItemStack itemStack;
-            if ((itemStack = outputItem.getResult(level.random)) == null) continue;
+            if ((itemStack = outputItem.getResult(serverLevel)).isEmpty()) continue;
             itemEntities.add(itemStack);
         }
         for (ItemStack itemStack : itemEntities) {
@@ -157,8 +160,11 @@ public class FallingBlockCollisionEventListener {
             Vec3 originItemPos = entityPos.add(pos.getCenter().subtract(entityPos).scale(0.5)).subtract(0, 0.4, 0);
             Vec3 normal = pos.getCenter().subtract(entityPos).scale(0.6).multiply(1, 0, 1);
             float dRoute;
-            if (number == 2) dRoute = 0f;
-            else dRoute = (float) (2 * Math.PI / (number - 2));
+            if (number == 2) {
+                dRoute = 0f;
+            } else {
+                dRoute = (float) (2 * Math.PI / (number - 2));
+            }
             Vector3f deltaMovement = normal.toVector3f().rotateY((float) (Math.PI / 2));
             int remainder = itemStack.getCount() % number;
             int quotient = itemStack.getCount() / number;
@@ -166,14 +172,14 @@ public class FallingBlockCollisionEventListener {
                 Vec3 deltaMovementVec3 = new Vec3(deltaMovement);
                 Vec3 itemPos = originItemPos.add(deltaMovementVec3.scale(0.2));
                 ItemEntity itemEntity = new ItemEntity(
-                        level,
-                        itemPos.x,
-                        itemPos.y,
-                        itemPos.z,
-                        new ItemStack(
-                                itemStack.getItem(),
-                                quotient + Math.clamp(remainder, 0, 1)
-                        )
+                    level,
+                    itemPos.x,
+                    itemPos.y,
+                    itemPos.z,
+                    new ItemStack(
+                        itemStack.getItem(),
+                        quotient + Math.clamp(remainder, 0, 1)
+                    )
                 );
                 deltaMovement.rotateAxis(dRoute, (float) normal.x, (float) normal.y, (float) normal.z);
                 itemEntity.setDeltaMovement(new Vec3(deltaMovement));
@@ -200,7 +206,9 @@ public class FallingBlockCollisionEventListener {
         if (blockState.is(ModBlockTags.COLLISION_IMMUNE)) return;
         if (blockState.getBlock() instanceof AbstractMultiPartBlock multiPartBlock) {
             multiPartBlock.removePartsAndUpdate(level, pos);
-        } else level.removeBlock(pos, false);
+        } else {
+            level.removeBlock(pos, false);
+        }
 
     }
 }
