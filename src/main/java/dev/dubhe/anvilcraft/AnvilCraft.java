@@ -39,6 +39,9 @@ import dev.dubhe.anvilcraft.init.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.ModVillagers;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeInits;
+import dev.dubhe.anvilcraft.init.worldgen.ModConfiguredFeatures;
+import dev.dubhe.anvilcraft.init.worldgen.ModFeatures;
+import dev.dubhe.anvilcraft.init.worldgen.ModPlacedFeatures;
 import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -98,6 +101,7 @@ public class AnvilCraft {
         ModMobEffects.register(modEventBus);
         ModInspections.initialize();
         ModItemSubPredicates.initialize(modEventBus);
+        ModFeatures.initialize(modEventBus);
 
         ModLootContextParamSets.registerAll();
         ModEnchantmentEffectComponents.register(modEventBus);

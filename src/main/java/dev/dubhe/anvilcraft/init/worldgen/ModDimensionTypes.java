@@ -14,6 +14,7 @@ import java.util.OptionalLong;
 public class ModDimensionTypes {
 
     public static final ResourceKey<DimensionType> MUN = key("mun");
+    public static final ResourceKey<Level> MUN_LEVEL = ResourceKey.create(Registries.DIMENSION, AnvilCraft.of("mun"));
 
     public static void bootstrap(BootstrapContext<DimensionType> context) {
         context.register(MUN, new DimensionType(
@@ -21,15 +22,15 @@ public class ModDimensionTypes {
             true,
             false,
             false,
-            true,
-            4.0,
+            false,
+            1.0,
             false,
             true,
             -64,
             384,
             384,
             ModBlockTags.INFINIBURN_MUN,
-            Level.OVERWORLD.location(),
+            MUN_LEVEL.location(),
             0,
             new DimensionType.MonsterSettings(
                 false,

@@ -47,60 +47,24 @@ public class ModNoiseGeneratorSettings {
     }
 
     public static NoiseGeneratorSettings mun() {
-        DensityFunction shiftX = getFunction(SHIFT_X);
-        DensityFunction shiftZ = getFunction(SHIFT_Z);
-        DensityFunction depth = getFunction(NoiseRouterData.DEPTH);
-        DensityFunction noiseGradientDensity = DensityFunctions.mul(
-            DensityFunctions.constant(4.0),
-            DensityFunctions.mul(depth, DensityFunctions.cache2d(getFunction(NoiseRouterData.FACTOR))).quarterNegative()
-        );
-        DensityFunction slopedCheese = getFunction(SLOPED_CHEESE);
         NoiseRouter noiseRouter = new NoiseRouter(
-            DensityFunctions.noise(getNoise(Noises.AQUIFER_BARRIER), 0.5),
-            DensityFunctions.noise(getNoise(Noises.AQUIFER_FLUID_LEVEL_FLOODEDNESS), 0.67),
-            DensityFunctions.noise(getNoise(Noises.AQUIFER_FLUID_LEVEL_SPREAD), 0.7142857142857143),
-            DensityFunctions.noise(getNoise(Noises.AQUIFER_LAVA)),
-            DensityFunctions.shiftedNoise2d(shiftX, shiftZ, 0.25, getNoise(Noises.TEMPERATURE)),
-            DensityFunctions.shiftedNoise2d(shiftX, shiftZ, 0.25, getNoise(Noises.VEGETATION)),
-            getFunction(NoiseRouterData.CONTINENTS),
-            getFunction(NoiseRouterData.EROSION),
-            depth,
-            getFunction(NoiseRouterData.RIDGES),
-            DensityFunctions.lerp(
-                DensityFunctions.yClampedGradient(-64, -40, 0.0, 1.0),
-                0.1171875,
-                DensityFunctions.lerp(
-                    DensityFunctions.yClampedGradient(240, 256, 1.0, 0.0),
-                    -0.078125,
-                    DensityFunctions.add(noiseGradientDensity, DensityFunctions.constant(-0.703125)).clamp(-64.0, 64.0)
-                )
-            ),
-            DensityFunctions.min(
-                DensityFunctions.mul(
-                    DensityFunctions.interpolated(DensityFunctions.blendDensity(DensityFunctions.lerp(
-                        DensityFunctions.yClampedGradient(-64, -40, 0.0, 1.0),
-                        0.1171875,
-                        DensityFunctions.lerp(
-                            DensityFunctions.yClampedGradient(240, 256, 1.0, 0.0),
-                            -0.078125,
-                            DensityFunctions.rangeChoice(
-                                slopedCheese,
-                                -1000000.0,
-                                1.5625,
-                                DensityFunctions.min(
-                                    slopedCheese,
-                                    DensityFunctions.mul(DensityFunctions.constant(5.0), getFunction(ENTRANCES))
-                                ),
-                                underground(slopedCheese)
-                            )
-                        )
-                    ))),
-                    DensityFunctions.constant(0.64)
-                ).squeeze(),
-                getFunction(NOODLE)
-            ),
-            DensityFunctions.constant(-1),
-            DensityFunctions.constant(-1),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
+            slide(DensityFunctions.constant(-0.703125)),
+            DensityFunctions.mul(
+                DensityFunctions.interpolated(DensityFunctions.blendDensity(slide(getFunction(NoiseRouterData.DEPTH)))),
+                DensityFunctions.constant(0.64)
+            ).squeeze(),
+            DensityFunctions.zero(),
+            DensityFunctions.zero(),
             DensityFunctions.zero()
         );
         return new NoiseGeneratorSettings(
@@ -115,6 +79,13 @@ public class ModNoiseGeneratorSettings {
             true,
             false,
             false
+        );
+    }
+
+    private static DensityFunction slide(DensityFunction function) {
+        return DensityFunctions.lerp(
+            DensityFunctions.yClampedGradient(-64, -64 + 24, 0.0, 1.0), 0.1,
+            DensityFunctions.lerp(DensityFunctions.yClampedGradient(-64 + 384 - 80, -64 + 384 - 64, 1.0, 0.0), -0.1, function)
         );
     }
 

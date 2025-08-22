@@ -1,10 +1,5 @@
 {
-  "carvers": {
-    "air": [
-      "minecraft:cave",
-      "minecraft:canyon"
-    ]
-  },
+  "carvers": {},
   "downfall": 0.0,
   "effects": {
     "fog_color": 0,
@@ -14,7 +9,13 @@
     "water_color": 3684408,
     "water_fog_color": 2368548
   },
-  "features": [],
+  "features": [
+    [
+      "anvilcraft:crater_mega",
+      "anvilcraft:crater_large",
+      "anvilcraft:crater_small"
+    ]
+  ],
   "has_precipitation": false,
   "spawn_costs": {},
   "spawners": {

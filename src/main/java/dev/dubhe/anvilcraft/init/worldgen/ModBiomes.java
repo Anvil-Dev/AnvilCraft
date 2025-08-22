@@ -20,12 +20,14 @@ public class ModBiomes {
 
     private static Biome mun(BootstrapContext<Biome> context) {
         return new Biome.BiomeBuilder()
-            .downfall(0)
             .hasPrecipitation(false)
+            .temperature(0.2f)
+            .downfall(0)
             .generationSettings(
                 new BiomeGenerationSettings.Builder(context.lookup(Registries.PLACED_FEATURE), context.lookup(Registries.CONFIGURED_CARVER))
-                    .addCarver(GenerationStep.Carving.AIR, Carvers.CAVE)
-                    .addCarver(GenerationStep.Carving.AIR, Carvers.CANYON)
+                    .addFeature(GenerationStep.Decoration.RAW_GENERATION, ModPlacedFeatures.MEGA_CRATER)
+                    .addFeature(GenerationStep.Decoration.RAW_GENERATION, ModPlacedFeatures.LARGE_CRATER)
+                    .addFeature(GenerationStep.Decoration.RAW_GENERATION, ModPlacedFeatures.SMALL_CRATER)
                     .build()
             )
             .mobSpawnSettings(new MobSpawnSettings.Builder().build())
@@ -39,7 +41,6 @@ public class ModBiomes {
                     .foliageColorOverride(0xF9E698)
                     .build()
             )
-            .temperature(0.2f)
             .temperatureAdjustment(Biome.TemperatureModifier.FROZEN)
             .build();
     }
