@@ -51,11 +51,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BrushableBlock;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BrushableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -357,49 +353,41 @@ public class MultitoolItem extends Item implements IMultipleResult {
         Player player = context.getPlayer();
         Level level = context.getLevel();
         BlockPos blockpos = context.getClickedPos();
+        ItemStack itemstack = context.getItemInHand();
         BlockState blockstate = level.getBlockState(blockpos);
         BlockState blockstate2 = blockstate.getToolModifiedState(context, ItemAbilities.FIRESTARTER_LIGHT, false);
-        if (blockstate2 == null) {
-            BlockPos blockpos1 = blockpos.relative(context.getClickedFace());
-            if (BaseFireBlock.canBePlacedAt(level, blockpos1, context.getHorizontalDirection())) {
-                level.playSound(
-                    player,
-                    blockpos1,
-                    SoundEvents.FLINTANDSTEEL_USE,
-                    SoundSource.BLOCKS,
-                    1.0F,
-                    level.getRandom().nextFloat() * 0.4F + 0.8F
-                );
-                BlockState blockstate1 = BaseFireBlock.getState(level, blockpos1);
-                level.setBlock(blockpos1, blockstate1, 11);
-                level.gameEvent(player, GameEvent.BLOCK_PLACE, blockpos);
-                ItemStack itemstack = context.getItemInHand();
-                if (player instanceof ServerPlayer serverPlayer) {
-                    CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, blockpos1, itemstack);
-                    itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
-                }
-
-                return InteractionResult.sidedSuccess(level.isClientSide());
-            } else {
-                return InteractionResult.FAIL;
-            }
-        } else {
-            level.playSound(
-                player,
-                blockpos,
-                SoundEvents.FLINTANDSTEEL_USE,
-                SoundSource.BLOCKS,
-                1.0F,
-                level.getRandom().nextFloat() * 0.4F + 0.8F
-            );
+        BlockPos blockpos1 = blockpos.relative(context.getClickedFace());
+        if (blockstate2 != null) {
+            level.playSound(player, blockpos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS,
+                1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
             level.setBlock(blockpos, blockstate2, 11);
             level.gameEvent(player, GameEvent.BLOCK_CHANGE, blockpos);
             if (player != null) {
-                context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
             }
-
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        } else if (blockstate.getBlock() instanceof TntBlock tntblock) {
+            tntblock.onCaughtFire(blockstate, level, blockpos, context.getClickedFace(), player);
+            level.setBlock(blockpos, Blocks.AIR.defaultBlockState(), 11);
+            if (player != null) {
+                itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        } else if (BaseFireBlock.canBePlacedAt(level, blockpos1, context.getHorizontalDirection())) {
+            level.playSound(player, blockpos1, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS,
+                1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
+            BlockState fireState = BaseFireBlock.getState(level, blockpos1);
+            level.setBlock(blockpos1, fireState, 11);
+            level.gameEvent(player, GameEvent.BLOCK_PLACE, blockpos);
+            if (player instanceof ServerPlayer serverPlayer) {
+                CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, blockpos1, itemstack);
+            }
+            if (player != null) {
+                itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+            }
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
+        return InteractionResult.FAIL;
     }
 
     public InteractionResult useOnAsBrush(UseOnContext context) {

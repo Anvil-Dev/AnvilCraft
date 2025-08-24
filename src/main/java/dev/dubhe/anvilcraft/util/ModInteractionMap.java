@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.MultitoolItem;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -59,6 +60,16 @@ public class ModInteractionMap {
                 OilCauldronBlock.ignite(level, pos, state);
                 stack.shrink(1);
                 level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
+                return ItemInteractionResult.sidedSuccess(level.isClientSide());
+            }
+        );
+        oilInteractionMap.put(
+            ModItems.MULTITOOL_ITEM.asItem(),
+            (state, level, pos, player, hand, stack) -> {
+                if (MultitoolItem.getMode(stack) != MultitoolItem.FLINT_AND_STEEL_MODE) return ItemInteractionResult.FAIL;
+                OilCauldronBlock.ignite(level, pos, state);
+                stack.hurtAndBreak(2, player, LivingEntity.getSlotForHand(hand));
+                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                 return ItemInteractionResult.sidedSuccess(level.isClientSide());
             }
         );
