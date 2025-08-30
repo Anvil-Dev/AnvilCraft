@@ -73,26 +73,27 @@ abstract class AnvilBlockMixin extends FallingBlock {
         boolean movedByPiston
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        //BlockState state1 = level.getBlockState(pos.above());
         this.anvilcraft$wasAttracted(state, level, pos);
     }
 
     // -1 -56 7, -1 -57 7
     @Unique
     private void anvilcraft$wasAttracted(BlockState state, Level level, BlockPos anvil) {
-        if (level.getBlockState(anvil.below()).is(ModBlocks.NEUTRON_IRRADIATOR)) return;
         BlockPos magnet = anvil;
         BlockPos irradiator = anvil;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
-        for (int i = 0; i < 7; i++) {
-            irradiator = irradiator.below();
-            if (level.getBlockState(irradiator).is(ModBlocks.NEUTRON_IRRADIATOR.get())) {
+        if (anvilcraft$isAttractByIrradiator(level, anvil)) {
+            if (!level.getBlockState(anvil.below()).is(Blocks.AIR)) return;
+            for (int i = 0; i < 7; i++) {
+                irradiator = irradiator.below();
+                if (level.getBlockState(irradiator).is(Blocks.AIR)) continue;
                 level.destroyBlock(irradiator.above(), true);
                 level.setBlockAndUpdate(irradiator.above(), state);
                 level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
                 return;
             }
         }
+        if (level.getBlockState(anvil.above()).is(ModBlockTags.MAGNET)) return;
         for (int i = 0; i < distance; i++) {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);
@@ -109,6 +110,16 @@ abstract class AnvilBlockMixin extends FallingBlock {
             AnimateAscendingBlockEntity.animate(level, anvil, state, magnet.below());
             return;
         }
+    }
+
+    @Unique
+    public boolean anvilcraft$isAttractByIrradiator(Level level, BlockPos anvil) {
+        BlockPos irradiator = anvil;
+        for (int i = 0; i < 7; i++) {
+            irradiator = irradiator.below();
+            if (level.getBlockState(irradiator).is(ModBlocks.NEUTRON_IRRADIATOR.get())) return true;
+        }
+        return false;
     }
 
     @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
