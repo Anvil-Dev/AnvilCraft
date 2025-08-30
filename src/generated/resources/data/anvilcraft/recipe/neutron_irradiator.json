@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "anvilcraft:negative_matter_block"
+    },
+    "I": {
+      "item": "anvilcraft:neutronium_ingot"
+    },
+    "N": {
+      "item": "anvilcraft:negative_matter"
+    },
+    "V": {
+      "item": "anvilcraft:void_matter"
+    }
+  },
+  "pattern": [
+    "NIN",
+    "NVN",
+    "BBB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:neutron_irradiator"
+  }
+}
