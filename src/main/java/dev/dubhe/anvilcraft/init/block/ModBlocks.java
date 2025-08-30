@@ -74,6 +74,7 @@ import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.NestingShulkerBoxBlock;
+import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.OverNestingShulkerBoxBlock;
@@ -362,6 +363,39 @@ public class ModBlocks {
 
         })
         .register();
+
+    public static final BlockEntry<? extends Block> NEUTRON_IRRADIATOR = REGISTRATE
+        .block("neutron_irradiator", NeutronIrradiatorBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .properties(p -> p.strength(50.0f, 1200f))
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("NIN")
+                .pattern("NVN")
+                .pattern("BBB")
+                .define('I', ModItems.NEUTRONIUM_INGOT)
+                .define('N', ModItems.NEGATIVE_MATTER)
+                .define('B', ModBlocks.NEGATIVE_MATTER_BLOCK)
+                .define('V', ModItems.VOID_MATTER)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEUTRONIUM_INGOT), AnvilCraftDatagen.has(ModItems.NEUTRONIUM_INGOT))
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEGATIVE_MATTER), AnvilCraftDatagen.has(ModItems.NEGATIVE_MATTER))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
+                    AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK)
+                )
+                .save(provider);
+        })
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            ModBlockTags.COLLISION_IMMUNE
+        )
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .build()
+        .register();
+
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRATE
         .block("corrupted_beacon", CorruptedBeaconBlock::new)
         .initialProperties(() -> Blocks.BEACON)
@@ -4730,7 +4764,7 @@ public class ModBlocks {
                         .save(
                             provider,
                             AnvilCraft.of(id + "_from_"
-                                          + location1.getPath().replace('/', '_'))
+                                + location1.getPath().replace('/', '_'))
                         );
                 }
             })
@@ -4781,10 +4815,10 @@ public class ModBlocks {
                         .save(
                             provider,
                             AnvilCraft.of(id + "_from_"
-                                          + ingredient
-                                              .location()
-                                              .getPath()
-                                              .replace('/', '_'))
+                                + ingredient
+                                .location()
+                                .getPath()
+                                .replace('/', '_'))
                         );
                 }
             })
@@ -5292,7 +5326,7 @@ public class ModBlocks {
                 .save(
                     provider,
                     AnvilCraft.of("copper_pressure_plate_from_"
-                                  + location1.getPath().replace('/', '_'))
+                        + location1.getPath().replace('/', '_'))
                 );
         })
         .register();

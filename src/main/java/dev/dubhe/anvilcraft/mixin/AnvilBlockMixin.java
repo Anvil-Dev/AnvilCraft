@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -72,17 +73,26 @@ abstract class AnvilBlockMixin extends FallingBlock {
         boolean movedByPiston
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        BlockState state1 = level.getBlockState(pos.above());
-        if (!this.anvilcraft$isAttracts(state1)) this.anvilcraft$wasAttracted(state, level, pos);
+        //BlockState state1 = level.getBlockState(pos.above());
+        this.anvilcraft$wasAttracted(state, level, pos);
     }
 
     // -1 -56 7, -1 -57 7
     @Unique
     private void anvilcraft$wasAttracted(BlockState state, Level level, BlockPos anvil) {
+        if (level.getBlockState(anvil.below()).is(ModBlocks.NEUTRON_IRRADIATOR)) return;
         BlockPos magnet = anvil;
-        BlockState aboveState = level.getBlockState(anvil.above());
-        if (aboveState.is(ModBlockTags.MAGNET) || aboveState.getBlock() instanceof MagnetBlock) return;
+        BlockPos irradiator = anvil;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
+        for (int i = 0; i < 7; i++) {
+            irradiator = irradiator.below();
+            if (level.getBlockState(irradiator).is(ModBlocks.NEUTRON_IRRADIATOR.get())) {
+                level.destroyBlock(irradiator.above(), true);
+                level.setBlockAndUpdate(irradiator.above(), state);
+                level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
+                return;
+            }
+        }
         for (int i = 0; i < distance; i++) {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);

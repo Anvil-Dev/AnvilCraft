@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -70,9 +71,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) {
-            return;
-        }
+        if (level.isClientSide) return;
         this.attract(state, level, pos);
         boolean bl = state.getValue(LIT);
         if (bl != level.hasNeighborSignal(pos)) {
@@ -90,6 +89,11 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         BlockPos currentPos = magnetPos;
+        for (int i = 0; i < 7; i++) {
+            currentPos = currentPos.below();
+            if (level.getBlockState(currentPos).is(ModBlocks.NEUTRON_IRRADIATOR.get())) return;
+        }
+        currentPos = magnetPos;
         checkAnvil:
         for (int i = 0; i < distance; i++) {
             currentPos = currentPos.below();
