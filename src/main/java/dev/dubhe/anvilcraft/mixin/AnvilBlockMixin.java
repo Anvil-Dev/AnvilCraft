@@ -9,8 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -84,10 +84,22 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockPos irradiator = anvil;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         if (anvilcraft$isAttractByIrradiator(level, anvil)) {
-            if (!level.getBlockState(anvil.below()).is(Blocks.AIR)) return;
+            if (!FallingBlock.isFree(level.getBlockState(anvil.below()))) return;
             for (int i = 0; i < 7; i++) {
                 irradiator = irradiator.below();
-                if (level.getBlockState(irradiator).is(Blocks.AIR)) continue;
+                if (FallingBlock.isFree(level.getBlockState(irradiator))) continue;
+                if (!canSurvive(level.getBlockState(irradiator), level, irradiator)) {
+                    ItemEntity itemEntity = new ItemEntity(
+                        level,
+                        irradiator.below().getX(),
+                        irradiator.below().getY(),
+                        irradiator.below().getZ(),
+                        level.getBlockState(irradiator).getBlock().asItem().getDefaultInstance()
+                    );
+                    itemEntity.setDefaultPickUpDelay();
+                    level.addFreshEntity(itemEntity);
+                    return;
+                }
                 level.destroyBlock(irradiator.above(), true);
                 level.setBlockAndUpdate(irradiator.above(), state);
                 level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
