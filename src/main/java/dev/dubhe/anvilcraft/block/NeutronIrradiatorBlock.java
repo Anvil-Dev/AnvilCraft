@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
@@ -11,7 +10,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -54,6 +53,18 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable {
     }
 
     @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        super.onRemove(state, level, pos, newState, isMoving);
+        BlockPos blockPos = pos;
+        for (int i = 0; i < 7; i++) {
+            blockPos = blockPos.above();
+            if (level.getBlockState(blockPos).is(BlockTags.ANVIL)) {
+                level.scheduleTick(blockPos, level.getBlockState(blockPos).getBlock(), 2);
+            }
+        }
+    }
+
+    @Override
     public void neighborChanged(
         BlockState state,
         Level level,
@@ -75,10 +86,17 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable {
             currentPos = currentPos.above();
             BlockState state1 = level.getBlockState(currentPos);
             if (state1.is(BlockTags.ANVIL) && !state1.is(ModBlockTags.NON_MAGNETIC)) {
-                level.destroyBlock(pos.above(), true);
-                level.setBlockAndUpdate(pos.above(), state1);
-                level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
-                break;
+                BlockPos anvil = currentPos;
+                if (FallingBlock.isFree(level.getBlockState(anvil.below()))) {
+                    for (int j = 0; j < 7; j++) {
+                        anvil = anvil.below();
+                        if (FallingBlock.isFree(level.getBlockState(anvil))) continue;
+                        level.destroyBlock(anvil.above(), true);
+                        level.setBlockAndUpdate(anvil.above(), state1);
+                        level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
+                        break;
+                    }
+                }
             }
             List<FallingBlockEntity> entities =
                 level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(currentPos));
@@ -88,16 +106,9 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable {
                     level.destroyBlock(pos.above(), true);
                     level.setBlockAndUpdate(pos.above(), state2);
                     entity.remove(Entity.RemovalReason.DISCARDED);
-                    //AnimateAscendingBlockEntity.animate(level, currentPos, state2, pos.above());
                     break checkAnvil;
                 }
             }
-            TriggerUtil.liftingAnvil(level, currentPos);
-            BlockState blockState = level.getBlockState(currentPos);
-            if (level.isEmptyBlock(currentPos) || blockState.getBlock() instanceof LiquidBlock) {
-                continue;
-            }
-            return;
         }
     }
 

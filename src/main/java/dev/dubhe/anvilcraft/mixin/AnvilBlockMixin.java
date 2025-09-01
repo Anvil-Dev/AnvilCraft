@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
@@ -38,7 +37,8 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockPos pos,
         RandomSource random
     ) {
-        if (anvilcraft$isAttracts(level.getBlockState(pos.above()))
+        this.anvilcraft$wasAttracted(state, level, pos);
+        if (anvilcraft$isAttractUp(level.getBlockState(pos.above()))
             || !FallingBlock.isFree(level.getBlockState(pos.below()))
             || pos.getY() < level.getMinBuildHeight()) {
             return;
@@ -61,7 +61,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Unique
-    private boolean anvilcraft$isAttracts(BlockState state) {
+    private boolean anvilcraft$isAttractUp(BlockState state) {
         return state.is(ModBlockTags.MAGNET) && !state.getValue(LIT);
     }
 
@@ -83,23 +83,11 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockPos magnet = anvil;
         BlockPos irradiator = anvil;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
-        if (anvilcraft$isAttractByIrradiator(level, anvil)) {
+        if (anvilcraft$isAttractDown(level, anvil)) {
             if (!FallingBlock.isFree(level.getBlockState(anvil.below()))) return;
             for (int i = 0; i < 7; i++) {
                 irradiator = irradiator.below();
                 if (FallingBlock.isFree(level.getBlockState(irradiator))) continue;
-                if (!canSurvive(level.getBlockState(irradiator), level, irradiator)) {
-                    ItemEntity itemEntity = new ItemEntity(
-                        level,
-                        irradiator.below().getX(),
-                        irradiator.below().getY(),
-                        irradiator.below().getZ(),
-                        level.getBlockState(irradiator).getBlock().asItem().getDefaultInstance()
-                    );
-                    itemEntity.setDefaultPickUpDelay();
-                    level.addFreshEntity(itemEntity);
-                    return;
-                }
                 level.destroyBlock(irradiator.above(), true);
                 level.setBlockAndUpdate(irradiator.above(), state);
                 level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
@@ -126,7 +114,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Unique
-    public boolean anvilcraft$isAttractByIrradiator(Level level, BlockPos anvil) {
+    public boolean anvilcraft$isAttractDown(Level level, BlockPos anvil) {
         BlockPos irradiator = anvil;
         for (int i = 0; i < 7; i++) {
             irradiator = irradiator.below();
