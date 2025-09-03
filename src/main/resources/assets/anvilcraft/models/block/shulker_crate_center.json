@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/shulker_crate"
+	},
+	"render_type": "cutout"
+}

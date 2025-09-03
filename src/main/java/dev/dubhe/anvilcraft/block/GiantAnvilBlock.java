@@ -129,7 +129,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
         .get();
 
-    private static final ImmutableMap<Direction, ImmutableList<Vec3i>> UPDATE_OFFSET = ImmutableMap.of(
+    public static final ImmutableMap<Direction, ImmutableList<Vec3i>> UPDATE_OFFSET = ImmutableMap.of(
         Direction.DOWN,
         ImmutableList.of(
             new Vec3i(-1, 3, -1),

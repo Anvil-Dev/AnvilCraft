@@ -1,0 +1,111 @@
+{
+  "variants": {
+    "half=bottom_wn": {
+      "model": "anvilcraft:block/shulker_crate_corner"
+    },
+    "half=bottom_n": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal"
+    },
+    "half=bottom_en": {
+      "model": "anvilcraft:block/shulker_crate_corner",
+      "y": 90
+    },
+    "half=bottom_e": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal",
+      "y": 90
+    },
+    "half=bottom_es": {
+      "model": "anvilcraft:block/shulker_crate_corner",
+      "y": 180
+    },
+    "half=bottom_s": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal",
+      "y": 180
+    },
+    "half=bottom_ws": {
+      "model": "anvilcraft:block/shulker_crate_corner",
+      "y": 270
+    },
+    "half=bottom_w": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal",
+      "y": 270
+    },
+    "half=bottom_center": {
+      "model": "anvilcraft:block/shulker_crate_side",
+      "x": 90
+    },
+    "half=mid_wn": {
+      "model": "anvilcraft:block/shulker_crate_edge_vertical"
+    },
+    "half=mid_n": {
+      "model": "anvilcraft:block/shulker_crate_side"
+    },
+    "half=mid_en": {
+      "model": "anvilcraft:block/shulker_crate_edge_vertical",
+      "x": 90
+    },
+    "half=mid_e": {
+      "model": "anvilcraft:block/shulker_crate_side",
+      "y": 90
+    },
+    "half=mid_es": {
+      "model": "anvilcraft:block/shulker_crate_edge_vertical",
+      "x": 180
+    },
+    "half=mid_s": {
+      "model": "anvilcraft:block/shulker_crate_side",
+      "y": 180
+    },
+    "half=mid_ws": {
+      "model": "anvilcraft:block/shulker_crate_edge_vertical",
+      "x": 270
+    },
+    "half=mid_w": {
+      "model": "anvilcraft:block/shulker_crate_side",
+      "y": 270
+    },
+    "half=mid_center": {
+      "model": "anvilcraft:block/shulker_crate_center"
+    },
+    "half=top_wn": {
+      "model": "anvilcraft:block/shulker_crate_corner",
+      "x": 270
+    },
+    "half=top_n": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal",
+      "x": 270
+    },
+    "half=top_en": {
+      "model": "anvilcraft:block/shulker_crate_corner",
+      "x": 180,
+      "y": 180
+    },
+    "half=top_e": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal",
+      "x": 180,
+      "y": 270
+    },
+    "half=top_es": {
+      "model": "anvilcraft:block/shulker_crate_corner",
+      "x": 180,
+      "y": 270
+    },
+    "half=top_s": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal",
+      "x": 180
+    },
+    "half=top_ws": {
+      "model": "anvilcraft:block/shulker_crate_corner",
+      "x": 180
+    },
+    "half=top_w": {
+      "model": "anvilcraft:block/shulker_crate_edge_horizontal",
+      "x": 180,
+      "y": 90
+    },
+    "half=top_center": {
+      "model": "anvilcraft:block/shulker_crate_side",
+      "x": 270
+    }
+  }
+}

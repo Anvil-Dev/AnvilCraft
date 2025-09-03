@@ -94,6 +94,7 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
+import dev.dubhe.anvilcraft.block.ShulkerCrateBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
@@ -1239,6 +1240,19 @@ public class ModBlocks {
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.ENDER_EYE), AnvilCraftDatagen.has(Items.ENDER_EYE))
                 .save(provider);
         })
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<ShulkerCrateBlock> SHULKER_CRATE = REGISTRATE.block("shulker_crate", ShulkerCrateBlock::new)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .strength(3.0F)
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+        )
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRATE.block(
