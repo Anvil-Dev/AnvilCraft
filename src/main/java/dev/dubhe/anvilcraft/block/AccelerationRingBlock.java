@@ -74,8 +74,7 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
 
     @Override
     protected BlockState placedState(DirectionCube3x3PartHalf part, BlockState state) {
-        return state
-            .setValue(this.getPart(), part);
+        return state.setValue(this.getPart(), part);
     }
 
     @Override

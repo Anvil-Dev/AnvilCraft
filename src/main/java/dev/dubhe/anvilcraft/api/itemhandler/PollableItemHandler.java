@@ -10,10 +10,10 @@ public class PollableItemHandler extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        return slot == getEmptyOrSmallerSlot(stack);
+        return slot == this.getEmptyOrSmallerSlot(stack);
     }
 
-    private int getEmptyOrSmallerSlot(ItemStack stack) {
+    public int getEmptyOrSmallerSlot(ItemStack stack) {
         int slotCount = this.getSlots();
         int slot = -1;
         int countInSlot = Integer.MAX_VALUE;

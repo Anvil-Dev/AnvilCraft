@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -26,20 +27,20 @@ import java.util.stream.Collectors;
 public class Util {
     public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> isLoaded("jade") || isLoaded("wthit"));
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-    public static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[]{
+    public static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[] {
         Direction.SOUTH,
         Direction.WEST,
         Direction.EAST,
         Direction.NORTH
     };
-    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[]{
+    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[] {
         Direction.UP,
         Direction.DOWN
     };
-    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][]{
+    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][] {
         {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
         {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
-    };
+        };
 
     /**
      * @return 模组是否加载
@@ -76,7 +77,7 @@ public class Util {
 
     public static @NotNull String generateRandomString(int len, boolean hasInteger, boolean hasUpperLetter) {
         String ch = "abcdefghijklmnopqrstuvwxyz" + (hasUpperLetter ? "ABCDEFGHIGKLMNOPQRSTUVWXYZ" : "")
-            + (hasInteger ? "0123456789" : "");
+                    + (hasInteger ? "0123456789" : "");
         StringBuilder stringBuffer = new StringBuilder();
         for (int i = 0; i < len; i++) {
             Random random = new Random(System.nanoTime());
@@ -164,6 +165,7 @@ public class Util {
      *
      * @param <T> 想要转为的类型
      * @param o   一个值
+     *
      * @return 传入的值，但是类型为{@code T}
      * @throws ClassCastException 当无法将传入的值强转时抛出
      */
@@ -173,10 +175,31 @@ public class Util {
     }
 
     /**
+     * 将传入的值强转为{@code T}类型
+     *
+     * @param <T>              想要转为的类型
+     * @param <E>              当无法将传入的值强转时抛出的异常类型
+     * @param o                一个值
+     * @param exceptionFactory 用于创建异常的工厂
+     *
+     * @return 传入的值，但是类型为{@code T}
+     * @throws E 当无法将传入的值强转时抛出
+     */
+    @SuppressWarnings("unchecked")
+    public static <T, E extends Exception> T cast(@NotNull Object o, Supplier<E> exceptionFactory) throws E {
+        try {
+            return (T) o;
+        } catch (ClassCastException ignored) {
+            throw exceptionFactory.get();
+        }
+    }
+
+    /**
      * 若传入的值可被强转为{@code T}类型，则返回包含传入的值的{@link Optional}
      *
      * @param <T> 想要转为的类型
      * @param o   一个值，可为null
+     *
      * @return 一个可能包含传入的值的{@link Optional}
      */
     public static <T> Optional<T> castSafely(@Nullable Object o, Class<T> clazz) {
@@ -189,6 +212,7 @@ public class Util {
      * 若传入的值可被强转为传入的任意类型，则返回true
      *
      * @param o 一个值，可为null
+     *
      * @return 传入的值，但是类型为{@code T}
      */
     @SuppressWarnings("TypeParameterExplicitlyExtendsObject")

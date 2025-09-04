@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ShulkerCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
@@ -105,9 +106,10 @@ public class ModBlockEntities {
         CreativeGeneratorBlockEntity::createBlockEntity
     ).renderer(() -> CreativeGeneratorRenderer::new).validBlock(ModBlocks.CREATIVE_GENERATOR).register();
 
-    public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRATE.blockEntity("heater", HeaterBlockEntity::createBlockEntity)
-        .validBlock(ModBlocks.HEATER)
-        .register();
+    public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRATE.blockEntity(
+        "heater",
+        HeaterBlockEntity::createBlockEntity
+    ).validBlock(ModBlocks.HEATER).register();
 
     public static final BlockEntityEntry<TransmissionPoleBlockEntity> TRANSMISSION_POLE = REGISTRATE.blockEntity(
         "transmission_pole",
@@ -154,10 +156,10 @@ public class ModBlockEntities {
         OverseerBlockEntity::createBlockEntity
     ).validBlock(ModBlocks.OVERSEER_BLOCK).register();
 
-    public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRATE.blockEntity("charger", ChargerBlockEntity::new)
-        .renderer(() -> ChargerBlockRenderer::new)
-        .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
-        .register();
+    public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRATE.blockEntity(
+        "charger",
+        ChargerBlockEntity::new
+    ).validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER).renderer(() -> ChargerBlockRenderer::new).register();
 
     public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRATE.blockEntity(
         "active_silencer",
@@ -176,7 +178,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<HeatCollectorBlockEntity> HEAT_COLLECTOR = REGISTRATE.blockEntity(
         "heat_collector",
         HeatCollectorBlockEntity::createBlockEntity
-    ).renderer(() -> HeatCollectorRenderer::new).validBlock(ModBlocks.HEAT_COLLECTOR).register();
+    ).validBlock(ModBlocks.HEAT_COLLECTOR).renderer(() -> HeatCollectorRenderer::new).register();
 
     public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRATE.blockEntity(
         "mineral_fountain",
@@ -273,6 +275,11 @@ public class ModBlockEntities {
         "activator_sliding_rail",
         ActivatorSlidingRailBlockEntity::new
     ).validBlocks(ModBlocks.ACTIVATOR_SLIDING_RAIL).register();
+
+    public static final BlockEntityEntry<ShulkerCrateBlockEntity> SHULKER_CRATE = REGISTRATE.blockEntity(
+        "shulker_crate",
+        ShulkerCrateBlockEntity::new
+    ).validBlocks(ModBlocks.SHULKER_CRATE).register();
 
     public static void register() {
     }
