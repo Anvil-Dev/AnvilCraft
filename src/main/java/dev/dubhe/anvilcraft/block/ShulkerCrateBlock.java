@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -256,6 +257,15 @@ public class ShulkerCrateBlock
     @Override
     protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return false;
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (state.getValue(HALF).isMain()) {
+            level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
+                .ifPresent(crate -> ItemHandlerUtil.dropAllToPos(crate.getItemHandler(), level, pos.getCenter()));
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override
