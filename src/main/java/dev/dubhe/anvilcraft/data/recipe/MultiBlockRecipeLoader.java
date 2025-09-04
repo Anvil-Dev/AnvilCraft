@@ -204,5 +204,14 @@ public class MultiBlockRecipeLoader {
             .symbol('C', "anvilcraft:magnetoelectric_core")
             .symbol('D', "anvilcraft:tungsten_block")
             .save(provider);
+
+        MultiblockRecipe.builder(ModBlocks.SHULKER_CRATE)
+            .layer("AAA", "ABA", "AAA")
+            .layer("ABA", "BCB", "ABA")
+            .layer("AAA", "ABA", "AAA")
+            .symbol('A', Blocks.NETHERITE_BLOCK)
+            .symbol('B', Blocks.SHULKER_BOX)
+            .symbol('C', ModBlocks.SPACE_OVERCOMPRESSOR)
+            .save(provider);
     }
 }

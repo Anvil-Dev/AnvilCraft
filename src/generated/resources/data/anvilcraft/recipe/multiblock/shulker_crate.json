@@ -1,0 +1,37 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        "AAA",
+        "ABA",
+        "AAA"
+      ],
+      [
+        "ABA",
+        "BCB",
+        "ABA"
+      ],
+      [
+        "AAA",
+        "ABA",
+        "AAA"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "minecraft:netherite_block"
+      },
+      "B": {
+        "block": "minecraft:shulker_box"
+      },
+      "C": {
+        "block": "anvilcraft:space_overcompressor"
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:shulker_crate"
+  }
+}
