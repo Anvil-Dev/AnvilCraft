@@ -35,8 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ShulkerCrateBlock
     extends FlexibleMultiPartBlock<OpenedCube3x3PartHalf, BooleanProperty, Boolean>
-    implements EntityBlock, IHammerRemovable
-{
+    implements EntityBlock, IHammerRemovable {
     public static final EnumProperty<OpenedCube3x3PartHalf> HALF = EnumProperty.create("half", OpenedCube3x3PartHalf.class);
     public static final BooleanProperty OPENED = BooleanProperty.create("opened");
     protected static final VoxelShape BOTTOM_NW = ShapeUtil.join(

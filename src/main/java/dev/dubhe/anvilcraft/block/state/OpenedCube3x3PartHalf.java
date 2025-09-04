@@ -10,9 +10,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 @Getter
-public enum OpenedCube3x3PartHalf
-    implements IFlexibleMultiPartBlockState<OpenedCube3x3PartHalf, Boolean>, ISimpleMultiPartBlockState<OpenedCube3x3PartHalf>
-{
+public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<OpenedCube3x3PartHalf, Boolean>,
+    ISimpleMultiPartBlockState<OpenedCube3x3PartHalf> {
     BOTTOM_CENTER("bottom_center", 0, 0, 0),
     BOTTOM_W("bottom_w", -1, 0, 0),
     BOTTOM_E("bottom_e", 1, 0, 0),
