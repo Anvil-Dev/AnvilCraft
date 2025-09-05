@@ -44,6 +44,9 @@ import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.OverheatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.RedhotBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.nesting.NestingShulkerBoxBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.nesting.OverNestingShulkerBoxBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCrafterRenderer;
@@ -280,6 +283,22 @@ public class ModBlockEntities {
         "shulker_crate",
         ShulkerCrateBlockEntity::new
     ).validBlocks(ModBlocks.SHULKER_CRATE).register();
+
+    public static final BlockEntityEntry<NestingShulkerBoxBlockEntity> NESTING_SHULKER_BOX = REGISTRATE.blockEntity(
+        "nesting_shulker_box",
+        NestingShulkerBoxBlockEntity::new
+    ).validBlocks(ModBlocks.NESTING_SHULKER_BOX).register();
+
+    public static final BlockEntityEntry<OverNestingShulkerBoxBlockEntity> OVER_NESTING_SHULKER_BOX = REGISTRATE.blockEntity(
+        "over_nesting_shulker_box",
+        OverNestingShulkerBoxBlockEntity::new
+    ).validBlocks(ModBlocks.OVER_NESTING_SHULKER_BOX).register();
+
+    public static final BlockEntityEntry<SupercriticalNestingShulkerBoxBlockEntity> SUPERCRITICAL_NESTING_SHULKER_BOX =
+        REGISTRATE.blockEntity(
+            "supercritical_nesting_shulker_box",
+            SupercriticalNestingShulkerBoxBlockEntity::new
+        ).validBlocks(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX).register();
 
     public static void register() {
     }

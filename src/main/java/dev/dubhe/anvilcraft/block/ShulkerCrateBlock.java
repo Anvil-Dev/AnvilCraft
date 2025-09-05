@@ -240,16 +240,16 @@ public class ShulkerCrateBlock
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.isClientSide) return InteractionResult.PASS;
-        level.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS);
+        if (level.isClientSide || state.getValue(OPENED)) return InteractionResult.SUCCESS_NO_ITEM_USED;
+        level.playSound(null, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS);
         this.updateState(level, pos, OPENED, true, 3);
-        level.scheduleTick(pos, this, 10);
+        level.scheduleTick(pos, this, 16);
         return InteractionResult.SUCCESS_NO_ITEM_USED;
     }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        level.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS);
+        level.playSound(null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS);
         this.updateState(level, pos, OPENED, false, 3);
     }
 
@@ -260,6 +260,7 @@ public class ShulkerCrateBlock
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (state.is(newState.getBlock())) return;
         if (state.getValue(HALF).isMain()) {
             level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
                 .ifPresent(crate -> ItemHandlerUtil.dropAllToPos(crate.getItemHandler(), level, pos.getCenter()));

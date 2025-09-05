@@ -1,57 +1,57 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.block.better.BetterBlock;
+import dev.dubhe.anvilcraft.block.entity.nesting.NestingShulkerBoxBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class NestingShulkerBoxBlock extends Block implements IHammerRemovable {
-
-    private static final int soundDelay = 8;
+public class NestingShulkerBoxBlock extends BetterBlock implements EntityBlock, IHammerRemovable {
+    private static final int SOUND_DELAY = 8;
     public static final BooleanProperty COOLDOWN = BooleanProperty.create("cooldown");
 
     public NestingShulkerBoxBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(COOLDOWN, false));
-    }
-
-    @Override
-    protected ItemInteractionResult useItemOn(
-        ItemStack pStack,
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        InteractionHand pHand,
-        BlockHitResult pHitResult) {
-        return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
-    }
-
-    @Override
-    protected InteractionResult useWithoutItem(
-        BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
-        return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
     }
 
     /**
@@ -69,7 +69,7 @@ public class NestingShulkerBoxBlock extends Block implements IHammerRemovable {
         level.playSound(null, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
         level.playSound(null, pos, SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS, 0.8F, 1.0F);
         level.setBlockAndUpdate(pos, state.setValue(COOLDOWN, true));
-        level.scheduleTick(pos, this, 2 * soundDelay);
+        level.scheduleTick(pos, this, 2 * SOUND_DELAY);
         return InteractionResult.SUCCESS;
     }
 
@@ -87,5 +87,112 @@ public class NestingShulkerBoxBlock extends Block implements IHammerRemovable {
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         level.setBlockAndUpdate(pos, state.setValue(COOLDOWN, false));
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof NestingShulkerBoxBlockEntity nesting) {
+            if (!level.isClientSide && player.isCreative() && !nesting.getItems().isEmpty()) {
+                ItemStack stack = this.asItem().getDefaultInstance();
+                stack.applyComponents(be.collectComponents());
+                ItemEntity itemEntity = new ItemEntity(
+                    level,
+                    pos.getX() + 0.5,
+                    pos.getY() + 0.5,
+                    pos.getZ() + 0.5,
+                    stack
+                );
+                itemEntity.setDefaultPickUpDelay();
+                level.addFreshEntity(itemEntity);
+            }
+        }
+
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        BlockEntity blockentity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (blockentity instanceof NestingShulkerBoxBlockEntity box) {
+            params = params.withDynamicDrop(
+                ShulkerBoxBlock.CONTENTS,
+                consumer -> {
+                    for (int i = 0; i < box.getItemHandler().getSlots(); i++) {
+                        consumer.accept(box.getItemHandler().getStackInSlot(i));
+                    }
+                }
+            );
+        }
+
+        return super.getDrops(state, params);
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (state.is(newState.getBlock())) return;
+        BlockEntity blockentity = level.getBlockEntity(pos);
+        super.onRemove(state, level, pos, newState, isMoving);
+        if (blockentity instanceof ShulkerBoxBlockEntity) {
+            level.updateNeighbourForOutputSignal(pos, state.getBlock());
+        }
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltips, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltips, flag);
+        int validLine = 0;
+        int nonEmpty = 0;
+
+        for (var stack1 : stack.getOrDefault(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY).nonEmptyItems()) {
+            nonEmpty++;
+            if (validLine > 4) continue;
+            validLine++;
+            tooltips.add(Component.translatable(
+                "container.shulkerBox.itemCount",
+                stack1.getStack().getHoverName(),
+                stack1.getCount()
+            ));
+        }
+
+        if (nonEmpty - validLine <= 0) return;
+        tooltips.add(Component.translatable("container.shulkerBox.more", nonEmpty - validLine).withStyle(ChatFormatting.ITALIC));
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.NESTING_SHULKER_BOX.create(pos, state);
+    }
+
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    /**
+     * Returns the analog signal this block emits. This is the signal a comparator can read from it.
+     */
+    @Override
+    protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof NestingShulkerBoxBlockEntity be)) return 0;
+        IItemHandler handler = be.getItemHandler();
+        float f = 0.0F;
+
+        for (int i = 0; i < handler.getSlots(); i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            f += (float) stack.getCount() / (float) handler.getSlotLimit(i);
+        }
+
+        f /= (float) handler.getSlots();
+        return Mth.lerpDiscrete(f, 0, 15);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
+        level.getBlockEntity(pos, ModBlockEntities.NESTING_SHULKER_BOX.get())
+            .ifPresent(be -> be.saveToItem(stack, level.registryAccess()));
+        return stack;
     }
 }

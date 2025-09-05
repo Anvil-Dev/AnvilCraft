@@ -5,10 +5,13 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.ShulkerCrateBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,7 +34,23 @@ public class ShulkerCrateBlockEntity extends BlockEntity implements IItemHandler
         if (!half.isMain()) {
             this.stacks = Either.right(half.toMain(pos));
         } else {
-            this.stacks = Either.left(new ItemStackHandler(144));
+            this.stacks = Either.left(new ItemStackHandler(27) {
+                @Override
+                public boolean isItemValid(int slot, ItemStack stack) {
+                    return super.isItemValid(slot, stack)
+                           && (
+                               stack.is(Blocks.SHULKER_BOX.asItem())
+                               || stack.is(ModBlocks.NESTING_SHULKER_BOX.asItem())
+                               || stack.is(ModBlocks.OVER_NESTING_SHULKER_BOX.asItem())
+                               || stack.is(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.asItem())
+                           );
+                }
+
+                @Override
+                public int getSlotLimit(int slot) {
+                    return 1;
+                }
+            });
         }
     }
 

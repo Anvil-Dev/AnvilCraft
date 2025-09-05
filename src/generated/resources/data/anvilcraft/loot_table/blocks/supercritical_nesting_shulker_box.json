@@ -11,6 +11,16 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "minecraft:custom_name",
+                "minecraft:container"
+              ],
+              "source": "block_entity"
+            }
+          ],
           "name": "anvilcraft:supercritical_nesting_shulker_box"
         }
       ],

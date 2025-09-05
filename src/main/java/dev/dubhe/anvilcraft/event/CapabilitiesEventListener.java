@@ -23,7 +23,10 @@ public class CapabilitiesEventListener {
             ModBlockEntities.ITEM_COLLECTOR.get(),
             ModBlockEntities.MAGNETIC_CHUTE.get(),
             ModBlockEntities.CONFINEMENT_CHAMBER.get(),
-            ModBlockEntities.SHULKER_CRATE.get()
+            ModBlockEntities.SHULKER_CRATE.get(),
+            ModBlockEntities.NESTING_SHULKER_BOX.get(),
+            ModBlockEntities.OVER_NESTING_SHULKER_BOX.get(),
+            ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get()
         ).forEach(type -> event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
             type,

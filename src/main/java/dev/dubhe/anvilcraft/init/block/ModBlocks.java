@@ -160,6 +160,7 @@ import dev.dubhe.anvilcraft.item.abnormal.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationBlockItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationBlockItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyBlockItem;
+import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.DangerUtil;
@@ -1245,17 +1246,17 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<ShulkerCrateBlock> SHULKER_CRATE = REGISTRATE.block("shulker_crate", ShulkerCrateBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
-            .strength(3.0F)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
         .item(FlexibleMultiPartBlockItem<OpenedCube3x3PartHalf, BooleanProperty, Boolean>::new)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.NEEDS_DIAMOND_TOOL)
         .register();
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRATE.block(
             "jewelcrafting_table",
@@ -3917,10 +3918,14 @@ public class ModBlocks {
             NestingShulkerBoxBlock::new
         )
         .initialProperties(() -> Blocks.SHULKER_BOX)
+        .loot(DataGenUtil::createNestingShulkerBoxDrop)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
-        .properties(properties -> properties.stacksTo(16))
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
+        )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe((ctx, provider) -> {
@@ -3931,10 +3936,14 @@ public class ModBlocks {
             OverNestingShulkerBoxBlock::new
         )
         .initialProperties(() -> Blocks.SHULKER_BOX)
+        .loot(DataGenUtil::createNestingShulkerBoxDrop)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
-        .properties(properties -> properties.stacksTo(16))
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
+        )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe((ctx, provider) -> {
@@ -3945,10 +3954,14 @@ public class ModBlocks {
             SupercriticalNestingShulkerBoxBlock::new
         )
         .initialProperties(() -> Blocks.SHULKER_BOX)
+        .loot(DataGenUtil::createNestingShulkerBoxDrop)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
-        .properties(properties -> properties.stacksTo(16))
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
+        )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe((ctx, provider) -> {
