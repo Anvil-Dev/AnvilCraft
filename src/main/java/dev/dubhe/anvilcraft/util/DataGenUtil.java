@@ -124,7 +124,7 @@ public class DataGenUtil {
         );
     }
 
-    public static void createNestingShulkerBoxDrop(RegistrateBlockLootTables lootTables, Block block) {
+    public static void nestingShulkerBoxLoot(RegistrateBlockLootTables lootTables, Block block) {
         lootTables.add(
             block,
             LootTable.lootTable()

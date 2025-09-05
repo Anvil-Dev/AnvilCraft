@@ -3918,7 +3918,7 @@ public class ModBlocks {
             NestingShulkerBoxBlock::new
         )
         .initialProperties(() -> Blocks.SHULKER_BOX)
-        .loot(DataGenUtil::createNestingShulkerBoxDrop)
+        .loot(DataGenUtil::nestingShulkerBoxLoot)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
@@ -3936,7 +3936,7 @@ public class ModBlocks {
             OverNestingShulkerBoxBlock::new
         )
         .initialProperties(() -> Blocks.SHULKER_BOX)
-        .loot(DataGenUtil::createNestingShulkerBoxDrop)
+        .loot(DataGenUtil::nestingShulkerBoxLoot)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
@@ -3954,7 +3954,7 @@ public class ModBlocks {
             SupercriticalNestingShulkerBoxBlock::new
         )
         .initialProperties(() -> Blocks.SHULKER_BOX)
-        .loot(DataGenUtil::createNestingShulkerBoxDrop)
+        .loot(DataGenUtil::nestingShulkerBoxLoot)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
