@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:time_warp",
-  "consume": 250,
+  "consume": 1000,
   "fluid": "anvilcraft:fire",
   "ingredients": [
     {

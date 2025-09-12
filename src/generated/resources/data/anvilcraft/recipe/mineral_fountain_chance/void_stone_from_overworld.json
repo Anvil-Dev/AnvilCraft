@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:mineral_fountain_chance",
-  "chance": 0.1,
+  "chance": 0.01,
   "dimension": "minecraft:overworld",
   "from_block": {
     "blocks": "minecraft:deepslate"

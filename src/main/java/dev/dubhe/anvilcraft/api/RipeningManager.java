@@ -1,11 +1,8 @@
 package dev.dubhe.anvilcraft.api;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -16,121 +13,95 @@ import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.NyliumBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 public class RipeningManager {
     private static final Map<Level, RipeningManager> INSTANCES = new HashMap<>();
-
-    private static int cooldown = 0;
     private final Level level;
-    private final Set<BlockPos> lightBlocks = Collections.synchronizedSet(new HashSet<>());
+    private final HashSet<BlockPos> ripened = new HashSet<>();
+    private long lastTickRipen = -1;
 
     /**
-     * 获取当前维度催熟实例
+     * 获取或新建一个当前维度催熟实例。
      */
-    public static RipeningManager getInstance(Level level) {
-        if (!INSTANCES.containsKey(level)) {
-            INSTANCES.put(level, new RipeningManager(level));
-        }
-        return INSTANCES.get(level);
+    public static RipeningManager from(Level level) {
+        return INSTANCES.computeIfAbsent(level, RipeningManager::new);
     }
 
     public RipeningManager(Level level) {
         this.level = level;
     }
 
-    public static void tickAll() {
-        INSTANCES.values().forEach(RipeningManager::tick);
-    }
+    /**
+     * @param pos     灯的位置
+     * @param ripened 在本轮催熟中，已经被催熟过的位置。
+     */
+    private void doRipen(BlockPos pos, HashSet<BlockPos> ripened) {
+        int radius = AnvilCraft.CONFIG.inductionLightBlockRipeningRange / 2;
+        for (BlockPos plantPos : BlockPos.betweenClosed(pos.offset(radius, radius, radius), pos.offset(-radius, -radius, -radius))) {
+            if (ripened.contains(plantPos)) continue;
+            BlockState state = level.getBlockState(plantPos);
+            Block block = state.getBlock();
 
-    private void doRipen(@NotNull BlockPos pos, @NotNull HashSet<BlockPos> ripened) {
-        int rangeSize = AnvilCraft.CONFIG.inductionLightBlockRipeningRange;
-        for (int dx = -rangeSize / 2; dx <= rangeSize / 2; dx++) {
-            for (int dy = -rangeSize / 2; dy <= rangeSize / 2; dy++) {
-                for (int dz = -rangeSize / 2; dz <= rangeSize / 2; dz++) {
-                    BlockPos pos1 = pos.offset(dx, dy, dz);
-                    if (ripened.contains(pos1)) continue;
-                    BlockState state = level.getBlockState(pos1);
-                    if (state.getBlock() instanceof BonemealableBlock growable
-                        && !(growable instanceof GrassBlock)
-                        && !(growable instanceof NyliumBlock)
-                        && growable.isValidBonemealTarget(level, pos1, state)
-                        && level.getBrightness(LightLayer.BLOCK, pos1) >= 10
-                    ) {
-                        growable.performBonemeal((ServerLevel) level, level.getRandom(), pos1, state);
-                        level.addParticle(
-                            ParticleTypes.HAPPY_VILLAGER,
-                            pos1.getX() + 0.5,
-                            pos1.getY() + 0.5,
-                            pos1.getZ() + 0.5,
-                            0.0,
-                            0.0,
-                            0.0);
-                        ripened.add(pos1);
-                    }
-                    if (state.is(Blocks.SUGAR_CANE)
-                        && level.getBlockState(pos1.above()).is(Blocks.AIR)
-                    ) {
-                        level.setBlock(
-                            pos1.above(),
-                            Blocks.SUGAR_CANE.defaultBlockState(),
-                            Block.UPDATE_ALL_IMMEDIATE
-                        );
-                    }
-                    if (state.is(Blocks.CACTUS) && level.getBlockState(pos1.above()).is(Blocks.AIR)) {
-                        level.setBlock(pos1.above(), Blocks.CACTUS.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
-                    }
-                    if (state.is(Blocks.NETHER_WART) && state.getValue(NetherWartBlock.AGE) != NetherWartBlock.MAX_AGE) {
-                        level.setBlock(pos1,
-                            Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE,
-                                state.getValue(NetherWartBlock.AGE) + 1),
-                            Block.UPDATE_ALL_IMMEDIATE);
-                    }
-                }
+            if (block instanceof BonemealableBlock growable && !(growable instanceof GrassBlock) && !(growable instanceof NyliumBlock) && growable.isValidBonemealTarget(level,
+                plantPos,
+                state
+            ) && level.getBrightness(LightLayer.BLOCK, plantPos) >= 10) {
+                growable.performBonemeal((ServerLevel) level, level.getRandom(), plantPos, state);
+                level.addParticle(
+                    ParticleTypes.HAPPY_VILLAGER,
+                    plantPos.getX() + 0.5,
+                    plantPos.getY() + 0.5,
+                    plantPos.getZ() + 0.5,
+                    0.0,
+                    0.0,
+                    0.0
+                );
+                ripened.add(plantPos);
+            }
+            if (state.is(Blocks.SUGAR_CANE) && level.getBlockState(plantPos.above()).is(Blocks.AIR)) {
+                level.setBlock(plantPos.above(), Blocks.SUGAR_CANE.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+            } else if (state.is(Blocks.CACTUS) && level.getBlockState(plantPos.above()).is(Blocks.AIR)) {
+                level.setBlock(plantPos.above(), Blocks.CACTUS.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+            } else if (state.is(Blocks.NETHER_WART) && state.getValue(NetherWartBlock.AGE) != NetherWartBlock.MAX_AGE) {
+                level.setBlock(
+                    plantPos,
+                    Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE, state.getValue(NetherWartBlock.AGE) + 1),
+                    Block.UPDATE_ALL_IMMEDIATE
+                );
             }
         }
     }
 
-    /**
-     *
-     */
-    private void tick() {
-        cooldown--;
-        if (cooldown == 1 && !lightBlocks.isEmpty()) {
-            MinecraftServer server = level.getServer();
-            if (server == null) return;
-            server.tell(new TickTask(server.getTickCount() + 1, () -> {
-                HashSet<BlockPos> ripenedBlocks = new HashSet<>();
-                Iterator<BlockPos> it = lightBlocks.iterator();
-                while (it.hasNext()) {
-                    BlockPos pos = it.next();
-                    BlockState lightBlockState = level.getBlockState(pos);
-                    if (lightBlockState.getBlock() instanceof InductionLightBlock
-                        && InductionLightBlock.isLit(lightBlockState)
-                        && InductionLightBlock.canCropGrow(lightBlockState)
-                    ) {
-                        doRipen(pos, ripenedBlocks);
-                    } else {
-                        it.remove();
-                    }
-                }
-            }));
-            cooldown = AnvilCraft.CONFIG.inductionLightBlockRipeningCooldown;
-        }
+    public void doRipen(BlockPos blockPos) {
+        if (isRipenReady()) doRipen(blockPos, ripened);
     }
 
     /**
+     * 如果当前时间距离上次催熟不小于催熟冷却则清空重复催熟过滤器 ripened 并重新计时，返回 true
+     * 如果时间差在 (0, 冷却) 之间则返回 false 无事发生
+     * 如果为 0 则返回 true 无事发生（因为意味着其他灯已经调用过这个函数了）
+     * 如果为负数说明有时间旅行（time set xxx），重置上次催熟时间。
      *
+     * @return if already cooldown for ripen
      */
-    public static void addLightBlock(BlockPos pos, Level level) {
-        RipeningManager inst = RipeningManager.getInstance(level);
-        inst.lightBlocks.add(pos);
+    private boolean isRipenReady() {
+        if (level.getServer() == null) return false;
+        long curTime = level.getGameTime();
+        long ticksBeforeLastRipen = curTime - lastTickRipen;
+        if (ticksBeforeLastRipen == 0) return true; // another LightBlock is Ripened at this tick.
+        if (ticksBeforeLastRipen < 0) { // time set xxx may change the gameTime.
+            lastTickRipen = curTime - 1;
+            return false;
+        }
+        if (ticksBeforeLastRipen >= AnvilCraft.CONFIG.inductionLightBlockRipeningCooldown) {
+            lastTickRipen = curTime;
+            ripened.clear();
+            return true;
+        }
+        return false;
     }
 }

@@ -1,8 +1,7 @@
 {
 	"parent": "anvilcraft:block/discharger",
 	"textures": {
-		"particle": "anvilcraft:block/discharger",
-		"side": "anvilcraft:block/discharger",
-		"bottom": "anvilcraft:block/discharger_bottom"
+		"particle": "anvilcraft:block/discharger_off",
+		"side": "anvilcraft:block/discharger_off"
 	}
 }

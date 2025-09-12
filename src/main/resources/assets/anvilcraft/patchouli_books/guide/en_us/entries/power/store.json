@@ -8,7 +8,7 @@
     "anvilcraft:supercapacitor": 1
   },
   "pages": [
-    "本章节将会介绍那些方块和物品可以用来存储电力",
+    "本章节将会介绍哪些方块和物品可以用来存储电力",
     {
       "type": "anvilcraft:item_compress",
       "anchor": "supercapacitor",

@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -151,14 +151,14 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
             .defaultBlockState()
             .trySetValue(BlockStateProperties.WATERLOGGED, false);
 
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             block,
             81,
             40,
             10,
             12,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
 
         arrowDefault.draw(guiGraphics, 74, 22);

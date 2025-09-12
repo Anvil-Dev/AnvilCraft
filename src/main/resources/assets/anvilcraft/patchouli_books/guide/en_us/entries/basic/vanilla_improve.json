@@ -49,6 +49,12 @@
       "item": "minecraft:dispenser",
       "link_recipe": true,
       "text": "Dispensers Interact with Mobs: $(li)The dispenser can use iron ingots to repair iron golem $(li)and can use buckets to interact with cow to receive milk. $(li)get a mushroom pot by firing a bowl at a $(item)mooshroom$() $(li)Launch golden apples to cure $(item)weak zombie villagers$() "
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:anvil",
+      "title": "铁砧修补术",
+      "text": "手持铁块潜行右键可以修复铁砧。"
     }
   ]
 }

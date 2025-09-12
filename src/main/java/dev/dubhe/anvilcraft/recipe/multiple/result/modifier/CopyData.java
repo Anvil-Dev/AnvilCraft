@@ -45,7 +45,7 @@ public record CopyData(List<ICustomDataComponent<?>> types) implements IResultMo
     public void modify(ResultContext ctx) {
         Int2ObjectMap<ItemStack> cache = new Int2ObjectOpenHashMap<>();
         for (ICustomDataComponent<?> type : this.types) {
-            CopyData.wrapProcessRequired(ctx, type, cache);
+            CopyData.wrapModify(ctx, type, cache);
         }
     }
 
@@ -54,7 +54,7 @@ public record CopyData(List<ICustomDataComponent<?>> types) implements IResultMo
         return ModResultModifierTypes.COPY_DATA.get();
     }
 
-    private static <T> void wrapProcessRequired(
+    private static <T> void wrapModify(
         ResultContext ctx, ICustomDataComponent<T> type, Int2ObjectMap<ItemStack> cache
     ) {
         var required = type.getRequiredOthers();

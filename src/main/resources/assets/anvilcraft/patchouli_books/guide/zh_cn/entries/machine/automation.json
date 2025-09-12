@@ -6,7 +6,7 @@
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "$(l:machine/resources_access#1) 1.自动过筛$()$(br)$(l:machine/resources_access#2) 2.自动方块粉碎$()$(br)$(l:machine/resources_access#3) 3.自动宝石转化$()$(br)$(l:machine/resources_access#4) 4.小巧高效宝石转化机$()$(br)$(l:machine/resources_access#5) 5.原木钻石机$()",
+            "text": "$(l:machine/automation#1) 1.自动过筛$()$(br)$(l:machine/automation#2) 2.自动方块粉碎$()$(br)$(l:machine/automation#3) 3.自动宝石转化$()$(br)$(l:machine/automation#4) 4.小巧高效宝石转化机$()$(br)$(l:machine/automation#5) 5.原木钻石机$()",
             "title":"目录"
         },
         {

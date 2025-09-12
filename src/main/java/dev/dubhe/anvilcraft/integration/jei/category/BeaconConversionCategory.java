@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.util.LevelLike;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -145,7 +145,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
             level = beaconBase;
         }
 
-        RenderHelper.renderLevelLike(level, guiGraphics, 84, 54, 90);
+        RenderSupport.renderLevelLike(level, guiGraphics, 84, 54, 90);
 
         slotDefault.draw(guiGraphics, 47, 7);
         slotDefault.draw(guiGraphics, 9, 109);

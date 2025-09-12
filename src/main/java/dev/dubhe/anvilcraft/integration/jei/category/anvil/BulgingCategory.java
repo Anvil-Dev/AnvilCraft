@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -110,14 +110,14 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         double mouseY) {
         BulgingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
         BlockState state;
         if (recipe.isFromWater()) {
             state = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
@@ -126,7 +126,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         } else {
             state = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
         }
-        RenderHelper.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);
@@ -183,7 +183,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
             } else {
                 state = CauldronUtil.fullState(result);
             }
-            RenderHelper.renderBlock(guiGraphics, state, 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+            RenderSupport.renderBlock(guiGraphics, state, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
         }
     }
 

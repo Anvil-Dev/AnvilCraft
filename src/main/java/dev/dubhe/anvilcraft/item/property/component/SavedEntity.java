@@ -9,6 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +49,6 @@ public record SavedEntity(CompoundTag tag, boolean isMonster) {
         CompoundTag entityTag = new CompoundTag();
         entity.saveAsPassenger(entityTag);
         entityTag.remove(Entity.UUID_TAG);
-        return new SavedEntity(entityTag, entity instanceof Monster);
+        return new SavedEntity(entityTag, !entity.getType().getCategory().isFriendly());
     }
 }

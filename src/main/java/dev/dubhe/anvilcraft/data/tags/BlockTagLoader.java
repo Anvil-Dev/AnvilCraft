@@ -302,5 +302,43 @@ public class BlockTagLoader {
 
         provider.addTag(ModBlockTags.ANVIL_TIER_3)
             .add(ModBlocks.TRANSCENDENCE_ANVIL.getKey());
+
+        provider.addTag(ModBlockTags.NEEDS_NETHERITE_TOOL);
+        provider.addTag(ModBlockTags.NEEDS_EMBER_TOOL);
+        provider.addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(BlockTags.INCORRECT_FOR_WOODEN_TOOL)
+            .addTag(ModBlockTags.NEEDS_NETHERITE_TOOL)
+            .addTag(ModBlockTags.NEEDS_EMBER_TOOL)
+            .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(BlockTags.INCORRECT_FOR_STONE_TOOL)
+            .addTag(ModBlockTags.NEEDS_NETHERITE_TOOL)
+            .addTag(ModBlockTags.NEEDS_EMBER_TOOL)
+            .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(BlockTags.INCORRECT_FOR_IRON_TOOL)
+            .addTag(ModBlockTags.NEEDS_NETHERITE_TOOL)
+            .addTag(ModBlockTags.NEEDS_EMBER_TOOL)
+            .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(BlockTags.INCORRECT_FOR_GOLD_TOOL)
+            .addTag(ModBlockTags.NEEDS_NETHERITE_TOOL)
+            .addTag(ModBlockTags.NEEDS_EMBER_TOOL)
+            .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(BlockTags.INCORRECT_FOR_DIAMOND_TOOL)
+            .addTag(ModBlockTags.NEEDS_NETHERITE_TOOL)
+            .addTag(ModBlockTags.NEEDS_EMBER_TOOL)
+            .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(BlockTags.INCORRECT_FOR_NETHERITE_TOOL)
+            .addTag(ModBlockTags.NEEDS_EMBER_TOOL)
+            .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(ModBlockTags.INCORRECT_FOR_EMBER_TOOL)
+            .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
+
+        provider.addTag(ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL);
     }
 }

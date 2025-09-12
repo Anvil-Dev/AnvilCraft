@@ -43,7 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.PoachingCollectorMap;
+import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -92,8 +92,8 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
 
             List<ChunkPos> chunkPosList = entity.getPoachingMapPositions(8);
             for (ChunkPos chunkPos : chunkPosList) {
-                if (PoachingCollectorMap.containsKey(level) && PoachingCollectorMap.get(level).containsKey(chunkPos)) {
-                    List<ItemCollectorBlockEntity> list = PoachingCollectorMap.get(level).get(chunkPos);
+                if (POACHING_COLLECTOR_MAP.containsKey(level) && POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
+                    List<ItemCollectorBlockEntity> list = POACHING_COLLECTOR_MAP.get(level).get(chunkPos);
                     list.remove(entity);
                 }
             }

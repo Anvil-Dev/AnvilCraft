@@ -62,13 +62,13 @@ public class AnvilCraftServerConfig {
     @BoundedDiscrete(max = 30, min = 5)
     public int geodeCooldown = 5;
 
-    @Comment("The power transmitter can identify the range of the power transmitter")
+    @Comment("Power grid range of power transmitter")
     @SerializedName("Range of Power Transmitter")
     @BoundedDiscrete(max = 64, min = 1)
     public int powerTransmitterRange = 8;
 
-    @Comment("The power transmitter can identify the range of the power transmitter")
-    @SerializedName("Range of Power Transmitter")
+    @Comment("Power grid range of remote power transmitter")
+    @SerializedName("Range of Remote Power Transmitter")
     @BoundedDiscrete(max = 64, min = 1)
     public int remotePowerTransmitterRange = 16;
 

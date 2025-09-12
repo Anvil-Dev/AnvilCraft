@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.InjectedBlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.InjectedBlockTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.PowerComponentTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.PropelPistonTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.RubyPrismTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.SpaceOvercompressorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IAffectRangeProvider;
@@ -60,6 +61,7 @@ public class HudTooltipManager {
         INSTANCE.registerBlockEntityTooltip(new InjectedBlockEntityTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new HeatableBlockTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new DeflectionRingTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new PropelPistonTooltipProvider());
     }
 
     private void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {

@@ -85,4 +85,9 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
     public AABB getRenderBoundingBox(HeliostatsBlockEntity blockEntity) {
         return AABB.ofSize(blockEntity.getBlockPos().getCenter().add(0, 0.5f, 0), 3, 2, 3);
     }
+
+    @Override
+    public int getViewDistance() {
+        return AnvilCraft.CLIENT_CONFIG.heliostatsRenderDistance;
+    }
 }

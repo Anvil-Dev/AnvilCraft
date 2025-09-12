@@ -20,11 +20,7 @@ public class BlockComparatorScene {
     public static void register(PonderSceneRegistrationHelper<ResourceLocation> registrationHelper) {
         PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> helper = registrationHelper.withKeyFunction(RegistryEntry::getId);
         helper.forComponents(ModBlocks.BLOCK_COMPARATOR)
-            .addStoryBoard(
-                "platform/555",
-                BlockComparatorScene::run,
-                AnvilCraftPonderTags.REDSTONE_COMPONENTS
-            );
+            .addStoryBoard("platform/5x", BlockComparatorScene::run, AnvilCraftPonderTags.REDSTONE_COMPONENTS);
     }
 
     public static void run(SceneBuilder scene, SceneBuildingUtil util) {
@@ -55,7 +51,8 @@ public class BlockComparatorScene {
         scene.world().modifyBlock(comparatorBPos, blockState -> blockState.setValue(BlockComparatorBlock.POWERED, true), false);
         scene.world().modifyBlock(lampPos, blockState -> blockState.setValue(RedstoneLampBlock.LIT, true), false);
 
-        scene.overlay().showText(40)
+        scene.overlay()
+            .showText(40)
             .text("When the blocks on either side of the comparator are the same, it’ll send out a signal.")
             .pointAt(util.vector().centerOf(comparatorBPos))
             .attachKeyFrame()
@@ -63,14 +60,14 @@ public class BlockComparatorScene {
         scene.idle(50);
 
         // 改变比较器，信号消失
-        scene.overlay().showControls(util.vector().centerOf(comparatorBPos), Pointing.RIGHT, 20)
-            .rightClick();
+        scene.overlay().showControls(util.vector().centerOf(comparatorBPos), Pointing.RIGHT, 20).rightClick();
         scene.world().modifyBlock(comparatorBPos, blockState -> blockState.setValue(BlockComparatorBlock.PRECISE, true), false);
 
         scene.world().modifyBlock(comparatorBPos, blockState -> blockState.setValue(BlockComparatorBlock.POWERED, false), false);
         scene.world().modifyBlock(lampPos, blockState -> blockState.setValue(RedstoneLampBlock.LIT, false), false);
 
-        scene.overlay().showText(40)
+        scene.overlay()
+            .showText(40)
             .text("Right-click to turn on precise mode—it’ll check super carefully if the blocks are exactly the same.")
             .pointAt(util.vector().centerOf(comparatorBPos))
             .attachKeyFrame()
@@ -85,6 +82,7 @@ public class BlockComparatorScene {
 
         scene.idle(20);
 
-        scene.markAsFinished(); // 标记场景结束
+        // 标记场景结束
+        scene.markAsFinished();
     }
 }

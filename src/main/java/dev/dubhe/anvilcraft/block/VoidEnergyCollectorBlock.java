@@ -5,9 +5,12 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -27,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 public class VoidEnergyCollectorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
@@ -87,6 +91,16 @@ public class VoidEnergyCollectorBlock extends BetterBaseEntityBlock implements I
         if (!state.is(newState.getBlock()) && state.getValue(POWERED)) {
             this.updateNeighbours(level, pos);
         }
+    }
+
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        if (VoidEnergyCollectorBlockEntity.isAnotherCollectorNearby(context.getLevel(), context.getClickedPos())) {
+            Optional.ofNullable(context.getPlayer()).ifPresent(player -> player.displayClientMessage(
+                Component.translatable("block.anvilcraft.void_energy_collector.placement_too_close_to_another")
+                    .withStyle(ChatFormatting.RED), true));
+        }
+        return super.getStateForPlacement(context);
     }
 
     @Nullable

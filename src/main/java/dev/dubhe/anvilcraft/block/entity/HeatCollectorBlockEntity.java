@@ -86,6 +86,13 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
         HeatCollectorManager.removeHeatCollector(this.getPos(), this.getCurrentLevel());
     }
 
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (this.getCurrentLevel() == null) return;
+        HeatCollectorManager.removeHeatCollector(this.getPos(), this.getCurrentLevel());
+    }
+
     public void clientTick() {
         if (!this.isWorking()) return;
         rotation += (float) (getServerPower() * 0.03);

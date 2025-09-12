@@ -11,7 +11,6 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AnvilUtil {
-    @SuppressWarnings("DataFlowIssue")
     public static void dropItems(List<ItemStack> items, Level level, Vec3 pos) {
         for (ItemStack item : items) {
             if (item.isEmpty()) continue;

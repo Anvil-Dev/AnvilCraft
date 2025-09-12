@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.VoidDecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.util.LevelLike;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -148,7 +148,7 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
             level = showCase;
         }
 
-        RenderHelper.renderLevelLike(level, guiGraphics, 24, 36, 60, 0.5f);
+        RenderSupport.renderLevelLike(level, guiGraphics, 24, 36, 60, 0.5f);
 
         slot.draw(guiGraphics, 7, 83);
         slot.draw(guiGraphics, 7, 101);

@@ -3,10 +3,14 @@ package dev.dubhe.anvilcraft.api.power;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -52,6 +56,19 @@ public class DynamicPowerComponent {
         if (owner instanceof IDynamicPowerComponentHolder) {
             ((IDynamicPowerComponentHolder) owner).anvilcraft$gridTick();
         }
+    }
+
+    public MutableComponent getCommandDiscription() {
+        double x = this.owner.getX();
+        double y = this.owner.getY();
+        double z = this.owner.getZ();
+        return Component.translatable("command.anvilcraft.powergrid.info.dynamic_consumer",
+            this.owner.getName(), formatDouble(x), formatDouble(y), formatDouble(z), this.getPowerConsumption())
+            .withStyle(ChatFormatting.YELLOW);
+    }
+
+    private static String formatDouble(double value) {
+        return String.format(Locale.ROOT, "%.3f", value);
     }
 
     public record PowerConsumption(int amount) {

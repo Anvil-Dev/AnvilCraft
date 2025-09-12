@@ -49,6 +49,12 @@
       "item": "minecraft:dispenser",
       "link_recipe": true,
       "text": "发射器交互生物：$(li)发射铁锭修$(item)铁傀儡$() $(li)对$(item)牛$()发射桶可以接奶 $(li)对$(item)哞菇$()发射碗可以接蘑菇 $(li)发射金苹果治愈$(item)虚弱的僵尸村民$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": ["minecraft:anvil","minecraft:chipped_anvil","minecraft:damaged_anvil"],
+      "title": "铁砧修补术",
+      "text": "手持铁块潜行右键可以修复铁砧。"
     }
   ]
 }

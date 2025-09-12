@@ -66,7 +66,7 @@
     {
       "type": "patchouli:text",
       "title": "矿物涌泉产矿机制",
-      "text": "在尝试生成$(thing)深层矿$()时，在不同的世界有不同概率转而生成$(l:smithing/tier_2_materials#earth_core_shard)地核碎片矿石$()或$(l:smithing/tier_2_materials#void_matter)虚空石$()。$(br)主世界：$(li)10% $(item)地核碎片矿石$() $(li)10% $(item)虚空石$() $(br)下界： $(li)20% $(item)地核碎片矿石$() $(br)末地：$(li)20% $(item)虚空石$()。$(br2)$(#aa2222)注意$()：宝石不能以这种方式再生，仅接受粗矿块。"
+      "text": "在尝试生成$(thing)深层矿$()时，在不同的世界有不同概率转而生成$(l:smithing/tier_2_materials#earth_core_shard)地核碎片矿石$()或$(l:smithing/tier_2_materials#void_matter)虚空石$()。$(br)主世界：$(li)1% $(item)地核碎片矿石$() $(li)1% $(item)虚空石$() $(br)下界： $(li)10% $(item)地核碎片矿石$() $(br)末地：$(li)10% $(item)虚空石$()。$(br2)$(#aa2222)注意$()：宝石不能以这种方式再生，仅接受粗矿块。"
     },
     {
       "type": "patchouli:text",

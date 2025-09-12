@@ -15,7 +15,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -260,8 +260,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
-                RenderHelper.renderLevelLike(input, guiGraphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0f);
-                RenderHelper.renderLevelLike(output, guiGraphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0f);
+                RenderSupport.renderLevelLike(input, guiGraphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0f);
+                RenderSupport.renderLevelLike(output, guiGraphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0f);
                 if (modifiedInput) {
                     input.setAllLayersVisible(false);
                 }
@@ -278,7 +278,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 conversion.draw(guiGraphics, 2375, 875);
                 pose.popPose();
                 float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
-                RenderHelper.renderBlock(
+                RenderSupport.renderBlock(
                     guiGraphics,
                     ModBlocks.GIANT_ANVIL.getDefaultState()
                         .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
@@ -287,7 +287,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     19.8f + anvilYOffset,
                     20,
                     5,
-                    RenderHelper.SINGLE_BLOCK
+                    RenderSupport.SINGLE_BLOCK
                 );
                 pose.pushPose();
                 pose.scale(0.8f, 0.8f, 1.0f);
@@ -312,7 +312,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderHelper.renderLevelLike(rendered, guiGraphics, 80, 86, SCALE_FAC_LARGE, 2.0f);
+        RenderSupport.renderLevelLike(rendered, guiGraphics, 80, 86, SCALE_FAC_LARGE, 2.0f);
         Component component = this.layerTooltip(rendered);
         pose.pushPose();
         pose.scale(0.8f, 0.8f, 0.8f);

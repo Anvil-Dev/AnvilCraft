@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -10,6 +11,7 @@ import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.network.ChargerSyncPacket;
+import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.util.IStateListener;
 import lombok.Getter;
@@ -34,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class ChargerBlockEntity extends BlockEntity
-    implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemHandlerHolder {
+    implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemHandlerHolder, IHasDisplayItem {
 
     @Setter
     private boolean isCharger;
@@ -73,8 +75,21 @@ public class ChargerBlockEntity extends BlockEntity
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
             return slot == 2 ? super.extractItem(2, amount, simulate) : ItemStack.EMPTY;
         }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            if (level != null && !level.isClientSide) {
+                setChanged();
+                updateDisplayItemStack();
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
+        }
     };
 
+    @Getter
+    private ItemStack displayItemStack = ItemStack.EMPTY;
+    
     @Getter
     @Setter
     private PowerGrid grid;
@@ -84,7 +99,7 @@ public class ChargerBlockEntity extends BlockEntity
         isCharger = blockState.is(ModBlocks.CHARGER.get());
     }
 
-    private boolean containsValidItem(ItemStack stack) {
+    public boolean containsValidItem(ItemStack stack) {
         SingleRecipeInput input = new SingleRecipeInput(stack);
         if (level != null) {
             Optional<RecipeHolder<ChargerChargingRecipe>> x = level.getRecipeManager()
@@ -157,6 +172,32 @@ public class ChargerBlockEntity extends BlockEntity
         }
         itemHandler.setStackInSlot(1, ItemStack.EMPTY);
         powerValue = 0;
+    }
+
+    private void updateDisplayItemStack() {
+        ItemStack newDisplayStack = getDisplayItemStackForRender();
+        if (!ItemStack.matches(displayItemStack, newDisplayStack)) {
+            displayItemStack = newDisplayStack.copy();
+            PacketDistributor.sendToPlayersTrackingChunk(
+                (ServerLevel) level, 
+                level.getChunk(getBlockPos()).getPos(), 
+                new UpdateDisplayItemPacket(displayItemStack, getPos())
+            );
+        }
+    }
+
+    private ItemStack getDisplayItemStackForRender() {
+        for (int i = 2; i >= 0; i--) {
+            if (!itemHandler.getStackInSlot(i).isEmpty()) {
+                return itemHandler.getStackInSlot(i);
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void updateDisplayItem(ItemStack stack) {
+        this.displayItemStack = stack;
     }
 
     @Override

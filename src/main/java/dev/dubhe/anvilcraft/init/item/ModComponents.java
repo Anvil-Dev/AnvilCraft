@@ -63,6 +63,11 @@ public class ModComponents {
         it -> it.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
+    public static final DataComponentType<Integer> STORED_ENERGY = register(
+        "stored_energy",
+        (builder) -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
     public static final DataComponentType<Unit> FIRE_REFORGING = registerEmpty("reforging");
 
     public static final DataComponentType<Multiphase> MULTIPHASE = register(

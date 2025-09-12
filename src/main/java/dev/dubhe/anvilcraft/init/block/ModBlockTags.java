@@ -96,6 +96,10 @@ public class ModBlockTags {
     public static final TagKey<Block> INCORRECT_FOR_EMBER_TOOL = bind("incorrect_for_ember_tool");
     public static final TagKey<Block> INCORRECT_FOR_TRANSCENDIUM_TOOL = bind("incorrect_for_transcendium_tool");
 
+    public static final TagKey<Block> NEEDS_EMBER_TOOL = bind("needs_ember_tool");
+    public static final TagKey<Block> NEEDS_NETHERITE_TOOL = bind("needs_netherite_tool");
+    public static final TagKey<Block> NEEDS_TRANSCENDIUM_TOOL = bind("needs_transcendium_tool");
+
     public static final TagKey<Block> ANVIL_HAMMER_BLACKLIST = bind("anvil_hammer_blacklist");
 
     public static final TagKey<Block> FELLING_APPLICABLE = bind("felling_applicable");

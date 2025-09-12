@@ -1,10 +1,21 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -15,6 +26,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -28,6 +40,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape REDUCE_AABB = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static int itemEntityHashCode = 0;
 
     public HollowMagnetBlock(Properties properties) {
         super(properties);
@@ -92,5 +105,41 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }
         return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+    }
+
+    @Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        if (level.isClientSide) {
+            return;
+        }
+        if (state.getValue(LIT)) {
+            return;
+        }
+        if (entity instanceof ItemEntity itemEntity) {
+            if (itemEntityHashCode == entity.hashCode()) {
+                return;
+            }
+            ItemStack item = itemEntity.getItem();
+            if (item.is(Items.IRON_INGOT) && item.getCount() == 1) {
+                if (itemEntity.getOwner() instanceof ServerPlayer) {
+                    if (level.random.nextDouble() <= 0.005) {
+                        itemEntity.setItem(new ItemStack(ModItems.MAGNET_INGOT.get()));
+                    }
+                    itemEntityHashCode = entity.hashCode();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (!level.isClientSide) {
+            if (stack.is(Items.IRON_INGOT)) {
+                stack.consume(1, player);
+                level.setBlockAndUpdate(pos, ModBlocks.FERRITE_CORE_MAGNET_BLOCK.getDefaultState());
+                return ItemInteractionResult.SUCCESS;
+            }
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 }

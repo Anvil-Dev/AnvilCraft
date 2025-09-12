@@ -33,7 +33,6 @@ public class ServerLifecycleEventListener {
     @SubscribeEvent
     public static void onTick(@NotNull ServerTickEvent.Pre event) {
         PowerGrid.tickGrid();
-        RipeningManager.tickAll();
         HeaterManager.tickAll();
         HeatCollectorManager.tickAll();
         RandomChuckTickLoadManager.tick();

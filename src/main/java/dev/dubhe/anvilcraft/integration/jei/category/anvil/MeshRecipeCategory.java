@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
@@ -102,16 +102,16 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         double mouseX,
         double mouseY) {
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK);
-        RenderHelper.renderBlock(
-            guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
+            guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 55, 17);
         slotDefault.draw(guiGraphics, 36, 13);

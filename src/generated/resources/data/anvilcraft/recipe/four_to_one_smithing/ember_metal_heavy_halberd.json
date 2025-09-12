@@ -24,11 +24,32 @@
     },
     "modifiers": [
       {
-        "type": "anvilcraft:copy_data",
+        "type": "anvilcraft:merge_data",
         "types": [
           {
-            "type": "anvilcraft:multiphase",
-            "input_type": "four"
+            "type": "anvilcraft:normal_data_component",
+            "component": "minecraft:custom_name",
+            "input": 0
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 0
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 1
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 2
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 3
           }
         ]
       }

@@ -45,8 +45,8 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
     public void tick(Level level1) {
         flushState(level1, getBlockPos());
         LightColor color = getBlockState().getValue(InductionLightBlock.COLOR);
-        if (color == LightColor.PINK) {
-            RipeningManager.addLightBlock(getBlockPos(), level);
+        if (color == LightColor.PINK && InductionLightBlock.isLit(this.getBlockState())) {
+            RipeningManager.from(level1).doRipen(getBlockPos());
         } else if (color == LightColor.YELLOW || color == LightColor.DARK) {
             SpawningManager.addLightBlock(getBlockPos(), level);
         }

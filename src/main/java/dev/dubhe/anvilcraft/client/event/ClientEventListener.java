@@ -68,6 +68,7 @@ public class ClientEventListener {
     @SubscribeEvent
     public static void onKeyPress(Key event) {
         if (ModKeyMappings.TOGGLE_GOGGLE.get().isDown()) AnvilHammerItem.goggleEnabled = !AnvilHammerItem.goggleEnabled;
+        if (Minecraft.getInstance().level == null) return;
 
         // 以下是界面部分
 
@@ -127,7 +128,7 @@ public class ClientEventListener {
         }
 
         if (event.getKey() == ModKeyMappings.SWITCH_RESONATE_MODE.get().getKey().getValue()) {
-            if (event.getAction() == InputConstants.PRESS) {
+            if (event.getAction() == InputConstants.PRESS && Minecraft.getInstance().screen == null) {
                 LocalPlayer player = Minecraft.getInstance().player;
                 if (player == null) {
                     return;

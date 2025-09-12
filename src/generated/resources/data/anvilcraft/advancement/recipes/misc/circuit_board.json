@@ -1,27 +1,38 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_hardend_resin": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:hardend_resin"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_plates/copper": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:plates/copper"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "anvilcraft:circuit_board"
       },
       "trigger": "minecraft:recipe_unlocked"
-    },
-    "hasitem": {
-      "conditions": {
-        "items": [
-          {
-            "items": "#c:gems/quartz"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "hasitem"
+      "has_plates/copper",
+      "has_hardend_resin"
     ]
   ],
   "rewards": {

@@ -1,20 +1,19 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "key": {
-    "A": {
-      "tag": "c:ingots/copper"
+  "ingredients": [
+    {
+      "tag": "c:plates/copper"
     },
-    "B": {
-      "tag": "c:gems/quartz"
+    {
+      "item": "anvilcraft:hardend_resin"
     },
-    "C": {
+    {
+      "item": "anvilcraft:hardend_resin"
+    },
+    {
       "item": "anvilcraft:hardend_resin"
     }
-  },
-  "pattern": [
-    "ABA",
-    "CCC"
   ],
   "result": {
     "count": 1,

@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -101,14 +101,14 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         double mouseX,
         double mouseY) {
         ChargerChargingRecipe recipe = recipeHolder.value();
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             recipe.getProcessingBlock().defaultBlockState(),
             81,
             40,
             10,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);

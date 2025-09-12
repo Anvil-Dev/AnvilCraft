@@ -209,7 +209,7 @@ public class AmuletType {
         }
 
         public Builder obtainByMurderOr(String type) {
-            return this.obtainByMurder(TagKey.create(Registries.ENTITY_TYPE, AnvilCraft.of("amulet_valid/" + type)));
+            return this.obtainByMurderOr(TagKey.create(Registries.ENTITY_TYPE, AnvilCraft.of("amulet_valid/" + type)));
         }
 
         public Builder obtainByDirectMurderOr(EntityType<?>... entities) {
@@ -232,11 +232,11 @@ public class AmuletType {
         }
 
         public Builder obtainByDirectMurderOr(ResourceLocation type) {
-            return this.obtainByMurderOr(TagKey.create(Registries.ENTITY_TYPE, type));
+            return this.obtainByDirectMurderOr(TagKey.create(Registries.ENTITY_TYPE, type));
         }
 
         public Builder obtainByDirectMurderOr(String type) {
-            return this.obtainByMurder(TagKey.create(Registries.ENTITY_TYPE, AnvilCraft.of("amulet_valid/" + type)));
+            return this.obtainByDirectMurderOr(TagKey.create(Registries.ENTITY_TYPE, AnvilCraft.of("amulet_valid/" + type)));
         }
 
         public Builder obtainOr(Obtain obtain) {

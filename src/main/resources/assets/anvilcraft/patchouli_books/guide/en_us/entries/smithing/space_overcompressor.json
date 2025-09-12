@@ -23,9 +23,10 @@
     },
     {
       "type": "patchouli:spotlight",
+      "anchor": "work",
       "item": "anvilcraft:neutronium_ingot",
       "title": "制作中子锭",
-      "text": "将任意$(thing)金属$()块/锭/粒置于超压器之上，用铁砧砸入。当超压器的积攒了足够的质量值后，会在下方输出一个$(item)中子锭$()。"
+      "text": "将任意$(thing)金属$()块/锭/粒置于超压器之上，用铁砧砸入。当超压器的积攒了足够的质量值后，会在下方输出一个$(l:smithing/tier_2_materials#neutronium_ingot)中子锭$(/l)。"
     },
     {
       "type": "patchouli:text",

@@ -42,6 +42,7 @@ import dev.dubhe.anvilcraft.network.SyncEmberGrindstonePacket;
 import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import dev.dubhe.anvilcraft.network.UpdateDeflectionRingLastEntitySpeedPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
+import dev.dubhe.anvilcraft.network.UpdatePropelPistonStoredEnergyPacket;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class ModNetworks {
@@ -256,6 +257,11 @@ public class ModNetworks {
             UpdateDeflectionRingLastEntitySpeedPacket.TYPE,
             UpdateDeflectionRingLastEntitySpeedPacket.STREAM_CODEC,
             UpdateDeflectionRingLastEntitySpeedPacket.HANDLER
+        );
+        registrar.playToClient(
+            UpdatePropelPistonStoredEnergyPacket.TYPE,
+            UpdatePropelPistonStoredEnergyPacket.STREAM_CODEC,
+            UpdatePropelPistonStoredEnergyPacket.HANDLER
         );
     }
 }

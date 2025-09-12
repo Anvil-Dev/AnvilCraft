@@ -153,6 +153,12 @@ public class ModDispenserBehavior {
     private static ItemStack ironIngot(BlockSource source, ItemStack stack) {
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
         ServerLevel level = source.level();
+        if (level.getBlockState(blockPos).is(ModBlocks.HOLLOW_MAGNET_BLOCK)) {
+            level.setBlockAndUpdate(blockPos, ModBlocks.FERRITE_CORE_MAGNET_BLOCK.getDefaultState());
+            ItemStack stack1 = stack.copy();
+            stack1.shrink(1);
+            return stack1;
+        }
         List<IronGolem> entities =
             level
                 .getEntities(EntityTypeTest.forClass(IronGolem.class), new AABB(blockPos), Entity::isAlive)

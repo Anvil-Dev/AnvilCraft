@@ -5,7 +5,7 @@
   "sortnum": 23006,
   "entry_color": "661100",
   "pages": [
-    "本页面展示了目前所有可用的$(thing)二阶材料$(): $(li)地核碎片 $(li)虚空物质 $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#multiphase_matter)多相物质$(/l) $(li)$(l:smithing/tier_2_materials#multiple_templates)多合一锻造模板$(/l) ",
+    "本页面展示了目前所有可用的$(thing)二阶材料$(): $(li)地核碎片 $(li)虚空物质 $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#multiphase_matter)多相物质$(/l) $(li)$(l:smithing/tier_2_materials#multiple_templates)多合一锻造模板$(/l) $(li)$(l:smithing/tier_2_materials#neutronium_ingot)中子锭$(/l) ",
     {
       "type": "patchouli:spotlight",
       "anchor": "earth_core_shard",
@@ -94,6 +94,7 @@
     },
     {
       "type": "patchouli:smithing",
+      "anchor": "ember_anvil",
       "recipe": "anvilcraft:smithing/ember_anvil",
       "text": "这个铁砧的功能与$(item)皇家铁砧$()几乎一致，但是它可以让你在生存模式下给物品强行添加一些不兼容的附魔。"
     },
@@ -142,12 +143,33 @@
       "text": "将多个互不相同的$(thing)锻造模板$()进行物品冲压加工获得，由模板数量决定获得的是几合一锻造模板。$(br2)用于在$(item)余烬锻造台$()上参与多合一锻造"
     },
     {
+      "type": "patchouli:spotlight",
+      "anchor": "neutronium_ingot",
+      "item": "anvilcraft:neutronium_ingot",
+      "link_recipe": true,
+      "text": "通过$(l:smithing/space_overcompressor)空间超压器$(/l)制作。 $(br)密度奇大，寻常方块只会被它如空气般穿过，但会被基岩和末地石、末地尘等等含飘浮粉的方块拦截。 $(p)$(#888888)中子星是人类目前发现除黑洞外密度最大的星体，是演化到末期的恒星，经由引力坍缩发生超新星爆炸之后可能成为的少数终点之一。$()"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "stable_neutronium_ingot",
+      "recipe": "anvilcraft:stable_neutronium_ingot",
+      "text": "被飘浮粉包裹，不会穿过方块"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:charged_neutronium_ingot",
+      "link_recipe": true,
+      "text": "通过充电器充能获得，不会穿过方块 $(br)能量消耗：4000kW·300s"
+    },
+    {
       "type": "patchouli:relations",
       "entries": [
         "anvilcraft:struct/mineral_fountain",
         "anvilcraft:struct/collision",
         "anvilcraft:advanced/tool_properties",
-        "anvilcraft:apply/oil"
+        "anvilcraft:apply/oil",
+        "anvilcraft:smithing/space_overcompressor",
+        "anvilcraft:power/store"
       ],
       "text": ""
     }

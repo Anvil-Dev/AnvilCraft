@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -17,15 +18,17 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class HeavyIronDoorBlock extends DoorBlock {
+public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
     public HeavyIronDoorBlock(Properties properties) {
         super(BlockSetType.IRON, properties);
     }
@@ -100,5 +103,26 @@ public class HeavyIronDoorBlock extends DoorBlock {
                 2
             );
         }
+    }
+
+    @Override
+    public boolean change(Player player, BlockPos pos, @NotNull Level level, ItemStack anvilHammer) {
+        BlockState state = level.getBlockState(pos).cycle(OPEN);
+        level.setBlock(pos, state, 10);
+        level.playSound(
+            null,
+            pos,
+            state.getValue(OPEN) ? this.type().doorOpen() : this.type().doorClose(),
+            SoundSource.BLOCKS,
+            1.0F,
+            level.getRandom().nextFloat() * 0.1F + 0.9F
+        );
+        level.gameEvent(player, this.isOpen(state) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
+        return true;
+    }
+
+    @Override
+    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+        return FACING;
     }
 }

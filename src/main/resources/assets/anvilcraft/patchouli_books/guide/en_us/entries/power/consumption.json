@@ -58,7 +58,7 @@
       "type": "patchouli:crafting",
       "anchor": "charger",
       "recipe": "anvilcraft:charger",
-      "text": "对于不同配方消耗不同能量：$(li)铁锭+4kW → 磁铁锭 $(li)电容器（空）+70kW $(br)→电容器 $(br)$(#880000)注意$()：只能使用漏斗等方块输入/输出"
+      "text": "对于不同配方消耗不同能量：$(li)铁锭+4kW → 磁铁锭 $(li)电容器（空）+70kW $(br)→电容器 $(br)$(#880000)注意$()：可以使用漏斗等方块输入/输出"
     },
     {
       "type": "patchouli:crafting",

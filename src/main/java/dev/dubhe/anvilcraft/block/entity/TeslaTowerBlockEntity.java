@@ -171,8 +171,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
         whiteList.add(Pair.of(new IsPlayerIdFilter(), player.getName().getString()));
         whiteList.add(Pair.of(new IsPetFilter(), ""));
         whiteList.add(Pair.of(new HasCustomNameFilter(), ""));
-        whiteList.add(Pair.of(new IsEntityIdFilter(), "entity.minecraft.villager"));
-        whiteList.add(Pair.of(new IsEntityIdFilter(), "entity.minecraft.wandering_trader"));
+        whiteList.add(Pair.of(new IsEntityIdFilter(), Component.translatable("entity.minecraft.villager").getString()));
+        whiteList.add(Pair.of(new IsEntityIdFilter(), Component.translatable("entity.minecraft.wandering_trader").getString()));
         whiteList.add(Pair.of(new IsFriendlyFilter(), ""));
         whiteList.add(Pair.of(new IsOnVehicleFilter(), ""));
     }

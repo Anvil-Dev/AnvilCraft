@@ -137,7 +137,7 @@ public interface ISlidingRail extends IBlockExtension {
             BlockState destroyingState = level.getBlockState(destroyingPos);
             BlockEntity destroyingEntity = destroyingState.hasBlockEntity() ? level.getBlockEntity(destroyingPos) : null;
             Block.dropResources(destroyingState, level, destroyingPos, destroyingEntity);
-            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+            level.setBlockAndUpdate(destroyingPos, Blocks.AIR.defaultBlockState());
             level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(destroyingState));
             if (!destroyingState.is(BlockTags.FIRE)) {
                 level.addDestroyBlockEffect(destroyingPos, destroyingState);

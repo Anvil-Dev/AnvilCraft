@@ -16,7 +16,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -181,14 +181,14 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
             }
 
-            RenderHelper.renderBlock(
+            RenderSupport.renderBlock(
                 guiGraphics,
                 renderedState,
                 80,
                 28,
                 20,
                 scale,
-                RenderHelper.SINGLE_BLOCK
+                RenderSupport.SINGLE_BLOCK
             );
         }
 
@@ -200,26 +200,26 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     BlockStatePredicate inputBlock = blockTransform.inputBlock();
                     List<BlockState> inputBlockState = inputBlock.constructStatesForRender();
                     BlockState inputBlockRenderedState = inputBlockState.get((int) ((System.currentTimeMillis() / 1000) % inputBlockState.size()));
-                    RenderHelper.renderBlock(
+                    RenderSupport.renderBlock(
                         guiGraphics,
                         inputBlockRenderedState,
                         120,
                         5,
                         20,
                         12,
-                        RenderHelper.SINGLE_BLOCK
+                        RenderSupport.SINGLE_BLOCK
                     );
 
                     ChanceBlockState outputBlock = blockTransform.outputBlock();
                     BlockState outputBlockState = outputBlock.state();
-                    RenderHelper.renderBlock(
+                    RenderSupport.renderBlock(
                         guiGraphics,
                         outputBlockState,
                         120,
                         48,
                         20,
                         12,
-                        RenderHelper.SINGLE_BLOCK
+                        RenderSupport.SINGLE_BLOCK
                     );
 
                     blockConversion.draw(guiGraphics, 113, 19);
@@ -240,26 +240,26 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     BlockStatePredicate inputBlock = blockTransform.inputBlock();
                     List<BlockState> inputBlockState = inputBlock.constructStatesForRender();
                     BlockState inputBlockRenderedState = inputBlockState.get((int) ((System.currentTimeMillis() / 1000) % inputBlockState.size()));
-                    RenderHelper.renderBlock(
+                    RenderSupport.renderBlock(
                         guiGraphics,
                         inputBlockRenderedState,
                         110,
                         3,
                         20,
                         8,
-                        RenderHelper.SINGLE_BLOCK
+                        RenderSupport.SINGLE_BLOCK
                     );
 
                     ChanceBlockState outputBlock = blockTransform.outputBlock();
                     BlockState outputBlockState = outputBlock.state();
-                    RenderHelper.renderBlock(
+                    RenderSupport.renderBlock(
                         guiGraphics,
                         outputBlockState,
                         110,
                         13,
                         20,
                         8,
-                        RenderHelper.SINGLE_BLOCK
+                        RenderSupport.SINGLE_BLOCK
                     );
                     blockConversion.draw(guiGraphics, 86, 6);
                     arrowDefault.draw(guiGraphics, 98, 26);
@@ -290,7 +290,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         // 添加消耗/速度的信息
         PoseStack pose = guiGraphics.pose();
         for (int i = 0; i < 7; i++) {
-            RenderHelper.renderItemWithTransparency(
+            RenderSupport.renderItemWithTransparency(
                 new ItemStack(Blocks.ANVIL),
                 pose,
                 55 - i * 3,

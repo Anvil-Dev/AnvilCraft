@@ -19,12 +19,17 @@
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:giant_anvil",
-      "text": "通过$(thing)巨型铁砧撼地$()破坏大范围内方块"
+      "text": "通过$(l:struct/giant_anvil_shocking#break)巨型铁砧撼地$()破坏大范围内方块"
     },
     {
       "type": "patchouli:spotlight",
       "item": ["minecraft:anvil","anvilcraft:spectral_anvil","anvilcraft:royal_anvil","anvilcraft:ember_anvil","anvilcraft:transcendence_anvil"],
-      "text": "使用不同的铁砧进行$(thing)铁砧挖掘$()，具有不同的破坏效果：$(li)普通铁砧：常规挖掘 $(li)幻灵铁砧：同上 $(li)$(#004400)皇家铁砧$()：精准采集 $(li)$(#661100)余烬铁砧$()：熔炼 $(li)$(#660066)超限铁砧$()：时运V "
+      "text": "使用不同的铁砧进行$(thing)铁砧挖掘$()，具有不同的破坏效果：$(li)普通铁砧：常规挖掘 $(li)$(l:basic/end_portal)幻灵铁砧$(/l)：同上 $(li)$(l:smithing/tier_1_materials#royal_anvil)皇家铁砧$(/l)：$(#004400)精准采集$() $(li)$(l:smithing/tier_2_materials#ember_anvil)余烬铁砧$(/l)：$(#661100)熔炼$() $(li)超限铁砧：$(#660066)时运V$() "
+    },
+    {
+      "type": "patchouli:text",
+      "title": "效果：熔炼",
+      "text": "熔炼效果只会处理普通产物，例如：石头→圆石-自动熔炼→石头。"
     }
   ]
 }

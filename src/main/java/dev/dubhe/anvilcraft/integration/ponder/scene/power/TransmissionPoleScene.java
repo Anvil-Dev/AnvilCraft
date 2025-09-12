@@ -18,7 +18,7 @@ public class TransmissionPoleScene {
     public static void register(PonderSceneRegistrationHelper<ResourceLocation> registrationHelper) {
         PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> helper = registrationHelper.withKeyFunction(RegistryEntry::getId);
         helper.forComponents(ModBlocks.TRANSMISSION_POLE)
-            .addStoryBoard("platform/555", TransmissionPoleScene::run, AnvilCraftPonderTags.REDSTONE_COMPONENTS);
+            .addStoryBoard("platform/5x", TransmissionPoleScene::run, AnvilCraftPonderTags.REDSTONE_COMPONENTS);
     }
 
     public static void run(SceneBuilder scene, SceneBuildingUtil util) {
@@ -31,16 +31,18 @@ public class TransmissionPoleScene {
         builder.world().showSection(basePlate, Direction.UP);
         builder.idle(20);
 
-        Selection pole = builder.world().setMultiPartBlock(
-            new BlockPos(4, 1, 0),
-            ModBlocks.TRANSMISSION_POLE.getDefaultState().setValue(TransmissionPoleBlock.OVERLOAD, false),
-            false
-        );
-        Selection pole1 = builder.world().setMultiPartBlock(
-            new BlockPos(0, 1, 4),
-            ModBlocks.TRANSMISSION_POLE.getDefaultState().setValue(TransmissionPoleBlock.OVERLOAD, false),
-            false
-        );
+        Selection pole = builder.world()
+            .setMultiPartBlock(
+                new BlockPos(4, 1, 0),
+                ModBlocks.TRANSMISSION_POLE.getDefaultState().setValue(TransmissionPoleBlock.OVERLOAD, false),
+                false
+            );
+        Selection pole1 = builder.world()
+            .setMultiPartBlock(
+                new BlockPos(0, 1, 4),
+                ModBlocks.TRANSMISSION_POLE.getDefaultState().setValue(TransmissionPoleBlock.OVERLOAD, false),
+                false
+            );
         builder.world().showIndependentSection(pole, Direction.NORTH);
         builder.world().showIndependentSection(pole1, Direction.NORTH);
         builder.overlay().showTransmitterLine(new BlockPos(4, 3, 0), new BlockPos(0, 3, 4), 600);

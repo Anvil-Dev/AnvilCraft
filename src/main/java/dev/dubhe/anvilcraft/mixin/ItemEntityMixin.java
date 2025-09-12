@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
-import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -14,7 +13,6 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -24,7 +22,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -36,7 +33,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -51,17 +47,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.PoachingCollectorMap;
+import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP;
 
 @Mixin(ItemEntity.class)
-@SuppressWarnings("resource")
 abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Shadow
     public abstract ItemStack getItem();
-
-    @Shadow
-    @Nullable
-    public abstract Entity getOwner();
 
     @Shadow
     public abstract void setItem(ItemStack stack);
@@ -131,25 +122,6 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             }
         }
         return new Vec3(vec3.x, vec3.y * dy, vec3.z);
-    }
-
-    @Unique
-    private boolean anvilcraft$needMagnetization = true;
-
-    @Inject(method = "tick", at = @At(value = "HEAD"))
-    private void magnetization(CallbackInfo ci) {
-        if (this.getServer() == null) return;
-        ItemStack itemStack = this.getItem();
-        if (!itemStack.is(Items.IRON_INGOT)) return;
-        BlockState blockState = this.level().getBlockState(this.blockPosition());
-        if (!blockState.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()) || blockState.getValue(HollowMagnetBlock.LIT)) return;
-        if (this.getOwner() == null || !(this.getOwner() instanceof ServerPlayer)) return;
-        if (itemStack.getCount() != 1) return;
-        if (!this.anvilcraft$needMagnetization) return;
-        this.anvilcraft$needMagnetization = false;
-        if (this.level().random.nextInt(100) <= 10) {
-            this.setItem(new ItemStack(ModItems.MAGNET_INGOT.get()));
-        }
     }
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
@@ -418,7 +390,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     private void anvilcraft$poach() {
         Level level = this.level();
         if (level.isClientSide) return;
-        Map<ChunkPos, List<ItemCollectorBlockEntity>> map = PoachingCollectorMap.get(level);
+        Map<ChunkPos, List<ItemCollectorBlockEntity>> map = POACHING_COLLECTOR_MAP.get(level);
         if (map == null) return;
         ChunkPos chunkPos = this.chunkPosition();
         List<ItemCollectorBlockEntity> list = map.get(chunkPos);

@@ -133,7 +133,6 @@ public class ItemCompressRecipeLoader {
                         .build(),
                     0.5f
                 )
-                .build()
             )
             .group("item_compress")
             .icon(ModItems.SUPER_CAPACITOR.asStack())

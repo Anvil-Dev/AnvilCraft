@@ -12,6 +12,10 @@ public class AnvilCraftClientConfig {
     @Comment("The mode of the anvil hammer goggle info")
     public GoggleMode goggleMode = GoggleMode.WEARING_HAMMER;
 
+    @Comment("Render distance of heliostats block entity")
+    @BoundedDiscrete(min = 32, max = 512)
+    public int heliostatsRenderDistance = 128;
+
     @Comment("Heliostats render sunflower head model in Sunflower Plains biome")
     public boolean heliostatsSunflowerModel = true;
 

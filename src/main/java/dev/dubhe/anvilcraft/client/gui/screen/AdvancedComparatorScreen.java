@@ -89,7 +89,9 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             16, 16,
             List.of(BUTTON_HYSTERESIS, BUTTON_WINDOW),
             16, 16, 32,
-            (button, index) -> this.menu.setCompareMode((byte) index)
+            (button, index) -> this.menu.setCompareMode((byte) index),
+            List.of(Component.translatable("screen.anvilcraft.button.compare_mode_hysteresis"),
+                Component.translatable("screen.anvilcraft.button.compare_mode_window"))
         );
         SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 8,
@@ -97,7 +99,9 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             16, 16,
             List.of(BUTTON_REVERSE_OFF, BUTTON_REVERSE_ON),
             16, 16, 32,
-            (button, index) -> this.menu.setOutputInvert(index == 1)
+            (button, index) -> this.menu.setOutputInvert(index == 1),
+            List.of(Component.translatable("screen.anvilcraft.button.reverse_off"),
+                Component.translatable("screen.anvilcraft.button.reverse"))
         );
         SwitchableButton redstoneControl = new SwitchableButton(
             this.leftPos + 8,
@@ -105,7 +109,9 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             16, 16,
             List.of(BUTTON_REDSTONE_CONTROL, BUTTON_REDSTONE_CONTROL_ON),
             16, 16, 32,
-            (button, index) -> this.menu.setRedstoneControl(index == 1)
+            (button, index) -> this.menu.setRedstoneControl(index == 1),
+            List.of(Component.translatable("screen.anvilcraft.button.redstone_control_off"),
+                Component.translatable("screen.anvilcraft.button.redstone_control"))
         );
         compareMode.setCurrent(this.menu.getBlockEntity().getCompareMode().index());
         outputMode.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
@@ -133,6 +139,12 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     }
 
     @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
+
+    }
+
+    @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(CONTAINER_LOCATION, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
         int vOffset1 = this.isInSlider(mouseX, mouseY, this.slider1X, this.sliderY) ? 11 : 0;
@@ -151,17 +163,26 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         pose.popPose();
         int max = Math.max(this.slider1X, this.slider2X);
         int min = Math.min(this.slider1X, this.slider2X);
+        if (this.menu.getBlockEntity().getCompareMode() == AdvancedComparatorBlockEntity.Mode.WINDOW) {
+            guiGraphics.fill(min + 3, this.sliderY, min + 4, this.sliderY - 90, 0xFF990000);
+            guiGraphics.fill(max + 3, this.sliderY, max + 4, this.sliderY - 90, 0xFF990000);
+            guiGraphics.fill(min + 3, this.sliderY - 90, max + 4, this.sliderY - 91, 0xFFFF0000);
+            guiGraphics.fill(max + 3, this.sliderY, this.sliderMax + 15, this.sliderY - 1, 0xFF990000);
+            guiGraphics.fill(max + 3, this.sliderY, this.sliderMax + 15, this.sliderY - 1, 0xFF990000);
+            guiGraphics.fill(this.sliderMin - 4, this.sliderY, min + 4, this.sliderY - 1, 0xFF990000);
+            return;
+        }
         if (this.menu.getBlockEntity().isOutputInvert()) {
             guiGraphics.fill(min + 3, this.sliderY, min + 4, this.sliderY - 90, 0xFF990000);
             guiGraphics.fill(max + 3, this.sliderY, max + 4, this.sliderY - 90, 0xFFFF0000);
             guiGraphics.fill(this.sliderMin + 3, this.sliderY - 90, max + 4, this.sliderY - 91, 0xFFFF0000);
             guiGraphics.fill(this.sliderMax + 15, this.sliderY, min + 3, this.sliderY - 1, 0xFF990000);
-        } else {
-            guiGraphics.fill(min + 3, this.sliderY, min + 4, this.sliderY - 90, 0xFFFF0000);
-            guiGraphics.fill(max + 3, this.sliderY, max + 4, this.sliderY - 90, 0xFF990000);
-            guiGraphics.fill(this.sliderMin - 4, this.sliderY, max + 4, this.sliderY - 1, 0xFF990000);
-            guiGraphics.fill(this.sliderMax + 5, this.sliderY - 90, min + 3, this.sliderY - 91, 0xFFFF0000);
+            return;
         }
+        guiGraphics.fill(min + 3, this.sliderY, min + 4, this.sliderY - 90, 0xFFFF0000);
+        guiGraphics.fill(max + 3, this.sliderY, max + 4, this.sliderY - 90, 0xFF990000);
+        guiGraphics.fill(this.sliderMin - 4, this.sliderY, max + 4, this.sliderY - 1, 0xFF990000);
+        guiGraphics.fill(this.sliderMax + 5, this.sliderY - 90, min + 3, this.sliderY - 91, 0xFFFF0000);
     }
 
     @Override

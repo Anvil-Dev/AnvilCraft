@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
+import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -44,7 +45,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     protected boolean redstoneControl = false;
     protected int highLimit = 10;
     protected int lowLimit = 5;
-    protected int inputtingSignal = 0;
+    protected int inputtingSignal;
 
     public AdvancedComparatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.ADVANCED_COMPARATOR.get(), pos, blockState);
@@ -162,6 +163,16 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         if (player.level().getBlockEntity(getBlockPos()) instanceof AdvancedComparatorBlockEntity blockEntity)
             return new AdvancedComparatorMenu(ModMenuTypes.ADVANCED_COMPARATOR.get(), containerId, inventory, blockEntity);
         return null;
+    }
+
+    public CompoundTag exportMoveData() {
+        return constructDataNbt();
+    }
+
+    public void applyMoveData(Level level, BlockPos pos, BlockState state, CompoundTag nbt) {
+        readDataNbt(nbt);
+        ((AdvancedComparatorBlock) state.getBlock()).update(level, pos, state);
+        setChanged();
     }
 
     public enum State {

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.anvilcraft.lib.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.mixin.accessor.ScreenAccessor;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -136,11 +136,11 @@ public class PatchouliRenderHelper {
     public static void renderAnvilWithAnimation(GuiBookEntry parent, GuiGraphics guiGraphics, int x, int y) {
         int time = 30 - parent.ticksInBook % 30;
         float anvilYOffset = time < 15 ? (float) Math.sin(time / 15d * 2d * Math.PI + Math.PI / 2) * 6 : 6;
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics, Blocks.ANVIL.defaultBlockState(), x,
             y + anvilYOffset, 20,
             12,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
     }
 }

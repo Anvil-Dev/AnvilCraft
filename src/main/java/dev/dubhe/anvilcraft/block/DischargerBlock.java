@@ -19,7 +19,7 @@ public class DischargerBlock extends ChargerBlock {
         level.setBlock(blockPos, ModBlocks.CHARGER.getDefaultState(), 2);
         if (level.getBlockEntity(blockPos) instanceof IStateListener<?> listener) {
             IStateListener<Boolean> thiz = (IStateListener<Boolean>) listener;
-            thiz.notifyStateChanged(false);
+            thiz.notifyStateChanged(true);
         }
         return true;
     }

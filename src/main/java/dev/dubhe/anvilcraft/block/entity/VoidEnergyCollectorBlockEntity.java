@@ -135,6 +135,23 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         return y < minHeight || y >= maxHeight;
     }
 
+    public static boolean isAnotherCollectorNearby(Level level, BlockPos pos) {
+        BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
+        for (int i = -4; i <= 4; i++) {
+            for (int j = -4; j <= 4; j++) {
+                for (int k = -4; k <= 4; k++) {
+                    mpos.set(pos).move(i, j, k);
+                    if (level.isOutsideBuildHeight(mpos)) continue;
+                    BlockState blockState = level.getBlockState(mpos);
+                    //this disables the collector when there is another in 9x9x9
+                    if ((i != 0 || j != 0 || k != 0) && blockState.getBlock() instanceof VoidEnergyCollectorBlock)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Counts the number of blocks in 5x5x5 area.
      * Also detects whether there is another void energy collector in 9x9x9;
@@ -145,29 +162,22 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     private int countBlocksInRange() {
         if (level == null || level.isClientSide()) return 125;
         int count = 0;
-        for (int i = -4; i <= 4; i++) {
-            for (int j = -4; j <= 4; j++) {
-                for (int k = -4; k <= 4; k++) {
-                    BlockPos thisPos = this.getBlockPos();
-                    BlockPos bp = new BlockPos(
-                        thisPos.getX() + i,
-                        thisPos.getY() + j,
-                        thisPos.getZ() + k);
-                    if (isOutOfBuildLimits(level, bp)) continue;
-                    BlockState b = level.getBlockState(bp);
-                    //this disables the collector when there is another in 9x9x9
-                    if ((i != 0 || j != 0 || k != 0) && b.getBlock() instanceof VoidEnergyCollectorBlock)
-                        return 125;
-                    //below is the 5x5x5 detection that counts how many blocks are there
-                    if (i >= -2 && i <= 2 && j >= -2 && j <= 2 && k >= -2 && k <= 2) {
-                        if (b.getBlock() instanceof NegativeMatterBlock)
-                            count -= 1;
-                        else if (!b.isAir()
-                            && !(b.getBlock() instanceof VoidMatterBlock)
-                            && !(b.getBlock() instanceof VoidEnergyCollectorBlock)
-                        )
-                            count += 1;
-                    }
+        if (isAnotherCollectorNearby(this.level, this.getBlockPos())) return 125;
+        BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                for (int k = -2; k <= 2; k++) {
+                    //the 5x5x5 detection that counts how many blocks are there
+                    mpos.set(this.getBlockPos()).move(i, j, k);
+                    if (level.isOutsideBuildHeight(mpos)) continue;
+                    BlockState blockState = level.getBlockState(mpos);
+                    if (blockState.getBlock() instanceof NegativeMatterBlock)
+                        count -= 1;
+                    else if (!blockState.isAir()
+                        && !(blockState.getBlock() instanceof VoidMatterBlock)
+                        && !(blockState.getBlock() instanceof VoidEnergyCollectorBlock)
+                    )
+                        count += 1;
                 }
             }
         }

@@ -6,7 +6,7 @@
       "item": "minecraft:observer"
     },
     "B": {
-      "item": "minecraft:repeater"
+      "item": "minecraft:comparator"
     },
     "C": {
       "item": "anvilcraft:circuit_board"

@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.SyncEmberGrindstonePacket;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.MathUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -135,7 +135,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-        RenderHelper.renderItemWithTransparency(Items.BOOK.getDefaultInstance(), guiGraphics.pose(), this.leftPos + 25, this.topPos + 42, 0.5F);
+        RenderSupport.renderItemWithTransparency(Items.BOOK.getDefaultInstance(), guiGraphics.pose(), this.leftPos + 25, this.topPos + 42, 0.5F);
 
         if (this.menu.canScroll()) {
             int left = this.leftPos + 122;

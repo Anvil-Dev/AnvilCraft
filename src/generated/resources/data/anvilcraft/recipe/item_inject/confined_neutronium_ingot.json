@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_inject",
+  "block_ingredient": {
+    "blocks": "anvilcraft:confinement_chamber"
+  },
+  "block_result": {
+    "block": "anvilcraft:confined_neutronium_ingot"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:charged_neutronium_ingot"
+    }
+  ]
+}

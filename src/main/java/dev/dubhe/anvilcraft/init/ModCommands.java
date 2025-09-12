@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.dubhe.anvilcraft.command.PowergridCommand;
 import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +12,7 @@ public class ModCommands {
     public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> root = literal("anvilcraft");
         ModInspections.INSTANCE.registerCommand(root);
+        PowergridCommand.registerCommand(root);
         dispatcher.register(root);
     }
 }

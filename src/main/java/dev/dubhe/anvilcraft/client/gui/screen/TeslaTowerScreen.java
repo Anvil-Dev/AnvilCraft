@@ -247,7 +247,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             .toList()
         );
         allFilter.addAll(BuiltInRegistries.ENTITY_TYPE.stream()
-            .map(it -> Pair.of(TeslaFilter.getFilter("IsEntityIdFilter"), it.getDescriptionId()))
+            .map(it -> Pair.of(TeslaFilter.getFilter("IsEntityIdFilter"), Component.translatable(it.getDescriptionId()).getString()))
             .toList()
         );
         filteredFilters.addAll(allFilter);

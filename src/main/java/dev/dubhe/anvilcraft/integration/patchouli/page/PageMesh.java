@@ -7,7 +7,7 @@ import dev.anvilcraft.lib.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.patchouli.util.PatchouliRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ public class PageMesh extends PageDoubleRecipeRegistry<MeshRecipe> {
         pose.translate(recipeX + 49, recipeY + 6, 10);
         pose.scale(0.8f, 0.8f, 1);
         PatchouliRenderHelper.renderAnvilWithAnimation(parent, graphics, 0, 0);
-        RenderHelper.renderBlock(graphics, Blocks.SCAFFOLDING.defaultBlockState(), 0, 16, 0, 12, RenderHelper.SINGLE_BLOCK);
+        RenderSupport.renderBlock(graphics, Blocks.SCAFFOLDING.defaultBlockState(), 0, 16, 0, 12, RenderSupport.SINGLE_BLOCK);
         pose.popPose();
 
         parent.drawCenteredStringNoShadow(

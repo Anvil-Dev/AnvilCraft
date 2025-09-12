@@ -115,14 +115,5 @@ public class SuperHeatingRecipeLoader {
             .produce(1000)
             .requires(ModItemTags.GEM_BLOCKS)
             .save(provider, AnvilCraft.of("super_heating/melt_gem_cauldron"));
-
-        SuperHeatingRecipe.builder()
-            .requires(ModItems.TRANSCENDIUM_INGOT)
-            .requires(ModItems.MULTIPHASE_MATTER)
-            .requires(ModItems.RESONATOR_CORE)
-            .requires(ModItems.HEAVY_HALBERD_CORE)
-            .requires(ModItems.VOID_MATTER)
-            .result(ModItems.MULTIPHASE_TRANSCENDIUM)
-            .save(provider);
     }
 }

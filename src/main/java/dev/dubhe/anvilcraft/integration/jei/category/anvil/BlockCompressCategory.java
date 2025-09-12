@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -103,14 +103,14 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         arrowDefault.draw(guiGraphics, 73, 35);
 
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             50,
             12 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
 
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
@@ -118,22 +118,22 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
             if (input.isEmpty()) continue;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) continue;
-            RenderHelper.renderBlock(
+            RenderSupport.renderBlock(
                 guiGraphics,
                 renderedState,
                 50,
                 30 + 10 * i,
                 10 - 10 * i,
                 12,
-                RenderHelper.SINGLE_BLOCK
+                RenderSupport.SINGLE_BLOCK
             );
         }
 
-        RenderHelper.renderBlock(
-            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderHelper.SINGLE_BLOCK
+        RenderSupport.renderBlock(
+            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderSupport.SINGLE_BLOCK
         );
-        RenderHelper.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 0, 12, RenderHelper.SINGLE_BLOCK
+        RenderSupport.renderBlock(
+            guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK
         );
     }
 

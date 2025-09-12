@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import java.util.Comparator;
 
@@ -22,5 +23,14 @@ public class EnchantmentUtil {
         } else {
             return compareEnchantmentHolder(o1.enchantment, o2.enchantment);
         }
+    }
+
+    public static ItemEnchantments merge(ItemEnchantments oldData, ItemEnchantments newData) {
+        ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(oldData);
+        for (var entry : newData.entrySet()) {
+            Holder<Enchantment> holder = entry.getKey();
+            mutable.set(holder, Math.max(oldData.getLevel(holder), entry.getIntValue()));
+        }
+        return mutable.toImmutable();
     }
 }

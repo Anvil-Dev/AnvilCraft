@@ -5,7 +5,6 @@
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "anvilcraft:block/confined_energy_anvilon",
-		"2": "anvilcraft:block/ember_metal_block_outline",
 		"particle": "anvilcraft:block/confined_energy_anvilon"
 	}
 }

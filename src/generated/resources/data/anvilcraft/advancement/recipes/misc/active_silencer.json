@@ -11,21 +11,31 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_jukebox": {
+    "has_circuit_board": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:jukebox"
+            "items": "anvilcraft:circuit_board"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_sculk_sensor": {
+    "has_note_block": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:sculk_sensor"
+            "items": "minecraft:note_block"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_piezoelectric_crystal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:piezoelectric_crystal"
           }
         ]
       },
@@ -42,8 +52,9 @@
     [
       "has_the_recipe",
       "has_amethyst_block",
-      "has_jukebox",
-      "has_sculk_sensor"
+      "has_note_block",
+      "has_circuit_board",
+      "has_piezoelectric_crystal"
     ]
   ],
   "rewards": {

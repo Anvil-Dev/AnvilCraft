@@ -10,6 +10,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public interface ICustomDataComponent<T> {
      *
      * @return 该数据组件的类型
      */
-    DataComponentType<? super T> getDataComponentType();
+    DataComponentType<T> getDataComponentType();
 
     /**
      * 获取该自定义数据组件的类型。
@@ -58,11 +59,22 @@ public interface ICustomDataComponent<T> {
      *
      * @return 一个全新的该数据组件
      */
+    @Nullable
     T make(List<Object> data);
 
-    default void applyToStack(ItemStack stack, T value) {
+    default void applyToStack(ItemStack stack, @Nullable T value) {
+        if (value == null) stack.remove(this.getDataComponentType());
         stack.set(this.getDataComponentType(), value);
     }
+
+    /**
+     * 将两个数据合并为一个新的组件。
+     *
+     * @param oldData 旧数据
+     * @param newData 新数据
+     * @return 合并后的数据
+     */
+    T merge(T oldData, T newData);
 
     interface Type<T extends ICustomDataComponent<?>> extends ISerializer<T> {
     }

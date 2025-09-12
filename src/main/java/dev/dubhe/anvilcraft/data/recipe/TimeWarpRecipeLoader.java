@@ -96,7 +96,7 @@ public class TimeWarpRecipeLoader {
             .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 3)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
-            .consume(250)
+            .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_0"));
 
         TimeWarpRecipe.builder()
@@ -105,7 +105,7 @@ public class TimeWarpRecipeLoader {
             .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 4)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
-            .consume(250)
+            .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_1"));
 
         TimeWarpRecipe.builder()
@@ -114,7 +114,7 @@ public class TimeWarpRecipeLoader {
             .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 5)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
-            .consume(250)
+            .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_2"));
 
         TimeWarpRecipe.builder()
@@ -123,7 +123,7 @@ public class TimeWarpRecipeLoader {
             .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 6)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
-            .consume(250)
+            .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_3"));
 
         TimeWarpRecipe.builder()

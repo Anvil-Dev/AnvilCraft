@@ -5,12 +5,12 @@
   "sortnum": 12004,
   "entry_color": "004400",
   "pages": [
-    "虚空能收集器可以收集$(thing)非物质方块$()所蕴含的虚空能。$(p)$(thing)非物质方块$()：包括$(item)空气$()、$(item)虚空$()、$(l:smithing/tier_2_materials#void_matter)虚空物质块$()、$(item)虚空能收集器$()",
+    "虚空能收集器可以收集$(thing)非物质方块$()所蕴含的虚空能。$(p)$(thing)非物质方块$()：包括$(item)空气$()、$(item)虚空$()、$(l:smithing/tier_2_materials#void_matter)虚空物质块$()、$(item)虚空能收集器$() $(p)和其他$(item)虚空能收集器$()的工作范围重合时停止工作",
     {
       "type": "patchouli:crafting",
       "anchor": "void_energy_collector",
       "recipe": "anvilcraft:void_energy_collector",
-      "text": "$(item)虚空能收集器$()的默认发电功率为512KW。但是以自己为中心5x5x5范围内的$(thing)物质方块$()会影响自己的发电量：$(li)3个及以上：256kW $(li)11个及以上：128kW $(li)21个及以上：0kW"
+      "text": "$(item)虚空能收集器$()的默认发电功率为512KW。但是以自己为中心5x5x5工作范围内的$(thing)物质方块$()会影响自己的发电量：$(li)3个及以上：256kW $(li)11个及以上：128kW $(li)21个及以上：0kW"
     },
     {
       "type": "patchouli:text",

@@ -12,12 +12,7 @@
       "type": "patchouli:spotlight",
       "anchor": "magnet_ingot",
       "item": "anvilcraft:magnet_ingot",
-      "text": "首次获得磁铁，需要$(item)铁块$()被雷击转化为空心磁铁块，可以将其分解为磁铁锭。 $(br)$(li)之后可以$(thing)人工$()将铁锭$(thing)逐个$()丢入空心磁铁块中央的洞，将铁锭概率转化为磁铁锭。 $(li)具有发电能力后，可将铁锭充能为磁铁锭。"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "anvilcraft:magnet_ingot_from_hollow_block",
-      "recipe2": "anvilcraft:hollow_magnet_block"
+      "text": "首次获得磁铁，需要$(item)铁块$()被雷击转化为空心磁铁块，可以将其分解为磁铁锭。 $(br)$(li)之后可以通过磁铁将铁$(thing)磁化$()，获得更多磁铁。 $(li)具有发电能力后，可将铁锭充能为磁铁锭。"
     },
     {
       "type": "patchouli:multiblock",
@@ -38,6 +33,11 @@
       "text": "默认的雷击转化磁铁块范围，雷击后，图中铁块都将转化为空心磁铁块。"
     },
     {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:magnet_ingot_from_hollow_block",
+      "recipe2": "anvilcraft:hollow_magnet_block"
+    },
+    {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:topaz,minecraft:lightning_rod",
       "title": "人工引雷",
@@ -46,13 +46,13 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:ferrite_core_magnet_block",
-      "text": "铁芯磁铁块置于世界中逐渐转变为$(item)磁铁块$()，磁铁块可以拆解为9个磁铁锭，这是磁铁再生的另一种方法。"
+      "text": "对着空心磁铁块使用铁锭也可以获得。$(br)置于世界中逐渐转变为$(item)磁铁块$()。然后空手shift右键它，可以掏出磁铁锭。"
     },
     {
       "type": "patchouli:crafting",
       "anchor": "magnet_block",
       "recipe": "anvilcraft:magnet_block",
-      "text": "$(item)磁铁块$()可以吸引正下方5格内的铁砧，收到$(thing)红石信号$()消磁 $(br)可以帮助你简单地将铁砧抬起再砸下。$(p)$(#666666)铁芯磁铁块和空心磁铁块也具有这个功能$()"
+      "text": "$(item)磁铁块$()可以吸引正下方5格内的铁砧，收到$(thing)红石信号$()消磁 $(br)可以帮助你简单地将铁砧抬起再砸下。$(p)$(#666666)其他两种磁铁块也具有这个功能$()"
     },
     {
       "type": "patchouli:spotlight",

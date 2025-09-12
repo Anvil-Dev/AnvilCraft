@@ -1,6 +1,23 @@
 package dev.dubhe.anvilcraft.util;
 
 public class UnitUtil {
+    public static String energyUnit(int energy, boolean original) {
+        if (original) {
+            return energy + " kJ";
+        }
+        if (energy < 1000) {
+            return String.format("%d kJ", energy);
+        } else {
+            double mjValue = (double) energy / 1000;
+            double truncated = Math.floor(mjValue * 100) / 100;
+            if (truncated == Math.floor(truncated)) {
+                return String.format("%.0f MJ", truncated);
+            } else {
+                return String.format("%.2f MJ", truncated);
+            }
+        }
+    }
+
     public static String electricityUnit(int power, boolean original) {
         if (original) {
             return power + " kW";

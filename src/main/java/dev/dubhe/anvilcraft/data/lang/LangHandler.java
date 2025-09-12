@@ -21,5 +21,6 @@ public class LangHandler {
         EnchantmentDescriptionsLang.init(provider);
         CuriosLang.init(provider);
         ToolPropertyLang.init(provider);
+        CommandLang.init(provider);
     }
 }

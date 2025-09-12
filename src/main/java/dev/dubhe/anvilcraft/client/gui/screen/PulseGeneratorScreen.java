@@ -82,7 +82,10 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(BUTTON_RISING_EDGE, BUTTON_FALLING_EDGE, BUTTON_LOOP),
             16, 16, 32,
-            (button, index) -> this.menu.setStartMode((byte) index)
+            (button, index) -> this.menu.setStartMode((byte) index),
+            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
+                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
+                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop"))
         );
         SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 28,
@@ -90,7 +93,9 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(BUTTON_REVERSE_OFF, BUTTON_REVERSE_ON),
             16, 16, 32,
-            (button, index) -> this.menu.setOutputInvert(index == 1)
+            (button, index) -> this.menu.setOutputInvert(index == 1),
+            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
+                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"))
         );
         BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,

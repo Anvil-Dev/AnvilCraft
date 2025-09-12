@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -41,6 +42,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.event.EventHooks;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -134,7 +136,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!isMoving && !state.is(newState.getBlock())) {
+        if (!state.is(newState.getBlock())) {
             super.onRemove(state, level, pos, newState, false);
         }
         Direction facing = state.getValue(FACING);
@@ -292,5 +294,18 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    @Override
+    public @NotNull CompoundTag clearData(@NotNull Level level, @NotNull BlockPos pos) {
+        return level.getBlockEntity(pos, ModBlockEntities.ADVANCED_COMPARATOR.get())
+            .map(AdvancedComparatorBlockEntity::exportMoveData)
+            .orElseGet(CompoundTag::new);
+    }
+
+    @Override
+    public void setData(@NotNull Level level, @NotNull BlockPos pos, @NotNull CompoundTag tag) {
+        level.getBlockEntity(pos, ModBlockEntities.ADVANCED_COMPARATOR.get())
+            .ifPresent(be -> be.applyMoveData(level, pos, level.getBlockState(pos), tag));
     }
 }

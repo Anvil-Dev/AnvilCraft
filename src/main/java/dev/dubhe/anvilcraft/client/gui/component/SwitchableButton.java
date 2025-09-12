@@ -1,20 +1,21 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import com.google.common.collect.Collections2;
+import dev.dubhe.anvilcraft.util.MathUtil;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -23,6 +24,7 @@ public class SwitchableButton extends Button {
     public static final Button.OnPress DO_NOTHING = OnPress::doNothing;
 
     private final List<Button> switchables = new ArrayList<>();
+    private final List<Component> message;
     @Getter
     @Setter
     private int current = 0;
@@ -38,36 +40,53 @@ public class SwitchableButton extends Button {
                 textures,
                 texture -> new TexturedButton(
                     pX, pY, pWidth, pHeight, texture, yDiffTex, textureWidth, textureHeight, DO_NOTHING)),
-            pOnPress
+            pOnPress,
+            List.of()
         );
     }
 
     public SwitchableButton(
         int pX, int pY, int pWidth, int pHeight,
-        Map<ResourceLocation, Button.@Nullable OnPress> buttonInfos, int yDiffTex, int textureWidth, int textureHeight,
-        OnPress pOnPress
+        List<ResourceLocation> textures, int yDiffTex, int textureWidth, int textureHeight,
+        OnPress pOnPress, List<Component> message
     ) {
         this(
             pX, pY, pWidth, pHeight,
             Collections2.transform(
-                buttonInfos.entrySet(),
-                entry -> new TexturedButton(
-                    pX, pY, pWidth, pHeight, entry.getKey(), yDiffTex, textureWidth, textureHeight, entry.getValue())),
-            pOnPress
+                textures,
+                texture -> new TexturedButton(
+                    pX, pY, pWidth, pHeight, texture, yDiffTex, textureWidth, textureHeight, DO_NOTHING)),
+            pOnPress,
+            message
         );
     }
 
     public SwitchableButton(
-        int pX, int pY, int pWidth, int pHeight, Collection<Button> buttons, OnPress pOnPress
+        int pX, int pY, int pWidth, int pHeight, Collection<Button> buttons, OnPress pOnPress, List<Component> message
     ) {
         super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, DEFAULT_NARRATION);
-
+        this.message = message;
         this.switchables.addAll(buttons);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.switchables.get(this.current).render(guiGraphics, mouseX, mouseY, partialTick);
+        if (MathUtil.isInRange(mouseX, this.getX(), this.getX() + this.width)
+            && MathUtil.isInRange(mouseY, this.getY(), this.getY() + this.height)
+            && !this.message.isEmpty()
+            && this.switchables.size() == this.message.size()) {
+            guiGraphics.renderTooltip(
+                Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public Component getMessage() {
+        if (this.message.isEmpty()) {
+            return Component.empty();
+        }
+        return this.message.get(this.getCurrent());
     }
 
     @Override

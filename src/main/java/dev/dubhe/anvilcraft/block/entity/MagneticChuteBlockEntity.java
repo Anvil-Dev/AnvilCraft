@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -31,12 +30,12 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Override
-    protected boolean shouldSkipDirection(@NotNull Direction direction) {
+    protected boolean shouldSkipDirection(Direction direction) {
         return false;
     }
 
     @Override
-    protected boolean validateBlockState(@NotNull BlockState state) {
+    protected boolean validateBlockState(BlockState state) {
         return state.is(ModBlocks.MAGNETIC_CHUTE.get());
     }
 
@@ -61,25 +60,26 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public Component getDisplayName() {
         return Component.translatable("block.anvilcraft.magnetic_chute");
     }
 
     @Override
     protected void applySpeed(ItemEntity itemEntity, Direction direction) {
-        Vec3 delta = new Vec3(
+        itemEntity.setDeltaMovement(getOutputSpeed(direction));
+    }
+
+    public static Vec3 getOutputSpeed(Direction direction) {
+        return new Vec3(
             direction.getStepX(),
             direction.getStepY(),
             direction.getStepZ()
-        );
-        itemEntity.setDeltaMovement(
-            delta.multiply(0.25, 0.25, 0.25)
-        );
+        ).multiply(0.25, 0.25, 0.25);
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new MagneticChuteMenu(ModMenuTypes.MAGNETIC_CHUTE.get(), i, inventory, this);
     }

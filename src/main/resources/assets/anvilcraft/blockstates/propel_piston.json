@@ -1,0 +1,55 @@
+{
+  "variants": {
+    "facing=down,exhausted=false": {
+      "model": "anvilcraft:block/propel_piston",
+      "x": 180
+    },
+    "facing=east,exhausted=false": {
+      "model": "anvilcraft:block/propel_piston",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,exhausted=false": {
+      "model": "anvilcraft:block/propel_piston",
+      "x": 90
+    },
+    "facing=south,exhausted=false": {
+      "model": "anvilcraft:block/propel_piston",
+      "x": 270
+    },
+    "facing=up,exhausted=false": {
+      "model": "anvilcraft:block/propel_piston"
+    },
+    "facing=west,exhausted=false": {
+      "model": "anvilcraft:block/propel_piston",
+      "x": 90,
+      "y": 270
+    },
+
+    "facing=down,exhausted=true": {
+      "model": "anvilcraft:block/propel_piston_exhausted",
+      "x": 180
+    },
+    "facing=east,exhausted=true": {
+      "model": "anvilcraft:block/propel_piston_exhausted",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,exhausted=true": {
+      "model": "anvilcraft:block/propel_piston_exhausted",
+      "x": 90
+    },
+    "facing=south,exhausted=true": {
+      "model": "anvilcraft:block/propel_piston_exhausted",
+      "x": 270
+    },
+    "facing=up,exhausted=true": {
+      "model": "anvilcraft:block/propel_piston_exhausted"
+    },
+    "facing=west,exhausted=true": {
+      "model": "anvilcraft:block/propel_piston_exhausted",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

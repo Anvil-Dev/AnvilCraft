@@ -4,10 +4,10 @@ import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.ponder.AnvilCraftPonderTags;
+import dev.dubhe.anvilcraft.integration.ponder.api.AnvilCraftSceneBuilder;
+import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.EntityElement;
 import net.createmod.ponder.api.element.WorldSectionElement;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.scene.SceneBuilder;
@@ -18,7 +18,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
@@ -33,27 +32,10 @@ public class MagnetScene {
                 ModBlocks.HOLLOW_MAGNET_BLOCK,
                 ModBlocks.FERRITE_CORE_MAGNET_BLOCK
             )
-            .addStoryBoard(
-                "platform/555",
-                MagnetScene::thunder,
-                AnvilCraftPonderTags.MAGNET_BLOCK
-            )
-            .addStoryBoard(
-                "platform/555",
-                MagnetScene::magnetizeIngot,
-                AnvilCraftPonderTags.MAGNET_BLOCK
-            )
-            .addStoryBoard(
-                "platform/555",
-                MagnetScene::attractAnvil,
-                AnvilCraftPonderTags.MAGNET_BLOCK,
-                AnvilCraftPonderTags.ANVIL
-            )
-            .addStoryBoard(
-                "platform/555",
-                MagnetScene::rubCopperBlock,
-                AnvilCraftPonderTags.MAGNET_BLOCK
-            );
+            .addStoryBoard("platform/5x", MagnetScene::thunder, AnvilCraftPonderTags.MAGNET_BLOCK)
+            .addStoryBoard("platform/5x", MagnetScene::magnetizeIngot, AnvilCraftPonderTags.MAGNET_BLOCK)
+            .addStoryBoard("platform/5x", MagnetScene::attractAnvil, AnvilCraftPonderTags.MAGNET_BLOCK, AnvilCraftPonderTags.ANVIL)
+            .addStoryBoard("platform/5x", MagnetScene::rubCopperBlock, AnvilCraftPonderTags.MAGNET_BLOCK);
     }
 
     private static void thunder(SceneBuilder scene, SceneBuildingUtil util) {
@@ -84,115 +66,122 @@ public class MagnetScene {
         // 磁铁替换铁块
         scene.world().setBlocks(ironBlockArea, ModBlocks.HOLLOW_MAGNET_BLOCK.getDefaultState(), true);
 
-        BlockPos textPos = util.grid().at(2, 2, 2); // 避雷针放在结构正上方中央
-        scene.overlay().showText(60)
+        // 避雷针放在结构正上方中央
+        BlockPos textPos = util.grid().at(2, 2, 2);
+        scene.overlay()
+            .showText(60)
             .text("The magnets were produced.")
             .pointAt(util.vector().topOf(textPos))
             .attachKeyFrame()
             .placeNearTarget();
-
-        scene.idle(30); // 等待文本显示完毕
-
-        scene.markAsFinished(); // 标记场景结束
+        // 等待文本显示完毕
+        scene.idle(30);
+        // 标记场景结束
+        scene.markAsFinished();
     }
 
     private static void magnetizeIngot(SceneBuilder scene, SceneBuildingUtil util) {
         scene.title("magnet_magnetize_ingot", "Get a magnet ingot through a hollow magnet block");
         scene.configureBasePlate(0, 0, 5);
         scene.showBasePlate();
+
         // 放置空心磁铁矿
-        BlockPos magnetPos = util.grid().at(2, 2, 2); // 将方块放在中心偏下的位置
-        Selection magnetArea = util.select().position(magnetPos);
+        BlockPos magnetPos = util.grid().at(2, 1, 2);
         scene.world().setBlock(magnetPos, ModBlocks.HOLLOW_MAGNET_BLOCK.getDefaultState(), false);
-        scene.world().showIndependentSection(magnetArea, Direction.DOWN); // 从下往上显示
-        scene.idle(15);
+        scene.world().showSection(util.select().position(magnetPos), Direction.DOWN);
+        scene.idle(20);
 
-        // 循环创建4个铁锭
-        Vec3 dropItemPos = new Vec3(2.5, 4, 2.5);
-        Vec3 changeItemPos = new Vec3(2.5, 2.8, 2.5);
-        ItemStack ironIngotItem = new ItemStack(Items.IRON_INGOT, 1);
-        ItemStack magnetIngotItem = new ItemStack(ModItems.MAGNET_INGOT.asItem(), 1);
-        ElementLink<EntityElement> ironBockItemLink = null;
+        // 填充铁锭
+        scene.overlay()
+            .showControls(util.vector().centerOf(magnetPos), Pointing.RIGHT, 20)
+            .rightClick()
+            .withItem(Items.IRON_INGOT.getDefaultInstance());
+        scene.idle(20);
+        scene.world().setBlock(magnetPos, ModBlocks.FERRITE_CORE_MAGNET_BLOCK.getDefaultState(), true);
+        scene.idle(10);
 
-        scene.overlay().showText(60)
-            .text("A player throws a iron ingot at a time.")
-            .pointAt(dropItemPos)
+        // 等待时间以变化
+        scene.overlay().showText(40).text("Some time later.").pointAt(util.vector().centerOf(magnetPos)).attachKeyFrame().placeNearTarget();
+        scene.idle(50);
+        scene.world().setBlock(magnetPos, ModBlocks.MAGNET_BLOCK.getDefaultState(), true);
+        scene.idle(20);
+
+        // 取出磁铁
+        scene.overlay().showControls(util.vector().centerOf(magnetPos), Pointing.RIGHT, 20).rightClick().whileSneaking();
+
+        scene.idle(20);
+        scene.world().setBlock(magnetPos, ModBlocks.HOLLOW_MAGNET_BLOCK.getDefaultState(), false);
+        scene.overlay()
+            .showText(40)
+            .text("Took out a magnet ingot.")
+            .pointAt(util.vector().centerOf(magnetPos))
             .attachKeyFrame()
             .placeNearTarget();
-        for (int i = 0; i < 3; i++) {
-            ironBockItemLink = scene.world().createItemEntity(dropItemPos, Vec3.ZERO, ironIngotItem);
-            scene.idle(20);
-        }
-
-        scene.overlay().showText(60)
-            .text("Iron ingots have a probability of being magnetized.")
-            .pointAt(changeItemPos)
-            .attachKeyFrame()
-            .placeNearTarget();
-        scene.world().modifyEntity(ironBockItemLink, entity -> entity.setPos(2.5, -100, 2.5));
-        scene.world().createItemEntity(changeItemPos, Vec3.ZERO, magnetIngotItem);
-        scene.idle(30); // 等待最后一个铁锭穿过
+        scene.idle(40);
 
         scene.markAsFinished(); // 标记场景结束
     }
 
     private static void attractAnvil(SceneBuilder scene, SceneBuildingUtil util) {
-        scene.title("magnet", "Use magnet to attract the anvil");
-        scene.configureBasePlate(0, 0, 5);
-        scene.showBasePlate();
+        AnvilCraftSceneBuilder builder = new AnvilCraftSceneBuilder(scene);
+        builder.title("magnet", "Use magnet to attract the anvil");
+        builder.configureBasePlate(0, 0, 5);
+        builder.showBasePlate();
         // 创建锅
-        scene.world().setBlock(new BlockPos(2, 1, 2), Blocks.CAULDRON.defaultBlockState(), false);
-        Selection cauldron = util.select().position(2, 1, 2);
-        scene.world().showSection(cauldron, Direction.NORTH);
-        // 创建铁砧
-        scene.world().setBlock(new BlockPos(2, 2, 2), Blocks.ANVIL.defaultBlockState(), false);
-        Selection anvil = util.select().position(2, 2, 2);
-        ElementLink<WorldSectionElement> anvilLink = scene.world().showIndependentSection(anvil, Direction.NORTH);
-        scene.idle(5);
+        BlockPos cauldronPos = util.grid().at(2, 1, 2);
+        builder.world().setBlock(cauldronPos, Blocks.CAULDRON.defaultBlockState(), false);
+        builder.world().showSection(util.select().position(cauldronPos), Direction.NORTH);
+        builder.idle(5);
 
-        scene.overlay().showText(40)
+        // 创建铁砧
+        BlockPos anvilPos = cauldronPos.above();
+        builder.world().setBlock(anvilPos, Blocks.ANVIL.defaultBlockState(), false);
+        ElementLink<WorldSectionElement> anvilLink = builder.world()
+            .showIndependentSection(util.select().position(anvilPos), Direction.NORTH);
+        builder.idle(10);
+
+        builder.overlay()
+            .showText(40)
             .text("The anvil needs to be lifted and fallen for processing")
             .pointAt(util.vector().blockSurface(util.grid().at(2, 2, 2), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
-        scene.idle(40);
+        builder.idle(50);
+
         // 创建磁铁
-        scene.world().setBlock(new BlockPos(2, 4, 2), ModBlocks.MAGNET_BLOCK.getDefaultState(), false);
-        Selection magnet = util.select().position(2, 4, 2);
-        scene.world().showIndependentSection(magnet, Direction.WEST);
-        scene.idle(10);
+        BlockPos magnetPos = anvilPos.above(2);
+        builder.world().setBlock(magnetPos, ModBlocks.MAGNET_BLOCK.getDefaultState(), false);
+        builder.world().showIndependentSection(util.select().position(magnetPos), Direction.WEST);
+        builder.idle(10);
 
-        scene.world().moveSection(anvilLink, new Vec3(0, 1, 0), 4);
-        scene.idle(5);
+        builder.world().riseSection(anvilLink);
 
-        scene.overlay().showText(40)
+        builder.overlay()
+            .showText(40)
             .text("Magnets can attract anvils")
-            .pointAt(util.vector().blockSurface(util.grid().at(2, 3, 2), Direction.WEST))
+            .pointAt(magnetPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
-        scene.idle(40);
-        // 放置红石块使磁铁失效
-        scene.world().setBlock(new BlockPos(3, 4, 2), Blocks.REDSTONE_BLOCK.defaultBlockState(), false);
-        Selection redstoneBlock = util.select().position(3, 4, 2);
-        scene.world().showIndependentSection(redstoneBlock, Direction.WEST);
-        scene.idle(10);
-        scene.world().modifyBlock(
-            new BlockPos(2, 4, 2),
-            bs -> bs.setValue(MagnetBlock.LIT, true),
-            false
-        );
+        builder.idle(50);
 
-        scene.world().moveSection(anvilLink, new Vec3(0, -1, 0), 7);
-        scene.idle(10);
+        // 放置红石块
+        BlockPos redstonePos = magnetPos.west();
+        builder.world().setBlock(redstonePos, Blocks.REDSTONE_BLOCK.defaultBlockState(), false);
+        builder.world().showIndependentSection(util.select().position(redstonePos), Direction.WEST);
+        builder.idle(10);
+        // 磁铁失效
+        builder.world().modifyBlock(magnetPos, bs -> bs.setValue(MagnetBlock.LIT, true), false);
+        builder.world().falldownSection(anvilLink);
 
-        scene.overlay().showText(40)
+        builder.overlay()
+            .showText(40)
             .text("Magnet will stop working when it receives a redstone signal.")
             .pointAt(util.vector().blockSurface(util.grid().at(2, 4, 2), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
-        scene.idle(40);
+        builder.idle(50);
 
-        scene.markAsFinished();
+        builder.markAsFinished();
     }
 
     private static void rubCopperBlock(SceneBuilder scene, SceneBuildingUtil util) {
@@ -216,7 +205,8 @@ public class MagnetScene {
         scene.world().setBlock(pistonPos, Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.NORTH), false);
         scene.world().showSection(util.select().position(pistonPos), Direction.DOWN);
 
-        scene.overlay().showText(60)
+        scene.overlay()
+            .showText(60)
             .text("When a magnet is pushed against adjacent copper blocks, it generates electric charges.")
             .pointAt(util.vector().centerOf(pistonPos))
             .attachKeyFrame()
@@ -236,7 +226,8 @@ public class MagnetScene {
         BlockPos chargeCollectPos = new BlockPos(4, 1, 2);
         scene.world().setBlock(chargeCollectPos, ModBlocks.CHARGE_COLLECTOR.getDefaultState(), false);
         scene.world().showSection(util.select().position(chargeCollectPos), Direction.DOWN);
-        scene.overlay().showText(40)
+        scene.overlay()
+            .showText(40)
             .text("Use a collector to absorb the electric charges on the magnet.")
             .pointAt(util.vector().centerOf(chargeCollectPos))
             .attachKeyFrame()
@@ -245,7 +236,8 @@ public class MagnetScene {
 
         // 铜块生锈
         scene.world().setBlock(copperBlockPos, Blocks.OXIDIZED_COPPER.defaultBlockState(), false);
-        scene.overlay().showText(40)
+        scene.overlay()
+            .showText(40)
             .text("Copper rust can affect the production of electric charges.")
             .pointAt(util.vector().centerOf(copperBlockPos))
             .attachKeyFrame()

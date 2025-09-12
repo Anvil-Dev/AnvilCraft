@@ -7,13 +7,14 @@ import dev.anvilcraft.lib.recipe.component.ChanceItemStack;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.patchouli.util.PatchouliRenderHelper;
+import dev.dubhe.anvilcraft.integration.patchouli.util.PatchouliUtil;
 import dev.dubhe.anvilcraft.mixin.accessor.ScreenAccessor;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
-import dev.dubhe.anvilcraft.util.RenderHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +35,15 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
     }
 
     @Override
-    protected void drawRecipe(GuiGraphics graphics, AnvilCollisionCraftRecipe recipe, int recipeX, int recipeY, int mouseX, int mouseY, boolean second) {
+    protected void drawRecipe(
+        GuiGraphics graphics,
+        AnvilCollisionCraftRecipe recipe,
+        int recipeX,
+        int recipeY,
+        int mouseX,
+        int mouseY,
+        boolean second
+    ) {
         PoseStack pose = graphics.pose();
         pose.pushPose();
         pose.translate(recipeX, recipeY + 18, 50);
@@ -47,7 +56,7 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
             renderAnvil(parent, graphics, state, recipe.consume());
         }
         for (int i = 0; i < anvils.size(); i++) {
-            RenderHelper.renderBlock(graphics, anvils.get(i), 14 * i, 26, 0, 12, RenderHelper.SINGLE_BLOCK);
+            RenderSupport.renderBlock(graphics, anvils.get(i), 14 * i, 26, 0, 12, RenderSupport.SINGLE_BLOCK);
         }
 
         // 撞击方块
@@ -61,7 +70,7 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
                     .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                     .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
             }
-            RenderHelper.renderBlock(graphics, state, COLLISION_LENGTH + 5, 0, 0, scale, RenderHelper.SINGLE_BLOCK);
+            RenderSupport.renderBlock(graphics, state, COLLISION_LENGTH + 5, 0, 0, scale, RenderSupport.SINGLE_BLOCK);
         }
 
         PatchouliRenderHelper.renderArray(graphics, COLLISION_LENGTH + 16, 0);
@@ -69,9 +78,7 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
         pose.scale(0.5f, 0.5f, 1);
         graphics.drawString(
             ((ScreenAccessor) parent).getFont(),
-            Component.translatable(
-                "gui.anvilcraft.category.anvil_collision_craft_speed",
-                recipe.speed()),
+            Component.translatable("gui.anvilcraft.category.anvil_collision_craft_speed", recipe.speed()),
             -4,
             26,
             0xFF000000,
@@ -93,9 +100,12 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
             PatchouliRenderHelper.render2x2(graphics, recipeX + COLLISION_LENGTH + 12, recipeY);
             for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < 2 && i * 2 + j < results.size(); j++) {
-                    ItemStack itemStack = results.get(i * 2 + j).stack();
+                    ChanceItemStack itemStack = results.get(i * 2 + j);
                     parent.renderItemStack(graphics, recipeX + COLLISION_LENGTH + 16 + j * 19, recipeY + 4 + i * 19,
-                        mouseX, mouseY, itemStack);
+                        mouseX,
+                        mouseY,
+                        PatchouliUtil.getStack(itemStack)
+                    );
                 }
             }
         }
@@ -114,11 +124,11 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
                 BlockStatePredicate inputBlock = transformBlock.inputBlock();
                 List<BlockState> states = inputBlock.constructStatesForRender();
                 BlockState state = states.get((parent.ticksInBook / COLLISION_TIME) % states.size());
-                RenderHelper.renderBlock(graphics, state, 0, 0, 0, 12, RenderHelper.SINGLE_BLOCK);
+                RenderSupport.renderBlock(graphics, state, 0, 0, 0, 12, RenderSupport.SINGLE_BLOCK);
 
                 // 转化出方块
                 BlockState outputBlockState = transformBlock.outputBlock().state();
-                RenderHelper.renderBlock(graphics, outputBlockState, 0, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+                RenderSupport.renderBlock(graphics, outputBlockState, 0, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
                 pose.popPose();
 
                 // 箭头
@@ -157,9 +167,9 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
     private void renderAnvil(GuiBookEntry parent, GuiGraphics guiGraphics, BlockState anvil, Boolean consume) {
         int time = parent.ticksInBook % COLLISION_TIME;
         float anvilXOffset;
-        if (time < 10)
+        if (time < 10) {
             anvilXOffset = 0;
-        else if (time < 20) {
+        } else if (time < 20) {
             float returnTime = time - 10;
             anvilXOffset = (float) (COLLISION_LENGTH * Math.pow(returnTime / 10.0, 2));
         } else {
@@ -167,13 +177,13 @@ public class PageAnvilCollisionCraft extends PageDoubleRecipeRegistry<AnvilColli
             anvilXOffset = (float) (COLLISION_LENGTH * Math.pow(1 - returnTime / 10.0, 2));
         }
         if (!(consume && time > 20)) {
-            RenderHelper.renderBlock(
+            RenderSupport.renderBlock(
                 guiGraphics, anvil,
                 anvilXOffset,
                 0,
                 20,
-                12,
-                RenderHelper.SINGLE_BLOCK);
+                12, RenderSupport.SINGLE_BLOCK
+            );
         }
     }
 

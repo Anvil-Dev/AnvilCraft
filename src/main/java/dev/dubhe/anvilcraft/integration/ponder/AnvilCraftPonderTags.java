@@ -8,16 +8,21 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 
 public class AnvilCraftPonderTags {
     public static final ResourceLocation ANVIL = AnvilCraft.of("anvil");
     public static final ResourceLocation MAGNET_BLOCK = AnvilCraft.of("magnet_block");
+
+    public static final ResourceLocation GIANT_ANVIL = AnvilCraft.of("giant_anvil");
 
     public static final ResourceLocation REDSTONE_COMPONENTS = AnvilCraft.of("redstone_components");
 
     public static final ResourceLocation POWER_COMPONENTS = AnvilCraft.of("power_components");
 
     public static final ResourceLocation LOGISTICS_COMPONENTS = AnvilCraft.of("logistics_components");
+
+    public static final ResourceLocation PROCESSING_COMPONENTS = AnvilCraft.of("processing_components");
 
     public static void register(PonderTagRegistrationHelper<ResourceLocation> helper) {
         PonderTagRegistrationHelper<RegistryEntry<?, ?>> registryTagHelper = helper.withKeyFunction(RegistryEntry::getId);
@@ -56,6 +61,13 @@ public class AnvilCraftPonderTags {
             .item(ModBlocks.CHUTE, true, false)
             .title("Logistics components")
             .description("Various item transfer and storage components")
+            .register();
+
+        helper.registerTag(PROCESSING_COMPONENTS)
+            .addToIndex()
+            .item(Blocks.CAULDRON, true, false)
+            .title("Processing components")
+            .description("Processing components")
             .register();
 
 
@@ -98,5 +110,18 @@ public class AnvilCraftPonderTags {
             .add(ModBlocks.ACTIVATOR_SLIDING_RAIL)
             .add(ModBlocks.DETECTOR_SLIDING_RAIL)
             .add(ModBlocks.ITEM_COLLECTOR);
+
+        itemTagHelper.addToTag(PROCESSING_COMPONENTS)
+            .add(Items.CAULDRON)
+            .add(Items.IRON_TRAPDOOR)
+            .add(Items.CAMPFIRE)
+            .add(Items.SCAFFOLDING);
+
+        registryTagHelper.addToTag(PROCESSING_COMPONENTS)
+            .add(ModBlocks.STAMPING_PLATFORM)
+            .add(ModBlocks.CRUSHING_TABLE)
+            .add(ModBlocks.CORRUPTED_BEACON)
+            .add(ModBlocks.HEATER)
+            .add(ModBlocks.SPACE_OVERCOMPRESSOR);
     }
 }

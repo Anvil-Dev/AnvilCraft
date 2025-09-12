@@ -208,7 +208,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
 
         AtomicInteger flightTime = new AtomicInteger();
 
-        if (player.getAbilities().flying) {
+        if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
             flightTime.decrementAndGet();
         }
         capacitorTick(holder, backpack, flightTime);

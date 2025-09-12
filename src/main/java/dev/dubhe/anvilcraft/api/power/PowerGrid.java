@@ -47,7 +47,7 @@ public class PowerGrid {
     final Set<IPowerConsumer> consumers = Collections.synchronizedSet(new HashSet<>()); // 用电器
     final Set<IPowerStorage> storages = Collections.synchronizedSet(new HashSet<>()); // 储电
     final Set<IPowerTransmitter> transmitters = Collections.synchronizedSet(new HashSet<>()); // 中继
-
+    @Getter
     final Set<DynamicPowerComponent> dynamicComponents = Collections.synchronizedSet(new HashSet<>());
 
     @Getter

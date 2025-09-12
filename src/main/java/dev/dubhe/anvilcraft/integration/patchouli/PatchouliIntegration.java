@@ -4,19 +4,19 @@ import dev.anvilcraft.lib.integration.Integration;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.integration.patchouli.page.PageAnvilCollisionCraft;
 import dev.dubhe.anvilcraft.integration.patchouli.page.PageBlockCompress;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageBulging;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageBoiling;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageCooking;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageItemCompress;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageItemCrush;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageBulging;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageBoiling;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageCooking;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageItemCompress;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageItemCrush;
 import dev.dubhe.anvilcraft.integration.patchouli.page.PageItemInject;
 import dev.dubhe.anvilcraft.integration.patchouli.page.PageJewelCrafting;
 import dev.dubhe.anvilcraft.integration.patchouli.page.PageMesh;
 import dev.dubhe.anvilcraft.integration.patchouli.page.PageMultipleToOneSmithing;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageStamping;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageSuperHeating;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageTimeWarp;
-import dev.dubhe.anvilcraft.integration.patchouli.page.PageUnpack;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageStamping;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageSuperHeating;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageTimeWarp;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageUnpack;
 import vazkii.patchouli.client.book.ClientBookRegistry;
 
 @SuppressWarnings("unused")

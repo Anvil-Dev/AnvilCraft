@@ -13,7 +13,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -62,40 +62,40 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
     ) {
         SuperHeatingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
-        RenderHelper.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 10, 12, RenderHelper.SINGLE_BLOCK);
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false),
             81,
             40,
             0,
             12,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
 
         arrowIn.draw(guiGraphics, 54, 20);
         arrowOut.draw(guiGraphics, 92, 19);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        if (JeiRecipeUtil.isChance(this.getResults(recipe))) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, this.getResults(recipe).size());
+        if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
+            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, this.getResults(recipe).size());
+            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
         }
 
         HasCauldronSimple hasCauldron = recipe.getHasCauldron();
         if (!HasCauldron.isNotEmpty(hasCauldron.transform())) return;
         BlockState cauldron = CauldronUtil.fullState(hasCauldron.getTransformCauldron());
-        RenderHelper.renderBlock(guiGraphics, cauldron, 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, cauldron, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
 
         if (recipe.isConsumeFluid()) {
             PoseStack pose = guiGraphics.pose();

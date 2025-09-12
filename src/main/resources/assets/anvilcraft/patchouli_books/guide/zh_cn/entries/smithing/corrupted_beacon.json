@@ -4,21 +4,19 @@
   "icon": "anvilcraft:corrupted_beacon",
   "sortnum": 13004,
   "entry_color": "004400",
-  "extra_recipe_mappings": {
-    "anvilcraft:corrupted_beacon": 1
-  },
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "释放了被封印在信标之中的凋灵之力。会赋予光柱内的生物$(thing)凋零$()效果，部分生物会转化为另一种生物，还可以配合铁砧加工。"
+      "text": "会赋予光柱内的生物$(thing)凋零$()效果，部分生物会转化为另一种生物。$(p)激活时紧贴于炼药锅下，则可以配合铁砧加工。 $(p)$(#888888)释放了被封印在信标之中的凋灵之力。$()"
     },
     {
       "type": "patchouli:spotlight",
       "anchor": "corrupted_beacon",
+      "link_recipe": true,
       "item": "anvilcraft:corrupted_beacon",
-      "text": "完全使用$(l:smithing/tier_1_materials#cursed_gold_block)诅咒金块$()作为信标底座，并使用$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$()激活信标，则信标有概率转化为$(item)腐化信标$()。底座层数越多，转化概率越大。使用诅咒金锭激活信标时天气将转为雷雨天。"
+      "text": "完全使用$(l:smithing/tier_1_materials#cursed_gold_block)诅咒金块$()作为信标底座，并使用$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$()激活信标，则信标有概率转化为$(item)腐化信标$()。底座层数越多，转化概率越大。$(br)($(thing)自动化$()：使用铁砧将诅咒金锭压入信标，概率相同) $(p)使用诅咒金锭激活信标时天气将转为雷雨天。"
     },
-    "生物转化：$(br)$(thing)猪$()→$(thing)疣猪兽$()$(br)$(thing)牛$()→$(thing)劫掠兽$()$(br)$(thing)守卫者$()→$(thing)远古守卫者$()$(br)$(thing)猪灵$()→$(thing)猪灵蛮兵$()$(br)$(thing)村民$()→30%$(thing)掠夺者$()、60%$(thing)卫道士$()、10%$(thing)唤魔者$()$(br)$(thing)悦灵$()→$(thing)恼鬼$()$(br)$(thing)蝙蝠$()→$(thing)幻翼$()$(br)$(thing)马$()→10%$(thing)僵尸马$()、90%$(thing)骷髅马$()$(br)$(thing)蠹虫$()→$(thing)末影螨$()$(br)$(thing)骷髅$()→→20%$(thing)凋零骷髅$()、80%$(thing)流浪者$()",
+    "生物转化：$(br)猪→$(thing)疣猪兽$()$(br)牛→$(thing)劫掠兽$()$(br)守卫者→$(thing)远古守卫者$()$(br)猪灵→$(thing)猪灵蛮兵$()$(br)村民→30%$(thing)掠夺者$()、60%$(thing)卫道士$()、10%$(thing)唤魔者$()$(br)悦灵→$(thing)恼鬼$()$(br)蝙蝠→$(thing)幻翼$()$(br)马→10%$(thing)僵尸马$()、90%$(thing)骷髅马$()$(br)蠹虫→$(thing)末影螨$()$(br)骷髅→20%$(thing)凋零骷髅$()、80%$(thing)流浪者$()$(br)村庄铁傀儡→$(thing)监守者$()",
     {
       "type": "patchouli:multiblock",
       "anchor": "time_warp",
@@ -46,38 +44,18 @@
     },
     {
       "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/coal_from_logs",
-      "recipe2": "anvilcraft:time_warp/coal"
-    },
-    {
-      "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/raw_copper",
-      "recipe2": "anvilcraft:time_warp/raw_iron"
+      "text": "金属块可被时移为粗矿形式"
     },
     {
       "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/raw_gold",
-      "recipe2": "anvilcraft:time_warp/raw_silver"
+      "recipe": "anvilcraft:time_warp/budding_amethyst",
+      "recipe2": "anvilcraft:time_warp/wither_skeleton_skull"
     },
     {
       "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/raw_tungsten",
-      "recipe2": "anvilcraft:time_warp/raw_titanium"
-    },
-    {
-      "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/raw_zinc",
-      "recipe2": "anvilcraft:time_warp/raw_tin"
-    },
-    {
-      "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/raw_lead",
-      "recipe2": "anvilcraft:time_warp/ancient_debris"
-    },
-    {
-      "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/wither_skeleton_skull",
-      "recipe2": "anvilcraft:time_warp/wither_rose"
+      "recipe": "anvilcraft:time_warp/wither_rose",
+      "recipe2": "anvilcraft:time_warp/dirt"
     },
     {
       "type": "anvilcraft:time_warp",
@@ -86,18 +64,8 @@
     },
     {
       "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/dirt",
-      "recipe2": "anvilcraft:time_warp/amber"
-    },
-    {
-      "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/soul_soil",
       "recipe2": "anvilcraft:time_warp/crying_obsidian"
-    },
-    {
-      "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/sea_heart_shell",
-      "recipe2": "anvilcraft:time_warp/budding_amethyst"
     },
     {
       "type": "anvilcraft:time_warp",
