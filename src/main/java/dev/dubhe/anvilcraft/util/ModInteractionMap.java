@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 public class ModInteractionMap {
+    public static final CauldronInteraction.InteractionMap HEAVY_WATER = CauldronInteraction.newInteractionMap("heavy_water");
     public static final CauldronInteraction.InteractionMap LAYERED_LAVA = CauldronInteraction.newInteractionMap("layered_lava");
     public static final CauldronInteraction.InteractionMap OIL = CauldronInteraction.newInteractionMap("oil");
     public static final CauldronInteraction.InteractionMap CEMENT = CauldronInteraction.newInteractionMap("cement");
@@ -154,6 +155,22 @@ public class ModInteractionMap {
             )
         );
 
+        var heavyWaterInteractionMap = HEAVY_WATER.map();
+        heavyWaterInteractionMap.put(
+            Items.BUCKET,
+            (state, level, pos, player, hand, stack) -> CauldronInteraction.fillBucket(
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                ModItems.HEAVY_WATER_BUCKET.asStack(),
+                s -> true,
+                SoundEvents.BUCKET_FILL
+            )
+        );
+
         var emptyInteractionMap = CauldronInteraction.EMPTY.map();
         ModItems.CEMENT_BUCKETS.forEach((k, v) -> emptyInteractionMap.put(
                 v.get(),
@@ -239,6 +256,18 @@ public class ModInteractionMap {
                 hand,
                 stack,
                 ModBlocks.MELT_GEM_CAULDRON.getDefaultState(),
+                SoundEvents.BUCKET_EMPTY
+            )
+        );
+        emptyInteractionMap.put(
+            ModItems.HEAVY_WATER_BUCKET.get(),
+            (state, level, pos, player, hand, stack) -> CauldronInteraction.emptyBucket(
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                ModBlocks.HEAVY_WATER_CAULDRON.getDefaultState(),
                 SoundEvents.BUCKET_EMPTY
             )
         );

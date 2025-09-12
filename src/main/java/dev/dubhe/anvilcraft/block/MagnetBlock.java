@@ -89,21 +89,19 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         BlockPos currentPos = magnetPos;
-        for (int i = 0; i < 7; i++) {
-            currentPos = currentPos.below();
-            if (level.getBlockState(currentPos).is(ModBlocks.NEUTRON_IRRADIATOR.get())) return;
-        }
-        currentPos = magnetPos;
         checkAnvil:
         for (int i = 0; i < distance; i++) {
             currentPos = currentPos.below();
             BlockState state1 = level.getBlockState(currentPos);
-
+            BlockPos irradiator = currentPos;
+            for (int j = 0; j < 7; j++) {
+                irradiator = irradiator.below();
+                if (level.getBlockState(irradiator).is(ModBlocks.NEUTRON_IRRADIATOR.get())) return;
+            }
             if (state1.is(BlockTags.ANVIL) && !state1.is(ModBlockTags.NON_MAGNETIC)) {
                 level.destroyBlock(magnetPos.below(), true);
                 level.setBlockAndUpdate(magnetPos.below(), state1);
                 level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
-
                 AnimateAscendingBlockEntity.animate(level, currentPos, state1, magnetPos.below());
                 break;
             }

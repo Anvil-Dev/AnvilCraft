@@ -1,0 +1,5 @@
+{
+  "type": "anvilcraft:neutron_irradiation",
+  "consume": -1000,
+  "fluid": "anvilcraft:heavy_water"
+}

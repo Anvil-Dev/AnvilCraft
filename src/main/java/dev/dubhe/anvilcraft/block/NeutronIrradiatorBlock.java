@@ -2,14 +2,15 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -58,9 +59,7 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable {
         BlockPos blockPos = pos;
         for (int i = 0; i < 7; i++) {
             blockPos = blockPos.above();
-            if (level.getBlockState(blockPos).is(BlockTags.ANVIL)) {
-                level.scheduleTick(blockPos, level.getBlockState(blockPos).getBlock(), 2);
-            }
+            level.scheduleTick(blockPos, level.getBlockState(blockPos).getBlock(), 2);
         }
     }
 
@@ -79,34 +78,38 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable {
 
     private void attract(Level level, BlockPos pos) {
         if (level.isClientSide()) return;
-        if (level.getBlockState(pos.above()).is(BlockTags.ANVIL)) return;
         BlockPos currentPos = pos;
-        checkAnvil:
         for (int i = 0; i < 7; i++) {
             currentPos = currentPos.above();
             BlockState state1 = level.getBlockState(currentPos);
             if (state1.is(BlockTags.ANVIL) && !state1.is(ModBlockTags.NON_MAGNETIC)) {
-                BlockPos anvil = currentPos;
-                if (FallingBlock.isFree(level.getBlockState(anvil.below()))) {
-                    for (int j = 0; j < 7; j++) {
-                        anvil = anvil.below();
-                        if (FallingBlock.isFree(level.getBlockState(anvil))) continue;
-                        level.destroyBlock(anvil.above(), true);
-                        level.setBlockAndUpdate(anvil.above(), state1);
-                        level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
-                        break;
-                    }
-                }
+                level.scheduleTick(currentPos, state1.getBlock(), 0);
             }
             List<FallingBlockEntity> entities =
                 level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(currentPos));
+            if (level.getBlockState(currentPos.below()).is(ModBlocks.NEUTRON_IRRADIATOR)) continue;
             for (FallingBlockEntity entity : entities) {
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL) && !state2.is(ModBlockTags.NON_MAGNETIC)) {
-                    level.destroyBlock(pos.above(), true);
-                    level.setBlockAndUpdate(pos.above(), state2);
-                    entity.remove(Entity.RemovalReason.DISCARDED);
-                    break checkAnvil;
+                    BlockPos anvil = currentPos;
+                    for (int j = 0; j < 7; j++) {
+                        anvil = anvil.below();
+                        entities = level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(anvil.above()));
+                        if (FallingBlock.isFree(level.getBlockState(anvil))) continue;
+                        BlockPos newPos = anvil.above();
+                        if (!(entities.size() <= 1)) newPos = newPos.above();
+                        level.destroyBlock(newPos, false);
+                        level.setBlockAndUpdate(newPos, state2);
+                        entity.remove(Entity.RemovalReason.DISCARDED);
+                        if (level.getBlockState(newPos).getBlock() instanceof AnvilBlock
+                            && entities.size() <= 1) {
+                            FallingBlockEntity fallingBlockEntity =
+                                FallingBlockEntity.fall(level, newPos, level.getBlockState(newPos));
+                            fallingBlockEntity.setHurtsEntities(20f, Integer.MAX_VALUE);
+                        }
+                        break;
+                    }
+
                 }
             }
         }

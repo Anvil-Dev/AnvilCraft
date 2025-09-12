@@ -20,5 +20,6 @@ public class CauldronFluidContentEventListener {
             null
         ));
         event.register(ModBlocks.MELT_GEM_CAULDRON.get(), ModFluids.MELT_GEM.get(), 1000, null);
+        event.register(ModBlocks.HEAVY_WATER_CAULDRON.get(), ModFluids.HEAVY_WATER.get(), 1000, null);
     }
 }

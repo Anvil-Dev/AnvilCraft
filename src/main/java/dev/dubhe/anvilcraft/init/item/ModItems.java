@@ -2715,6 +2715,13 @@ public class ModItems {
         .model(ModelProviderUtil::bucket)
         .register();
 
+    public static ItemEntry<BucketItem> HEAVY_WATER_BUCKET = REGISTRATE
+        .item("heavy_water_bucket", p -> new BucketItem(ModFluids.HEAVY_WATER.get(), p))
+        .tag(ModItemTags.BUCKETS)
+        .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucket)
+        .register();
+
     public static void register() {
     }
 }

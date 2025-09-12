@@ -16,16 +16,24 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.List;
+
 import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
 @Mixin(AnvilBlock.class)
 abstract class AnvilBlockMixin extends FallingBlock {
+    @Shadow
+    protected abstract boolean isPathfindable(BlockState state, PathComputationType pathComputationType);
+
     public AnvilBlockMixin(Properties properties) {
         super(properties);
     }
@@ -84,13 +92,23 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockPos irradiator = anvil;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         if (anvilcraft$isAttractDown(level, anvil)) {
-            if (!FallingBlock.isFree(level.getBlockState(anvil.below()))) return;
+            List<FallingBlockEntity> entities =
+                level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(anvil.below()));
+            if (!FallingBlock.isFree(level.getBlockState(anvil.below()))
+                || !entities.isEmpty()) return;
             for (int i = 0; i < 7; i++) {
                 irradiator = irradiator.below();
                 if (FallingBlock.isFree(level.getBlockState(irradiator))) continue;
-                level.destroyBlock(irradiator.above(), true);
-                level.setBlockAndUpdate(irradiator.above(), state);
+                BlockPos newPos = irradiator.above();
+                entities = level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(irradiator.above()));
+                if (!entities.isEmpty()) newPos = newPos.above();
+                level.destroyBlock(newPos, false);
+                level.setBlockAndUpdate(newPos, state);
                 level.setBlockAndUpdate(anvil, Blocks.AIR.defaultBlockState());
+                if (entities.isEmpty()) {
+                    FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, newPos, state);
+                    fallingBlockEntity.setHurtsEntities(20f, Integer.MAX_VALUE);
+                }
                 return;
             }
         }

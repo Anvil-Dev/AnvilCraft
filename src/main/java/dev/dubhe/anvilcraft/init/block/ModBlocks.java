@@ -32,6 +32,7 @@ import dev.dubhe.anvilcraft.block.CreamBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.CrushingTableBlock;
 import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
+import dev.dubhe.anvilcraft.block.HeavyWaterCauldronBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.EmberGrindstoneBlock;
@@ -4421,6 +4422,18 @@ public class ModBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
+    public static final BlockEntry<HeavyWaterCauldronBlock> HEAVY_WATER_CAULDRON = REGISTRATE
+        .block("heavy_water_cauldron", HeavyWaterCauldronBlock::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.CAULDRONS
+        )
+        .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
+        .register();
+
     public static final BlockEntry<FireCauldronBlock> FIRE_CAULDRON = REGISTRATE
         .block("fire_cauldron", FireCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
@@ -4919,6 +4932,22 @@ public class ModBlocks {
             .strength(100.0F)
         )
         .blockstate(ModelProviderUtil::liquid)
+        .register();
+
+    public static BlockEntry<LiquidBlock> HEAVY_WATER = REGISTRATE
+        .block("heavy_water", p -> new LiquidBlock(ModFluids.HEAVY_WATER.get(), p))
+        .properties(it -> it
+            .mapColor(MapColor.WATER)
+            .replaceable()
+            .noCollission()
+            .pushReaction(PushReaction.DESTROY)
+            .noLootTable()
+            .liquid()
+            .sound(SoundType.EMPTY)
+            .strength(100.0F)
+        )
+        .blockstate((ctx, provider) -> {
+        })
         .register();
 
     public static BlockEntry<SimpleConfinementAnvilonBlock> CONFINED_TIME_ANVILON = REGISTRATE

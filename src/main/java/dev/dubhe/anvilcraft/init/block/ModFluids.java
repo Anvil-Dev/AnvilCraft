@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.HeavyWaterFluid;
 import dev.dubhe.anvilcraft.block.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -39,6 +40,7 @@ public class ModFluids {
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, AnvilCraft.MOD_ID);
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, AnvilCraft.MOD_ID);
 
+    // Register Oil type
     public static final DeferredHolder<FluidType, FluidType> OIL_TYPE = FLUID_TYPES.register(
         "oil",
         () -> new FluidType(FluidType.Properties.create()
@@ -69,6 +71,7 @@ public class ModFluids {
         .slopeFindDistance(3)
         .explosionResistance(100);
 
+    // Register Cements by colors
     public static final Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> CEMENT_TYPES = registerAllCementTypes();
     public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> SOURCE_CEMENTS = registerAllSourceCement();
     public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> FLOWING_CEMENTS = registerAllFlowingCement();
@@ -138,6 +141,7 @@ public class ModFluids {
             .explosionResistance(100);
     }
 
+    // Register Melt Gem type
     public static final DeferredHolder<FluidType, FluidType> MELT_GEM_TYPE = FLUID_TYPES.register(
         "melt_gem",
         () -> new FluidType(FluidType.Properties.create()
@@ -166,6 +170,35 @@ public class ModFluids {
         .block(ModBlocks.MELT_GEM)
         .bucket(ModItems.MELT_GEM_BUCKET)
         .tickRate(20)
+        .explosionResistance(100);
+
+    // Register Heavy Water type
+    public static final DeferredHolder<FluidType, FluidType> HEAVY_WATER_TYPE = FLUID_TYPES.register(
+        "heavy_water",
+        () -> new FluidType(FluidType.Properties.create()
+            .descriptionId("block.anvilcraft.heavy_water")
+            .canSwim(false)
+            .canDrown(false)
+            .pathType(PathType.WATER)
+            .adjacentPathType(null)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+            .density(1100)
+        )
+    );
+    public static final DeferredHolder<Fluid, HeavyWaterFluid> HEAVY_WATER = FLUIDS.register(
+        "heavy_water",
+        () -> new HeavyWaterFluid.Source(ModFluids.HEAVY_WATER_PROPERTIES)
+    );
+    public static final DeferredHolder<Fluid, HeavyWaterFluid> FLOWING_HEAVY_WATER = FLUIDS.register(
+        "flowing_heavy_water",
+        () -> new HeavyWaterFluid.Flowing(ModFluids.HEAVY_WATER_PROPERTIES)
+    );
+    public static final BaseFlowingFluid.Properties HEAVY_WATER_PROPERTIES = new BaseFlowingFluid.Properties(HEAVY_WATER_TYPE, HEAVY_WATER, FLOWING_HEAVY_WATER)
+        .block(ModBlocks.HEAVY_WATER)
+        .bucket(ModItems.HEAVY_WATER_BUCKET)
+        .tickRate(10)
+        .slopeFindDistance(3)
         .explosionResistance(100);
 
     public static void register(IEventBus eventBus) {
@@ -210,6 +243,11 @@ public class ModFluids {
             0xB7EEDE,
             2.0f
         ), MELT_GEM_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(
+            AnvilCraft.of("block/heavy_water"),
+            AnvilCraft.of("block/heavy_water_flow"),
+            0x5656EF,
+            1.0f
+        ), HEAVY_WATER_TYPE);
     }
-
 }

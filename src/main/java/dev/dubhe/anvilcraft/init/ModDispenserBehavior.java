@@ -144,6 +144,7 @@ public class ModDispenserBehavior {
         );
         DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, BUCKET);
         DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, BUCKET);
+        DispenserBlock.registerBehavior(ModItems.HEAVY_WATER_BUCKET, BUCKET);
         for (ItemEntry<BucketItem> cementBucket : ModItems.CEMENT_BUCKETS.values()) {
             DispenserBlock.registerBehavior(cementBucket, BUCKET);
         }
