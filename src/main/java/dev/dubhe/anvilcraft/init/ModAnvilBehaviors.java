@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.anvil.BeaconConversionBehavior;
 import dev.dubhe.anvilcraft.anvil.BlockDevourerBehavior;
 import dev.dubhe.anvilcraft.anvil.BlockPlacerBehavior;
 import dev.dubhe.anvilcraft.anvil.CementStainingBehavior;
@@ -52,5 +53,6 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.is(ModBlocks.IMPACT_PILE), new ImpactPileBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpPlayerBehavior());
+        event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());
     }
 }

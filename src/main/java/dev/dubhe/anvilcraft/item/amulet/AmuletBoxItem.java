@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
-import dev.dubhe.anvilcraft.util.InventoryUtil;
+import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
@@ -12,8 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.FastColor;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
@@ -33,6 +31,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.Optional;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -57,11 +56,10 @@ public class AmuletBoxItem extends Item {
             slot.set(popped);
             playRemoveOneSound(player);
         } else {
-            if (!mutable.tryInsert(other)) {
-                return false;
-            }
+            Optional<ItemStack> remain = mutable.tryInsert(other);
+            if (remain.isEmpty()) return false;
             playInsertSound(player);
-            slot.set(ItemStack.EMPTY);
+            slot.set(remain.get());
         }
         itemStack.set(ModComponents.BOX_CONTENTS, mutable.immutable());
         return true;
@@ -85,10 +83,11 @@ public class AmuletBoxItem extends Item {
             playRemoveOneSound(player);
             broadcastChangesOnContainerMenu(player);
         } else {
-            if (!contents.tryInsert(other)) return false;
+            Optional<ItemStack> remain = contents.tryInsert(other);
+            if (remain.isEmpty()) return false;
             playInsertSound(player);
             broadcastChangesOnContainerMenu(player);
-            slotAccess.set(ItemStack.EMPTY);
+            slotAccess.set(remain.get());
         }
         box.set(ModComponents.BOX_CONTENTS, contents.immutable());
         return true;
@@ -102,12 +101,12 @@ public class AmuletBoxItem extends Item {
             BoxContents contents = box.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
             BoxContents.Mutable mutable = contents.mutable();
             if (!player.isShiftKeyDown()) {
-                List<ItemStack> items = InventoryUtil.getItems(inventory);
-                for (ItemStack stack : items) {
+                for (int i = 0; i < inventory.getContainerSize(); i++) {
+                    ItemStack stack = inventory.getItem(i);
                     if (stack.isEmpty() || !stack.is(ModItemTags.TOTEM)) continue;
-                    if (mutable.tryInsert(stack.copy())) {
-                        inventory.removeItem(stack);
-                    }
+                    Optional<ItemStack> remain = mutable.tryInsert(stack.copy());
+                    if (remain.isEmpty()) continue;
+                    inventory.setItem(i, remain.get());
                 }
                 playInsertSound(player);
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
@@ -145,22 +144,7 @@ public class AmuletBoxItem extends Item {
     @Override
     public int getBarColor(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return lerpColor(contents.usage() / (float) CAPACITY, BAR_COLOR, FULL_BAR_COLOR);
-    }
-
-    private int lerpColor(float ratio, int from, int to) {
-        int r1 = FastColor.ARGB32.red(from);
-        int g1 = FastColor.ARGB32.green(from);
-        int b1 = FastColor.ARGB32.blue(from);
-        int r2 = FastColor.ARGB32.red(to);
-        int g2 = FastColor.ARGB32.green(to);
-        int b2 = FastColor.ARGB32.blue(to);
-        return FastColor.ARGB32.color(
-            255,
-            (int) Mth.lerp(ratio, r1, r2),
-            (int) Mth.lerp(ratio, g1, g2),
-            (int) Mth.lerp(ratio, b1, b2)
-        );
+        return ColorUtil.lerpColor(contents.usage() / (float) CAPACITY, BAR_COLOR, FULL_BAR_COLOR);
     }
 
     @Override

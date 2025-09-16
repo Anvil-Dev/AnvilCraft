@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
-import dev.dubhe.anvilcraft.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
@@ -30,7 +30,6 @@ import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
@@ -38,7 +37,7 @@ public class PlayerEventListener {
      * @param event 玩家右键实体事件
      */
     @SubscribeEvent
-    public static void useEntity(@NotNull PlayerInteractEvent.EntityInteract event) {
+    public static void useEntity(PlayerInteractEvent.EntityInteract event) {
         InteractionHand hand = event.getHand();
         Player player = event.getEntity();
         ItemStack item = player.getItemInHand(hand);
@@ -91,13 +90,11 @@ public class PlayerEventListener {
     @SuppressWarnings("DataFlowIssue")
     @SubscribeEvent
     public static void onPlayerUsingTotem(LivingUseTotemEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player
-            && player.getItemInHand(event.getHandHolding()).is(ModItems.AMULET_BOX.asItem())
-        ) {
-            ItemStack availableItem = player.getItemInHand(event.getHandHolding());
-            BoxContents boxContents = availableItem.get(ModComponents.BOX_CONTENTS);
-            AmuletManager.INSTANCE.startRaffle(player, event.getSource(), !boxContents.totems().isEmpty());
-        }
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        ItemStack inHand = player.getItemInHand(event.getHandHolding());
+        if (!inHand.is(ModItems.AMULET_BOX.asItem())) return;
+        if (inHand.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().isEmpty()) return;
+        AmuletManager.INSTANCE.startRaffle(player, event.getSource());
     }
 
     @SubscribeEvent

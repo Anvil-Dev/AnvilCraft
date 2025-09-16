@@ -16,7 +16,7 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -130,7 +130,7 @@ public abstract class LevelRendererMixin {
         if (ModRenderTargets.getTempTarget() != null) {
             ModRenderTargets.getTempTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
         }
-        ModShaders.getBloomChain().process(RenderHelper.getPartialTick());
+        ModShaders.getBloomChain().process(RenderSupport.getPartialTick());
         RenderSystem.clearColor(
             FogRenderer.fogRed,
             FogRenderer.fogGreen,

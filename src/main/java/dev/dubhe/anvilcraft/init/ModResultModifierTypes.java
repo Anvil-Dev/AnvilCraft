@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.ApplyData;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.CopyData;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
+import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.MergeData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -17,6 +18,9 @@ public class ModResultModifierTypes {
 
     public static final DeferredHolder<IResultModifier.Type<?>, CopyData.Type> COPY_DATA = DF
         .register("copy_data", CopyData.Type::new);
+
+    public static final DeferredHolder<IResultModifier.Type<?>, MergeData.Type> MERGE_DATA = DF
+        .register("merge_data", MergeData.Type::new);
 
     public static void register(IEventBus bus) {
         DF.register(bus);

@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/forged_over_eons",
+  "criteria": {
+    "fire_reforge": {
+      "trigger": "anvilcraft:fire_reforge"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.self_in_flaming.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:ember_metal_pickaxe"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.self_in_flaming.title"
+    }
+  },
+  "requirements": [
+    [
+      "fire_reforge"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

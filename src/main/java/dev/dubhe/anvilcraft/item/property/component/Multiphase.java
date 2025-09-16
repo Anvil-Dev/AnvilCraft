@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.util.CodecUtil;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.CollectionUtil;
+import dev.dubhe.anvilcraft.util.EnchantmentUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -382,6 +383,18 @@ public record Multiphase(LinkedList<Phase> phases) {
             return create(index)
                 .withCustomName(name)
                 .withEnchantments(enchantments == null ? ItemEnchantments.EMPTY : enchantments);
+        }
+
+        public Phase merge(Phase phase) {
+            return new Phase(
+                this.index,
+                this.phaseName,
+                this.customName.or(phase::customName),
+                this.itemName.or(phase::itemName),
+                this.repairCost + phase.repairCost,
+                EnchantmentUtil.merge(this.enchantments, phase.enchantments),
+                EnchantmentUtil.merge(this.storedEnchantments, phase.storedEnchantments)
+            );
         }
 
         public Phase withName(Component phaseName) {

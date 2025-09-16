@@ -1,0 +1,65 @@
+{
+  "name": "巨型铁砧撼地",
+  "category": "anvilcraft:structural_engineering",
+  "icon": "anvilcraft:giant_anvil",
+  "sortnum": 15003,
+  "entry_color": "004400",
+  "pages": [
+    {
+      "type": "text",
+      "text": "通过让$(item)巨型铁砧$()落到不同的多方块结构上，其可以与世界产生交互。落点高度越高，影响范围越大。$(br)要启用巨砧撼地，$(item)巨型铁砧$()的正中心必须砸中$(item)重质铁块$()"
+    },
+    {
+      "type": "spotlight",
+      "item": "anvilcraft:heavy_iron_block",
+      "text": "构建$(thing)巨型铁砧撼地$()多方块结构的必要物品。根据其周围方块的不同，撼地产生的效果也不尽相同。$(br)方便起见，我们将与重质铁块相邻的方块称为$(thing)邻块$()，多方块结构中不与重质铁块相邻的方块称为$(thing)角块$()"
+    },
+    {
+      "type": "multiblock",
+      "multiblock": {
+        "pattern": [
+          ["RCR", "C0C", "RCR"]
+        ],
+        "mapping": {
+          "0": "anvilcraft:heavy_iron_block",
+          "C": "anvilcraft:cursed_gold_block",
+          "R": "anvilcraft:ruby_block"
+        },
+        "symmetrical": true
+      },
+      "text": "$(thing)邻块$()决定撼地的工作模式，$(thing)角块$()决定模式的工作类型。如图所示的撼地为$(thing)伤害模式$()，造成$(thing)火焰伤害$()。"
+    },
+    {
+      "type": "spotlight",
+      "anchor": "default",
+      "item": "minecraft:barrier[minecraft:custom_name='默认模式']",
+      "title": "默认模式",
+      "text": "若$(thing)角块$()和$(thing)邻块$()不符合任意工作模式，$(thing)撼地$()只会造成极少的伤害且没有任何其他效果。穿有任意品质的$(item)靴子$()可以避免此伤害。"
+    },
+    {
+      "type": "spotlight",
+      "anchor": "pop",
+      "item": "anvilcraft:resin_block",
+      "title": "震起模式",
+      "text": "若$(thing)角块$()和$(thing)邻块$()均为$(item)树脂块$()，$(thing)撼地$()为$(thing)震起模式$()。此模式下$(thing)撼地$()可以使周围的任意种类的小型铁砧震起 1 格。"
+    },
+    {
+      "type": "spotlight",
+      "anchor": "damage",
+      "item": "anvilcraft:cursed_gold_block",
+      "title": "伤害模式",
+      "text": "邻块为$(l:smithing_tier_1_materials#cursed_gold_block)诅咒金块$()时，$(thing)撼地$()将以$(thing)伤害模式$()进行工作。$(item)巨型铁砧$()落点高度越高，$(thing)撼地$()造成的伤害越高。$(br)角块决定了$(thing)伤害模式$()的伤害类型，对应关系如下。$(br)$(thing)不符合以下种类$()：摔落伤害且可以穿任意种类的靴子避免$(br)$(item)红宝石块$()：火焰伤害$(br)$(item)蓝宝石块$()：冰冻伤害$(br)$(item)黄玉块$()：雷电伤害$(br)$(item)虚空物质块$()：虚空伤害"
+    },
+    {
+      "type": "spotlight",
+      "anchor": "break",
+      "item": "minecraft:anvil",
+      "title": "破坏模式",
+      "text": "邻块为铁砧时，$(thing)撼地$()将以$(thing)破坏模式$()进行工作。$(br)属于$(l:advanced/anvil_destroy)铁砧挖掘$(/l)，铁砧类型会决定不同的破坏效果。"
+    },
+    {
+      "type": "text",
+      "text": "$(thing)破坏模式$()下的角块决定破坏的方块类型。$(br)$(item)黑曜石$()：破坏任意的$(thing)可破坏方块$()$(br)$(item)草方块$()：破坏任意的$(thing)花、草、菌、灌木、藤蔓、农作物$()与$(thing)雪片$()$(br)$(item)干草块$()：收割包括$(thing)西瓜、南瓜、浆果、可可豆$()与$(thing)下界疣$()在内的$(thing)成熟农作物$()，且会自动补种。可以操作高于工作平面的相连原木上的可可豆。$(br)$(item)原木$()：破坏任意的$(thing)原木、树叶、菌柄、疣块、仙人掌、紫颂植株$()与$(thing)甘蔗$()。可以破坏高于工作平面的相连上述方块。"
+    }
+  ]
+}

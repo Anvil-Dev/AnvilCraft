@@ -1,18 +1,18 @@
 {
   "type": "anvilcraft:mob_transform_with_item",
-  "chancePercentPerItem": 5,
+  "chance_percent_per_item": 5,
   "ingredients": [
     {
       "items": "minecraft:anvil"
     }
   ],
   "input": "minecraft:zombie",
-  "itemResult": {
+  "item_result": {
     "count": 1,
     "id": "anvilcraft:giant_anvil"
   },
-  "specialResult": {
+  "special_result": {
     "probability": 1.0,
-    "resultEntityType": "minecraft:giant"
+    "result_entity_type": "minecraft:giant"
   }
 }

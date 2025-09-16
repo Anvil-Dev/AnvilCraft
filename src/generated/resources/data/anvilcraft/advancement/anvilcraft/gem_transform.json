@@ -1,0 +1,50 @@
+{
+  "parent": "anvilcraft:anvilcraft/rip_van_winkle",
+  "criteria": {
+    "emerald_block": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/emerald_block"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "ruby_block": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/ruby_block"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "sapphire_block": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/sapphire_block"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "topaz_block": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/topaz_block"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.gem_transform.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:ruby"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.gem_transform.title"
+    }
+  },
+  "requirements": [
+    [
+      "emerald_block",
+      "ruby_block",
+      "sapphire_block",
+      "topaz_block"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

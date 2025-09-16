@@ -1,0 +1,63 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "item": "anvilcraft:magnet_ingot"
+    },
+    {
+      "item": "anvilcraft:magnet_ingot"
+    },
+    {
+      "item": "anvilcraft:magnet_ingot"
+    },
+    {
+      "item": "anvilcraft:magnet_ingot"
+    },
+    {
+      "tag": "minecraft:iron_ores"
+    },
+    {
+      "tag": "minecraft:iron_ores"
+    },
+    {
+      "tag": "minecraft:iron_ores"
+    },
+    {
+      "tag": "minecraft:iron_ores"
+    },
+    {
+      "tag": "minecraft:gold_ores"
+    },
+    {
+      "tag": "minecraft:gold_ores"
+    },
+    {
+      "tag": "minecraft:gold_ores"
+    },
+    {
+      "tag": "minecraft:gold_ores"
+    },
+    {
+      "tag": "minecraft:copper_ores"
+    },
+    {
+      "tag": "minecraft:copper_ores"
+    },
+    {
+      "tag": "minecraft:copper_ores"
+    },
+    {
+      "tag": "minecraft:copper_ores"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "twilightforest:ore_magnet"
+  }
+}

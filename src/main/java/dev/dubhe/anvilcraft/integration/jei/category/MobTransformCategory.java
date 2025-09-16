@@ -2,17 +2,15 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.recipe.component.ChanceItemStack;
-import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
-import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.TransformResult;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -94,9 +92,9 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
         IFocusGroup focuses) {
 
         Ingredient inputIngredient;
-        SpawnEggItem spawnEggItemInput = SpawnEggItem.byId(recipe.value().getInput());
+        SpawnEggItem spawnEggItemInput = SpawnEggItem.byId(recipe.value().input());
         if (spawnEggItemInput == null) {
-            String name = recipe.value().getInput().toShortString();
+            String name = recipe.value().input().toShortString();
             ItemStack x = Items.BARRIER.getDefaultInstance();
             x.set(DataComponents.CUSTOM_NAME, Component.literal(name));
             inputIngredient = Ingredient.of(x);
@@ -105,7 +103,7 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
         builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).addIngredients(inputIngredient);
 
         List<ChanceItemStack> outputStacks = new ArrayList<>();
-        for (TransformResult result : recipe.value().getResults()) {
+        for (TransformResult result : recipe.value().results()) {
             SpawnEggItem spawnEggOutput = SpawnEggItem.byId(result.resultEntityType());
             if (spawnEggOutput == null) {
                 String name = result.resultEntityType().toShortString();
@@ -145,22 +143,22 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
             .defaultBlockState()
             .trySetValue(BlockStateProperties.WATERLOGGED, false);
 
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             block,
             81,
             40,
             10,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
 
         arrowDefault.draw(guiGraphics, 74, 22);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, 1);
-        if (isChance(recipe.getResults())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotChoice, recipe.getResults().size());
+        if (isChance(recipe.results())) {
+            JeiSlotUtil.drawOutputSlots(guiGraphics, slotChoice, recipe.results().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResults().size());
+            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.results().size());
         }
 
         PoseStack pose = guiGraphics.pose();

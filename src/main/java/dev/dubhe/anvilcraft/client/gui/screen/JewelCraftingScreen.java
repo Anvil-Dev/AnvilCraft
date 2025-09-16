@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -54,7 +54,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                 if (ingredientItems != null) {
                     int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     ItemStack stack = ingredientItems[index];
-                    RenderHelper.renderItemWithTransparency(stack, poseStack, slot.x, slot.y, 0.52f);
+                    RenderSupport.renderItemWithTransparency(stack, poseStack, slot.x, slot.y, 0.52f);
                     guiGraphics.renderItemDecorations(font, stack.copyWithCount(count), slot.x, slot.y);
                 }
             }

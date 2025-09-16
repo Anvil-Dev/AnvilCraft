@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -151,7 +151,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     default void renderFilterItem(GuiGraphics guiGraphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
-        RenderHelper.renderItemWithTransparency(stack, guiGraphics.pose(), i, j, 0.52f);
+        RenderSupport.renderItemWithTransparency(stack, guiGraphics.pose(), i, j, 0.52f);
         guiGraphics.fill(i, j, i + 16, j + 16, 0x80ffaaaa);
     }
 

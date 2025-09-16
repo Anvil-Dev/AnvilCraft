@@ -21,7 +21,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,17 +38,13 @@ import java.util.concurrent.Future;
 public class SimplePowerGrid {
     private static ExecutorService EXECUTOR;
     public static final Codec<SimplePowerGrid> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.INT.fieldOf("hash").forGetter(o -> o.id),
-            Codec.STRING.fieldOf("level").forGetter(o -> o.level),
-            BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
-            PowerComponentInfo.CODEC
-                .listOf()
-                .fieldOf("powerComponentInfoList")
-                .forGetter(it -> it.powerComponentInfoList),
-            Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
-            Codec.INT.fieldOf("consume").forGetter(o -> o.consume))
-        .apply(ins, SimplePowerGrid::new)
-    );
+        Codec.INT.fieldOf("hash").forGetter(o -> o.id),
+        Codec.STRING.fieldOf("level").forGetter(o -> o.level),
+        BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
+        PowerComponentInfo.CODEC.listOf().fieldOf("powerComponentInfoList").forGetter(it -> it.powerComponentInfoList),
+        Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
+        Codec.INT.fieldOf("consume").forGetter(o -> o.consume)
+    ).apply(ins, SimplePowerGrid::new));
 
     static {
         recreateExecutor();
@@ -72,14 +67,7 @@ public class SimplePowerGrid {
     /**
      * 简单电网
      */
-    public SimplePowerGrid(
-        int id,
-        String level,
-        BlockPos pos,
-        @NotNull List<PowerComponentInfo> powerComponentInfoList,
-        int generate,
-        int consume
-    ) {
+    public SimplePowerGrid(int id, String level, BlockPos pos, List<PowerComponentInfo> powerComponentInfoList, int generate, int consume) {
         this.pos = pos;
         this.level = level;
         this.id = id;
@@ -97,7 +85,7 @@ public class SimplePowerGrid {
     /**
      * @param grid 电网
      */
-    public SimplePowerGrid(@NotNull PowerGrid grid) {
+    public SimplePowerGrid(PowerGrid grid) {
         this.id = grid.hashCode();
         this.level = grid.getLevel().dimension().location().toString();
         this.pos = grid.getPos();
@@ -111,73 +99,63 @@ public class SimplePowerGrid {
             switch (component.getComponentType()) {
                 case STORAGE -> {
                     IPowerStorage it = (IPowerStorage) component;
-                    powerComponentInfoList.add(
-                        new PowerComponentInfo(
-                            it.getPos(),
-                            0,
-                            0,
-                            it.getPowerAmount(),
-                            it.getCapacity(),
-                            it.getRange(),
-                            PowerComponentType.STORAGE
-                        )
-                    );
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                        it.getPos(),
+                        0,
+                        0,
+                        it.getPowerAmount(),
+                        it.getCapacity(),
+                        it.getRange(),
+                        PowerComponentType.STORAGE
+                    ));
                 }
                 case CONSUMER -> {
                     IPowerConsumer it = (IPowerConsumer) component;
-                    powerComponentInfoList.add(
-                        new PowerComponentInfo(
-                            it.getPos(),
-                            it.getInputPower(),
-                            0,
-                            0,
-                            0,
-                            it.getRange(),
-                            PowerComponentType.CONSUMER
-                        )
-                    );
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                        it.getPos(),
+                        it.getInputPower(),
+                        0,
+                        0,
+                        0,
+                        it.getRange(),
+                        PowerComponentType.CONSUMER
+                    ));
                 }
                 case PRODUCER -> {
                     IPowerProducer it = (IPowerProducer) component;
-                    powerComponentInfoList.add(
-                        new PowerComponentInfo(
-                            it.getPos(),
-                            0,
-                            it.getOutputPower(),
-                            0,
-                            0,
-                            it.getRange(),
-                            PowerComponentType.PRODUCER
-                        )
-                    );
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                        it.getPos(),
+                        0,
+                        it.getOutputPower(),
+                        0,
+                        0,
+                        it.getRange(),
+                        PowerComponentType.PRODUCER
+                    ));
                 }
 
                 case TRANSMITTER -> {
                     IPowerTransmitter it = (IPowerTransmitter) component;
-                    powerComponentInfoList.add(
-                        new PowerComponentInfo(
-                            it.getPos(),
-                            0,
-                            0,
-                            0,
-                            0,
-                            it.getRange(),
-                            PowerComponentType.TRANSMITTER
-                        )
-                    );
+                    powerComponentInfoList.add(new PowerComponentInfo(
+                        it.getPos(),
+                        0,
+                        0,
+                        0,
+                        0,
+                        it.getRange(),
+                        PowerComponentType.TRANSMITTER
+                    ));
                 }
 
-                default -> powerComponentInfoList.add(
-                    new PowerComponentInfo(
-                        component.getPos(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        component.getRange(),
-                        PowerComponentType.INVALID
-                    )
-                );
+                default -> powerComponentInfoList.add(new PowerComponentInfo(
+                    component.getPos(),
+                    0,
+                    0,
+                    0,
+                    0,
+                    component.getRange(),
+                    PowerComponentType.INVALID
+                ));
             }
         }
         this.consume = grid.getConsume();
@@ -208,7 +186,7 @@ public class SimplePowerGrid {
     /**
      * @param buf 缓冲区
      */
-    public void encode(@NotNull FriendlyByteBuf buf) {
+    public void encode(FriendlyByteBuf buf) {
         Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
         CompoundTag data = new CompoundTag();
         data.put("data", tag);
@@ -226,9 +204,7 @@ public class SimplePowerGrid {
      * 获得指定坐标的电网元件信息
      */
     public Optional<PowerComponentInfo> getInfoForPos(BlockPos pos) {
-        return powerComponentInfoList.stream()
-            .filter(it -> it.pos().equals(pos))
-            .findFirst();
+        return powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
     }
 
     public boolean isOverloaded() {
@@ -237,16 +213,14 @@ public class SimplePowerGrid {
 
     public boolean shouldRender(Vec3 cameraPos) {
         int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
-        return powerComponentInfoList.stream()
-            .anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
+        return powerComponentInfoList.stream().anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
     }
 
     private void createTransmitterVisualLines() {
         List<Map.Entry<BlockPos, AABB>> shapes = this.powerComponentInfoList.stream()
             .filter(it -> it.type() == PowerComponentType.TRANSMITTER)
             .map(it -> Map.entry(
-                it.pos(),
-                new AABB(
+                it.pos(), new AABB(
                     -it.range() + it.pos().getX(),
                     -it.range() + it.pos().getY(),
                     -it.range() + it.pos().getZ(),
@@ -254,7 +228,8 @@ public class SimplePowerGrid {
                     it.range() + 1 + it.pos().getY(),
                     it.range() + 1 + it.pos().getZ()
                 )
-            )).toList();
+            ))
+            .toList();
 
         for (int i = 0; i < shapes.size(); i++) {
             Map.Entry<BlockPos, AABB> e1 = shapes.get(i);
@@ -265,7 +240,7 @@ public class SimplePowerGrid {
                 if (a.intersects(b)) {
                     Vec3 start = e1.getKey().getCenter();
                     Vec3 end = e2.getKey().getCenter();
-                    powerTransmitterLines.add(new Line(start, end, (float) start.distanceTo(end)));
+                    powerTransmitterLines.add(new Line(start, end));
                 }
             }
         }
@@ -288,7 +263,7 @@ public class SimplePowerGrid {
                 shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
                     Vec3 min = new Vec3(minX, minY, minZ);
                     Vec3 max = new Vec3(maxX, maxY, maxZ);
-                    lines.add(new Line(min, max, (float) min.distanceTo(max)));
+                    lines.add(new Line(min, max));
                 });
                 this.powerGridBoundLines = lines;
             } catch (Throwable e) {
@@ -299,7 +274,7 @@ public class SimplePowerGrid {
         });
     }
 
-    private @NotNull BlockPos offset(@NotNull BlockPos pos) {
+    private BlockPos offset(BlockPos pos) {
         return pos.subtract(this.pos);
     }
 

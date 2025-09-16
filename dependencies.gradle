@@ -62,4 +62,7 @@ dependencies {
 
     // Apple Skin
     implementation(libs.appleskin)
+
+    // Twilight Forest
+    implementation "team-twilight:twilightforest:${libs.versions.twilightForest.get()}:universal"
 }

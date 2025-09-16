@@ -1,0 +1,35 @@
+{
+  "parent": "anvilcraft:anvilcraft/heat_utilizing",
+  "criteria": {
+    "nuclear_sources": {
+      "conditions": {
+        "collecting": {
+          "blocks": [
+            "anvilcraft:uranium_block",
+            "anvilcraft:plutonium_block"
+          ]
+        }
+      },
+      "trigger": "anvilcraft:heat_collector_collect"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.isotope_decay_battery.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:uranium_block"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.isotope_decay_battery.title"
+    }
+  },
+  "requirements": [
+    [
+      "nuclear_sources"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

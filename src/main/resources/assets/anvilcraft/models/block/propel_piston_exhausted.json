@@ -1,0 +1,11 @@
+{
+	"parent": "anvilcraft:block/propel_piston",
+	"ambientocclusion": false,
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"particle": "anvilcraft:block/propel_piston_side",
+		"side": "anvilcraft:block/propel_piston_side",
+		"top": "anvilcraft:block/propel_piston_top",
+		"bottom": "anvilcraft:block/propel_piston_bottom_exhausted"
+	}
+}

@@ -11,7 +11,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -53,10 +52,7 @@ public class TransformRecipeBuilder {
         return this;
     }
 
-    /**
-     *
-     */
-    public TransformRecipeBuilder predicate(@NotNull Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
+    public TransformRecipeBuilder predicate(Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
         NumericTagValuePredicate.Builder builder = NumericTagValuePredicate.builder();
         predicateBuilder.accept(builder);
         predicates.add(builder.build());
@@ -66,7 +62,7 @@ public class TransformRecipeBuilder {
     /**
      * 修改生物nbt
      */
-    public TransformRecipeBuilder tagModification(@NotNull Consumer<TagModification.Builder> predicateBuilder) {
+    public TransformRecipeBuilder tagModification(Consumer<TagModification.Builder> predicateBuilder) {
         TagModification.Builder builder = TagModification.builder();
         predicateBuilder.accept(builder);
         tagModifications.add(builder.build());

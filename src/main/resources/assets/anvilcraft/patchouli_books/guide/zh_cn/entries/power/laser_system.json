@@ -74,6 +74,23 @@
       "type": "patchouli:text",
       "title": "加热方块",
       "text": "激光可以加热$(l:advanced/heated_block)可加热方块$()，方块被激光照射时，根据$(thing)激光等级$()决定$(thing)温度等级$()，详情请看$(l:advanced/heated_block#laser)激光加热$()。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "laser_receiver",
+      "recipe": "anvilcraft:laser_receiver",
+      "text": "除底面外，接受到$(thing)激光$()10s后达到发电上限——激光等级*15kW，同时根据激光等级发出红石信号。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "propel_piston",
+      "recipe": "anvilcraft:propel_piston",
+      "text": "背部接收到激光时可以充能，充能功率计算与$(item)接收器$()最大发电量一致。可以使用电容手动充能。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "工作方式",
+      "text": "$(li)收到一次红石信号或被玩家右键一次后，开始持续向前移动并推动方块。 $(li)工作$(thing)耗电量$()受被推动的方块数量影响。 $(li)手动停机、能量耗尽或遇到推不动的方块时停止工作。"
     }
   ]
 }

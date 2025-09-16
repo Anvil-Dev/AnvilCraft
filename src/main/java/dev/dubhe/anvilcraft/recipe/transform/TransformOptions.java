@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.recipe.transform;
 
 import com.mojang.serialization.Codec;
+import dev.anvilcraft.lib.util.CodecUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +15,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.NotNull;
 
 
 public enum TransformOptions implements StringRepresentable {
@@ -65,6 +67,7 @@ public enum TransformOptions implements StringRepresentable {
     };
 
     public static final Codec<TransformOptions> CODEC = StringRepresentable.fromEnum(TransformOptions::values);
+    public static final StreamCodec<RegistryFriendlyByteBuf, TransformOptions> STREAM_CODEC = CodecUtil.enumStreamCodec(TransformOptions.class);
     private final String name;
 
     @Getter
@@ -76,7 +79,7 @@ public enum TransformOptions implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return name;
     }
 

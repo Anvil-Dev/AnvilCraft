@@ -51,7 +51,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
     }
 
     @Override
-    public DataComponentType<? super Multiphase> getDataComponentType() {
+    public DataComponentType<Multiphase> getDataComponentType() {
         return ModComponents.MULTIPHASE;
     }
 
@@ -63,6 +63,27 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
     @Override
     public Object2BooleanMap<Pair<Integer, DataComponentType<?>>> getRequiredOthers() {
         return this.required;
+    }
+
+    @Override
+    public Multiphase merge(Multiphase oldData, Multiphase newData) {
+        LinkedList<Multiphase.Phase> oldPhases = oldData.phases();
+        LinkedList<Multiphase.Phase> newPhases = newData.phases();
+        if (oldPhases.isEmpty()) return newData;
+        LinkedList<Multiphase.Phase> result = new LinkedList<>();
+        int oldFirst = oldPhases.peekFirst().index();
+        int newIndex = -1;
+        for (Multiphase.Phase phase : newPhases) {
+            if (phase.index() == oldFirst) {
+                newIndex = phase.index();
+                break;
+            }
+        }
+        if (newIndex == -1) return oldData;
+        for (int i = 0, phasesSize = oldPhases.size(); i < phasesSize; i++) {
+            result.add(oldPhases.get(i).merge(newPhases.get(i)));
+        }
+        return new Multiphase(result);
     }
 
     @Override

@@ -1,65 +1,22 @@
 package dev.dubhe.anvilcraft.data.advancement;
 
 import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
-import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.loot.ModLootTables;
-import net.minecraft.advancements.Advancement;
+import dev.dubhe.anvilcraft.init.ModAdvancements;
+import dev.dubhe.anvilcraft.util.Util;
+import lombok.SneakyThrows;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.AdvancementType;
-import net.minecraft.advancements.critereon.PlayerTrigger;
-import net.minecraft.network.chat.Component;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.advancementOf;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class AnvilCraftAdvancement {
-    public static final AdvancementHolder root = Advancement.Builder.advancement()
-        .display(
-            ModBlocks.ROYAL_ANVIL.asItem(),
-            Component.translatable("advancements.anvilcraft.root.title"),
-            Component.translatable("advancements.anvilcraft.root.description"),
-            AnvilCraft.of("textures/gui/advancements/background.png"),
-            AdvancementType.TASK, false,
-            true, false)
-        .addCriterion("join", PlayerTrigger.TriggerInstance.tick())
-        .rewards(AdvancementRewards.Builder.loot(ModLootTables.ADVANCEMENT_ROOT))
-        .build(advancementOf("root"));
-
+    @SneakyThrows
     public static void init(RegistrateAdvancementProvider provider) {
-        provider.accept(root);
-        provider.accept(CrabClawLine.crbClaw);
-        provider.accept(CrabClawLine.placer);
-        provider.accept(CrabClawLine.devourer);
-        provider.accept(GeodeLine.geode);
-        provider.accept(GeodeLine.amethystPickaxe);
-        provider.accept(GeodeLine.topaz);
-        provider.accept(GeodeLine.liftingAnvil);
-        provider.accept(AutomationLine.redstoneMilker);
-        provider.accept(AutomationLine.realLooting);
-        provider.accept(AutomationLine.ironMeterReversal);
-        provider.accept(AnvilProcessingLine.dang);
-        provider.accept(AnvilProcessingLine.stoneCrusher);
-        provider.accept(AnvilProcessingLine.fossick);
-        provider.accept(AnvilProcessingLine.iceMaker);
-        provider.accept(AnvilProcessingLine.four281);
-        provider.accept(AnvilProcessingLine.vanillaIronPlate);
-        provider.accept(AnvilProcessingLine.recyclingDiamonds);
-        provider.accept(AnvilProcessingLine.allInOne);
-        provider.accept(AnvilProcessingLine.heartsOfIron);
-        provider.accept(AnvilProcessingLine.notABeacon);
-        provider.accept(AnvilProcessingLine.lighter);
-        provider.accept(AnvilProcessingLine.networking);
-        provider.accept(AnvilProcessingLine.electricFiledRhythm);
-        provider.accept(AnvilProcessingLine.industrialGradeSmelting);
-        provider.accept(AnvilProcessingLine.nobleMetal);
-        provider.accept(AnvilProcessingLine.smithingTale);
-        provider.accept(AnvilProcessingLine.overseer);
-        provider.accept(AnvilProcessingLine.durableGoods);
-        provider.accept(AnvilProcessingLine.royalBlacksmith);
-        provider.accept(AnvilProcessingLine.wither);
-        provider.accept(AnvilProcessingLine.ripVanWinkle);
-        provider.accept(AnvilProcessingLine.hammer);
-        provider.accept(AnvilProcessingLine.superKill);
+        for (Field field : ModAdvancements.class.getDeclaredFields()) {
+            int modifiers = field.getModifiers();
+            if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
+                provider.accept(Util.cast(field.get(null)));
+            }
+        }
     }
 }

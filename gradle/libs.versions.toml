@@ -24,6 +24,7 @@ flywheel = "1.0.4-30"
 ae2 = "19.2.10"
 cerbonsApi = "5wbxkBQ1"
 cerbonsBetterBeacons = "acPk7j8a"
+twilightForest = "4.7.3196"
 
 [libraries]
 neoForge = { group = "net.neoforged", name = "neoforge", version.ref = "neoForge" }
@@ -50,6 +51,7 @@ flywheel = { group = "dev.engine-room.flywheel", name = "flywheel-neoforge-1.21.
 ae2 = { group = "org.appliedenergistics", name = "appliedenergistics2", version.ref = "ae2" }
 cerbonsApi = { group = "maven.modrinth", name = "cerbons-api", version.ref = "cerbonsApi" }
 cerbonsBetterBeacons = { group = "maven.modrinth", name = "cerbons-better-beacons", version.ref = "cerbonsBetterBeacons" }
+twilightForest = { group = "team-twilight", name = "twilightforest", version.ref = "twilightForest"}
 
 [plugins]
 modDevGradle = { id = "net.neoforged.moddev", version.ref = "modDevGradle" }

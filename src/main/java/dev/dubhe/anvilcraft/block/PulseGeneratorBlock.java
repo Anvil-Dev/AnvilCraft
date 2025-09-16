@@ -193,7 +193,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     protected void startOutputting(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         generator.setState(PulseGeneratorBlockEntity.State.OUTPUTTING);
         if (generator.getSignalDuration() != 0) {
-            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.LOW);
+            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.VERY_LOW);
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         } else {
             this.updateBlockAndNeighbours(level, pos, generator::getBlockState, generator);

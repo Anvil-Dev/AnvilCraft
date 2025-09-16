@@ -4,17 +4,17 @@
   "results": [
     {
       "probability": 1.0,
-      "resultEntityType": "minecraft:warden"
+      "result_entity_type": "minecraft:warden"
     }
   ],
-  "tagModifications": [
+  "tag_modifications": [
     {
       "op": "SET",
       "path": "Brain.memories",
-      "tag": "{\n    \"minecraft:dig_cooldown\": {\n        ttl: 1200L,\n        value: {}\n    }\n}"
+      "tag": "{\"minecraft:dig_cooldown\": {ttl: 1200L, value: {}}}"
     }
   ],
-  "tagPredicates": [
+  "tag_predicates": [
     {
       "expected": 0,
       "requirement": "EQUAL",

@@ -18,7 +18,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.TextureConstants;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -261,7 +261,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         conversion.draw(guiGraphics, 4300, 1700);
         pose.popPose();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.GIANT_ANVIL.getDefaultState()
                 .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
@@ -270,7 +270,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             44.8f + anvilYOffset,
             20,
             5,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
         pose.pushPose();
         pose.scale(0.8f, 0.8f, 0.8f);

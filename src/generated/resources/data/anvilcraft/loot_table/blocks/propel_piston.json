@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "anvilcraft:propel_piston"
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:copy_components",
+          "include": [
+            "anvilcraft:stored_energy"
+          ],
+          "source": "block_entity"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:blocks/propel_piston"
+}

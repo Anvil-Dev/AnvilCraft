@@ -1,0 +1,55 @@
+{
+  "type": "anvillib:in_world_recipe",
+  "compatible": true,
+  "conflicting": [
+    {
+      "type": "anvillib:has_item_ingredient",
+      "item": {
+        "items": "anvilcraft:ember_metal_upgrade_smithing_template"
+      },
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "range": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "icon": {
+    "count": 1,
+    "id": "minecraft:anvil"
+  },
+  "non_conflicting": [
+    {
+      "type": "anvillib:has_block",
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "predicate": {
+        "blocks": [
+          "minecraft:water",
+          "minecraft:water_cauldron"
+        ]
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "type": "anvillib:spawn_item",
+      "item": "minecraft:netherite_upgrade_smithing_template",
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "priority": 4,
+  "trigger": "anvillib:item_into_block"
+}

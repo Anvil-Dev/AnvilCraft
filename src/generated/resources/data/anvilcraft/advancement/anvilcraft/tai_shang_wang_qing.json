@@ -1,0 +1,50 @@
+{
+  "parent": "anvilcraft:anvilcraft/frost_metal",
+  "criteria": {
+    "hurt": {
+      "conditions": {
+        "damage": {
+          "type": {
+            "source_entity": {
+              "slots": {
+                "weapon": {
+                  "items": [
+                    "anvilcraft:frost_metal_sword",
+                    "anvilcraft:frost_metal_axe",
+                    "anvilcraft:frost_metal_pickaxe",
+                    "anvilcraft:frost_metal_shovel",
+                    "anvilcraft:frost_metal_hoe",
+                    "anvilcraft:frost_metal_heavy_halberd"
+                  ]
+                }
+              }
+            }
+          },
+          "taken": {
+            "min": 49.0
+          }
+        }
+      },
+      "trigger": "minecraft:player_hurt_entity"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.tai_shang_wang_qing.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:frost_metal_sword"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.tai_shang_wang_qing.title"
+    }
+  },
+  "requirements": [
+    [
+      "hurt"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

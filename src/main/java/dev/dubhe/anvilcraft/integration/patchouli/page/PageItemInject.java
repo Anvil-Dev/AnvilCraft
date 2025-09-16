@@ -4,7 +4,7 @@ import dev.anvilcraft.lib.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.patchouli.util.PatchouliRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
@@ -35,20 +35,20 @@ public class PageItemInject extends PageDoubleRecipeRegistry<ItemInjectRecipe> {
 
         List<BlockState> states = recipe.getFirstInputBlock().constructStatesForRender();
         if (!states.isEmpty()) {
-            RenderHelper.renderBlock(
+            RenderSupport.renderBlock(
                 graphics, states.get((parent.ticksInBook / 20) % states.size()),
                 recipeX + 50, recipeY + 31, 0,
                 12,
-                RenderHelper.SINGLE_BLOCK);
+                RenderSupport.SINGLE_BLOCK);
         }
 
         PatchouliRenderHelper.renderArray(graphics, recipeX + 66, recipeY + 20);
 
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             graphics, recipe.getFirstResultBlock().state(),
             recipeX + 90, recipeY + 31, 0,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
 
         parent.drawCenteredStringNoShadow(
             graphics, getTitle(second).getVisualOrderText(),

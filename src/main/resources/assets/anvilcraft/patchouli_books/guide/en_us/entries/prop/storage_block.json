@@ -9,7 +9,7 @@
       "type": "patchouli:crafting",
       "anchor": "flint_block",
       "recipe": "anvilcraft:flint_block",
-      "text": "$(li)木镐可挖掘 $(li)可被切石为建筑方块 $(li)若$(item)铁块$()或$(item)燧石块$()因活塞推动而与另一种方块摩擦。则在推之后以自身为中心的3x3x3范围内，点燃油锅和营火(此项优先)，或燃起火焰。"
+      "text": "$(li)木镐可挖掘 $(li)可被切石为建筑方块 $(li)若$(item)铁块$()被活塞推动前/后与$(item)燧石块$()相邻(反之亦然)，则在推动后以自身为中心点燃3*3*3范围内的油锅和营火；若二者不存在则会燃起火焰。"
     },
     {
       "type": "patchouli:crafting",
@@ -27,7 +27,7 @@
       "type": "patchouli:crafting",
       "anchor": "rotten_flesh_block",
       "recipe": "anvilcraft:rotten_flesh_block",
-      "text": "$(li)$(thing)徒手$()/$(thing)锄头$()可挖掘 $(li)像干草捆一样可以降低摔落伤害，但接触者获得30秒反胃buff $(li)可被冶炼为$(item)下界岩$()"
+      "text": "$(li)$(thing)徒手$()或$(thing)锄头$()可挖掘 $(li)像干草捆一样可以降低摔落伤害，但接触者获得30秒反胃buff $(li)可被冶炼为$(item)下界岩$()"
     }
   ]
 }

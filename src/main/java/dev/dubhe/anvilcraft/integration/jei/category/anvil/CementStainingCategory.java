@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -109,28 +109,28 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         double mouseY) {
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(anvilTimer);
         Color color = Color.getColorByIndex(colorTimer.getValue());
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK);
-        RenderHelper.renderBlock(
+            RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.CEMENT_CAULDRONS.get(color).getDefaultState(),
             81,
             40,
             10,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.ingredients().size());
 
-        RenderHelper.renderBlock(guiGraphics, recipe.resultBlock().defaultBlockState(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, recipe.resultBlock().defaultBlockState(), 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
     }
 
     @Override

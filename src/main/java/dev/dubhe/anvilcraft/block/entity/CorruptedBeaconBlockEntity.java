@@ -207,7 +207,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     }
 
     private static void tryTransformEntity(LivingEntity livingEntity, ServerLevel level, RecipeManager manager) {
-        MobTransformInput input = MobTransformInput.of(livingEntity);
+        MobTransformInput input = new  MobTransformInput(livingEntity);
         Optional<RecipeHolder<MobTransformRecipe>> optionalRecipeHolder = manager.getRecipeFor(
             ModRecipeTypes.MOB_TRANSFORM_TYPE.get(), input, level);
         MobTransformWithItemRecipe.Input input2 = MobTransformWithItemRecipe.Input.of(livingEntity);

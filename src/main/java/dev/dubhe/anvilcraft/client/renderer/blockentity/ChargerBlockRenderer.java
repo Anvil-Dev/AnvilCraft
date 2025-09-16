@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
-import dev.dubhe.anvilcraft.util.RenderModelUtil;
+import dev.dubhe.anvilcraft.client.support.RenderModelSupport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -42,7 +42,7 @@ public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntit
         if (stack.isEmpty()) return;
         BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, be.getLevel(), null, getSeed(be));
 
-        AABB aabb = RenderModelUtil.getSize(model);
+        AABB aabb = RenderModelSupport.getSize(model);
 
         double modelDepth = aabb.getZsize();
 

@@ -1,0 +1,32 @@
+{
+  "parent": "anvilcraft:anvilcraft/heat_utilizing",
+  "criteria": {
+    "super_heat": {
+      "conditions": {
+        "output": {
+          "min": 4096
+        }
+      },
+      "trigger": "anvilcraft:heat_collector_collect"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.super_heat.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:heat_collector"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.super_heat.title"
+    }
+  },
+  "requirements": [
+    [
+      "super_heat"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,44 @@
+{
+  "parent": "anvilcraft:anvilcraft/anvil_accelerator",
+  "criteria": {
+    "multiphase_matter": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/ember_anvil_and_frost_metal_block_32"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "negative_matter": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_1_and_levitation_powder_block_32"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "uranium": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_1_and_redstone_block_32"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.new_matter.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:multiphase_matter"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.new_matter.title"
+    }
+  },
+  "requirements": [
+    [
+      "uranium",
+      "multiphase_matter",
+      "negative_matter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

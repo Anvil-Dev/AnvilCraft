@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.ToIntFunction;
 
 @SuppressWarnings("unused")
@@ -85,19 +86,20 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             this.selection = contents.selection;
         }
 
-        public boolean tryInsert(ItemStack itemStack) {
+        public Optional<ItemStack> tryInsert(ItemStack itemStack) {
+            if (itemStack.isEmpty()) return Optional.of(ItemStack.EMPTY);
             if (itemStack.getItem() instanceof AmuletItem item) {
-                if (this.usage + item.getWeight() > AmuletBoxItem.CAPACITY) return false;
+                if (this.usage + item.getWeight() > AmuletBoxItem.CAPACITY) return Optional.empty();
                 this.usage += item.getWeight();
-                this.amulets.add(itemStack.copy());
-                return true;
+                this.amulets.add(itemStack.split(1));
+                return Optional.of(itemStack);
             } else if (itemStack.is(ModItemTags.TOTEM)) {
-                if (this.usage + 1 > AmuletBoxItem.CAPACITY) return false;
+                if (this.usage + 1 > AmuletBoxItem.CAPACITY) return Optional.empty();
                 this.usage++;
-                this.totems.add(itemStack.copy());
-                return true;
+                this.totems.add(itemStack.split(1));
+                return Optional.of(itemStack);
             }
-            return false;
+            return Optional.empty();
         }
 
         public ItemStack pop() {

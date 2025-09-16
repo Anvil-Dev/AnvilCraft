@@ -1,12 +1,16 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+import twilightforest.TwilightForestMod;
+import twilightforest.init.TFBlocks;
 
 public class ItemInjectRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -106,5 +110,13 @@ public class ItemInjectRecipeLoader {
             .result(ModItems.NEUTRONIUM_INGOT.asStack(), 0.5f)
             .resultBlock(ModBlocks.TRANSCENDIUM_BLOCK.get())
             .save(provider);
+
+        // Twilight Forest Integration
+        ItemInjectRecipe.builder()
+            .requires(ModItems.EMBER_METAL_INGOT)
+            .inputBlock(Blocks.IRON_BLOCK)
+            .resultBlock(TFBlocks.FIERY_BLOCK)
+            .save(provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
+                AnvilCraft.of("item_inject/twilight_forest_fiery_block"));
     }
 }

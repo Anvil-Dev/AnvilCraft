@@ -4,15 +4,15 @@
   "results": [
     {
       "probability": 0.3,
-      "resultEntityType": "minecraft:pillager"
+      "result_entity_type": "minecraft:pillager"
     },
     {
       "probability": 0.6,
-      "resultEntityType": "minecraft:vindicator"
+      "result_entity_type": "minecraft:vindicator"
     },
     {
       "probability": 0.1,
-      "resultEntityType": "minecraft:evoker"
+      "result_entity_type": "minecraft:evoker"
     }
   ]
 }

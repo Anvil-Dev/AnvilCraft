@@ -1,0 +1,33 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "item": "anvilcraft:ember_metal_ingot"
+    },
+    {
+      "item": "anvilcraft:ember_metal_ingot"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "item": "twilightforest:fiery_ingot"
+    },
+    {
+      "item": "twilightforest:fiery_ingot"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "twilightforest:lamp_of_cinders"
+  }
+}

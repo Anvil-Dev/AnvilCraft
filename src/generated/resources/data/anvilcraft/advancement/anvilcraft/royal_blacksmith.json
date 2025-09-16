@@ -1,7 +1,7 @@
 {
   "parent": "anvilcraft:anvilcraft/smithing_table",
   "criteria": {
-    "royal_anvil": {
+    "has_royal_anvil": {
       "conditions": {
         "items": [
           {
@@ -11,7 +11,7 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "royal_grindstone": {
+    "has_royal_grindstone": {
       "conditions": {
         "items": [
           {
@@ -21,7 +21,7 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "royal_smithing_table": {
+    "has_royal_smithing_table": {
       "conditions": {
         "items": [
           {
@@ -46,13 +46,13 @@
   },
   "requirements": [
     [
-      "royal_anvil"
+      "has_royal_anvil"
     ],
     [
-      "royal_smithing_table"
+      "has_royal_smithing_table"
     ],
     [
-      "royal_grindstone"
+      "has_royal_grindstone"
     ]
   ],
   "sends_telemetry_event": true

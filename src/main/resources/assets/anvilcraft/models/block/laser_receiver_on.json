@@ -1,0 +1,12 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/laser_receiver",
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "anvilcraft:block/laser_receiver_on",
+		"side": "anvilcraft:block/laser_receiver_on",
+		"top": "anvilcraft:block/laser_receiver_top",
+		"bottom": "anvilcraft:block/laser_receiver_bottom_on"
+	}
+}

@@ -4,14 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.recipe.component.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.anvilcraft.lib.util.CodecUtil;
-import dev.dubhe.anvilcraft.util.Util;
-import lombok.Getter;
+import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.util.ListUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.commands.data.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
@@ -37,113 +37,60 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-@Getter
-public class MobTransformWithItemRecipe implements Recipe<MobTransformWithItemRecipe.Input> {
-    public static final Codec<MobTransformWithItemRecipe> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            CodecUtil.ENTITY_CODEC
-                .fieldOf("input")
-                .forGetter(MobTransformWithItemRecipe::getInput),
-            ItemIngredientPredicate.CODEC
-                .listOf()
-                .optionalFieldOf("ingredients", List.of())
-                .forGetter(MobTransformWithItemRecipe::getItemIngredients),
-            TransformResult.CODEC.fieldOf("specialResult")
-                .forGetter(MobTransformWithItemRecipe::getSpecialResult),
-            ItemStack.CODEC.fieldOf("itemResult")
-                .forGetter(MobTransformWithItemRecipe::getItemResult),
-            Codec.INT.fieldOf("chancePercentPerItem")
-                .forGetter(MobTransformWithItemRecipe::getChancePercentPerItem),
-            NumericTagValuePredicate.CODEC
-                .listOf()
-                .optionalFieldOf("tagPredicates")
-                .forGetter(o -> Util.intoOptional(o.getPredicates())),
-            TagModification.CODEC
-                .listOf()
-                .optionalFieldOf("tagModifications")
-                .forGetter(o -> Util.intoOptional(o.getTagModifications())),
-            TransformOptions.CODEC
-                .listOf()
-                .optionalFieldOf("transformOptions")
-                .forGetter(o -> Util.intoOptional(o.getOptions()))
-        )
-        .apply(ins, MobTransformWithItemRecipe::new));
+public record MobTransformWithItemRecipe(
+    EntityType<?> input,
+    List<ItemIngredientPredicate> itemIngredients,
+    TransformResult specialResult,
+    ItemStack itemResult,
+    int chancePercentPerItem,
+    List<NumericTagValuePredicate> predicates,
+    List<TagModification> tagModifications,
+    List<TransformOptions> options
+) implements Recipe<MobTransformWithItemRecipe.Input> {
+    public static final Codec<MobTransformWithItemRecipe> CODEC = Serializer.MAP_CODEC.codec();
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformWithItemRecipe> STREAM_CODEC = CodecUtil.codec2Stream(
-        MobTransformWithItemRecipe.CODEC
+    public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformWithItemRecipe> STREAM_CODEC = CodecUtil.composite(
+        CodecUtil.ENTITY_STREAM_CODEC,
+        MobTransformWithItemRecipe::input,
+        ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        MobTransformWithItemRecipe::itemIngredients,
+        TransformResult.STREAM_CODEC,
+        MobTransformWithItemRecipe::specialResult,
+        ItemStack.STREAM_CODEC,
+        MobTransformWithItemRecipe::itemResult,
+        ByteBufCodecs.INT,
+        MobTransformWithItemRecipe::chancePercentPerItem,
+        NumericTagValuePredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        MobTransformWithItemRecipe::predicates,
+        TagModification.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        MobTransformWithItemRecipe::tagModifications,
+        TransformOptions.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        MobTransformWithItemRecipe::options,
+        MobTransformWithItemRecipe::new
     );
-
-    public final EntityType<?> input;
-    public final List<ItemIngredientPredicate> itemIngredients;
-    public final TransformResult specialResult;
-    public final ItemStack itemResult;
-    public final int chancePercentPerItem;
-    private final List<NumericTagValuePredicate> predicates;
-    private final List<TagModification> tagModifications;
-    private final List<TransformOptions> options;
-
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public MobTransformWithItemRecipe(
-        EntityType<?> input,
-        List<ItemIngredientPredicate> itemIngredients,
-        TransformResult specialResult,
-        ItemStack itemResult,
-        int chancePercentPerItem,
-        Optional<List<NumericTagValuePredicate>> tagPredicates,
-        Optional<List<TagModification>> tagModifications,
-        Optional<List<TransformOptions>> options
-    ) {
-        this(
-            input,
-            itemIngredients,
-            specialResult,
-            itemResult,
-            chancePercentPerItem,
-            tagPredicates.orElseGet(List::of),
-            tagModifications.orElseGet(List::of),
-            options.orElseGet(List::of)
-        );
-    }
-
-    public MobTransformWithItemRecipe(
-        EntityType<?> input,
-        List<ItemIngredientPredicate> itemIngredients,
-        TransformResult specialResult,
-        ItemStack itemResult,
-        int chancePercentPerItem,
-        List<NumericTagValuePredicate> predicates,
-        List<TagModification> tagModifications,
-        List<TransformOptions> options
-    ) {
-        this.input = input;
-        this.itemIngredients = itemIngredients;
-        this.specialResult = specialResult;
-        this.itemResult = itemResult;
-        this.chancePercentPerItem = chancePercentPerItem;
-        this.predicates = predicates;
-        this.tagModifications = tagModifications;
-        this.options = options;
-    }
 
     @Override
     public boolean matches(Input in, Level level) {
-        boolean typeMatches = in.getInputEntity().getType() == this.getInput();
+        boolean typeMatches = in.getInputEntity().getType() == this.input();
         if (!typeMatches) return false;
         if (!testItem(in.getItem(0))) return false;
-        return this.getPredicates()
+        return this.predicates()
             .stream()
             .allMatch(it -> it.test(new EntityDataAccessor(in.getInputEntity()).getData()));
     }
 
     public boolean testEntity(LivingEntity livingEntity) {
-        return livingEntity.getType() == this.getInput();
+        return livingEntity.getType() == this.input();
     }
 
     public boolean testItem(ItemStack item) {
         // TODO: 迁移
-        return this.getItemIngredients().getFirst().test(item);
+        AtomicBoolean result = new AtomicBoolean(false);
+        ListUtil.safelyGet(this.itemIngredients(), 0).ifPresent(ingredient -> result.set(ingredient.test(item)));
+        return result.get();
     }
 
     @Override
@@ -176,12 +123,12 @@ public class MobTransformWithItemRecipe implements Recipe<MobTransformWithItemRe
         boolean hasTransformItem = this.testItem(livingEntity.getMainHandItem());
         float probability = 0;
         if (hasTransformItem) {
-            probability = this.getChancePercentPerItem() * 0.01f * livingEntity.getMainHandItem().getCount();
+            probability = this.chancePercentPerItem() * 0.01f * livingEntity.getMainHandItem().getCount();
             probability = Math.min(probability, 1f);
         }
         float r = rand.nextFloat();
         if (hasTransformItem && r <= probability) {
-            return this.getSpecialResult().resultEntityType();
+            return this.specialResult().resultEntityType();
         } else {
             return null;
         }
@@ -215,8 +162,7 @@ public class MobTransformWithItemRecipe implements Recipe<MobTransformWithItemRe
                 null
             );
         }
-        for (
-            TransformOptions option : this.getOptions()
+        for (TransformOptions option : this.options()
             .stream()
             .sorted(Comparator.comparingInt(TransformOptions::getPriority).reversed())
             .toList()
@@ -231,7 +177,7 @@ public class MobTransformWithItemRecipe implements Recipe<MobTransformWithItemRe
         }
         this.setTransformedItem(livingEntity, newEntity);
         CompoundTag compoundTag = newEntity.saveWithoutId(new CompoundTag());
-        for (TagModification tagModification : this.getTagModifications()) {
+        for (TagModification tagModification : this.tagModifications()) {
             tagModification.accept(compoundTag);
         }
         UUID uuid = newEntity.getUUID();
@@ -295,37 +241,21 @@ public class MobTransformWithItemRecipe implements Recipe<MobTransformWithItemRe
     }
 
     public static final class Serializer implements RecipeSerializer<MobTransformWithItemRecipe> {
-        public static final MapCodec<MobTransformWithItemRecipe> MAP_CODEC =
-            RecordCodecBuilder.mapCodec(ins -> ins.group(
-                CodecUtil.ENTITY_CODEC
-                    .fieldOf("input")
-                    .forGetter(MobTransformWithItemRecipe::getInput),
-                ItemIngredientPredicate.CODEC
-                    .listOf()
-                    .optionalFieldOf("ingredients", List.of())
-                    .forGetter(MobTransformWithItemRecipe::getItemIngredients),
-                TransformResult.CODEC
-                    .fieldOf("specialResult")
-                    .forGetter(MobTransformWithItemRecipe::getSpecialResult),
-                ItemStack.CODEC
-                    .fieldOf("itemResult")
-                    .forGetter(MobTransformWithItemRecipe::getItemResult),
-                Codec.INT
-                    .fieldOf("chancePercentPerItem")
-                    .forGetter(MobTransformWithItemRecipe::getChancePercentPerItem),
-                NumericTagValuePredicate.CODEC
-                    .listOf()
-                    .optionalFieldOf("tagPredicates")
-                    .forGetter(o -> Util.intoOptional(o.predicates)),
-                TagModification.CODEC
-                    .listOf()
-                    .optionalFieldOf("tagModifications")
-                    .forGetter(o -> Util.intoOptional(o.tagModifications)),
-                TransformOptions.CODEC
-                    .listOf()
-                    .optionalFieldOf("transformOptions")
-                    .forGetter(o -> Util.intoOptional(o.options))
-            ).apply(ins, MobTransformWithItemRecipe::new));
+        public static final MapCodec<MobTransformWithItemRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+            CodecUtil.ENTITY_CODEC.fieldOf("input").forGetter(MobTransformWithItemRecipe::input),
+            ItemIngredientPredicate.CODEC.listOf()
+                    .optionalFieldOf("ingredients", List.of()).forGetter(MobTransformWithItemRecipe::itemIngredients),
+            TransformResult.CODEC.fieldOf("special_result").forGetter(MobTransformWithItemRecipe::specialResult),
+            ItemStack.CODEC.fieldOf("item_result").forGetter(MobTransformWithItemRecipe::itemResult),
+            Codec.INT.fieldOf("chance_percent_per_item").forGetter(MobTransformWithItemRecipe::chancePercentPerItem),
+            NumericTagValuePredicate.CODEC.listOf()
+                .optionalFieldOf("tag_predicates", List.of())
+                .forGetter(MobTransformWithItemRecipe::predicates),
+            TagModification.CODEC.listOf()
+                .optionalFieldOf("tag_modifications", List.of())
+                .forGetter(MobTransformWithItemRecipe::tagModifications),
+            TransformOptions.CODEC.listOf().optionalFieldOf("transform_options", List.of()).forGetter(MobTransformWithItemRecipe::options)
+        ).apply(ins, MobTransformWithItemRecipe::new));
 
         @Override
         public MapCodec<MobTransformWithItemRecipe> codec() {

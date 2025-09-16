@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.ApplyData;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.CopyData;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
+import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.MergeData;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -20,10 +21,12 @@ import java.util.List;
 
 @Getter
 public class MultipleToOneResult {
-    public static final Codec<MultipleToOneResult> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        ItemStack.CODEC.fieldOf("item").forGetter(MultipleToOneResult::getResult),
-        IResultModifier.CODEC.listOf().optionalFieldOf("modifiers", List.of()).forGetter(MultipleToOneResult::getModifiers)
-    ).apply(ins, MultipleToOneResult::new));
+    public static final Codec<MultipleToOneResult> CODEC = Codec.lazyInitialized(
+        () -> RecordCodecBuilder.create(ins -> ins.group(
+            ItemStack.CODEC.fieldOf("item").forGetter(MultipleToOneResult::getResult),
+            IResultModifier.CODEC.listOf().optionalFieldOf("modifiers", List.of()).forGetter(MultipleToOneResult::getModifiers)
+        ).apply(ins, MultipleToOneResult::new))
+    );
     public static final StreamCodec<RegistryFriendlyByteBuf, MultipleToOneResult> STREAM_CODEC = StreamCodec.composite(
         ItemStack.STREAM_CODEC, MultipleToOneResult::getResult,
         IResultModifier.STREAM_CODEC.apply(ByteBufCodecs.list()), MultipleToOneResult::getModifiers,
@@ -91,6 +94,15 @@ public class MultipleToOneResult {
 
         public Builder copyData(ICustomDataComponent<?>... data) {
             return this.copyData(CopyData.copyData(data));
+        }
+
+        public Builder mergeData(MergeData.Builder builder) {
+            this.modifiers.add(builder.build());
+            return this;
+        }
+
+        public Builder mergeData(ICustomDataComponent<?>... data) {
+            return this.mergeData(MergeData.mergeData(data));
         }
 
         public Builder withData(ApplyData.Builder builder) {

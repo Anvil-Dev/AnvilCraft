@@ -2,12 +2,12 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.Contract;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ColorUtil {
-    @Contract("_, _, _ -> new")
     public static float @NotNull [] rgbToHsv(int r, int g, int b) {
         float rNorm = r / 255.0f;
         float gNorm = g / 255.0f;
@@ -34,7 +34,6 @@ public class ColorUtil {
         return new float[]{h, s * 100, cMax * 100};
     }
 
-    @Contract("_, _, _ -> new")
     public static int @NotNull [] hsvToRgb(float h, float s, float v) {
         float c = v / 100 * s / 100;
         float x = c * (1 - Math.abs(((h / 60) % 2) - 1));
@@ -83,5 +82,20 @@ public class ColorUtil {
         g = (int) (g * ratio);
         b = (int) (b * ratio);
         return (r << 16) | (g << 8) | b;
+    }
+
+    public static int lerpColor(float ratio, int from, int to) {
+        int r1 = FastColor.ARGB32.red(from);
+        int g1 = FastColor.ARGB32.green(from);
+        int b1 = FastColor.ARGB32.blue(from);
+        int r2 = FastColor.ARGB32.red(to);
+        int g2 = FastColor.ARGB32.green(to);
+        int b2 = FastColor.ARGB32.blue(to);
+        return FastColor.ARGB32.color(
+            255,
+            (int) Mth.lerp(ratio, r1, r2),
+            (int) Mth.lerp(ratio, g1, g2),
+            (int) Mth.lerp(ratio, b1, b2)
+        );
     }
 }

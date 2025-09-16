@@ -32,7 +32,7 @@ public class FilterItem extends Item {
                    ? ItemStack.isSameItemSameComponents(filter, stack)
                    : ItemStack.isSameItem(filter, stack)
                )
-               || FilterContent.filter(filter, stack, false, false);
+               || FilterContent.filter(filter, stack, false);
     }
 
     @Override

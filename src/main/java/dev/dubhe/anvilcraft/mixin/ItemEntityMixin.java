@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.DamageTypeTags;
@@ -47,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.PoachingCollectorMap;
+import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
@@ -152,6 +153,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             Block block = this.level().getBlockState(this.blockPosition()).getBlock();
             if (REPAIR_EFFICIENCY.containsKey(block)) {
                 this.getItem().setDamageValue(this.getItem().getDamageValue() - REPAIR_EFFICIENCY.get(block));
+                TriggerUtil.fireReforge(this.level(), this.anvilcraft$blockPos);
             }
         }
     }
@@ -390,7 +392,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     private void anvilcraft$poach() {
         Level level = this.level();
         if (level.isClientSide) return;
-        Map<ChunkPos, List<ItemCollectorBlockEntity>> map = PoachingCollectorMap.get(level);
+        Map<ChunkPos, List<ItemCollectorBlockEntity>> map = POACHING_COLLECTOR_MAP.get(level);
         if (map == null) return;
         ChunkPos chunkPos = this.chunkPosition();
         List<ItemCollectorBlockEntity> list = map.get(chunkPos);

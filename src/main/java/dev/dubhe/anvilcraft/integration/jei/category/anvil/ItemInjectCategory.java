@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -103,27 +103,27 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         double mouseY) {
         ItemInjectRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
 
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         if (input.isEmpty()) return;
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
         if (renderedState == null) return;
-        RenderHelper.renderBlock(guiGraphics, renderedState, 81, 40, 10, 12, RenderHelper.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, renderedState, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        RenderHelper.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
+            guiGraphics, recipe.getFirstResultBlock().state(), 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
     }
 
     @Override

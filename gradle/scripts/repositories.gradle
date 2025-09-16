@@ -71,4 +71,7 @@ repositories {
             includeGroup "dev.latvian.apps"
         }
     }
+    maven { // Twilight Forest
+        url = "https://maven.tamaized.com/releases"
+    }
 }

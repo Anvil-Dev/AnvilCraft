@@ -7,48 +7,41 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import lombok.Getter;
+import dev.anvilcraft.lib.util.CodecUtil;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.BiFunction;
 
-@Getter
-public class NumericTagValuePredicate {
+public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirement, long expected) {
     public static final Codec<NumericTagValuePredicate> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.fieldOf("tagKeyPath").forGetter(o -> o.tagKeyPath),
             ValueFunction.CODEC.fieldOf("requirement").forGetter(o -> o.requirement),
-            Codec.LONG.fieldOf("expected").forGetter(it -> it.expected))
+            Codec.LONG.fieldOf("expected").forGetter(it -> it.expected)
+        )
         .apply(ins, NumericTagValuePredicate::new));
 
-    private final String tagKeyPath;
-    private final ValueFunction requirement;
-    private final long expected;
+    public static final StreamCodec<RegistryFriendlyByteBuf, NumericTagValuePredicate> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8,
+        NumericTagValuePredicate::tagKeyPath,
+        ValueFunction.STREAM_CODEC,
+        NumericTagValuePredicate::requirement,
+        ByteBufCodecs.VAR_LONG,
+        NumericTagValuePredicate::expected,
+        NumericTagValuePredicate::new
+    );
 
-    /**
-     *
-     */
-    public NumericTagValuePredicate(String tagKeyPath, ValueFunction requirement, long expected) {
-        this.tagKeyPath = tagKeyPath;
-        this.requirement = requirement;
-        this.expected = expected;
-    }
-
-    /**
-     *
-     */
     public static NumericTagValuePredicate fromJson(JsonObject jsonObject) {
         return CODEC.decode(JsonOps.INSTANCE, jsonObject).getOrThrow().getFirst();
     }
 
-    /**
-     *
-     */
     public JsonElement toJson() {
         return CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow();
     }
@@ -62,6 +55,7 @@ public class NumericTagValuePredicate {
         LESS_OR_EQUAL((a, b) -> a <= b);
 
         public static final Codec<ValueFunction> CODEC = StringRepresentable.fromEnum(ValueFunction::values);
+        public static final StreamCodec<RegistryFriendlyByteBuf, ValueFunction> STREAM_CODEC = CodecUtil.enumStreamCodec(ValueFunction.class);
         private final BiFunction<Long, Long, Boolean> fn;
 
         ValueFunction(BiFunction<Long, Long, Boolean> fn) {
@@ -73,7 +67,6 @@ public class NumericTagValuePredicate {
         }
 
         @Override
-        @NotNull
         public String getSerializedName() {
             return name();
         }
@@ -127,18 +120,16 @@ public class NumericTagValuePredicate {
         }
     }
 
-    /**
-     *
-     */
     public boolean test(CompoundTag tag) {
         try {
             StringReader reader = new StringReader(tagKeyPath);
             NbtPathArgument argument = new NbtPathArgument();
             NbtPathArgument.NbtPath path = argument.parse(reader);
             List<Tag> contract = path.get(tag);
-            if (contract.size() >= 2)
+            if (contract.size() >= 2) {
                 throw new IllegalArgumentException(
                     "TagValuePredicate does not allow multiple tag at path: " + tagKeyPath);
+            }
             if (contract.isEmpty()) return false;
             Tag value = contract.getFirst();
             if (value instanceof NumericTag tag1) {

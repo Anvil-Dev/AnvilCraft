@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
@@ -46,7 +47,7 @@ public class FallingBlockCollisionEventListener {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
         if (AnvilCraft.CONFIG.anvilCollisionCraftSpeed > event.getSpeed()) return;
-        AnvilCollisionCraftRecipe resultRecipe = null;
+        RecipeHolder<AnvilCollisionCraftRecipe> resultRecipe = null;
         List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getRecipeManager()
             .getAllRecipesFor(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
         BlockState state = level.getBlockState(pos);
@@ -55,8 +56,8 @@ public class FallingBlockCollisionEventListener {
             if (!recipe.value().anvil().test(level, event.getEntity().getBlockState(), null)) continue;
             if (!recipe.value().hitBlock().test(level, state, entity)) continue;
             if (event.getSpeed() < recipe.value().speed()) continue;
-            if (resultRecipe != null && resultRecipe.speed() > recipe.value().speed()) continue;
-            resultRecipe = recipe.value();
+            if (resultRecipe != null && resultRecipe.value().speed() > recipe.value().speed()) continue;
+            resultRecipe = recipe;
         }
         if (resultRecipe != null) {
             executeRecipe(event, resultRecipe, level, pos, entityPos);
@@ -82,13 +83,14 @@ public class FallingBlockCollisionEventListener {
 
     private static void executeRecipe(
         AnvilEvent.CollisionBlock event,
-        AnvilCollisionCraftRecipe recipe,
+        RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
         Level level,
         BlockPos pos,
         Vec3 entityPos
     ) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         removeBlock(level, pos);
+        AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         if (recipe.consume()) {
             event.getEntity().kill();
         }
@@ -185,6 +187,7 @@ public class FallingBlockCollisionEventListener {
                 remainder--;
             }
         }
+        TriggerUtil.recipe(level, pos, recipeHolder.id(), itemEntities);
     }
 
     public static class ItemImmuneExplosionDamage extends ExplosionDamageCalculator {

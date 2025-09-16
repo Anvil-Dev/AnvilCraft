@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.api.data.MultiphaseData;
+import dev.dubhe.anvilcraft.api.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;
@@ -22,13 +23,13 @@ public class MultipleToOneSmithingRecipeLoader {
             .material(ModItems.MULTIPHASE_TRANSCENDIUM)
             .input(ModItems.EMBER_METAL_HEAVY_HALBERD)
             .input(ModItems.FROST_METAL_HEAVY_HALBERD)
-            .result(ModItems.TRANSCENDENCE_HEAVY_HALBERD, MultiphaseData.two())
+            .resultCopy(ModItems.TRANSCENDENCE_HEAVY_HALBERD, MultiphaseData.two())
             .save(provider);
         TwoToOneSmithingRecipe.builder()
             .material(ModItems.MULTIPHASE_TRANSCENDIUM)
             .input(ModItems.EMBER_METAL_RESONATOR)
             .input(ModItems.FROST_METAL_RESONATOR)
-            .result(ModItems.TRANSCENDENCE_RESONATOR, MultiphaseData.two())
+            .resultCopy(ModItems.TRANSCENDENCE_RESONATOR, MultiphaseData.two())
             .save(provider);
     }
 
@@ -39,7 +40,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .input(ModItems.FROST_METAL_AXE)
             .input(Items.TRIDENT)
             .input(Tags.Items.TOOLS_MACE)
-            .result(ModItems.FROST_METAL_HEAVY_HALBERD)
+            .resultMerge(ModItems.FROST_METAL_HEAVY_HALBERD, NormalDataComponent.frostFour())
             .save(provider);
         FourToOneSmithingRecipe.builder()
             .material(ModItems.HEAVY_HALBERD_CORE)
@@ -47,7 +48,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .input(ModItems.EMBER_METAL_AXE)
             .input(Items.TRIDENT)
             .input(Tags.Items.TOOLS_MACE)
-            .result(ModItems.EMBER_METAL_HEAVY_HALBERD)
+            .resultMerge(ModItems.EMBER_METAL_HEAVY_HALBERD, NormalDataComponent.emberFour())
             .save(provider);
         FourToOneSmithingRecipe.builder()
             .material(ModItems.RESONATOR_CORE)
@@ -55,7 +56,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .input(ModItems.FROST_METAL_SHOVEL)
             .input(ModItems.FROST_METAL_HOE)
             .input(ModItems.FROST_METAL_PICKAXE)
-            .result(ModItems.FROST_METAL_RESONATOR)
+            .resultMerge(ModItems.FROST_METAL_RESONATOR, NormalDataComponent.frostFour())
             .save(provider);
         FourToOneSmithingRecipe.builder()
             .material(ModItems.RESONATOR_CORE)
@@ -63,7 +64,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .input(ModItems.EMBER_METAL_SHOVEL)
             .input(ModItems.EMBER_METAL_HOE)
             .input(ModItems.EMBER_METAL_PICKAXE)
-            .result(ModItems.EMBER_METAL_RESONATOR)
+            .resultMerge(ModItems.EMBER_METAL_RESONATOR, NormalDataComponent.emberFour())
             .save(provider);
         FourToOneSmithingRecipe.builder()
             .material(ModBlocks.FROST_METAL_BLOCK)

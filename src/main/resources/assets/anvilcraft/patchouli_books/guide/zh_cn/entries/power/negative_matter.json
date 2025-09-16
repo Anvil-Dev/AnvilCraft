@@ -31,10 +31,16 @@
       "text": "$(li)$(item)负物质块$()+铁砧[>32m/t]→8*$(item)虚空物质$()[撞击] $(p)$(#888888)正负湮灭，唯余虚无$()"
     },
     {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:neutronium_ingot",
+      "text": "因为负物质排斥正物质的特性，中子锭无法穿过负物质块。"
+    },
+    {
       "type": "patchouli:relations",
       "entries": [
         "anvilcraft:struct/collision",
-        "anvilcraft:power/void_energy_collection"
+        "anvilcraft:power/void_energy_collection",
+        "anvilcraft:smithing/tier_2_materials"
       ],
       "text": ""
     }

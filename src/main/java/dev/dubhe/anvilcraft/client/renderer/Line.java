@@ -4,7 +4,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.world.phys.Vec3;
 
-public record Line(Vec3 start, Vec3 end, float length) {
+public record Line(Vec3 start, Vec3 end, int level, float length) {
+    public Line(Vec3 start, Vec3 end, float length) {
+        this(start, end, 1, length);
+    }
+
+    public Line(Vec3 start, Vec3 end, int level) {
+        this(start, end, level, (float) start.distanceTo(end));
+    }
+
+    public Line(Vec3 start, Vec3 end) {
+        this(start, end, (float) start.distanceTo(end));
+    }
 
     public void render(PoseStack pose, VertexConsumer vertex, Vec3 camera, int color) {
         render(pose.last(), vertex, camera, color);
@@ -19,14 +30,16 @@ public record Line(Vec3 start, Vec3 end, float length) {
                 (float) (this.start().x - camera.x),
                 (float) (this.start().y - camera.y),
                 (float) (this.start().z - camera.z)
-            ).setColor(color)
+            )
+            .setColor(color)
             .setNormal(pose, dx /= this.length(), dy /= this.length(), dz /= this.length());
         vertex.addVertex(
                 pose.pose(),
                 (float) (this.end().x - camera.x),
                 (float) (this.end().y - camera.y),
                 (float) (this.end().z - camera.z)
-            ).setColor(color)
+            )
+            .setColor(color)
             .setNormal(pose, dx, dy, dz);
     }
 }

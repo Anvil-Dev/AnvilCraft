@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
@@ -52,39 +52,39 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
         double mouseY) {
         BoilingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK);
-        RenderHelper.renderBlock(
+            RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
             guiGraphics,
             CauldronUtil.fullState(Blocks.WATER_CAULDRON),
             81,
             30,
             10,
             12,
-            RenderHelper.SINGLE_BLOCK);
-        RenderHelper.renderBlock(
+            RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true),
             81,
             40,
             0,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 20);
         arrowOut.draw(guiGraphics, 92, 19);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        if (JeiRecipeUtil.isChance(this.getResults(recipe))) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, this.getResults(recipe).size());
+        if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
+            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, this.getResults(recipe).size());
+            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
         }
     }
 

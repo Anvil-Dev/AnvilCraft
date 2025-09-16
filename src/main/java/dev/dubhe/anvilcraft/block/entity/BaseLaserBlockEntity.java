@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class BaseLaserBlockEntity extends BlockEntity {
     public static final int[] COOLDOWNS = {
@@ -48,7 +49,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     protected int tickCount = 0;
 
     protected HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
-    private boolean changed = false;
+    protected boolean changed = false;
     @Getter
     protected BlockPos irradiateBlockPos = null;
     @Getter
@@ -103,6 +104,10 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         return originPos.relative(direction, expectedLength);
     }
 
+    public Set<Direction> getIgnoreFace() {
+        return Set.of();
+    }
+
     protected int getBaseLaserLevel() {
         return 1;
     }
@@ -154,8 +159,19 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
         }
         if (level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
-            && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity))
-            irradiatedLaserBlockEntity.onIrradiated(this);
+            && !isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity)) {
+            if (irradiatedLaserBlockEntity.getIgnoreFace().isEmpty()) {
+                level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+                irradiatedLaserBlockEntity.onIrradiated(this);
+            } else {
+                for (Direction direction1 : irradiatedLaserBlockEntity.getIgnoreFace()) {
+                    if (direction != direction1) {
+                        level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+                        irradiatedLaserBlockEntity.onIrradiated(this);
+                    }
+                }
+            }
+        }
         updateIrradiateBlockPos(tempIrradiateBlockPos);
 
         if (!(level instanceof ServerLevel serverLevel)) return;

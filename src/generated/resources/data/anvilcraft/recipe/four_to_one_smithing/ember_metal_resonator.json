@@ -21,7 +21,39 @@
     "item": {
       "count": 1,
       "id": "anvilcraft:ember_metal_resonator"
-    }
+    },
+    "modifiers": [
+      {
+        "type": "anvilcraft:merge_data",
+        "types": [
+          {
+            "type": "anvilcraft:normal_data_component",
+            "component": "minecraft:custom_name",
+            "input": 0
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 0
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 1
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 2
+          },
+          {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 3
+          }
+        ]
+      }
+    ]
   },
   "template": {
     "items": "anvilcraft:four_to_one_smithing_template"

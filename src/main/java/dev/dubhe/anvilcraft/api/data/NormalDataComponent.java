@@ -6,10 +6,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.util.Util;
-import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMaps;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,14 +20,14 @@ import java.util.List;
 
 @Getter
 public class NormalDataComponent<T> implements ICustomDataComponent<T> {
-    private final Object2BooleanMap<Pair<Integer, DataComponentType<?>>> map = new Object2BooleanArrayMap<>();
+    private final Object2BooleanMap<Pair<Integer, DataComponentType<?>>> map;
     private final int input;
     private final DataComponentType<T> dataComponentType;
 
     private NormalDataComponent(int input, DataComponentType<T> type) {
         this.input = input;
         this.dataComponentType = type;
-        this.map.put(new Pair<>(input, type), true);
+        this.map = Object2BooleanMaps.singleton(new Pair<>(input, type), true);
     }
 
     public static <T> NormalDataComponent<T> of(int input, DataComponentType<T> type) {
@@ -48,14 +49,25 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
         return Util.cast(data.getFirst());
     }
 
+    @Override
+    public T merge(T oldData, T newData) {
+        return newData;
+    }
+
     public static class Type implements ICustomDataComponent.Type<NormalDataComponent<?>> {
         public static final MapCodec<NormalDataComponent<?>> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT.fieldOf("input").forGetter(NormalDataComponent::getInput),
-            DataComponentType.CODEC.fieldOf("type").forGetter(NormalDataComponent::getDataComponentType)
+            Codec.INT
+                .fieldOf("input")
+                .forGetter(NormalDataComponent::getInput),
+            DataComponentType.CODEC
+                .fieldOf("component")
+                .forGetter(NormalDataComponent::getDataComponentType)
         ).apply(instance, NormalDataComponent::new));
         public static final StreamCodec<RegistryFriendlyByteBuf, NormalDataComponent<?>> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, NormalDataComponent::getInput,
-            DataComponentType.STREAM_CODEC, NormalDataComponent::getDataComponentType,
+            ByteBufCodecs.VAR_INT,
+            NormalDataComponent::getInput,
+            DataComponentType.STREAM_CODEC,
+            NormalDataComponent::getDataComponentType,
             NormalDataComponent::new
         );
 
@@ -68,5 +80,29 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
         public @NotNull StreamCodec<RegistryFriendlyByteBuf, NormalDataComponent<?>> streamCodec() {
             return STREAM_CODEC;
         }
+    }
+
+    public static ICustomDataComponent<?>[] frostFour() {
+        return new ICustomDataComponent[] {
+            NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
+            ItemEnchantmentsData.enchantments(0),
+            ItemEnchantmentsData.storedEnchantments(0),
+            ItemEnchantmentsData.enchantments(1),
+            ItemEnchantmentsData.storedEnchantments(1),
+            ItemEnchantmentsData.enchantments(2),
+            ItemEnchantmentsData.storedEnchantments(2),
+            ItemEnchantmentsData.enchantments(3),
+            ItemEnchantmentsData.storedEnchantments(3),
+        };
+    }
+
+    public static ICustomDataComponent<?>[] emberFour() {
+        return new ICustomDataComponent[] {
+            NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
+            ItemEnchantmentsData.enchantments(0),
+            ItemEnchantmentsData.enchantments(1),
+            ItemEnchantmentsData.enchantments(2),
+            ItemEnchantmentsData.enchantments(3),
+        };
     }
 }

@@ -62,6 +62,12 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.all_in_one.title", "All in one");
         provider.add("advancements.anvilcraft.all_in_one.description", "Craft a hammer and try its various functions");
 
+        provider.add("advancements.anvilcraft.hammer.title", "Everyone's a nail to a hammer");
+        provider.add("advancements.anvilcraft.hammer.description", "Use an anvil hammer to kill mobs");
+
+        provider.add("advancements.anvilcraft.super_kill.title", "Super kill... almost");
+        provider.add("advancements.anvilcraft.super_kill.description", "Using a royal anvil hammer to deal 80 damage with one strike");
+
         provider.add("advancements.anvilcraft.hearts_of_iron.title", "Hearts of Iron");
         provider.add("advancements.anvilcraft.hearts_of_iron.description", "Craft a magnetoelectric core");
 
@@ -98,14 +104,62 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.wither.title", "Liberate the power of wither");
         provider.add("advancements.anvilcraft.wither.description", "Use curse gold to convert a beacon");
 
-        provider.add("advancements.anvilcraft.ripVanWinkle.title", "Rip Van Winkle");
-        provider.add("advancements.anvilcraft.ripVanWinkle.description", "Perform any time warp operation");
+        provider.add("advancements.anvilcraft.rip_van_winkle.title", "Rip Van Winkle");
+        provider.add("advancements.anvilcraft.rip_van_winkle.description", "Perform any time warp operation");
 
-        provider.add("advancements.anvilcraft.hammer.title", "Everyone's a nail to a hammer");
-        provider.add("advancements.anvilcraft.hammer.description", "Use an anvil hammer to kill mobs");
+        provider.add("advancements.anvilcraft.frost_metal.title", "Rome was not built in a day");
+        provider.add("advancements.anvilcraft.frost_metal.description", "Obtain any frost metal");
 
-        provider.add("advancements.anvilcraft.super_kill.title", "Super kill... almost");
-        provider.add("advancements.anvilcraft.super_kill.description", "Using a royal anvil hammer to deal 80 damage with one strike");
+        provider.add("advancements.anvilcraft.tai_shang_wang_qing.title", "Immortals beyond emotions");
+        provider.add("advancements.anvilcraft.tai_shang_wang_qing.description", "Using a frost metal tool or weapon to deal 49 damage with one strike");
+
+        provider.add("advancements.anvilcraft.for_aeons.title", "For aeons");
+        provider.add("advancements.anvilcraft.for_aeons.description", "Using time wrap to get oil");
+
+        provider.add("advancements.anvilcraft.forged_over_eons.title", "Forged over eons");
+        provider.add("advancements.anvilcraft.forged_over_eons.description", "Obtain any ember metal");
+
+        provider.add("advancements.anvilcraft.self_in_flaming.title", "Self in flaming");
+        provider.add("advancements.anvilcraft.self_in_flaming.description", "Using fire reforge to repair any ember metal tools or weapons");
+
+        provider.add("advancements.anvilcraft.giant_age.title", "The Age of Giants");
+        provider.add("advancements.anvilcraft.giant_age.description", "Convert a zombie holding anvil to a giant using the beam of corruption beacon to get giant anvil");
+
+        provider.add("advancements.anvilcraft.anvil_accelerator.title", "Anvil accelerator");
+        provider.add("advancements.anvilcraft.anvil_accelerator.description", "Craft acceleration ring and deflection ring");
+
+        provider.add("advancements.anvilcraft.new_matter.title", "New Matter");
+        provider.add("advancements.anvilcraft.new_matter.description", "Using anvil collision to craft uranium, multiphase matter or negative matter");
+
+        provider.add("advancements.anvilcraft.anvilon.title", "Anvilon");
+        provider.add("advancements.anvilcraft.anvilon.description", "Using anvil collision to craft any type of confined anvilon");
+
+        provider.add("advancements.anvilcraft.overheated.title", "Overheated");
+        provider.add("advancements.anvilcraft.overheated.description", "Using anvil collision to make ember metal block overheated");
+
+        provider.add("advancements.anvilcraft.transcendence.title", "Transcendence");
+        provider.add("advancements.anvilcraft.transcendence.description", "Injecting an charged neutronium ingot into an overheated ember metal block to craft transcendium block");
+
+        provider.add("advancements.anvilcraft.nuclear_power_10a.title", "Nuclear power, piece of cake!");
+        provider.add("advancements.anvilcraft.nuclear_power_10a.description", "Using heat collector to collect overheated blocks' heat");
+
+        provider.add("advancements.anvilcraft.gem_transform.title", "Gem transform");
+        provider.add("advancements.anvilcraft.gem_transform.description", "Dropping gem into melt gem cauldron and using time warp to make gem block");
+
+        provider.add("advancements.anvilcraft.laser.title", "Lazer");
+        provider.add("advancements.anvilcraft.laser.description", "Craft ruby laser");
+
+        provider.add("advancements.anvilcraft.ore_point.title", "Ore point");
+        provider.add("advancements.anvilcraft.ore_point.description", "Create a mineral fountain, and start producing ores continually");
+
+        provider.add("advancements.anvilcraft.heat_utilizing.title", "Heat utilizing");
+        provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft heat collector");
+
+        provider.add("advancements.anvilcraft.isotope_decay_battery.title", "Isotope decay battery");
+        provider.add("advancements.anvilcraft.isotope_decay_battery.description", "Using heat collector to collect uranium or plutonium blocks' heat");
+
+        provider.add("advancements.anvilcraft.super_heat.title", "Super heat");
+        provider.add("advancements.anvilcraft.super_heat.description", "Making a heat collector reach the max efficiency");
         // endregion
 
         // region automation line

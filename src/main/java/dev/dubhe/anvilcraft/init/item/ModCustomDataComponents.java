@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
+import dev.dubhe.anvilcraft.api.data.ItemEnchantmentsData;
 import dev.dubhe.anvilcraft.api.data.MultiphaseData;
 import dev.dubhe.anvilcraft.api.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.init.ModRegistries;
@@ -15,6 +16,9 @@ public class ModCustomDataComponents {
 
     public static final DeferredHolder<ICustomDataComponent.Type<?>, NormalDataComponent.Type> NORMAL = DF
         .register("normal_data_component", NormalDataComponent.Type::new);
+
+    public static final DeferredHolder<ICustomDataComponent.Type<?>, ItemEnchantmentsData.Type> ITEM_ENCHANTMENTS = DF
+        .register("item_enchantments", ItemEnchantmentsData.Type::new);
 
     public static final DeferredHolder<ICustomDataComponent.Type<?>, MultiphaseData.Type> MULTIPHASE = DF
         .register("multiphase", MultiphaseData.Type::new);

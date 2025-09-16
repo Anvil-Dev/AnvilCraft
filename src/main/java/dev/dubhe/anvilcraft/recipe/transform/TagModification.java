@@ -1,17 +1,21 @@
 package dev.dubhe.anvilcraft.recipe.transform;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.util.CodecUtil;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +24,7 @@ import java.util.function.Consumer;
 /**
  * 对生成出来的生物进行nbt修改
  */
-public class TagModification implements Consumer<Tag> {
+public record TagModification(String path, ModifyOperation op, int index, Tag tag) implements Consumer<Tag> {
     public static final Codec<TagModification> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.fieldOf("path").forGetter(o -> o.path),
             ModifyOperation.CODEC.fieldOf("op").forGetter(o -> o.op),
@@ -28,24 +32,34 @@ public class TagModification implements Consumer<Tag> {
                 .optionalFieldOf("index")
                 .forGetter(o -> o.index < 0 ? Optional.empty() : Optional.of(o.index)),
             Codec.STRING.fieldOf("tag").forGetter(o -> {
-                SnbtPrinterTagVisitor visitor = new SnbtPrinterTagVisitor();
+                SnbtPrinterTagVisitor visitor = new SnbtPrinterTagVisitor("", 0, Lists.newArrayList());
                 return visitor.visit(o.tag);
-            }))
-        .apply(ins, TagModification::new));
+            })
+    ).apply(ins, TagModification::create));
+    public static final StreamCodec<RegistryFriendlyByteBuf, TagModification> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8,
+        TagModification::path,
+        ModifyOperation.STREAM_CODEC,
+        TagModification::op,
+        ByteBufCodecs.INT,
+        TagModification::index,
+        ByteBufCodecs.TAG,
+        TagModification::tag,
+        TagModification::new
+    );
 
     /**
      * 初始化 TagModification
      *
      * @param tag snbt表示的nbt标签
      */
-    protected TagModification(String path, ModifyOperation op, Optional<Integer> index, String tag) {
-        this.path = path;
-        this.op = op;
-        this.index = index.orElse(0);
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static TagModification create(String path, ModifyOperation op, Optional<Integer> index, String tag) {
         try {
             StringReader reader = new StringReader(tag);
             TagParser parser = new TagParser(reader);
-            this.tag = parser.readValue();
+            Tag parseTag = parser.readValue();
+            return new TagModification(path, op, index.orElse(0), parseTag);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -54,17 +68,8 @@ public class TagModification implements Consumer<Tag> {
     /**
      * 初始化 TagModification
      */
-    public TagModification(String path, ModifyOperation op, int index, Tag tag) {
-        this.path = path;
-        this.op = op;
-        this.index = index;
-        this.tag = tag;
+    public TagModification {
     }
-
-    private final String path;
-    private final ModifyOperation op;
-    private final int index;
-    private final Tag tag;
 
     public static Builder builder() {
         return new Builder();
@@ -72,35 +77,28 @@ public class TagModification implements Consumer<Tag> {
 
     @Override
     public void accept(Tag input) {
-        String path = this.path;
         if (op == ModifyOperation.SET || op == ModifyOperation.ROOT_SET) {
-            try {
-                int index = path.lastIndexOf('.');
-                path = this.path.substring(0, index == -1 ? path.length() : index);
-                StringReader reader = new StringReader(path);
-                NbtPathArgument argument = new NbtPathArgument();
-                NbtPathArgument.NbtPath nbtPath = argument.parse(reader);
-                List<Tag> contract = nbtPath.get(input);
-                if (contract.size() >= 2)
-                    throw new IllegalArgumentException("TagModification does not allow multiple tag at path: " + path);
-                if (contract.isEmpty()) return;
-                Tag value = contract.get(0);
-                op.accept(value, tag, 0, this.path.substring(index + 1));
-                return;
-            } catch (CommandSyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            int index = this.path.lastIndexOf('.');
+            String path = this.path.substring(0, index == -1 ? this.path.length() : index);
+            String key = this.path.substring(index + 1);
+            this.readAndAcceptTag(path, 0, key);
+            return;
         }
+        this.readAndAcceptTag(this.path, this.index, path);
+    }
+
+    public void readAndAcceptTag(String path, int index, String key) {
         try {
             StringReader reader = new StringReader(path);
             NbtPathArgument argument = new NbtPathArgument();
             NbtPathArgument.NbtPath nbtPath = argument.parse(reader);
-            List<Tag> contract = nbtPath.get(tag);
-            if (contract.size() >= 2)
+            List<Tag> contract = nbtPath.get(this.tag);
+            if (contract.size() >= 2) {
                 throw new IllegalArgumentException("TagModification does not allow multiple tag at path: " + path);
+            }
             if (contract.isEmpty()) return;
-            Tag value = contract.get(0);
-            op.accept(value, tag, index, path);
+            Tag value = contract.getFirst();
+            this.op.accept(value, this.tag, index, key);
         } catch (CommandSyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -164,21 +162,18 @@ public class TagModification implements Consumer<Tag> {
                 if (inputSrc instanceof CompoundTag src && tag instanceof CompoundTag target) {
                     src.merge(target);
                 } else {
-                    throw new RuntimeException("Expected Compound Tag, got "
-                        + inputSrc.getAsString()
-                        + " and "
-                        + tag.getAsString()
+                    throw new RuntimeException("Expected Compound Tag, got " + inputSrc.getAsString() + " and " + tag.getAsString()
                     );
                 }
             }
         };
 
         public static final Codec<ModifyOperation> CODEC = StringRepresentable.fromEnum(ModifyOperation::values);
+        public static final StreamCodec<RegistryFriendlyByteBuf, ModifyOperation> STREAM_CODEC = CodecUtil.enumStreamCodec(ModifyOperation.class);
 
         public abstract void accept(Tag inputSrc, Tag tag, int index, String key);
 
         @Override
-        @NotNull
         public String getSerializedName() {
             return name();
         }

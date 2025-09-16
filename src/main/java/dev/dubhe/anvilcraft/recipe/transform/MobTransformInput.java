@@ -1,17 +1,10 @@
 package dev.dubhe.anvilcraft.recipe.transform;
 
-import lombok.Getter;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 
-@Getter
-public class MobTransformInput implements RecipeInput {
-    private final LivingEntity inputEntity;
-
-    MobTransformInput(LivingEntity inputEntity) {
-        this.inputEntity = inputEntity;
-    }
+public record MobTransformInput(LivingEntity inputEntity) implements RecipeInput {
 
     @Override
     public ItemStack getItem(int i) {
@@ -26,9 +19,5 @@ public class MobTransformInput implements RecipeInput {
     @Override
     public boolean isEmpty() {
         return false;
-    }
-
-    public static MobTransformInput of(LivingEntity entity) {
-        return new MobTransformInput(entity);
     }
 }

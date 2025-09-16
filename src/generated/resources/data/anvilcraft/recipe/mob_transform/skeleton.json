@@ -4,11 +4,11 @@
   "results": [
     {
       "probability": 0.8,
-      "resultEntityType": "minecraft:stray"
+      "result_entity_type": "minecraft:stray"
     },
     {
       "probability": 0.2,
-      "resultEntityType": "minecraft:wither_skeleton"
+      "result_entity_type": "minecraft:wither_skeleton"
     }
   ]
 }

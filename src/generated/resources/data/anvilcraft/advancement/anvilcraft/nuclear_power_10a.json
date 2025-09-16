@@ -1,0 +1,32 @@
+{
+  "parent": "anvilcraft:anvilcraft/overheated",
+  "criteria": {
+    "collect_overheated": {
+      "conditions": {
+        "collecting": {
+          "blocks": "#anvilcraft:overheated_blocks"
+        }
+      },
+      "trigger": "anvilcraft:heat_collector_collect"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.nuclear_power_10a.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:heat_collector"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.nuclear_power_10a.title"
+    }
+  },
+  "requirements": [
+    [
+      "collect_overheated"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -100,7 +100,7 @@ public class AmuletManager {
             .findFirst());
     }
 
-    public void startRaffle(ServerPlayer player, DamageSource source, boolean isConsumedInBox) {
+    public void startRaffle(ServerPlayer player, DamageSource source) {
         Optional<AmuletType> typeOp = this.getTypeMatchedDamage(player, source, player.registryAccess()).map(Holder::value);
         if (typeOp.isEmpty()) return;
         AmuletType type = typeOp.get();
@@ -109,12 +109,12 @@ public class AmuletManager {
         if (!InventoryUtil.getItemInCompat(player, stack -> ItemStack.isSameItem(stack, amulet)).isEmpty()) return;
 
         RandomSource random = player.getRandom();
-        int probability = Math.min(this.getRaffleProbability(player, source, isConsumedInBox), 100);
+        int probability = Math.min(this.getRaffleProbability(player, source), 100);
         if (probability > random.nextIntBetweenInclusive(0, 100)) {
             player.getInventory().placeItemBackInInventory(amulet.copy());
             this.setRaffleProbability(player, source, 0);
         } else {
-            this.setRaffleProbability(player, source, Math.min(probability + (isConsumedInBox ? 10 : 5), 100));
+            this.setRaffleProbability(player, source, Math.min(probability + 10, 100));
         }
     }
 
@@ -122,17 +122,17 @@ public class AmuletManager {
         return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(type);
     }
 
-    public int getRaffleProbability(Player player, DamageSource source, boolean isConsumedInBox) {
+    public int getRaffleProbability(Player player, DamageSource source) {
         Optional<Holder<AmuletType>> type = Optional.empty();
         if (player instanceof ServerPlayer serverPlayer) {
             type = this.getTypeMatchedDamage(serverPlayer, source, serverPlayer.registryAccess());
         }
-        return type.map(holder -> this.getRaffleProbability(player, holder, isConsumedInBox)).orElse(0);
+        return type.map(holder -> this.getRaffleProbability(player, holder)).orElse(0);
     }
 
-    public int getRaffleProbability(Player player, Holder<AmuletType> type, boolean isConsumedInBox) {
+    public int getRaffleProbability(Player player, Holder<AmuletType> type) {
         if (!this.hasAmuletInInventory(player, type)) {
-            return getStoredRaffleProbability(player, type.value()) + (isConsumedInBox ? 20 : 5);
+            return getStoredRaffleProbability(player, type.value()) + 20;
         } else {
             return 0;
         }

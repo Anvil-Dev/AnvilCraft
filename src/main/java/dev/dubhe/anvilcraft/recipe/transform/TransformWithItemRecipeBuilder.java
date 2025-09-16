@@ -61,9 +61,6 @@ public class TransformWithItemRecipeBuilder {
         return this;
     }
 
-    /**
-     *
-     */
     public TransformWithItemRecipeBuilder predicate(Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
         NumericTagValuePredicate.Builder builder = NumericTagValuePredicate.builder();
         predicateBuilder.accept(builder);

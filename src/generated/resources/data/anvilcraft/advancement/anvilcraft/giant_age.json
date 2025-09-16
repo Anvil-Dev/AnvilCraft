@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/rip_van_winkle",
+  "criteria": {
+    "has_giant_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:giant_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.giant_age.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:giant_anvil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.giant_age.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_giant_anvil"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

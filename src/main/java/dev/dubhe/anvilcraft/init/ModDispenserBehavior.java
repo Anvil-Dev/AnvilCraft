@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -26,6 +26,8 @@ import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -144,9 +146,19 @@ public class ModDispenserBehavior {
         );
         DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, BUCKET);
         DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, BUCKET);
+        DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
         for (ItemEntry<BucketItem> cementBucket : ModItems.CEMENT_BUCKETS.values()) {
             DispenserBlock.registerBehavior(cementBucket, BUCKET);
         }
+    }
+
+    private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {
+        ServerLevel level = source.level();
+        BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        if (level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock) {
+            level.setBlockAndUpdate(pos, Blocks.CAULDRON.defaultBlockState());
+        }
+        return stack;
     }
 
     private static ItemStack ironIngot(BlockSource source, ItemStack stack) {

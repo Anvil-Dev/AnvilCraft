@@ -1,0 +1,92 @@
+{
+  "parent": "anvilcraft:anvilcraft/rip_van_winkle",
+  "criteria": {
+    "oil_from_piglin_head": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_piglin_head"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_raw_beef": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_foods/raw_beef"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_raw_chicken": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_foods/raw_chicken"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_raw_fish": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_foods/raw_fish"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_raw_mutton": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_foods/raw_mutton"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_raw_porkchop": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_foods/raw_porkchop"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_raw_rabbit": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_foods/raw_rabbit"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_rotten_flesh": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_rotten_flesh"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_spider_eye": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_spider_eye"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "oil_from_zombie_head": {
+      "conditions": {
+        "id": "anvilcraft:time_warp/oil_from_zombie_head"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.for_aeons.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:oil_bucket"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.for_aeons.title"
+    }
+  },
+  "requirements": [
+    [
+      "oil_from_raw_beef",
+      "oil_from_raw_chicken",
+      "oil_from_raw_fish",
+      "oil_from_raw_mutton",
+      "oil_from_raw_porkchop",
+      "oil_from_raw_rabbit",
+      "oil_from_piglin_head",
+      "oil_from_rotten_flesh",
+      "oil_from_spider_eye",
+      "oil_from_zombie_head"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

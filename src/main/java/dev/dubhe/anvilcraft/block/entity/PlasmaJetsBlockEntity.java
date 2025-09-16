@@ -196,7 +196,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void provideCharge(Level level) {
-        if (level.getGameTime() % (ChargeCollectorBlockEntity.COOLDOWN * 20) != 0) return;
+        if (level.getGameTime() % (ChargeCollectorBlockEntity.INPUT_COOLDOWN * 20) != 0) return;
         for (TubeWallLayer layer : this.tubeWalls) {
             Pair<BlockPos, BlockPos> posPair = switch (layer.isMagnet(level)) {
                 case TRUE -> layer.first;

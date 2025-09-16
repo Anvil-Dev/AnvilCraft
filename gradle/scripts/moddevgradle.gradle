@@ -15,6 +15,8 @@ neoForge {
     }
 
     runs {
+        var isJbr = System.getProperty('java.vm.vendor').contains('JetBrains')
+
         // applies to all the run configs below
         configureEach {
             // Recommended logging data for a userdev environment
@@ -24,28 +26,24 @@ neoForge {
             // "REGISTRYDUMP": For getting the contents of all registries.
             systemProperty 'forge.logging.markers', 'REGISTRIES'
 
+            if (isJbr) {
+                jvmArgument "-XX:+AllowEnhancedClassRedefinition"
+            }
+
             // Recommended logging level for the console
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.DEBUG
         }
 
-        var isJbr = System.getProperty('java.vm.vendor').contains('JetBrains')
-
         client {
             client()
-            if (isJbr) {
-                jvmArgument "-XX:+AllowEnhancedClassRedefinition"
-            }
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         server {
             server()
-            if (isJbr) {
-                jvmArgument "-XX:+AllowEnhancedClassRedefinition"
-            }
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }

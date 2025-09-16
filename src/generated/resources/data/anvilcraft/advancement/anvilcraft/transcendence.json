@@ -1,0 +1,30 @@
+{
+  "parent": "anvilcraft:anvilcraft/overheated",
+  "criteria": {
+    "transcendium_block": {
+      "conditions": {
+        "id": "anvilcraft:item_inject/transcendium_block"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.transcendence.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:transcendium_block"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.transcendence.title"
+    }
+  },
+  "requirements": [
+    [
+      "transcendium_block"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -153,10 +153,18 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
         MultipleToOneResult result
     ) {
         public static final MapCodec<Data> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            ItemIngredientPredicate.CODEC.fieldOf("template").forGetter(Data::template),
-            ItemIngredientPredicate.CODEC.fieldOf("material").forGetter(Data::material),
-            ItemIngredientPredicate.CODEC.listOf().fieldOf("inputs").forGetter(Data::inputs),
-            MultipleToOneResult.CODEC.fieldOf("result").forGetter(Data::result)
+            ItemIngredientPredicate.CODEC
+                .fieldOf("template")
+                .forGetter(Data::template),
+            ItemIngredientPredicate.CODEC
+                .fieldOf("material")
+                .forGetter(Data::material),
+            ItemIngredientPredicate.CODEC.listOf()
+                .fieldOf("inputs")
+                .forGetter(Data::inputs),
+            MultipleToOneResult.CODEC
+                .fieldOf("result")
+                .forGetter(Data::result)
         ).apply(ins, Data::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Data> STREAM_CODEC = StreamCodec.composite(
@@ -274,36 +282,52 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
             return this.result(1, result);
         }
 
-        public final BaseBuilder<R> result(int count, ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
-            return this.result(MultipleToOneResult.builder().result(result, count).copyData(data));
-        }
-
         public final BaseBuilder<R> result(int count, ItemProviderEntry<?, ?> result) {
             return this.result(MultipleToOneResult.builder().result(result, count));
-        }
-
-        public final BaseBuilder<R> result(ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
-            return this.result(MultipleToOneResult.builder().result(result).copyData(data));
         }
 
         public final BaseBuilder<R> result(ItemProviderEntry<?, ?> result) {
             return this.result(MultipleToOneResult.builder().result(result));
         }
 
-        public final BaseBuilder<R> result(int count, ItemLike result, ICustomDataComponent<?>... data) {
-            return this.result(MultipleToOneResult.builder().result(result, count).copyData(data));
-        }
-
         public final BaseBuilder<R> result(int count, ItemLike result) {
             return this.result(MultipleToOneResult.builder().result(result, count));
         }
 
-        public final BaseBuilder<R> result(ItemLike result, ICustomDataComponent<?>... data) {
-            return this.result(1, result, data);
-        }
-
         public final BaseBuilder<R> result(ItemLike result) {
             return this.result(1, result);
+        }
+
+        public final BaseBuilder<R> resultCopy(int count, ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result, count).copyData(data));
+        }
+
+        public final BaseBuilder<R> resultCopy(ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result).copyData(data));
+        }
+
+        public final BaseBuilder<R> resultCopy(int count, ItemLike result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result, count).copyData(data));
+        }
+
+        public final BaseBuilder<R> resultCopy(ItemLike result, ICustomDataComponent<?>... data) {
+            return this.resultCopy(1, result, data);
+        }
+
+        public final BaseBuilder<R> resultMerge(int count, ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result, count).mergeData(data));
+        }
+
+        public final BaseBuilder<R> resultMerge(ItemProviderEntry<?, ?> result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result).mergeData(data));
+        }
+
+        public final BaseBuilder<R> resultMerge(int count, ItemLike result, ICustomDataComponent<?>... data) {
+            return this.result(MultipleToOneResult.builder().result(result, count).mergeData(data));
+        }
+
+        public final BaseBuilder<R> resultMerge(ItemLike result, ICustomDataComponent<?>... data) {
+            return this.resultMerge(1, result, data);
         }
 
         protected abstract R of(

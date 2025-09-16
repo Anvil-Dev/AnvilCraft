@@ -26,7 +26,7 @@ public class PlayerWearAnvilHammerTrigger extends SimpleCriterionTrigger<PlayerW
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player)
         ).apply(instance, TriggerInstance::new));
 
-        public static Criterion<TriggerInstance> wearAnvilHammer() {
+        public static Criterion<TriggerInstance> wear() {
             return ModCriterionTriggers.PLAYER_WEAR_ANVIL_HAMMER.get().createCriterion(new TriggerInstance(Optional.empty()));
         }
 

@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -110,23 +110,23 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
         double mouseY) {
         TimeWarpRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
             20,
             12,
-            RenderHelper.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK);
         Block material = recipe.getHasCauldron().getFluidCauldron();
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             CauldronUtil.fullState(material),
             81,
             30,
             10,
             12,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
 
         BlockState block = ModBlocks.CORRUPTED_BEACON
@@ -134,14 +134,14 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             .defaultBlockState()
             .trySetValue(BlockStateProperties.WATERLOGGED, false);
 
-        RenderHelper.renderBlock(
+        RenderSupport.renderBlock(
             guiGraphics,
             block,
             81,
             40,
             0,
             12,
-            RenderHelper.SINGLE_BLOCK
+            RenderSupport.SINGLE_BLOCK
         );
 
         arrowIn.draw(guiGraphics, 54, 20);
@@ -195,7 +195,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             } else {
                 cauldronState = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
             }
-            RenderHelper.renderBlock(guiGraphics, cauldronState, 133, 30, 0, 12, RenderHelper.SINGLE_BLOCK);
+            RenderSupport.renderBlock(guiGraphics, cauldronState, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
         }
     }
 

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.heat.collector;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap;
@@ -106,7 +107,8 @@ public class HeatCollectorManager {
             if (validRange.contains(checkedPos.getCenter())) {
                 Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.displayClientMessage(
                     Component.translatable("block.anvilcraft.heat_collector.placement_too_close_to_another")
-                        .withStyle(ChatFormatting.RED), true));
+                        .withStyle(ChatFormatting.RED), true
+                ));
                 manager.heatCollectors.add(pos);
                 return;
             }
@@ -149,8 +151,8 @@ public class HeatCollectorManager {
         Map<Entry, Double2ObjectMap<HeatCollectorBlockEntity>> heatSourcesCache = new HashMap<>();
         for (BlockPos pos : BlockPos.betweenClosed(
             collectorPos.above(4).east(4).south(4),
-            collectorPos.below(4).west(4).north(4))
-        ) {
+            collectorPos.below(4).west(4).north(4)
+        )) {
             pos = pos.immutable();
             BlockState state = this.level.getBlockState(pos);
             if (state.is(ModBlocks.HEAT_COLLECTOR) && !pos.equals(collectorPos)) {
@@ -164,16 +166,18 @@ public class HeatCollectorManager {
             ) continue;
             BlockPos finalPos = pos;
             getEntry(state)
-                .ifPresent(entry -> heatSourcesCache
-                    .computeIfAbsent(
-                        new Entry(finalPos, state, entry), it -> new Double2ObjectAVLTreeMap<>())
-                    .put(
-                        Vector3i.distance(
-                            finalPos.getX(), finalPos.getY(), finalPos.getZ(),
-                            collector.getPos().getX(), collector.getPos().getY(), collector.getPos().getZ()
-                        ), collector
-                    )
-                );
+                .ifPresent(entry -> {
+                    heatSourcesCache
+                        .computeIfAbsent(
+                            new Entry(finalPos, state, entry), it -> new Double2ObjectAVLTreeMap<>())
+                        .put(
+                            Vector3i.distance(
+                                finalPos.getX(), finalPos.getY(), finalPos.getZ(),
+                                collector.getPos().getX(), collector.getPos().getY(), collector.getPos().getZ()
+                            ), collector
+                        );
+                    TriggerUtil.heatCollectOn(this.level, finalPos, state, this.level.getBlockEntity(finalPos));
+                });
         }
         collector.setResult(HeatCollectorBlockEntity.WorkResult.SUCCESS);
         for (var entry : heatSourcesCache.entrySet()) {

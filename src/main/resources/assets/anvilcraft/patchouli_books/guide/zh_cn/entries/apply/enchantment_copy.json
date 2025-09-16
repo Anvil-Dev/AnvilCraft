@@ -9,7 +9,7 @@
     {
       "type": "patchouli:spotlight",
       "item": ["anvilcraft:transcendence_anvil","anvilcraft:ember_grindstone"],
-      "text": "第一步：使用$(item)超限铁砧()为多个$(thing)可堆叠物品$()打上附魔。 $(p)第二步：使用$(item)余烬砂轮$()将物品的附魔逐个剥离."
+      "text": "第一步：使用$(item)超限铁砧$()为多个$(thing)可堆叠物品$()打上附魔。 $(p)第二步：使用$(item)余烬砂轮$()将物品的附魔逐个剥离."
     }
   ]
 }

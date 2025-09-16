@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
+import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.function.SafePredicate;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -50,7 +52,9 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
         }
         return conditions.selector(
             Optional.ofNullable(((TargetingConditionsAccessor) conditions).getSelector())
-                .map(p -> p.and(entity -> !entity.getData(type)))
+                .flatMap(p -> Util.castSafely(p, SafePredicate.class))
+                .map(Util::<SafePredicate<LivingEntity>>cast)
+                .map(predicate -> predicate.and(entity -> !entity.getData(type)))
                 .orElse(entity -> !entity.getData(type))
         );
     }

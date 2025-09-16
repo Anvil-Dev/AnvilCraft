@@ -4,14 +4,14 @@
   "results": [
     {
       "probability": 0.5,
-      "resultEntityType": "minecraft:husk"
+      "result_entity_type": "minecraft:husk"
     },
     {
       "probability": 0.5,
-      "resultEntityType": "minecraft:drowned"
+      "result_entity_type": "minecraft:drowned"
     }
   ],
-  "transformOptions": [
+  "transform_options": [
     "keepInventory"
   ]
 }

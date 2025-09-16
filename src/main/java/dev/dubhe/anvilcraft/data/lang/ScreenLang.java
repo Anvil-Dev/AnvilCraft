@@ -118,6 +118,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.heat.tier.overheated", "Overheated");
         provider.add("tooltip.anvilcraft.heat.duration", "Duration: %s");
 
+        provider.add("tooltip.anvilcraft.propel_piston.state", "Propel Piston State: ");
+        provider.add("tooltip.anvilcraft.propel_piston.remaining_energy", "  Remaining Energy: %s");
+        provider.add("tooltip.anvilcraft.propel_piston.remaining_push", "  Remaining Push: %s block-time");
+
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
 

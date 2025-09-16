@@ -45,11 +45,7 @@ abstract class RecipeManagerMixin {
         method = "lambda$apply$0",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/google/common/collect/ImmutableMap$Builder;put("
-                     + "Ljava/lang/Object;"
-                     + "Ljava/lang/Object;"
-                     + ")Lcom/google/common/collect/ImmutableMap$Builder;",
-            shift = At.Shift.AFTER
+            target = "Lcom/google/common/collect/ImmutableMultimap$Builder;put(Ljava/lang/Object;Ljava/lang/Object;)Lcom/google/common/collect/ImmutableMultimap$Builder;"
         )
     )
     private static void onBuildRecipe(

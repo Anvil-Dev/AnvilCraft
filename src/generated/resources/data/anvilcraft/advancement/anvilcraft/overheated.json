@@ -1,0 +1,37 @@
+{
+  "parent": "anvilcraft:anvilcraft/anvil_accelerator",
+  "criteria": {
+    "plutonium_heat": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_2_and_plutonium_block_256"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "uranium_heat": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_2_and_uranium_block_256"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.overheated.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:overheated_ember_metal_block"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.overheated.title"
+    }
+  },
+  "requirements": [
+    [
+      "uranium_heat",
+      "plutonium_heat"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

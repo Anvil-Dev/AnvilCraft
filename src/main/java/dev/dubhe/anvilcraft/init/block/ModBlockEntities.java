@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LaserReceiverBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
@@ -28,6 +29,7 @@ import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
@@ -279,26 +281,48 @@ public class ModBlockEntities {
         ActivatorSlidingRailBlockEntity::new
     ).validBlocks(ModBlocks.ACTIVATOR_SLIDING_RAIL).register();
 
-    public static final BlockEntityEntry<ShulkerCrateBlockEntity> SHULKER_CRATE = REGISTRATE.blockEntity(
-        "shulker_crate",
-        ShulkerCrateBlockEntity::new
-    ).validBlocks(ModBlocks.SHULKER_CRATE).register();
+    public static final BlockEntityEntry<PropelPistonBlockEntity> PROPEL_PISTON = REGISTRATE
+        .blockEntity("propel_piston", PropelPistonBlockEntity::new)
+        .validBlock(ModBlocks.PROPEL_PISTON)
+        .register();
 
-    public static final BlockEntityEntry<NestingShulkerBoxBlockEntity> NESTING_SHULKER_BOX = REGISTRATE.blockEntity(
-        "nesting_shulker_box",
-        NestingShulkerBoxBlockEntity::new
-    ).validBlocks(ModBlocks.NESTING_SHULKER_BOX).register();
+    public static final BlockEntityEntry<LaserReceiverBlockEntity> LASER_RECEIVER = REGISTRATE
+        .blockEntity("laser_receiver", LaserReceiverBlockEntity::new)
+        .validBlocks(ModBlocks.LASER_RECEIVER)
+        .register();
+  
+    public static final BlockEntityEntry<ShulkerCrateBlockEntity> SHULKER_CRATE = REGISTRATE
+        .blockEntity(
+            "shulker_crate",
+            ShulkerCrateBlockEntity::new
+        )
+        .validBlocks(ModBlocks.SHULKER_CRATE)
+        .register();
 
-    public static final BlockEntityEntry<OverNestingShulkerBoxBlockEntity> OVER_NESTING_SHULKER_BOX = REGISTRATE.blockEntity(
-        "over_nesting_shulker_box",
-        OverNestingShulkerBoxBlockEntity::new
-    ).validBlocks(ModBlocks.OVER_NESTING_SHULKER_BOX).register();
+    public static final BlockEntityEntry<NestingShulkerBoxBlockEntity> NESTING_SHULKER_BOX = REGISTRATE
+        .blockEntity(
+            "nesting_shulker_box",
+            NestingShulkerBoxBlockEntity::new
+        )
+        .validBlocks(ModBlocks.NESTING_SHULKER_BOX)
+        .register();
+
+    public static final BlockEntityEntry<OverNestingShulkerBoxBlockEntity> OVER_NESTING_SHULKER_BOX = REGISTRATE
+        .blockEntity(
+            "over_nesting_shulker_box",
+            OverNestingShulkerBoxBlockEntity::new
+        )
+        .validBlocks(ModBlocks.OVER_NESTING_SHULKER_BOX)
+        .register();
 
     public static final BlockEntityEntry<SupercriticalNestingShulkerBoxBlockEntity> SUPERCRITICAL_NESTING_SHULKER_BOX =
-        REGISTRATE.blockEntity(
-            "supercritical_nesting_shulker_box",
-            SupercriticalNestingShulkerBoxBlockEntity::new
-        ).validBlocks(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX).register();
+        REGISTRATE
+            .blockEntity(
+                "supercritical_nesting_shulker_box",
+                SupercriticalNestingShulkerBoxBlockEntity::new
+            )
+            .validBlocks(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX)
+            .register();
 
     public static void register() {
     }

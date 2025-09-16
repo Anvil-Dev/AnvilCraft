@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/gem_transform",
+  "criteria": {
+    "has_heat_collector": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:heat_collector"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.heat_utilizing.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:heat_collector"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.heat_utilizing.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_heat_collector"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

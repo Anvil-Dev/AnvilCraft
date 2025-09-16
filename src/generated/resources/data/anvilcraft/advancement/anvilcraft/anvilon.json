@@ -1,0 +1,65 @@
+{
+  "parent": "anvilcraft:anvilcraft/new_matter",
+  "criteria": {
+    "energy_4_beacon": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_128"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "energy_4_space": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_0_and_space_overcompressor_128"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "energy_8": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_128"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "mass_16": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_32"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "space_8": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_0_and_space_overcompressor_32"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "time_8": {
+      "conditions": {
+        "recipe_id": "anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_32"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.anvilon.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:confined_space_anvilon"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.anvilon.title"
+    }
+  },
+  "requirements": [
+    [
+      "mass_16",
+      "energy_8",
+      "time_8",
+      "energy_4_beacon",
+      "space_8",
+      "energy_4_space"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

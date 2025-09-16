@@ -1,12 +1,21 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class TriggerUtil {
     public static void placerPlaceBlock(Level level, BlockPos pos, Block block) {
@@ -45,6 +54,14 @@ public class TriggerUtil {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
                 ModCriterionTriggers.ANVIL_ON_GROUND.get().trigger(player);
+            }
+        }
+    }
+
+    public static void recipe(Level level, BlockPos pos, ResourceLocation id, List<ItemStack> stacks) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                CriteriaTriggers.RECIPE_CRAFTED.trigger(player, id, stacks);
             }
         }
     }
@@ -101,6 +118,30 @@ public class TriggerUtil {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
                 ModCriterionTriggers.CONVERT_BEACON.get().trigger(player);
+            }
+        }
+    }
+
+    public static void fireReforge(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.FIRE_REFORGE.get().trigger(player);
+            }
+        }
+    }
+
+    public static void heatCollectOn(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity entity) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.HEAT_COLLECTOR_COLLECT.get().trigger(player, state, entity, -1);
+            }
+        }
+    }
+
+    public static void heatCollectorOutput(Level level, BlockPos pos, int output) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.HEAT_COLLECTOR_COLLECT.get().trigger(player, Blocks.AIR.defaultBlockState(), null, output);
             }
         }
     }

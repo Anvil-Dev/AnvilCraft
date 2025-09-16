@@ -20,11 +20,29 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
     private static final double MAX_POWER_PER_INCOMING = 128;
-    public static final int COOLDOWN = 2;
+    public static final int INPUT_COOLDOWN = 2;
+    public static final int OUTPUT_COOLDOWN = 10;
 
-    private int cooldownCount = 2;
+    private int inputCooldownCount = 2;
+    private final List<Integer> charges = new LinkedList<>() {
+        {
+            for (int i = 0; i < 10; i++) {
+                this.add(0);
+            }
+        }
+
+        @Override
+        public boolean add(Integer integer) {
+            if (this.size() > 10) this.removeFirst();
+            return super.add(integer);
+        }
+    };
+    private int outputCooldownCount = 10;
     private double chargeCount = 0;
     private PowerGrid grid = null;
     private int power = 0;
@@ -33,7 +51,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     @Getter
     private float rotation = 0;
 
-    public static @NotNull ChargeCollectorBlockEntity createBlockEntity(
+    public static ChargeCollectorBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
@@ -55,12 +73,12 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     }
 
     @Override
-    public Level getCurrentLevel() {
+    public @Nullable Level getCurrentLevel() {
         return this.level;
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return this.getBlockPos();
     }
 
@@ -80,34 +98,50 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
-        this.cooldownCount = tag.getInt("cooldownCount");
-        this.chargeCount = tag.getDouble("chargeCount");
-        this.power = tag.getInt("power");
+        this.inputCooldownCount = tag.getInt("InputCooldownCount");
+        this.outputCooldownCount = tag.getInt("OutputCooldownCount");
+        this.chargeCount = tag.getDouble("ChargeCount");
+        this.power = tag.getInt("Power");
+        int[] charges = tag.getIntArray("Charges");
+        for (int i : charges) {
+            this.charges.add(i);
+        }
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
-        tag.putInt("cooldownCount", this.cooldownCount);
-        tag.putDouble("chargeCount", this.chargeCount);
-        tag.putInt("power", this.power);
+        tag.putInt("InputCooldownCount", this.inputCooldownCount);
+        tag.putInt("OutputCooldownCount", this.outputCooldownCount);
+        tag.putDouble("ChargeCount", this.chargeCount);
+        tag.putInt("Power", this.power);
+        tag.putIntArray("Charges", this.charges);
     }
 
     @Override
     public void gridTick() {
         if (level == null || level.isClientSide()) return;
-        if (this.cooldownCount-- > 1) return;
-        this.cooldownCount = COOLDOWN;
-        int oldPower = this.power;
-        this.power = (int) Math.floor(this.chargeCount);
-        if (this.power > 0 && this.getBlockState().getBlock() instanceof ChargeCollectorBlock chargeCollector) {
-            chargeCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
+        if (this.inputCooldownCount-- <= 1) {
+            this.inputCooldownCount = INPUT_COOLDOWN;
+            this.charges.add((int) Math.floor(this.chargeCount));
+            this.chargeCount = 0;
+            this.time++;
         }
-        if (power != oldPower && grid != null) grid.markChanged();
-        this.chargeCount = 0;
-        time++;
+        if (this.outputCooldownCount-- <= 1) {
+            this.outputCooldownCount = OUTPUT_COOLDOWN;
+            int oldPower = this.power;
+            this.power = 0;
+            for (Integer charge : this.charges) {
+                this.power += charge;
+            }
+            this.power = this.power / this.charges.size();
+            if (this.power > 0 && this.getBlockState().getBlock() instanceof ChargeCollectorBlock chargeCollector) {
+                chargeCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
+            }
+            if (this.power != oldPower && this.grid != null) this.grid.markChanged();
+        }
     }
 
     /**
@@ -123,8 +157,8 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
         }
         double acceptableChargeCount = num - overflow;
         PacketDistributor.sendToPlayersTrackingChunk(
-            (ServerLevel) level,
-            level.getChunkAt(worldPosition).getPos(),
+            (ServerLevel) this.level,
+            this.level.getChunkAt(worldPosition).getPos(),
             new ChargeCollectorIncomingChargePacket(
                 srcPos,
                 this.worldPosition,
@@ -137,10 +171,10 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
 
     @Override
     public AABB shape() {
-        return AABB.ofSize(getBlockPos().getCenter(), 5, 5, 5);
+        return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
     }
 
     public void clientTick() {
-        rotation += (float) (getServerPower() * 0.03);
+        this.rotation += (float) (this.getServerPower() * 0.03);
     }
 }

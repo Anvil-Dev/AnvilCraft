@@ -80,8 +80,8 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         return maxLevel + 1;
     }
 
-    public static boolean filter(ItemStack filterStack, ItemStack stack, boolean isIncludeComponents, boolean isBlackList) {
-        if (filterStack.isEmpty()) return !isBlackList;
+    public static boolean filter(ItemStack filterStack, ItemStack stack, boolean includeComponents) {
+        if (filterStack.isEmpty()) return true;
         if (!filterStack.has(ModComponents.FILTER_CONTENT)) {
             if (filterStack.is(Items.NAME_TAG) && filterStack.has(DataComponents.CUSTOM_NAME)) {
                 Component name = filterStack.getOrDefault(DataComponents.CUSTOM_NAME, Component.empty());
@@ -89,26 +89,25 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
                 Pattern pattern = Pattern.compile("^#(([a-z0-9._-]*:[a-z0-9/._-]*)|[a-z0-9/._-]*)$");
                 if (pattern.matcher(string).matches()) {
                     TagKey<Item> tag = TagKey.create(Registries.ITEM, ResourceLocation.parse(string.substring(1)));
-                    if (stack.is(tag)) return !isBlackList;
+                    if (stack.is(tag)) return true;
                 }
             }
             boolean flag = false;
-            if (!isIncludeComponents && ItemStack.isSameItem(filterStack, stack)) {
+            if (!includeComponents && ItemStack.isSameItem(filterStack, stack)) {
                 flag = true;
-            } else if (isIncludeComponents && ItemStack.isSameItemSameComponents(filterStack, stack)) {
+            } else if (includeComponents && ItemStack.isSameItemSameComponents(filterStack, stack)) {
                 flag = true;
             }
-            if (flag) return !isBlackList;
-            return isBlackList;
+            return flag;
         }
         FilterContent content = filterStack.get(ModComponents.FILTER_CONTENT);
         if (content == null) return false;
         for (ItemStack itemStack : content.list()) {
             if (itemStack.isEmpty()) continue;
-            if (FilterContent.filter(itemStack, stack, content.includeComponents(), content.blackList())) {
-                return !isBlackList;
+            if (FilterContent.filter(itemStack, stack, content.includeComponents())) {
+                return !content.blackList();
             }
         }
-        return isBlackList;
+        return content.blackList();
     }
 }

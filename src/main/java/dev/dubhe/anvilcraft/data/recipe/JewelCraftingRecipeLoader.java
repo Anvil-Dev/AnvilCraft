@@ -1,13 +1,19 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+import twilightforest.TwilightForestMod;
+import twilightforest.init.TFItems;
 
 public class JewelCraftingRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -59,5 +65,23 @@ public class JewelCraftingRecipeLoader {
             .requires(ModBlocks.SPACE_OVERCOMPRESSOR)
             .result(new ItemStack(Items.HEAVY_CORE))
             .save(provider);
+
+        // Twilight Forest Integration
+        JewelCraftingRecipe.builder()
+            .requires(ModItems.EMBER_METAL_INGOT, 2)
+            .requires(Items.BLAZE_POWDER, 2)
+            .requires(TFItems.FIERY_INGOT, 2)
+            .result(TFItems.LAMP_OF_CINDERS.toStack())
+            .save(provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
+                AnvilCraft.of("jewel_crafting/twilight_forest_lamp_of_cinders"));
+
+        JewelCraftingRecipe.builder()
+            .requires(ModItems.MAGNET_INGOT, 4)
+            .requires(Ingredient.of(ItemTags.IRON_ORES), 4)
+            .requires(Ingredient.of(ItemTags.GOLD_ORES), 4)
+            .requires(Ingredient.of(ItemTags.COPPER_ORES), 4)
+            .result(TFItems.ORE_MAGNET.toStack())
+            .save(provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
+                AnvilCraft.of("jewel_crafting/twilight_forest_ore_magnet"));
     }
 }

@@ -216,13 +216,6 @@ public class ItemTagLoader {
             .addTag(Tags.Items.INGOTS)
             .addTag(Tags.Items.STORAGE_BLOCKS);
 
-        provider.addTag(ModItemTags.COMPRESS_ITEM)
-            .add(findResourceKey(Items.SNOW_BLOCK))
-            .add(findResourceKey(Items.WHITE_WOOL))
-            .addTag(Tags.Items.INGOTS)
-            .addTag(Tags.Items.STORAGE_BLOCKS);
-
-
         provider.addTag(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)
             .addTag(Tags.Items.RAW_MATERIALS)
             .addTag(Tags.Items.ORES);

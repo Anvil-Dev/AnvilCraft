@@ -1,0 +1,18 @@
+{
+  "name": "流程16-超限模板",
+  "category": "anvilcraft:process",
+  "icon": "anvilcraft:transcendium_upgrade_smithing_template",
+  "sortnum": 16,
+  "entry_color": "660066",
+  "pages": [
+    "$(li)制造$(item)八合一模板$()，为其附上多种附魔 $(li)如果模板被摧毁(比如爆炸)，会选取至多4个附魔，根据它们掉落对应的模板 $(li)如果掉落了4个互不相同的模板，就会额外产出一个$(item)超限模板$()",
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:smithing/tier_2_materials",
+        "anvilcraft:smithing/tier_3_forge"
+      ],
+      "text": ""
+    }
+  ]
+}

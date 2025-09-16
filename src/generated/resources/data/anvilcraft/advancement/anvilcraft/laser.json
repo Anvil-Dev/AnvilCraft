@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/gem_transform",
+  "criteria": {
+    "has_ruby_laser": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:ruby_laser"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.laser.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:ruby_laser"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.laser.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_ruby_laser"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

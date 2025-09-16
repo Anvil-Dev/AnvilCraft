@@ -62,6 +62,7 @@ import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.LaserReceiverBlock;
 import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LevitationPowderBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
@@ -83,6 +84,7 @@ import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
@@ -118,6 +120,8 @@ import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
 import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
+import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
+import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.plate.EntityCountPressurePlateBlock;
@@ -147,19 +151,18 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.ChuteBlockItem;
-import dev.dubhe.anvilcraft.item.EndDustBlockItem;
-import dev.dubhe.anvilcraft.item.FlexibleMultiPartBlockItem;
-import dev.dubhe.anvilcraft.item.HasMobBlockItem;
-import dev.dubhe.anvilcraft.item.HeliostatsItem;
-import dev.dubhe.anvilcraft.item.PlaceInWaterBlockItem;
-import dev.dubhe.anvilcraft.item.ResinBlockItem;
-import dev.dubhe.anvilcraft.item.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
+import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
+import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
+import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
+import dev.dubhe.anvilcraft.block.item.RadiationBlockItem;
+import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
-import dev.dubhe.anvilcraft.item.abnormal.CursedBlockItem;
-import dev.dubhe.anvilcraft.item.abnormal.LevitationBlockItem;
-import dev.dubhe.anvilcraft.item.abnormal.RadiationBlockItem;
-import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
@@ -188,6 +191,7 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
@@ -1159,6 +1163,35 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+    public static final BlockEntry<LaserReceiverBlock> LASER_RECEIVER = REGISTRATE
+        .block("laser_receiver", LaserReceiverBlock::new)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .initialProperties(ModBlocks.RUBY_PRISM::get)
+        .properties((properties) -> properties
+            .noOcclusion()
+            .isRedstoneConductor(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+            .lightLevel((blockState) -> blockState.getValue(LaserReceiverBlock.ACTIVE) ? 15 : 0)
+        )
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+                .pattern("AAA")
+                .pattern("ABA")
+                .pattern("DCD")
+                .define('A', ModItems.RUBY)
+                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+                .define('C', Items.REDSTONE)
+                .define('D', ModItems.ROYAL_STEEL_INGOT)
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RUBY))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.REDSTONE))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+                .save(provider);
+        })
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<BlockComparatorBlock> BLOCK_COMPARATOR = REGISTRATE.block("block_comparator", BlockComparatorBlock::new)
         .initialProperties(() -> Blocks.OBSERVER)
         .properties(BlockBehaviour.Properties::noOcclusion)
@@ -1327,7 +1360,8 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_HOE)
-        .simpleItem()
+        .item(MengerSpongeBlockItem::new)
+        .build()
         .register();
     public static final BlockEntry<? extends Block> CHUTE = REGISTRATE.block("chute", ChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -1595,6 +1629,61 @@ public class ModBlocks {
             .strength(-1.0F, 3600000.0F)
             .noLootTable())
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .register();
+
+    public static final BlockEntry<PropelPiston> PROPEL_PISTON = REGISTRATE
+        .block("propel_piston", PropelPiston::new)
+        .properties((properties) -> {
+            return properties.mapColor(MapColor.TERRACOTTA_WHITE)
+                .requiresCorrectToolForDrops()
+                .strength(1.5f)
+                .noOcclusion();
+        })
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> {
+            tables.add(block,  LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0f))
+                    .add(LootItem.lootTableItem(ModBlocks.PROPEL_PISTON))
+                    .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                        .include(ModComponents.STORED_ENERGY))));
+        })
+        .recipe((ctx, provider) -> {
+            ItemStack itemStack = new ItemStack(ctx.get());
+            itemStack.set(ModComponents.STORED_ENERGY, 4000);
+            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, itemStack)
+                .pattern("CDC")
+                .pattern("ABA")
+                .pattern("AEA")
+                .define('A', ModItems.IONOCRAFT)
+                .define('B', ModItems.CAPACITOR)
+                .define('C', Items.IRON_INGOT)
+                .define('D', Items.PISTON)
+                .define('E', ModItems.RUBY)
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.IONOCRAFT))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.CAPACITOR))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.PISTON))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RUBY))
+                .save(provider);
+            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+                .pattern("CDC")
+                .pattern("ABA")
+                .pattern("AEA")
+                .define('A', ModItems.IONOCRAFT)
+                .define('B', ModItems.CAPACITOR_EMPTY)
+                .define('C', Items.IRON_INGOT)
+                .define('D', Items.PISTON)
+                .define('E', ModItems.RUBY)
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.IONOCRAFT))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.CAPACITOR_EMPTY))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.PISTON))
+                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RUBY))
+                .save(provider, "empty_propel_piston");
+        })
+        .simpleItem()
         .register();
 
     static {
@@ -3524,7 +3613,12 @@ public class ModBlocks {
         .item()
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
         .build()
-        .tag(Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
+        .tag(
+            Tags.Blocks.STORAGE_BLOCKS,
+            ModBlockTags.STORAGE_BLOCKS_MULTIPHASE_MATTER,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            BlockTags.MINEABLE_WITH_PICKAXE
+        )
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
                 .pattern("AAA")

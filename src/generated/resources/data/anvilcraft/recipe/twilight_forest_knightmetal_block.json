@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "C": {
+      "item": "minecraft:cactus"
+    },
+    "H": {
+      "item": "anvilcraft:heavy_iron_block"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CHC",
+    "CCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "twilightforest:knightmetal_block"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:item_inject",
+  "block_ingredient": {
+    "blocks": "minecraft:iron_block"
+  },
+  "block_result": {
+    "block": "twilightforest:fiery_block"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:ember_metal_ingot"
+    }
+  ]
+}

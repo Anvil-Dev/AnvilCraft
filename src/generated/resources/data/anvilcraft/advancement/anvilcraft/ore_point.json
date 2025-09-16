@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/laser",
+  "criteria": {
+    "mineral_fountain_create": {
+      "trigger": "anvilcraft:mineral_fountain_crate"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.ore_point.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:mineral_fountain"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.ore_point.title"
+    }
+  },
+  "requirements": [
+    [
+      "mineral_fountain_create"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -14,11 +14,13 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -53,10 +55,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     private PowerGrid grid;
 
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
-        "rangeRadius",
-        thiz -> {
-            this.setChanged();
-        },
+        "rangeRadius", thiz -> this.setChanged(),
         1,
         2,
         4,
@@ -73,9 +72,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
         10,
         60
     );
-    private int cd = cooldown.get();
+    private int cd = cooldown.next();
 
-    public static final Map<Level, Map<ChunkPos, List<ItemCollectorBlockEntity>>> PoachingCollectorMap = new HashMap<>();
+    public static final Map<Level, Map<ChunkPos, List<ItemCollectorBlockEntity>>> POACHING_COLLECTOR_MAP = new HashMap<>();
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
@@ -89,62 +88,65 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public Level getCurrentLevel() {
-        return level;
+    public @Nullable Level getCurrentLevel() {
+        return this.level;
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
-        return getBlockPos();
+    public BlockPos getPos() {
+        return this.getBlockPos();
     }
 
 
-    private static final Map<Integer, Map<Integer, Integer>> powerConsumption =
-        Map.of(
-            0, Map.of(1, 8, 2, 12, 4, 20, 8, 32),
-            2, Map.of(1, 5, 2, 8, 4, 12, 8, 20),
-            10, Map.of(1, 3, 2, 5, 4, 8, 8, 12),
-            60, Map.of(1, 2, 2, 3, 4, 5, 8, 8)
-        );
+    private static final Map<Integer, Map<Integer, Integer>> POWER_CONSUMPTION = Map.of(
+        0,
+        Map.of(1, 8, 2, 12, 4, 20, 8, 32),
+        2,
+        Map.of(1, 5, 2, 8, 4, 12, 8, 20),
+        10,
+        Map.of(1, 3, 2, 5, 4, 8, 8, 12),
+        60,
+        Map.of(1, 2, 2, 3, 4, 5, 8, 8)
+    );
 
     @Override
     public int getInputPower() {
-        int power = powerConsumption.get(cooldown.get()).get(rangeRadius.get());
+        int power = ItemCollectorBlockEntity.POWER_CONSUMPTION.get(this.cooldown.get()).get(this.rangeRadius.get());
         if (level == null) return power;
         return getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
     }
 
     @Override
     public FilteredItemStackHandler getFilteredItemStackHandler() {
-        return itemHandler;
+        return this.itemHandler;
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public Component getDisplayName() {
         return Component.translatable("screen.anvilcraft.item_collector.title");
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.loadAdditional(tag, provider);
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
-        cooldown.fromIndex(tag.getInt("Cooldown"));
-        rangeRadius.fromIndex(tag.getInt("RangeRadius"));
-        cd = tag.getInt("cd");
+        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+        this.cooldown.fromIndex(tag.getInt("Cooldown"));
+        this.rangeRadius.fromIndex(tag.getInt("RangeRadius"));
+        this.cd = tag.getInt("cd");
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
-        tag.putInt("Cooldown", cooldown.index());
-        tag.putInt("RangeRadius", rangeRadius.index());
-        tag.putInt("cd", cd);
+        tag.putInt("Cooldown", this.cooldown.index());
+        tag.putInt("RangeRadius", this.rangeRadius.index());
+        tag.putInt("cd", this.cd);
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new ItemCollectorMenu(ModMenuTypes.ITEM_COLLECTOR.get(), i, inventory, this);
     }
@@ -156,11 +158,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
+    public CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
-        tag.putInt("Cooldown", cooldown.index());
-        tag.putInt("RangeRadius", rangeRadius.index());
+        tag.putInt("Cooldown", this.cooldown.index());
+        tag.putInt("RangeRadius", this.rangeRadius.index());
         return tag;
     }
 
@@ -189,14 +191,15 @@ public class ItemCollectorBlockEntity extends BlockEntity
         List<ChunkPos> chunkPosListReal = getPoachingMapPositions(rangeRadius.get());
         for (ChunkPos chunkPos : chunkPosListMax) {
             if (cooldown.get() == 0 && chunkPosListReal.contains(chunkPos)) {
-                if (!PoachingCollectorMap.containsKey(level)) PoachingCollectorMap.put(level, new HashMap<>());
-                if (!PoachingCollectorMap.get(level).containsKey(chunkPos))
-                    PoachingCollectorMap.get(level).put(chunkPos, new ArrayList<>());
-                List<ItemCollectorBlockEntity> list = PoachingCollectorMap.get(level).get(chunkPos);
+                if (!POACHING_COLLECTOR_MAP.containsKey(level)) POACHING_COLLECTOR_MAP.put(level, new HashMap<>());
+                if (!POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
+                    POACHING_COLLECTOR_MAP.get(level).put(chunkPos, new ArrayList<>());
+                }
+                List<ItemCollectorBlockEntity> list = POACHING_COLLECTOR_MAP.get(level).get(chunkPos);
                 if (!list.contains(this)) list.add(this);
             } else {
-                if (PoachingCollectorMap.containsKey(level) && PoachingCollectorMap.get(level).containsKey(chunkPos)) {
-                    List<ItemCollectorBlockEntity> list = PoachingCollectorMap.get(level).get(chunkPos);
+                if (POACHING_COLLECTOR_MAP.containsKey(level) && POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
+                    List<ItemCollectorBlockEntity> list = POACHING_COLLECTOR_MAP.get(level).get(chunkPos);
                     list.remove(this);
                 }
             }
@@ -220,9 +223,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
         if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) return;
         AABB box = AABB.ofSize(
             Vec3.atCenterOf(getBlockPos()),
-            rangeRadius.get() * 2.0 + 1,
-            rangeRadius.get() * 2.0 + 1,
-            rangeRadius.get() * 2.0 + 1
+            this.rangeRadius.get() * 2.0 + 1,
+            this.rangeRadius.get() * 2.0 + 1,
+            this.rangeRadius.get() * 2.0 + 1
         );
         List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, box);
         for (ItemEntity itemEntity : itemEntities) {
@@ -237,9 +240,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
                 itemEntity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
-        if (cooldown.get() > 0)
-            cd = cooldown.get();
-        else cd = 5; //这个地方是给“即便是截胡模式也主动吸取物品”的设定准备的，暂时随便写了个数值
+        if (this.cooldown.get() > 0) {
+            this.cd = this.cooldown.get();
+        } else {
+            this.cd = 5; //这个地方是给“即便是截胡模式也主动吸取物品”的设定准备的，暂时随便写了个数值
+        }
     }
 
     public void tick(Level level, BlockPos blockPos) {
@@ -251,9 +256,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
      */
     public int getRedstoneSignal() {
         int i = 0;
-        for (int j = 0; j < itemHandler.getSlots(); ++j) {
-            ItemStack itemStack = itemHandler.getStackInSlot(j);
-            if (itemStack.isEmpty() && !itemHandler.isSlotDisabled(j)) continue;
+        for (int j = 0; j < this.itemHandler.getSlots(); ++j) {
+            ItemStack itemStack = this.itemHandler.getStackInSlot(j);
+            if (itemStack.isEmpty() && !this.itemHandler.isSlotDisabled(j)) continue;
             ++i;
         }
         return i;
@@ -261,21 +266,38 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Override
     public void storeDiskData(CompoundTag tag) {
-        tag.put("Filtering", itemHandler.serializeFiltering());
+        if (this.level == null) return;
+        RegistryAccess provider = this.level.registryAccess();
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
+        tag.putInt("Cooldown", this.cooldown.index());
+        tag.putInt("RangeRadius", this.rangeRadius.index());
+        tag.putInt("cd", this.cd);
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
-        itemHandler.deserializeFiltering(data.getCompound("Filtering"));
+    public void applyDiskData(CompoundTag tag) {
+        if (this.level == null) return;
+        RegistryAccess provider = this.level.registryAccess();
+        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+        this.cooldown.fromIndex(tag.getInt("Cooldown"));
+        this.rangeRadius.fromIndex(tag.getInt("RangeRadius"));
+        this.cd = tag.getInt("cd");
+        this.setChanged();
+        Vec3 center = this.getPos().getCenter();
+        MinecraftServer server = level.getServer();
+        if (server == null) return;
+        Packet<ClientGamePacketListener> packet = this.getUpdatePacket();
+        if (packet == null) return;
+        server.getPlayerList().broadcast(null, center.x(), center.y(), center.z(), 256, this.level.dimension(), packet);
     }
 
     @Override
     public AABB shape() {
         return AABB.ofSize(
             Vec3.atCenterOf(getBlockPos()),
-            rangeRadius.get() * 2.0 + 1,
-            rangeRadius.get() * 2.0 + 1,
-            rangeRadius.get() * 2.0 + 1
+            this.rangeRadius.get() * 2.0 + 1,
+            this.rangeRadius.get() * 2.0 + 1,
+            this.rangeRadius.get() * 2.0 + 1
         );
     }
 }

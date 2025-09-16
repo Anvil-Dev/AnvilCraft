@@ -95,6 +95,6 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<T> recipeHolder, IFocusGroup focuses) {
         T recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
-        JeiSlotUtil.addOutputSlots(builder, this.getResults(recipe));
+        JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
     }
 }

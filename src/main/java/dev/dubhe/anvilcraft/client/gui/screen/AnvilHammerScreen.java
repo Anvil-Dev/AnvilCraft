@@ -59,8 +59,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static dev.dubhe.anvilcraft.util.RenderHelper.L1;
-import static dev.dubhe.anvilcraft.util.RenderHelper.L2;
+import static dev.dubhe.anvilcraft.client.support.RenderSupport.L1;
+import static dev.dubhe.anvilcraft.client.support.RenderSupport.L2;
 
 @ParametersAreNonnullByDefault
 public class AnvilHammerScreen extends Screen implements IHasHammerEffect {

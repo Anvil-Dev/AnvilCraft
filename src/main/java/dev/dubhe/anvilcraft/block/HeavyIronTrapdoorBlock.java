@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -14,14 +15,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class HeavyIronTrapdoorBlock extends TrapDoorBlock {
+public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChangeable {
     public HeavyIronTrapdoorBlock(Properties properties) {
         super(BlockSetType.IRON, properties);
     }
@@ -43,6 +47,7 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.getItem() instanceof AnvilHammerItem) {
             this.toggle(state, level, pos, player);
+            this.playSound(null, level, pos, state.getValue(OPEN));
             return ItemInteractionResult.SUCCESS;
         }
         return ItemInteractionResult.FAIL;
@@ -62,5 +67,18 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock {
                 level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
             }
         }
+    }
+
+    @Override
+    public boolean change(Player player, BlockPos pos, @NotNull Level level, ItemStack anvilHammer) {
+        BlockState state = level.getBlockState(pos);
+        this.toggle(state, level, pos, player);
+        this.playSound(null, level, pos, !state.getValue(OPEN));
+        return true;
+    }
+
+    @Override
+    public @Nullable Property<?> getChangeableProperty(BlockState state) {
+        return FACING;
     }
 }

@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.recipe.component.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.patchouli.util.PatchouliRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.util.RenderHelper;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -31,18 +31,18 @@ public class PageBlockCompress extends PageDoubleRecipeRegistry<BlockCompressRec
         for (int i = 0; i < Math.min(inputs.size(), 2); i++) {
             List<BlockState> states = inputs.get(i).constructStatesForRender();
             BlockState state = states.get((parent.ticksInBook / 20) % states.size());
-            RenderHelper.renderBlock(
+            RenderSupport.renderBlock(
                 graphics, state,
                 recipeX + 20, recipeY + 26 + i * 10, -i * 10,
                 12,
-                RenderHelper.SINGLE_BLOCK
+                RenderSupport.SINGLE_BLOCK
             );
         }
 
         PatchouliRenderHelper.renderArray(graphics, recipeX + 45, recipeY + 25);
 
         ChanceBlockState result = recipe.getFirstResultBlock();
-        RenderHelper.renderBlock(graphics, result.state(), recipeX + 80, recipeY + 37, 0, 12, RenderHelper.SINGLE_BLOCK);
+        RenderSupport.renderBlock(graphics, result.state(), recipeX + 80, recipeY + 37, 0, 12, RenderSupport.SINGLE_BLOCK);
 
         parent.drawCenteredStringNoShadow(
             graphics, getTitle(second).getVisualOrderText(),
