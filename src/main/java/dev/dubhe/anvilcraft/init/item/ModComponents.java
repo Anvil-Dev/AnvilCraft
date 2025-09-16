@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.CrateStorage;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
@@ -109,6 +110,11 @@ public class ModComponents {
     public static final DataComponentType<OverLimitItemContainerContents> OVER_LIMIT_CONTAINER = register(
         "over_limit_item_container_contents",
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<CrateStorage.Simple> CRATE_STORAGE = register(
+        "crate_storage",
+        b -> b.persistent(CrateStorage.Simple.CODEC.codec()).networkSynchronized(CrateStorage.Simple.STREAM_CODEC)
     );
 
     private static <T> @NotNull DataComponentType<T> register(String name, @NotNull Consumer<DataComponentType.Builder<T>> customizer) {

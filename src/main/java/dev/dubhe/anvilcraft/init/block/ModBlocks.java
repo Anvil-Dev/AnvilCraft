@@ -122,6 +122,7 @@ import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
+import dev.dubhe.anvilcraft.block.item.UncontainableBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.plate.EntityCountPressurePlateBlock;
@@ -4015,9 +4016,9 @@ public class ModBlocks {
         .loot(DataGenUtil::nestingShulkerBoxLoot)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .item()
+        .item(UncontainableBlockItem::new)
         .properties(properties -> properties
-            .stacksTo(16)
+            .stacksTo(1)
             .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
@@ -4033,9 +4034,9 @@ public class ModBlocks {
         .loot(DataGenUtil::nestingShulkerBoxLoot)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .item()
+        .item(UncontainableBlockItem::new)
         .properties(properties -> properties
-            .stacksTo(16)
+            .stacksTo(1)
             .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
@@ -4051,9 +4052,9 @@ public class ModBlocks {
         .loot(DataGenUtil::nestingShulkerBoxLoot)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .item()
+        .item(UncontainableBlockItem::new)
         .properties(properties -> properties
-            .stacksTo(16)
+            .stacksTo(1)
             .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
         )
         .model((ctx, provider) -> provider.blockItem(ctx))

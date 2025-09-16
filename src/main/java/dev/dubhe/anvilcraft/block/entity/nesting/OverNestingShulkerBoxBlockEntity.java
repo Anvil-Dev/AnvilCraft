@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class OverNestingShulkerBoxBlockEntity extends BaseNestingShulkerBoxBlockEntity {
     public OverNestingShulkerBoxBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(2, type, pos, state);
+        super(54, type, pos, state);
     }
 
     @Override

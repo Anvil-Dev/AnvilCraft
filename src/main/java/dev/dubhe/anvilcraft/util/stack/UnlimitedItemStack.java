@@ -1,9 +1,10 @@
-package dev.dubhe.anvilcraft.util;
+package dev.dubhe.anvilcraft.util.stack;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.util.Util;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import lombok.Getter;
@@ -24,7 +25,6 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Getter

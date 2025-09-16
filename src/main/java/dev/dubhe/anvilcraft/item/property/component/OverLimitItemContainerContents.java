@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.itemhandler.OverLimitItemHandler;
-import dev.dubhe.anvilcraft.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;

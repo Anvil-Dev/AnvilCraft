@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.mojang.logging.LogUtils;
-import dev.dubhe.anvilcraft.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import it.unimi.dsi.fastutil.objects.ObjectIntMutablePair;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.minecraft.core.Holder;

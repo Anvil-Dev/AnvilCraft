@@ -26,9 +26,9 @@ public abstract class BaseNestingShulkerBoxBlockEntity extends BlockEntity imple
     @Nullable
     private Component name;
 
-    public BaseNestingShulkerBoxBlockEntity(int nestingLayer, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public BaseNestingShulkerBoxBlockEntity(int baseLimit, BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        this.items = new OverLimitItemHandler((int) Math.pow(4, nestingLayer), 27);
+        this.items = new OverLimitItemHandler(baseLimit, 1);
     }
 
     @Override
