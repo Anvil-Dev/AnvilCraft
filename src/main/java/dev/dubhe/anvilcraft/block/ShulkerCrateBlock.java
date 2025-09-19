@@ -1,21 +1,30 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.CrateStorageReference;
+import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -27,11 +36,16 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ShulkerCrateBlock
     extends FlexibleMultiPartBlock<OpenedCube3x3PartHalf, BooleanProperty, Boolean>
@@ -259,13 +273,42 @@ public class ShulkerCrateBlock
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.is(newState.getBlock())) return;
-        if (state.getValue(HALF).isMain()) {
-            level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
-                .ifPresent(crate -> ItemHandlerUtil.dropAllToPos(crate.getItemHandler(), level, pos.getCenter()));
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
+            .ifPresent(crate -> {
+                if (!level.isClientSide && player.isCreative() && state.getValue(HALF).isMain()) {
+                    ItemStack stack = this.asItem().getDefaultInstance();
+                    stack.applyComponents(crate.collectComponents());
+                    ItemEntity itemEntity = new ItemEntity(
+                        level,
+                        pos.getX() + 0.5,
+                        pos.getY() + 0.5,
+                        pos.getZ() + 0.5,
+                        stack
+                    );
+                    itemEntity.setDefaultPickUpDelay();
+                    level.addFreshEntity(itemEntity);
+                }
+            });
+
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltips, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltips, flag);
+        if (!flag.isAdvanced()) return;
+        Optional<UUID> uuid = Optional.ofNullable(stack.get(ModComponents.CRATE_STORAGE)).flatMap(CrateStorageReference::id);
+        if (uuid.isEmpty()) return;
+        tooltips.add(Component.translatable("tooltip.anvilcraft.shulker_crate.uuid", uuid.get().toString()).withStyle(ChatFormatting.ITALIC));
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
+        level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
+            .ifPresent(be -> be.saveToItem(stack, level.registryAccess()));
+        return stack;
     }
 
     @Override

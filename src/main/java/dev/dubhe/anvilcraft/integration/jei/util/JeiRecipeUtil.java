@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.integration.jei.util;
 
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.recipe.component.ChanceItemStack;
-import dev.dubhe.anvilcraft.util.RecipeUtil;
 import dev.anvilcraft.lib.util.NumberProviderUtil;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import net.minecraft.ChatFormatting;

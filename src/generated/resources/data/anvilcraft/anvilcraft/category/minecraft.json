@@ -5,5 +5,5 @@
     "id": "minecraft:grass_block"
   },
   "modId": "minecraft",
-  "name": "{\"fallback\":\"Minecraft\",\"translate\":\"category.minecraft.name\"}"
+  "name": "{\"extra\":[{\"translate\":\"category.anvilcraft.mod_name_suffix\"}],\"fallback\":\"Minecraft\",\"translate\":\"category.anvilcraft.mod_name.minecraft\"}"
 }

@@ -5,5 +5,5 @@
     "id": "anvilcraft:royal_anvil"
   },
   "modId": "anvilcraft",
-  "name": "{\"fallback\":\"AnvilCraft\",\"translate\":\"category.anvilcraft.name\"}"
+  "name": "{\"extra\":[{\"translate\":\"category.anvilcraft.mod_name_suffix\"}],\"fallback\":\"AnvilCraft\",\"translate\":\"category.anvilcraft.mod_name.anvilcraft\"}"
 }

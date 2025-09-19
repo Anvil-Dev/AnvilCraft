@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.item.IMultipleResult;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;

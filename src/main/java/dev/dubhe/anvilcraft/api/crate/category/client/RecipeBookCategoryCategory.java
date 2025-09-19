@@ -35,6 +35,7 @@ public record RecipeBookCategoryCategory(ItemStack icon, Component name, String 
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public boolean testClient(ItemStack stack) {
         Optional<RecipeBookCategories> categories = CATEGORIES_CODEC.decode(JavaOps.INSTANCE, this.categories)
             .result()

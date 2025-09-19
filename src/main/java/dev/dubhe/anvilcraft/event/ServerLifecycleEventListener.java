@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.RipeningManager;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;

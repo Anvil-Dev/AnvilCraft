@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.util.function.Function;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;

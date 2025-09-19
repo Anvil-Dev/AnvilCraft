@@ -59,6 +59,15 @@ public class ShulkerCrateStorage extends SavedData {
         return storage;
     }
 
+    public UUID create() {
+        UUID uuid = UUID.randomUUID();
+        while (this.crates.containsKey(uuid)) {
+            uuid = UUID.randomUUID();
+        }
+        this.crates.put(uuid, new CrateStorage(uuid));
+        return uuid;
+    }
+
     private void readStorages(CompoundTag nbt, HolderLookup.Provider registries) {
         for (var entry : nbt.getList("Data", Tag.TAG_COMPOUND)) {
             if (!(entry instanceof CompoundTag entryTag)) return;

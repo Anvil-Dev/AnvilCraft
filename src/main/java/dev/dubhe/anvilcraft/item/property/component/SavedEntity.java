@@ -9,8 +9,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 

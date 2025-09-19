@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
+import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;

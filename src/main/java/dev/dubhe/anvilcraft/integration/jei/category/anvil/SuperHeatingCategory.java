@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -13,7 +14,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;

@@ -4,7 +4,6 @@ import com.tterrag.registrate.providers.RegistrateAdvancementProvider;
 import dev.dubhe.anvilcraft.init.ModAdvancements;
 import dev.dubhe.anvilcraft.util.Util;
 import lombok.SneakyThrows;
-import net.minecraft.advancements.AdvancementHolder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

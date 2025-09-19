@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.anvilcraft.lib.recipe.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -8,7 +9,6 @@ import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;

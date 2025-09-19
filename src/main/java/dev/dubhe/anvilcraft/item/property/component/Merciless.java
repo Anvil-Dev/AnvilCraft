@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.item.property.component;
 
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;

@@ -44,5 +44,7 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.item.amulet_box.fullness", "Fullness: %d / %d");
 
         provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for information");
+
+        provider.add("tooltip.anvilcraft.shulker_crate.uuid", "UUID: %s");
     }
 }

@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.entity.ModVillagers;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;

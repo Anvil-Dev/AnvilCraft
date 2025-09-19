@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.recipe.component.BlockStatePredicate;
 import dev.anvilcraft.lib.recipe.component.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
-import dev.anvilcraft.lib.recipe.component.BlockStatePredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;

@@ -22,5 +22,6 @@ public class LangHandler {
         CuriosLang.init(provider);
         ToolPropertyLang.init(provider);
         CommandLang.init(provider);
+        CategoryLang.init(provider);
     }
 }

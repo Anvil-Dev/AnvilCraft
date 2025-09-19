@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;

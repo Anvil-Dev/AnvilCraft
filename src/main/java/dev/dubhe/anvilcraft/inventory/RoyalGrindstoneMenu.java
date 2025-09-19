@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import com.mojang.datafixers.util.Pair;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;

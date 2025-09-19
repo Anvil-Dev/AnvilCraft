@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -11,7 +12,6 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;

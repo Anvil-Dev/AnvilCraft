@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.inventory;
 
 import com.google.common.collect.Collections2;
 import com.mojang.datafixers.util.Pair;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.EnchantmentUtil;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import lombok.Getter;

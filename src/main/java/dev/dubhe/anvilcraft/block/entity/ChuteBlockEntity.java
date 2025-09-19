@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.ChuteBlock;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

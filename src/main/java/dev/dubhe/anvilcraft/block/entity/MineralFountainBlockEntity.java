@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
+import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import net.minecraft.core.BlockPos;

@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.anvil;
 
 import dev.anvilcraft.lib.AnvilLib;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;

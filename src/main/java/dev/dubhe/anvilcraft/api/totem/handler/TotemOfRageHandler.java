@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.totem.handler;
 
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;

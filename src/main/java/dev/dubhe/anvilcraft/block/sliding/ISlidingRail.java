@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.sliding;
 
 import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
-import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
+import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

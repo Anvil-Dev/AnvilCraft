@@ -18,7 +18,6 @@ import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

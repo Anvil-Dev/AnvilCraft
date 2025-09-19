@@ -19,9 +19,9 @@ public record ModCategory(ItemStack icon, Component name, String modId) implemen
         this(
             icon.asItem().getDefaultInstance(),
             Component.translatableWithFallback(
-                "category." + modId + ".name",
+                "category.anvilcraft.mod_name." + modId,
                 ModList.get().getModContainerById(modId).orElseThrow().getModInfo().getDisplayName()
-            ),
+            ).append(Component.translatable("category.anvilcraft.mod_name_suffix")),
             modId
         );
     }

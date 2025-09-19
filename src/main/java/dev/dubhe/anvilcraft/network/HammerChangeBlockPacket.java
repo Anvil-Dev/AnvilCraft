@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.anvilcraft.lib.util.CodecUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

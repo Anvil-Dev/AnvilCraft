@@ -31,8 +31,8 @@ public interface ICategory extends Predicate<ItemStack> {
 
     Type<? extends ICategory> getType();
 
-    static Component constructName(String prefix) {
-        return Component.translatable("category.anvilcraft." + prefix);
+    static Component constructName(String suffix) {
+        return Component.translatable("category.anvilcraft." + suffix);
     }
 
     interface Type<T extends ICategory> extends ISerializer<T> {

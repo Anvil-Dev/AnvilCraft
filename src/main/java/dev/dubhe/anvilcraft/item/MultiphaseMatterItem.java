@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.item;
 import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

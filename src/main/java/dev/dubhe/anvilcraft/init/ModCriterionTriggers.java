@@ -1,14 +1,15 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerClickBlockTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
+import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
@@ -17,7 +18,6 @@ import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
