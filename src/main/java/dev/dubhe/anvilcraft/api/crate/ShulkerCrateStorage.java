@@ -1,7 +1,6 @@
-package dev.dubhe.anvilcraft.api.saved;
+package dev.dubhe.anvilcraft.api.crate;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.item.property.component.CrateStorage;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectLinkedOpenHashMap;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -45,7 +44,7 @@ public class ShulkerCrateStorage extends SavedData {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if (server != null) {
                 ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-                //noinspection ConstantConditions - 现在主世界已加载
+                //noinspection ConstantConditions - 主世界已加载
                 DimensionDataStorage storage = overworld.getDataStorage();
                 return storage.computeIfAbsent(new Factory<>(ShulkerCrateStorage::new, ShulkerCrateStorage::load), AnvilCraft.MOD_ID);
             }

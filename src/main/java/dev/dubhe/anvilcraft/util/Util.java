@@ -239,4 +239,23 @@ public class Util {
             .<T>map(Util::cast)
             .ifPresent(action);
     }
+
+    /**
+     * 一个用于解决以下情景的方法：
+     * <pre>{@code
+     *     public AClassConstructor(A value) {
+     *         // 这两个参数都需传入 value
+     *         this(value.voidMethod(), value.returnBMethod());
+     *     }
+     * }</pre>
+     *
+     * @param value 原参数
+     * @param consumer 需要在传入前调用的方法
+     * @return 原参数
+     * @param <T> 原参数的类型
+     */
+    public static <T> T run(T value, Consumer<T> consumer) {
+        consumer.accept(value);
+        return value;
+    }
 }

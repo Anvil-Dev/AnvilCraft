@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.dubhe.anvilcraft.api.saved;
+package dev.dubhe.anvilcraft.api.crate.category;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

@@ -12,12 +12,18 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.RecipeBookCategories;
+import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -173,5 +179,16 @@ public class RecipeUtil {
         }
 
         return levelLike;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isInCategory(LocalPlayer player, ItemStack result, RecipeBookCategories category) {
+        ClientRecipeBook book = player.getRecipeBook();
+        for (RecipeCollection collection : book.getCollection(category)) {
+            for (RecipeHolder<?> recipe : collection.getRecipes()) {
+                if (ItemStack.isSameItemSameComponents(recipe.value().getResultItem(collection.registryAccess()), result)) return true;
+            }
+        }
+        return false;
     }
 }

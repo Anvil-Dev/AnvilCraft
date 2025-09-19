@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
@@ -109,5 +110,18 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
             }
         }
         return content.blackList();
+    }
+
+    public static ItemStack getFirstItem(ItemStack filter) {
+        if (filter.isEmpty()) return ItemStack.EMPTY;
+        if (!filter.is(ModItems.FILTER)) return filter;
+        if (!filter.has(ModComponents.FILTER_CONTENT)) return filter;
+        FilterContent content = filter.get(ModComponents.FILTER_CONTENT);
+        ItemStack result = null;
+        for (ItemStack stack : content.list) {
+            result = stack;
+            break;
+        }
+        return result == null ? ItemStack.EMPTY : result;
     }
 }
