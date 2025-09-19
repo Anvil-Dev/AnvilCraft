@@ -23,8 +23,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.Optional;
-
 public class ModCategories {
     private static final DeferredRegister<ICategory.Type<?>> REGISTER = DeferredRegister.create(
         ModRegistries.CATEGORY_TYPE_KEY,

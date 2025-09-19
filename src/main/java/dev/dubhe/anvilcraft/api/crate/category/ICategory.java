@@ -31,7 +31,7 @@ public interface ICategory extends Predicate<ItemStack> {
 
     Type<? extends ICategory> getType();
 
-    static Component name(String prefix) {
+    static Component constructName(String prefix) {
         return Component.translatable("category.anvilcraft." + prefix);
     }
 

@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api.crate.category;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModCategories;
-import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -17,7 +16,7 @@ import net.minecraft.world.level.ItemLike;
 
 public record CreativeModeTabCategory(ItemStack icon, Component name, ResourceKey<CreativeModeTab> tabKey) implements ICategory {
     public CreativeModeTabCategory(ItemLike icon, String prefix, ResourceKey<CreativeModeTab> tabKey) {
-        this(icon.asItem().getDefaultInstance(), ICategory.name(prefix), tabKey);
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), tabKey);
     }
 
     @Override

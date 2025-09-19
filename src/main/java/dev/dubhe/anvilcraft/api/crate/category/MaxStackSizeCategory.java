@@ -14,7 +14,7 @@ import net.minecraft.world.level.ItemLike;
 
 public record MaxStackSizeCategory(ItemStack icon, Component name, MinMaxBounds.Ints maxSize) implements ICategory {
     public MaxStackSizeCategory(ItemLike icon, String prefix, MinMaxBounds.Ints maxSize) {
-        this(icon.asItem().getDefaultInstance(), ICategory.name(prefix), maxSize);
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), maxSize);
     }
 
     @Override

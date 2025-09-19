@@ -1,8 +1,12 @@
 package dev.dubhe.anvilcraft.api.crate.category;
 
+import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModCategories;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -13,10 +17,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
+import java.util.function.Function;
 
-public record HasDataComponentCategory(ItemStack icon, Component name, List<DataComponentType<?>> types) implements ICategory {
+public record HasDataComponentCategory(ItemStack icon, Component name, List<? extends DataComponentType<?>> types) implements ICategory {
     public HasDataComponentCategory(ItemLike icon, String prefix, DataComponentType<?>... types) {
-        this(icon.asItem().getDefaultInstance(), ICategory.name(prefix), List.of(types));
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), List.of(types));
     }
 
     @Override
@@ -40,7 +45,11 @@ public record HasDataComponentCategory(ItemStack icon, Component name, List<Data
             ComponentSerialization.FLAT_CODEC
                 .fieldOf("name")
                 .forGetter(HasDataComponentCategory::name),
-            DataComponentType.CODEC.listOf()
+            Codec.either(DataComponentType.CODEC, DataComponentType.CODEC.listOf())
+                .xmap(
+                    either -> either.map(List::of, Function.identity()),
+                    list -> list.size() == 1 ? Either.left(list.getFirst()) : Either.right(List.copyOf(list))
+                )
                 .fieldOf("components")
                 .forGetter(HasDataComponentCategory::types)
         ).apply(ins, HasDataComponentCategory::new));
@@ -50,7 +59,7 @@ public record HasDataComponentCategory(ItemStack icon, Component name, List<Data
             ComponentSerialization.STREAM_CODEC,
             HasDataComponentCategory::name,
             DataComponentType.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            HasDataComponentCategory::types,
+            o -> Lists.transform(o.types(), Util::cast),
             HasDataComponentCategory::new
         );
 

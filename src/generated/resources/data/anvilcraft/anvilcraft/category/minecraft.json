@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:mod",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:grass_block"
+  },
+  "modId": "minecraft",
+  "name": "{\"fallback\":\"Minecraft\",\"translate\":\"category.minecraft.name\"}"
+}

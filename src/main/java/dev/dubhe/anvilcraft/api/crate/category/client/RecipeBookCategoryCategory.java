@@ -31,7 +31,7 @@ public record RecipeBookCategoryCategory(ItemStack icon, Component name, String 
     public static final Codec<RecipeBookCategories> CATEGORIES_CODEC = CodecUtil.enumCodecInLowerName(RecipeBookCategories.class);
 
     public RecipeBookCategoryCategory(ItemLike icon, String prefix, String categories) {
-        this(icon.asItem().getDefaultInstance(), ICategory.name(prefix), categories);
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), categories);
     }
 
     @Override

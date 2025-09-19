@@ -39,7 +39,7 @@ public class ModRegistries {
         .create();
 
     public static final ResourceKey<Registry<ICategory>> CATEGORY_KEY = ResourceKey.createRegistryKey(
-        AnvilCraft.of("category_type")
+        AnvilCraft.of("category")
     );
     public static final ResourceKey<Registry<ICategory.Type<?>>> CATEGORY_TYPE_KEY = ResourceKey.createRegistryKey(
         AnvilCraft.of("category_type")

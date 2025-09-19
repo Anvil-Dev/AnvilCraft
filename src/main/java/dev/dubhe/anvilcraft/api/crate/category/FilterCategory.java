@@ -19,7 +19,7 @@ public record FilterCategory(ItemStack icon, Component name, ItemStack filter) i
     public FilterCategory(ItemStack filter) {
         this(
             FilterContent.getFirstItem(filter),
-            filter.getOrDefault(DataComponents.CUSTOM_NAME, ICategory.name("new")),
+            filter.getOrDefault(DataComponents.CUSTOM_NAME, ICategory.constructName("new")),
             new ItemStack(
                 filter.getItemHolder(),
                 1,

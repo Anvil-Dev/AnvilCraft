@@ -15,7 +15,7 @@ import net.minecraft.world.level.ItemLike;
 
 public record ItemClassCategory(ItemStack icon, Component name, Class<? extends Item> clazz) implements ICategory {
     public ItemClassCategory(ItemLike icon, String prefix, Class<? extends Item> clazz) {
-        this(icon.asItem().getDefaultInstance(), ICategory.name(prefix), clazz);
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), clazz);
     }
 
     private ItemClassCategory(ItemStack icon, Class<?> itemClass, Component name) {

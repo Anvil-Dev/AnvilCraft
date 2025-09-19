@@ -13,7 +13,7 @@ import net.minecraft.world.level.ItemLike;
 
 public record DataComponentCategory(ItemStack icon, Component name, DataComponentPredicate predicate) implements ICategory {
     public DataComponentCategory(ItemLike icon, String prefix, DataComponentPredicate predicate) {
-        this(icon.asItem().getDefaultInstance(), ICategory.name(prefix), predicate);
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), predicate);
     }
 
     @Override

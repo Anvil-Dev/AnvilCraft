@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:item_class",
+  "class": "net.minecraft.world.item.BlockItem",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:bricks"
+  },
+  "name": "{\"translate\":\"category.anvilcraft.block\"}"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:has_data_component",
+  "components": [
+    "minecraft:enchantments",
+    "minecraft:stored_enchantments"
+  ],
+  "icon": {
+    "count": 1,
+    "id": "minecraft:enchanted_book"
+  },
+  "name": "{\"translate\":\"category.anvilcraft.enchanted\"}"
+}

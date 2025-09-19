@@ -15,7 +15,7 @@ import java.util.List;
 
 public record AndCategory(ItemStack icon, Component name, List<ICategory> categories) implements ICategory {
     public AndCategory(ItemLike icon, String prefix, ICategory... categories) {
-        this(icon.asItem().getDefaultInstance(), ICategory.name(prefix), List.of(categories));
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), List.of(categories));
     }
 
     @Override
@@ -39,7 +39,7 @@ public record AndCategory(ItemStack icon, Component name, List<ICategory> catego
             ComponentSerialization.FLAT_CODEC
                 .fieldOf("name")
                 .forGetter(AndCategory::name),
-            ICategory.CODEC.listOf()
+            ICategory.CODEC.listOf(2, Integer.MAX_VALUE)
                 .optionalFieldOf("categories", List.of())
                 .forGetter(AndCategory::categories)
         ).apply(ins, AndCategory::new));

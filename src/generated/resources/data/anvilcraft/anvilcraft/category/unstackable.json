@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:max_stack_size",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:diamond_sword"
+  },
+  "max_size": 1,
+  "name": "{\"translate\":\"category.anvilcraft.unstackable\"}"
+}

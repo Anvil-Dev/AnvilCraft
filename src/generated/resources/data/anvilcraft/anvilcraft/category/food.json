@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:has_data_component",
+  "components": "minecraft:food",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:baked_potato"
+  },
+  "name": "{\"translate\":\"category.anvilcraft.food\"}"
+}

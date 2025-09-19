@@ -1,0 +1,28 @@
+{
+  "type": "anvilcraft:and",
+  "categories": [
+    {
+      "type": "anvilcraft:creative_mode_tab",
+      "icon": {
+        "count": 1,
+        "id": "minecraft:redstone"
+      },
+      "name": "{\"translate\":\"category.anvilcraft.redstone_tab\"}",
+      "tab": "minecraft:redstone_blocks"
+    },
+    {
+      "type": "anvilcraft:recipe_book_category",
+      "categories": "crafting_redstone",
+      "icon": {
+        "count": 1,
+        "id": "minecraft:redstone"
+      },
+      "name": "{\"translate\":\"category.anvilcraft.redstone_recipe_book\"}"
+    }
+  ],
+  "icon": {
+    "count": 1,
+    "id": "minecraft:redstone"
+  },
+  "name": "{\"translate\":\"category.anvilcraft.redstone\"}"
+}

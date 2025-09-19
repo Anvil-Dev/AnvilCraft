@@ -251,8 +251,8 @@ public class Util {
      *
      * @param value 原参数
      * @param consumer 需要在传入前调用的方法
-     * @return 原参数
      * @param <T> 原参数的类型
+     * @return 原参数
      */
     public static <T> T run(T value, Consumer<T> consumer) {
         consumer.accept(value);
