@@ -35,7 +35,7 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ShulkerCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
@@ -308,9 +308,9 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.LASER_RECEIVER)
         .register();
 
-    public static final BlockEntityEntry<ShulkerCrateBlockEntity> SHULKER_CRATE = REGISTRATE
-        .blockEntity("shulker_crate", ShulkerCrateBlockEntity::new)
-        .validBlocks(ModBlocks.SHULKER_CRATE)
+    public static final BlockEntityEntry<ShulkerContainerBlockEntity> SHULKER_CRATE = REGISTRATE
+        .blockEntity("shulker_crate", ShulkerContainerBlockEntity::new)
+        .validBlocks(ModBlocks.SHULKER_CONTAINER)
         .register();
 
     public static final BlockEntityEntry<NestingShulkerBoxBlockEntity> NESTING_SHULKER_BOX = REGISTRATE

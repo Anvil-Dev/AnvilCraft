@@ -1,7 +1,0 @@
-{
-  "parent": "anvilcraft:block/shulker_crate_edge_horizontal",
-  "textures": {
-    "0": "anvilcraft:block/shulker_crate_opened",
-    "particle": "anvilcraft:block/shulker_crate_opened"
-  }
-}

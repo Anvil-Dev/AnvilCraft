@@ -205,7 +205,7 @@ public class MultiBlockRecipeLoader {
             .symbol('D', "anvilcraft:tungsten_block")
             .save(provider);
 
-        MultiblockRecipe.builder(ModBlocks.SHULKER_CRATE)
+        MultiblockRecipe.builder(ModBlocks.SHULKER_CONTAINER)
             .layer("AAA", "ABA", "AAA")
             .layer("ABA", "BCB", "ABA")
             .layer("AAA", "ABA", "AAA")

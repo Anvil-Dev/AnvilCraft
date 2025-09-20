@@ -1,0 +1,7 @@
+{
+	"render_type": "cutout",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/shulker_container_center"
+	}
+}

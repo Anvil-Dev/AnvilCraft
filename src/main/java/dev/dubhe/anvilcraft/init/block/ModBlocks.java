@@ -96,7 +96,7 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstone;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
-import dev.dubhe.anvilcraft.block.ShulkerCrateBlock;
+import dev.dubhe.anvilcraft.block.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
@@ -1279,7 +1279,8 @@ public class ModBlocks {
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
-    public static final BlockEntry<ShulkerCrateBlock> SHULKER_CRATE = REGISTRATE.block("shulker_crate", ShulkerCrateBlock::new)
+    public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRATE
+        .block("shulker_container", ShulkerContainerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
         .properties(properties -> properties

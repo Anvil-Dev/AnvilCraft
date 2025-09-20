@@ -1,0 +1,243 @@
+{
+  "type": "anvilcraft:multiblock_conversion",
+  "inputPattern": {
+    "layers": [
+      [
+        "AAA",
+        "ABA",
+        "AAA"
+      ],
+      [
+        "ABA",
+        "BCB",
+        "ABA"
+      ],
+      [
+        "AAA",
+        "ABA",
+        "AAA"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "minecraft:netherite_block"
+      },
+      "B": {
+        "block": "minecraft:shulker_box"
+      },
+      "C": {
+        "block": "anvilcraft:space_overcompressor"
+      }
+    }
+  },
+  "outputPattern": {
+    "layers": [
+      [
+        "ABC",
+        "DEF",
+        "GHI"
+      ],
+      [
+        "JKL",
+        "MNO",
+        "PQR"
+      ],
+      [
+        "STU",
+        "VWX",
+        "YZ["
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_wn",
+          "opened": "false"
+        }
+      },
+      "B": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_n",
+          "opened": "false"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_en",
+          "opened": "false"
+        }
+      },
+      "D": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_w",
+          "opened": "false"
+        }
+      },
+      "E": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_center",
+          "opened": "false"
+        }
+      },
+      "F": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_e",
+          "opened": "false"
+        }
+      },
+      "G": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_ws",
+          "opened": "false"
+        }
+      },
+      "H": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_s",
+          "opened": "false"
+        }
+      },
+      "I": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "bottom_es",
+          "opened": "false"
+        }
+      },
+      "J": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_wn",
+          "opened": "false"
+        }
+      },
+      "K": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_n",
+          "opened": "false"
+        }
+      },
+      "L": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_en",
+          "opened": "false"
+        }
+      },
+      "M": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_w",
+          "opened": "false"
+        }
+      },
+      "N": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_center",
+          "opened": "false"
+        }
+      },
+      "O": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_e",
+          "opened": "false"
+        }
+      },
+      "P": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_ws",
+          "opened": "false"
+        }
+      },
+      "Q": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_s",
+          "opened": "false"
+        }
+      },
+      "R": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "mid_es",
+          "opened": "false"
+        }
+      },
+      "S": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_wn",
+          "opened": "false"
+        }
+      },
+      "T": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_n",
+          "opened": "false"
+        }
+      },
+      "U": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_en",
+          "opened": "false"
+        }
+      },
+      "V": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_w",
+          "opened": "false"
+        }
+      },
+      "W": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_center",
+          "opened": "false"
+        }
+      },
+      "X": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_e",
+          "opened": "false"
+        }
+      },
+      "Y": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_ws",
+          "opened": "false"
+        }
+      },
+      "Z": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_s",
+          "opened": "false"
+        }
+      },
+      "[": {
+        "block": "anvilcraft:shulker_container",
+        "properties": {
+          "half": "top_es",
+          "opened": "false"
+        }
+      }
+    }
+  }
+}

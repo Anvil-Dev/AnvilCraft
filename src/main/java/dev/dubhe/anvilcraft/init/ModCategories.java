@@ -1,16 +1,16 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.crate.category.AndCategory;
-import dev.dubhe.anvilcraft.api.crate.category.CreativeModeTabCategory;
-import dev.dubhe.anvilcraft.api.crate.category.DataComponentCategory;
-import dev.dubhe.anvilcraft.api.crate.category.FilterCategory;
-import dev.dubhe.anvilcraft.api.crate.category.HasDataComponentCategory;
-import dev.dubhe.anvilcraft.api.crate.category.ICategory;
-import dev.dubhe.anvilcraft.api.crate.category.ItemClassCategory;
-import dev.dubhe.anvilcraft.api.crate.category.MaxStackSizeCategory;
-import dev.dubhe.anvilcraft.api.crate.category.ModCategory;
-import dev.dubhe.anvilcraft.api.crate.category.client.RecipeBookCategoryCategory;
+import dev.dubhe.anvilcraft.api.container.category.AndCategory;
+import dev.dubhe.anvilcraft.api.container.category.CreativeModeTabCategory;
+import dev.dubhe.anvilcraft.api.container.category.DataComponentCategory;
+import dev.dubhe.anvilcraft.api.container.category.FilterCategory;
+import dev.dubhe.anvilcraft.api.container.category.HasDataComponentCategory;
+import dev.dubhe.anvilcraft.api.container.category.ICategory;
+import dev.dubhe.anvilcraft.api.container.category.ItemClassCategory;
+import dev.dubhe.anvilcraft.api.container.category.MaxStackSizeCategory;
+import dev.dubhe.anvilcraft.api.container.category.ModCategory;
+import dev.dubhe.anvilcraft.api.container.category.client.RecipeBookCategoryCategory;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.component.DataComponents;
