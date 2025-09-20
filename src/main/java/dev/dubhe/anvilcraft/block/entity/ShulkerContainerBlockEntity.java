@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.block.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.CrateStorageReference;
+import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -52,7 +52,7 @@ public class ShulkerContainerBlockEntity extends BlockEntity {
     public UUID getUUID() {
         return this.stacks.map(
             Function.identity(),
-            pos -> this.level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
+            pos -> this.level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
                 .map(ShulkerContainerBlockEntity::getUUID)
                 .orElseThrow()
         );
@@ -61,8 +61,8 @@ public class ShulkerContainerBlockEntity extends BlockEntity {
     @Override
     protected void applyImplicitComponents(DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
-        UUID uuid = Optional.ofNullable(componentInput.get(ModComponents.CRATE_STORAGE))
-            .flatMap(CrateStorageReference::id)
+        UUID uuid = Optional.ofNullable(componentInput.get(ModComponents.CONTAINER_STORAGE))
+            .flatMap(ContainerStorageReference::id)
             .orElse(null);
         if (this.stacks != null && this.stacks.right().isPresent()) return;
         if (uuid == null) uuid = ContainerStorages.get().create();
@@ -73,6 +73,6 @@ public class ShulkerContainerBlockEntity extends BlockEntity {
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
         if (this.stacks == null || this.stacks.left().isEmpty()) return;
-        components.set(ModComponents.CRATE_STORAGE, new CrateStorageReference(this.stacks.left()));
+        components.set(ModComponents.CONTAINER_STORAGE, new ContainerStorageReference(this.stacks.left()));
     }
 }

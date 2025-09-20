@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
-import dev.dubhe.anvilcraft.item.property.component.CrateStorageReference;
+import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
@@ -112,9 +112,9 @@ public class ModComponents {
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
     );
 
-    public static final DataComponentType<CrateStorageReference> CRATE_STORAGE = register(
+    public static final DataComponentType<ContainerStorageReference> CONTAINER_STORAGE = register(
         "crate_storage",
-        b -> b.persistent(CrateStorageReference.CODEC.codec()).networkSynchronized(CrateStorageReference.STREAM_CODEC)
+        b -> b.persistent(ContainerStorageReference.CODEC.codec()).networkSynchronized(ContainerStorageReference.STREAM_CODEC)
     );
 
     private static <T> @NotNull DataComponentType<T> register(String name, @NotNull Consumer<DataComponentType.Builder<T>> customizer) {

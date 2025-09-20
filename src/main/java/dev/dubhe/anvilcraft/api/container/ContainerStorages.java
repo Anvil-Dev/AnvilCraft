@@ -32,11 +32,11 @@ public class ContainerStorages extends SavedData {
         DATA_FIXERS = cache;
     }
 
-    private final Map<UUID, ContainerStorage> crates;
+    private final Map<UUID, ContainerStorage> storages;
     private static final ContainerStorages CLIENT_STORAGE_COPY = new ContainerStorages();
 
     public ContainerStorages() {
-        this.crates = new HashMap<>();
+        this.storages = new HashMap<>();
     }
 
     public static ContainerStorages get() {
@@ -61,15 +61,15 @@ public class ContainerStorages extends SavedData {
 
     public UUID create() {
         UUID uuid = UUID.randomUUID();
-        while (this.crates.containsKey(uuid)) {
+        while (this.storages.containsKey(uuid)) {
             uuid = UUID.randomUUID();
         }
-        this.crates.put(uuid, new ContainerStorage(uuid));
+        this.storages.put(uuid, new ContainerStorage(uuid));
         return uuid;
     }
 
     public ContainerStorage getStorage(UUID uuid) {
-        return this.crates.get(uuid);
+        return this.storages.get(uuid);
     }
 
     private void readStorages(CompoundTag nbt, HolderLookup.Provider registries) {
@@ -77,8 +77,8 @@ public class ContainerStorages extends SavedData {
             if (!(entry instanceof CompoundTag entryTag)) return;
             UUID id = entryTag.getUUID("id");
             ContainerStorage.CODEC.codec().decode(registries.createSerializationContext(NbtOps.INSTANCE), entryTag.get("contents"))
-                .ifSuccess(pair -> this.crates.put(id, pair.getFirst()))
-                .ifError(pair -> this.crates.put(id, new ContainerStorage(id)));
+                .ifSuccess(pair -> this.storages.put(id, pair.getFirst()))
+                .ifError(pair -> this.storages.put(id, new ContainerStorage(id)));
         }
     }
 
@@ -92,7 +92,7 @@ public class ContainerStorages extends SavedData {
 
     private void saveStorages(CompoundTag nbt, HolderLookup.Provider registries) {
         ListTag data = new ListTag();
-        for (var entry : this.crates.entrySet()) {
+        for (var entry : this.storages.entrySet()) {
             CompoundTag entryTag = new CompoundTag();
             entryTag.putUUID("id", entry.getKey());
             entryTag.put(

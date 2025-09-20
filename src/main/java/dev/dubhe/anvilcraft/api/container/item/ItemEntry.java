@@ -150,9 +150,9 @@ public final class ItemEntry {
 
     @Override
     public String toString() {
-        return "ItemEntry[" +
-               "item=" + this.item + ", " +
-               "data=" + this.data + ']';
+        return "ItemEntry["
+               + "item=" + this.item + ", "
+               + "data=" + this.data + ']';
     }
 
     @Getter
@@ -182,8 +182,8 @@ public final class ItemEntry {
             if (obj == this) return true;
             if (obj == null || obj.getClass() != this.getClass()) return false;
             var that = (EntryData) obj;
-            return Objects.equals(this.patch, that.patch) &&
-                   this.count == that.count;
+            return Objects.equals(this.patch, that.patch)
+                   && this.count == that.count;
         }
 
         @Override
@@ -193,9 +193,9 @@ public final class ItemEntry {
 
         @Override
         public String toString() {
-            return "EntryData[" +
-                   "patch=" + patch + ", " +
-                   "count=" + count + ']';
+            return "EntryData["
+                   + "patch=" + patch + ", "
+                   + "count=" + count + ']';
         }
 
     }

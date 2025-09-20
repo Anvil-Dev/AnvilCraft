@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.CrateStorageReference;
+import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -273,7 +273,7 @@ public class ShulkerContainerBlock
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
+        level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
             .ifPresent(crate -> {
                 if (!level.isClientSide && player.isCreative() && state.getValue(HALF).isMain()) {
                     ItemStack stack = this.asItem().getDefaultInstance();
@@ -297,15 +297,18 @@ public class ShulkerContainerBlock
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltips, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltips, flag);
         if (!flag.isAdvanced()) return;
-        Optional<UUID> uuid = Optional.ofNullable(stack.get(ModComponents.CRATE_STORAGE)).flatMap(CrateStorageReference::id);
+        Optional<UUID> uuid = Optional.ofNullable(stack.get(ModComponents.CONTAINER_STORAGE)).flatMap(ContainerStorageReference::id);
         if (uuid.isEmpty()) return;
-        tooltips.add(Component.translatable("tooltip.anvilcraft.shulker_crate.uuid", uuid.get().toString()).withStyle(ChatFormatting.ITALIC));
+        tooltips.add(Component.translatable(
+            "tooltip.anvilcraft.shulker_container.uuid",
+            uuid.get().toString()
+        ).withStyle(ChatFormatting.ITALIC));
     }
 
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
-        level.getBlockEntity(pos, ModBlockEntities.SHULKER_CRATE.get())
+        level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
             .ifPresent(be -> be.saveToItem(stack, level.registryAccess()));
         return stack;
     }
@@ -342,6 +345,6 @@ public class ShulkerContainerBlock
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.SHULKER_CRATE.create(pos, state);
+        return ModBlockEntities.SHULKER_CONTAINER.create(pos, state);
     }
 }

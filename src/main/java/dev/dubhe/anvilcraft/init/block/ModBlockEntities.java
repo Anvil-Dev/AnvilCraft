@@ -308,8 +308,8 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.LASER_RECEIVER)
         .register();
 
-    public static final BlockEntityEntry<ShulkerContainerBlockEntity> SHULKER_CRATE = REGISTRATE
-        .blockEntity("shulker_crate", ShulkerContainerBlockEntity::new)
+    public static final BlockEntityEntry<ShulkerContainerBlockEntity> SHULKER_CONTAINER = REGISTRATE
+        .blockEntity("shulker_container", ShulkerContainerBlockEntity::new)
         .validBlocks(ModBlocks.SHULKER_CONTAINER)
         .register();
 

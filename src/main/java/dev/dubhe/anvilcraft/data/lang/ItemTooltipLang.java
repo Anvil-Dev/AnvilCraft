@@ -45,6 +45,6 @@ public class ItemTooltipLang {
 
         provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for information");
 
-        provider.add("tooltip.anvilcraft.shulker_crate.uuid", "UUID: %s");
+        provider.add("tooltip.anvilcraft.shulker_container.uuid", "UUID: %s");
     }
 }

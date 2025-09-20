@@ -14,15 +14,14 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-public class ShulkerCrateMenu extends AbstractContainerMenu {
+public class ShulkerContainerMenu extends AbstractContainerMenu {
     public final ShulkerContainerBlockEntity blockEntity;
     private final Level level;
     private final ContainerStorage storage;
 
-    protected ShulkerCrateMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
+    protected ShulkerContainerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
@@ -34,7 +33,7 @@ public class ShulkerCrateMenu extends AbstractContainerMenu {
      * @param inventory   背包
      * @param blockEntity 方块实体
      */
-    public ShulkerCrateMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public ShulkerContainerMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId);
         this.blockEntity = (ShulkerContainerBlockEntity) blockEntity;
         this.level = inventory.player.level();
