@@ -271,7 +271,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> HOLLOW_MAGNET_BLOCK = REGISTRATE.block("hollow_magnet_block", HollowMagnetBlock::new)
         .lang("Hollowed Block of Magnet")
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.MAGNET, BlockTags.NEEDS_STONE_TOOL)
@@ -309,7 +309,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRATE.block("stamping_platform", StampingPlatformBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::horizontalFacingBlock)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -326,7 +326,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<? extends Block> CRUSHING_TABLE = REGISTRATE.block("crushing_table", CrushingTableBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -350,15 +350,19 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRATE.block("corrupted_beacon", CorruptedBeaconBlock::new)
-        .initialProperties(() -> Blocks.BEACON)
+        .initialProperties(() -> Blocks.BEACON).properties(p -> p.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRATE.block("giant_anvil", GiantAnvilBlock::new)
         .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .strength(4.0F)
+            .sound(GiantAnvilBlock.SOUND_TYPE)
+            .explosionResistance(1200))
         .loot(SimpleMultiPartBlock::loot)
-        .properties(p -> p.noOcclusion().strength(4.0F).sound(GiantAnvilBlock.SOUND_TYPE).explosionResistance(1200))
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -369,7 +373,11 @@ public class ModBlocks {
             SpectralAnvilBlock::new
         )
         .initialProperties(() -> Blocks.GLASS)
-        .properties(p -> p.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 1200.0F).sound(SoundType.ANVIL))
+        .properties(p -> p.mapColor(MapColor.METAL)
+            .isValidSpawn(Blocks::never)
+            .requiresCorrectToolForDrops()
+            .strength(5.0F, 1200.0F)
+            .sound(SoundType.ANVIL))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .tag(ItemTags.ANVIL)
@@ -387,8 +395,7 @@ public class ModBlocks {
                 ctx.get().asItem()
             ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK)).save(provider, AnvilCraft.of("smithing/royal_anvil"));
         })
-        .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .initialProperties(() -> Blocks.ANVIL).properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .tag(ItemTags.ANVIL)
@@ -407,8 +414,7 @@ public class ModBlocks {
                 .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
                 .save(provider, AnvilCraft.of("smithing/royal_grindstone"));
         })
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -454,7 +460,7 @@ public class ModBlocks {
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_DIAMOND_TOOL
         )
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().strength(50.0f, 1200f))
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> 9).noOcclusion().strength(50.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -530,7 +536,7 @@ public class ModBlocks {
             BlockTags.NEEDS_DIAMOND_TOOL,
             ModBlockTags.COLLISION_IMMUNE
         )
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().strength(50.0f, 1200f))
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> 9).noOcclusion().strength(50.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -549,7 +555,9 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> HEATER = REGISTRATE.block("heater", HeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(properties -> properties.noOcclusion().lightLevel(state -> state.getValue(OVERLOAD) ? 0 : 15))
+        .properties(properties -> properties.isValidSpawn(Blocks::never)
+            .noOcclusion()
+            .lightLevel(state -> state.getValue(OVERLOAD) ? 0 : 15))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -575,7 +583,7 @@ public class ModBlocks {
             TransmissionPoleBlock::new
         )
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(properties -> properties.noOcclusion().lightLevel(state -> {
+        .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
             if (state.getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP) return 0;
             if (state.getValue(SWITCH) == Switch.OFF) return 0;
             if (state.getValue(OVERLOAD)) return 6;
@@ -610,7 +618,7 @@ public class ModBlocks {
         )
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .loot(SimpleMultiPartBlock::loot)
-        .properties(properties -> properties.noOcclusion().lightLevel(state -> {
+        .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
             if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) return 0;
             if (state.getValue(SWITCH) == Switch.OFF) return 0;
             if (state.getValue(OVERLOAD)) return 6;
@@ -640,7 +648,7 @@ public class ModBlocks {
     public static final BlockEntry<TeslaTowerBlock> TESLA_TOWER = REGISTRATE.block("tesla_tower", TeslaTowerBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .loot(SimpleMultiPartBlock::loot)
-        .properties(properties -> properties.noOcclusion().lightLevel(state -> {
+        .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
             if (state.getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.TOP) return 0;
             if (state.getValue(SWITCH) == Switch.OFF) return 0;
             if (state.getValue(OVERLOAD)) return 6;
@@ -669,8 +677,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<InductionLightBlock> INDUCTION_LIGHT = REGISTRATE.block("induction_light", InductionLightBlock::new)
-        .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(p -> p.noOcclusion().lightLevel(state -> {
+        .initialProperties(ModBlocks.MAGNET_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(InductionLightBlock.POWERED)) return 0;
             if (state.getValue(InductionLightBlock.OVERLOAD)) return 7;
             return 15;
@@ -751,8 +758,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<LoadMonitorBlock> LOAD_MONITOR = REGISTRATE.block("load_monitor", LoadMonitorBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.lightLevel(state -> {
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD)) {
                 return 6;
             } else {
@@ -782,8 +788,7 @@ public class ModBlocks {
             "power_converter_small",
             PowerConverterSmallBlock::new
         )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.lightLevel(state -> {
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD)) {
                 return 6;
             } else {
@@ -808,8 +813,7 @@ public class ModBlocks {
             "power_converter_middle",
             PowerConverterMiddleBlock::new
         )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.lightLevel(state -> {
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD)) {
                 return 6;
             } else {
@@ -841,8 +845,7 @@ public class ModBlocks {
             "power_converter_big",
             PowerConverterBigBlock::new
         )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.lightLevel(state -> {
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD)) {
                 return 6;
             } else {
@@ -892,9 +895,9 @@ public class ModBlocks {
             PiezoelectricCrystalBlock::new
         )
         .simpleItem()
-        .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.GLASS)
+        .properties(BlockBehaviour.Properties::noOcclusion)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
@@ -920,8 +923,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<? extends Block> BATCH_CRAFTER = REGISTRATE.block("batch_crafter", BatchCrafterBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -946,7 +948,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRATE.block("item_collector", ItemCollectorBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.isValidSpawn(Blocks::never))
         .simpleItem()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -971,8 +973,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRATE.block("heat_collector", HeatCollectorBlock::new)
         .simpleItem()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe((ctx, provider) -> {
@@ -994,8 +995,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<ChargerBlock> CHARGER = REGISTRATE.block("charger", ChargerBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1022,8 +1022,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<DischargerBlock> DISCHARGER = REGISTRATE.block("discharger", DischargerBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1037,8 +1036,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<ActiveSilencerBlock> ACTIVE_SILENCER = REGISTRATE.block("active_silencer", ActiveSilencerBlock::new)
         .simpleItem()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe((ctx, provider) -> {
@@ -1072,8 +1070,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRATE.block("block_placer", BlockPlacerBlock::new)
         .simpleItem()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe((ctx, provider) -> {
@@ -1093,8 +1090,7 @@ public class ModBlocks {
         .item()
         .properties(Item.Properties::fireResistant)
         .build()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe((ctx, provider) -> {
@@ -1145,8 +1141,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<RubyPrismBlock> RUBY_PRISM = REGISTRATE.block("ruby_prism", RubyPrismBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
@@ -1170,7 +1165,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .initialProperties(ModBlocks.RUBY_PRISM::get)
         .properties((properties) -> properties
-            .noOcclusion()
+            .noOcclusion().isValidSpawn(Blocks::never)
             .isRedstoneConductor(ModBlocks::never)
             .requiresCorrectToolForDrops()
             .lightLevel((blockState) -> blockState.getValue(LaserReceiverBlock.ACTIVE) ? 15 : 0)
@@ -1194,8 +1189,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<BlockComparatorBlock> BLOCK_COMPARATOR = REGISTRATE.block("block_comparator", BlockComparatorBlock::new)
-        .initialProperties(() -> Blocks.OBSERVER)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.OBSERVER).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
@@ -1213,8 +1207,7 @@ public class ModBlocks {
         .simpleItem()
         .register();
     public static final BlockEntry<ItemDetectorBlock> ITEM_DETECTOR = REGISTRATE.block("item_detector", ItemDetectorBlock::new)
-        .initialProperties(() -> Blocks.DAYLIGHT_DETECTOR)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.DAYLIGHT_DETECTOR).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
@@ -1258,8 +1251,7 @@ public class ModBlocks {
         .build()
         .register();
     public static final BlockEntry<OverseerBlock> OVERSEER_BLOCK = REGISTRATE.block("overseer", OverseerBlock::new)
-        .initialProperties(() -> Blocks.OBSIDIAN)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.OBSIDIAN).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Vertical3PartHalf>::new)
@@ -1358,16 +1350,14 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<MengerSpongeBlock> MENGER_SPONGE = REGISTRATE.block("menger_sponge", MengerSpongeBlock::new)
-        .initialProperties(() -> Blocks.SPONGE)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.SPONGE).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_HOE)
         .item(MengerSpongeBlockItem::new)
         .build()
         .register();
     public static final BlockEntry<? extends Block> CHUTE = REGISTRATE.block("chute", ChuteBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .onRegister(blockItem -> Item.BY_BLOCK.put(ModBlocks.SIMPLE_CHUTE.get(), blockItem))
@@ -1386,8 +1376,7 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<MagneticChuteBlock> MAGNETIC_CHUTE = REGISTRATE.block("magnetic_chute", MagneticChuteBlock::new)
-        .initialProperties(ModBlocks.CHUTE)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(ModBlocks.CHUTE).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .build()
@@ -1405,15 +1394,13 @@ public class ModBlocks {
         })
         .register();
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRATE.block("simple_chute", SimpleChuteBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<MineralFountainBlock> MINERAL_FOUNTAIN = REGISTRATE.block("mineral_fountain", MineralFountainBlock::new)
-        .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
-        .properties(BlockBehaviour.Properties::noLootTable)
+        .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE).properties(p -> p.noLootTable().isValidSpawn(Blocks::never))
         .simpleItem()
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
@@ -1425,7 +1412,7 @@ public class ModBlocks {
             SpaceOvercompressorBlock::new
         )
         .initialProperties(() -> Blocks.SHULKER_BOX)
-        .properties(properties -> properties.noOcclusion().pushReaction(PushReaction.NORMAL))
+        .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().pushReaction(PushReaction.NORMAL))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
@@ -1436,7 +1423,7 @@ public class ModBlocks {
 
     public static BlockEntry<SlidingRailBlock> SLIDING_RAIL = REGISTRATE.block("sliding_rail", SlidingRailBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(it -> it.mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate((ctx, provider) -> {
             provider.getVariantBuilder(ctx.get()).forAllStates(blockState -> switch (blockState.getValue(SlidingRailBlock.AXIS)) {
@@ -1466,7 +1453,7 @@ public class ModBlocks {
             PoweredSlidingRailBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(it -> it.mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -1488,7 +1475,7 @@ public class ModBlocks {
             ActivatorSlidingRailBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(it -> it.mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -1510,7 +1497,7 @@ public class ModBlocks {
             DetectorSlidingRailBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(it -> it.mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.mapColor(MapColor.COLOR_GRAY).noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -1530,7 +1517,7 @@ public class ModBlocks {
 
     public static BlockEntry<SlidingRailStopBlock> SLIDING_RAIL_STOP = REGISTRATE.block("sliding_rail_stop", SlidingRailStopBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(it -> it.mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> {
             provider.simpleBlock(ctx.get(), DangerUtil.genModModelFile("block/sliding_rail_stop").get());
@@ -1556,7 +1543,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
-        .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().explosionResistance(1200))
+        .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1566,7 +1553,7 @@ public class ModBlocks {
     public static final BlockEntry<DeflectionRingBlock> DEFLECTION_RING = REGISTRATE.block("deflection_ring", DeflectionRingBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
-        .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().explosionResistance(1200))
+        .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1577,11 +1564,9 @@ public class ModBlocks {
             "void_energy_collector",
             VoidEnergyCollectorBlock::new
         )
-        .simpleItem()
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.IRON_BLOCK).properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE).simpleItem()
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("AAA")
@@ -1602,7 +1587,7 @@ public class ModBlocks {
             MagnetoElectricCoreBlock::new
         )
         .initialProperties(() -> Blocks.COPPER_BLOCK)
-        .properties((properties) -> properties.lightLevel((blockState) -> 6).noOcclusion())
+        .properties((properties) -> properties.lightLevel((blockState) -> 6).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .recipe((ctx, provider) -> {

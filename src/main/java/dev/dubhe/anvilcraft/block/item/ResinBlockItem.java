@@ -39,10 +39,7 @@ public class ResinBlockItem extends HasMobBlockItem {
      * 右键实体
      */
     public static InteractionResult useEntity(Player player, Entity target, ItemStack stack) {
-        if (!(target instanceof Mob mob)
-            || target.getBbHeight() > 2.0
-            || target.getBbWidth() > 1.5
-            || ResinBlockItem.hasMob(stack)) {
+        if (!(target instanceof Mob mob && HasMobBlockItem.canMobBeSaved(mob, player, stack))) {
             return InteractionResult.PASS;
         }
         ResinBlockItem.saveMobInItem(player.level(), mob, player, stack);
