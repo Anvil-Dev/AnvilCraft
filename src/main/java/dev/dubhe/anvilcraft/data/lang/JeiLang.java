@@ -25,8 +25,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.stamping", "Stamping");
 
         provider.add("gui.anvilcraft.category.super_heating", "Super Heating");
-        provider.add("gui.anvilcraft.category.super_heating.consume_fluid", "Consume: %d mB of %s");
-        provider.add("gui.anvilcraft.category.super_heating.produce_fluid", "Produce: %d mB of %s");
+        provider.add("gui.anvilcraft.category.super_heating.consume_fluid", "Consume: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.super_heating.produce_fluid", "Produce: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.super_heating.need_activated", "Need Activated");
 
         provider.add("gui.anvilcraft.category.squeezing", "Squeezing");
@@ -44,19 +44,19 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.concrete", "Concrete");
 
         provider.add("gui.anvilcraft.category.bulging", "Bulging");
-        provider.add("gui.anvilcraft.category.bulging.consume_fluid", "Consume: %d mB of %s");
-        provider.add("gui.anvilcraft.category.bulging.produce_fluid", "Produce: %d mB of %s");
+        provider.add("gui.anvilcraft.category.bulging.consume_fluid", "Consume: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.bulging.produce_fluid", "Produce: %1$d mB of %2$s");
 
         provider.add("gui.anvilcraft.category.time_warp", "Time Warp");
-        provider.add("gui.anvilcraft.category.time_warp.consume_fluid", "Consume: %d mB of %s");
-        provider.add("gui.anvilcraft.category.time_warp.produce_fluid", "Produce: %d mB of %s");
+        provider.add("gui.anvilcraft.category.time_warp.consume_fluid", "Consume: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.time_warp.produce_fluid", "Produce: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.time_warp.need_activated", "Need Activated");
 
         provider.add("gui.anvilcraft.category.multiblock", "Multiblock Crafting");
         provider.add("gui.anvilcraft.category.multiblock.all_layers", "All Layers Visible");
-        provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %d of %d");
+        provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %1$d of %2$d");
 
-        provider.add("gui.anvilcraft.category.multiblock.size", "Crafting Table Size: %s*%s");
+        provider.add("gui.anvilcraft.category.multiblock.size", "Crafting Table Size: %1$s*%2$s");
 
         provider.add("gui.anvilcraft.category.multiblock_conversion", "Multiblock Conversion");
         provider.add("gui.anvilcraft.category.multiblock_conversion.current_mode", "Display Mode: %s");

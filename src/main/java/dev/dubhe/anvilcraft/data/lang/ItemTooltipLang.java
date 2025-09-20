@@ -19,9 +19,9 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.item.structure_tool.line_1", "Developer tool");
         provider.add("tooltip.anvilcraft.item.structure_tool.line_2", "Right click to select an area for multiblock recipe");
         provider.add("tooltip.anvilcraft.item.structure_tool.line_3", "Blocks in the area will be the input of recipe");
-        provider.add("tooltip.anvilcraft.item.structure_tool.min_pos", "Min: x: %d, y: %d, z: %d");
-        provider.add("tooltip.anvilcraft.item.structure_tool.max_pos", "Max: x: %d, y: %d, z: %d");
-        provider.add("tooltip.anvilcraft.item.structure_tool.size", "Size: x: %d, y: %d, z: %d");
+        provider.add("tooltip.anvilcraft.item.structure_tool.min_pos", "Min: x: %1$d, y: %2$d, z: %3$d");
+        provider.add("tooltip.anvilcraft.item.structure_tool.max_pos", "Max: x: %1$d, y: %2$d, z: %3$d");
+        provider.add("tooltip.anvilcraft.item.structure_tool.size", "Size: x: %1$d, y: %2$d, z: %3$d");
         provider.add("tooltip.anvilcraft.item.structure_tool.shift_to_clear",
             "Shift + right click to clear selected area");
         provider.add("tooltip.anvilcraft.item.structure_tool.data_removed", "Cleared selected area");
@@ -41,7 +41,7 @@ public class ItemTooltipLang {
 
         provider.add("tooltip.anvilcraft.item.amulet_box.line_1", "Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;");
         provider.add("tooltip.anvilcraft.item.amulet_box.line_2", "When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift.");
-        provider.add("tooltip.anvilcraft.item.amulet_box.fullness", "Fullness: %d / %d");
+        provider.add("tooltip.anvilcraft.item.amulet_box.fullness", "Fullness: %1$d / %2$d");
 
         provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for information");
 

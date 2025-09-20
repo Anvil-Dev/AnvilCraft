@@ -8,11 +8,14 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -76,6 +79,13 @@ public abstract class MagnetUtil {
         radius = event.getAttractRadius();
         AABB aabb = new AABB(player.position().add(-radius, -radius, -radius), player.position().add(radius, radius, radius));
         level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive).forEach(e -> e.moveTo(player.position()));
+        int totalXp = level.getEntities(EntityTypeTest.forClass(ExperienceOrb.class), aabb, Entity::isAlive).stream().mapToInt(e -> {
+            CompoundTag c = new CompoundTag(); // AT (make e.count public) not working for idea, idk why. use CompoundTag yet.
+            e.addAdditionalSaveData(c);
+            e.discard();
+            return Math.max(c.getShort("Value") * c.getInt("Count"), 1);
+        }).sum();
+        if (totalXp > 0 && level instanceof ServerLevel serverLevel) ExperienceOrb.award(serverLevel, player.position(), totalXp);
         itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(usedHand));
         player.getCooldowns().addCooldown(item, 5);
         return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());

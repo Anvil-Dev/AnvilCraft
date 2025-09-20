@@ -15,7 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -261,18 +261,7 @@ public class BlockRecipeScene {
 
         // 随机生成很多猪
         builder.world().falldownSection(anvilLink);
-        List<ElementLink<EntityElement>> pigs = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            BlockPos pigPos = blockPos.east(new Random().nextInt(5) - 2).north(new Random().nextInt(5) - 2);
-            pigs.add(builder.world().createEntity(world -> {
-                Pig pig = EntityType.PIG.create(world);
-                if (pig != null) {
-                    pig.moveTo(pigPos.getBottomCenter());
-                }
-                return pig;
-            }));
-            builder.effects().indicateSuccess(pigPos);
-        }
+        List<ElementLink<EntityElement>> zombies = spawnZombies(builder, blockPos);
         builder.world().riseSection(anvilLink);
         builder.idle(10);
 
@@ -285,10 +274,10 @@ public class BlockRecipeScene {
             .placeNearTarget();
         builder.idle(110);
 
-        for (ElementLink<EntityElement> pig : pigs) {
-            builder.world().removeEntity(pig);
+        for (ElementLink<EntityElement> zombie : zombies) {
+            builder.world().removeEntity(zombie);
         }
-        pigs.clear();
+        zombies.clear();
         builder.idle(10);
 
         // 高度越高，成功概率越大
@@ -296,17 +285,7 @@ public class BlockRecipeScene {
         builder.idle(10);
 
         builder.world().falldownSection(anvilLink, 4);
-        for (int i = 0; i < 4; i++) {
-            BlockPos pigPos = blockPos.east(new Random().nextInt(5) - 2).north(new Random().nextInt(5) - 2);
-            pigs.add(builder.world().createEntity(world -> {
-                Pig pig = EntityType.PIG.create(world);
-                if (pig != null) {
-                    pig.moveTo(pigPos.getBottomCenter());
-                }
-                return pig;
-            }));
-            builder.effects().indicateSuccess(pigPos);
-        }
+        zombies = spawnZombies(builder, blockPos);
         builder.idle(10);
 
         builder.overlay()
@@ -316,11 +295,11 @@ public class BlockRecipeScene {
             .attachKeyFrame()
             .placeNearTarget();
         builder.idle(70);
-        for (ElementLink<EntityElement> pig : pigs) {
-            builder.world().removeEntity(pig);
+        for (ElementLink<EntityElement> zombie : zombies) {
+            builder.world().removeEntity(zombie);
         }
         // 复位
-        pigs.clear();
+        zombies.clear();
         builder.world().hideSection(util.select().position(blockPos), Direction.NORTH);
         builder.world().riseSection(anvilLink);
         builder.idle(10);
@@ -385,6 +364,22 @@ public class BlockRecipeScene {
         builder.idle(50);
 
         builder.markAsFinished();
+    }
+
+    private static List<ElementLink<EntityElement>> spawnZombies(SceneBuilder builder, BlockPos centerPos) {
+        List<ElementLink<EntityElement>> mobs = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            BlockPos mobPos = centerPos.east(new Random().nextInt(5) - 2).north(new Random().nextInt(5) - 2);
+            mobs.add(builder.world().createEntity(world -> {
+                Zombie mob = EntityType.ZOMBIE.create(world);
+                if (mob != null) {
+                    mob.moveTo(mobPos.getBottomCenter());
+                }
+                return mob;
+            }));
+            builder.effects().indicateSuccess(mobPos);
+        }
+        return mobs;
     }
 }
 

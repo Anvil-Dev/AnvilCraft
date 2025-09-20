@@ -7,11 +7,11 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
-import dev.dubhe.anvilcraft.util.function.Function;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
+import java.util.function.Consumer;
 
 public class AnvilCollisionCraftRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -128,9 +128,9 @@ public class AnvilCollisionCraftRecipeLoader {
             .save(provider);
     }
 
-    private static void forEachAnvil(Function<Block> block, Block @NotNull ... anvils) {
+    private static void forEachAnvil(Consumer<Block> block, Block @NotNull ... anvils) {
         for (Block anvil : anvils) {
-            block.invoke(anvil);
+            block.accept(anvil);
         }
     }
 }

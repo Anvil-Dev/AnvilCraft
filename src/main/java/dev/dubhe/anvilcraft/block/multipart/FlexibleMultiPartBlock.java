@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.multipart;
 
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
 import dev.dubhe.anvilcraft.util.Util;
-import dev.dubhe.anvilcraft.util.function.Function;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -25,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -46,13 +46,13 @@ public abstract class FlexibleMultiPartBlock<
 
     public abstract T getAdditionalProperty();
 
-    public void forEachPart(Level level, BlockPos pos, Function<BlockPos> function) {
+    public void forEachPart(Level level, BlockPos pos, Consumer<BlockPos> function) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(this)) return;
         for (P part : getParts()) {
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
             if (level.getBlockState(partPos).is(this)) {
-                function.invoke(partPos);
+                function.accept(partPos);
             }
         }
     }

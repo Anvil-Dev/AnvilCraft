@@ -31,7 +31,7 @@ public class OtherLang {
             "message.anvilcraft.code_gen_check",
             "Please check if the selected area is a cube and if the output slot has items.");
         provider.add("message.anvilcraft.no_file_selected", "No file path selected");
-        provider.add("message.anvilcraft.file_save_failed", "An issue occurred while saving file %s, %s");
+        provider.add("message.anvilcraft.file_save_failed", "An issue occurred while saving file %1$s, %2$s");
         provider.add("message.anvilcraft.file_saved", "File saved to %s");
         provider.add("message.anvilcraft.disk.data_applied", "Applied setting stored in disk to block");
         provider.add("message.anvilcraft.disk.data_incompatible", "This block is incompatible with data stored in disk");

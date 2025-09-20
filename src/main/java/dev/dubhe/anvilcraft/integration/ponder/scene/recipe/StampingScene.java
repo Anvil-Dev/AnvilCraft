@@ -43,8 +43,8 @@ public class StampingScene {
         // 物品冲压
         ElementLink<EntityElement> itemEntity = builder.world().createItemEntity(tablePos.above(), Items.IRON_INGOT.getDefaultInstance());
         builder.world().falldownSection(anvilLink);
-        builder.world()
-            .replaceItemEntity(tablePos.above().getBottomCenter(), Items.HEAVY_WEIGHTED_PRESSURE_PLATE.getDefaultInstance(), itemEntity);
+        builder.world().replaceItemEntity(tablePos.north().getCenter(),
+            Items.HEAVY_WEIGHTED_PRESSURE_PLATE.getDefaultInstance(), itemEntity);
         builder.world().riseSection(anvilLink);
         builder.idle(10);
 

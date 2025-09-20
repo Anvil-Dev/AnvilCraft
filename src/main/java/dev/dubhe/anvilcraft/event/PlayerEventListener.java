@@ -4,10 +4,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
+import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
@@ -18,18 +20,23 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.List;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
@@ -48,6 +55,36 @@ public class PlayerEventListener {
                 event.setCancellationResult(result);
                 event.setCanceled(true);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void playerRightClick(PlayerInteractEvent.RightClickBlock event) {
+        Level level = event.getLevel();
+        BlockPos pos = event.getPos();
+        InteractionHand hand = event.getHand();
+        Player player = event.getEntity();
+        ItemStack item = player.getItemInHand(hand);
+        List<MagnetizedNodeEntity> entities = level.getEntitiesOfClass(MagnetizedNodeEntity.class,
+            AABB.encapsulatingFullBlocks(pos, pos.above()));
+        if (item.is(ModItems.MAGNET) || (item.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(item) == MultitoolItem.MAGNET_MODE) || item.is(Tags.Items.BUCKETS)) {
+            return;
+        }
+        if (player.isShiftKeyDown()) {
+            return;
+        }
+        if (!entities.isEmpty()) {
+            MagnetizedNodeEntity first = entities.getFirst();
+            ItemStack stack = item.copy();
+            stack.setCount(1);
+            if (!player.isCreative()) {
+                item.shrink(1);
+            }
+            ItemEntity itemEntity = new ItemEntity(level, first.position().x, first.position().y, first.position().z, stack);
+            itemEntity.setDeltaMovement(0, 0, 0);
+            itemEntity.setPickUpDelay(60);
+            level.addFreshEntity(itemEntity);
+            event.setCanceled(true);
         }
     }
 
@@ -87,7 +124,6 @@ public class PlayerEventListener {
         }
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @SubscribeEvent
     public static void onPlayerUsingTotem(LivingUseTotemEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;

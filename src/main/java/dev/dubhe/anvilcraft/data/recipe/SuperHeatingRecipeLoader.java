@@ -99,13 +99,6 @@ public class SuperHeatingRecipeLoader {
             .save(provider, AnvilCraft.of("super_heating/lime_powder_from_calcite"));
 
         SuperHeatingRecipe.builder()
-            .requires(Items.RAW_IRON)
-            .requires(ModItems.CAPACITOR)
-            .result(ModItems.MAGNET_INGOT)
-            .result(ModItems.CAPACITOR_EMPTY)
-            .save(provider);
-
-        SuperHeatingRecipe.builder()
             .requires(ModBlocks.END_DUST)
             .result(Items.END_STONE)
             .save(provider);

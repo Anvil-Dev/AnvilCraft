@@ -39,8 +39,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");
         provider.add("screen.anvilcraft.slot.disable.tooltip", "Use item clicks to set filter");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_curse_count", "Removed curses: %s / %s");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Removed repair cost: %s / %s");
+        provider.add("screen.anvilcraft.royal_grindstone.remove_curse_count", "Removed curses: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Removed repair cost: %1$s / %2$s");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
         provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
@@ -141,7 +141,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.heliostats.unknown", "  Unknown reason");
 
         provider.add("tooltip.anvilcraft.working_progress.title", "Working progress:");
-        provider.add("tooltip.anvilcraft.working_progress.progress", "  %s %s%%");
+        provider.add("tooltip.anvilcraft.working_progress.progress", "  %1$s %2$s%%");
 
         provider.add("tooltip.anvilcraft.space_overcompressor.stored_mass", "Stored Mass: %s");
 
