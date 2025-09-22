@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.rendering;
+package dev.dubhe.anvilcraft.api.rendering.pipeline.cached;
 
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserRenderer;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;

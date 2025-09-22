@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
+import dev.dubhe.anvilcraft.api.rendering.pipeline.cached.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;

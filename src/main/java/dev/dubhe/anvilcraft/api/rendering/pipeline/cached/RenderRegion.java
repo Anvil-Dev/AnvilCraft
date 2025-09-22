@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.rendering;
+package dev.dubhe.anvilcraft.api.rendering.pipeline.cached;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.shaders.Uniform;
@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.api.rendering.foundation.FullyBufferedBufferSource;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
@@ -180,7 +181,7 @@ public class RenderRegion {
                 RenderRegion.this::getBuffer,
                 pipeline::submitUploadTask
             );
-            RenderRegion.this.indexCountMap = bufferSource.indexCountMap;
+            RenderRegion.this.indexCountMap = bufferSource.getIndexCountMap();
             lastRebuildTask = null;
         }
 

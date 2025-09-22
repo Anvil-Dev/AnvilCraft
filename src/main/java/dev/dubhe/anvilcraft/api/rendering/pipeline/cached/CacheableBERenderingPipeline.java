@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.rendering;
+package dev.dubhe.anvilcraft.api.rendering.pipeline.cached;
 
 import lombok.Getter;
 import net.minecraft.client.multiplayer.ClientLevel;

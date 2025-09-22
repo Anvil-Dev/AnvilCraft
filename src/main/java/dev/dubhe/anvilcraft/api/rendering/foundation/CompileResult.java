@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.rendering;
+package dev.dubhe.anvilcraft.api.rendering.foundation;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexBuffer;

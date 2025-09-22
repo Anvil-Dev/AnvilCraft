@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.rendering;
+package dev.dubhe.anvilcraft.api.rendering.foundation;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,7 +25,8 @@ public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource im
     private static final MemoryUtil.MemoryAllocator ALLOCATOR = MemoryUtil.getAllocator(false);
     private final Map<RenderType, ByteBufferBuilder> byteBuffers = new HashMap<>();
     private final Map<RenderType, BufferBuilder> bufferBuilders = new HashMap<>();
-    final Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
+    @Getter
+    private final Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
 
     public FullyBufferedBufferSource() {
         super(null, null);

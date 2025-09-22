@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.laser;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.api.rendering.CacheableBlockEntityRenderer;
+import dev.dubhe.anvilcraft.api.rendering.pipeline.cached.CacheableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 
