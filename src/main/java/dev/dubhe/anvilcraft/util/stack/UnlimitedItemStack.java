@@ -109,6 +109,10 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
         return new UnlimitedItemStack(this.stack, count);
     }
 
+    public ItemStack copyToStackWithCount(int count) {
+        return this.copyWithCount(Math.min(this.count, this.stack.getMaxStackSize())).toStack();
+    }
+
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         return Util.cast(CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), this).getOrThrow());

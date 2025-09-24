@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.integration.ponder.api;
 
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.ISimpleMultiPartBlockState;
-import dev.dubhe.anvilcraft.constant.Constant;
+import dev.dubhe.anvilcraft.constant.Constants;
 import dev.dubhe.anvilcraft.integration.ponder.api.instruction.Interpolation;
 import dev.dubhe.anvilcraft.integration.ponder.api.instruction.InterpolationAnimateWorldSectionInstruction;
 import dev.dubhe.anvilcraft.integration.ponder.api.instruction.LineInstruction;
@@ -199,7 +199,7 @@ public class AnvilCraftSceneBuilder extends PonderSceneBuilder {
         }
 
         public void showTransmitterLine(BlockPos start, BlockPos end, int duration) {
-            this.showLine(Constant.TRANSMITTER_LINE_COLOR, start.getCenter(), end.getCenter(), duration, 1 / 48f);
+            this.showLine(Constants.TRANSMITTER_LINE_COLOR, start.getCenter(), end.getCenter(), duration, 1 / 48f);
         }
 
         public void showBigLine(int color, Vec3 start, Vec3 end, int duration) {

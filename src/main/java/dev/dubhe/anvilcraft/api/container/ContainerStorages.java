@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.api.container;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.network.ShulkerContainerSyncPacket;
+import dev.dubhe.anvilcraft.network.split.PacketSplitter;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectLinkedOpenHashMap;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -9,10 +12,12 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.neoforged.fml.util.thread.SidedThreadGroups;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.HashMap;
@@ -68,8 +73,18 @@ public class ContainerStorages extends SavedData {
         return uuid;
     }
 
-    public ContainerStorage getStorage(UUID uuid) {
-        return this.storages.get(uuid);
+    public ContainerStorage getOrCreateStorage(UUID uuid) {
+        return this.storages.computeIfAbsent(uuid, ContainerStorage::new);
+    }
+
+    public void syncToClient(ServerLevel level, BlockPos pos, UUID id) {
+        PacketSplitter.INSTANCE.split(
+            ShulkerContainerSyncPacket.TYPE,
+            ShulkerContainerSyncPacket.STREAM_CODEC,
+            new ShulkerContainerSyncPacket(this.getOrCreateStorage(id)),
+            1640,
+            payload -> PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(pos), payload)
+        );
     }
 
     private void readStorages(CompoundTag nbt, HolderLookup.Provider registries) {

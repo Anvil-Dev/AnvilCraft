@@ -28,6 +28,7 @@ import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.RemoveTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
+import dev.dubhe.anvilcraft.network.ShulkerContainerSyncPacket;
 import dev.dubhe.anvilcraft.network.SilencerSyncPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
@@ -43,6 +44,7 @@ import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import dev.dubhe.anvilcraft.network.UpdateDeflectionRingLastEntitySpeedPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import dev.dubhe.anvilcraft.network.UpdatePropelPistonStoredEnergyPacket;
+import dev.dubhe.anvilcraft.network.split.PacketSplitter;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class ModNetworks {
@@ -262,6 +264,12 @@ public class ModNetworks {
             UpdatePropelPistonStoredEnergyPacket.TYPE,
             UpdatePropelPistonStoredEnergyPacket.STREAM_CODEC,
             UpdatePropelPistonStoredEnergyPacket.HANDLER
+        );
+        PacketSplitter.registerSplitPackets(registrar);
+        registrar.playToClient(
+            ShulkerContainerSyncPacket.TYPE,
+            ShulkerContainerSyncPacket.STREAM_CODEC,
+            ShulkerContainerSyncPacket.HANDLER
         );
     }
 }

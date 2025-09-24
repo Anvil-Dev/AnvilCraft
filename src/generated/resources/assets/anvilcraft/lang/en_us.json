@@ -1080,6 +1080,7 @@
   "screen.anvilcraft.royal_grindstone.remove_repair_cost": "Removed repair cost: %1$s / %2$s",
   "screen.anvilcraft.royal_grindstone.title": "Remove curse and repair cost",
   "screen.anvilcraft.royal_steel_upgrade_smithing_template": "Royal Steel Upgrade",
+  "screen.anvilcraft.shulker_container.title": "Shulker Container",
   "screen.anvilcraft.slot.disable.tooltip": "Use item clicks to set filter",
   "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description": "Put the Ember Metal Ingot or Ember Metal Block",
   "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to": "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations",

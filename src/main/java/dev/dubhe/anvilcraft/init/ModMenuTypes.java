@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.PulseGeneratorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
@@ -37,6 +38,7 @@ import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
+import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
@@ -134,6 +136,10 @@ public class ModMenuTypes {
 
     public static final MenuEntry<TranscendenceAnvilMenu> TRANSCENDENCE_ANVIL = REGISTRATE
         .menu("transcendence_anvil", (type, id, inv) -> new TranscendenceAnvilMenu(id, inv), () -> TranscendenceAnvilScreen::new)
+        .register();
+
+    public static final MenuEntry<ShulkerContainerMenu> SHULKER_CONTAINER = REGISTRATE
+        .menu("shulker_container", ShulkerContainerMenu::new, () -> ShulkerContainerScreen::new)
         .register();
 
     public static void register() {

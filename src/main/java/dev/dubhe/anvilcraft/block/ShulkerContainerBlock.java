@@ -1,16 +1,20 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -22,6 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -45,6 +50,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ShulkerContainerBlock
     extends FlexibleMultiPartBlock<OpenedCube3x3PartHalf, BooleanProperty, Boolean>
@@ -253,11 +259,29 @@ public class ShulkerContainerBlock
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.isClientSide || state.getValue(OPENED)) return InteractionResult.SUCCESS_NO_ITEM_USED;
-        level.playSound(null, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS);
-        this.updateState(level, pos, OPENED, true, 3);
-        level.scheduleTick(pos, this, 16);
-        return InteractionResult.SUCCESS_NO_ITEM_USED;
+        if (level.isClientSide) return InteractionResult.SUCCESS_NO_ITEM_USED;
+        if (!state.getValue(OPENED)) {
+            level.playSound(null, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS);
+            this.updateState(level, pos, OPENED, true, 3);
+        }
+        AtomicReference<InteractionResult> result = new AtomicReference<>(InteractionResult.SUCCESS_NO_ITEM_USED);
+        level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
+            .ifPresent(entity -> {
+                if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
+                    result.set(entity.useDisk(level, player, hand, player.getItemInHand(hand), hit));
+                }
+                if (player instanceof ServerPlayer serverPlayer) {
+                    if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) result.set(InteractionResult.PASS);
+                    ModMenuTypes.open(serverPlayer, entity, pos);
+                    //noinspection DataFlowIssue
+                    ContainerStorages.get().syncToClient(
+                        serverPlayer.getServer().getLevel(serverPlayer.level().dimension()),
+                        pos,
+                        entity.getUUID()
+                    );
+                }
+            });
+        return result.get();
     }
 
     @Override

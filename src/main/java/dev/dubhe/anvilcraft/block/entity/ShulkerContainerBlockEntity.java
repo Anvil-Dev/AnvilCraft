@@ -1,26 +1,37 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.datafixers.util.Either;
+import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.ContainerStorages;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.block.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class ShulkerContainerBlockEntity extends BlockEntity {
+public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskCloneable, MenuProvider {
     private Either<UUID, BlockPos> stacks;
 
     public ShulkerContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -50,9 +61,10 @@ public class ShulkerContainerBlockEntity extends BlockEntity {
     }
 
     public UUID getUUID() {
+        if (this.stacks == null) this.stacks = Either.left(ContainerStorages.get().create());
         return this.stacks.map(
             Function.identity(),
-            pos -> this.level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
+            pos -> Objects.requireNonNull(this.level).getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
                 .map(ShulkerContainerBlockEntity::getUUID)
                 .orElseThrow()
         );
@@ -74,5 +86,29 @@ public class ShulkerContainerBlockEntity extends BlockEntity {
         super.collectImplicitComponents(components);
         if (this.stacks == null || this.stacks.left().isEmpty()) return;
         components.set(ModComponents.CONTAINER_STORAGE, new ContainerStorageReference(this.stacks.left()));
+    }
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        tag.putUUID("CategorySource", this.getUUID());
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag data) {
+        ContainerStorages storages = ContainerStorages.get();
+        ContainerStorage source = storages.getOrCreateStorage(data.getUUID("CategorySource"));
+        ContainerStorage target = storages.getOrCreateStorage(this.getUUID());
+        target.applyCategory(source);
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("screen.anvilcraft.shulker_container.title");
+    }
+
+    @Override
+    public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        if (player.isSpectator()) return null;
+        return new ShulkerContainerMenu(ModMenuTypes.SHULKER_CONTAINER.get(), containerId, inventory, this);
     }
 }

@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.util.CodecUtil;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.component.DataComponentPatch;
@@ -39,7 +40,7 @@ public final class ItemEntry {
     private final Item item;
     private final List<EntryData> data;
     private boolean cached = false;
-    private List<ItemStack> cache;
+    private List<UnlimitedItemStack> cache;
 
     public ItemEntry(Item item, List<EntryData> data) {
         this.item = item;
@@ -52,6 +53,12 @@ public final class ItemEntry {
         return new ItemEntry(stack.getItem(), data);
     }
 
+    public static ItemEntry of(UnlimitedItemStack stack) {
+        List<EntryData> data = new ArrayList<>();
+        data.add(new EntryData(stack.getStack().getComponentsPatch(), stack.getCount()));
+        return new ItemEntry(stack.getStack().getItem(), data);
+    }
+
     public boolean is(Item item) {
         return this.item.equals(item);
     }
@@ -61,7 +68,7 @@ public final class ItemEntry {
     }
 
     public InteractionResult merge(ItemStack stack, int stackPower) {
-        if (!this.item.equals(stack.getItem())) return InteractionResult.FAIL;
+        if (!this.is(stack)) return InteractionResult.FAIL;
         this.cached = false;
         DataComponentPatch patch = stack.getComponentsPatch();
         for (EntryData entry1 : this.data) {
@@ -80,47 +87,79 @@ public final class ItemEntry {
         return InteractionResult.FAIL;
     }
 
-    public TriState modifyCount(ItemStack data, IntUnaryOperator operator) {
+    public InteractionResult merge(UnlimitedItemStack stack, int stackPower) {
+        if (!this.is(stack.getStack())) return InteractionResult.FAIL;
+        this.cached = false;
+        DataComponentPatch patch = stack.getStack().getComponentsPatch();
+        for (EntryData entry1 : this.data) {
+            if (!entry1.getPatch().equals(patch)) continue;
+            int count = entry1.getCount() + stack.getCount();
+            int maxSize = stack.getStack().getMaxStackSize() * stackPower;
+            InteractionResult result = InteractionResult.CONSUME;
+            if (count > maxSize) {
+                stack.setCount(stack.getCount() - (maxSize - count));
+                count = maxSize;
+                result = InteractionResult.CONSUME_PARTIAL;
+            }
+            entry1.setCount(count);
+            return result;
+        }
+        return InteractionResult.FAIL;
+    }
+
+    /**
+     * 修改指定条目的数量。
+     *
+     * @param data 包含数据组件的物品组，用于匹配条目
+     * @param operator 以条目原数量为参数的修改器，用于修改匹配条目的数量
+     * @return 在返回的 {@link ModifyResult} 中，<br>
+     *         {@link ModifyResult#result result} 为 {@link TriState#TRUE TRUE} 说明修改成功；<br>
+     *         {@link ModifyResult#result result} 为 {@link TriState#DEFAULT DEFAULT} 说明修改失败，保持不变；<br>
+     *         {@link ModifyResult#result result} 为 {@link TriState#FALSE FALSE} 说明修改成功且完成后该条目为空，需要删除。<br><br>
+     *         {@link ModifyResult#stackCountChanged stackCountChanged} 为 {@link TriState#TRUE TRUE} 说明条目对应的物品堆数量有增加；<br>
+     *         {@link ModifyResult#stackCountChanged stackCountChanged} 为 {@link TriState#DEFAULT DEFAULT} 说明条目对应的物品堆数量保持不变；<br>
+     *         {@link ModifyResult#stackCountChanged stackCountChanged} 为 {@link TriState#FALSE FALSE} 说明条目对应的物品堆数量有减少。
+     */
+    public ModifyResult modifyCount(ItemStack data, int stackPower, IntUnaryOperator operator) {
+        this.cached = false;
         DataComponentPatch patch = data.getComponentsPatch();
         for (EntryData entry : this.data) {
             if (!entry.getPatch().equals(patch)) continue;
             int count = operator.applyAsInt(entry.count);
-            if (count < 0) return TriState.FALSE;
+            if (count < 0 || count > this.item.getDefaultMaxStackSize() * stackPower) {
+                return new ModifyResult(TriState.DEFAULT, entry.count, TriState.DEFAULT);
+            }
             if (count == 0) {
                 if (this.data.size() == 1) {
-                    return TriState.DEFAULT;
+                    return new ModifyResult(TriState.FALSE, entry.count, TriState.DEFAULT);
                 } else {
                     this.data.removeIf(entry1 -> entry1.patch.equals(entry.patch));
-                    return this.data.isEmpty() ? TriState.DEFAULT : TriState.TRUE;
+                    return new ModifyResult(this.data.isEmpty() ? TriState.FALSE : TriState.TRUE, entry.count, TriState.FALSE);
                 }
             }
+            int oldCount = entry.count;
             entry.setCount(count);
-            return TriState.TRUE;
+            return new ModifyResult(TriState.TRUE, oldCount, TriState.DEFAULT);
         }
-        return TriState.FALSE;
+        int count = operator.applyAsInt(0);
+        if (count <= 0 || count > this.item.getDefaultMaxStackSize() * stackPower) {
+            return new ModifyResult(TriState.DEFAULT, 0, TriState.DEFAULT);
+        }
+        this.data.add(new EntryData(data.getComponentsPatch(), count));
+        return new ModifyResult(TriState.TRUE, 0, TriState.TRUE);
     }
 
-    public List<ItemStack> toStacks() {
+    public record ModifyResult(TriState result, int oldCount, TriState stackCountChanged) {
+    }
+
+    public List<UnlimitedItemStack> toStacks() {
         if (this.cached) return this.cache;
 
         this.cached = true;
-        final int maxSize = this.item.getDefaultMaxStackSize();
-        List<ItemStack> stacks = new ArrayList<>();
+        List<UnlimitedItemStack> stacks = new ArrayList<>();
         for (EntryData data : this.data) {
-            int count = data.count;
-            DataComponentPatch patch = data.patch;
-            while (count > 0) {
-                int thisCount;
-                if (count > maxSize) {
-                    thisCount = maxSize;
-                    count -= maxSize;
-                } else {
-                    thisCount = count;
-                    count = 0;
-                }
-                //noinspection deprecation
-                stacks.add(new ItemStack(this.item.builtInRegistryHolder(), thisCount, patch));
-            }
+            //noinspection deprecation
+            stacks.add(new UnlimitedItemStack(this.item.builtInRegistryHolder(), data.count, data.patch));
         }
         this.cache = stacks;
         return stacks;
