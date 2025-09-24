@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -23,10 +24,12 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -134,14 +137,20 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         double mouseX,
         double mouseY) {
         ItemInjectRecipe recipe = recipeHolder.value();
+        ResourceLocation id = getRegistryName(recipeHolder);
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock().getName());
+                tooltip.addAll(TooltipUtil.tooltip(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));
             }
         }
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
-                tooltip.add(recipe.getFirstResultBlock().state().getBlock().getName());
+                Block block = recipe.getFirstResultBlock().state().getBlock();
+                if (id != null) {
+                    tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
+                } else {
+                    tooltip.addAll(TooltipUtil.tooltip(block));
+                }
             }
         }
     }

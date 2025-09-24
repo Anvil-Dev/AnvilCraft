@@ -12,9 +12,6 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
-import twilightforest.TwilightForestMod;
-import twilightforest.init.TFBlocks;
 
 public class VanillaRecipesLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -102,16 +99,5 @@ public class VanillaRecipesLoader {
                 Items.BREAD, 0.35f, 200)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
             .save(provider, AnvilCraft.of("smelting_cooking_bread"));
-
-        // Twilight Forest Integration
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, TFBlocks.KNIGHTMETAL_BLOCK)
-            .pattern("CCC")
-            .pattern("CHC")
-            .pattern("CCC")
-            .define('C', Items.CACTUS)
-            .define('H', ModBlocks.HEAVY_IRON_BLOCK)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-            .save(provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
-                AnvilCraft.of("twilight_forest_knightmetal_block"));
     }
 }

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -22,9 +23,11 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -125,15 +128,22 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         IRecipeSlotsView recipeSlotsView,
         double mouseX,
         double mouseY) {
+        ResourceLocation id = getRegistryName(recipe);
         IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(recipe.value().getFirstInputBlock().constructStatesForRender().getFirst().getBlock().getName());
+                tooltip.addAll(TooltipUtil.tooltip(recipe.value().getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));
             }
         }
         if (mouseX >= 100 && mouseX <= 120) {
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(recipe.value().getFirstResultBlock().state().getBlock().getName());
+                Block block = recipe.value().getFirstResultBlock().state().getBlock();
+                if (id != null) {
+                    tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
+                } else {
+                    tooltip.addAll(TooltipUtil.tooltip(block));
+                }
+
             }
         }
     }

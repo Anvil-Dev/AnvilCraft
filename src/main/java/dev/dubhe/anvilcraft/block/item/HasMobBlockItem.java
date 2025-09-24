@@ -140,7 +140,7 @@ public class HasMobBlockItem extends BlockItem {
             villager.releasePoi(MemoryModuleType.MEETING_POINT);
         }
         entity.remove(Entity.RemovalReason.DISCARDED);
-        if (player != null) player.getInventory().placeItemBackInInventory(stack);
+        if (player != null) player.getInventory().placeItemBackInInventory(newStack);
         return newStack;
     }
 

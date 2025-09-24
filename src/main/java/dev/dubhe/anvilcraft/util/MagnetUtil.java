@@ -80,10 +80,9 @@ public abstract class MagnetUtil {
         AABB aabb = new AABB(player.position().add(-radius, -radius, -radius), player.position().add(radius, radius, radius));
         level.getEntities(EntityTypeTest.forClass(ItemEntity.class), aabb, Entity::isAlive).forEach(e -> e.moveTo(player.position()));
         int totalXp = level.getEntities(EntityTypeTest.forClass(ExperienceOrb.class), aabb, Entity::isAlive).stream().mapToInt(e -> {
-            CompoundTag c = new CompoundTag(); // AT (make e.count public) not working for idea, idk why. use CompoundTag yet.
-            e.addAdditionalSaveData(c);
+            int xp = Math.max(e.count * e.value, 1);
             e.discard();
-            return Math.max(c.getShort("Value") * c.getInt("Count"), 1);
+            return xp;
         }).sum();
         if (totalXp > 0 && level instanceof ServerLevel serverLevel) ExperienceOrb.award(serverLevel, player.position(), totalXp);
         itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(usedHand));
