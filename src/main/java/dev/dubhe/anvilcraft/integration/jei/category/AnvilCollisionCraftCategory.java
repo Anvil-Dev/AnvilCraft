@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -32,10 +33,12 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
@@ -317,6 +320,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         double mouseX,
         double mouseY) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
+        ResourceLocation id = getRegistryName(recipeHolder);
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
 
         if (mouseX >= 70 && mouseX <= 88) {
@@ -333,7 +337,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         tooltip.addAll(BlockTagUtil.getTooltipsForInput(blockTransform.inputBlock()));
                     }
                     if (mouseY >= 43 && mouseY < 61) {
-                        tooltip.add(blockTransform.outputBlock().state().getBlock().getName());
+                        Block block = blockTransform.outputBlock().state().getBlock();
+                        if (id != null) {
+                            tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
+                        } else {
+                            tooltip.addAll(TooltipUtil.tooltip(block));
+                        }
                     }
                 }
             }

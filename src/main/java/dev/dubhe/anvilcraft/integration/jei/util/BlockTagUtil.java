@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
 import dev.anvilcraft.lib.recipe.component.BlockStatePredicate;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -10,7 +11,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.crafting.BlockTagIngredient;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -52,10 +52,7 @@ public class BlockTagUtil {
      * @return 展示方块对应的工具提示。
      */
     public static List<Component> getTooltipsForInput(BlockStatePredicate input) {
-        List<Component> tooltipList = new ArrayList<>();
-        tooltipList.add(
-            input.constructStatesForRender().get((int) ((System.currentTimeMillis() / 1000) % input.constructStatesForRender().size()))
-                .getBlock().getName());
-        return tooltipList;
+        Block block = input.constructStatesForRender().get((int) ((System.currentTimeMillis() / 1000) % input.constructStatesForRender().size())).getBlock();
+        return TooltipUtil.tooltip(block);
     }
 }

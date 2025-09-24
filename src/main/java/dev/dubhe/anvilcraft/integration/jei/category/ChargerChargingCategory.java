@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
@@ -103,7 +104,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         ChargerChargingRecipe recipe = recipeHolder.value();
         RenderSupport.renderBlock(
             guiGraphics,
-            recipe.getProcessingBlock().defaultBlockState(),
+            recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false),
             81,
             40,
             10,

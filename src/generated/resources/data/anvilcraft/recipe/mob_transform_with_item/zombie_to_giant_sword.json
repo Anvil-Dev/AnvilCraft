@@ -6,17 +6,19 @@
     }
   ],
   "type": "anvilcraft:mob_transform_with_item",
-  "chancePercentPerItem": 50,
+  "chance_percent_per_item": 50,
+  "ingredients": [
+    {
+      "items": "minecraft:stone_sword"
+    }
+  ],
   "input": "minecraft:zombie",
-  "itemInput": {
-    "item": "minecraft:stone_pickaxe"
-  },
-  "itemResult": {
+  "item_result": {
     "count": 1,
-    "id": "twilightforest:giant_pickaxe"
+    "id": "twilightforest:giant_sword"
   },
-  "specialResult": {
+  "special_result": {
     "probability": 1.0,
-    "resultEntityType": "minecraft:giant"
+    "result_entity_type": "minecraft:giant"
   }
 }

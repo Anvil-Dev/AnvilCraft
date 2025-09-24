@@ -34,7 +34,6 @@ import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -49,7 +48,7 @@ public class CreateIntegration {
     private static final BoilerHeater INCANDESCENT = new ConstantValueHeater(3);
     private static final DeferredRegister<AmuletType> REGISTER = DeferredRegister.create(ModRegistries.AMULET_TYPE_KEY, AnvilCraft.MOD_ID);
 
-    private static float heater(Level level, BlockPos blockPos, @NotNull BlockState blockState) {
+    private static float heater(Level level, BlockPos blockPos, BlockState blockState) {
         if (blockState.is(ModBlocks.HEATER) && !blockState.getValue(HeaterBlock.OVERLOAD)) {
             return 1;
         }
@@ -65,7 +64,7 @@ public class CreateIntegration {
         AmuletManager.INSTANCE.registerAmulets(COGWHEEL_AMULET::get);
     }
 
-    private void registerToTab(@NotNull BuildCreativeModeTabContentsEvent event) {
+    private void registerToTab(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey().equals(ModItemGroups.ANVILCRAFT_TOOL.getKey())) {
             event.insertAfter(
                 ModItems.ANVIL_AMULET.asStack(),
@@ -79,19 +78,13 @@ public class CreateIntegration {
 
         @Override
         public @Nullable BoilerHeater get(Block block) {
-            if (block == ModBlocks.HEATER.get()) {
-                return HEATER;
-            }
-            if (block instanceof IncandescentBlock) {
-                return INCANDESCENT;
-            }
-            if (block instanceof GlowingBlock) {
-                return GLOWING;
-            }
-            if (block instanceof RedhotBlock) {
-                return REDHOT;
-            }
-            return null;
+            return switch (block) {
+                case HeaterBlock ignored -> HEATER;
+                case IncandescentBlock ignored -> INCANDESCENT;
+                case GlowingBlock ignored -> GLOWING;
+                case RedhotBlock ignored -> REDHOT;
+                default -> null;
+            };
         }
     }
 
@@ -134,7 +127,8 @@ public class CreateIntegration {
                 AllDamageTypes.POTATO_CANNON,
                 AllDamageTypes.ROLLER,
                 AllDamageTypes.RUN_OVER,
-                AllDamageTypes.SAW)
+                AllDamageTypes.SAW
+            )
             .obtainOr((player, source) -> source.typeHolder().is(DamageTypes.PLAYER_ATTACK) && Optional.ofNullable(source.getEntity())
                 .map(entity -> Util.instanceOfAny(entity, DeployerFakePlayer.class))
                 .orElse(false))

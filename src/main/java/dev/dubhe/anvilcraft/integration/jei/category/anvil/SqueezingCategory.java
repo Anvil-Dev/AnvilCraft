@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -27,10 +28,12 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -106,22 +109,28 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         double mouseY
     ) {
         SqueezingRecipe recipe = recipeHolder.value();
+        ResourceLocation id = getRegistryName(recipeHolder);
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY <= 42) {
-                tooltip.add(recipe.getInputBlocks().getFirst().constructStatesForRender().getFirst().getBlock().getName());
+                tooltip.addAll(TooltipUtil.tooltip(recipe.getInputBlocks().getFirst().constructStatesForRender().getFirst().getBlock()));
             }
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(Blocks.CAULDRON.getName());
+                tooltip.addAll(TooltipUtil.tooltip(Blocks.CAULDRON));
             }
         }
         if (mouseX >= 100 && mouseX <= 120) {
             if (mouseY >= 24 && mouseY <= 42) {
                 List<ChanceBlockState> result = recipe.getResultBlocks();
                 if (result.isEmpty()) return;
-                tooltip.add(result.get((int) ((System.currentTimeMillis() / 1000) % result.size())).state().getBlock().getName());
+                tooltip.addAll(TooltipUtil.tooltip(result.get((int) ((System.currentTimeMillis() / 1000) % result.size())).state().getBlock()));
             }
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(recipe.getHasCauldron().getTransformCauldron().getName());
+                Block block = recipe.getHasCauldron().getTransformCauldron();
+                if (id != null) {
+                    tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
+                } else {
+                    tooltip.addAll(TooltipUtil.tooltip(block));
+                }
             }
         }
     }

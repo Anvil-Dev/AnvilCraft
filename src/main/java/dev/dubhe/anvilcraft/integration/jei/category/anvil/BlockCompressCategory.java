@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -24,6 +25,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -147,6 +149,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     ) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         BlockCompressRecipe recipe = recipeHolder.value();
+        ResourceLocation id = getRegistryName(recipeHolder);
 
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY < 42) {
@@ -158,7 +161,13 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
         }
         if (mouseX >= 100 && mouseX <= 120) {
             if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.add(recipe.getFirstResultBlock().state().getBlock().getName());
+                List<Component> tooltip1;
+                if (id != null) {
+                    tooltip1 = TooltipUtil.recipeIDTooltip(recipe.getResultBlocks().getFirst().state().getBlock(), id);
+                } else {
+                    tooltip1 = TooltipUtil.tooltip(recipe.getResultBlocks().getFirst().state().getBlock());
+                }
+                tooltip.addAll(tooltip1);
             }
         }
     }
