@@ -50,6 +50,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     protected HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
     protected boolean changed = false;
+    @Nullable
     @Getter
     protected BlockPos irradiateBlockPos = null;
     @Getter

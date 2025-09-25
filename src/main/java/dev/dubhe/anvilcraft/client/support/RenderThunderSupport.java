@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
-import dev.dubhe.anvilcraft.client.renderer.Line;
+import dev.dubhe.anvilcraft.util.Line;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;

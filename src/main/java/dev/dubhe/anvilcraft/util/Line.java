@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.client.renderer;
+package dev.dubhe.anvilcraft.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

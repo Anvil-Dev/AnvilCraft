@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
-import dev.dubhe.anvilcraft.client.renderer.Line;
+import dev.dubhe.anvilcraft.util.Line;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.constant.Constant;
 import net.minecraft.client.Minecraft;

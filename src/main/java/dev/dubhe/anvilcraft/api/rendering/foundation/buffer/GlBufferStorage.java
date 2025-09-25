@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.api.rendering.foundation.buffer;
 
+import dev.dubhe.anvilcraft.api.rendering.foundation.Disposable;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.opengl.GL45.*;
 
-public abstract class GlBufferStorage {
+public abstract class GlBufferStorage implements Disposable {
     public static final boolean BUFFER_STORAGE_SUPPORT = GL.getCapabilities().GL_ARB_buffer_storage;
     protected final int glBufferId;
     protected final int target;
+    protected boolean valid = true;
 
     GlBufferStorage(int target) {
         this.target = target;
@@ -23,6 +25,15 @@ public abstract class GlBufferStorage {
 
     public void bind() {
         glBindBuffer(target, glBufferId);
+    }
+
+    @Override
+    public void dispose() {
+        if (!valid) return;
+        bind();
+        glDeleteBuffers(glBufferId);
+        unbind();
+        valid = false;
     }
 
     public void unbind() {

@@ -3,11 +3,12 @@ package dev.dubhe.anvilcraft.api.power;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.renderer.Line;
+import dev.dubhe.anvilcraft.util.Line;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
 import dev.dubhe.anvilcraft.util.VirtualThreadFactoryImpl;
+import dev.dubhe.anvilcraft.util.algo.MinimumSpanningTree3D;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -217,33 +218,14 @@ public class SimplePowerGrid {
     }
 
     private void createTransmitterVisualLines() {
-        List<Map.Entry<BlockPos, AABB>> shapes = this.powerComponentInfoList.stream()
-            .filter(it -> it.type() == PowerComponentType.TRANSMITTER)
-            .map(it -> Map.entry(
-                it.pos(), new AABB(
-                    -it.range() + it.pos().getX(),
-                    -it.range() + it.pos().getY(),
-                    -it.range() + it.pos().getZ(),
-                    it.range() + 1 + it.pos().getX(),
-                    it.range() + 1 + it.pos().getY(),
-                    it.range() + 1 + it.pos().getZ()
-                )
-            ))
-            .toList();
-
-        for (int i = 0; i < shapes.size(); i++) {
-            Map.Entry<BlockPos, AABB> e1 = shapes.get(i);
-            for (int j = i + 1; j < shapes.size(); j++) {
-                Map.Entry<BlockPos, AABB> e2 = shapes.get(j);
-                AABB a = e1.getValue();
-                AABB b = e2.getValue();
-                if (a.intersects(b)) {
-                    Vec3 start = e1.getKey().getCenter();
-                    Vec3 end = e2.getKey().getCenter();
-                    powerTransmitterLines.add(new Line(start, end));
-                }
+        List<Vec3> list = new ArrayList<>();
+        for (PowerComponentInfo powerComponentInfo : this.powerComponentInfoList) {
+            if (powerComponentInfo.type() == PowerComponentType.TRANSMITTER) {
+                list.add(powerComponentInfo.pos().getCenter());
             }
         }
+        List<Line> lines = MinimumSpanningTree3D.kruskalMST(list);
+        powerTransmitterLines.addAll(lines);
     }
 
     private void createMergedOutlineShape() {

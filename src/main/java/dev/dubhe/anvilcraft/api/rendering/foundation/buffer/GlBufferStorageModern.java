@@ -13,7 +13,7 @@ public abstract class GlBufferStorageModern extends GlBufferStorage {
         | GL_MAP_WRITE_BIT
         | GL_DYNAMIC_STORAGE_BIT;
 
-    private final long clientPtr;
+    private long clientPtr;
 
     protected GlBufferStorageModern(int target) {
         super(target);
@@ -26,6 +26,15 @@ public abstract class GlBufferStorageModern extends GlBufferStorage {
         );
         clientPtr = nglMapBufferRange(target, 0, BUFFER_SIZE, FLAGS);
         unbind();
+    }
+
+    @Override
+    public void dispose() {
+        if (!valid)return;
+        bind();
+        glUnmapBuffer(target);
+        clientPtr = 0;
+        super.dispose();
     }
 
     @Override
