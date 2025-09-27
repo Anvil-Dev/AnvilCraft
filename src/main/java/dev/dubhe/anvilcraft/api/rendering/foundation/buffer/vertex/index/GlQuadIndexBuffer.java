@@ -50,6 +50,7 @@ public class GlQuadIndexBuffer implements GlIndexBuffer {
             write(j++, i + 3);
             write(j++, i + 0);
         }
+        backedBuffer.upload(ptr, (long) indexCount * indexType.bytes);
     }
 
     @Override
@@ -69,6 +70,7 @@ public class GlQuadIndexBuffer implements GlIndexBuffer {
         for (int i = 0; i < sortedIndex.length; i++) {
             write(i, sortedIndex[i]);
         }
+        backedBuffer.upload(ptr, (long) indexCount * indexType.bytes);
     }
 
     @Override

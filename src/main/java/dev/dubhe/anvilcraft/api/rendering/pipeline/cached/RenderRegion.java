@@ -4,13 +4,17 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.api.rendering.foundation.Disposable;
 import dev.dubhe.anvilcraft.api.rendering.foundation.FullyBufferedBufferSource;
+import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.BufferHost;
+import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.ring.RingBuffer;
+import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.vertex.GlVertexBuffer;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -23,20 +27,19 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public class RenderRegion {
+public class RenderRegion implements BufferHost, Disposable {
     public static final List<RenderType> BLOOM_RENDERTYPES = List.of(
         ModRenderTypes.LASER
     );
     private final ChunkPos chunkPos;
-    private final Map<RenderType, VertexBuffer> buffers = new HashMap<>();
+    private final RingBuffer<RegionBuffers, RenderRegion> buffers = new RingBuffer<>(this, RegionBuffers::new);
     private Reference2IntMap<RenderType> indexCountMap = new Reference2IntOpenHashMap<>();
     private final Set<BlockEntity> blockEntityList = new HashSet<>();
+    @Getter
     private final CacheableBERenderingPipeline pipeline;
     private final Minecraft minecraft = Minecraft.getInstance();
     private RebuildTask lastRebuildTask;
@@ -55,11 +58,11 @@ public class RenderRegion {
         blockEntityList.removeIf(BlockEntity::isRemoved);
         if (be.isRemoved()) {
             blockEntityList.remove(be);
-            pipeline.submitCompileTask(new RebuildTask());
+            pipeline.submitCompileTask(new RebuildTask(buffers.get()));
             return;
         }
         blockEntityList.add(be);
-        pipeline.submitCompileTask(new RebuildTask());
+        pipeline.submitCompileTask(new RebuildTask(buffers.get()));
     }
 
     public void blockRemoved(BlockEntity be) {
@@ -68,7 +71,7 @@ public class RenderRegion {
         }
         blockEntityList.remove(be);
         blockEntityList.removeIf(BlockEntity::isRemoved);
-        pipeline.submitCompileTask(new RebuildTask());
+        pipeline.submitCompileTask(new RebuildTask(buffers.get()));
     }
 
     public void renderBloomed(Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
@@ -76,16 +79,7 @@ public class RenderRegion {
     }
 
     public void render(Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
-        renderInternal(frustumMatrix, projectionMatrix, buffers.keySet(), RenderState::levelStage);
-    }
-
-    public VertexBuffer getBuffer(RenderType renderType) {
-        if (buffers.containsKey(renderType)) {
-            return buffers.get(renderType);
-        }
-        VertexBuffer vb = new VertexBuffer(VertexBuffer.Usage.STATIC);
-        buffers.put(renderType, vb);
-        return vb;
+        renderInternal(frustumMatrix, projectionMatrix, buffers.current().allRenderPasses(), RenderState::levelStage);
     }
 
     private void renderInternal(
@@ -103,20 +97,21 @@ public class RenderRegion {
             return;
         }
         for (RenderType renderType : renderTypes) {
-            VertexBuffer vb = buffers.get(renderType);
+            GlVertexBuffer vb = this.getPresentBuffer(renderType);
             if (vb == null) continue;
             stateSwitcher.run();
             renderLayer(renderType, vb, frustumMatrix, projectionMatrix, cameraPosition, window);
         }
     }
 
-    public void releaseBuffers() {
-        buffers.values().forEach(VertexBuffer::close);
+    protected GlVertexBuffer getPresentBuffer(RenderType renderType) {
+        RegionBuffers current = buffers.current();
+        return current.getBuffer(renderType);
     }
 
     private void renderLayer(
         RenderType renderType,
-        VertexBuffer vertexBuffer,
+        GlVertexBuffer vertexBuffer,
         Matrix4f frustumMatrix,
         Matrix4f projectionMatrix,
         Vec3 cameraPosition,
@@ -138,16 +133,29 @@ public class RenderRegion {
             uniform.upload();
         }
         vertexBuffer.bind();
-        GL11.glDrawElements(GL15.GL_TRIANGLES, indexCount, vertexBuffer.sequentialIndices.type().asGLType, 0L);
-        VertexBuffer.unbind();
+        if (renderType.sortOnUpload) {
+            vertexBuffer.resortVertices(cameraPosition.toVector3f());
+        }
+        GL11.glDrawElements(GL15.GL_TRIANGLES, indexCount, vertexBuffer.getIndexType(), 0L);
+        vertexBuffer.unbind();
         if (uniform != null) {
             uniform.set(0.0F, 0.0F, 0.0F);
         }
         renderType.clearRenderState();
     }
 
+    @Override
+    public void dispose() {
+        buffers.dispose();
+    }
+
     private class RebuildTask implements Runnable {
         private boolean cancelled = false;
+        private final RegionBuffers buffers;
+
+        private RebuildTask(RegionBuffers buffers) {
+            this.buffers = buffers;
+        }
 
         @Override
         public void run() {
@@ -157,7 +165,7 @@ public class RenderRegion {
             FullyBufferedBufferSource bufferSource = new FullyBufferedBufferSource();
             for (BlockEntity be : blockEntityList) {
                 if (cancelled) {
-                    bufferSource.close();
+                    bufferSource.dispose();
                     return;
                 }
                 CacheableBlockEntityRenderer renderer = CacheableBlockEntityRenderers.get(be.getType());
@@ -177,10 +185,7 @@ public class RenderRegion {
                 poseStack.popPose();
             }
             RenderRegion.this.isEmpty = bufferSource.isEmpty();
-            bufferSource.upload(
-                RenderRegion.this::getBuffer,
-                pipeline::submitUploadTask
-            );
+            bufferSource.upload(buffers);
             RenderRegion.this.indexCountMap = bufferSource.getIndexCountMap();
             lastRebuildTask = null;
         }

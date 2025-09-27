@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.rendering.util;
 
 import static org.lwjgl.opengl.GL45.*;
 
-public class SyncHelper {
+public class SyncSupport {
     private long syncObject = -1;
 
     public boolean isSyncSet() {

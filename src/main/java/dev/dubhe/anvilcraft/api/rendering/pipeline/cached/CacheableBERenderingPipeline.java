@@ -68,7 +68,7 @@ public class CacheableBERenderingPipeline {
     }
 
     public void releaseBuffers() {
-        renderRegions.values().forEach(RenderRegion::releaseBuffers);
+        renderRegions.values().forEach(RenderRegion::dispose);
         valid = false;
     }
 

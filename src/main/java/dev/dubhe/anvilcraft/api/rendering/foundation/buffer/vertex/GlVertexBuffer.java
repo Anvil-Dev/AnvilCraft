@@ -11,7 +11,7 @@ import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL45.*;
 
-public class GlVertexArray implements Disposable {
+public class GlVertexBuffer implements Disposable {
     private final int arrayObjectId;
     private final GlBufferStorage vertexBuffer;
     private final GlIndexBuffer indexBuffer;
@@ -19,11 +19,11 @@ public class GlVertexArray implements Disposable {
     private final VertexFormat.IndexType indexType;
     private QuadSortingState sortingState;
 
-    public GlVertexArray(RenderType renderType) {
+    public GlVertexBuffer(RenderType renderType) {
         this(renderType, VertexFormat.IndexType.SHORT);
     }
 
-    public GlVertexArray(RenderType renderType, VertexFormat.IndexType indexType) {
+    public GlVertexBuffer(RenderType renderType, VertexFormat.IndexType indexType) {
         this.indexType = indexType;
         if (renderType.mode != VertexFormat.Mode.QUADS) throw new UnsupportedOperationException();
         this.indexBuffer = GlIndexBuffer.forQuad(indexType);
@@ -34,23 +34,31 @@ public class GlVertexArray implements Disposable {
         glBindVertexArray(0);
     }
 
-    public void upload(long ptr, int size, int indexCount) {
-        this.upload(ptr, size, indexCount, null, null);
+    public void upload(long ptr, int size, int indexCount, Disposable uploadSrc) {
+        this.upload(ptr, size, indexCount, null, null, uploadSrc);
     }
 
-    public void upload(long ptr, int size, int indexCount, @Nullable QuadSortingState sortingState, @Nullable Vector3f origin) {
+    public void upload(long ptr, int size, int indexCount, @Nullable QuadSortingState sortingState, @Nullable Vector3f origin, Disposable uploadSrc) {
         this.sortingState = sortingState;
         if (sortingState == null) {
             indexBuffer.fillContents(indexCount);
         } else {
-            resortVerticles(origin);
+            resortVertices(origin);
         }
-        this.vertexBuffer.upload(ptr, size);
+        this.vertexBuffer.upload(ptr, size, uploadSrc);
     }
 
-    public void resortVerticles(Vector3f origin) {
+    public void resortVertices(Vector3f origin) {
         int[] indexes = QuadSorter.buildSortedIndexByDistance(sortingState, origin);
         indexBuffer.fromSorted(indexes);
+    }
+
+    public void bind() {
+        glBindVertexArray(arrayObjectId);
+    }
+
+    public void unbind() {
+        glBindVertexArray(0);
     }
 
     @Override
@@ -58,5 +66,9 @@ public class GlVertexArray implements Disposable {
         vertexBuffer.dispose();
         indexBuffer.dispose();
         glDeleteVertexArrays(arrayObjectId);
+    }
+
+    public int getIndexType() {
+        return indexType.asGLType;
     }
 }

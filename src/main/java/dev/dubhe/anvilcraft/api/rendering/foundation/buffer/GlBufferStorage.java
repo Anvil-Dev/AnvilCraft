@@ -18,6 +18,11 @@ public abstract class GlBufferStorage implements Disposable {
 
     public abstract void setupBufferState();
 
+    public void upload(long ptr, long size, Disposable uploadSrc) {
+        this.upload(ptr, size);
+        uploadSrc.dispose();
+    }
+
     /**
      * Runs on worker thread
      */
