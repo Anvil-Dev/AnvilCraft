@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL45.*;
 
 public class GlVertexBuffer implements Disposable {
     private final int arrayObjectId;
-    private final GlBufferStorage vertexBuffer;
+    private final GlBufferStorage<VertexFormat> vertexBuffer;
     private final GlIndexBuffer indexBuffer;
     private final RenderType renderType;
     private final VertexFormat.IndexType indexType;
@@ -24,13 +24,13 @@ public class GlVertexBuffer implements Disposable {
     }
 
     public GlVertexBuffer(RenderType renderType, VertexFormat.IndexType indexType) {
-        this.indexType = indexType;
         if (renderType.mode != VertexFormat.Mode.QUADS) throw new UnsupportedOperationException();
-        this.indexBuffer = GlIndexBuffer.forQuad(indexType);
+        this.indexType = indexType;
         this.renderType = renderType;
         this.arrayObjectId = glGenVertexArrays();
         glBindVertexArray(arrayObjectId);
         this.vertexBuffer = GlVertexBufferStorage.create(renderType.format);
+        this.indexBuffer = GlIndexBuffer.forQuad(indexType);
         glBindVertexArray(0);
     }
 

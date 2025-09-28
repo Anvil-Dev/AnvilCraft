@@ -8,7 +8,7 @@ public class GlQuadIndexBuffer implements GlIndexBuffer {
     private final MemoryUtil.MemoryAllocator alloc = MemoryUtil.getAllocator();
     private long ptr = alloc.calloc(1024, 4);
     private final VertexFormat.IndexType indexType;
-    private final GlBufferStorage backedBuffer;
+    private final GlBufferStorage<?> backedBuffer;
     private int indexCount;
 
     protected GlQuadIndexBuffer(VertexFormat.IndexType indexType) {

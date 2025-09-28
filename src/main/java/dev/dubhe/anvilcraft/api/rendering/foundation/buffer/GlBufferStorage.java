@@ -5,18 +5,24 @@ import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.opengl.GL45.*;
 
-public abstract class GlBufferStorage implements Disposable {
-    public static final boolean BUFFER_STORAGE_SUPPORT = GL.getCapabilities().GL_ARB_buffer_storage;
+public abstract class GlBufferStorage<C> implements Disposable {
+    public static final boolean BUFFER_STORAGE_SUPPORT = GL.getCapabilities().GL_ARB_buffer_storage && System.getProperty("anvilcraft.enforceLegacyBuffers") == null;
     protected final int glBufferId;
     protected final int target;
     protected boolean valid = true;
 
-    GlBufferStorage(int target) {
+    static {
+        if (BUFFER_STORAGE_SUPPORT) {
+            System.out.println("Using GL_ARB_buffer_storage as buffer storage.");
+        }
+    }
+
+    GlBufferStorage(int target, C configureContext) {
         this.target = target;
         this.glBufferId = glGenBuffers();
     }
 
-    public abstract void setupBufferState();
+    public abstract void setupBufferState(C configureContext);
 
     public void upload(long ptr, long size, Disposable uploadSrc) {
         this.upload(ptr, size);

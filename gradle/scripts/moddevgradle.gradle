@@ -42,6 +42,11 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
+        clientEnforceLegacyBuffers {
+            client()
+            systemProperty "anvilcraft.enforceLegacyBuffers", "true"
+        }
+
         server {
             server()
             programArgument '--nogui'

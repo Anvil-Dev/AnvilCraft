@@ -11,7 +11,7 @@ import java.nio.FloatBuffer;
 public record QuadSortingState(Vector3f[] quadCenters) {
     public static QuadSortingState fromMesh(MeshData meshData) {
         ByteBuffer byteBuffer = meshData.vertexBuffer();
-        int vertexCount = meshData.drawState().indexCount();
+        int vertexCount = meshData.drawState().vertexCount();
         VertexFormat format = meshData.drawState().format();
         int offset = format.getOffset(VertexFormatElement.POSITION);
         if (offset == -1) {
@@ -19,12 +19,12 @@ public record QuadSortingState(Vector3f[] quadCenters) {
         } else {
             FloatBuffer floatbuffer = byteBuffer.asFloatBuffer();
             int j = format.getVertexSize() / 4;
-            int k = j * 4;
-            int l = vertexCount / 4;
-            Vector3f[] avector3f = new Vector3f[l];
+            int vertexSize = j * 4;
+            int quadCount = vertexCount / 4;
+            Vector3f[] avector3f = new Vector3f[quadCount];
 
-            for (int i1 = 0; i1 < l; i1++) {
-                int j1 = i1 * k + offset;
+            for (int i = 0; i < quadCount; i++) {
+                int j1 = i * vertexSize + offset;
                 int k1 = j1 + j * 2;
                 float f = floatbuffer.get(j1 + 0);
                 float f1 = floatbuffer.get(j1 + 1);
@@ -32,7 +32,7 @@ public record QuadSortingState(Vector3f[] quadCenters) {
                 float f3 = floatbuffer.get(k1 + 0);
                 float f4 = floatbuffer.get(k1 + 1);
                 float f5 = floatbuffer.get(k1 + 2);
-                avector3f[i1] = new Vector3f((f + f3) / 2.0F, (f1 + f4) / 2.0F, (f2 + f5) / 2.0F);
+                avector3f[i] = new Vector3f((f + f3) / 2.0F, (f1 + f4) / 2.0F, (f2 + f5) / 2.0F);
             }
 
             return new QuadSortingState(avector3f);

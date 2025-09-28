@@ -6,7 +6,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.opengl.GL45.*;
 
-public abstract class GlBufferStorageModern extends GlBufferStorage {
+public abstract class GlBufferStorageModern<C> extends GlBufferStorage<C> {
     public static final long BUFFER_SIZE = RenderType.SMALL_BUFFER_SIZE;
     public static final int FLAGS = ARBBufferStorage.GL_MAP_PERSISTENT_BIT
         | ARBBufferStorage.GL_MAP_COHERENT_BIT
@@ -15,17 +15,16 @@ public abstract class GlBufferStorageModern extends GlBufferStorage {
 
     private long clientPtr;
 
-    protected GlBufferStorageModern(int target) {
-        super(target);
+    protected GlBufferStorageModern(int target,C configureContext) {
+        super(target, configureContext);
         bind();
-        this.setupBufferState();
+        this.setupBufferState(configureContext);
         ARBBufferStorage.glBufferStorage(
             target,
             BUFFER_SIZE,
             FLAGS
         );
-        clientPtr = nglMapBufferRange(target, 0, BUFFER_SIZE, FLAGS);
-        unbind();
+        clientPtr = nglMapBufferRange(target, 0, BUFFER_SIZE, GL_MAP_WRITE_BIT);
     }
 
     @Override

@@ -5,13 +5,12 @@ import dev.dubhe.anvilcraft.api.rendering.foundation.Disposable;
 
 import static org.lwjgl.opengl.GL45.*;
 
-public abstract class GlBufferStorageLegacy extends GlBufferStorage {
+public abstract class GlBufferStorageLegacy<C> extends GlBufferStorage<C> {
 
-    protected GlBufferStorageLegacy(int target) {
-        super(target);
+    protected GlBufferStorageLegacy(int target,C configureContext) {
+        super(target, configureContext);
         bind();
-        this.setupBufferState();
-        unbind();
+        this.setupBufferState(configureContext);
     }
 
     @Override
@@ -29,6 +28,13 @@ public abstract class GlBufferStorageLegacy extends GlBufferStorage {
     }
 
     public void upload(long ptr, long size) {
-
+        if (RenderSystem.isOnRenderThread()) {
+            nglBufferData(this.target, size, ptr, GL_STATIC_DRAW);
+            return;
+        }
+        RenderSystem.recordRenderCall(() -> {
+                nglBufferData(this.target, size, ptr, GL_STATIC_DRAW);
+            }
+        );
     }
 }
