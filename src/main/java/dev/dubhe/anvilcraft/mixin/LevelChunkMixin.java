@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.api.rendering.pipeline.cached.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,9 @@ public abstract class LevelChunkMixin {
     void onBlockEntityRemoved(BlockPos pos, CallbackInfo ci) {
         BlockEntity be = getBlockEntity(pos);
         if (be instanceof BaseLaserBlockEntity laserStateAccess) {
-            CacheableBERenderingPipeline.getInstance().blockRemoved(laserStateAccess);
+            if (RenderSystem.isOnRenderThread()) {
+                CacheableBERenderingPipeline.getInstance().blockRemoved(laserStateAccess);
+            }
         }
     }
 }

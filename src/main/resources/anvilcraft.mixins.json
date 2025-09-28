@@ -81,6 +81,7 @@
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "GameRendererMixin",
+    "GlDebugMixin",
     "GuiGraphicsMixin",
     "ItemFrameRendererMixin",
     "ItemInHandRendererMixin",
