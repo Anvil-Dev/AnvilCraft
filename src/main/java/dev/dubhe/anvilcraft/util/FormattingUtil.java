@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -140,5 +141,16 @@ public class FormattingUtil {
             alreadyUsed += partProgress;
         }
         return Component.literal(progressStr.toString()).withStyle(format);
+    }
+
+    public static final NumberFormat COMPAT_FORMATTER = Util.run(
+        NumberFormat.getCompactNumberInstance(Locale.US, NumberFormat.Style.SHORT),
+        formatter -> formatter.setMaximumFractionDigits(1)
+    );
+
+    public static String compatNumber(long number) {
+        String result = COMPAT_FORMATTER.format(number);
+        if (result.endsWith("K")) result = result.toLowerCase(Locale.ROOT);
+        return result;
     }
 }

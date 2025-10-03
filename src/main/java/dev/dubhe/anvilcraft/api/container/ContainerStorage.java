@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.api.container.item.ItemEntries;
-import dev.dubhe.anvilcraft.api.container.level.ContainerLevel;
+import dev.dubhe.anvilcraft.api.container.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
@@ -27,53 +27,54 @@ public class ContainerStorage {
         UUIDUtil.CODEC
             .fieldOf("id")
             .forGetter(ContainerStorage::getId),
-        ContainerLevel.CODEC
-            .fieldOf("level")
-            .forGetter(ContainerStorage::getLevel),
         ItemEntries.CODEC
             .optionalFieldOf("entries")
             .forGetter(ContainerStorage::getOpEntries),
         ICategory.CODEC.listOf()
             .fieldOf("categories")
-            .forGetter(ContainerStorage::getCategories)
+            .forGetter(ContainerStorage::getCategories),
+        Upgrades.CODEC
+            .fieldOf("upgrades")
+            .forGetter(ContainerStorage::getUpgrades)
     ).apply(ins, ContainerStorage::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ContainerStorage> STREAM_CODEC = StreamCodec.composite(
         UUIDUtil.STREAM_CODEC,
         ContainerStorage::getId,
-        ContainerLevel.STREAM_CODEC,
-        ContainerStorage::getLevel,
         ItemEntries.STREAM_CODEC,
         ContainerStorage::getEntries,
         ICategory.STREAM_CODEC.apply(ByteBufCodecs.list()),
         ContainerStorage::getCategories,
+        Upgrades.STREAM_CODEC,
+        ContainerStorage::getUpgrades,
         ContainerStorage::new
     );
     private final UUID id;
-    private ContainerLevel level = ContainerLevel.MIN;
     private final ItemEntries entries;
     private final List<ICategory> categories = new ArrayList<>();
+    private final Upgrades upgrades = new Upgrades();
 
     public ContainerStorage(UUID id) {
         this.id = id;
-        this.entries = new ItemEntries();
+        this.entries = new ItemEntries(this.upgrades);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private ContainerStorage(UUID id, ContainerLevel level, Optional<ItemEntries> entries, List<ICategory> categories) {
+    private ContainerStorage(UUID id, Optional<ItemEntries> entries, List<ICategory> categories, Upgrades upgrades) {
         this.id = id;
-        this.level = level;
         this.entries = entries
-            .map(entries1 -> Util.run(entries1, entries2 -> entries2.syncData(level)))
-            .orElse(new ItemEntries(level));
+            .map(entries1 -> Util.run(entries1, entries2 -> entries2.syncData(upgrades)))
+            .orElse(new ItemEntries(upgrades));
         this.categories.addAll(categories);
+        this.upgrades.sync(upgrades);
     }
 
-    private ContainerStorage(UUID id, ContainerLevel level, ItemEntries entries, List<ICategory> categories) {
+    private ContainerStorage(UUID id, ItemEntries entries, List<ICategory> categories, Upgrades upgrades) {
         this.id = id;
-        this.level = level;
         this.entries = entries;
         this.categories.addAll(categories);
-        this.entries.syncData(level);
+        this.upgrades.sync(upgrades);
+
+        this.entries.syncData(upgrades);
     }
 
     private Optional<ItemEntries> getOpEntries() {
@@ -89,32 +90,29 @@ public class ContainerStorage {
     }
 
     public int getMaxStackSize() {
-        return Item.DEFAULT_MAX_STACK_SIZE * this.level.getStackPower();
+        return Item.DEFAULT_MAX_STACK_SIZE * this.upgrades.getStackPower();
     }
 
     public int getMaxStackSize(ItemStack stack) {
-        return stack.getMaxStackSize() * this.level.getStackPower();
+        return stack.getMaxStackSize() * this.upgrades.getStackPower();
+    }
+
+    public boolean isFull(UnlimitedItemStack stack) {
+        return stack.getStack().getMaxStackSize() * this.upgrades.getStackPower() >= stack.getCount();
     }
 
     public void setChanged() {
-        this.entries.syncData(this.level);
+        this.entries.syncData(this.upgrades);
         this.entries.setChanged();
     }
 
-    public boolean upgrade() {
-        if (this.level.ordinal() + 1 == ContainerLevel.values().length) return false;
-        this.level = ContainerLevel.values()[this.level.ordinal() + 1];
-        this.entries.syncData(this.level);
-        return true;
-    }
-
     public void sync(ContainerStorage storage) {
-        this.level = storage.level;
         this.entries.getEntries().clear();
         this.entries.getEntries().addAll(storage.entries.getEntries());
         this.entries.setChanged();
         this.categories.clear();
         this.categories.addAll(storage.categories);
+        this.upgrades.sync(storage.upgrades);
     }
 
     public void applyCategory(ContainerStorage source) {

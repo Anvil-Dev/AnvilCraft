@@ -37,8 +37,8 @@ public class ContainerStorages extends SavedData {
         DATA_FIXERS = cache;
     }
 
-    private final Map<UUID, ContainerStorage> storages;
     private static final ContainerStorages CLIENT_STORAGE_COPY = new ContainerStorages();
+    private final Map<UUID, ContainerStorage> storages;
 
     public ContainerStorages() {
         this.storages = new HashMap<>();
@@ -83,6 +83,7 @@ public class ContainerStorages extends SavedData {
             ShulkerContainerSyncPacket.STREAM_CODEC,
             new ShulkerContainerSyncPacket(this.getOrCreateStorage(id)),
             1640,
+            level.registryAccess(),
             payload -> PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(pos), payload)
         );
     }

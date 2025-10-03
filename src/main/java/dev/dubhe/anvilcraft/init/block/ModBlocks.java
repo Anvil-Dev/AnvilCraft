@@ -1281,6 +1281,7 @@ public class ModBlocks {
             .requiresCorrectToolForDrops()
         )
         .item(FlexibleMultiPartBlockItem<OpenedCube3x3PartHalf, BooleanProperty, Boolean>::new)
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.NEEDS_DIAMOND_TOOL)

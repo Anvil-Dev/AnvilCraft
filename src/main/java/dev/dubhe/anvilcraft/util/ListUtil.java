@@ -49,4 +49,11 @@ public class ListUtil {
         }
         return true;
     }
+
+    public static <R, T extends R> Optional<T> findFirst(List<R> list, Class<T> clazz) {
+        for (R r : list) {
+            if (clazz.isInstance(r)) return Optional.of(Util.cast(r));
+        }
+        return Optional.empty();
+    }
 }

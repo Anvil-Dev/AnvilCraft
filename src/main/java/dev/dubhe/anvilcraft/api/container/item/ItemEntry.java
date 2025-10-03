@@ -11,7 +11,6 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.TriState;
@@ -67,44 +66,49 @@ public final class ItemEntry {
         return stack.is(this.item);
     }
 
-    public InteractionResult merge(ItemStack stack, int stackPower) {
-        if (!this.is(stack)) return InteractionResult.FAIL;
+    public MergeResult merge(ItemStack stack, int stackPower) {
+        if (!this.is(stack)) return new MergeResult(TriState.FALSE, stack.getCount());
         this.cached = false;
         DataComponentPatch patch = stack.getComponentsPatch();
         for (EntryData entry1 : this.data) {
             if (!entry1.getPatch().equals(patch)) continue;
             int count = entry1.getCount() + stack.getCount();
             int maxSize = stack.getMaxStackSize() * stackPower;
-            InteractionResult result = InteractionResult.CONSUME;
+            TriState result = TriState.TRUE;
+            int remaining = stack.getCount();
             if (count > maxSize) {
-                stack.setCount(stack.getCount() - (maxSize - count));
+                stack.setCount(remaining -= (maxSize - count));
                 count = maxSize;
-                result = InteractionResult.CONSUME_PARTIAL;
+                result = TriState.DEFAULT;
             }
             entry1.setCount(count);
-            return result;
+            return new MergeResult(result, remaining);
         }
-        return InteractionResult.FAIL;
+        return new MergeResult(TriState.FALSE, stack.getCount());
     }
 
-    public InteractionResult merge(UnlimitedItemStack stack, int stackPower) {
-        if (!this.is(stack.getStack())) return InteractionResult.FAIL;
+    public MergeResult merge(UnlimitedItemStack stack, int stackPower) {
+        if (!this.is(stack.getStack())) return new MergeResult(TriState.FALSE, stack.getCount());
         this.cached = false;
         DataComponentPatch patch = stack.getStack().getComponentsPatch();
         for (EntryData entry1 : this.data) {
             if (!entry1.getPatch().equals(patch)) continue;
             int count = entry1.getCount() + stack.getCount();
             int maxSize = stack.getStack().getMaxStackSize() * stackPower;
-            InteractionResult result = InteractionResult.CONSUME;
+            TriState result = TriState.TRUE;
+            int remaining = stack.getCount();
             if (count > maxSize) {
-                stack.setCount(stack.getCount() - (maxSize - count));
+                stack.setCount(remaining -= (maxSize - count));
                 count = maxSize;
-                result = InteractionResult.CONSUME_PARTIAL;
+                result = TriState.DEFAULT;
             }
             entry1.setCount(count);
-            return result;
+            return new MergeResult(result, remaining);
         }
-        return InteractionResult.FAIL;
+        return new MergeResult(TriState.FALSE, stack.getCount());
+    }
+
+    public record MergeResult(TriState result, int remaining) {
     }
 
     /**

@@ -718,11 +718,10 @@ public class MultiBlockConversionRecipeLoader {
 
         MultiblockConversionRecipe.builder()
             .inputLayer("AAA", "ABA", "AAA")
-            .inputLayer("ABA", "BCB", "ABA")
+            .inputLayer("ABA", "B B", "ABA")
             .inputLayer("AAA", "ABA", "AAA")
             .inputSymbol('A', Blocks.NETHERITE_BLOCK)
             .inputSymbol('B', Blocks.SHULKER_BOX)
-            .inputSymbol('C', ModBlocks.SPACE_OVERCOMPRESSOR)
             .outputLayer("ABC", "DEF", "GHI")
             .outputLayer("JKL", "MNO", "PQR")
             .outputLayer("STU", "VWX", "YZ[")

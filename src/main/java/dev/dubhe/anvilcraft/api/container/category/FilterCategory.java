@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.container.category;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.init.ModCategories;
+import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.FilterItem;

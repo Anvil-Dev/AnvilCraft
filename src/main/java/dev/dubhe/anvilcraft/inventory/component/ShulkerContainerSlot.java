@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory.component;
 
 import dev.dubhe.anvilcraft.api.container.ContainerStorage;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Setter;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -28,6 +29,10 @@ public class ShulkerContainerSlot extends Slot {
     @Override
     public ItemStack getItem() {
         return this.storage.getItem(this.index).copyToStackWithCount(Integer.MAX_VALUE);
+    }
+
+    public UnlimitedItemStack getUnlimitedItem() {
+        return this.storage.getItem(this.index);
     }
 
     @Override
@@ -64,5 +69,9 @@ public class ShulkerContainerSlot extends Slot {
     @Override
     public boolean isSameInventory(Slot other) {
         return false;
+    }
+
+    public boolean isFull() {
+        return this.storage.isFull(this.storage.getItem(this.index));
     }
 }

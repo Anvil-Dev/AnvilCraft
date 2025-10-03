@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -28,18 +29,53 @@ public class PacketSplitter {
 
     public <T extends CustomPacketPayload> void split(
         final CustomPacketPayload.Type<T> type,
-        final StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
+        final StreamCodec<? super FriendlyByteBuf, T> codec,
         final T payload,
         int partSize,
         Consumer<CustomPacketPayload> sender
     ) {
-        workThread.submit(() -> {
-            var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
+        this.workThread.submit(() -> {
+            var buffer = new FriendlyByteBuf(Unpooled.buffer());
             codec.encode(buffer, payload);
             buffer.capacity(buffer.readableBytes());
             int bufferSize = buffer.readableBytes();
             if (bufferSize <= partSize) {
                 sender.accept(payload);
+                buffer.release();
+                return;
+            }
+
+            UUID id = UUID.randomUUID();
+            sender.accept(new SplitPacketHeader(id, Math.ceilDiv(bufferSize, partSize), type));
+            int i = 0;
+            for (int index = 0; index < bufferSize; index += partSize) {
+                int resolvedPartSize = Math.min(bufferSize - index, partSize);
+                var buffer1 = buffer.retainedSlice(buffer.readerIndex(), resolvedPartSize);
+                buffer.skipBytes(resolvedPartSize);
+                var packet = new SplitPacketBody(id, i, buffer1.array());
+                sender.accept(packet);
+                i++;
+            }
+            buffer.release();
+        });
+    }
+
+    public <T extends CustomPacketPayload> void split(
+        final CustomPacketPayload.Type<T> type,
+        final StreamCodec<RegistryFriendlyByteBuf, T> codec,
+        final T payload,
+        int partSize,
+        RegistryAccess registryAccess,
+        Consumer<CustomPacketPayload> sender
+    ) {
+        this.workThread.submit(() -> {
+            var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registryAccess, ConnectionType.NEOFORGE);
+            codec.encode(buffer, payload);
+            buffer.capacity(buffer.readableBytes());
+            int bufferSize = buffer.readableBytes();
+            if (bufferSize <= partSize) {
+                sender.accept(payload);
+                buffer.release();
                 return;
             }
 

@@ -266,7 +266,7 @@ public class ModNetworks {
             UpdatePropelPistonStoredEnergyPacket.HANDLER
         );
         PacketSplitter.registerSplitPackets(registrar);
-        registrar.playToClient(
+        registrar.playBidirectional(
             ShulkerContainerSyncPacket.TYPE,
             ShulkerContainerSyncPacket.STREAM_CODEC,
             ShulkerContainerSyncPacket.HANDLER

@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.api.container.item;
 
 import com.mojang.serialization.Codec;
-import dev.dubhe.anvilcraft.api.container.level.ContainerLevel;
+import dev.dubhe.anvilcraft.api.container.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -19,40 +19,39 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ItemEntries extends AbstractList<UnlimitedItemStack> {
-    public static final Codec<ItemEntries> CODEC = ItemEntry.CODEC.listOf().xmap(ItemEntries::new, ItemEntries::getEntries);
+    public static final Codec<ItemEntries> CODEC = ItemEntry.CODEC.listOf()
+        .xmap(ArrayList::new, Function.identity())
+        .xmap(ItemEntries::new, ItemEntries::getEntries);
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemEntries> STREAM_CODEC = StreamCodec.composite(
-        ItemEntry.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        ByteBufCodecs.collection(ArrayList::new, ItemEntry.STREAM_CODEC),
         ItemEntries::getEntries,
         ItemEntries::new
     );
-    private ContainerLevel level;
+    private Upgrades upgrades;
     @Getter
     private final ArrayList<ItemEntry> entries;
     private int size;
 
-    public ItemEntries() {
-        this(ContainerLevel.MIN, new ArrayList<>());
+    public ItemEntries(Upgrades upgrades) {
+        this(upgrades, new ArrayList<>());
     }
 
-    public ItemEntries(ContainerLevel level) {
-        this(level, new ArrayList<>());
-    }
-
-    public ItemEntries(ContainerLevel level, ArrayList<ItemEntry> entries) {
-        this.level = level;
+    public ItemEntries(Upgrades upgrades, ArrayList<ItemEntry> entries) {
+        this.upgrades = upgrades;
         this.entries = entries;
         this.calculateSize();
     }
 
-    private ItemEntries(List<ItemEntry> entries) {
+    private ItemEntries(ArrayList<ItemEntry> entries) {
         this.entries = new ArrayList<>(entries);
         this.calculateSize();
     }
 
-    public void syncData(ContainerLevel level) {
-        this.level = level;
+    public void syncData(Upgrades upgrades) {
+        this.upgrades = upgrades;
     }
 
     public void setChanged() {
@@ -97,7 +96,7 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
                 continue;
             }
             UnlimitedItemStack data = stacks.get(index);
-            ItemEntry.ModifyResult result = entry.modifyCount(data.getStack(), this.level.getStackPower(), old -> old - count);
+            ItemEntry.ModifyResult result = entry.modifyCount(data.getStack(), this.upgrades.getStackPower(), old -> old - count);
             boolean modded = false;
             if (!result.stackCountChanged().isDefault()) {
                 modded = true;
@@ -128,7 +127,7 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
                 continue;
             }
             int delta = element.getCount();
-            ItemEntry.ModifyResult result = entry.modifyCount(element.getStack(), this.level.getStackPower(), old -> old - delta);
+            ItemEntry.ModifyResult result = entry.modifyCount(element.getStack(), this.upgrades.getStackPower(), old -> old - delta);
             boolean modded = false;
             if (!result.stackCountChanged().isDefault()) {
                 modded = true;
@@ -145,20 +144,37 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
         throw new IndexOutOfBoundsException("Index " + original + " out of bounds for length " + this.size());
     }
 
+    public boolean add(ItemStack stack) {
+        DataComponentPatch patch = stack.getComponentsPatch();
+        for (ItemEntry entry : this.getEntries()) {
+            for (ItemEntry.EntryData data : entry.data()) {
+                if (data.getPatch().equals(patch)) {
+                    return entry.merge(stack, this.upgrades.getStackPower()).result().isTrue();
+                }
+            }
+        }
+        this.modCount++;
+        if (this.upgrades.getEntryLimit() == this.getEntries().size()) return false;
+        this.getEntries().add(ItemEntry.of(stack.copy()));
+        stack.setCount(0);
+        this.calculateSize();
+        return true;
+    }
+
     @Override
     public boolean add(UnlimitedItemStack stack) {
         DataComponentPatch patch = stack.getStack().getComponentsPatch();
         for (ItemEntry entry : this.getEntries()) {
             for (ItemEntry.EntryData data : entry.data()) {
                 if (data.getPatch().equals(patch)) {
-                    entry.merge(stack, this.level.getStackPower());
-                    return true;
+                    return entry.merge(stack, this.upgrades.getStackPower()).result().isTrue();
                 }
             }
         }
         this.modCount++;
-        if (this.level.getEntryLimit() == this.getEntries().size()) return false;
-        this.getEntries().add(ItemEntry.of(stack));
+        if (this.upgrades.getEntryLimit() == this.getEntries().size()) return false;
+        this.getEntries().add(ItemEntry.of(stack.copy()));
+        stack.setCount(0);
         this.calculateSize();
         return true;
     }
@@ -175,7 +191,7 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
                 index -= stacks.size();
                 continue;
             }
-            if (entry.merge(element, this.level.getStackPower()) == InteractionResult.FAIL) {
+            if (entry.merge(element, this.upgrades.getStackPower()).result().isFalse()) {
                 this.getEntries().add(ItemEntry.of(element));
                 this.modCount++;
             }
@@ -198,7 +214,7 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
                 continue;
             }
             UnlimitedItemStack forRemoval = stacks.get(index);
-            ItemEntry.ModifyResult result = entry.modifyCount(forRemoval.getStack(), this.level.getStackPower(), old -> 0);
+            ItemEntry.ModifyResult result = entry.modifyCount(forRemoval.getStack(), this.upgrades.getStackPower(), old -> 0);
             if (result.result().isDefault()) {
                 iterator.remove();
                 this.calculateSize();
@@ -214,7 +230,7 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
     }
 
     public boolean isMaxEntries() {
-        return this.entries.size() >= this.level.getEntryLimit();
+        return this.entries.size() >= this.upgrades.getEntryLimit();
     }
 
     @Override
@@ -341,7 +357,11 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
                 List<UnlimitedItemStack> stacks = entry.toStacks();
                 UnlimitedItemStack data = stacks.get(this.stackCursor);
                 int delta = data.getCount() - stack.getCount();
-                ItemEntry.ModifyResult result = entry.modifyCount(data.getStack(), ItemEntries.this.level.getStackPower(), old -> old - delta);
+                ItemEntry.ModifyResult result = entry.modifyCount(
+                    data.getStack(),
+                    ItemEntries.this.upgrades.getStackPower(),
+                    old -> old - delta
+                );
                 if (!result.stackCountChanged().isTrue()) return;
                 this.totalCursor++;
                 this.lastRet = -1;

@@ -207,11 +207,10 @@ public class MultiBlockRecipeLoader {
 
         MultiblockRecipe.builder(ModBlocks.SHULKER_CONTAINER)
             .layer("AAA", "ABA", "AAA")
-            .layer("ABA", "BCB", "ABA")
+            .layer("ABA", "B B", "ABA")
             .layer("AAA", "ABA", "AAA")
             .symbol('A', Blocks.NETHERITE_BLOCK)
             .symbol('B', Blocks.SHULKER_BOX)
-            .symbol('C', ModBlocks.SPACE_OVERCOMPRESSOR)
             .save(provider);
     }
 }

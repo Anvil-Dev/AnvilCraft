@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.init;
+package dev.dubhe.anvilcraft.init.shulkercontainer;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.container.category.AndCategory;
@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.api.container.category.ItemClassCategory;
 import dev.dubhe.anvilcraft.api.container.category.MaxStackSizeCategory;
 import dev.dubhe.anvilcraft.api.container.category.ModCategory;
 import dev.dubhe.anvilcraft.api.container.category.client.RecipeBookCategoryCategory;
+import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.component.DataComponents;
@@ -28,6 +29,7 @@ public class ModCategories {
         ModRegistries.CATEGORY_TYPE_KEY,
         AnvilCraft.MOD_ID
     );
+
     public static final DeferredHolder<ICategory.Type<?>, ModCategory.Type> MOD = REGISTER.register(
         "mod",
         ModCategory.Type::new

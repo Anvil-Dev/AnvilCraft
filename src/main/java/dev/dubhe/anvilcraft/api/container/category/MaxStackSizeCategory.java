@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.container.category;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.util.CodecUtil;
-import dev.dubhe.anvilcraft.init.ModCategories;
+import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;

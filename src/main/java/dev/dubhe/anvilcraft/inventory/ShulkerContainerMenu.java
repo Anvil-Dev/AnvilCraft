@@ -5,12 +5,18 @@ import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.container.item.ItemEntry;
 import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -19,6 +25,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+
+import java.util.Optional;
 
 public class ShulkerContainerMenu extends AbstractContainerMenu {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -128,16 +136,22 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
             boolean result = this.storage.addItem(stack);
             if (result) {
                 stack.setCount(0);
-                source.setChanged();
             }
+            source.setChanged();
             return result;
         }
         for (ItemEntry entry : this.storage.getEntries().getEntries()) {
             if (stack.is(entry.item())) {
-                entry.merge(stack, this.storage.getLevel().getStackPower());
-                stack.setCount(0);
-                source.setChanged();
-                return true;
+                ItemEntry.MergeResult result = entry.merge(stack, this.storage.getUpgrades().getStackPower());
+                if (result.result().isTrue()) {
+                    stack.setCount(0);
+                    source.setChanged();
+                    return true;
+                } else if (result.result().isDefault()) {
+                    stack.setCount(result.remaining());
+                    source.setChanged();
+                    return true;
+                }
             }
         }
         return false;
@@ -178,6 +192,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
                     int maxSize = target.getMaxStackSize(stack);
                     target.setByPlayer(stack.split(Math.min(stack.getCount(), maxSize)));
                     target.setChanged();
+                    scSlot.remove(maxSize);
                     return true;
                 }
             }
@@ -190,4 +205,233 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     public boolean stillValid(Player player) {
         return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.SHULKER_CONTAINER.get());
     }
+
+    // region 修复快速移动死锁的问题
+    @Override
+    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+        try {
+            this.doClick(slotId, button, clickType, player);
+        } catch (Exception exception) {
+            CrashReport crashreport = CrashReport.forThrowable(exception, "Container click");
+            CrashReportCategory crashreportcategory = crashreport.addCategory("Click info");
+            crashreportcategory.setDetail("Menu Type", () -> ModMenuTypes.SHULKER_CONTAINER.get().toString());
+            crashreportcategory.setDetail("Menu Class", () -> this.getClass().getCanonicalName());
+            crashreportcategory.setDetail("Slot Count", this.slots.size());
+            crashreportcategory.setDetail("Slot", slotId);
+            crashreportcategory.setDetail("Button", button);
+            crashreportcategory.setDetail("Type", clickType);
+            throw new ReportedException(crashreport);
+        }
+    }
+
+    private void doClick(int slotId, int button, ClickType clickType, Player player) {
+        Inventory inventory = player.getInventory();
+        if (clickType == ClickType.QUICK_CRAFT) {
+            int i = this.quickcraftStatus;
+            this.quickcraftStatus = getQuickcraftHeader(button);
+            if ((i != 1 || this.quickcraftStatus != 2) && i != this.quickcraftStatus) {
+                this.resetQuickCraft();
+            } else if (this.getCarried().isEmpty()) {
+                this.resetQuickCraft();
+            } else if (this.quickcraftStatus == 0) {
+                this.quickcraftType = getQuickcraftType(button);
+                if (isValidQuickcraftType(this.quickcraftType, player)) {
+                    this.quickcraftStatus = 1;
+                    this.quickcraftSlots.clear();
+                } else {
+                    this.resetQuickCraft();
+                }
+            } else if (this.quickcraftStatus == 1) {
+                Slot slot = this.slots.get(slotId);
+                ItemStack carried = this.getCarried();
+                if (canItemQuickReplace(slot, carried, true)
+                    && slot.mayPlace(carried)
+                    && (this.quickcraftType == 2 || carried.getCount() > this.quickcraftSlots.size())
+                    && this.canDragTo(slot)) {
+                    this.quickcraftSlots.add(slot);
+                }
+            } else if (this.quickcraftStatus == 2) {
+                if (!this.quickcraftSlots.isEmpty()) {
+                    if (this.quickcraftSlots.size() == 1) {
+                        int i1 = this.quickcraftSlots.iterator().next().index;
+                        this.resetQuickCraft();
+                        this.doClick(i1, this.quickcraftType, ClickType.PICKUP, player);
+                        return;
+                    }
+
+                    ItemStack carriedCopy = this.getCarried().copy();
+                    if (carriedCopy.isEmpty()) {
+                        this.resetQuickCraft();
+                        return;
+                    }
+
+                    int k1 = this.getCarried().getCount();
+
+                    for (Slot slot : this.quickcraftSlots) {
+                        ItemStack carried = this.getCarried();
+                        if (slot != null
+                            && canItemQuickReplace(slot, carried, true)
+                            && slot.mayPlace(carried)
+                            && (this.quickcraftType == 2 || carried.getCount() >= this.quickcraftSlots.size())
+                            && this.canDragTo(slot)
+                        ) {
+                            int j = slot.hasItem() ? slot.getItem().getCount() : 0;
+                            int k = Math.min(carriedCopy.getMaxStackSize(), slot.getMaxStackSize(carriedCopy));
+                            int l = Math.min(getQuickCraftPlaceCount(this.quickcraftSlots, this.quickcraftType, carriedCopy) + j, k);
+                            k1 -= l - j;
+                            slot.setByPlayer(carriedCopy.copyWithCount(l));
+                        }
+                    }
+
+                    carriedCopy.setCount(k1);
+                    this.setCarried(carriedCopy);
+                }
+
+                this.resetQuickCraft();
+            } else {
+                this.resetQuickCraft();
+            }
+        } else if (this.quickcraftStatus != 0) {
+            this.resetQuickCraft();
+        } else if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (button == 0 || button == 1)) {
+            ClickAction clickaction = button == 0 ? ClickAction.PRIMARY : ClickAction.SECONDARY;
+            if (slotId == -999) {
+                if (!this.getCarried().isEmpty()) {
+                    if (clickaction == ClickAction.PRIMARY) {
+                        player.drop(this.getCarried(), true);
+                        this.setCarried(ItemStack.EMPTY);
+                    } else {
+                        player.drop(this.getCarried().split(1), true);
+                    }
+                }
+            } else if (clickType == ClickType.QUICK_MOVE) {
+                if (slotId < 0) {
+                    return;
+                }
+
+                Slot slot = this.slots.get(slotId);
+                if (!slot.mayPickup(player)) {
+                    return;
+                }
+
+                this.quickMoveStack(player, slotId);
+            } else {
+                if (slotId < 0) {
+                    return;
+                }
+
+                Slot slot7 = this.slots.get(slotId);
+                ItemStack itemstack9 = slot7.getItem();
+                ItemStack itemstack10 = this.getCarried();
+                player.updateTutorialInventoryAction(itemstack10, slot7.getItem(), clickaction);
+                if (!this.tryItemClickBehaviourOverride(player, clickaction, slot7, itemstack9, itemstack10)) {
+                    if (itemstack9.isEmpty()) {
+                        if (!itemstack10.isEmpty()) {
+                            int i3 = clickaction == ClickAction.PRIMARY ? itemstack10.getCount() : 1;
+                            this.setCarried(slot7.safeInsert(itemstack10, i3));
+                        }
+                    } else if (slot7.mayPickup(player)) {
+                        if (itemstack10.isEmpty()) {
+                            int j3 = clickaction == ClickAction.PRIMARY ? itemstack9.getCount() : (itemstack9.getCount() + 1) / 2;
+                            Optional<ItemStack> optional1 = slot7.tryRemove(j3, Integer.MAX_VALUE, player);
+                            optional1.ifPresent(p_150421_ -> {
+                                this.setCarried(p_150421_);
+                                slot7.onTake(player, p_150421_);
+                            });
+                        } else if (slot7.mayPlace(itemstack10)) {
+                            if (ItemStack.isSameItemSameComponents(itemstack9, itemstack10)) {
+                                int k3 = clickaction == ClickAction.PRIMARY ? itemstack10.getCount() : 1;
+                                this.setCarried(slot7.safeInsert(itemstack10, k3));
+                            } else if (itemstack10.getCount() <= slot7.getMaxStackSize(itemstack10)) {
+                                this.setCarried(itemstack9);
+                                slot7.setByPlayer(itemstack10);
+                            }
+                        } else if (ItemStack.isSameItemSameComponents(itemstack9, itemstack10)) {
+                            Optional<ItemStack> optional = slot7.tryRemove(
+                                itemstack9.getCount(), itemstack10.getMaxStackSize() - itemstack10.getCount(), player
+                            );
+                            optional.ifPresent(p_150428_ -> {
+                                itemstack10.grow(p_150428_.getCount());
+                                slot7.onTake(player, p_150428_);
+                            });
+                        }
+                    }
+                }
+
+                slot7.setChanged();
+            }
+        } else if (clickType == ClickType.SWAP && (button >= 0 && button < 9 || button == 40)) {
+            ItemStack itemstack2 = inventory.getItem(button);
+            Slot slot5 = this.slots.get(slotId);
+            ItemStack itemstack7 = slot5.getItem();
+            if (!itemstack2.isEmpty() || !itemstack7.isEmpty()) {
+                if (itemstack2.isEmpty()) {
+                    if (slot5.mayPickup(player)) {
+                        inventory.setItem(button, itemstack7);
+                        slot5.setByPlayer(ItemStack.EMPTY);
+                        slot5.onTake(player, itemstack7);
+                    }
+                } else if (itemstack7.isEmpty()) {
+                    if (slot5.mayPlace(itemstack2)) {
+                        int j2 = slot5.getMaxStackSize(itemstack2);
+                        if (itemstack2.getCount() > j2) {
+                            slot5.setByPlayer(itemstack2.split(j2));
+                        } else {
+                            inventory.setItem(button, ItemStack.EMPTY);
+                            slot5.setByPlayer(itemstack2);
+                        }
+                    }
+                } else if (slot5.mayPickup(player) && slot5.mayPlace(itemstack2)) {
+                    int k2 = slot5.getMaxStackSize(itemstack2);
+                    if (itemstack2.getCount() > k2) {
+                        slot5.setByPlayer(itemstack2.split(k2));
+                        slot5.onTake(player, itemstack7);
+                        if (!inventory.add(itemstack7)) {
+                            player.drop(itemstack7, true);
+                        }
+                    } else {
+                        inventory.setItem(button, itemstack7);
+                        slot5.setByPlayer(itemstack2);
+                        slot5.onTake(player, itemstack7);
+                    }
+                }
+            }
+        } else if (clickType == ClickType.CLONE && player.hasInfiniteMaterials() && this.getCarried().isEmpty() && slotId >= 0) {
+            Slot slot4 = this.slots.get(slotId);
+            if (slot4.hasItem()) {
+                ItemStack itemstack5 = slot4.getItem();
+                this.setCarried(itemstack5.copyWithCount(itemstack5.getMaxStackSize()));
+            }
+        } else if (clickType == ClickType.THROW && this.getCarried().isEmpty() && slotId >= 0) {
+            Slot slot3 = this.slots.get(slotId);
+            int j1 = button == 0 ? 1 : slot3.getItem().getCount();
+            ItemStack itemstack6 = slot3.safeTake(j1, Integer.MAX_VALUE, player);
+            player.drop(itemstack6, true);
+        } else if (clickType == ClickType.PICKUP_ALL && slotId >= 0) {
+            Slot slot2 = this.slots.get(slotId);
+            ItemStack itemstack4 = this.getCarried();
+            if (!itemstack4.isEmpty() && (!slot2.hasItem() || !slot2.mayPickup(player))) {
+                int l1 = button == 0 ? 0 : this.slots.size() - 1;
+                int i2 = button == 0 ? 1 : -1;
+
+                for (int l2 = 0; l2 < 2; l2++) {
+                    for (int l3 = l1; l3 >= 0 && l3 < this.slots.size() && itemstack4.getCount() < itemstack4.getMaxStackSize(); l3 += i2) {
+                        Slot slot8 = this.slots.get(l3);
+                        if (slot8.hasItem()
+                            && canItemQuickReplace(slot8, itemstack4, true)
+                            && slot8.mayPickup(player)
+                            && this.canTakeItemForPickAll(itemstack4, slot8)) {
+                            ItemStack itemstack11 = slot8.getItem();
+                            if (l2 != 0 || itemstack11.getCount() != itemstack11.getMaxStackSize()) {
+                                ItemStack itemstack12 = slot8.safeTake(
+                                    itemstack11.getCount(), itemstack4.getMaxStackSize() - itemstack4.getCount(), player);
+                                itemstack4.grow(itemstack12.getCount());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // endregion
 }

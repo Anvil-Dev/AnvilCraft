@@ -13,7 +13,7 @@ import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.dfu.AnvilCraftDfu;
 import dev.dubhe.anvilcraft.init.ModAttatchments;
-import dev.dubhe.anvilcraft.init.ModCategories;
+import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
 import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
@@ -43,6 +43,7 @@ import dev.dubhe.anvilcraft.init.loot.ModLootItemFunctions;
 import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.init.shulkercontainer.ModUpgradeTypes;
 import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -110,6 +111,7 @@ public class AnvilCraft {
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
         ModCategories.register(modEventBus);
+        ModUpgradeTypes.register(modEventBus);
         // datagen
         AnvilCraftDatagen.init();
 
