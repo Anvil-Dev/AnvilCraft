@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.FilterMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterContainer;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
-import lombok.AllArgsConstructor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,10 +51,7 @@ public class FilterItem extends Item {
         return InteractionResultHolder.success(itemstack);
     }
 
-    @AllArgsConstructor
-    public static final class FilterMenuProvider implements MenuProvider {
-        private final int position;
-
+    public record FilterMenuProvider(int position) implements MenuProvider {
         @Override
         public Component getDisplayName() {
             return Component.translatable("item.anvilcraft.filter");

@@ -12,7 +12,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 public record FilterContentSyncPacket(
     int slotIndex,
@@ -30,7 +29,7 @@ public record FilterContentSyncPacket(
         FilterContentSyncPacket::new
     );
 
-    private static void serverHandler(@NotNull FilterContentSyncPacket packet, @NotNull IPayloadContext ctx) {
+    private static void serverHandler(FilterContentSyncPacket packet, IPayloadContext ctx) {
         Player player = ctx.player();
         ItemStack item = player.getInventory().getItem(packet.slotIndex());
         if (!item.is(ModItems.FILTER)) return;

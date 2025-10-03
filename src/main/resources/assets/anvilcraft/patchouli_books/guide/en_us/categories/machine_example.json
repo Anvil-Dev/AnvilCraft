@@ -1,6 +1,6 @@
 {
-    "name": "机器示例",
-    "description": "一些铁砧工艺游玩流程中可能用到的机器的示例，帮助你更好的理解铁砧工艺的原件，并设计出自己的自动化生产线。玩的开心！$(br2)手册这一部分由$(l:https://space.bilibili.com/347845823)B站@毛绒绒Fff$()编写与维护，如果机器出了问题或者你有什么意见都可以去私信~",
+    "name": "title.anvilcraft.patchouli.machine_example",
+    "description": "intro.anvilcraft.patchouli.machine_example",
     "sortnum": 8,
     "icon": "anvilcraft:pulse_generator"
 }

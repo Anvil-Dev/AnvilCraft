@@ -1,5 +1,5 @@
 {
-    "name": "资源获取",
+    "name": "title.anvilcraft.patchouli.machine.resources_access",
     "category": "anvilcraft:machine_example",
     "icon": "minecraft:grass_block",
 	"sortnum": 5001,

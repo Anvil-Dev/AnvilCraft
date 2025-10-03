@@ -1,5 +1,5 @@
 {
-  "name": "Heat Collection",
+  "name": "title.anvilcraft.patchouli.power.heat_collection",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:heat_collector",
   "sortnum": 12005,
@@ -132,5 +132,5 @@
       ],
       "text": ""
     }
-    ]
+  ]
 }

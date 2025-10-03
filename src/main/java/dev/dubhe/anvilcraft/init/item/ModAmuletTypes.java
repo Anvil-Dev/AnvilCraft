@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.amulet.type.FourToOneAmuletType;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.item.abnormal.IAbnormal;
 import dev.dubhe.anvilcraft.item.abnormal.ICursed;
 import dev.dubhe.anvilcraft.item.abnormal.ILevitation;
@@ -140,7 +141,19 @@ public class ModAmuletTypes {
     public static final DeferredHolder<AmuletType, ? extends AmuletType> FEATHER = register(
         "feather",
         type -> AmuletType.builder()
-            .obtainByDamage(type)
+            .obtain((player, source) -> {
+                if (
+                    source.typeHolder().is(DamageTypes.FALL)
+                    && Optional.ofNullable(source.getEntity())
+                        .map(entity -> Util.instanceOfAny(entity, FallingGiantAnvilEntity.class))
+                        .or(() -> Optional.ofNullable(source.getDirectEntity())
+                            .map(entity -> Util.instanceOfAny(entity, FallingGiantAnvilEntity.class)))
+                        .orElse(false)
+                ) {
+                    return false;
+                }
+                return source.typeHolder().is(ModDamageTypeTags.FEATHER_AMULET_VALID);
+            })
             .immuneDamageFromObtain()
             .amulet(ModItems.FEATHER_AMULET)
     );
@@ -181,13 +194,15 @@ public class ModAmuletTypes {
         "gem",
         () -> FourToOneAmuletType.of(
             ModItems.GEM_AMULET::asStack,
-            ModAmuletTypes.SAPPHIRE, ModAmuletTypes.RUBY, ModAmuletTypes.TOPAZ, ModAmuletTypes.EMERALD)
+            ModAmuletTypes.SAPPHIRE, ModAmuletTypes.RUBY, ModAmuletTypes.TOPAZ, ModAmuletTypes.EMERALD
+        )
     );
     public static final DeferredHolder<AmuletType, ? extends AmuletType> NATURE = registerFour(
         "nature",
         () -> FourToOneAmuletType.of(
             ModItems.NATURE_AMULET::asStack,
-            ModAmuletTypes.SILENCE, ModAmuletTypes.FEATHER, ModAmuletTypes.CAT, ModAmuletTypes.DOG)
+            ModAmuletTypes.SILENCE, ModAmuletTypes.FEATHER, ModAmuletTypes.CAT, ModAmuletTypes.DOG
+        )
     );
 
     private static DeferredHolder<AmuletType, ? extends AmuletType> register(String typeId, Function<String, AmuletType.Builder> builder) {

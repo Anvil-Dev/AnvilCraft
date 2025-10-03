@@ -1,5 +1,5 @@
 {
-  "name": "附魔复制",
+  "name": "title.anvilcraft.patchouli.apply.enchantment_copy",
   "category": "anvilcraft:technology_application",
   "icon": "minecraft:enchanted_book",
   "sortnum": 36001,

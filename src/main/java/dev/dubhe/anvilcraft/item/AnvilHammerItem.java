@@ -19,6 +19,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -41,6 +44,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
@@ -165,20 +169,30 @@ public class AnvilHammerItem extends Item implements Equipable {
     /**
      * 右键方块
      */
-    public static void useBlock(ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer) {
+    public static void useBlock(
+        ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer, InteractionHand hand,
+        BlockHitResult result
+    ) {
         if (rocketJump(player, level, blockPos)) return;
+        if (!level.mayInteract(player, blockPos)) return;
         if (!player.getAbilities().mayBuild) return;
         if (player.isShiftKeyDown()) {
-            TriggerUtil.anvilHammerClickBlock(level, blockPos, "right_click");
+            TriggerUtil.anvilHammerClickBlock(level, blockPos, "shift_right_click");
             breakBlock(player, blockPos, level, anvilHammer);
             return;
         }
-        TriggerUtil.anvilHammerClickBlock(level, blockPos, "shift_right_click");
+        TriggerUtil.anvilHammerClickBlock(level, blockPos, "right_click");
         BlockState state = level.getBlockState(blockPos);
         Block block = state.getBlock();
         MenuProvider provider = ((BlockBehaviourInvoker) block).invokeGetMenuProvider(state, level, blockPos);
         if (provider != null) {
             ModMenuTypes.open(player, provider, blockPos);
+            return;
+        }
+        if (state.useItemOn(anvilHammer, level, player, hand, result).result() != InteractionResult.PASS) {
+            return;
+        }
+        if (state.useWithoutItem(level, player, result) != InteractionResult.PASS) {
             return;
         }
         HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);

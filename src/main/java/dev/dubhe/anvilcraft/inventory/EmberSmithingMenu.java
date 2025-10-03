@@ -49,7 +49,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     }
 
     /**
-     * 皇家锻造台菜单
+     * 余烬锻造台菜单
      *
      * @param type            类型
      * @param containerId     容器id
@@ -259,19 +259,18 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
 
     public boolean canCreateResult() {
         ItemStack template = this.getSlot(0).getItem();
-        boolean isInputValid = false;
+        boolean isInputValid = true;
 
         if (template.getItem() instanceof BaseMultipleToOneTemplateItem templateItem) {
             for (int i = 2; i < 2 + templateItem.getSize(); i++) {
-                if (!this.getSlot(i).hasItem()) {
-                    isInputValid = true;
+                if (this.getSlot(i).getItem().isEmpty()) {
+                    isInputValid = false;
                 }
             }
         }
 
         return this.getSlot(0).hasItem()
             && this.getSlot(1).hasItem()
-            && !isInputValid
-            && !this.getSlot(this.getResultSlot()).hasItem();
+            && isInputValid;
     }
 }

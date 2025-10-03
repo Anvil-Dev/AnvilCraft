@@ -49,7 +49,7 @@ public class ItemCompressScene {
 
         builder.overlay()
             .showText(40)
-            .text("Using cauldrons to compress items.")
+            .text("Using cauldrons to compress items")
             .pointAt(cauldronPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

@@ -68,7 +68,7 @@ public class BulgingScene {
         builder.idle(10);
 
         builder.overlay().showText(60)
-            .text("When the cauldron is full of water, it will bulge the items inside.")
+            .text("When the cauldron is full of water, it will bulge the items inside")
             .pointAt(util.vector().blockSurface(util.grid().at(2, 1, 2), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();

@@ -1,5 +1,5 @@
 {
-  "name": "基本物品处理",
+  "name": "title.anvilcraft.patchouli.basic.item_processing",
   "category": "anvilcraft:basic_gameplay",
   "icon": "minecraft:iron_ingot",
   "sortnum": 1002,

@@ -76,10 +76,21 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     public static final Map<Level, Map<ChunkPos, List<ItemCollectorBlockEntity>>> POACHING_COLLECTOR_MAP = new HashMap<>();
 
+    private boolean changed = false;
+
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
-            ItemCollectorBlockEntity.this.setChanged();
+            if (level == null || level.isClientSide || changed) return;
+            changed = true;
+            level.getServer().execute(() -> {
+                try {
+                    setChanged();
+                    flushState(level, getBlockPos());
+                } finally {
+                    changed = false;
+                }
+            });
         }
     };
 

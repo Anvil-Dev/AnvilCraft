@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -136,7 +137,10 @@ public class GiantAnvilShockEventListener {
                     hurtType.postApply(l.level(), l, it.unwrap().fallDistance());
                 } else {
                     if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
-                        l.hurt(it.unwrap().level().damageSources().anvil(it.unwrap().fallingGiantAnvil()), it.unwrap().fallDistance() * 2);
+                        l.hurt(
+                            it.unwrap().level().damageSources().source(DamageTypes.FALL, it.unwrap().fallingGiantAnvil()),
+                            it.unwrap().fallDistance() * 2
+                        );
                     }
                 }
             }

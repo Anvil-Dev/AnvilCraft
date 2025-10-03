@@ -8,16 +8,15 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class ModItemTags {
     public static final TagKey<Item> RESIN = bindC("resin");
+    public static final TagKey<Item> WHEAT_FLOUR = bindC("flour/wheat");
+    public static final TagKey<Item> WHEAT_DOUGH = bindC("dough/wheat");
     public static final TagKey<Item> CREAM = bindC("foods/cream");
     public static final TagKey<Item> FLOUR = bindC("foods/flour");
-    public static final TagKey<Item> WHEAT_FLOUR = bindC("flour/wheat");
     public static final TagKey<Item> DOUGH = bindC("foods/dough");
-    public static final TagKey<Item> WHEAT_DOUGH = bindC("dough/wheat");
     public static final TagKey<Item> RAW_MUTTON = bindC("foods/raw_mutton");
     public static final TagKey<Item> RAW_BEEF = bindC("foods/raw_beef");
     public static final TagKey<Item> RAW_CHICKEN = bindC("foods/raw_chicken");
@@ -99,7 +98,6 @@ public class ModItemTags {
     public static final TagKey<Item> TRANSCENDIUM_NUGGETS = bindC("nuggets/transcendium");
     public static final TagKey<Item> FROST_METAL_NUGGETS = bindC("nuggets/frost_metal");
 
-    public static final TagKey<Item> ORES = bindC("ores");
     public static final TagKey<Item> ZINC_ORES = bindC("ores/zinc");
     public static final TagKey<Item> TIN_ORES = bindC("ores/tin");
     public static final TagKey<Item> TITANIUM_ORES = bindC("ores/titanium");
@@ -118,7 +116,6 @@ public class ModItemTags {
     public static final TagKey<Item> STORAGE_BLOCKS_RAW_SILVER = bindC("storage_blocks/raw_silver");
     public static final TagKey<Item> STORAGE_BLOCKS_RAW_URANIUM = bindC("storage_blocks/raw_uranium");
 
-    public static final TagKey<Item> RAW_ORES = bindC("raw_materials");
     public static final TagKey<Item> RAW_ZINC = bindC("raw_materials/zinc");
     public static final TagKey<Item> RAW_TIN = bindC("raw_materials/tin");
     public static final TagKey<Item> RAW_TITANIUM = bindC("raw_materials/titanium");
@@ -127,14 +124,8 @@ public class ModItemTags {
     public static final TagKey<Item> RAW_SILVER = bindC("raw_materials/silver");
     public static final TagKey<Item> RAW_URANIUM = bindC("raw_materials/uranium");
 
-    public static final TagKey<Item> BUCKETS = bindC("buckets");
     public static final TagKey<Item> OIL_BUCKETS = bindC("buckets/oil");
     public static final TagKey<Item> CEMENT_BUCKETS = bindC("buckets/cement");
-
-    public static final TagKey<Item> VEGETABLES = bindC("vegetables");
-    public static final TagKey<Item> SEEDS = bindC("seeds");
-    public static final TagKey<Item> BERRIES = bindC("berries");
-    public static final TagKey<Item> WRENCH = bindC("tools/wrench");
 
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> ROYAL_STEEL_AXE_BASE = bind("royal_steel_axe_base");
@@ -180,25 +171,25 @@ public class ModItemTags {
 
     public static final TagKey<Item> CURIOS_HEAD = bindCurios("head");
     public static final TagKey<Item> CURIOS_IONOCRAFT_BACKPACK = bindCurios("ionocraft_backpack");
-    public static final TagKey<Item> CURIOS_NECKLACE = bindCurios("necklace");
+    public static final TagKey<Item> CURIOS_CHARM = bindCurios("charm");
 
     public static final TagKey<Item> TOTEM = bind("totem");
 
     public static final Object2ObjectMap<Color, TagKey<Item>> DYED_COLORS = initDyedTags();
 
-    public static @NotNull TagKey<Item> bindC(String id) {
+    public static TagKey<Item> bindC(String id) {
         return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", id));
     }
 
-    public static @NotNull TagKey<Item> bindCurios(String id) {
+    public static TagKey<Item> bindCurios(String id) {
         return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("curios", id));
     }
 
-    public static @NotNull TagKey<Item> bind(String id) {
+    public static TagKey<Item> bind(String id) {
         return TagKey.create(Registries.ITEM, AnvilCraft.of(id));
     }
 
-    public static @NotNull Object2ObjectMap<Color, TagKey<Item>> initDyedTags() {
+    public static Object2ObjectMap<Color, TagKey<Item>> initDyedTags() {
         Object2ObjectMap<Color, TagKey<Item>> map = new Object2ObjectOpenHashMap<>();
         for (Color color : Color.values()) {
             map.put(color, bindC("dyed/" + color));

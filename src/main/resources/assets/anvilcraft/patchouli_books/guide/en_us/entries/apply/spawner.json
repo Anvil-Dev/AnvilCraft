@@ -1,5 +1,5 @@
 {
-  "name": "制造刷怪笼",
+  "name": "title.anvilcraft.patchouli.apply.spawner",
   "category": "anvilcraft:technology_application",
   "icon": "minecraft:spawner",
   "sortnum": 16003,

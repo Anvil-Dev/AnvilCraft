@@ -49,7 +49,6 @@ public class BlockEventListener {
      *
      * @param event 右键方块事件
      */
-    @SuppressWarnings("resource")
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();

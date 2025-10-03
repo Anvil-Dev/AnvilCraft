@@ -22,9 +22,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
-import org.jetbrains.annotations.NotNull;
 
 public class SmeltingLootModifier extends LootModifier {
 
@@ -37,9 +37,7 @@ public class SmeltingLootModifier extends LootModifier {
     }
 
     @Override
-    protected @NotNull ObjectArrayList<ItemStack> doApply(
-        @NotNull ObjectArrayList<ItemStack> objectArrayList,
-        @NotNull LootContext lootContext) {
+    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> objectArrayList, LootContext lootContext) {
         if (!lootContext.hasParam(LootContextParams.BLOCK_STATE)) return objectArrayList;
         if (!lootContext.hasParam(LootContextParams.ORIGIN)) return objectArrayList;
         ServerLevel level = lootContext.getLevel();
@@ -69,7 +67,7 @@ public class SmeltingLootModifier extends LootModifier {
                 smeltList.add(item);
                 continue;
             }
-            if (item.is(ModItemTags.RAW_ORES) || item.is(ModItemTags.ORES)) {
+            if (item.is(Tags.Items.RAW_MATERIALS) || item.is(Tags.Items.ORES)) {
                 float chance = lvl == 1 ? 0 : (lvl - 1) * 0.25f;
                 if (lvl >= 5) chance = 1;
                 if (lootContext.getRandom().nextFloat() < chance) {
@@ -93,7 +91,7 @@ public class SmeltingLootModifier extends LootModifier {
     }
 
     @Override
-    public @NotNull MapCodec<? extends IGlobalLootModifier> codec() {
+    public MapCodec<? extends IGlobalLootModifier> codec() {
         return CODEC;
     }
 }

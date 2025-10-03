@@ -52,7 +52,7 @@ public class MeshScene {
 
         builder.overlay()
             .showText(20)
-            .text("Scaffolding can screen items.")
+            .text("Scaffolding can screen items")
             .pointAt(tablePos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

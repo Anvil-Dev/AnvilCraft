@@ -110,16 +110,10 @@ public class ItemTagLoader {
             .add(findResourceKey(Items.DEAD_HORN_CORAL_BLOCK))
             .add(findResourceKey(Items.DEAD_TUBE_CORAL_BLOCK));
         provider.addTag(ModItemTags.SEEDS_PACK_CONTENT)
-            .addOptionalTag(ModItemTags.SEEDS)
-            .addOptionalTag(ModItemTags.BERRIES)
-            .addOptionalTag(ModItemTags.VEGETABLES);
-        provider.addTag(ModItemTags.VEGETABLES)
-            .add(findResourceKey(Items.POTATO))
-            .add(findResourceKey(Items.CARROT));
-        provider.addTag(ModItemTags.BERRIES)
-            .add(findResourceKey(Items.SWEET_BERRIES))
-            .add(findResourceKey(Items.GLOW_BERRIES));
-        provider.addTag(ModItemTags.WRENCH)
+            .addOptionalTag(Tags.Items.SEEDS)
+            .addOptionalTag(Tags.Items.FOODS_BERRY)
+            .addOptionalTag(Tags.Items.FOODS_VEGETABLE);
+        provider.addTag(Tags.Items.TOOLS_WRENCH)
             .addTag(ModItemTags.ANVIL_HAMMER);
         provider.addTag(ModItemTags.FIRE_STARTER)
             .add(findResourceKey(Items.TORCH))
@@ -181,7 +175,7 @@ public class ItemTagLoader {
         provider.addTag(ModItemTags.CURIOS_HEAD)
             .replace(false)
             .addTag(ModItemTags.ANVIL_HAMMER);
-        provider.addTag(ModItemTags.CURIOS_NECKLACE)
+        provider.addTag(ModItemTags.CURIOS_CHARM)
             .replace(false)
             .addTag(ModItemTags.AMULET);
         provider.addTag(ModItemTags.CURIOS_IONOCRAFT_BACKPACK)

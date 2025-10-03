@@ -59,33 +59,38 @@ public class PlayerEventListener {
     }
 
     @SubscribeEvent
-    public static void playerRightClick(PlayerInteractEvent.RightClickBlock event) {
+    public static void playerRightClickMagnetizedNode(PlayerInteractEvent.RightClickBlock event) {
+        InteractionHand hand = event.getHand();
+        if (hand != InteractionHand.MAIN_HAND) return;
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
-        InteractionHand hand = event.getHand();
         Player player = event.getEntity();
         ItemStack item = player.getItemInHand(hand);
-        List<MagnetizedNodeEntity> entities = level.getEntitiesOfClass(MagnetizedNodeEntity.class,
-            AABB.encapsulatingFullBlocks(pos, pos.above()));
-        if (item.is(ModItems.MAGNET) || (item.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(item) == MultitoolItem.MAGNET_MODE) || item.is(Tags.Items.BUCKETS)) {
+        List<MagnetizedNodeEntity> entities = level.getEntitiesOfClass(
+            MagnetizedNodeEntity.class,
+            new AABB(pos).expandTowards(0.0, 0.0625, 0.0)
+        );
+        if (
+            item.is(ModItems.MAGNET)
+            || (item.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(item) == MultitoolItem.MAGNET_MODE)
+            || item.is(Tags.Items.BUCKETS)
+        ) {
             return;
         }
-        if (player.isShiftKeyDown()) {
+        if (player.isShiftKeyDown() || entities.isEmpty()) {
             return;
         }
-        if (!entities.isEmpty()) {
-            MagnetizedNodeEntity first = entities.getFirst();
-            ItemStack stack = item.copy();
-            stack.setCount(1);
-            if (!player.isCreative()) {
-                item.shrink(1);
-            }
-            ItemEntity itemEntity = new ItemEntity(level, first.position().x, first.position().y, first.position().z, stack);
-            itemEntity.setDeltaMovement(0, 0, 0);
-            itemEntity.setPickUpDelay(60);
-            level.addFreshEntity(itemEntity);
-            event.setCanceled(true);
+        MagnetizedNodeEntity node = entities.getFirst();
+        ItemStack stack = item.copy();
+        stack.setCount(1);
+        if (!player.isCreative()) {
+            item.shrink(1);
         }
+        ItemEntity itemEntity = new ItemEntity(level, node.position().x, node.position().y, node.position().z, stack);
+        itemEntity.setDeltaMovement(0, 0, 0);
+        itemEntity.setPickUpDelay(60);
+        level.addFreshEntity(itemEntity);
+        event.setCanceled(true);
     }
 
     @SubscribeEvent

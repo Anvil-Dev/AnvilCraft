@@ -95,7 +95,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .input(Items.FISHING_ROD)
             .input(Items.CARROT_ON_A_STICK)
             .input(Items.WARPED_FUNGUS_ON_A_STICK)
-            .result(ModItems.MULTITOOL_ITEM)
+            .resultMerge(ModItems.MULTITOOL_ITEM, NormalDataComponent.normalEight())
             .save(provider);
     }
 }

@@ -10,6 +10,8 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
@@ -166,11 +168,16 @@ public class MagnetBlock extends Block implements IHammerRemovable {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (state.is(ModBlocks.MAGNET_BLOCK)) {
                 if (player.isShiftKeyDown()) {
-                    player.addItem(ModItems.MAGNET_INGOT.asStack());
-                    level.setBlockAndUpdate(pos, ModBlocks.HOLLOW_MAGNET_BLOCK.getDefaultState());
+                    player.addItem(ModItems.MAGNET_INGOT.get().getDefaultInstance());
+                    BlockState blockState = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
+                    if (blockState.hasProperty(LIT)) {
+                        blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
+                    }
+                    level.setBlockAndUpdate(pos, blockState);
+                    level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
             }

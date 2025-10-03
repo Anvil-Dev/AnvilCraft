@@ -31,12 +31,15 @@ import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.UUID;
+
+import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -90,7 +93,11 @@ public class ModDispenserBehavior {
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
         ServerLevel level = source.level();
         if (level.getBlockState(blockPos).is(ModBlocks.HOLLOW_MAGNET_BLOCK)) {
-            level.setBlockAndUpdate(blockPos, ModBlocks.FERRITE_CORE_MAGNET_BLOCK.getDefaultState());
+            BlockState blockState = ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get().defaultBlockState();
+            if (blockState.hasProperty(LIT)) {
+                blockState = blockState.setValue(LIT, level.hasNeighborSignal(blockPos));
+            }
+            level.setBlockAndUpdate(blockPos, blockState);
             ItemStack stack1 = stack.copy();
             stack1.shrink(1);
             return stack1;

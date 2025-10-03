@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
@@ -14,8 +15,10 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin implements DataComponentHolder {
@@ -33,7 +37,7 @@ public abstract class ItemStackMixin implements DataComponentHolder {
     public abstract <T> T set(DataComponentType<? super T> component, @Nullable T value);
 
     @Inject(method = "set", at = @At("TAIL"))
-    private <T> void setForMultiphase(DataComponentType<? super T> component, T value, CallbackInfoReturnable<T> cir) {
+    private <T> void setForMultiphase(DataComponentType<? super T> component, @Nullable T value, CallbackInfoReturnable<T> cir) {
         if (!this.has(ModComponents.MULTIPHASE)) return;
         Multiphase multiphase = this.get(ModComponents.MULTIPHASE);
         if (multiphase == null) return;
@@ -46,7 +50,9 @@ public abstract class ItemStackMixin implements DataComponentHolder {
                 this.set(ModComponents.MULTIPHASE, multiphase.withAlpha(multiphase.peekFirst().withRepairCost(repairCost)));
             case ItemEnchantments enchantments when component.equals(EnchantmentHelper.getComponentType(Util.cast(this))) ->
                 this.set(ModComponents.MULTIPHASE, multiphase.withAlpha(multiphase.peekFirst().withEnchantments(enchantments)));
-            default -> {
+            case ItemEnchantments enchantments when component.equals(ModComponents.MERCILESS_ENCHANTMENTS) ->
+                this.set(ModComponents.MULTIPHASE, multiphase.withAlpha(multiphase.peekFirst().withStoredEnchantments(enchantments)));
+            case null, default -> {
             }
         }
     }
@@ -75,5 +81,34 @@ public abstract class ItemStackMixin implements DataComponentHolder {
             return holder.is(ResonatorItem.getMode(Util.cast(this)), instance);
         }
         return original.call(instance, tHolder);
+    }
+
+    @Inject(
+        method = "getTooltipLines",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/ItemStack;"
+                     + "addToTooltip("
+                     + "Lnet/minecraft/core/component/DataComponentType;"
+                     + "Lnet/minecraft/world/item/Item$TooltipContext;"
+                     + "Ljava/util/function/Consumer;"
+                     + "Lnet/minecraft/world/item/TooltipFlag;"
+                     + ")V",
+            ordinal = 3
+        )
+    )
+    private void addMercilessToTooltip(
+        Item.TooltipContext tooltipContext,
+        Player player,
+        TooltipFlag tooltipFlag,
+        CallbackInfoReturnable<List<Component>> cir,
+        @Local List<Component> list
+    ) {
+        this.addToTooltip(
+            ModComponents.MERCILESS_ENCHANTMENTS,
+            tooltipContext,
+            tooltip -> list.add(tooltip.copy().withColor(0x5F93A3)),
+            tooltipFlag
+        );
     }
 }

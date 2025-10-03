@@ -1,5 +1,5 @@
 {
-  "name": "基础物品再生",
+  "name": "title.anvilcraft.patchouli.basic.item_regeneration",
   "category": "anvilcraft:basic_gameplay",
   "icon": "minecraft:quartz",
   "sortnum": 1009,

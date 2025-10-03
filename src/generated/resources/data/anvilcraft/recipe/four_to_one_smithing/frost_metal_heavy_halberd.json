@@ -38,7 +38,7 @@
           },
           {
             "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:stored_enchantments",
+            "component": "anvilcraft:merciless_enchantments",
             "input": 0
           },
           {
@@ -48,7 +48,7 @@
           },
           {
             "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:stored_enchantments",
+            "component": "anvilcraft:merciless_enchantments",
             "input": 1
           },
           {
@@ -58,7 +58,7 @@
           },
           {
             "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:stored_enchantments",
+            "component": "anvilcraft:merciless_enchantments",
             "input": 2
           },
           {
@@ -68,7 +68,7 @@
           },
           {
             "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:stored_enchantments",
+            "component": "anvilcraft:merciless_enchantments",
             "input": 3
           }
         ]

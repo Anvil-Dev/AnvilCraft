@@ -82,7 +82,7 @@ public class BlockPlacerScene {
         builder.idle(10);
         builder.overlay()
             .showText(40)
-            .text("Block Placer can place blocks in front of it when powered by redstone.")
+            .text("Block Placer can place blocks in front of it when powered by redstone")
             .pointAt(util.vector().blockSurface(placerPos, Direction.DOWN))
             .attachKeyFrame()
             .placeNearTarget();
@@ -107,7 +107,7 @@ public class BlockPlacerScene {
 
         builder.overlay()
             .showText(40)
-            .text("It can also read the items in the container.")
+            .text("It can also read the items in the container")
             .pointAt(util.vector().blockSurface(frontPos, Direction.DOWN))
             .attachKeyFrame()
             .placeNearTarget();
@@ -137,7 +137,7 @@ public class BlockPlacerScene {
 
         builder.overlay()
             .showText(60)
-            .text("If the block placer is blocked by a mob, it will not place the block.")
+            .text("If the block placer is blocked by a mob, it will not place the block")
             .pointAt(util.vector().blockSurface(frontPos, Direction.DOWN))
             .attachKeyFrame()
             .placeNearTarget();
@@ -190,7 +190,7 @@ public class BlockPlacerScene {
         builder.world().setBlock(frontBPos, Blocks.GRASS_BLOCK.defaultBlockState(), false);
         builder.overlay()
             .showText(40)
-            .text("Block Placer can place blocks with anvil.")
+            .text("Block Placer can place blocks with anvil")
             .pointAt(util.vector().centerOf(placerBPos))
             .attachKeyFrame()
             .placeNearTarget();
@@ -205,7 +205,7 @@ public class BlockPlacerScene {
         builder.world().setBlock(frontAPos, Blocks.GRASS_BLOCK.defaultBlockState(), false);
         builder.overlay()
             .showText(60)
-            .text("The higher the anvil falls, the farther the blocks are placed. The farthest is 5 grids.")
+            .text("The higher the anvil falls, the farther the blocks are placed. The farthest is 5 grids")
             .pointAt(util.vector().centerOf(frontAPos))
             .attachKeyFrame()
             .placeNearTarget();
@@ -230,7 +230,7 @@ public class BlockPlacerScene {
         builder.world().setBlock(frontBPos, Blocks.GRASS_BLOCK.defaultBlockState(), false);
         builder.overlay()
             .showText(60)
-            .text("When the placer is followed by another placer, they can share containers.")
+            .text("When the placer is followed by another placer, they can share containers")
             .pointAt(util.vector().centerOf(placerAPos))
             .attachKeyFrame()
             .placeNearTarget();

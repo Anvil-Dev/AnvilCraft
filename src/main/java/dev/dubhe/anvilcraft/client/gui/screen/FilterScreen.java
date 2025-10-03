@@ -19,6 +19,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements IGhostIngredientScreen {
@@ -54,7 +55,11 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             INCLUDE_COMPONENTS,
             container::includeComponents,
             container::setIncludeComponents,
-            this::sync
+            this::sync,
+            List.of(
+                Component.translatable("screen.anvilcraft.filter.mismatch_component"),
+                Component.translatable("screen.anvilcraft.filter.match_component")
+            )
         ));
         this.addRenderableWidget(new SwitchableImageButton(
             this.leftPos + 26,
@@ -62,7 +67,11 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             BLACK_LIST,
             container::blackList,
             container::setBlackList,
-            this::sync
+            this::sync,
+            List.of(
+                Component.translatable("screen.anvilcraft.filter.black_list"),
+                Component.translatable("screen.anvilcraft.filter.white_list")
+            )
         ));
     }
 

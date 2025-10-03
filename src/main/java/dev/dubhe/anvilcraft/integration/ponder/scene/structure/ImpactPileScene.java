@@ -34,7 +34,7 @@ public class ImpactPileScene {
 
     private static void impact(SceneBuilder scene, SceneBuildingUtil util) {
         AnvilCraftSceneBuilder builder = new AnvilCraftSceneBuilder(scene);
-        builder.title("impact_pile", "Use Impact Pile to generate Mineral Fountain.");
+        builder.title("impact_pile", "Use Impact Pile to generate Mineral Fountain");
         builder.configureBasePlate(0, 0, 5);
         builder.showBasePlate();
         builder.idle(10);
@@ -46,21 +46,21 @@ public class ImpactPileScene {
         builder.world().showIndependentSection(util.select().position(impactPilePos), Direction.DOWN);
         builder.overlay()
             .showText(20)
-            .text("Impact piles are consumables used to create a mineral fountain.")
+            .text("Impact piles are consumables used to create a mineral fountain")
             .pointAt(util.vector().blockSurface(impactPilePos, Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
         builder.idle(30);
         builder.overlay()
             .showText(20)
-            .text("To work properly, it must be placed no higher than 8 blocks above the world’s bottom.")
+            .text("To work properly, it must be placed no higher than 8 blocks above the world’s bottom")
             .pointAt(util.vector().blockSurface(impactPilePos, Direction.DOWN))
             .attachKeyFrame()
             .placeNearTarget();
         builder.idle(30);
         builder.overlay()
             .showText(20)
-            .text("And it must be placed on bedrock or deepslate.")
+            .text("And it must be placed on bedrock or deepslate")
             .pointAt(util.vector().blockSurface(impactTargetPos, Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -68,7 +68,7 @@ public class ImpactPileScene {
         builder.idle(30);
         builder.overlay()
             .showText(20)
-            .text("Then strike it with an undamaged anvil dropped from at least 20 blocks high.")
+            .text("Then strike it with an undamaged anvil dropped from at least 20 blocks high")
             .pointAt(util.vector().blockSurface(impactPilePos, Direction.UP))
             .attachKeyFrame()
             .placeNearTarget();
@@ -99,19 +99,21 @@ public class ImpactPileScene {
         builder.world().setBlock(mineralFountainPos, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), true);
         builder.world().showIndependentSection(util.select().position(mineralFountainPos), Direction.UP);
         builder.overlay()
-            .showText(20)
+            .showText(40)
             .text("When the conditions are met, the anvil and the impact pile will be consumed...")
             .pointAt(util.vector().blockSurface(impactPilePos, Direction.UP))
             .attachKeyFrame()
             .placeNearTarget();
-        builder.idle(30);
+        builder.idle(50);
+
         builder.overlay()
             .showText(20)
-            .text("and a mineral fountain will be generated.")
+            .text("and a mineral fountain will be generated")
             .pointAt(util.vector().blockSurface(mineralFountainPos, Direction.UP))
             .attachKeyFrame()
             .placeNearTarget();
         builder.idle(30);
+
         builder.markAsFinished();
     }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "Large Electromagnet",
+  "name": "title.anvilcraft.patchouli.power.large_electromagnet",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:acceleration_ring",
   "sortnum": 12006,
@@ -9,7 +9,7 @@
       "type": "patchouli:multiblock",
       "anchor": "acceleration_ring",
       "name": "合成加速环",
-      "multiblock":{
+      "multiblock": {
         "mapping": {
           "A": "minecraft:copper_block",
           "B": "anvilcraft:heavy_iron_block",

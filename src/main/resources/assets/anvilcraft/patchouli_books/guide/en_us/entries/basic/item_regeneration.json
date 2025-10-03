@@ -1,5 +1,5 @@
 {
-  "name": "基础物品再生",
+  "name": "title.anvilcraft.patchouli.basic.item_regeneration",
   "category": "anvilcraft:basic_gameplay",
   "icon": "minecraft:quartz",
   "sortnum": 1009,
@@ -16,23 +16,35 @@
     {
       "type": "patchouli:spotlight",
       "anchor": "quartz",
-      "item": ["minecraft:quartz","anvilcraft:quartz_sand"],
+      "item": [
+        "minecraft:quartz",
+        "anvilcraft:quartz_sand"
+      ],
       "link_recipe": true,
       "text": "$(li)下界石英+圆石→$(item)闪长岩$()[合成]$(li)闪长岩→$(item)石英砂$()[$(l:basic/block_processing#crush)粉碎$()]$(li)石英砂→$(item)下界石英$()[$(l:basic/item_processing#mesh)筛选$()]"
     },
     {
       "type": "patchouli:spotlight",
-      "item": ["minecraft:clay_ball", "minecraft:gold_nugget"],
+      "item": [
+        "minecraft:clay_ball",
+        "minecraft:gold_nugget"
+      ],
       "text": "$(li)圆石→沙砾→$(item)沙子$()[$(l:basic/block_processing#crush)粉碎$()]$(li)沙子→$(item)黏土球$()+$(item)金粒$()[$(l:basic/item_processing#mesh)筛选$()]"
     },
     {
       "type": "patchouli:spotlight",
-      "item": ["minecraft:glowstone_dust", "anvilcraft:copper_nugget"],
+      "item": [
+        "minecraft:glowstone_dust",
+        "anvilcraft:copper_nugget"
+      ],
       "text": "$(li)闪长岩+下界石英→$(item)花岗岩$()[合成]$(li)花岗岩→$(item)红沙$()[$(l:basic/block_processing#crush)粉碎$()]$(li)红沙→$(item)荧石粉$()+$(item)铜粒$()[$(l:basic/item_processing#mesh)筛选$()]"
     },
     {
       "type": "patchouli:spotlight",
-      "item": ["minecraft:lapis_lazuli", "minecraft:gunpowder"],
+      "item": [
+        "minecraft:lapis_lazuli",
+        "minecraft:gunpowder"
+      ],
       "text": "$(li)闪长岩+圆石→$(item)安山岩$()[合成]$(li)安山岩→$(item)火山灰$()[$(l:basic/block_processing#crush)粉碎$()]$(li)火山灰→$(item)青金石$()+$(item)火药$()+$(item)铅/锡/锌/银粒$()[$(l:basic/item_processing#mesh)筛选$()]"
     },
     {

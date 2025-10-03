@@ -53,7 +53,7 @@ public class BlockComparatorScene {
 
         scene.overlay()
             .showText(40)
-            .text("When the blocks on either side of the comparator are the same, it’ll send out a signal.")
+            .text("When the blocks on either side of the comparator are the same, it’ll send out a signal")
             .pointAt(util.vector().centerOf(comparatorBPos))
             .attachKeyFrame()
             .placeNearTarget();
@@ -68,7 +68,7 @@ public class BlockComparatorScene {
 
         scene.overlay()
             .showText(40)
-            .text("Right-click to turn on precise mode—it’ll check super carefully if the blocks are exactly the same.")
+            .text("Right-click to turn on precise mode—it’ll check super carefully if the blocks are exactly the same")
             .pointAt(util.vector().centerOf(comparatorBPos))
             .attachKeyFrame()
             .placeNearTarget();

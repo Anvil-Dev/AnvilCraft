@@ -96,7 +96,7 @@ public class GiantAnvilScene {
         // 文本：冲击波会对不穿鞋的生物造成伤害
         builder.overlay()
             .showText(40)
-            .text("The shockwave harms any creature not wearing shoes.")
+            .text("The shockwave harms any creature not wearing shoes")
             .pointAt(util.vector().blockSurface(util.grid().at(17, 1, 12), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -186,7 +186,7 @@ public class GiantAnvilScene {
         // 文本：同时，撼地的伤害也会随着巨型铁砧的下落高度而增加
         builder.overlay()
             .showText(40)
-            .text("Additionally, shock damage increases with the FallDistance of Giant Anvil.")
+            .text("Additionally, shock damage increases with the FallDistance of Giant Anvil")
             .pointAt(util.vector().blockSurface(util.grid().at(17, 1, 10), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -200,7 +200,7 @@ public class GiantAnvilScene {
         // 使用builder
         AnvilCraftSceneBuilder builder = new AnvilCraftSceneBuilder(scene);
         // 场景名：撼地的模式，标题：重质铁块一圈的方块决定了撼地的模式
-        builder.title("mode_of_shock", "Blocks around the Heavy Iron Block determines Shock mode.");
+        builder.title("mode_of_shock", "Blocks around the Heavy Iron Block determines Shock mode");
         // 地板33x33
         builder.configureBasePlate(0, 0, 33);
         // 摄像机缩放0.6f
@@ -221,7 +221,7 @@ public class GiantAnvilScene {
             .attachKeyFrame()
             .placeNearTarget()
             .pointAt(util.vector().blockSurface(util.grid().at(15, 0, 16), Direction.NORTH))
-            .text("Changing the blocks surrounding the Heavy Iron Block can alter the Shock mode.");
+            .text("Changing the blocks surrounding the Heavy Iron Block can alter the Shock mode");
         // 绕圈先后放置8个树脂块
         Selection resinBlock;
         BlockPos[] path = {
@@ -245,7 +245,7 @@ public class GiantAnvilScene {
         // 文本：例如树脂块可以让撼地冲击弹飞铁砧
         builder.overlay()
             .showText(50)
-            .text("For example, resin block can make anvils within the shock range bounce upward once.")
+            .text("For example, resin block can make anvils within the shock range bounce upward once")
             .pointAt(util.vector().blockSurface(util.grid().at(15, 1, 13), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -292,7 +292,7 @@ public class GiantAnvilScene {
         // 文本：四边放置诅咒金块可以在撼地伤害的基础上附加等量伤害
         builder.overlay()
             .showText(55)
-            .text("Placing Cursed Gold Blocks on the four sides can add equal additional damage to the shock damage.")
+            .text("Placing Cursed Gold Blocks on the four sides can add equal additional damage to the shock damage")
             .pointAt(util.vector().blockSurface(util.grid().at(15, 0, 16), Direction.NORTH))
             .attachKeyFrame()
             .placeNearTarget();
@@ -313,7 +313,7 @@ public class GiantAnvilScene {
         // 文本：四角放置不同的宝石块可以附加不同类型的伤害
         builder.overlay()
             .showText(55)
-            .text("Placing different gem blocks at the four corners can add various types of damage.")
+            .text("Placing different gem blocks at the four corners can add various types of damage")
             .pointAt(util.vector().blockSurface(util.grid().at(15, 0, 15), Direction.NORTH))
             .attachKeyFrame()
             .placeNearTarget();
@@ -328,7 +328,7 @@ public class GiantAnvilScene {
         // 文本：例如红宝石块可以附加火焰伤害
         builder.overlay()
             .showText(55)
-            .text("For example, Ruby Blocks can add fire damage.")
+            .text("For example, Ruby Blocks can add fire damage")
             .pointAt(util.vector().blockSurface(util.grid().at(17, 1, 12), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -347,7 +347,7 @@ public class GiantAnvilScene {
         // 文本：蓝宝石块可以附加冰冻伤害
         builder.overlay()
             .showText(55)
-            .text("Sapphire Blocks can add freezing damage.")
+            .text("Sapphire Blocks can add freezing damage")
             .pointAt(util.vector().blockSurface(util.grid().at(15, 0, 15), Direction.NORTH))
             .attachKeyFrame()
             .placeNearTarget();
@@ -362,7 +362,7 @@ public class GiantAnvilScene {
         // 文本：黄玉块可以附加雷击伤害
         builder.overlay()
             .showText(55)
-            .text("Topaz Blocks can add lightning damage.")
+            .text("Topaz Blocks can add lightning damage")
             .pointAt(util.vector().blockSurface(util.grid().at(15, 0, 15), Direction.NORTH))
             .attachKeyFrame()
             .placeNearTarget();
@@ -377,7 +377,7 @@ public class GiantAnvilScene {
         // 文本：虚空物质块可以附加无视护甲的虚空伤害
         builder.overlay()
             .showText(55)
-            .text("Void Matter Blocks can add armor-piercing void damage.")
+            .text("Void Matter Blocks can add armor-piercing void damage")
             .pointAt(util.vector().blockSurface(util.grid().at(15, 0, 15), Direction.NORTH))
             .attachKeyFrame()
             .placeNearTarget();

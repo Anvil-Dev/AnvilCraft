@@ -64,10 +64,10 @@ public class BlockDevourerScene {
 
         builder.overlay()
             .showOutlineWithText(wallPos, 60)
-            .attachKeyFrame()
-            .placeNearTarget()
+            .text("When the Block Devourer receives the Redstone signal, it will try to destroy the cube in the 3x3 space ahead")
             .pointAt(devourerPos.getCenter())
-            .text("When the Block Devourer receives the Redstone signal, it will try to destroy the cube in the 3x3 space ahead.");
+            .attachKeyFrame()
+            .placeNearTarget();
         builder.idle(70);
 
         BlockPos chestPos = devourerPos.south();
@@ -84,7 +84,7 @@ public class BlockDevourerScene {
             .attachKeyFrame()
             .placeNearTarget()
             .pointAt(chestPos.getCenter())
-            .text("The Block Devourer can place the destroyed blocks into the chest back at the back.");
+            .text("The Block Devourer can place the destroyed blocks into the chest back at the back");
         builder.idle(70);
 
         // 清除石头，说明：方块吞噬器破坏世界基底方块只会有很小一部分产生掉落物
@@ -102,7 +102,7 @@ public class BlockDevourerScene {
 
         builder.overlay()
             .showText(60)
-            .text("Only a very small portion of the world's base blocks will be retained.")
+            .text("Only a very small portion of the world's base blocks will be retained")
             .pointAt(devourerPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -150,7 +150,7 @@ public class BlockDevourerScene {
         }
         builder.overlay()
             .showText(100)
-            .text("The Block Devourer can destroy larger blocks based on the height from which the anvil falls, with a maximum area of 9x9.")
+            .text("The Block Devourer can destroy larger blocks based on the height from which the anvil falls, with a maximum area of 9x9")
             .pointAt(devourerPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -203,7 +203,7 @@ public class BlockDevourerScene {
         builder.overlay()
             .showText(80)
             .text(
-                "When a downward-facing block devourer is hit by an anvil, it will move down one block at the same time.")
+                "When a downward-facing block devourer is hit by an anvil, it will move down one block at the same time")
             .pointAt(devourerPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

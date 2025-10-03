@@ -1,5 +1,5 @@
 {
-  "name": "基础发电",
+  "name": "title.anvilcraft.patchouli.power.basic_generation",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:charge_collector",
   "sortnum": 2002,

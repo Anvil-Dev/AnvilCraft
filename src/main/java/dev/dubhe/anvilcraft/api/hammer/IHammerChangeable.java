@@ -6,7 +6,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -22,7 +21,7 @@ public interface IHammerChangeable {
      * @param anvilHammer 铁砧锤物品
      * @return 是否改变成功
      */
-    boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer);
+    boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer);
 
     default boolean checkBlockState(BlockState blockState) {
         return true;

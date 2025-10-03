@@ -59,7 +59,7 @@ public class CookingScene {
 
         builder.overlay()
             .showText(40)
-            .text("Using the cauldron with the campfire to process items.")
+            .text("Using the cauldron with the campfire to process items")
             .pointAt(cauldronPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -87,7 +87,7 @@ public class CookingScene {
 
         builder.overlay()
             .showText(60)
-            .text("If there is water in the cauldron, another recipe can be performed.")
+            .text("If there is water in the cauldron, another recipe can be performed")
             .pointAt(cauldronPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

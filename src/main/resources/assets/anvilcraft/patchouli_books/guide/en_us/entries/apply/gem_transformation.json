@@ -1,5 +1,5 @@
 {
-  "name": "熔融宝石与宝石转化",
+  "name": "title.anvilcraft.patchouli.apply.gem_transformation",
   "category": "anvilcraft:technology_application",
   "icon": "anvilcraft:melt_gem_bucket",
   "sortnum": 16001,
@@ -14,7 +14,7 @@
     {
       "type": "patchouli:text",
       "text": "尽管可以通过$(thing)粉碎$()$(l:geode)晶洞$()获取少量宝石。但要获得大量的宝石，就需要进行$(thing)宝石转化$()，将与$(thing)村民交易$()就能简单获得的绿宝石转化为其他宝石。",
-      "title":"自动宝石转化"
+      "title": "自动宝石转化"
     },
     {
       "type": "patchouli:spotlight",
@@ -35,7 +35,7 @@
     {
       "type": "patchouli:text",
       "text": "人工宝石转化过于复杂。可以搭建机器自动化完成。除了自己设计外，可以参考手册自带的$(l:machine/automation#gem_machine)宝石转化机$()",
-      "title":"自动宝石转化"
+      "title": "自动宝石转化"
     },
     {
       "type": "patchouli:relations",

@@ -1,20 +1,15 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.item.IMultipleResult;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Position;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -65,7 +60,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class HeavyHalberdItem extends TieredItem implements ProjectileItem, IMultipleResult {
+public abstract class HeavyHalberdItem extends TieredItem implements ProjectileItem {
     public HeavyHalberdItem(Tier tier, Properties properties) {
         super(
             tier,
@@ -204,38 +199,6 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     @Override
     public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
         return !player.isCreative();
-    }
-
-    @Override
-    public ItemStack assemble(int id, MultipleToOneSmithingRecipeInput input, HolderLookup.Provider registries) {
-        if (id == 0) {
-            ItemStack defaultStack = this.getDefaultInstance();
-
-            Object2IntMap<Holder<Enchantment>> enchantments = new Object2IntArrayMap<>();
-            for (int i = 0; i < 4; i++) {
-                ItemStack inputStack = input.getInputItem(i);
-                DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
-                if (inputStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
-                    type = DataComponents.STORED_ENCHANTMENTS;
-                }
-                for (var entry : inputStack.getOrDefault(type, ItemEnchantments.EMPTY).entrySet()) {
-                    enchantments.mergeInt(entry.getKey(), entry.getIntValue(), Integer::max);
-                }
-            }
-
-            DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
-            if (defaultStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
-                type = DataComponents.STORED_ENCHANTMENTS;
-            }
-            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(defaultStack.getOrDefault(type, ItemEnchantments.EMPTY));
-            for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.object2IntEntrySet()) {
-                mutable.set(entry.getKey(), entry.getIntValue());
-            }
-            defaultStack.set(type, mutable.toImmutable());
-
-            return defaultStack;
-        }
-        return ItemStack.EMPTY;
     }
 
     /**

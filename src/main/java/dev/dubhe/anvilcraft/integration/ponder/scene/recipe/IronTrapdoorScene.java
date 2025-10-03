@@ -60,8 +60,9 @@ public class IronTrapdoorScene {
         builder.idle(10);
 
         // 生成文本
-        builder.overlay().showText(50)
-            .text("You can use the iron trapdoor to disassemble composite items into their components.")
+        builder.overlay()
+            .showText(50)
+            .text("You can use the iron trapdoor to disassemble composite items into their components")
             .pointAt(util.vector().blockSurface(ironTrapdoorPos, Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();

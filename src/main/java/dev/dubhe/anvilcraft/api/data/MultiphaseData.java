@@ -87,8 +87,9 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
     }
 
     @Override
-    public void applyToStack(ItemStack stack, Multiphase value) {
+    public void applyToStack(ItemStack stack, @Nullable Multiphase value) {
         ICustomDataComponent.super.applyToStack(stack, value);
+        if (value == null) return;
         value.applyToStack(stack);
     }
 
@@ -121,7 +122,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
                 Two.REQUIRED.put(new Pair<>(i, DataComponents.CUSTOM_NAME), true);
                 Two.REQUIRED.put(new Pair<>(i, DataComponents.REPAIR_COST), true);
                 Two.REQUIRED.put(new Pair<>(i, DataComponents.ENCHANTMENTS), true);
-                Two.REQUIRED.put(new Pair<>(i, DataComponents.STORED_ENCHANTMENTS), true);
+                Two.REQUIRED.put(new Pair<>(i, ModComponents.MERCILESS_ENCHANTMENTS), true);
             }
             return Two.REQUIRED;
         }
@@ -164,7 +165,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
             for (int i = 0; i < 4; i++) {
                 Four.REQUIRED.put(new Pair<>(i, DataComponents.REPAIR_COST), true);
                 Four.REQUIRED.put(new Pair<>(i, DataComponents.ENCHANTMENTS), true);
-                Four.REQUIRED.put(new Pair<>(i, DataComponents.STORED_ENCHANTMENTS), true);
+                Four.REQUIRED.put(new Pair<>(i, ModComponents.MERCILESS_ENCHANTMENTS), true);
             }
             return Four.REQUIRED;
         }
@@ -214,7 +215,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
             for (int i = 0; i < 8; i++) {
                 Eight.REQUIRED.put(new Pair<>(i, DataComponents.REPAIR_COST), true);
                 Eight.REQUIRED.put(new Pair<>(i, DataComponents.ENCHANTMENTS), true);
-                Eight.REQUIRED.put(new Pair<>(i, DataComponents.STORED_ENCHANTMENTS), true);
+                Eight.REQUIRED.put(new Pair<>(i, ModComponents.MERCILESS_ENCHANTMENTS), true);
             }
             return Eight.REQUIRED;
         }

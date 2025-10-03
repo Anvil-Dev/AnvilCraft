@@ -12,36 +12,30 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
+import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
+
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LightningEventListener {
-    /**
-     * 侦听雷击事件
-     *
-     * @param event 雷击事件
-     */
     @SubscribeEvent
-    public static void onLightingStrike(@NotNull LightningBoltStrikeEvent event) {
+    public static void onLightingStrike(LightningBoltStrikeEvent event) {
+        Level level = event.getLevel();
         BlockPos pos = event.getPos();
-        BlockState state = event.getLevel().getBlockState(pos);
-        lightningCharge(pos, event.getLevel(), state);
+        BlockState state = level.getBlockState(pos);
+        lightningCharge(pos, level, state);
         if (state.is(Blocks.LIGHTNING_ROD)) pos = pos.below();
         int depth = AnvilCraft.CONFIG.lightningStrikeDepth;
         int radius = AnvilCraft.CONFIG.lightningStrikeRadius;
-        for (int x = -radius; x <= radius; x++) {
-            for (int z = -radius; z <= radius; z++) {
-                for (int y = 0; y < depth; y++) {
-                    BlockPos offset = pos.offset(x, -y, z);
-                    state = event.getLevel().getBlockState(offset);
-                    if (!state.is(Blocks.IRON_BLOCK)
-                        && !state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
-                        && !state.is(ModBlocks.MAGNET_BLOCK.get())) continue;
-                    BlockState state1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
-                    event.getLevel().setBlockAndUpdate(offset, state1);
+        for (BlockPos blockPos : BlockPos.betweenClosed(pos.offset(radius, 0, radius), pos.offset(-radius, -depth, -radius))) {
+            BlockState blockState = level.getBlockState(blockPos);
+            if (blockState.is(Blocks.IRON_BLOCK)) {
+                BlockState blockState1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
+                if (blockState1.hasProperty(LIT)) {
+                    blockState1 = blockState1.setValue(LIT, level.hasNeighborSignal(blockPos));
                 }
+                level.setBlockAndUpdate(blockPos, blockState1);
             }
         }
     }

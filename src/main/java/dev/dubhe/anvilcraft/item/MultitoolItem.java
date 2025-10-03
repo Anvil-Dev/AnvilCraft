@@ -1,19 +1,14 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.item.IMultipleResult;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
 import dev.dubhe.anvilcraft.util.MagnetUtil;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -47,9 +42,7 @@ import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
@@ -72,10 +65,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
-public class MultitoolItem extends Item implements IMultipleResult {
+public class MultitoolItem extends Item {
     public static final int ALL_MODE = 0;
     public static final int SHEARS_MODE = 1;
     public static final int FLINT_AND_STEEL_MODE = 2;
@@ -219,28 +211,6 @@ public class MultitoolItem extends Item implements IMultipleResult {
         } else {
             return super.interactLivingEntity(stack, player, interactionTarget, usedHand);
         }
-    }
-
-    @Override
-    public ItemStack assemble(int id, MultipleToOneSmithingRecipeInput input, HolderLookup.Provider registries) {
-        if (id == 0) {
-            ItemStack defaultInstance = this.getDefaultInstance();
-            DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultInstance);
-            Map<Holder<Enchantment>, Integer> enchantments = new Object2IntArrayMap<>();
-            for (int i = 0; i < 8; i++) {
-                ItemStack inputItem = input.getInputItem(i);
-                for (var entry : inputItem.getOrDefault(type, ItemEnchantments.EMPTY).entrySet()) {
-                    enchantments.merge(entry.getKey(), entry.getIntValue(), Integer::max);
-                }
-            }
-            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(defaultInstance.getOrDefault(type, ItemEnchantments.EMPTY));
-            for (var entry : enchantments.entrySet()) {
-                mutable.set(entry.getKey(), entry.getValue());
-            }
-            defaultInstance.set(type, mutable.toImmutable());
-            return defaultInstance;
-        }
-        return ItemStack.EMPTY;
     }
 
     @Override

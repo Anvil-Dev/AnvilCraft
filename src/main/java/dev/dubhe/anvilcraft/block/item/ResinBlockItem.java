@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.block.item;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
@@ -68,6 +70,13 @@ public class ResinBlockItem extends HasMobBlockItem {
         }
         Entity entity = HasMobBlockItem.getMobFromItem(level, copy);
         if (entity == null) return;
+        if (copy.has(DataComponents.CUSTOM_NAME)) {
+            Component component = copy.get(DataComponents.CUSTOM_NAME);
+            entity.setCustomName(component);
+            if (entity instanceof Mob mob) {
+                mob.setPersistenceRequired();
+            }
+        }
         entity.moveTo(pos.getCenter());
         level.addFreshEntity(entity);
         RandomSource random = level.getRandom();

@@ -49,7 +49,7 @@ public class ItemCrushScene {
 
         builder.overlay()
             .showText(20)
-            .text("The crushing table can crush items.")
+            .text("The crushing table can crush items")
             .pointAt(tablePos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

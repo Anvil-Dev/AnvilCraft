@@ -50,7 +50,7 @@ public class StampingScene {
 
         builder.overlay()
             .showText(20)
-            .text("The stamping platform can stamp items.")
+            .text("The stamping platform can stamp items")
             .pointAt(tablePos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

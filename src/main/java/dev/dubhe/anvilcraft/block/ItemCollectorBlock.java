@@ -121,9 +121,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             return null;
         }
         return createTickerHelper(
-            type,
-            ModBlockEntities.ITEM_COLLECTOR.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
+            type, ModBlockEntities.ITEM_COLLECTOR.get(), (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
     }
 
     @Override
@@ -187,11 +185,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    public void tick(
-        BlockState state,
-        ServerLevel level,
-        BlockPos pos,
-        RandomSource random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }

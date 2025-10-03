@@ -48,7 +48,7 @@ public class SpaceOvercompressorScene {
 
         // 循环3次，每次砸入物品
         builder.overlay().showText(40)
-            .text("Press a large amount of metal items into the Space Overcompressor to accumulate mass.")
+            .text("Press a large amount of metal items into the Space Overcompressor to accumulate mass")
             .pointAt(util.vector().blockSurface(util.grid().at(2, 3, 2), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -66,15 +66,19 @@ public class SpaceOvercompressorScene {
         }
         // 从空间超压器下方掉出中子锭
         builder.world().createItemEntity(spaceOvercompressorPos.getBottomCenter(), ModItems.NEUTRONIUM_INGOT.asStack());
-        builder.overlay().showText(100)
-            .text(
-                "When the Space Overcompressor has built up enough mass, a neutron ingot will form. "
-                + "It can pass through most blocks, so you'll need something like end dust to stop it."
-            )
-            .pointAt(util.vector().blockSurface(util.grid().at(2, 1, 2), Direction.WEST))
+        builder.overlay().showText(60)
+            .text("When the Space Overcompressor has built up enough mass, a neutron ingot will form")
+            .pointAt(spaceOvercompressorPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
-        builder.idle(20); // 等待一会展示结果
+        builder.idle(70);
+
+        builder.overlay().showText(60)
+            .text("Neutron ingot can pass through most blocks, so you'll need something like end dust to stop it")
+            .pointAt(spaceOvercompressorPos.below().getCenter())
+            .attachKeyFrame()
+            .placeNearTarget();
+        builder.idle(70);
 
         builder.markAsFinished();
     }

@@ -48,8 +48,13 @@ public record Merciless(boolean enabled) {
 
             ItemEnchantments.Mutable enchantmentsMutable = new ItemEnchantments.Mutable(
                 stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY));
-            ItemEnchantments.Mutable storedEnchantmentsMutable = new ItemEnchantments.Mutable(
-                stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY));
+            // TODO: 兼容性后删除STORED
+            ItemEnchantments enchantments = stack.get(ModComponents.MERCILESS_ENCHANTMENTS);
+            if (enchantments == null) {
+                enchantments = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+                stack.set(DataComponents.STORED_ENCHANTMENTS, null);
+            }
+            ItemEnchantments.Mutable storedEnchantmentsMutable = new ItemEnchantments.Mutable(enchantments);
             if (isEnabled) {
                 for (Holder<Enchantment> enchantment : enchantmentsMutable.keySet()) {
                     if (!enchantment.is(ModEnchantmentTags.MERCILESS_PASSED)) {
@@ -70,7 +75,7 @@ public record Merciless(boolean enabled) {
             }
             attackDamage = Math.round(Math.sqrt(levelSum) * 2 + (double) levelSum / 3);
             stack.set(DataComponents.ENCHANTMENTS, enchantmentsMutable.toImmutable());
-            stack.set(DataComponents.STORED_ENCHANTMENTS, storedEnchantmentsMutable.toImmutable());
+            stack.set(ModComponents.MERCILESS_ENCHANTMENTS, storedEnchantmentsMutable.toImmutable());
 
             if ((attackDamage != 0 || miningEfficiency != 0) && isEnabled) {
                 ItemAttributeModifiers attributeModifiers = stack.getAttributeModifiers()

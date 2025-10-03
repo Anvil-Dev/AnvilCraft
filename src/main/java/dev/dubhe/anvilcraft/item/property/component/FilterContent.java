@@ -81,35 +81,56 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         return maxLevel + 1;
     }
 
+    /**
+     * 过滤物品堆栈是否匹配指定条件
+     *
+     * @param filterStack       过滤器物品堆栈，用于定义过滤条件
+     * @param stack             待检查的物品堆栈
+     * @param includeComponents 是否考虑组件信息进行匹配
+     * @return 如果物品堆栈匹配过滤条件则返回true，否则返回false
+     */
     public static boolean filter(ItemStack filterStack, ItemStack stack, boolean includeComponents) {
+        // 如果过滤器为空，则所有物品都匹配
         if (filterStack.isEmpty()) return true;
+
+        // 检查过滤器是否包含自定义过滤组件
         if (!filterStack.has(ModComponents.FILTER_CONTENT)) {
+            // 处理命名牌作为过滤器的特殊情况，支持标签过滤
             if (filterStack.is(Items.NAME_TAG) && filterStack.has(DataComponents.CUSTOM_NAME)) {
                 Component name = filterStack.getOrDefault(DataComponents.CUSTOM_NAME, Component.empty());
                 String string = name.getString();
+                // 匹配以#开头的标签格式
                 Pattern pattern = Pattern.compile("^#(([a-z0-9._-]*:[a-z0-9/._-]*)|[a-z0-9/._-]*)$");
                 if (pattern.matcher(string).matches()) {
                     TagKey<Item> tag = TagKey.create(Registries.ITEM, ResourceLocation.parse(string.substring(1)));
                     if (stack.is(tag)) return true;
                 }
             }
-            boolean flag = false;
+
+            // 根据是否包含组件进行物品匹配
             if (!includeComponents && ItemStack.isSameItem(filterStack, stack)) {
-                flag = true;
-            } else if (includeComponents && ItemStack.isSameItemSameComponents(filterStack, stack)) {
-                flag = true;
+                return true;
+            } else {
+                return includeComponents && ItemStack.isSameItemSameComponents(filterStack, stack);
             }
-            return flag;
         }
+
+        // 处理自定义过滤组件逻辑
         FilterContent content = filterStack.get(ModComponents.FILTER_CONTENT);
         if (content == null) return false;
+
+        boolean contentIsBlackList = content.blackList();
+        // 遍历过滤列表中的每个物品进行匹配检查
         for (ItemStack itemStack : content.list()) {
             if (itemStack.isEmpty()) continue;
             if (FilterContent.filter(itemStack, stack, content.includeComponents())) {
-                return !content.blackList();
+                // 如果是白名单模式，找到匹配项则返回true；如果是黑名单模式，找到匹配项则返回false
+                return !contentIsBlackList;
             }
         }
-        return content.blackList();
+
+        // 如果是黑名单模式且未找到匹配项则返回true，否则返回false
+        return contentIsBlackList;
     }
 
     public static ItemStack getFirstItem(ItemStack filter) {

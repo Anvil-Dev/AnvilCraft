@@ -34,6 +34,7 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
 
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        if (level.isClientSide) return;
         if (!this.isEntityInsideContent(state, pos, entity)) return;
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
             ignite(level, pos, state);

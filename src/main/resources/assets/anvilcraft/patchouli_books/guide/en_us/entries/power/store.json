@@ -1,5 +1,5 @@
 {
-  "name": "电力存储",
+  "name": "title.anvilcraft.patchouli.power.store",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:supercapacitor",
   "sortnum": 12009,
@@ -17,13 +17,20 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": ["anvilcraft:supercapacitor","anvilcraft:capacitor","anvilcraft:neutronium_ingot"],
+      "item": [
+        "anvilcraft:supercapacitor",
+        "anvilcraft:capacitor",
+        "anvilcraft:neutronium_ingot"
+      ],
       "title": "物品充放电信息",
       "text": "充能功率/放能功率[持续时间] $(li)电容: 70/64kW [60s] $(li)超级电容: 700/640kW [120s] $(li)中子锭: 4000/3200kW [300s]"
     },
     {
       "type": "patchouli:spotlight",
-      "item": ["anvilcraft:charger","anvilcraft:discharger"],
+      "item": [
+        "anvilcraft:charger",
+        "anvilcraft:discharger"
+      ],
       "text": "电网负载低时，使用充电器存储能量 $(br)电网负载过高时，使用放电器释放能量"
     },
     {

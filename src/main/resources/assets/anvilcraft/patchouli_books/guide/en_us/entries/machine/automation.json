@@ -1,5 +1,5 @@
 {
-    "name": "自动化",
+    "name": "title.anvilcraft.patchouli.machine.automation",
     "category": "anvilcraft:machine_example",
     "icon": "minecraft:anvil",
 	"sortnum": 5002,

@@ -135,14 +135,14 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
 
     @Override
     protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
-        if (this.menu.canCreateResult()) {
+        if (!this.menu.canCreateResult()) {
             guiGraphics.blit(ERROR, x + 123, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 
     private void renderOnboardingTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
-        if (this.menu.canCreateResult() && this.isHovering(123, 48, 16, 16, mouseX, mouseY)) {
+        if (!this.menu.canCreateResult() && this.isHovering(123, 48, 16, 16, mouseX, mouseY)) {
             optional = Optional.of(ERROR_TOOLTIP);
         }
         if (this.hoveredSlot != null) {

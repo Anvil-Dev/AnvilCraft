@@ -1,21 +1,17 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.item.IMultipleResult;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,7 +42,6 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -61,7 +56,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public abstract class ResonatorItem extends TieredItem implements IMultipleResult {
+public abstract class ResonatorItem extends TieredItem {
     public static final int AUTO_MODE = 0;
     public static final int AXE_MODE = 1;
     public static final int SHOVEL_MODE = 2;
@@ -210,38 +205,6 @@ public abstract class ResonatorItem extends TieredItem implements IMultipleResul
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         checkTooDamaged(this.getTier(), stack);
-    }
-
-    @Override
-    public ItemStack assemble(int id, MultipleToOneSmithingRecipeInput input, HolderLookup.Provider registries) {
-        if (id == 0) {
-            ItemStack defaultStack = this.getDefaultInstance();
-
-            Object2IntMap<Holder<Enchantment>> enchantments = new Object2IntArrayMap<>();
-            for (int i = 0; i < 4; i++) {
-                ItemStack inputStack = input.getInputItem(i);
-                DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
-                if (inputStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
-                    type = DataComponents.STORED_ENCHANTMENTS;
-                }
-                for (var entry : inputStack.getOrDefault(type, ItemEnchantments.EMPTY).entrySet()) {
-                    enchantments.mergeInt(entry.getKey(), entry.getIntValue(), Integer::max);
-                }
-            }
-
-            DataComponentType<ItemEnchantments> type = EnchantmentHelper.getComponentType(defaultStack);
-            if (defaultStack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
-                type = DataComponents.STORED_ENCHANTMENTS;
-            }
-            ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(defaultStack.getOrDefault(type, ItemEnchantments.EMPTY));
-            for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.object2IntEntrySet()) {
-                mutable.set(entry.getKey(), entry.getIntValue());
-            }
-            defaultStack.set(type, mutable.toImmutable());
-
-            return defaultStack;
-        }
-        return ItemStack.EMPTY;
     }
 
     public float getDestroySpeed(ItemStack stack, BlockState state) {

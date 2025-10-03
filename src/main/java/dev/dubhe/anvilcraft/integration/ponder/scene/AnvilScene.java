@@ -58,7 +58,7 @@ public class AnvilScene {
 
         builder.overlay()
             .showText(30)
-            .text("The anvil falls from a height to complete one anvil process.")
+            .text("The anvil falls from a height to complete one anvil process")
             .pointAt(util.vector().blockSurface(util.grid().at(2, 1, 2), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();

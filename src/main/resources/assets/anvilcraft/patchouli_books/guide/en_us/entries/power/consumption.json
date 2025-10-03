@@ -1,5 +1,5 @@
 {
-  "name": "Power Usage",
+  "name": "title.anvilcraft.patchouli.power.consumption",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:heater",
   "sortnum": 2003,

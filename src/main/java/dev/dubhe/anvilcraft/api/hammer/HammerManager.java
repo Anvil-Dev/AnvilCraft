@@ -27,8 +27,8 @@ public class HammerManager {
         return HammerManager.CHANGE.getOrDefault(
             block,
             block.defaultBlockState().is(ModBlockTags.HAMMER_CHANGEABLE)
-                ? HammerRotateBehavior.DEFAULT
-                : HammerRotateBehavior.EMPTY);
+                ? HammerRotateBehavior.DEFAULT : HammerRotateBehavior.EMPTY
+        );
     }
 
     /**

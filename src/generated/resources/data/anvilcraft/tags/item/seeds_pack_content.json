@@ -5,11 +5,11 @@
       "required": false
     },
     {
-      "id": "#c:berries",
+      "id": "#c:foods/berry",
       "required": false
     },
     {
-      "id": "#c:vegetables",
+      "id": "#c:foods/vegetable",
       "required": false
     }
   ]

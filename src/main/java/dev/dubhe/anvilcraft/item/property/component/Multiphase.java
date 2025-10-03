@@ -216,7 +216,13 @@ public record Multiphase(LinkedList<Phase> phases) {
                     .orElse(ItemEnchantments.EMPTY)
             )
             .withStoredEnchantments(
-                beta.map(phase -> stack.set(DataComponents.STORED_ENCHANTMENTS, phase.storedEnchantments))
+                beta.map(phase -> { // TODO: 兼容性后删除STORED相关
+                        ItemEnchantments enchantments = stack.set(ModComponents.MERCILESS_ENCHANTMENTS, phase.storedEnchantments);
+                        if (enchantments == null) {
+                            enchantments = stack.set(DataComponents.STORED_ENCHANTMENTS, null);
+                        }
+                        return enchantments;
+                    })
                     .orElse(ItemEnchantments.EMPTY)
             );
 
@@ -564,7 +570,7 @@ public record Multiphase(LinkedList<Phase> phases) {
             }
             stack.set(DataComponents.REPAIR_COST, this.repairCost());
             stack.set(DataComponents.ENCHANTMENTS, this.enchantments());
-            stack.set(DataComponents.STORED_ENCHANTMENTS, this.storedEnchantments());
+            stack.set(ModComponents.MERCILESS_ENCHANTMENTS, this.storedEnchantments());
         }
 
         public Phase copy() {

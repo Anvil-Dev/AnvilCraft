@@ -20,7 +20,9 @@ public interface ITooltipProviderExtension {
      * @return 一个按顺序存储了所有需要渲染的tooltip的List
      * @see ITooltipProviderExtension#anvilcraft$getTooltip(BlockState)
      */
-    List<Component> anvilcraft$getTooltip();
+    default List<Component> anvilcraft$getTooltip() {
+        throw new AssertionError();
+    }
 
     /**
      * 获取需要渲染的tooltip<br>
@@ -29,5 +31,7 @@ public interface ITooltipProviderExtension {
      * @return 一个按顺序存储了所有需要渲染的tooltip的List
      * @see ITooltipProviderExtension#anvilcraft$getTooltip()
      */
-    List<Component> anvilcraft$getTooltip(BlockState state);
+    default List<Component> anvilcraft$getTooltip(BlockState state) {
+        throw new AssertionError();
+    }
 }

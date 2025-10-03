@@ -70,7 +70,7 @@ public class MagnetScene {
         BlockPos textPos = util.grid().at(2, 2, 2);
         scene.overlay()
             .showText(60)
-            .text("The magnets were produced.")
+            .text("The magnets were produced")
             .pointAt(util.vector().topOf(textPos))
             .attachKeyFrame()
             .placeNearTarget();
@@ -97,19 +97,21 @@ public class MagnetScene {
             .rightClick()
             .withItem(Items.IRON_INGOT.getDefaultInstance());
         scene.idle(20);
+
         scene.world().setBlock(magnetPos, ModBlocks.FERRITE_CORE_MAGNET_BLOCK.getDefaultState(), true);
         scene.idle(10);
 
         // 等待时间以变化
-        scene.overlay().showText(40).text("Some time later.").pointAt(util.vector().centerOf(magnetPos)).attachKeyFrame().placeNearTarget();
+        scene.overlay().showText(40).text("Some time later...").pointAt(magnetPos.getCenter()).attachKeyFrame().placeNearTarget();
         scene.idle(50);
+
         scene.world().setBlock(magnetPos, ModBlocks.MAGNET_BLOCK.getDefaultState(), true);
         scene.idle(20);
 
         // 取出磁铁
         scene.overlay().showControls(util.vector().centerOf(magnetPos), Pointing.RIGHT, 20).rightClick().whileSneaking();
-
         scene.idle(20);
+
         scene.world().setBlock(magnetPos, ModBlocks.HOLLOW_MAGNET_BLOCK.getDefaultState(), false);
         scene.overlay()
             .showText(40)
@@ -152,9 +154,10 @@ public class MagnetScene {
         BlockPos magnetPos = anvilPos.above(2);
         builder.world().setBlock(magnetPos, ModBlocks.MAGNET_BLOCK.getDefaultState(), false);
         builder.world().showIndependentSection(util.select().position(magnetPos), Direction.WEST);
-        builder.idle(10);
+        builder.idle(5);
 
         builder.world().riseSection(anvilLink);
+        builder.idle(5);
 
         builder.overlay()
             .showText(40)
@@ -169,13 +172,14 @@ public class MagnetScene {
         builder.world().setBlock(redstonePos, Blocks.REDSTONE_BLOCK.defaultBlockState(), false);
         builder.world().showIndependentSection(util.select().position(redstonePos), Direction.WEST);
         builder.idle(10);
+
         // 磁铁失效
         builder.world().modifyBlock(magnetPos, bs -> bs.setValue(MagnetBlock.LIT, true), false);
         builder.world().falldownSection(anvilLink);
 
         builder.overlay()
             .showText(40)
-            .text("Magnet will stop working when it receives a redstone signal.")
+            .text("Magnet will stop working when it receives a redstone signal")
             .pointAt(util.vector().blockSurface(util.grid().at(2, 4, 2), Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -207,7 +211,7 @@ public class MagnetScene {
 
         scene.overlay()
             .showText(60)
-            .text("When a magnet is pushed against adjacent copper blocks, it generates electric charges.")
+            .text("When a magnet is pushed against adjacent copper blocks, it generates electric charges")
             .pointAt(util.vector().centerOf(pistonPos))
             .attachKeyFrame()
             .placeNearTarget();
@@ -228,7 +232,7 @@ public class MagnetScene {
         scene.world().showSection(util.select().position(chargeCollectPos), Direction.DOWN);
         scene.overlay()
             .showText(40)
-            .text("Use a collector to absorb the electric charges on the magnet.")
+            .text("Use a collector to absorb the electric charges on the magnet")
             .pointAt(util.vector().centerOf(chargeCollectPos))
             .attachKeyFrame()
             .placeNearTarget();
@@ -238,7 +242,7 @@ public class MagnetScene {
         scene.world().setBlock(copperBlockPos, Blocks.OXIDIZED_COPPER.defaultBlockState(), false);
         scene.overlay()
             .showText(40)
-            .text("Copper rust can affect the production of electric charges.")
+            .text("Copper rust can affect the production of electric charges")
             .pointAt(util.vector().centerOf(copperBlockPos))
             .attachKeyFrame()
             .placeNearTarget();

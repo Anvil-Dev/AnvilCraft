@@ -1,5 +1,5 @@
 {
-  "name": "Smithing Introduction",
+  "name": "title.anvilcraft.patchouli.smithing.introduction",
   "category": "anvilcraft:smithing_system",
   "icon": "minecraft:smithing_table",
   "priority": "true",

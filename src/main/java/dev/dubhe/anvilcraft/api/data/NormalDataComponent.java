@@ -86,13 +86,13 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
         return new ICustomDataComponent[] {
             NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
             ItemEnchantmentsData.enchantments(0),
-            ItemEnchantmentsData.storedEnchantments(0),
+            ItemEnchantmentsData.mercilessEnchantments(0),
             ItemEnchantmentsData.enchantments(1),
-            ItemEnchantmentsData.storedEnchantments(1),
+            ItemEnchantmentsData.mercilessEnchantments(1),
             ItemEnchantmentsData.enchantments(2),
-            ItemEnchantmentsData.storedEnchantments(2),
+            ItemEnchantmentsData.mercilessEnchantments(2),
             ItemEnchantmentsData.enchantments(3),
-            ItemEnchantmentsData.storedEnchantments(3),
+            ItemEnchantmentsData.mercilessEnchantments(3),
         };
     }
 
@@ -103,6 +103,19 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
             ItemEnchantmentsData.enchantments(1),
             ItemEnchantmentsData.enchantments(2),
             ItemEnchantmentsData.enchantments(3),
+        };
+    }
+
+    public static ICustomDataComponent<?>[] normalEight() {
+        return new ICustomDataComponent[] {
+            ItemEnchantmentsData.enchantments(0),
+            ItemEnchantmentsData.enchantments(1),
+            ItemEnchantmentsData.enchantments(2),
+            ItemEnchantmentsData.enchantments(3),
+            ItemEnchantmentsData.enchantments(4),
+            ItemEnchantmentsData.enchantments(5),
+            ItemEnchantmentsData.enchantments(6),
+            ItemEnchantmentsData.enchantments(7),
         };
     }
 }

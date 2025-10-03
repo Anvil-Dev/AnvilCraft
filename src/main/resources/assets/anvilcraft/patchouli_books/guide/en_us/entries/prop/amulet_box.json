@@ -1,31 +1,32 @@
 {
-    "name": "护符盒",
-    "category": "anvilcraft:special_props",
-    "icon": "anvilcraft:amulet_box",
-    "sortnum":4006,
-    "pages":[
-        {
-            "type": "text",
-            "text": "$(item)护符盒$()是一种类似收纳袋的物品，它可以容纳$(item)不死图腾$()或$(item)护符$()。你可以通过和大师级$(thing)珠宝匠$()村民交易获得。"
-        },
-        {
-            "type": "spotlight",
-            "item": "anvilcraft:amulet_box",
-            "link_recipe": true,
-            "text": "手持$(item)护符盒$()右击可以尽可能将持有的$(item)不死图腾$()放入$(item)护符盒$()中，潜行右击则会取出所有的$(item)不死图腾$()。$(br)如同普通的$(item)不死图腾$()，手持含有$(item)不死图腾$()的$(item)护符盒$()受到致命伤害会消耗其中的$(item)不死图腾$()保护你免于死亡。同时，如果这次伤害为某些特定来源的伤害，还有概率给予你$(6)神秘礼物$()。"
-
-        },
-        {
-            "type":"image",
-            "images":["anvilcraft:patchouli_images/4.6_1.png"],
-            "text":"每个$(item)不死图腾$()占用护符盒的 1 个槽位，每个$(item)基础护符$()占用2*3即 6 个槽位。在物品栏中将光标指向$(item)护符盒$()可以查看其占用情况。"
-        },
-        {
-            "type":"relations",
-            "entries":[
-                "anvilcraft:smithing/jewelcrafting_table",
-                "anvilcraft:prop/amulet"
-            ]
-        }        
-    ]
+  "name": "title.anvilcraft.patchouli.prop.amulet_box",
+  "category": "anvilcraft:special_props",
+  "icon": "anvilcraft:amulet_box",
+  "sortnum": 4006,
+  "pages": [
+    {
+      "type": "text",
+      "text": "$(item)护符盒$()是一种类似收纳袋的物品，它可以容纳$(item)不死图腾$()或$(item)护符$()。你可以通过和大师级$(thing)珠宝匠$()村民交易获得。"
+    },
+    {
+      "type": "spotlight",
+      "item": "anvilcraft:amulet_box",
+      "link_recipe": true,
+      "text": "手持$(item)护符盒$()右击可以尽可能将持有的$(item)不死图腾$()放入$(item)护符盒$()中，潜行右击则会取出所有的$(item)不死图腾$()。$(br)如同普通的$(item)不死图腾$()，手持含有$(item)不死图腾$()的$(item)护符盒$()受到致命伤害会消耗其中的$(item)不死图腾$()保护你免于死亡。同时，如果这次伤害为某些特定来源的伤害，还有概率给予你$(6)神秘礼物$()。"
+    },
+    {
+      "type": "image",
+      "images": [
+        "anvilcraft:patchouli_images/4.6_1.png"
+      ],
+      "text": "每个$(item)不死图腾$()占用护符盒的 1 个槽位，每个$(item)基础护符$()占用2*3即 6 个槽位。在物品栏中将光标指向$(item)护符盒$()可以查看其占用情况。"
+    },
+    {
+      "type": "relations",
+      "entries": [
+        "anvilcraft:smithing/jewelcrafting_table",
+        "anvilcraft:prop/amulet"
+      ]
+    }
+  ]
 }

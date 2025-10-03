@@ -1,6 +1,6 @@
 {
-  "name": "Power System",
-  "description": "Stronger automation.",
+  "name": "title.anvilcraft.patchouli.power_system",
+  "description": "intro.anvilcraft.patchouli.power_system",
   "sortnum": 2,
   "icon": "anvilcraft:magnetoelectric_core"
 }

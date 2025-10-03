@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 可被锤子改变的方块
@@ -22,12 +21,12 @@ public interface HammerRotateBehavior extends IHammerChangeable {
     HammerRotateBehavior DEFAULT = new HammerRotateBehavior() {
     };
     HammerRotateBehavior EMPTY = new HammerRotateBehavior() {
-        public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+        public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
             return false;
         }
     };
 
-    private static @NotNull BlockState rotate(@NotNull BlockState state) {
+    private static BlockState rotate(BlockState state) {
         Direction direction = state.getValue(FACING);
         return switch (direction) {
             case WEST -> state.setValue(FACING, Direction.UP);
@@ -37,7 +36,7 @@ public interface HammerRotateBehavior extends IHammerChangeable {
         };
     }
 
-    private static @NotNull BlockState hopperRotate(@NotNull BlockState state) {
+    private static BlockState hopperRotate(BlockState state) {
         Direction direction = state.getValue(FACING_HOPPER);
         return switch (direction) {
             case WEST -> state.setValue(FACING_HOPPER, Direction.DOWN);
@@ -46,7 +45,7 @@ public interface HammerRotateBehavior extends IHammerChangeable {
         };
     }
 
-    private static @NotNull BlockState horizontalRotate(@NotNull BlockState state) {
+    private static BlockState horizontalRotate(BlockState state) {
         return state.setValue(
             HORIZONTAL_FACING,
             state.getValue(HORIZONTAL_FACING).getClockWise()
@@ -54,7 +53,7 @@ public interface HammerRotateBehavior extends IHammerChangeable {
     }
 
     @Override
-    default boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    default boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
         if (state.hasProperty(FACING)) {
             state = HammerRotateBehavior.rotate(state);
@@ -72,7 +71,7 @@ public interface HammerRotateBehavior extends IHammerChangeable {
     }
 
     @Override
-    default Property<?> getChangeableProperty(@NotNull BlockState state) {
+    default Property<?> getChangeableProperty(BlockState state) {
         if (state.hasProperty(FACING)) {
             return FACING;
         } else if (state.hasProperty(FACING_HOPPER)) {

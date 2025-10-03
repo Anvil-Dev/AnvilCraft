@@ -1,5 +1,5 @@
 {
-  "name": "核能发电",
+  "name": "title.anvilcraft.patchouli.power.nuclear",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:uranium_ingot",
   "sortnum": 22010,
@@ -17,7 +17,11 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": ["anvilcraft:plutonium_nugget","anvilcraft:plutonium_ingot","anvilcraft:plutonium_block"],
+      "item": [
+        "anvilcraft:plutonium_nugget",
+        "anvilcraft:plutonium_ingot",
+        "anvilcraft:plutonium_block"
+      ],
       "link_recipe": true,
       "text": "在锅中用铁砧砸击$(item)铀锭$()和$(item)中子锭$()，获得6*$(item)钚粒$()+1*$(item)中子锭$()+1*$(item)石灰粉$()。$(br2)因为过于活跃而没有粗矿形式，无法通过$(item)矿物涌泉$()量产。"
     },

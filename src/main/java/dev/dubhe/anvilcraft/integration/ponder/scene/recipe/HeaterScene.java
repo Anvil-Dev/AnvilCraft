@@ -49,7 +49,7 @@ public class HeaterScene {
         placeTransmissionPole(builder.world(), util, transmissionPolePos);
         builder.overlay()
             .showText(20)
-            .text("It requires 16 kW of power to work in the grid.")
+            .text("It requires 16 kW of power to work in the grid")
             .pointAt(util.vector().blockSurface(heaterBlockPos, Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();
@@ -62,7 +62,7 @@ public class HeaterScene {
 
         builder.overlay()
             .showText(20)
-            .text("The heater is now working properly.")
+            .text("The heater is now working properly")
             .pointAt(heaterBlockPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -91,7 +91,7 @@ public class HeaterScene {
         BlockPos anvilBlockPos = heaterBlockPos.above(3);
         builder.overlay()
             .showText(40)
-            .text("Use an anvil or the Anvil Hammer to strike the cauldron.")
+            .text("Use an anvil or the Anvil Hammer to strike the cauldron")
             .pointAt(util.vector().blockSurface(anvilBlockPos, Direction.WEST))
             .attachKeyFrame()
             .placeNearTarget();

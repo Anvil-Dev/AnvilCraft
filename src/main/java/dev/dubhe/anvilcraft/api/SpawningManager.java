@@ -7,13 +7,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,19 +39,21 @@ public class SpawningManager {
     public SpawningManager() {
     }
 
-    /**
-     *
-     */
     public static void addLightBlock(BlockPos pos, Level level) {
         SpawningManager inst = SpawningManager.getInstance(level);
         inst.lightBlocks.add(pos);
     }
 
     @SubscribeEvent
-    private static void blockEntitySummon(@NotNull MobSpawnEvent.PositionCheck event) {
-        if (!event.getSpawnType().equals(MobSpawnType.NATURAL)) return;
-        if (!event.getSpawnType().equals(MobSpawnType.CHUNK_GENERATION)) return;
-        if (!event.getSpawnType().equals(MobSpawnType.PATROL)) return;
+    private static void blockEntitySummon(MobSpawnEvent.PositionCheck event) {
+        MobSpawnType spawnType = event.getSpawnType();
+        if (
+            !spawnType.equals(MobSpawnType.NATURAL)
+            && !spawnType.equals(MobSpawnType.CHUNK_GENERATION)
+            && !spawnType.equals(MobSpawnType.PATROL)
+        ) {
+            return;
+        }
         Entity entity = event.getEntity();
         Level level = entity.level();
         SpawningManager instance = getInstance(level);
@@ -64,14 +64,25 @@ public class SpawningManager {
             BlockState lightBlockState = level.getBlockState(pos);
             if (
                 lightBlockState.getBlock() instanceof InductionLightBlock
-                    && InductionLightBlock.isLit(lightBlockState)
-                    && (InductionLightBlock.canBlockMobSummoning(lightBlockState)
-                    || InductionLightBlock.canBlockAnimalSummoning(lightBlockState))
+                && InductionLightBlock.isLit(lightBlockState)
+                && (
+                    InductionLightBlock.canBlockMobSummoning(lightBlockState)
+                    || InductionLightBlock.canBlockAnimalSummoning(lightBlockState)
+                )
             ) {
-                if (level.getBlockEntity(pos) instanceof InductionLightBlockEntity blockEntity
+                if (
+                    level.getBlockEntity(pos) instanceof InductionLightBlockEntity blockEntity
                     && blockEntity.blockingArea.get().contains(entity.position())
-                    && ((InductionLightBlock.canBlockMobSummoning(lightBlockState) && entity instanceof Monster)
-                    || (InductionLightBlock.canBlockAnimalSummoning(lightBlockState) && entity instanceof Animal))
+                    && (
+                        (
+                            InductionLightBlock.canBlockMobSummoning(lightBlockState)
+                            && !entity.getType().getCategory().isFriendly()
+                        )
+                    || (
+                        InductionLightBlock.canBlockAnimalSummoning(lightBlockState)
+                        && entity instanceof Animal
+                        )
+                    )
                 ) {
                     event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
                 }

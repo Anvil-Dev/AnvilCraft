@@ -42,7 +42,7 @@ public class BlockRecipeScene {
 
     private static void crafting(SceneBuilder scene, SceneBuildingUtil util) {
         AnvilCraftSceneBuilder builder = new AnvilCraftSceneBuilder(scene);
-        builder.title("block_recipe", "The Anvil Hit The Block");
+        builder.title("block_recipe", "Use anvil hit blocks");
         builder.configureBasePlate(0, 0, 5);
         builder.showBasePlate();
 
@@ -73,7 +73,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(40)
-            .text("When the anvil hits a specific block, the block is crushed.")
+            .text("When the anvil hits a specific block, the block is crushed")
             .pointAt(downPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -95,7 +95,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(60)
-            .text("When the anvil hits the block with an item on it, press the item into the block.")
+            .text("When the anvil hits the block with an item on it, press the item into the block")
             .pointAt(downPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -118,7 +118,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(60)
-            .text("When the anvil hit the block on the stone cutter, the block was destroyed.")
+            .text("When the anvil hit the block on the stone cutter, the block was destroyed")
             .pointAt(upPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -138,7 +138,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(40)
-            .text("The Royal Anvil can precisely destroy blocks.")
+            .text("The Royal Anvil can precisely destroy blocks")
             .pointAt(upPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -158,7 +158,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(40)
-            .text("The Ember Anvil can melt blocks.")
+            .text("The Ember Anvil can melt blocks")
             .pointAt(upPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -185,7 +185,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(40)
-            .text("The anvil can compress blocks.")
+            .text("The anvil can compress blocks")
             .pointAt(downPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -204,7 +204,11 @@ public class BlockRecipeScene {
         builder.world().setBlock(downPos, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), false);
         builder.idle(10);
 
-        builder.overlay().showText(40).text("The anvil can smear blocks.").pointAt(downPos.getCenter()).attachKeyFrame().placeNearTarget();
+        builder.overlay().showText(40)
+            .text("The anvil can smear blocks")
+            .pointAt(downPos.getCenter())
+            .attachKeyFrame()
+            .placeNearTarget();
         builder.idle(50);
         // 复位
         builder.world().setBlock(downPos, Blocks.AIR.defaultBlockState(), false);
@@ -223,7 +227,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(40)
-            .text("The anvil can squeeze blocks.")
+            .text("The anvil can squeeze blocks")
             .pointAt(downPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -237,7 +241,7 @@ public class BlockRecipeScene {
 
     private static void processing(SceneBuilder scene, SceneBuildingUtil util) {
         AnvilCraftSceneBuilder builder = new AnvilCraftSceneBuilder(scene);
-        builder.title("block_process", "Use anvil to processing");
+        builder.title("block_process", "Use anvil to process");
         builder.configureBasePlate(0, 0, 5);
         builder.showBasePlate();
 
@@ -266,13 +270,20 @@ public class BlockRecipeScene {
         builder.idle(10);
 
         builder.overlay()
-            .showText(100)
-            .text(
-                "When the anvil hits the spawner, it will be forced to work. But there are still constraints, such as light, number of mob.")
+            .showText(50)
+            .text("When the anvil hits the spawner, it will be forced to work")
             .pointAt(blockPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
-        builder.idle(110);
+        builder.idle(60);
+
+        builder.overlay()
+            .showText(50)
+            .text("But there are still constraints, such as light, number of mob")
+            .pointAt(blockPos.getCenter())
+            .attachKeyFrame()
+            .placeNearTarget();
+        builder.idle(60);
 
         for (ElementLink<EntityElement> zombie : zombies) {
             builder.world().removeEntity(zombie);
@@ -290,7 +301,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(60)
-            .text("The higher the height of the anvil, the higher the probability of success.")
+            .text("The higher the height of the anvil, the higher the probability of success")
             .pointAt(blockPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -323,7 +334,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(100)
-            .text("When the anvil strikes the red stone, a red stone EMP occurs, extinguishing the nearby red stone torches for an instant.")
+            .text("When the anvil strikes the red stone, a red stone EMP occurs, extinguishing the nearby red stone torches for an instant")
             .pointAt(blockPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -331,7 +342,7 @@ public class BlockRecipeScene {
 
         builder.overlay()
             .showText(60)
-            .text("The higher the anvil falls, the larger the range.")
+            .text("The higher the anvil falls, the larger the range")
             .pointAt(anvilPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();
@@ -357,7 +368,7 @@ public class BlockRecipeScene {
         builder.world().riseSection(anvilLink);
         builder.overlay()
             .showText(40)
-            .text("Press the lead into the vault to reset it.")
+            .text("Press the lead into the vault to reset it")
             .pointAt(blockPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

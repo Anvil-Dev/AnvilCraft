@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -42,6 +43,10 @@ public class ItemEnchantmentsData implements ICustomDataComponent<ItemEnchantmen
 
     public static ItemEnchantmentsData storedEnchantments(int input) {
         return new ItemEnchantmentsData(input, DataComponents.STORED_ENCHANTMENTS);
+    }
+
+    public static ItemEnchantmentsData mercilessEnchantments(int input) {
+        return new ItemEnchantmentsData(input, ModComponents.MERCILESS_ENCHANTMENTS);
     }
 
     @Override

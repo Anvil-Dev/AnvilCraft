@@ -1,5 +1,5 @@
 {
-  "name": "Tier 2 Materials",
+  "name": "title.anvilcraft.patchouli.smithing.tier_2_materials",
   "category": "anvilcraft:smithing_system",
   "icon": "anvilcraft:ember_metal_ingot",
   "sortnum": 23006,
@@ -9,14 +9,22 @@
     {
       "type": "patchouli:spotlight",
       "anchor": "earth_core_shard",
-      "item": ["anvilcraft:earth_core_shard","anvilcraft:earth_core_shard_block","anvilcraft:earth_core_shard_ore"],
+      "item": [
+        "anvilcraft:earth_core_shard",
+        "anvilcraft:earth_core_shard_block",
+        "anvilcraft:earth_core_shard_ore"
+      ],
       "link_recipe": true,
       "text": "$(item)地核碎片$()系列物品不受$(item)熔岩$()和$(item)火焰$()损害，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可参与$(item)余烬金属锭$()的制作 $(br2)方块形态具有同黑曜石的挖掘等级"
     },
     {
       "type": "patchouli:spotlight",
       "anchor": "void_matter",
-      "item": ["anvilcraft:void_matter","anvilcraft:void_matter_block","anvilcraft:void_stone"],
+      "item": [
+        "anvilcraft:void_matter",
+        "anvilcraft:void_matter_block",
+        "anvilcraft:void_stone"
+      ],
       "link_recipe": true,
       "text": "$(item)虚空物质$()系列物品在$(thing)虚空$()中会上升，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可用于制作$(l:power/void_energy_collection#void_energy_collector)虚空能收集器$() $(br2)方块形态具有同黑曜石的挖掘等级 $(br2)虚空物质块具有$(l:advanced/void_decay)特性：虚空衰变$()"
     },

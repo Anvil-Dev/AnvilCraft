@@ -1,6 +1,6 @@
 {
-  "name": "Forging System",
-  "description": "Stronger anvil, forging and enchantments.",
+  "name": "title.anvilcraft.patchouli.smithing_system",
+  "description": "intro.anvilcraft.patchouli.smithing_system",
   "sortnum": 3,
   "icon": "minecraft:smithing_table"
 }

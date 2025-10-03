@@ -1121,12 +1121,12 @@ public class ModItems {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey());
     }
 
-    public static final ItemEntry<Item> CREAM = REGISTRATE.item("cream", Item::new).tag(ModItemTags.CREAM).register();
+    public static final ItemEntry<Item> CREAM = REGISTRATE.item("cream", Item::new).tag(Tags.Items.FOODS, ModItemTags.CREAM).register();
     public static final ItemEntry<Item> FLOUR = REGISTRATE.item("flour", Item::new)
-        .tag(ModItemTags.FLOUR, ModItemTags.WHEAT_FLOUR)
+        .tag(Tags.Items.FOODS, ModItemTags.FLOUR, ModItemTags.WHEAT_FLOUR)
         .register();
     public static final ItemEntry<Item> DOUGH = REGISTRATE.item("dough", Item::new)
-        .tag(ModItemTags.DOUGH, ModItemTags.WHEAT_DOUGH)
+        .tag(Tags.Items.FOODS, ModItemTags.DOUGH, ModItemTags.WHEAT_DOUGH)
         .register();
     public static final ItemEntry<Item> COCOA_LIQUOR = REGISTRATE.item("cocoa_liquor", Item::new).recipe((ctx, provider) -> {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get(), 2)
@@ -1849,7 +1849,7 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<Item> RAW_ZINC = REGISTRATE.item("raw_zinc", Item::new)
-        .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_ZINC)
+        .tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_ZINC)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.RAW_ZINC_BLOCK)
@@ -1857,8 +1857,7 @@ public class ModItems {
                 .save(provider);
         })
         .register();
-    public static final ItemEntry<Item> RAW_TIN = REGISTRATE.item("raw_tin", Item::new)
-        .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_TIN)
+    public static final ItemEntry<Item> RAW_TIN = REGISTRATE.item("raw_tin", Item::new).tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_TIN)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.RAW_TIN_BLOCK)
@@ -1867,7 +1866,7 @@ public class ModItems {
         })
         .register();
     public static final ItemEntry<Item> RAW_TITANIUM = REGISTRATE.item("raw_titanium", Item::new)
-        .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_TITANIUM)
+        .tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_TITANIUM)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.RAW_TITANIUM_BLOCK)
@@ -1876,8 +1875,7 @@ public class ModItems {
         })
         .register();
     public static final ItemEntry<Item> RAW_TUNGSTEN = REGISTRATE.item("raw_tungsten", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_TUNGSTEN)
+        .initialProperties(() -> new Item.Properties().fireResistant()).tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_TUNGSTEN)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.RAW_TUNGSTEN_BLOCK)
@@ -1886,7 +1884,7 @@ public class ModItems {
         })
         .register();
     public static final ItemEntry<Item> RAW_LEAD = REGISTRATE.item("raw_lead", Item::new)
-        .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_LEAD)
+        .tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_LEAD)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.RAW_LEAD_BLOCK)
@@ -1895,7 +1893,7 @@ public class ModItems {
         })
         .register();
     public static final ItemEntry<Item> RAW_SILVER = REGISTRATE.item("raw_silver", Item::new)
-        .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_SILVER)
+        .tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_SILVER)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.RAW_SILVER_BLOCK)
@@ -1904,7 +1902,7 @@ public class ModItems {
         })
         .register();
     public static final ItemEntry<RadiationItem> RAW_URANIUM = REGISTRATE.item("raw_uranium", RadiationItem::new)
-        .tag(ModItemTags.RAW_ORES, ModItemTags.RAW_ORES, ModItemTags.RAW_URANIUM, ModItemTags.RADIATIONS)
+        .tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_URANIUM, ModItemTags.RADIATIONS)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
                 .requires(ModBlocks.RAW_URANIUM_BLOCK)
@@ -2055,7 +2053,7 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<BucketItem> OIL_BUCKET = REGISTRATE.item("oil_bucket", p -> new BucketItem(ModFluids.OIL.get(), p))
-        .tag(ModItemTags.BUCKETS, ModItemTags.OIL_BUCKETS)
+        .tag(ModItemTags.OIL_BUCKETS, Tags.Items.BUCKETS)
         .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
         .register();
@@ -2073,7 +2071,7 @@ public class ModItems {
 
     private static ItemEntry<BucketItem> registerCementBucket(Color color) {
         return REGISTRATE.item("%s_cement_bucket".formatted(color), p -> new BucketItem(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
-            .tag(ModItemTags.BUCKETS, ModItemTags.CEMENT_BUCKETS)
+            .tag(Tags.Items.BUCKETS, ModItemTags.CEMENT_BUCKETS)
             .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
             .model(ModelProviderUtil::bucket)
             .register();
@@ -2082,7 +2080,7 @@ public class ModItems {
     public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRATE.item(
         "melt_gem_bucket",
         p -> new BucketItem(ModFluids.MELT_GEM.get(), p)
-    ).tag(ModItemTags.BUCKETS).properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET)).model(ModelProviderUtil::bucket).register();
+    ).tag(Tags.Items.BUCKETS).properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET)).model(ModelProviderUtil::bucket).register();
 
     public static void register() {
     }

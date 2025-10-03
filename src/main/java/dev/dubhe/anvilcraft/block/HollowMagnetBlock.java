@@ -6,6 +6,8 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -133,10 +135,24 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (stack.is(Items.IRON_INGOT)) {
                 stack.consume(1, player);
-                level.setBlockAndUpdate(pos, ModBlocks.FERRITE_CORE_MAGNET_BLOCK.getDefaultState());
+                BlockState blockState = ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get().defaultBlockState();
+                if (blockState.hasProperty(LIT)) {
+                    blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
+                }
+                level.setBlockAndUpdate(pos, blockState);
+                level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+                return ItemInteractionResult.SUCCESS;
+            } else if (stack.is(ModItems.MAGNET_INGOT)) {
+                stack.consume(1, player);
+                BlockState blockState = ModBlocks.MAGNET_BLOCK.get().defaultBlockState();
+                if (blockState.hasProperty(LIT)) {
+                    blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
+                }
+                level.setBlockAndUpdate(pos, blockState);
+                level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
                 return ItemInteractionResult.SUCCESS;
             }
         }
