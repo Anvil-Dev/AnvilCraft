@@ -334,9 +334,9 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
                         if (itemstack10.isEmpty()) {
                             int j3 = clickaction == ClickAction.PRIMARY ? itemstack9.getCount() : (itemstack9.getCount() + 1) / 2;
                             Optional<ItemStack> optional1 = slot7.tryRemove(j3, Integer.MAX_VALUE, player);
-                            optional1.ifPresent(p_150421_ -> {
-                                this.setCarried(p_150421_);
-                                slot7.onTake(player, p_150421_);
+                            optional1.ifPresent(stack -> {
+                                this.setCarried(stack);
+                                slot7.onTake(player, stack);
                             });
                         } else if (slot7.mayPlace(itemstack10)) {
                             if (ItemStack.isSameItemSameComponents(itemstack9, itemstack10)) {
@@ -350,9 +350,9 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
                             Optional<ItemStack> optional = slot7.tryRemove(
                                 itemstack9.getCount(), itemstack10.getMaxStackSize() - itemstack10.getCount(), player
                             );
-                            optional.ifPresent(p_150428_ -> {
-                                itemstack10.grow(p_150428_.getCount());
-                                slot7.onTake(player, p_150428_);
+                            optional.ifPresent(stack -> {
+                                itemstack10.grow(stack.getCount());
+                                slot7.onTake(player, stack);
                             });
                         }
                     }
