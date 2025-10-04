@@ -26,7 +26,6 @@ public class SwitchableButton extends Button {
     private final List<Button> switchables = new ArrayList<>();
     private final List<Component> message;
     @Getter
-    @Setter
     private int current = 0;
 
     public SwitchableButton(
@@ -79,6 +78,11 @@ public class SwitchableButton extends Button {
             guiGraphics.renderTooltip(
                 Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
         }
+    }
+
+    public SwitchableButton setCurrent(int current) {
+        this.current = current;
+        return this;
     }
 
     @Override

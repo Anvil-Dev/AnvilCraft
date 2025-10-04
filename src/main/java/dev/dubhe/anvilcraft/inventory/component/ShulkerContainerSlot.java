@@ -28,7 +28,7 @@ public class ShulkerContainerSlot extends Slot {
 
     @Override
     public ItemStack getItem() {
-        return this.storage.getItem(this.index).copyToStackWithCount(Integer.MAX_VALUE);
+        return this.storage.getItem(this.index).copy().toStack();
     }
 
     public UnlimitedItemStack getUnlimitedItem() {
@@ -37,6 +37,10 @@ public class ShulkerContainerSlot extends Slot {
 
     @Override
     public void set(ItemStack stack) {
+    }
+
+    @Override
+    public void setByPlayer(ItemStack stack) {
         if (stack.isEmpty()) return;
         this.storage.addItem(stack);
     }
@@ -58,7 +62,7 @@ public class ShulkerContainerSlot extends Slot {
 
     @Override
     public ItemStack remove(int amount) {
-        return this.storage.getEntries().removeCount(this.index, amount).toStack();
+        return this.storage.getEntries().removeCount(this.index, amount);
     }
 
     @Override

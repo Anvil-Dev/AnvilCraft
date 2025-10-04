@@ -23,8 +23,8 @@ public class TextureConstants {
     public static final ResourceLocation SHULKER_CONTAINER_SEQUENTIAL_ORDER = TextureConstants.texture("gui/container/shulker_container/sequential_order");
     public static final ResourceLocation SHULKER_CONTAINER_REVERSE_ORDER = TextureConstants.texture("gui/container/shulker_container/reverse_order");
 
-    public static final ResourceLocation SHULKER_CONTAINER_SEARCH_RETENTION = TextureConstants.texture("gui/container/shulker_container/search_retention");
     public static final ResourceLocation SHULKER_CONTAINER_SEARCH_CLEAR = TextureConstants.texture("gui/container/shulker_container/search_clear");
+    public static final ResourceLocation SHULKER_CONTAINER_SEARCH_RETENTION = TextureConstants.texture("gui/container/shulker_container/search_retention");
 
     public static final ResourceLocation SHULKER_CONTAINER_SORT_BY_NUMBER = TextureConstants.texture("gui/container/shulker_container/sort_by_number");
     public static final ResourceLocation SHULKER_CONTAINER_SORT_BY_MOD = TextureConstants.texture("gui/container/shulker_container/sort_by_mod");

@@ -83,7 +83,7 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
         throw new IndexOutOfBoundsException("Index " + original + " out of bounds for length " + this.size());
     }
 
-    public UnlimitedItemStack removeCount(int index, int count) {
+    public ItemStack removeCount(int index, int count) {
         if (index < 0 || index >= this.size) {
             throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + this.size());
         }
@@ -96,7 +96,12 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
                 continue;
             }
             UnlimitedItemStack data = stacks.get(index);
-            ItemEntry.ModifyResult result = entry.modifyCount(data.getStack(), this.upgrades.getStackPower(), old -> old - count);
+            int realCount = Math.min(count, data.getStack().getMaxStackSize());
+            ItemEntry.ModifyResult result = entry.modifyCount(
+                data.getStack(),
+                this.upgrades.getStackPower(),
+                old -> old - realCount
+            );
             boolean modded = false;
             if (!result.stackCountChanged().isDefault()) {
                 modded = true;
@@ -108,7 +113,7 @@ public class ItemEntries extends AbstractList<UnlimitedItemStack> {
                 this.calculateSize();
             }
             if (modded) this.modCount++;
-            return data.copyWithCount(count);
+            return data.copyWithCount(realCount).toStack();
         }
         throw new IndexOutOfBoundsException("Index " + original + " out of bounds for length " + this.size());
     }

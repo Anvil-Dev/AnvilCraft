@@ -360,7 +360,11 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
 
                 slot7.setChanged();
             }
-        } else if (clickType == ClickType.SWAP && (button >= 0 && button < 9 || button == 40)) {
+        } else if (
+            clickType == ClickType.SWAP
+            && (button >= 0 && button < 9 || button == 40)
+            && slotId < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT // no swap to TE now
+        ) {
             ItemStack itemstack2 = inventory.getItem(button);
             Slot slot5 = this.slots.get(slotId);
             ItemStack itemstack7 = slot5.getItem();
