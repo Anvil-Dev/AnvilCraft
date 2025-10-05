@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.rendering.foundation.QuadSorter;
 import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.GlBufferStorage;
 import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.vertex.index.GlIndexBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -34,17 +35,18 @@ public class GlVertexBuffer implements Disposable {
         glBindVertexArray(0);
     }
 
-    public void upload(long ptr, int size, int indexCount, Disposable uploadSrc) {
-        this.upload(ptr, size, indexCount, null, null, uploadSrc);
+    public void upload(long ptr, int size,int vertexCount, int indexCount, Disposable uploadSrc) {
+        this.upload(ptr, size, vertexCount, indexCount, null, null, uploadSrc);
     }
 
-    public void upload(long ptr, int size, int indexCount, @Nullable QuadSortingState sortingState, @Nullable Vector3f origin, Disposable uploadSrc) {
+    public void upload(long ptr, int size, int vertexCount,int indexCount, @Nullable QuadSortingState sortingState, @Nullable Vector3f origin, Disposable uploadSrc) {
         this.sortingState = sortingState;
-        if (sortingState == null) {
-            indexBuffer.fillContents(indexCount);
-        } else {
-            resortVertices(origin);
-        }
+//        if (sortingState == null) {
+//            indexBuffer.fillContents(vertexCount);
+//        } else {
+//            resortVertices(origin);
+//        }
+        indexBuffer.fillContents(vertexCount, indexCount);
         this.vertexBuffer.upload(ptr, size, uploadSrc);
     }
 

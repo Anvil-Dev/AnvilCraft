@@ -37,7 +37,7 @@ public final class CompileResult implements Disposable {
     }
 
     public void upload(GlVertexBuffer vertexBuffer) {
-        vertexBuffer.upload(vertexBufferPtr, vertexCount * vertexSize, indexCount, sortingState, new Vector3f(), this);
+        vertexBuffer.upload(vertexBufferPtr, vertexCount * vertexSize, vertexCount, indexCount, sortingState, new Vector3f(), this);
     }
 
     public void dispose() {

@@ -7,7 +7,7 @@ public interface GlIndexBuffer extends Disposable {
     /**
      * Called on worker threads
      */
-    void fillContents(int indexCount);
+    void fillContents(int vertexCount, int indexCount);
 
     /**
      * Called on worker threads=

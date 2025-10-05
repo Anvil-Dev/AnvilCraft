@@ -134,7 +134,7 @@ public class RenderRegion implements BufferHost, Disposable {
         }
         vertexBuffer.bind();
         if (renderType.sortOnUpload) {
-            vertexBuffer.resortVertices(cameraPosition.toVector3f());
+            //vertexBuffer.resortVertices(cameraPosition.toVector3f());
         }
         GL11.glDrawElements(GL15.GL_TRIANGLES, indexCount, vertexBuffer.getIndexType(), 0L);
         vertexBuffer.unbind();
