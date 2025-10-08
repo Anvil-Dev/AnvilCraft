@@ -19,9 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -37,12 +35,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Integration("curios")
-@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class CuriosIntegration {
     public void apply() {
         AnvilCraft.MOD_BUS.addListener(this::setup);
         AnvilCraft.MOD_BUS.addListener(this::onLayerRegister);
         AnvilCraft.MOD_BUS.addListener(this::registerCapabilities);
+        AnvilCraft.MOD_BUS.addListener(this::onPlayerWearAnvilHammerInCurioSlot);
     }
 
     private void setup(FMLCommonSetupEvent event) {
@@ -124,8 +122,7 @@ public class CuriosIntegration {
         );
     }
 
-    @SubscribeEvent
-    public static void onPlayerWearAnvilHammerInCurioSlot(CurioChangeEvent event) {
+    public void onPlayerWearAnvilHammerInCurioSlot(CurioChangeEvent event) {
         LivingEntity entity = event.getEntity();
         ItemStack eventTo = event.getTo();
         if (entity instanceof Player && eventTo.getItem() instanceof AnvilHammerItem) {
