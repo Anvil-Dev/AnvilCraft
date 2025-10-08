@@ -23,6 +23,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosCapability;
@@ -40,7 +41,7 @@ public class CuriosIntegration {
         AnvilCraft.MOD_BUS.addListener(this::setup);
         AnvilCraft.MOD_BUS.addListener(this::onLayerRegister);
         AnvilCraft.MOD_BUS.addListener(this::registerCapabilities);
-        AnvilCraft.MOD_BUS.addListener(this::onPlayerWearAnvilHammerInCurioSlot);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerWearAnvilHammerInCurioSlot);
     }
 
     private void setup(FMLCommonSetupEvent event) {
