@@ -4,6 +4,7 @@ import com.simibubi.create.content.equipment.goggles.GogglesItem;
 import dev.anvilcraft.lib.integration.Integration;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.curios.renderer.GogglesCurioRenderer;
@@ -11,10 +12,16 @@ import dev.dubhe.anvilcraft.integration.curios.renderer.IonoCraftBackpackCurioRe
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -23,14 +30,14 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosCapability;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+import top.theillusivec4.curios.api.event.CurioChangeEvent;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
-import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 
 @Integration("curios")
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class CuriosIntegration {
     public void apply() {
         AnvilCraft.MOD_BUS.addListener(this::setup);
@@ -115,5 +122,17 @@ public class CuriosIntegration {
             GogglesCurioRenderer.LAYER,
             () -> LayerDefinition.create(GogglesCurioRenderer.mesh(), 1, 1)
         );
+    }
+
+    @SubscribeEvent
+    public static void onPlayerWearAnvilHammerInCurioSlot(CurioChangeEvent event) {
+        LivingEntity entity = event.getEntity();
+        ItemStack eventTo = event.getTo();
+        if (entity instanceof Player && eventTo.getItem() instanceof AnvilHammerItem) {
+            Optional<PowerGrid> powerGrid = PowerGrid.findPowerGridContains(entity.level(), entity.position());
+            if (powerGrid.isPresent() && powerGrid.get().isWorking()) {
+                TriggerUtil.playerWearAnvilHammer(entity.level(), BlockPos.containing(entity.position()));
+            }
+        }
     }
 }
