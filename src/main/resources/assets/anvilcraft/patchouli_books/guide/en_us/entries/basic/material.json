@@ -4,7 +4,10 @@
   "icon": "anvilcraft:circuit_board",
   "sortnum": 1007,
   "extra_recipe_mappings": {
-    "anvilcraft:resin": 10
+    "anvilcraft:resin": 10,
+    "anvilcraft:topaz": 8,
+    "anvilcraft:sapphire": 8,
+    "anvilcraft:ruby": 8
   },
   "pages": [
     "铁砧工艺在前期添加了若干材料：$(li)$(l:basic/material#magnet_ingot)磁铁$() $(li)$(l:basic/material#geode)晶洞&宝石$() $(li)$(l:basic/material#resin)树脂$() $(li)$(l:basic/material#circuit_board)电路板$() $(li)$(l:basic/material#lime_powder)石灰粉$()",
@@ -52,23 +55,23 @@
       "type": "patchouli:crafting",
       "anchor": "magnet_block",
       "recipe": "anvilcraft:magnet_block",
-      "text": "$(item)磁铁块$()可以吸引正下方5格内的铁砧，收到$(thing)红石信号$()消磁 $(br)可以帮助你简单地将铁砧抬起再砸下。$(p)$(#666666)其他两种磁铁块也具有这个功能$()"
+      "text": "$(item)磁铁块$()可以吸引正下方5格内的铁砧，收到$(thing)红石信号$()消磁 $(br)可以帮助你简单地将铁砧抬起再砸下 $(p)$(#666666)其他两种磁铁块也具有这个功能$()"
     },
     {
       "type": "patchouli:spotlight",
       "anchor": "geode",
       "item": "anvilcraft:geode",
-      "text": "获得$(item)晶洞$()有三种方法：$(br)挖掘$(item)紫水晶母岩$()掉落。$(br)若开局开启奖励箱，可在其中获取。$(br)与$(thing)珠宝商$()村民交易"
+      "link_recipe": true,
+      "text": "获得$(item)晶洞$()有三种方法：$(li)若开局开启奖励箱，可在其中获取 $(br)$(li)挖掘$(item)紫水晶母岩$()掉落 $(br)$(li)与$(thing)珠宝商$()村民交易"
     },
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:geode",
-      "text": "$(item)晶洞$()有三种用途：$(br)手持右键定位附近的$(thing)紫水晶洞穴$()$(br)在冲压平台上被铁砧砸碎，获得$(item)红宝石$()、$(item)蓝宝石$()和$(item)黄玉$()三种宝石之一和大量$(item)紫水晶$()。$(br2)科技水平达到一定程度后，可以将其变为$(item)紫水晶母岩$()。"
+      "text": "$(item)晶洞$()有三种用途：$(li)右键定位附近的$(thing)紫水晶洞穴$() $(br)$(li)在冲压平台上被铁砧砸碎，概率获得$(item)红宝石$()、$(item)蓝宝石$()和$(item)黄玉$()三种宝石和大量$(item)紫水晶$() $(br)$(li)科技水平达到一定程度后，可以将其变为$(item)紫水晶母岩$()。"
     },
     {
-      "type": "patchouli:spotlight",
-      "item": "tag:anvilcraft:gems",
-      "link_recipe": true,
+      "type": "anvilcraft:stamping",
+      "recipe": "anvilcraft:stamping/geode_gems",
       "text": "宝石：包括$(item)绿宝石$()、$(item)红宝石$()、$(item)蓝宝石$()和$(item)黄玉$()$(br2)$(#666666)晦涩来说，就是携带#anvilcraft:gems标签的物品$()"
     },
     {
@@ -87,7 +90,7 @@
       "type": "anvilcraft:cooking",
       "anchor": "hardend_resin",
       "recipe": "anvilcraft:cooking/hardend_resin",
-      "text": ""
+      "text": "简单的合成材料"
     },
     {
       "type": "patchouli:crafting",
