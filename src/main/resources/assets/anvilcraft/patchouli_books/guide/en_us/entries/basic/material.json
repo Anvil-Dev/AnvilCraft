@@ -71,6 +71,7 @@
     },
     {
       "type": "anvilcraft:stamping",
+      "anchor": "gem",
       "recipe": "anvilcraft:stamping/geode_gems",
       "text": "宝石：包括$(item)绿宝石$()、$(item)红宝石$()、$(item)蓝宝石$()和$(item)黄玉$()$(br2)$(#666666)晦涩来说，就是携带#anvilcraft:gems标签的物品$()"
     },
