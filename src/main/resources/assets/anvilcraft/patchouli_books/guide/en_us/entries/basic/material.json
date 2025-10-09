@@ -55,7 +55,7 @@
       "type": "patchouli:crafting",
       "anchor": "magnet_block",
       "recipe": "anvilcraft:magnet_block",
-      "text": "$(item)磁铁块$()可以吸引正下方5格内的铁砧，收到$(thing)红石信号$()消磁 $(br)可以帮助你简单地将铁砧抬起再砸下 $(p)$(#666666)其他两种磁铁块也具有这个功能$()"
+      "text": "$(item)磁铁块$()可以吸引正下方5格内的铁砧，收到$(thing)红石信号$()消磁 $(p)用以将铁砧抬起再砸下 $(p)$(#666666)三种磁铁块都具有这个功能$()"
     },
     {
       "type": "patchouli:spotlight",
