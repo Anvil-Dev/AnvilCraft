@@ -9,7 +9,7 @@
     "anvilcraft:prismarine_blade": 8
   },
   "pages": [
-    "在获得$(item)腐化信标$()可以进行$(l:smithing/corrupted_beacon#time_warp)时移$()操作后，便有了再生原版珍惜资源的能力。包括以下物品：$(li)$(l:apply/item_regeneration#ancient_debris)远古残骸$() $(li)$(l:apply/item_regeneration#heart_of_the_sea)海洋之心$() $(li)$(l:apply/item_regeneration#trident)三叉戟$() $(li)$(l:apply/item_regeneration#diamond)钻石&煤炭$() $(li)$(l:apply/item_regeneration#powder_snow)细雪&冰$()",
+    "在获得$(item)腐化信标$()可以进行$(l:smithing/corrupted_beacon#time_warp)时移$()操作后，便有了再生原版珍惜资源的能力。包括以下物品：$(li)$(l:apply/item_regeneration#ancient_debris)远古残骸$() $(li)$(l:apply/item_regeneration#sea_heart)海洋之心$() $(li)$(l:apply/item_regeneration#trident)三叉戟$() $(li)$(l:apply/item_regeneration#diamond)钻石&煤炭$() $(li)$(l:apply/item_regeneration#powder_snow)细雪&冰$()",
     {
       "type": "patchouli:spotlight",
       "anchor": "ancient_debris",
@@ -32,6 +32,7 @@
     },
     {
       "type": "anvilcraft:stamping",
+      "anchor": "sea_heart",
       "recipe": "anvilcraft:stamping/sea_heart_shell_shard",
       "title": "再生海洋之心",
       "text": "将$(item)海洋之心$()$(thing)冲压$()为平均4个$(item)海心壳碎片$()和1个$(item)蓝宝石$() $(p)$(#666666)图例暂时存在问题$()"
