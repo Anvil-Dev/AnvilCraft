@@ -65,5 +65,6 @@ abstract class EnchantmentHelperMixin {
             return;
         }
         ProvidenceRef.shouldTrigger(anvilcraft$dimension.get(), i, enchantedItemInUse, entity.getId());
+        anvilcraft$dimension.remove();
     }
 }
