@@ -44,6 +44,7 @@ public class PatchouliLang {
         provider.add("title.anvilcraft.patchouli.advanced.super_heating", "Super Heating");
         provider.add("title.anvilcraft.patchouli.advanced.tool_properties", "Special Tool Properties");
         provider.add("title.anvilcraft.patchouli.advanced.void_decay", "Void Decay");
+        provider.add("title.anvilcraft.patchouli.advanced.template_dissociation", "Template Dissociation");
 
         // Entry titles for apply category
         provider.add("title.anvilcraft.patchouli.apply.cake", "Large Cake");

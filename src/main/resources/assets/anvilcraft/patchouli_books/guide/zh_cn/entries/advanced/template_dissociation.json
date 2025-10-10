@@ -1,0 +1,25 @@
+{
+  "name": "title.anvilcraft.patchouli.advanced.template_dissociation",
+  "category": "anvilcraft:advanced_features",
+  "icon": "anvilcraft:eight_to_one_smithing_template",
+  "sortnum": 37006,
+  "entry_color": "660066",
+  "pages": [
+    "附魔的$(item)八合一锻造模板$()掉落物被摧毁时，会随机抽取四次附魔(可重复)，生成对应的模板",
+    {
+      "type": "patchouli:text",
+      "title": "附魔-模板对照表",
+      "text": "$(li)$(item)灵魂疾行$()：猪鼻盔甲纹饰 $(li)$(item)火焰保护$()、$(item)火焰附加$()、$(item)火矢$()：肋骨盔甲纹饰 $(li)$(item)爆炸保护$()：沙丘盔甲纹饰 $(li)$(item)迅捷潜行$()：幽静盔甲纹饰 $(li)$(item)保护$()：监守盔甲纹饰 $(li)$(item)经验修补$()：恼鬼盔甲纹饰 $(li)$(item)无限$()：哨兵盔甲纹饰 $(li)$(item)致密$()、$(item)破甲$()：镶铆盔甲纹饰 $(li)$(item)风暴$()：涡流盔甲纹饰 "
+    },
+    {
+      "type": "patchouli:text",
+      "title": "附魔-模板对照表",
+      "text": "$(li)$(item)弹射物保护$()：荒野盔甲纹饰 $(li)$(item)时运$()：尖塔盔甲纹饰 $(li)$(item)抢夺$()：眼眸盔甲纹饰 $(li)$(item)海之眷顾$()、$(item)饵钓$()：海岸盔甲纹饰 $(li)$(item)深海探索者$()、$(item)水下呼吸$()、$(item)水下速掘$()、$(item)穿刺$()、$(item)激流$()：潮汐盔甲纹饰 $(li)$(item)其他$()附魔：向导盔甲纹饰、牧民盔甲纹饰、雇主盔甲纹饰、塑造盔甲纹饰 "
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:transcendium_upgrade_smithing_template",
+      "text": "如果掉落了4个互不相同的模板，就会额外产出一个$(item)超限模板$()"
+    }
+  ]
+}

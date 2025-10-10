@@ -10,7 +10,7 @@
       "type": "patchouli:crafting",
       "anchor": "void_energy_collector",
       "recipe": "anvilcraft:void_energy_collector",
-      "text": "$(item)虚空能收集器$()的默认发电功率为512KW。但是以自己为中心5x5x5范围内的$(thing)物质方块$()会影响自己的发电量：$(li)3个及以上：256kW $(li)11个及以上：128kW $(li)21个及以上：0kW"
+      "text": "$(item)虚空能收集器$()的默认发电功率为512KW。但是以自己为中心5x5x5工作范围内的$(thing)物质方块$()会影响自己的发电量：$(li)3个及以上：256kW $(li)11个及以上：128kW $(li)21个及以上：0kW $(br)$(#666666)具有极高爆炸抗性$()"
     },
     {
       "type": "patchouli:text",
