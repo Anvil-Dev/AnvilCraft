@@ -78,7 +78,7 @@ public abstract class LevelChunkMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V")
     )
     private void onRemoveBlockEntity(BlockPos pos, CallbackInfo ci, @Local @Nullable BlockEntity removed) {
-        if (this.getLevel().isClientSide) return;
+        if (this.getLevel().isClientSide()) return;
         if (removed != null) {
             NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), removed));
         }
@@ -90,6 +90,7 @@ public abstract class LevelChunkMixin {
 
     @Inject(method = "removeBlockEntity", at = @At("HEAD"))
     void onBlockEntityRemoved(BlockPos pos, CallbackInfo ci) {
+        if (!this.getLevel().isClientSide()) return;
         BlockEntity be = getBlockEntity(pos);
         if (be instanceof BaseLaserBlockEntity laserStateAccess) {
             CacheableBERenderingPipeline.getInstance().blockRemoved(laserStateAccess);
