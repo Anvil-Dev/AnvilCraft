@@ -62,7 +62,7 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
             if (irradiateBlockPos != null
                 && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity
             ) {
-                irradiateBlockEntity.onCancelingIrradiation(irradiateBlockEntity);
+                irradiateBlockEntity.onCancelingIrradiation(this);
             }
             updateIrradiateBlockPos(null);
         }
