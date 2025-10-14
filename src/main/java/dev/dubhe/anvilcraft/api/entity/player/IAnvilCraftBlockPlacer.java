@@ -42,6 +42,11 @@ public interface IAnvilCraftBlockPlacer {
         //获取fakePlayer的方向 与放置器的方向不太一样
         Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
         getPlayer().setYRot(fakePlayerOrientation.getYRotation());
+        /*
+         * net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
+         * 该字段一并设置，以使得部分方块的方向检测正确
+         */
+        getPlayer().setYHeadRot(fakePlayerOrientation.getYRotation());
         getPlayer().setXRot(fakePlayerOrientation.getXRotation());
         Vec3 clickClickLocation = getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
