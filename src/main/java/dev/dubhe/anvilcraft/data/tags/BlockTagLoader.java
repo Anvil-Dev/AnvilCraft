@@ -105,7 +105,8 @@ public class BlockTagLoader {
             .add(ModBlocks.CUT_HEAVY_IRON_STAIRS.getKey())
             .add(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getKey())
             .add(ModBlocks.POLISHED_HEAVY_IRON_SLAB.getKey())
-            .add(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.getKey());
+            .add(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.getKey())
+            .add(findResourceKey(Blocks.SHULKER_BOX));
 
         provider.addTag(ModBlockTags.UNDER_CAULDRON)
             .addTag(BlockTags.CAMPFIRES)
