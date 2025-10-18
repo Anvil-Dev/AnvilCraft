@@ -10,7 +10,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
-import org.jetbrains.annotations.NotNull;
 
 public class BlockTagLoader {
 
@@ -23,7 +22,7 @@ public class BlockTagLoader {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateTagsProvider<Block> provider) {
+    public static void init(RegistrateTagsProvider<Block> provider) {
         provider.addTag(ModBlockTags.REDSTONE_TORCH)
             .add(findResourceKey(Blocks.REDSTONE_WALL_TORCH))
             .add(findResourceKey(Blocks.REDSTONE_TORCH));
