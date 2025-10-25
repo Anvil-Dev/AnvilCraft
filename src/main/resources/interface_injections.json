@@ -14,6 +14,9 @@
   "net/minecraft/world/entity/item/ItemEntity": [
     "dev/dubhe/anvilcraft/api/injection/entity/IItemEntityExtension"
   ],
+  "net/minecraft/world/entity/item/FallingBlockEntity": [
+    "dev/dubhe/anvilcraft/api/injection/entity/IFallingBlockEntityExtension"
+  ],
   "net/minecraft/world/level/block/entity/ComparatorBlockEntity": [
     "dev/dubhe/anvilcraft/api/injection/tooltip/ITooltipProviderExtension"
   ],

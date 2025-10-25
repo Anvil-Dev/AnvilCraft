@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "items": "#c:storage_blocks/raw_lead"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "anvilcraft:lead_block"
+    }
+  ]
+}

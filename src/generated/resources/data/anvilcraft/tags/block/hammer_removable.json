@@ -70,6 +70,7 @@
     "anvilcraft:cut_heavy_iron_stairs",
     "anvilcraft:polished_heavy_iron_block",
     "anvilcraft:polished_heavy_iron_slab",
-    "anvilcraft:polished_heavy_iron_stairs"
+    "anvilcraft:polished_heavy_iron_stairs",
+    "minecraft:shulker_box"
   ]
 }

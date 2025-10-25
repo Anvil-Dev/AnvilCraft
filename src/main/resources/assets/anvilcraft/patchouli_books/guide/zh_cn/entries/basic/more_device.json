@@ -11,7 +11,12 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:magnet",
-      "text": "$(item)手持磁铁$()右键使用将附近物品吸引到脚下。$(br2)shift+右键，在方块上表面生成$(item)磁化节点$()。其可以吸引所有接触到其$(thing)附着方块$()的物品，且不会再次吸引加工后的产物，方便进行$(l:basic/item_processing)物品处理$()"
+      "text": "右键使用，将附近的$(thing)掉落物$()和$(thing)经验球$()吸引到脚下。$(br2)shift+右键，在方块上表面生成/删除$(item)磁化节点$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "磁化节点",
+      "text": "$(li)物品一接触到$(thing)附着方块$()，就会被吸引至$(item)磁化节点$()的位置。 $(li)不会再次吸引加工后的产物，方便进行$(l:basic/item_processing)物品处理$()。 $(li)手持物品对着$(thing)附着方块$()使用，会将物品置于磁化节点上。"
     },
     {
       "type": "patchouli:crafting",

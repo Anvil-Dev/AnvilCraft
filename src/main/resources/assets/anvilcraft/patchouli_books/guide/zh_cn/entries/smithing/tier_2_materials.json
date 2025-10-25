@@ -5,7 +5,7 @@
   "sortnum": 23006,
   "entry_color": "661100",
   "pages": [
-    "本页面展示了目前所有可用的$(thing)二阶材料$(): $(li)地核碎片 $(li)虚空物质 $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#multiphase_matter)多相物质$(/l) $(li)$(l:smithing/tier_2_materials#multiple_templates)多合一锻造模板$(/l) $(li)$(l:smithing/tier_2_materials#neutronium_ingot)中子锭$(/l) ",
+    "本页面展示了目前所有可用的$(thing)二阶材料$(): $(li)地核碎片 $(li)虚空物质 $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#neutronium_ingot)中子锭$(/l) ",
     {
       "type": "patchouli:spotlight",
       "anchor": "earth_core_shard",
@@ -124,25 +124,6 @@
       "text": "使用$(item)余烬金属锭$()升级你的工具，它们将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
     },
     {
-      "type": "anvilcraft:anvil_collision",
-      "anchor": "multiphase_matter",
-      "recipe": "anvilcraft:anvil_collision/ember_anvil_and_frost_metal_block_32",
-      "text": "一次撞击获得4个$(item)多相物质$() $(p)用于在$(item)余烬锻造台$()上参与多合一锻造"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "anvilcraft:multiphase_matter_block",
-      "text": "$(#888888)把极冷与极热的物质掺和在一起是一件令人激动的事情，然后它就这么诞生了！ ——氙氪博士$()"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "anchor": "multiple_templates",
-      "item": "tag:anvilcraft:multiple_to_one_smithing_templates",
-      "title": "多合一锻造模板",
-      "link_recipe": true,
-      "text": "将多个互不相同的$(thing)锻造模板$()进行物品冲压加工获得，由模板数量决定获得的是几合一锻造模板。$(br2)用于在$(item)余烬锻造台$()上参与多合一锻造"
-    },
-    {
       "type": "patchouli:spotlight",
       "anchor": "neutronium_ingot",
       "item": "anvilcraft:neutronium_ingot",
@@ -164,8 +145,7 @@
     {
       "type": "patchouli:relations",
       "entries": [
-        "anvilcraft:struct/mineral_fountain",
-        "anvilcraft:struct/collision",
+        "anvilcraft:struct/mineral_fountain",        
         "anvilcraft:advanced/tool_properties",
         "anvilcraft:apply/oil",
         "anvilcraft:smithing/space_overcompressor",

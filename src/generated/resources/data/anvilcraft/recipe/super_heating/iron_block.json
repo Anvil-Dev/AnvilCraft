@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "items": "minecraft:raw_iron_block"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:iron_block"
+    }
+  ]
+}

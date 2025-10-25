@@ -42,7 +42,7 @@
       "type": "patchouli:stonecutting",
       "recipe": "anvilcraft:stonecutting/power_converter_middle",
       "recipe2": "anvilcraft:stonecutting/power_converter_small_from_big",
-      "text": "$(item)能量转换器$()根据大小，耗电功率分别为1KW，3KW，9KW，可以为其附着的方块提供FE/RF/AE能量，每KW功率产生80FE/t，但有10%损耗。$(br)$(#666666)它是单向的，无法将其他能量转化为本模组的能量$()"
+      "text": "$(item)能量转换器$()根据大小，耗电功率分别为1KW，6KW，36KW，可以为其附着的方块提供FE/RF/AE能量，1KW对应80FE/t，但有10%%损耗。$(br)$(#666666)它是单向的，无法将其他能量转化为本模组的能量$()"
     },
     {
       "type": "patchouli:crafting",

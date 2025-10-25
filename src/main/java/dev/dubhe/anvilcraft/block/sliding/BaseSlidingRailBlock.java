@@ -7,6 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -14,6 +16,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -86,10 +89,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
         return this.canStickTo(pos, axis, otherPos, otherAxis);
     }
 
-    private boolean canStickTo(
-        BlockPos pos, @Nullable Direction.Axis axis,
-        BlockPos otherPos, @Nullable Direction.Axis otherAxis
-    ) {
+    private boolean canStickTo(BlockPos pos, @Nullable Direction.Axis axis, BlockPos otherPos, @Nullable Direction.Axis otherAxis) {
         if (axis == Direction.Axis.Y || otherAxis == Direction.Axis.Y) return true;
         boolean axisIsNotNull = axis != null;
         if (Objects.equals(otherAxis, axis) && axisIsNotNull) {
@@ -102,5 +102,19 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
                || pos.relative(Direction.Axis.Y, 1).equals(otherPos)
                || pos.relative(Direction.Axis.Z, -1).equals(otherPos)
                || pos.relative(Direction.Axis.Z, 1).equals(otherPos);
+    }
+
+    @Override
+    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        if (level.isClientSide) return;
+        if (entity instanceof ItemEntity) {
+            AABB railBox = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+            if (railBox.intersects(entity.getBoundingBox())) {
+                if (this instanceof DetectorSlidingRailBlock detectorRail) {
+                    detectorRail.onItemEntitySlidingAbove(level, pos, state);
+                }
+            }
+        }
+        super.entityInside(state, level, pos, entity);
     }
 }

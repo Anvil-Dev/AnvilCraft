@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.enchantment.FellingEffect;
 import dev.dubhe.anvilcraft.enchantment.HarvestEffect;
+import dev.dubhe.anvilcraft.enchantment.WeedingEffect;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
 import net.neoforged.bus.api.IEventBus;
@@ -21,6 +22,10 @@ public class ModEnchantmentEffects {
         REGISTER.register(
             "felling",
             () -> FellingEffect.CODEC
+        );
+        REGISTER.register(
+            "weeding",
+            () -> WeedingEffect.CODEC
         );
     }
 

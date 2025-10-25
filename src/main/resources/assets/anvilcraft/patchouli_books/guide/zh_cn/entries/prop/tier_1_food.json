@@ -21,7 +21,7 @@
     {
       "type": "patchouli:smelting",
       "recipe": "anvilcraft:smelting_cooking_bread",
-      "text": "将$(item)面团$()烧制成面包 $(br2)$(#666666)是的，小麦利用率相比原版提高350%$()"
+      "text": "将$(item)面团$()烧制成面包 $(br2)$(#666666)是的，小麦利用率相比原版提高350%%$()"
     },
     {
       "type": "anvilcraft:stamping",

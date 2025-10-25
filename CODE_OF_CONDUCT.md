@@ -1,4 +1,4 @@
-# Contributor Covenant Code of Conduct
+# Contributor Covenant Code of Conduct | [贡献者公约](./CODE_OF_CONDUCT.cn.md)
 
 ## Our Pledge
 

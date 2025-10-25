@@ -5,10 +5,7 @@
   "sortnum": 13004,
   "entry_color": "004400",
   "pages": [
-    {
-      "type": "patchouli:text",
-      "text": "Will give entities in its beam $(thing)Wither$() effect. Some mobs will transform to another mob. Put the activated Corrupted Beacon under the cauldron, and then you can use it together with the anvil for time-warp processing. $(p)$(#888888)Release the Wither's power that been sealed in the normal beacon.$()"
-    },
+    "本章将依次介绍： $(li)$(item)腐化信标$()的制作过程 $(li)$(item)腐化信标$()的黑色光柱附带的效果 $(li)如何搭建包含$(item)腐化信标$()的结构，以进行$(thing)时移$() $(p)$(#888888)释放了被封印在信标之中的凋灵之力。$()",
     {
       "type": "patchouli:spotlight",
       "anchor": "corrupted_beacon",
@@ -16,7 +13,7 @@
       "item": "anvilcraft:corrupted_beacon",
       "text": "When you fully using $(l:smithing/tier_1_materials#cursed_gold_block)Cursed Gold Block$() as the base of beacons and use $(l:smithing/tier_1_materials#cursed_gold_ingot)Cursed Gold Ingot$() to activate it, the beacon will have chance to convert into $(item)Corrupted Beacon$(). The more layers of the base, the higher the conversion probability.$(br)($(thing)Automation Method$(): Use an anvil to press the curse gold ingot into the beacon. The probabilities are the same.) $(p)Use Cursed Gold Ingot to activate beacons will make weather set to Thunder."
     },
-    "Mob Transform: $(br)Pig→$(thing)Hoglin$()$(br)Cow→$(thing)Ravager$()$(br)Guardian→$(thing)Elder Guardian$()$(br)Piglin→$(thing)Piglin Brute$()$(br)Villager→30%$(thing)Pillager$()、60%$(thing)Vindicator$()、10%$(thing)Evoker$()$(br)Allay→$(thing)Vex$()$(br)Bat→$(thing)Phantom$()$(br)Horse→10%$(thing)Zombie Horse$()、90%$(thing)Skeleton Horse$()$(br)Silverfish→$(thing)Endermite$()$(br)Skeleton→20%$(thing)Wither Skeleton$()、80%$(thing)Stray$() $(br)villager's Iron Golem→$(thing)Warden()",
+    "The beacon's light column will give entities in its beam $(thing)Wither$() effect and transform some mobs to another mob.: $(br)Pig→$(thing)Hoglin$() Cow→$(thing)Ravager$()$(br)Guardian→$(thing)Elder Guardian$()$(br)Piglin→$(thing)Piglin Brute$()$(br)Villager→30%%$(thing)Pillager$()、60%%$(thing)Vindicator$()、10%%$(thing)Evoker$()$(br)Allay→$(thing)Vex$()$(br)Bat→$(thing)Phantom$()$(br)Horse→10%%$(thing)Zombie Horse$()、90%%$(thing)Skeleton Horse$()$(br)Silverfish→$(thing)Endermite$()$(br)Skeleton→20%%$(thing)Wither Skeleton$()、80%%$(thing)Stray$() $(br)villager's Iron Golem→$(thing)Warden()",
     {
       "type": "patchouli:multiblock",
       "anchor": "time_warp",

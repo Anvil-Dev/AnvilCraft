@@ -5,28 +5,37 @@
   "sortnum": 17003,
   "entry_color": "004400",
   "pages": [
-    "$(thing)可加热方块$()是一系列方块的统称，每种方块有若干温度等级。$(br2)可加热方块有持续时间。当持续时间归零，则温度等级-1。若-1后仍为高温方块，则将持续时间设为10秒。$(br2)挖掘方块时不保留持续时间。如果工具没有$(item)精准采集/熔炼$()附魔，则温度等级-1",
+    "$(thing)可加热方块$()有若干温度等级，随时间自动降温 $(br2)$(thing)可加热方块$()可通过外部加热升温并维持高温状态",
     {
       "type": "patchouli:text",
-      "title": "可加热方块",
-      "text": "可加热方块的$(thing)持续时间$()存在上限，为$(thing)20分钟$()。$(br2)比较器会检测持续时间，输出红石信号。"
+      "title": "温度等级",
+      "text": "$(li)反映了方块的温度 $(li)$(item)钨块$()、$(item)下界合金块$()具有5个温度等级：$(thing)普通$()、$(thing)高温$()、$(thing)红热$()、$(thing)炽热$()、$(thing)白炽$() "
     },
     {
-      "type": "patchouli:spotlight",
-      "item": ["anvilcraft:tungsten_block","minecraft:netherite_block"],
-      "title": "常规可加热方块",
-      "text": "$(item)钨块$()、$(item)下界合金块$()属于此类。$(br2)具有5个温度等级：$(thing)普通$()、$(thing)高温$()、$(thing)红热$()、$(thing)炽热$()、$(thing)白炽$()。$(br2)可以被后文所有加热方式加热。"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": ["anvilcraft:redhot_tungsten_block","anvilcraft:glowing_netherite_block","anvilcraft:incandescent_tungsten_block"],
-      "title": "*特性",
-      "text": "不是$(thing)普通$()等级的可加热方块称为$(thing)高温方块$()，可以为$(l:power/heat_collection#unchanged_block)集热器$()提供给热量以发电。$(br2)$(thing)红热$()、$(thing)炽热$()、$(thing)白炽$()等级的方块会烫伤踩在上面的生物，分别造成1, 2, 4点伤害。 $(br2)$(thing)红热$()、$(thing)炽热$()、$(thing)白炽$()等级的方块接触水一段时间后，和海绵类似，蒸发距离4, 6, 8以内的水。"
+      "type": "patchouli:text",
+      "title": "持续时间",
+      "text": "$(li)若$(thing)持续时间$()随时间自动归零，则使温度等级降低一级，持续时间重置为10s $(li)外部加热使$(thing)持续时间$()增加 $(li)$(thing)持续时间$()存在上限($(thing)20分钟$())$(li)比较器可以检测持续时间，输出红石信号 "
     },
     {
       "type": "patchouli:text",
       "title": "加热",
-      "text": "不同的方式具有不同的$(thing)加热能力$()，即最终将方块加热至不同的温度等级。加热时：$(li)当可加热方块的温度$(thing)低于$()加热能力，立刻抬升至相对应的温度等级$(li)当可加热方块的温度$(thing)高于$()加热能力，则不受影响。$(li)若温度等级与加热能力相$(thing)匹配$()，则可加热方块的持续时间会被增加。"
+      "text": "不同的加热方式具有不同的$(thing)加热能力$()(决定最终将方块加热哪个温度等级) $(br)加热时：$(li)当温度等级$(thing)低于$()加热能力，立刻抬升至相对应的温度等级$(li)当温度等级$(thing)高于$()加热能力，则不受影响。$(li)若温度等级与加热能力相$(thing)匹配$()，则可加热方块的持续时间会被增加。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "破坏与放置",
+      "text": "$(li)挖掘方块时，如果工具没有$(item)精准采集/熔炼$()附魔，则温度等级降低一级 $(li)放置方块时，温度等级降低一级"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": ["anvilcraft:redhot_tungsten_block","anvilcraft:glowing_netherite_block","anvilcraft:incandescent_tungsten_block"],
+      "title": "高温方块",
+      "text": "不是$(thing)普通$()等级的可加热方块称为$(thing)高温方块$()，可以为$(l:power/heat_collection#unchanged_block)集热器$()提供给热量以发电。$(br2)$(thing)红热$()、$(thing)炽热$()、$(thing)白炽$()等级的方块会烫伤踩在上面的生物，分别造成1, 2, 4点伤害。 $(br2)$(thing)红热$()、$(thing)炽热$()、$(thing)白炽$()等级的方块接触水一段时间后，和海绵类似，蒸发距离4, 6, 8以内的水。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "加热方式",
+      "text": "后文将依次介绍现阶段的加热方式： $(li)加热器 $(li)矿物涌泉 $(li)定日镜 $(li)激光 $(li)等离子喷流(消耗原油)"
     },
     {
       "type": "patchouli:spotlight",
@@ -57,7 +66,7 @@
       "type": "patchouli:text",
       "anchor": "plasma_jets",
       "title": "等离子喷流",
-      "text": "当$(l:apply/oil)燃烧的炼药锅$()底部有工作中的$(item)加热器$()、正上方宽度1x1，高度8格以内都没有方块时，生成一个$(item)等离子喷流$()。$(br2)该方块水平相邻四面都有方块时（被当做管壁），自身抬升一格，最高抬升四次。$(br2)在喷流中的实体会受到等同于熔岩中4倍的火焰类型伤害。"
+      "text": "当$(l:apply/oil)燃烧的炼药锅$()底部有工作中的$(item)加热器$()、正上方宽度1x1，高度$(thing)8$()格以内都没有方块时，生成一个$(item)等离子喷流$()。$(br2)该方块水平相邻四面都有方块时（被当做管壁），自身抬升一格，最高抬升四次。$(br2)在喷流中的实体会受到等同于熔岩中4倍的火焰类型伤害。"
     },
     {
       "type": "patchouli:multiblock",

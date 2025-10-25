@@ -151,7 +151,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             Block block = this.level().getBlockState(this.blockPosition()).getBlock();
             if (REPAIR_EFFICIENCY.containsKey(block)) {
                 this.getItem().setDamageValue(this.getItem().getDamageValue() - REPAIR_EFFICIENCY.get(block));
-                TriggerUtil.fireReforge(this.level(), this.anvilcraft$blockPos);
+                if (this.anvilcraft$blockPos != null) {
+                    TriggerUtil.fireReforge(this.level(), this.anvilcraft$blockPos);
+                }
             }
         }
     }

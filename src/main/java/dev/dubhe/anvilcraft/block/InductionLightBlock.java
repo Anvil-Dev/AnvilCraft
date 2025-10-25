@@ -44,7 +44,6 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -52,7 +51,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class InductionLightBlock extends BetterBaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
-
     public static final VoxelShape SHAPE_X = Block.box(0, 6, 6, 16, 10, 10);
     public static final VoxelShape SHAPE_Y = Block.box(6, 0, 6, 10, 16, 10);
     public static final VoxelShape SHAPE_Z = Block.box(6, 6, 0, 10, 10, 16);
@@ -63,9 +61,11 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final EnumProperty<LightColor> COLOR = EnumProperty.create("color", LightColor.class);
 
-    /**
-     *
-     */
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(InductionLightBlock::new);
+    }
+
     public InductionLightBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -77,25 +77,20 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
             .setValue(COLOR, LightColor.PRIMARY));
     }
 
-    public static boolean isLit(@NotNull BlockState state) {
+    public static boolean isLit(BlockState state) {
         return !(state.getValue(POWERED) || state.getValue(OVERLOAD));
     }
 
-    public static boolean canCropGrow(@NotNull BlockState state) {
+    public static boolean canCropGrow(BlockState state) {
         return state.getValue(COLOR).equals(LightColor.PINK);
     }
 
-    public static boolean canBlockMobSummoning(@NotNull BlockState state) {
+    public static boolean canBlockMobSummoning(BlockState state) {
         return state.getValue(COLOR).equals(LightColor.YELLOW);
     }
 
-    public static boolean canBlockAnimalSummoning(@NotNull BlockState state) {
+    public static boolean canBlockAnimalSummoning(BlockState state) {
         return state.getValue(COLOR).equals(LightColor.DARK);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(InductionLightBlock::new);
     }
 
     @Override
@@ -104,13 +99,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-
-    public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context
-    ) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(AXIS)) {
             case Y -> SHAPE_Y;
             case Z -> SHAPE_Z;
@@ -196,10 +185,9 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         return InteractionResult.SUCCESS;
     }
 
-    @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> type) {
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) {
             return null;
         }

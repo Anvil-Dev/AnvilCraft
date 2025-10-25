@@ -5,7 +5,7 @@
   "sortnum": 16004,
   "entry_color": "004400",
   "pages": [
-    "本模组的原油不会天然生成，而是使用特殊方法制作。原油$(br)为关键材料——$(item)余烬金属$()的合成所必需。$(br)此外，还可用于参与热能发电。",
+    "本模组的原油不会天然生成，而是使用特殊方法制作 $(br)$(li)原油可用于制作$(item)余烬金属$() $(li)还可用于发电 ",
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:oil_bucket",
@@ -17,7 +17,7 @@
       "type": "patchouli:spotlight",
       "item": "minecraft:flint_and_steel",
       "title": "引燃装有原油的锅",
-      "text": "装有原油的锅可变为$(item)燃烧的炼药锅$()，方法如下：$(br)丢入$(item)火把/营火/烈焰粉$()（会消耗）$(br)使用$(item)打火石/火焰弹/火矢$()$(br)投入$(thing)高温$()及以上等级的$(l:advanced/heated_block)可加热方块$()（不消耗）"
+      "text": "装有原油的锅可变为$(item)燃烧的炼药锅$()，方法如下：$(li)投入$(item)火把/营火/烈焰粉$()(会消耗) $(li)使用$(item)打火石/火焰弹/火矢$() $(li)投入$(thing)高温$()及以上等级的$(l:advanced/heated_block)可加热方块$()(不消耗)"
     },
     {
       "type": "patchouli:spotlight",

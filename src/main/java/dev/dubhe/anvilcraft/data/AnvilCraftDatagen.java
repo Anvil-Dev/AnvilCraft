@@ -30,7 +30,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -75,19 +74,19 @@ public class AnvilCraftDatagen {
         REGISTRATE.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
     }
 
-    public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {
         return RegistrateRecipeProvider.has(itemLike);
     }
 
-    public static @NotNull Criterion<InventoryChangeTrigger.TriggerInstance> has(TagKey<Item> tag) {
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(TagKey<Item> tag) {
         return RegistrateRecipeProvider.has(tag);
     }
 
-    public static @NotNull String hasItem(@NotNull TagKey<Item> item) {
+    public static String hasItem(TagKey<Item> item) {
         return "has_" + item.location().getPath();
     }
 
-    public static @NotNull String hasItem(@NotNull ItemLike item) {
+    public static String hasItem(ItemLike item) {
         return "has_" + BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
     }
 }

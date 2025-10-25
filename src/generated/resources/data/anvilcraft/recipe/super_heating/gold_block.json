@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "items": "minecraft:raw_gold_block"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:gold_block"
+    }
+  ]
+}

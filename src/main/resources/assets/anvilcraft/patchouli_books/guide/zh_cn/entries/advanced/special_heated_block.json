@@ -17,7 +17,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:overheated_ember_metal_block",
-      "text": "$(item)超温的余烬金属块$()非常不稳定，往往只能维持一小段时间。且在冷却后，有$(thing)5%$()的概率变为$(item)下界合金块$()。$(br)$(li)可以为$(l:power/heat_collection)集热器$()提供1024kW能量。$(li)烫伤踩在上面的生物，造成8点伤害。 $(li)接触水一段时间后，和海绵类似，蒸发距离10以内的水。"
+      "text": "$(item)超温的余烬金属块$()非常不稳定，往往只能维持一小段时间。且在冷却后，有$(thing)5%%$()的概率变为$(item)下界合金块$()。$(br)$(li)可以为$(l:power/heat_collection)集热器$()提供1024kW能量。$(li)烫伤踩在上面的生物，造成8点伤害。 $(li)接触水一段时间后，和海绵类似，蒸发距离10以内的水。"
     },
     {
       "type": "anvilcraft:anvil_collision",

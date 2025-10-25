@@ -4,7 +4,7 @@
   "icon": "minecraft:stone",
   "sortnum": 1001,
   "pages": [
-    "Let $(item)anvil$() fall on the block to process the block. The flowing pages of this entry will introduce relevant content in sequence: $(br)$(l:basic/block_processing#crush)Crush$()$(br)$(l:basic/block_processing#press)Press$()$(br)$(l:basic/block_processing#daub)Daub$()$(br)$(l:basic/block_processing#squeeze)Squeeze$()$(br)$(l:basic/block_processing#break)Break$()$(br)Before that, understanding how magnets help anvil machining will make it easier for you to get started.",
+    "Let $(item)anvil$() fall on the block to process the block. The flowing pages of this entry will introduce relevant content in sequence: $(br)$(l:basic/block_processing#crush)Crush$()$(br)$(l:basic/block_processing#press)Press$()$(br)$(l:basic/block_processing#daub)Daub$()$(br)$(l:basic/block_processing#squeeze)Squeeze$()$(br)$(l:basic/block_processing#break)Break$()$(br)Before that, understanding how magnets help anvil machining will make it easier for you to get started. $(p)$(#880000)Caution$(): Anvils have a chance to sustain damage when falling from heights of 2 meters or greater.",
     {
       "type": "patchouli:multiblock",
       "name": "Magnets Control Anvils",

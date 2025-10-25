@@ -42,7 +42,7 @@
       "type": "patchouli:stonecutting",
       "recipe": "anvilcraft:stonecutting/power_converter_middle",
       "recipe2": "anvilcraft:stonecutting/power_converter_small_from_big",
-      "text": "The $(item)Power Converter$()'s power consumption is 1KW, 3KW or 9KW respectively accroding to the size. It can provide FE/RF/AE energy to the block it is attached to. Each KW of power produces 80FE/t, but there is a 10% loss. $(br)$(#666666)It is unidirectional and cannot convert other energies into the energy of this mod$()"
+      "text": "The $(item)Power Converter$()'s power consumption is 1KW, 6KW or 36KW respectively accroding to the size. It can provide FE/RF/AE energy to the block it is attached to. Each KW of power produces 80FE/t, but there is a 10%% loss. $(br)$(#666666)It is unidirectional and cannot convert other energies into the energy of this mod$()"
     },
     {
       "type": "patchouli:crafting",

@@ -51,7 +51,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         ItemStack repairToolItem = this.menu.getSlot(0).getItem();
         ItemStack repairItem = this.menu.getSlot(1).getItem();
         ItemStack resultItem = this.menu.getSlot(3).getItem();
-        List<Map.Entry<Item, Pair<Integer, Item>>> recipes =
+        List<Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry>> recipes =
             new ArrayList<>(RoyalGrindstoneMenu.REPAIR_COST_RECIPES.entrySet());
 
         ItemStack displayRepair = ItemStack.EMPTY;
@@ -61,21 +61,21 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
                 displayRepair = RoyalGrindstoneMenu.DEFAULT_REPAIR_MATERIAL.getDefaultInstance();
                 displayResult = RoyalGrindstoneMenu.REPAIR_COST_RECIPES
                     .get(RoyalGrindstoneMenu.DEFAULT_REPAIR_MATERIAL)
-                    .getSecond().getDefaultInstance();
+                    .item().getDefaultInstance();
             } else if (repairToolItem.isEmpty()) {
                 var entry = recipes.get(recipeIndex);
                 displayRepair = entry.getKey().getDefaultInstance();
-                displayResult = entry.getValue().getSecond().getDefaultInstance();
+                displayResult = entry.getValue().item().getDefaultInstance();
             } else {
                 var entry = getCurrentRecipe(recipes, this.menu.totalRepairCost);
                 displayRepair = entry.getKey().getDefaultInstance();
-                displayResult = entry.getValue().getSecond().getDefaultInstance();
+                displayResult = entry.getValue().item().getDefaultInstance();
             }
         } else if (resultItem.isEmpty()) {
-            displayResult = RoyalGrindstoneMenu.REPAIR_COST_RECIPES.get(repairItem.getItem()).getSecond().getDefaultInstance();
+            displayResult = RoyalGrindstoneMenu.REPAIR_COST_RECIPES.get(repairItem.getItem()).item().getDefaultInstance();
         } else if (repairItem.isEmpty()) {
             Item repair = RoyalGrindstoneMenu.REPAIR_COST_RECIPES.entrySet().stream()
-                .filter(e -> e.getValue().getSecond() == resultItem.getItem())
+                .filter(e -> e.getValue().item() == resultItem.getItem())
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElse(RoyalGrindstoneMenu.DEFAULT_REPAIR_MATERIAL);
@@ -92,13 +92,13 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         g.fill(RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
     }
 
-    private Map.Entry<Item, Pair<Integer, Item>> getCurrentRecipe(List<Map.Entry<Item, Pair<Integer, Item>>> recipes, int repairCost) {
-        recipes.sort(Comparator.comparingInt(entry -> entry.getValue().getFirst()));
+    private Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry> getCurrentRecipe(List<Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry>> recipes, int repairCost) {
+        recipes.sort(Comparator.comparingInt(entry -> entry.getValue().count()));
         recipeIndex = recipeIndex % recipes.size();
         int checked = 0;
         while (checked < recipes.size()) {
-            Map.Entry<Item, Pair<Integer, Item>> candidate = recipes.get(recipeIndex);
-            int requiredCost = candidate.getValue().getFirst();
+            Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry> candidate = recipes.get(recipeIndex);
+            int requiredCost = candidate.getValue().count();
             if (requiredCost <= repairCost) return candidate;
             recipeIndex = (recipeIndex + 1) % recipes.size();
             checked++;

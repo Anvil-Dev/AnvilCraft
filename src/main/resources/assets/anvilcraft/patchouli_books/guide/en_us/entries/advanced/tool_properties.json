@@ -34,7 +34,7 @@
       "type": "patchouli:text",
       "title": "强运",
       "anchor": "providence",
-      "text": "默认在$(l:smithing/tier_3_materials#transcendence_tools)超限系列工具$(/l)上拥有。$(br)拥有此属性的工具将会有概率多次触发特定附魔。$(br)目前支持的特定附魔有：$(thing)时运$()、$(thing)抢夺$()、$(thing)斩首$()、$(thing)荆棘$()和$(thing)海之眷顾$()。$(br)每次有20%的概率可以再触发一次，5%的概率可以再触发两次。按照总触发次数就是75%触发一次+20%触发两次+5%触发三次。"
+      "text": "默认在$(l:smithing/tier_3_materials#transcendence_tools)超限系列工具$(/l)上拥有。$(br)拥有此属性的工具将会有概率多次触发特定附魔。$(br)目前支持的特定附魔有：$(thing)时运$()、$(thing)抢夺$()、$(thing)斩首$()、$(thing)荆棘$()和$(thing)海之眷顾$()。$(br)每次有20%%的概率可以再触发一次，5%%的概率可以再触发两次。按照总触发次数就是75%%触发一次+20%%触发两次+5%%触发三次。"
     }
   ]
 }

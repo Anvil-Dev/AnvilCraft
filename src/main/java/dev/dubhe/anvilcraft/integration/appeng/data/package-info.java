@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.dubhe.anvilcraft.mixin.forge;
+package dev.dubhe.anvilcraft.integration.appeng.data;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

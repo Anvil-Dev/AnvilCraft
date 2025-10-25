@@ -20,7 +20,7 @@
     {
       "type": "patchouli:text",
       "title": "龙杖挖掘",
-      "text": "The devouring of dragon rods is similar to the Block Devourer. When devouring the base blocks of worlds (like $(item)Stone$(), $(item)Netherrack$(), $(item)End Stone$()), there is a 5% chance to drop. But it cannot chain devour the fallible blocks. $(br)There will be a cooldown after mining; the default is 1 second. The length of the cooldown is only affected by $(thing)Haste$() and $(thing)Mining Fatigue$() effects. Haste will reduce 0.2 second, and Mining Fatigue will increase 1 second."
+      "text": "The devouring of dragon rods is similar to the Block Devourer. When devouring the base blocks of worlds (like $(item)Stone$(), $(item)Netherrack$(), $(item)End Stone$()), there is a 5%% chance to drop. But it cannot chain devour the fallible blocks. $(br)There will be a cooldown after mining; the default is 1 second. The length of the cooldown is only affected by $(thing)Haste$() and $(thing)Mining Fatigue$() effects. Haste will reduce 0.2 second, and Mining Fatigue will increase 1 second."
     },
     {
       "type": "patchouli:text",

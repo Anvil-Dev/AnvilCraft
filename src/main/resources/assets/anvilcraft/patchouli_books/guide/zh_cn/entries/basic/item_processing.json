@@ -72,7 +72,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)可以回收工具、武器和盔甲并分解出原料，远多于熔炼得到的。$(li)完成这些配方：骷髅头颅→64骨粉；苦力怕的头→64火药。$(li)批量处理$(l:basic/block_processing#crush)方块粉碎$()操作，但是存在$(thing)20%$()的损耗。"
+      "text": "$(li)可以回收工具、武器和盔甲并分解出原料，远多于熔炼得到的。$(li)完成这些配方：骷髅头颅→64骨粉；苦力怕的头→64火药。$(li)批量处理$(l:basic/block_processing#crush)方块粉碎$()操作，但是存在$(thing)20%%$()的损耗。"
     },
     {
       "type": "patchouli:multiblock",

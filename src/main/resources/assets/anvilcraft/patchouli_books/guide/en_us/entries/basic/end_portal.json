@@ -16,7 +16,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:spectral_anvil",
-      "text": "铁砧落入末地门有概率变成$(item)幻灵铁砧$():$(li)损坏的铁砧：1%$(li)开裂的铁砧：2%$(li)铁砧：3%$(li)皇家铁砧：50%$(li)余烬铁砧：100%$(li)超限铁砧：100%"
+      "text": "铁砧落入末地门有概率变成$(item)幻灵铁砧$():$(li)损坏的铁砧：1%%$(li)开裂的铁砧：2%%$(li)铁砧：3%$(li)皇家铁砧：50%%$(li)余烬铁砧：100%%$(li)超限铁砧：100%%"
     },
     {
       "type": "patchouli:spotlight",

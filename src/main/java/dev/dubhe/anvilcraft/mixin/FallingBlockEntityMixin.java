@@ -1,7 +1,8 @@
-package dev.dubhe.anvilcraft.mixin.forge;
+package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.injection.entity.IFallingBlockEntityExtension;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
@@ -28,9 +29,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.function.Predicate;
 
-@SuppressWarnings("resource")
 @Mixin(FallingBlockEntity.class)
-abstract class FallingBlockEntityMixin extends Entity {
+abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEntityExtension {
     @Unique
     private static final float DAMAGE_FACTOR = 40 / 1.7444f;
 
@@ -60,6 +60,11 @@ abstract class FallingBlockEntityMixin extends Entity {
         if (this.level().isClientSide()) return;
         if (this.onGround()) return;
         this.anvilcraft$fallDistance = this.fallDistance;
+    }
+
+    @Override
+    public float anvilcraft$getFallDistance() {
+        return this.anvilcraft$fallDistance;
     }
 
     @SuppressWarnings("UnreachableCode")

@@ -108,5 +108,46 @@ public class SuperHeatingRecipeLoader {
             .produce(1000)
             .requires(ModItemTags.GEM_BLOCKS)
             .save(provider, AnvilCraft.of("super_heating/melt_gem_cauldron"));
+
+        SuperHeatingRecipe.builder()
+            .requires(Items.RAW_COPPER_BLOCK)
+            .result(Items.COPPER_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(Items.RAW_IRON_BLOCK)
+            .result(Items.IRON_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(Items.RAW_GOLD_BLOCK)
+            .result(Items.GOLD_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_LEAD)
+            .result(ModBlocks.LEAD_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_URANIUM)
+            .result(ModBlocks.URANIUM_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TITANIUM)
+            .result(ModBlocks.TITANIUM_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_SILVER)
+            .result(ModBlocks.SILVER_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_ZINC)
+            .result(ModBlocks.ZINC_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TIN)
+            .result(ModBlocks.TIN_BLOCK, 2)
+            .save(provider);
+        SuperHeatingRecipe.builder()
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN)
+            .result(ModBlocks.TUNGSTEN_BLOCK, 2)
+            .save(provider);
     }
 }

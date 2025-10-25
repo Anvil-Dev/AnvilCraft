@@ -4,7 +4,7 @@
   "icon": "minecraft:stone",
   "sortnum": 1001,
   "pages": [
-    "让$(item)铁砧$()落在不同的方块上可以触发不同的效果，本条目的后续页面将会依次介绍：$(br)$(l:basic/block_processing#crush)单方块处理：粉碎$()$(br)$(l:basic/block_processing#press)双方块处理：压合$()$(br)$(l:basic/block_processing#daub)双方块处理：涂抹$()$(br)$(l:basic/block_processing#squeeze)方块+炼药锅：压榨$()$(br)$(l:basic/block_processing#break)方块+切石机：破坏$()$(br)在此之前，了解磁铁对铁砧加工的帮助会让你更方便地上手。",
+    "让$(item)铁砧$()落在不同的方块上可以触发不同的效果，本条目的后续页面将会依次介绍：$(br)$(l:basic/block_processing#crush)单方块处理：粉碎$()$(br)$(l:basic/block_processing#press)双方块处理：压合$()$(br)$(l:basic/block_processing#daub)双方块处理：涂抹$()$(br)$(l:basic/block_processing#squeeze)方块+炼药锅：压榨$()$(br)$(l:basic/block_processing#break)方块+切石机：破坏$()$(br)在此之前，了解磁铁对铁砧加工的帮助会让你更方便地上手。 $(p)$(#880000)注意$()：铁砧的砸落高度不低于2m时概率损坏。",
     {
       "type": "patchouli:multiblock",
       "name": "使用磁铁升降铁砧",

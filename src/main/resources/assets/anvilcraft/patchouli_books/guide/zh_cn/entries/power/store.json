@@ -13,7 +13,7 @@
       "type": "anvilcraft:item_compress",
       "anchor": "supercapacitor",
       "recipe": "anvilcraft:item_compress/supercapacitor_empty",
-      "text": "使用含苦力怕的$(l:basic/material#resin_block)树脂块$(/l)合成 $(p)$(#666666)如果是闪电苦力怕，则合成出满能量的超级电容器，但有50%概率在合成时爆炸$()"
+      "text": "使用含苦力怕的$(l:basic/material#resin_block)树脂块$(/l)合成 $(p)$(#666666)如果是闪电苦力怕，则合成出满能量的超级电容器，但有50%%概率在合成时爆炸$()"
     },
     {
       "type": "patchouli:spotlight",

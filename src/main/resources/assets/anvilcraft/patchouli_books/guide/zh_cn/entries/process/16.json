@@ -10,7 +10,8 @@
       "type": "patchouli:relations",
       "entries": [
         "anvilcraft:smithing/tier_2_materials",
-        "anvilcraft:smithing/tier_3_forge"
+        "anvilcraft:smithing/tier_3_forge",
+        "anvilcraft:advanced/template_dissociation"
       ],
       "text": ""
     }

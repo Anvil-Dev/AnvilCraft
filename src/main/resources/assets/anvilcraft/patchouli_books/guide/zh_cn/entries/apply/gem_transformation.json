@@ -13,13 +13,13 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "尽管可以通过$(thing)粉碎$()$(l:geode)晶洞$()获取少量宝石。但要获得大量的宝石，就需要进行$(thing)宝石转化$()，将与$(thing)村民交易$()就能简单获得的绿宝石转化为其他宝石。",
-      "title":"自动宝石转化"
+      "text": "尽管可以通过$(thing)粉碎$()$(l:geode)晶洞$()获取少量宝石。但要获得大量的宝石，就需要进行$(thing)宝石转化$()，将易于获取的绿宝石转化为其他宝石。 $(p)绿宝石可以通过村民交易或制造掠夺者$(l:apply/spawner)刷怪笼$(/l)获得",
+      "title": "自动宝石转化"
     },
     {
-      "type": "patchouli:spotlight",
-      "item": "anvilcraft:melt_gem_bucket",
-      "text": "将一块$(item)绿宝石块$()(四种宝石都可以，但绿宝石最廉价)丢在$(item)加热器$()上的锅中使用铁砧加工，它会被融化为一锅$(item)熔融宝石$()。"
+      "type": "anvilcraft:super_heating",
+      "recipe": "anvilcraft:super_heating/melt_gem_cauldron",
+      "text": "将$(item)绿宝石块$()高温加热以融化为一锅$(item)熔融宝石$()。"
     },
     {
       "type": "patchouli:text",
@@ -27,15 +27,15 @@
       "text": "$(li)熔融宝石流动部分与水接触时随机变为【闪长岩、安山岩、花岗岩】中的一种$(li)熔融宝石源头与水接触时变为陶瓦$(li)熔融宝石流体落到水上时，水变为石头"
     },
     {
-      "type": "patchouli:spotlight",
-      "title": "宝石转化",
-      "item": ["anvilcraft:topaz_block","anvilcraft:ruby_block","anvilcraft:sapphire_block"],
-      "text": "将锅下的$(item)加热器$()换成激活的$(item)腐化信标$()，或者将$(item)熔融宝石$()舀入另一口下有激活的$(item)腐化信标$()的锅。$(br)再丢入一颗$(thing)任意宝石$()，进行$(thing)时移$()加工，宝石会消耗锅中的$(item)熔融宝石$()，生长为完整的$(thing)宝石块$()。"
+      "type": "anvilcraft:time_warp",
+      "title": "宝石块",
+      "recipe": "anvilcraft:time_warp/ruby_block",
+      "text": "将锅下的$(item)加热器$()换成激活的$(item)腐化信标$()，或者将$(item)熔融宝石$()舀入另一口下有激活的$(item)腐化信标$()的锅。$(br)1颗$(thing)宝石$()加上1锅熔融宝石，可以被$(thing)时移$()为1块$(thing)宝石块$()。"
     },
     {
       "type": "patchouli:text",
       "text": "人工宝石转化过于复杂。可以搭建机器自动化完成。除了自己设计外，可以参考手册自带的$(l:machine/automation#gem_machine)宝石转化机$()",
-      "title":"自动宝石转化"
+      "title": "自动宝石转化"
     },
     {
       "type": "patchouli:relations",
@@ -43,7 +43,8 @@
         "anvilcraft:machine/automation",
         "anvilcraft:power/consumption",
         "anvilcraft:smithing/corrupted_beacon",
-        "anvilcraft:basic/material"
+        "anvilcraft:basic/material",
+        "anvilcraft:apply/spawner"
       ],
       "text": ""
     }

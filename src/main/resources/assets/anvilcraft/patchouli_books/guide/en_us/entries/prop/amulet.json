@@ -61,6 +61,16 @@
       "text": "受到音波尖啸攻击致命概率获得。$(p)生效时，你不会再产生振动。"
     },
     {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "title": "多合一护符",
+      "recipe": "anvilcraft:four_to_one_smithing/gem_amulet",
+      "recipe2": "anvilcraft:four_to_one_smithing/nature_amulet"      
+    },
+    {
+      "type":"patchouli:text",
+      "text":"通过多合一锻造可以将多个护符合并为一个护符，同时具有配方中护符的效果，但同时在护符盒中占用的空间也变为了3*3。$(p)这意味着，你不能在护符盒中装载更多护符。"
+    },
+    {
       "type": "patchouli:relations",
       "entries": [
         "anvilcraft:smithing/jewelcrafting_table"

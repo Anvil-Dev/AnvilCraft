@@ -4,6 +4,20 @@
     "translate": "enchantment.anvilcraft.harvest"
   },
   "effects": {
+    "anvilcraft:post_break_block": [
+      {
+        "effect": {
+          "type": "anvilcraft:weeding",
+          "range": 5
+        },
+        "requirements": {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "#minecraft:hoes"
+          }
+        }
+      }
+    ],
     "anvilcraft:use_on_block": [
       {
         "effect": {

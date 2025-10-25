@@ -72,7 +72,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Some equipment can be recycled by it. Chains, gold, iron and diamond tools, weapons and armors can be broken down into much more materials than they are smelted.It can also complete these recipes: Skeleton Skull→64*Bone Meal; Creeper Head→64*Gunpowder。 $(li)Batch processing $(l:basic/block_processing#crush)Block Crushing$() operation, but there is a $(thing)20%$() loss."
+      "text": "Some equipment can be recycled by it. Chains, gold, iron and diamond tools, weapons and armors can be broken down into much more materials than they are smelted.It can also complete these recipes: Skeleton Skull→64*Bone Meal; Creeper Head→64*Gunpowder。 $(li)Batch processing $(l:basic/block_processing#crush)Block Crushing$() operation, but there is a $(thing)20%%$() loss."
     },
     {
       "type": "patchouli:multiblock",

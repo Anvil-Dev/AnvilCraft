@@ -15,7 +15,7 @@
       "type": "patchouli:crafting",
       "anchor": "sugar_block",
       "recipe": "anvilcraft:sugar_block",
-      "text": "$(li)木镐可挖掘 $(li)被$(thing)铁砧砸击$()时，始终产生1个$(l:power/basic_generation)电荷$() $(li)被砸时有5%概率碎裂一次，4次以后碎为9个糖，而非通常挖掘掉落的自身"
+      "text": "$(li)木镐可挖掘 $(li)被$(thing)铁砧砸击$()时，始终产生1个$(l:power/basic_generation)电荷$(/l) $(li)被砸时有5%%概率碎裂一次，4次以后碎为9个糖，而非通常挖掘掉落的自身"
     },
     {
       "type": "patchouli:crafting",

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.mixin.forge;
+package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.event.LightningBoltStrikeEvent;
 import dev.dubhe.anvilcraft.util.Util;

@@ -16,15 +16,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Setter
 @Getter
 public class InductionLightBlockEntity extends BlockEntity implements IPowerConsumer {
     public final Lazy<AABB> blockingArea = new Lazy<>(() -> AabbUtil.centerSectionTo3x3x3(this.getBlockPos()));
-
     private PowerGrid grid;
-
     private int rangeSize = 5;
 
     public InductionLightBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -39,16 +37,19 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
         return new InductionLightBlockEntity(type, pos, blockState);
     }
 
-    /**
-     *
-     */
     public void tick(Level level1) {
         flushState(level1, getBlockPos());
         LightColor color = getBlockState().getValue(InductionLightBlock.COLOR);
         if (color == LightColor.PINK && InductionLightBlock.isLit(this.getBlockState())) {
             RipeningManager.from(level1).doRipen(getBlockPos());
-        } else if (color == LightColor.YELLOW || color == LightColor.DARK) {
-            SpawningManager.addLightBlock(getBlockPos(), level);
+        } else if (color == LightColor.YELLOW) {
+            if (level != null) {
+                SpawningManager.addLightBlock(getBlockPos(), level, false);
+            }
+        } else if (color == LightColor.DARK) {
+            if (level != null) {
+                SpawningManager.addLightBlock(getBlockPos(), level, true);
+            }
         }
     }
 
@@ -61,12 +62,17 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
+    @Nullable
     public Level getCurrentLevel() {
-        return level;
+        if (level != null) {
+            return level;
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return getBlockPos();
     }
 }

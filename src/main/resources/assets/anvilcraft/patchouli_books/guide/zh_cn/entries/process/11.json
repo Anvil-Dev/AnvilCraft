@@ -5,7 +5,7 @@
   "sortnum": 11,
   "entry_color": "661100",
   "pages": [
-    "建造牧场/刷怪塔/渔场或$(l:apply/spawner)制作刷怪笼$()，获得足够的肉用以$(l:apply/oil)炼制原油$()。$(br2)通过$(l:advanced/heated_block#heliostats)太阳能$()、$(l:advanced/heated_block#laser)激光$()或$(l:advanced/heated_block#mineral_fountain)矿物涌泉$()加热下界合金块达到至少$(l:advanced/heated_block)红热$()等级，挖掘下来后可得到至少为$(thing)高温$()的下界合金块。$(br2)若工具携带精准采集附魔，则挖掘方块不会损失热量，还可使用$(l:advanced/heated_block#heater)加热器$()将方块加热至$(thing)高温$()即可。",
+    "$(li)建造牧场/刷怪塔/渔场或$(l:apply/spawner)制作刷怪笼$()，获得足够的肉用以$(l:apply/oil)炼制原油$()$(li)通过$(l:advanced/heated_block#heliostats)太阳能$()、$(l:advanced/heated_block#laser)激光$()或$(l:advanced/heated_block#mineral_fountain)矿物涌泉$()加热下界合金块达到至少$(l:advanced/heated_block)红热$()等级，挖掘下来后可得到至少为$(thing)高温$()的下界合金块 $(li)若工具携带$(thing)精准采集$()附魔，则挖掘方块不会损失热量，还可使用$(l:advanced/heated_block#heater)加热器$()将方块加热至$(thing)高温$()即可 ",
     {
       "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/ember_metal_ingot_3",

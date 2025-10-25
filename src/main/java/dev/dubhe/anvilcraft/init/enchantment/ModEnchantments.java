@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init.enchantment;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.enchantment.FellingEffect;
 import dev.dubhe.anvilcraft.enchantment.HarvestEffect;
+import dev.dubhe.anvilcraft.enchantment.WeedingEffect;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -77,6 +78,10 @@ public class ModEnchantments {
                     ItemPredicate.Builder.item()
                         .of(ItemTags.HOES)
                 )
+            ).withEffect(
+                ModEnchantmentEffectComponents.POST_BREAK_BLOCK,
+                new WeedingEffect(5),
+                MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.HOES))
             )
         );
         register(

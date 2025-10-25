@@ -59,11 +59,18 @@ public abstract class HeatableBlock extends Block {
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if (placer instanceof ServerPlayer player && player.gameMode.isCreative()) {
-            Optional.ofNullable(level.getBlockEntity(pos))
-                .filter(HeatableBlockEntity.class::isInstance)
-                .map(HeatableBlockEntity.class::cast)
-                .ifPresent(be -> be.setDuration(1200));
+        if (placer instanceof ServerPlayer player) {
+            if (player.gameMode.isCreative()) {
+                Optional.ofNullable(level.getBlockEntity(pos))
+                    .filter(HeatableBlockEntity.class::isInstance)
+                    .map(HeatableBlockEntity.class::cast)
+                    .ifPresent(be -> be.setDuration(1200));
+            } else {
+                Optional.ofNullable(level.getBlockEntity(pos))
+                    .filter(HeatableBlockEntity.class::isInstance)
+                    .map(HeatableBlockEntity.class::cast)
+                    .ifPresent(be -> be.setDuration(200));
+            }
         }
         super.setPlacedBy(level, pos, state, placer, stack);
     }

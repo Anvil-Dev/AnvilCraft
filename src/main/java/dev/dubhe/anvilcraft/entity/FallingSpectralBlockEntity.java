@@ -27,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -89,7 +90,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                 BlockPos blockPos = this.blockPosition();
                 if (this.onGround()) {
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
-                    AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, this, this.fallDistance);
+                    AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, this, this.anvilcraft$getFallDistance());
                     NeoForge.EVENT_BUS.post(event);
                     this.level().playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
                     this.discard();
@@ -242,8 +243,11 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         }
         Predicate<Entity> predicate = EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
         float f = (float) Math.min(Mth.floor((float) dist * 2), 40);
+        DamageSource damageSource = this.blockState.getBlock() instanceof Fallable fallable
+                                    ? fallable.getFallDamageSource(this)
+                                    : this.damageSources().fallingBlock(this);
         this.level().getEntities(this, this.getBoundingBox(), predicate).forEach(entity -> {
-            entity.hurt(source, f);
+            entity.hurt(damageSource, f);
             NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(this, this.getOnPos(), this.level(), entity, f));
         });
         boolean isAnvil = this.blockState.is(BlockTags.ANVIL);

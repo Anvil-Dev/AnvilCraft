@@ -8,12 +8,12 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:amethyst_pickaxe",
-      "text": "$(item)紫水晶镐$()拥有时运III，可以帮助你获得更多铁矿，但是它挖掘等级低于铁镐。"
+      "text": "$(item)紫水晶镐$()拥有时运III，可以帮助你获得更多铁矿，但是它的挖掘等级低于铁镐。"
     },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:amethyst_axe",
-      "text": "$(item)紫水晶斧$()拥有伐木I，这是本模组新增的附魔，每级可以额外破坏2个相连的原木，上限为III。"
+      "text": "$(item)紫水晶斧$()拥有伐木I，每级可以额外破坏2个相连的原木，上限为III。"
     },
     {
       "type": "patchouli:crafting",
@@ -23,12 +23,12 @@
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:amethyst_hoe",
-      "text": "$(item)紫水晶锄$()拥有收割I，这是本模组新增的附魔，右键成熟的庄稼使用收获庄稼并补种，每级可以额外收割一圈范围，上限为III。"
+      "text": "$(item)紫水晶锄$()拥有收割I，$(thing)右键$()收割庄稼或$(thing)左键$()清理一大片杂草，每级扩大一圈范围，上限为III。"
     },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:amethyst_sword",
-      "text": "$(item)紫水晶剑$()拥有斩首I，这是本模组新增的附魔，每级可以额外增加一些生物掉落头颅的概率，对于玩家和末影龙这个概率非常高，上限为III。"
+      "text": "$(item)紫水晶剑$()拥有斩首I，每级可以额外增加一些生物掉落头颅的概率，对于玩家和末影龙这个概率非常高，上限为III。"
     }
   ]
 }

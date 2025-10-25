@@ -5,10 +5,7 @@
   "sortnum": 13004,
   "entry_color": "004400",
   "pages": [
-    {
-      "type": "patchouli:text",
-      "text": "会赋予光柱内的生物$(thing)凋零$()效果，部分生物会转化为另一种生物。$(p)激活时紧贴于炼药锅下，则可以配合铁砧加工。 $(p)$(#888888)释放了被封印在信标之中的凋灵之力。$()"
-    },
+    "本章将依次介绍： $(li)$(item)腐化信标$()的制作过程 $(li)$(item)腐化信标$()的黑色光柱附带的效果 $(li)如何搭建包含$(item)腐化信标$()的结构，以进行$(thing)时移$() $(p)$(#888888)释放了被封印在信标之中的凋灵之力。$()",
     {
       "type": "patchouli:spotlight",
       "anchor": "corrupted_beacon",
@@ -16,7 +13,7 @@
       "item": "anvilcraft:corrupted_beacon",
       "text": "完全使用$(l:smithing/tier_1_materials#cursed_gold_block)诅咒金块$()作为信标底座，并使用$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$()激活信标，则信标有概率转化为$(item)腐化信标$()。底座层数越多，转化概率越大。$(br)($(thing)自动化$()：使用铁砧将诅咒金锭压入信标，概率相同) $(p)使用诅咒金锭激活信标时天气将转为雷雨天。"
     },
-    "生物转化：$(br)猪→$(thing)疣猪兽$()$(br)牛→$(thing)劫掠兽$()$(br)守卫者→$(thing)远古守卫者$()$(br)猪灵→$(thing)猪灵蛮兵$()$(br)村民→30%$(thing)掠夺者$()、60%$(thing)卫道士$()、10%$(thing)唤魔者$()$(br)悦灵→$(thing)恼鬼$()$(br)蝙蝠→$(thing)幻翼$()$(br)马→10%$(thing)僵尸马$()、90%$(thing)骷髅马$()$(br)蠹虫→$(thing)末影螨$()$(br)骷髅→20%$(thing)凋零骷髅$()、80%$(thing)流浪者$()$(br)村庄铁傀儡→$(thing)监守者$()",
+    "信标光柱会赋予生物$(thing)凋零$()效果，并将部分生物转化为另一种生物：$(br)猪→$(thing)疣猪兽$()   牛→$(thing)劫掠兽$()$(br)守卫者→$(thing)远古守卫者$()$(br)猪灵→$(thing)猪灵蛮兵$()$(br)村民→30%%$(thing)掠夺者$()、60%%$(thing)卫道士$()、10%%$(thing)唤魔者$()$(br)悦灵→$(thing)恼鬼$()$(br)蝙蝠→$(thing)幻翼$()$(br)马→10%%$(thing)僵尸马$()、90%%$(thing)骷髅马$()$(br)蠹虫→$(thing)末影螨$()$(br)骷髅→20%%$(thing)凋零骷髅$()、80%%$(thing)流浪者$()$(br)村庄铁傀儡→$(thing)监守者$()",
     {
       "type": "patchouli:multiblock",
       "anchor": "time_warp",

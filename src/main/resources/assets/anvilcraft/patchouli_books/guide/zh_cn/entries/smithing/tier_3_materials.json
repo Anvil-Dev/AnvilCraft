@@ -1,0 +1,71 @@
+{
+    "name": "三阶材料",
+    "category": "anvilcraft:smithing_system",
+    "icon": "anvilcraft:transcendium_ingot",
+    "sortnum":33008,
+    "entry_color": "660066",
+    "pages":[
+    {
+        "type":"text",
+        "text":"本页面展示了目前所有可用的$(thing)三阶材料$() $(li)$(l:smithing/tier_3_materials#multiphase_matter)多相物质$(/l) $(li)$(l:smithing/tier_3_materials#negative_matter_nugget)负物质$(/l) $(li)$(l:smithing/tier_3_materials#transcendium_ingot)超限合金$(/l)"
+    },
+    {
+      "type": "anvilcraft:anvil_collision",
+      "anchor": "multiphase_matter",
+      "recipe": "anvilcraft:anvil_collision/ember_anvil_and_frost_metal_block_32",
+      "text": "用$(l:smithing/tier_2_materials#ember_anvil)余烬砧$(/l)撞击$(l:smithing/tier_2_materials#frost_metal_block_and_nugget)浮霜金属块$(/l)获得4个$(item)多相物质$() $(p)用于在$(item)余烬锻造台$()上参与多合一锻造"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:multiphase_matter_block",
+      "text": "$(#888888)把极冷与极热的物质掺和在一起是一件令人激动的事情，然后它就这么诞生了！ ——氙氪博士$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "multiple_templates",
+      "item": "tag:anvilcraft:multiple_to_one_smithing_templates",
+      "title": "多合一锻造模板",
+      "link_recipe": true,
+      "text": "将多个互不相同的$(thing)锻造模板$()进行物品冲压加工获得，由模板数量决定获得的是几合一锻造模板。$(br2)用于在$(item)余烬锻造台$()上参与多合一锻造"
+    },
+    {
+      "type":"anvilcraft:anvil_collision",
+      "anchor":"negative_matter_nugget",
+      "recipe":"anvilcraft:anvil_collision/anvil_tier_1_and_levitation_powder_block_32",
+      "text":"用等级至少为皇家的铁砧撞击$(l:basic/minerals#levitation_powder_block)漂浮粉块$(/l)有概率获得6~8个负物质粒"
+    },
+    {
+      "type":"patchouli:crafting",
+      "anchor":"negative_matter_and_block",
+      "recipe":"anvilcraft:negative_matter",
+      "recipe2":"anvilcraft:negative_matter_block"
+    },
+    {
+      "type": "anvilcraft:item_inject",
+      "title":"超限合金块",
+      "recipe":"anvilcraft:item_inject/transcendium_block",
+      "anchor":"transcendium_ingot",
+      "text": "$(item)超限合金$()是一种奇迹般的金属。需要将$(l:smithing/tier_2_materials#neutronium_ingot)充能中子锭$()压入$(l:advanced/special_heated_block)超温$(/l)状态下的$(l:smithing/tier_2_materials#ember_metal)余烬金属块$()来获得"
+    },
+    {
+      "type":"patchouli:crafting",
+      "recipe":"anvilcraft:transcendium_ingot_from_block",
+      "text":"$(#888888)如果天空不再是极限……接下来会发生什么？$()"
+    },
+    {
+      "type":"patchouli:smithing",
+      "anchor":"transcendence_anvil",
+      "recipe":"anvilcraft:smithing/transcendence_anvil",
+      "recipe2":"anvilcraft:smithing/transcendence_anvil_hammer",
+      "text":"类似的，超限合金也能合成对应的铁砧和铁砧锤，但无法制成普通的工具。"
+    },
+    {
+      "type": "patchouli:relations",
+      "entries": [
+        "anvilcraft:struct/collision",
+        "anvilcraft:advanced/tool_properties",
+        "anvilcraft:advanced/special_heated_block"
+      ]
+    }
+    ]
+}
