@@ -45,6 +45,7 @@ neoForge {
         clientEnforceLegacyBuffers {
             client()
             systemProperty "anvilcraft.enforceLegacyBuffers", "true"
+            jvmArgument("-XX:+CreateCoredumpOnCrash")
         }
 
         server {

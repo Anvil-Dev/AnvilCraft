@@ -53,7 +53,6 @@ public class GlQuadIndexBuffer implements GlIndexBuffer {
     @SuppressWarnings("PointlessArithmeticExpression")
     @Override
     public void fillContents(int vertexCount, int indexCount) {
-        if (hasEnoughStorage(indexCount)) return;
         ensureStorage(indexCount);
         int quadCount = vertexCount / 4;
         for (int i = 0, j = 0, k = 0; i < quadCount; i++, k += 4) {
@@ -70,9 +69,7 @@ public class GlQuadIndexBuffer implements GlIndexBuffer {
 
     @Override
     public void fromSorted(int[] sortedIndex) {
-        if (!hasEnoughStorage(sortedIndex.length)) {
-            ensureStorage(sortedIndex.length);
-        }
+        ensureStorage(sortedIndex.length);
         for (int i = 0; i < sortedIndex.length; i++) {
             write(i, sortedIndex[i]);
         }

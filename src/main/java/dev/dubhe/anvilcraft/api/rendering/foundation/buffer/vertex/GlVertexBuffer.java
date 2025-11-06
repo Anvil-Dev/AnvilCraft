@@ -35,11 +35,11 @@ public class GlVertexBuffer implements Disposable {
         glBindVertexArray(0);
     }
 
-    public void upload(long ptr, int size,int vertexCount, int indexCount, Disposable uploadSrc) {
+    public void upload(long ptr, int size, int vertexCount, int indexCount, Disposable uploadSrc) {
         this.upload(ptr, size, vertexCount, indexCount, null, null, uploadSrc);
     }
 
-    public void upload(long ptr, int size, int vertexCount,int indexCount, @Nullable QuadSortingState sortingState, @Nullable Vector3f origin, Disposable uploadSrc) {
+    public void upload(long ptr, int size, int vertexCount, int indexCount, @Nullable QuadSortingState sortingState, @Nullable Vector3f origin, Disposable uploadSrc) {
         this.sortingState = sortingState;
 //        if (sortingState == null) {
 //            indexBuffer.fillContents(vertexCount);
