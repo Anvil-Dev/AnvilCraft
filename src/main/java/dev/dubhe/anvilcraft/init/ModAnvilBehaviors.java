@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.anvil.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.anvil.ResetVaultBehavior;
 import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
+import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
@@ -54,5 +55,6 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpPlayerBehavior());
         event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());
+        event.registerBehavior(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get(), new TranscendiumBehavior());
     }
 }

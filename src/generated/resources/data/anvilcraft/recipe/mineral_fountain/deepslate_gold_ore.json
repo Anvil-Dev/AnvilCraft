@@ -6,5 +6,7 @@
   "need_block": {
     "blocks": "minecraft:raw_gold_block"
   },
-  "to_block": "minecraft:deepslate_gold_ore"
+  "to_block": {
+    "block": "minecraft:deepslate_gold_ore"
+  }
 }

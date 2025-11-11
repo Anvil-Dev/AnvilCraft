@@ -92,7 +92,7 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     }
 
     @Override
-    protected void falling(FallingBlockEntity entity) {
+    public void falling(FallingBlockEntity entity) {
         entity.setHurtsEntities(2.0f, 120);
     }
 

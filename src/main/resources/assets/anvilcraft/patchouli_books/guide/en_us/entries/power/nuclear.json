@@ -3,46 +3,25 @@
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:uranium_ingot",
   "sortnum": 22010,
-  "entry_color": "661100",
-  "extra_recipe_mappings": {
-    "anvilcraft:uranium_ingot": 0,
-    "anvilcraft:uranium_block": 0
-  },
+  "entry_color": "660066",
   "pages": [
-    "本章节将会讲述：$(li)如何获得$(item)铀$()和$(item)钚$() $(li)如何借助核能产生大量的电力 $(p)$(#880000)注意$():携带18组铀/钚(块/锭/粒)会受到凋零效果",
-    {
-      "type": "anvilcraft:anvil_collision",
-      "recipe": "anvilcraft:anvil_collision/anvil_tier_1_and_redstone_block_32",
-      "text": "一次撞击平均获得8.5个$(item)铀粒$()。$(br2)可以通过$(item)矿物涌泉$()量产。"
-    },
+    "本章节将会讲述：$(li)如何借助核能产生大量的电力 $(p)$(#880000)注意$():携带18组铀/钚(块/锭/粒)会受到凋零效果",
     {
       "type": "patchouli:spotlight",
-      "item": [
-        "anvilcraft:plutonium_nugget",
-        "anvilcraft:plutonium_ingot",
-        "anvilcraft:plutonium_block"
-      ],
-      "link_recipe": true,
-      "text": "在锅中用铁砧砸击$(item)铀锭$()和$(item)中子锭$()，获得6*$(item)钚粒$()+1*$(item)中子锭$()+1*$(item)石灰粉$()。$(br2)因为过于活跃而没有粗矿形式，无法通过$(item)矿物涌泉$()量产。"
-    },
-    {
-      "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/raw_uranium_from_uranium_block",
-      "recipe2": "anvilcraft:time_warp/raw_uranium_from_plutonium_block"
-    },
-    {
-      "type": "patchouli:text",
-      "title": "被动发热",
+      "item": ["anvilcraft:plutonium_block","anvilcraft:uranium_block"],
+      "title": "放射性同位素热电机 RTG",
       "text": "铀块和钚块可以为$(l:power/heat_collection)集热器$()提供热能用以发电: $(li)$(item)铀块$():2kW $(li)$(item)钚块$():8kW"
     },
     {
-      "type": "patchouli:text",
+      "type": "patchouli:spotlight",
       "anchor": "nuclear_fission",
+      "item": "anvilcraft:corrupted_beacon",
       "title": "时移核衰变",
       "text": "$(l:smithing/corrupted_beacon#time_warp)时移$()$(item)铀块$()或$(item)钚块$()会在一瞬间爆发出通常需要数万年才能释放大量的热能。$(br2)将与锅水平相邻的方块加热为$(thing)白炽$()并持续5/10分钟，可用于热能发电"
     },
     {
-      "type": "patchouli:text",
+      "type": "patchouli:spotlight",
+      "item": "anvilcraft:overheated_ember_metal_block",
       "title": "超温发电",
       "text": "通过铁砧撞击核燃料持续加热至多16个$(l:advanced/special_heated_block)超温余烬金属块$()，用于热能发电可以生产16384kW."
     },
@@ -51,7 +30,8 @@
       "entries": [
         "anvilcraft:struct/collision",
         "anvilcraft:advanced/special_heated_block",
-        "anvilcraft:power/heat_collection"
+        "anvilcraft:power/heat_collection",
+        "anvilcraft:smithing/tier_3_materials"
       ],
       "text": ""
     }

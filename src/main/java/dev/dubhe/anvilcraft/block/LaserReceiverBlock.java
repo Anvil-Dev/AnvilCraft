@@ -114,11 +114,6 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
     }
 
     @Override
-    protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getSignal(level, pos, direction);
-    }
-
-    @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         if (state.getValue(FACING).getOpposite() != direction) {
             if (level.getBlockEntity(pos) instanceof LaserReceiverBlockEntity laserReceiverBlockEntity) {

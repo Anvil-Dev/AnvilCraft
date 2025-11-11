@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -17,9 +18,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.Objects;
 
@@ -112,6 +115,24 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
             if (railBox.intersects(entity.getBoundingBox())) {
                 if (this instanceof DetectorSlidingRailBlock detectorRail) {
                     detectorRail.onItemEntitySlidingAbove(level, pos, state);
+                }
+            }
+        }
+        if (entity instanceof LivingEntity) {
+            if (this instanceof PoweredSlidingRailBlock poweredRail) {
+                BlockState railState = level.getBlockState(pos);
+                if (railState.getValue(PoweredSlidingRailBlock.POWERED)) {
+                    Direction facing = railState.getValue(PoweredSlidingRailBlock.FACING);
+                    entity.setDeltaMovement(Vec3.ZERO.relative(facing, 0.35));
+                } else {
+                    Vec3 blockPos = pos.getCenter();
+                    Vec3 entityPos = entity.position();
+                    Vector3f acceleration = blockPos.toVector3f()
+                        .sub(entityPos.toVector3f())
+                        .mul(0.15f)
+                        .div(0.98f)
+                        .mul(new Vector3f(1, 0, 1));
+                    entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8f, 0.8f, 0.8f).add(new Vec3(acceleration)));
                 }
             }
         }

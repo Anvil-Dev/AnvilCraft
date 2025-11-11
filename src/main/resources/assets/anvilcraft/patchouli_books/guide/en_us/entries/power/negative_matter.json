@@ -3,11 +3,7 @@
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:negative_matter",
   "sortnum": 22009,
-  "entry_color": "661100",
-  "extra_recipe_mappings": {
-    "anvilcraft:negative_matter": 0,
-    "anvilcraft:negative_matter_block": 0
-  },
+  "entry_color": "660066",
   "pages": [
     "本章节将会讲述：$(li)如何借助$(l:smithing/tier_3_materials#negative_matter_nugget)负物质$(/l)产生大量的电力",
     {
@@ -24,11 +20,6 @@
       "type": "patchouli:spotlight",
       "item": "anvilcraft:void_matter_block",
       "text": "$(li)$(item)负物质块$()+铁砧[>32m/t]→8*$(item)虚空物质$()[撞击] $(p)$(#888888)正负湮灭，唯余虚无$()"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "anvilcraft:neutronium_ingot",
-      "text": "因为负物质排斥正物质的特性，中子锭无法穿过负物质块。"
     },
     {
       "type": "patchouli:relations",

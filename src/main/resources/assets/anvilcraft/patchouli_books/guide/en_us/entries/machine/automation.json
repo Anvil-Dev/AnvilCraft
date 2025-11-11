@@ -119,48 +119,51 @@
             "name": "宝石转化机 1",
 			"multiblock": {
 				"mapping": {
-					"A": "minecraft:iron_block",
-					"B": "anvilcraft:heater",
-					"C": "anvilcraft:chute[facing=east]",
-					"D": "anvilcraft:simple_chute[waterlogged=false,facing=east]",
-					"E": "anvilcraft:magnetic_chute[facing=up]",
-					"F": "anvilcraft:corrupted_beacon[lit=true]",
-					"G": "minecraft:smooth_stone",
-					"H": "anvilcraft:pulse_generator[facing=north]",
-					"I": "anvilcraft:chute[facing=south]",
-					"J": "minecraft:dropper[facing=west]",
-					"K": "minecraft:note_block",
-					"L": "minecraft:dropper[facing=east]",
+
+                    "U": "anvilcraft:melt_gem_cauldron",
+                    "B": "anvilcraft:corrupted_beacon[lit=true]",
+                    "◪": "minecraft:iron_block",
+
+                    "u": "minecraft:cauldron",
+					"H": "anvilcraft:heater",
+
+					"■": "minecraft:smooth_stone",
+                    "□": "minecraft:glass",
+
+                    "→": "anvilcraft:chute[facing=south]",
+                    "⇓": "anvilcraft:chute[facing=east]",
+                    "—": "anvilcraft:simple_chute[waterlogged=false,facing=east]",
+                    "⇑": "anvilcraft:magnetic_chute[facing=up]",
+                    "↓": "anvilcraft:magnetic_chute[facing=west]",
+                    "↑": "anvilcraft:magnetic_chute[facing=east]",
+
+                    "O": "minecraft:dropper[facing=west]",
+					"o": "minecraft:dropper[facing=east]",
+                    "Q": "minecraft:dispenser[facing=west]",
+                    "q": "minecraft:dispenser[facing=east]",
+
 					"M": "minecraft:chest[type=left,facing=east]",
 					"m": "minecraft:chest[type=right,facing=east]",
-					"N": "anvilcraft:melt_gem_cauldron",
-					"O": "minecraft:dispenser[facing=west]",
-					"P": "anvilcraft:magnetic_chute[facing=west]",
-					"Q": "minecraft:dispenser[facing=east]",
-					"R": "minecraft:cauldron",
-					"S": "anvilcraft:magnetic_chute[facing=east]",
-					"U": "minecraft:observer[facing=down]",
-					"V": "minecraft:powered_rail[waterlogged=false,shape=north_south]",
-					"W": "minecraft:anvil[facing=west]",
-					"X": "minecraft:smooth_stone_slab[waterlogged=false,type=top]",
-					"Y": "minecraft:observer[facing=up]",
-					"Z": "minecraft:redstone_wire[east=side,north=side,power=0,south=none,west=side]",
-					"a": "anvilcraft:hollow_magnet_block[waterlogged=false,lit=false]",
-					"b": "minecraft:repeater[facing=east,delay=3]",
-					"c": "minecraft:repeater[facing=west,delay=3]",
-					"d": "minecraft:repeater[facing=north,powered=true]",
-					"e": "minecraft:redstone_wire[east=side,north=none,power=15,south=side,west=side]",
-					"f": "minecraft:comparator[facing=south]",
-					"g": "minecraft:redstone_wall_torch[lit=true,facing=north]"
-				},
+
+                    "X": "anvilcraft:hollow_magnet_block[waterlogged=false,lit=true]",
+					"x": "minecraft:anvil[facing=west]",
+
+					"a": "minecraft:redstone_wire[east=side,north=none,power=0,south=none,west=side]",
+					"b": "minecraft:redstone_wire[east=side,north=none,power=15,south=none,west=side]",
+                    "c": "minecraft:redstone_wire[east=side,north=side,power=15,south=none,west=side]",
+
+                    "i": "minecraft:redstone_torch",
+					"↞": "minecraft:comparator[facing=south]",
+                    "-": "anvilcraft:pulse_generator[facing=north]"
+                },
 				"pattern": [
-					[ "       ","       ","       ","       ","       ","       ","       " ],
-					[ "    a  ","    b  ","   eZ  ","    c  ","    a  ","       ","       " ],
-					[ "    W  ","    X  ","   GY  ","    X  ","    W  ","       ","       " ],
-					[ "       ","    V  ","   UG  ","    V  ","       ","       ","       " ],
-					[ "   IN  ","gGfJO  ","edHKP  ","gGfLQ  ","   IR  ","    S  ","   Mm  " ],
-					[ "    B  ","  G C  ","GGG D  ","  G0E  ","    F  ","       ","       " ],
-					[ "AAAAAAA","AAAAAAA","AAAAAAA","AAAAAAA","AAAAAAA","AAAAAAA","AAAAAAA" ]
+					[ "      ","      ","      ","      ","      ","      ","      " ],
+					[ "   X  ","b  b  ","b ic  ","b  b  ","   X  ","      ","      " ],
+					[ "      ","■  □  ","■-■□  ","■  □  ","      ","      ","      " ],
+					[ "   x  ","i a   ","  a   ","i a   ","   x  ","      ","      " ],
+					[ "  →u  ","■↞OQ  ","  □↓  ","■↞oq  ","  →U  ","   ↑  ","  Mm  " ],
+					[ "   H  "," □ ⇓  ","   —  "," □ ⇑  ","   B  ","      ","      " ],
+					[ "      ","      ","      ","  ◪◪◪ ","  ◪◪◪ ","  ◪◪◪ ","      " ]
 				]
 			},
 			"enable_visualize":"true",
@@ -168,7 +171,7 @@
         },
 		{
             "type": "patchouli:image",
-            "text": "脉冲发生器设置$(l)$(5)循环模式$()，每间隔$(l)$(5)22gt$()输出信号$(l)$(5)2gt$()，控制机器运行。",
+            "text": "脉冲发生器设置$(l)$(5)循环模式$()，每间隔$(l)$(5)18gt$()输出信号$(l)$(5)4gt$()，控制机器运行。",
 			"title":"脉冲发生器的设置",
 			"images": ["anvilcraft:patchouli_images/5.2_3.png"]
 		},
@@ -186,7 +189,7 @@
 		},
 		{
             "type": "patchouli:text",
-            "text": "这台机器通过$(item)循环模式脉冲发生器$()控制，$(item)红石比较器$()检测要转化的宝石的数量$(l)$(5)$(n)自动$()控制机器的开关。$(br2)搭建完成后$(l)第一次开机前$()，要在$(o)腐化信标上方锅旁的发射器$()中放1桶$(item)熔融宝石$()，并在$(o)另一个发射器$()中放$(item)1个空桶$()。$(br2)$(l)使用时$()在$(o)在加热器旁的投掷器$()放入$(item)足量绿宝石块$()，然后在$(o)另一个投掷器$()中放入$(l)$(5)数量小于$()$(2)绿宝石块$()的要转化的宝石，机器将$(l)$(5)$(n)自动$()开始运行，并在加工完成后停止。",
+            "text": "这台机器通过$(item)循环模式脉冲发生器$()控制，$(item)红石比较器$()检测要转化的宝石的数量$(l)$(5)$(n)自动$()控制机器的开关。$(br2)搭建完成后$(l)第一次开机前$()，要在$(o)腐化信标上方锅旁的发射器$()中放1桶$(item)熔融宝石$()，并在$(o)另一个发射器$()中放$(item)1个空桶$()。$(br2)$(l)使用时$()在$(o)在加热器旁的投掷器$()放入$(item)绿宝石块$()，然后在$(o)另一个投掷器$()中放入$()放入$(item)要转化的宝石$()，机器将$(l)$(5)$(n)自动$()开始运行及停止。",
 			"title":"如何使用 宝石转化机 1"
 		},
 		{
@@ -239,7 +242,7 @@
 		},
 		{
             "type": "patchouli:text",
-            "text": "这台机器通过$(thing)锅的变化$()被$(item)侦测器$()探测发出的信号控制运行，并用$(l)拉杆锁定$()推拉炼药锅的$(item)粘性活塞$()作为$(l)$(5)$(n)手动$()开关。$(br2)$(n)$()l使用时$()只需要在$(l)靠近铜灯的投掷器$()中放入$(l)$(5)足量$()$(2)绿宝石块$()，并且在$(l)另一个投掷器$()中放入$(l)$(5)数量小于$()$(2)绿宝石块$()的要转化的宝石，然后拨动拉杆$(l)$(5)$(n)手动$()开关机。$(br2)顺便一提，加工中的机器和空转的机器发出的声音不同，你可以方便的从远处得知机器是否加工完毕。",
+            "text": "这台机器通过$(thing)锅的变化$()被$(item)侦测器$()探测发出的信号控制运行，并用$(l)拉杆锁定$()推拉炼药锅的$(item)粘性活塞$()作为$(l)$(5)$(n)手动$()开关。$(br2)$(n)$()l使用时$()只需要在$(l)靠近铜灯的投掷器$()中放入$(l)$(5)足量$()$(2)绿宝石块$()，并且在$(l)另一个投掷器$()中放入$(l)$(5)数量小于$()$(2)绿宝石块$()的要转化的宝石，然后拨动拉杆$(l)$(5)$(n)手动$()开关机。$(br2)注意，关机的时候铜灯应该是亮起的！",
 			"title":"如何使用 宝石转化机 2"
 		},
 		{

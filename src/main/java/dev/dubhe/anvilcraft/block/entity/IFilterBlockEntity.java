@@ -8,6 +8,8 @@ import net.minecraft.world.item.ItemStack;
  * 有过滤的方块实体
  */
 public interface IFilterBlockEntity {
+    int DEFAULT_SLOT_LIMIT = 64;
+    
     /**
      * 获取有过滤的物品存储
      *
@@ -78,5 +80,25 @@ public interface IFilterBlockEntity {
      */
     default boolean setFilter(int slot, ItemStack filter) {
         return this.getFilteredItemStackHandler().setFilter(slot, filter);
+    }
+    
+    /**
+     * 获取指定槽位的物品数量上限
+     *
+     * @param slot 槽位
+     * @return 物品数量上限
+     */
+    default int getSlotLimit(int slot) {
+        return this.getFilteredItemStackHandler().getSlotLimit(slot);
+    }
+    
+    /**
+     * 设置指定槽位的物品数量上限
+     *
+     * @param slot  槽位
+     * @param limit 物品数量上限
+     */
+    default void setSlotLimit(int slot, int limit) {
+        this.getFilteredItemStackHandler().setSlotLimit(slot, limit);
     }
 }

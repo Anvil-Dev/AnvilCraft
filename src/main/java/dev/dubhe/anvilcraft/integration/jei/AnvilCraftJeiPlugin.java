@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformWithItemCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MultipleToOneSmithingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.TranscendiumRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.VoidDecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
@@ -46,6 +47,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ColoredConcreteRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.EndPortalConversionRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
+import dev.dubhe.anvilcraft.integration.jei.recipe.TranscendiumRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.VoidDecayRecipe;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
@@ -110,6 +112,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         createRecipeType("beacon_conversion", BeaconConversionRecipe.class);
     public static final RecipeType<VoidDecayRecipe> VOID_DECAY =
         createRecipeType("void_decay", VoidDecayRecipe.class);
+    public static final RecipeType<TranscendiumRecipe> TRANSCENDIUM_RECIPE =
+        createRecipeType("transcendium", TranscendiumRecipe.class);
 
     public static final RecipeType<RecipeHolder<BlockCompressRecipe>> BLOCK_COMPRESS =
         createRecipeHolderType("block_compress");
@@ -187,6 +191,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MobTransformCategory.registerRecipes(registration);
         MobTransformWithItemCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
+        TranscendiumRecipeCategory.registerRecipes(registration);
 
         registration.addItemStackInfo(
             new ItemStack(ModItems.GEODE.get()),
@@ -243,6 +248,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MobTransformCategory.registerRecipeCatalysts(registration);
         MobTransformWithItemCategory.registerRecipeCatalysts(registration);
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
+        TranscendiumRecipeCategory.registerRecipeCatalysts(registration);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
 
@@ -288,6 +294,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MobTransformCategory(guiHelper));
         registration.addRecipeCategories(new MobTransformWithItemCategory(guiHelper));
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
+        registration.addRecipeCategories(new TranscendiumRecipeCategory(guiHelper));
     }
 
     @Override

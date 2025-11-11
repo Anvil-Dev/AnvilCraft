@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -233,7 +234,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         Direction direction = state.getValue(AdvancedComparatorBlock.FACING).getOpposite();
         BlockPos neighbourPos = pos.relative(direction);
         boolean shouldPower = blockEntity.isOutputting();
-        int inputtingSignal = blockEntity.getInputtingSignal();
+        int inputtingSignal = Mth.clamp(blockEntity.getInputtingSignal(), 0, 15);
         Mode mode = blockEntity.getCompareMode();
         level.setBlockAndUpdate(pos,
             state.setValue(AdvancedComparatorBlock.POWERED, shouldPower)

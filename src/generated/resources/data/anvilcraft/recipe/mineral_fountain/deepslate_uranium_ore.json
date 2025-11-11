@@ -6,5 +6,7 @@
   "need_block": {
     "blocks": "#c:storage_blocks/raw_uranium"
   },
-  "to_block": "anvilcraft:deepslate_uranium_ore"
+  "to_block": {
+    "block": "anvilcraft:deepslate_uranium_ore"
+  }
 }

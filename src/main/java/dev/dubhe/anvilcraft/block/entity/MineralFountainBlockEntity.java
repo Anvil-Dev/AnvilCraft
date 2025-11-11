@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -51,54 +52,55 @@ public class MineralFountainBlockEntity extends BlockEntity {
      * 矿物涌泉tick
      */
     public void tick() {
-        if (level == null) return;
-        if (tickCount > -1) tickCount--;
-        if (tickCount != 0) return;
+        if (this.level == null) return;
+        if (this.tickCount > -1) this.tickCount--;
+        if (this.tickCount != 0) return;
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
         BlockState aroundState = getAroundBlock();
-        if (level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > level.getMinBuildHeight() + 8) {
+        if (this.level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > this.level.getMinBuildHeight() + 8) {
             return;
         }
-        BlockState aboveState = level.getBlockState(getBlockPos().above());
+        BlockState aboveState = this.level.getBlockState(getBlockPos().above());
         if (aroundState.is(Blocks.LAVA)) {
             if (aboveState.is(Blocks.AIR)) {
-                level.setBlockAndUpdate(getBlockPos().above(), Blocks.LAVA.defaultBlockState());
+                this.level.setBlockAndUpdate(getBlockPos().above(), Blocks.LAVA.defaultBlockState());
                 return;
             }
-            HeaterManager.addProducer(getBlockPos(), getLevel(), ModHeaterInfos.LAVA_MINERAL_FOUNTAIN);
+            HeaterManager.addProducer(getBlockPos(), serverLevel, ModHeaterInfos.LAVA_MINERAL_FOUNTAIN);
             return;
         } else if (aboveState.is(Blocks.AIR)) {
-            level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.CINERITE.getDefaultState());
+            this.level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.CINERITE.getDefaultState());
         } else {
             MineralFountainRecipe.Input input = new MineralFountainRecipe.Input(aroundState.getBlock(), aboveState.getBlock());
-            level.getRecipeManager()
+            this.level.getRecipeManager()
                 .getRecipeFor(ModRecipeTypes.MINERAL_FOUNTAIN.get(), input, level)
                 .ifPresent(recipe -> {
-                    var chanceList = level
+                    var chanceList = this.level
                         .getRecipeManager()
                         .getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
                         .stream()
                         .filter(r -> r.value()
                             .getDimension()
-                            .equals(level.dimension().location()))
-                        .filter(r -> r.value().getFromBlock().test(level, aboveState, null))
+                            .equals(this.level.dimension().location())
+                        )
+                        .filter(r -> r.value().getFromBlock().test(this.level, aboveState, null))
                         .toList();
                     for (var changeRecipe : chanceList) {
-                        if (level.getRandom().nextDouble()
-                            <= changeRecipe.value().getChance()) {
-                            level.setBlockAndUpdate(
+                        if (this.level.getRandom().nextDouble() <= changeRecipe.value().getChance(serverLevel)) {
+                            this.level.setBlockAndUpdate(
                                 getBlockPos().above(),
-                                changeRecipe.value().getToBlock().defaultBlockState()
+                                changeRecipe.value().getToBlock().state()
                             );
                             return;
                         }
                     }
                     level.setBlockAndUpdate(
                         getBlockPos().above(),
-                        recipe.value().getToBlock().defaultBlockState()
+                        recipe.value().getToBlock().state()
                     );
                 });
         }
-        HeaterManager.removeProducer(getBlockPos(), getLevel(), ModHeaterInfos.LAVA_MINERAL_FOUNTAIN);
+        HeaterManager.removeProducer(getBlockPos(), serverLevel, ModHeaterInfos.LAVA_MINERAL_FOUNTAIN);
     }
 
     private static final Direction[] HORIZONTAL_DIRECTION = {
@@ -109,21 +111,20 @@ public class MineralFountainBlockEntity extends BlockEntity {
     };
 
     public BlockState getAroundBlock() {
-        if (level == null) {
+        if (this.level == null) {
             return Blocks.AIR.defaultBlockState();
         }
         List<BlockState> blockStates = Arrays.stream(HORIZONTAL_DIRECTION)
-            .map(direction -> level.getBlockState(getBlockPos().relative(direction)))
+            .map(direction -> this.level.getBlockState(getBlockPos().relative(direction)))
             .toList();
         BlockState firstState = blockStates.getFirst();
         long count = blockStates.stream()
-            .filter(s ->
-                        s.is(firstState.getBlock()) && (s.getFluidState().isEmpty() || s.getFluidState().isSource())
-            ).count();
+            .filter(s -> s.is(firstState.getBlock()) && (s.getFluidState().isEmpty() || s.getFluidState().isSource()))
+            .count();
         return count == 4 ? firstState : Blocks.AIR.defaultBlockState();
     }
 
     public void resetTickCount() {
-        if (tickCount <= 0) tickCount = 20;
+        if (this.tickCount <= 0) this.tickCount = 20;
     }
 }

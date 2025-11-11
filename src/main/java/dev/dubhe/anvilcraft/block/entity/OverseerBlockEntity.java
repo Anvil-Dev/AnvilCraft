@@ -18,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class OverseerBlockEntity extends BlockEntity {
     private int waterLoggedBlockCount = 0;
+    private int oldlevel = -1;
+    private boolean oldRandomTick = false;
 
     public OverseerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.OVERSEER.get(), pos, blockState);
@@ -52,17 +54,28 @@ public class OverseerBlockEntity extends BlockEntity {
                 }
                 return;
             }
-            BlockState updatedState = level.getBlockState(pos);
-            if (!LevelLoadManager.checkRegistered(pos)) {
+            int newlevel = checkBaseSupportsLevel(level, pos);
+            boolean newRandomTick = this.waterLoggedBlockCount >= 4;
+            if (newlevel == oldlevel && newRandomTick == oldRandomTick) {
+                return;
+            }
+            if (oldlevel > -1 || LevelLoadManager.checkRegistered(pos)) {
+                LevelLoadManager.unregister(pos, level);
+                oldlevel = -1;
+                oldRandomTick = false;
+            }
+            if (newlevel >= 0) {
                 LevelLoadManager.register(
                     pos,
                     LoadChuckData.createLoadChuckData(
-                        updatedState.getValue(OverseerBlock.LEVEL),
+                        newlevel,
                         pos,
                         (this.waterLoggedBlockCount >= 4),
                         serverLevel),
                     serverLevel);
             }
+            oldlevel = newlevel;
+            oldRandomTick = newRandomTick;
         }
     }
 
@@ -75,7 +88,8 @@ public class OverseerBlockEntity extends BlockEntity {
                 if (!currentState.is(ModBlockTags.OVERSEER_BASE)) {
                     return -1;
                 }
-                if (currentState.hasProperty(BlockStateProperties.WATERLOGGED)) {
+                if (currentState.hasProperty(BlockStateProperties.WATERLOGGED)
+                    && currentState.getValue(BlockStateProperties.WATERLOGGED)) {
                     waterLogged++;
                 }
             }
@@ -86,27 +100,13 @@ public class OverseerBlockEntity extends BlockEntity {
     private int checkBaseSupportsLevel(Level level, BlockPos selfPos) {
         int supportLevel = 0;
         int waterLoggedBlockCount = 0;
-        BlockPos.MutableBlockPos pos = selfPos.mutable();
-        pos.move(Direction.DOWN);
-        int tBase = checkBaseAt(level, pos);
-        if (tBase == -1) {
-            return 0;
-        }
-        waterLoggedBlockCount += tBase;
-        supportLevel++;
-
-        pos.move(Direction.DOWN);
-        tBase = checkBaseAt(level, pos);
-        if (tBase != -1) {
+        BlockPos.MutableBlockPos pos = selfPos.mutable().move(Direction.DOWN);
+        for (int i = 0; i < 3; i++) {
+            int tBase = checkBaseAt(level, pos);
+            if (tBase == -1) break;
             waterLoggedBlockCount += tBase;
             supportLevel++;
-        }
-
-        pos.move(Direction.DOWN);
-        tBase = checkBaseAt(level, pos);
-        if (tBase != -1) {
-            waterLoggedBlockCount += tBase;
-            supportLevel++;
+            pos.move(Direction.DOWN);
         }
         this.waterLoggedBlockCount = waterLoggedBlockCount;
         return supportLevel;
@@ -120,10 +120,10 @@ public class OverseerBlockEntity extends BlockEntity {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
             BlockState state = level.getBlockState(pos);
             if (level.getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
-                level.setBlockAndUpdate(pos, state.setValue(OverseerBlock.LEVEL, supportsLevel));
+                level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, supportsLevel), 2);
             }
         }
-        return supportsLevel > 0;
+        return supportsLevel >= 0;
     }
 
     private boolean checkBlocks() {

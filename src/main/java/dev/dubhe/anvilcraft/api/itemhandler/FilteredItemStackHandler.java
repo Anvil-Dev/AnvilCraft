@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.util.CodecUtil;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
@@ -36,6 +37,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     private boolean filterEnabled = false;
     private NonNullList<ItemStack> filteredItems;
     private NonNullList<Boolean> disabled;
+    private NonNullList<Integer> slotLimits;
 
     public NonNullList<ItemStack> getStacks() {
         return stacks;
@@ -53,6 +55,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         );
         this.disabled = NonNullList.create();
         this.disabled.addAll(disabled);
+        this.slotLimits = NonNullList.withSize(filteredItems.size(), IFilterBlockEntity.DEFAULT_SLOT_LIMIT);
     }
 
     /**
@@ -64,6 +67,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         super(size);
         this.filteredItems = NonNullList.withSize(size, ItemStack.EMPTY);
         this.disabled = NonNullList.withSize(size, false);
+        this.slotLimits = NonNullList.withSize(size, IFilterBlockEntity.DEFAULT_SLOT_LIMIT);
     }
 
     /**
@@ -185,6 +189,28 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         return true;
     }
 
+    /**
+     * 获取指定槽位的物品数量上限
+     *
+     * @param slot 槽位
+     * @return 物品数量上限
+     */
+    public int getSlotLimit(int slot) {
+        if (slot < 0 || slot >= this.slotLimits.size()) return IFilterBlockEntity.DEFAULT_SLOT_LIMIT;
+        return this.slotLimits.get(slot);
+    }
+
+    /**
+     * 设置指定槽位的物品数量上限
+     *
+     * @param slot  槽位
+     * @param limit 物品数量上限
+     */
+    public void setSlotLimit(int slot, int limit) {
+        if (slot < 0 || slot >= this.slotLimits.size()) return;
+        this.slotLimits.set(slot, limit);
+    }
+
     @Override
     public @NotNull CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
@@ -211,6 +237,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
             }
 
             inventoryEntry.putBoolean("Disabled", this.disabled.get(slot));
+            inventoryEntry.putInt("SlotLimit", this.getSlotLimit(slot));
 
             inventory.add(inventoryEntry);
         }
@@ -238,6 +265,11 @@ public class FilteredItemStackHandler extends ItemStackHandler {
                 this.filteredItems.set(slot, ItemStack.parseOptional(provider, filterItemTag));
             }
             this.disabled.set(slot, inventoryEntry.getBoolean("Disabled"));
+            if (inventoryEntry.contains("SlotLimit")) {
+                this.slotLimits.set(slot, inventoryEntry.getInt("SlotLimit"));
+            } else {
+                this.slotLimits.set(slot, IFilterBlockEntity.DEFAULT_SLOT_LIMIT);
+            }
         }
     }
 

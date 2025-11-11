@@ -9,18 +9,20 @@ import dev.dubhe.anvilcraft.inventory.BaseChuteMenu;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
-
+import java.util.List;
 import java.util.function.BiFunction;
 
 /**
@@ -75,6 +77,18 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         this.renderSlotTooltip(guiGraphics, x, y);
     }
 
+    @Override
+    protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
+        List<Component> components = super.getTooltipFromContainerItem(stack);
+        if (this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot 
+                && filterSlot.isFilter() 
+                && !filterSlot.getItem().isEmpty()) {
+            components.add(SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
+            components.add(SHIFT_TO_SCROLL_FASTER_TOOLTIP);
+        }
+        return components;
+    }
+
     protected void renderSlotTooltip(GuiGraphics guiGraphics, int x, int y) {
         if (this.hoveredSlot == null) return;
         if (!(this.hoveredSlot instanceof SlotItemHandlerWithFilter)) return;
@@ -127,5 +141,24 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     @Override
     public int getOffsetY() {
         return (this.height - this.imageHeight) / 2;
+    }
+    
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        Slot slot = this.hoveredSlot;
+        if (slot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter() && scrollY != 0) {
+            int slotIndex = slot.getContainerSlot();
+            int currentLimit = this.getSlotLimit(slotIndex);
+            int scrollSpeed = Screen.hasShiftDown() ? 5 : 1;
+            int newLimit = currentLimit + (scrollY > 0 ? scrollSpeed : -scrollSpeed);
+            newLimit = Mth.clamp(newLimit, 1, 64);
+            
+            if (newLimit != currentLimit) {
+                this.setSlotLimit(slotIndex, newLimit);
+                PacketDistributor.sendToServer(new SlotFilterMaxStackSizeChangePacket(slotIndex, newLimit));
+                return true;
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 }

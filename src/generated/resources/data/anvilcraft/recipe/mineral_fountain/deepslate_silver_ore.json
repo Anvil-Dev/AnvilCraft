@@ -6,5 +6,7 @@
   "need_block": {
     "blocks": "#c:storage_blocks/raw_silver"
   },
-  "to_block": "anvilcraft:deepslate_silver_ore"
+  "to_block": {
+    "block": "anvilcraft:deepslate_silver_ore"
+  }
 }

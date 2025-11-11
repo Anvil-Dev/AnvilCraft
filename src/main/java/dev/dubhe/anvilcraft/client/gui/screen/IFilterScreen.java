@@ -9,7 +9,11 @@ import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -25,6 +29,13 @@ import java.util.function.BiFunction;
  */
 public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> extends IGhostIngredientScreen {
     ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
+
+    Component SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP =
+        Component.translatable("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit")
+            .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
+    Component SHIFT_TO_SCROLL_FASTER_TOOLTIP =
+        Component.translatable("screen.anvilcraft.filter.shift_to_scroll_faster")
+            .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
 
     T getFilterMenu();
 
@@ -86,6 +97,25 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     }
 
     /**
+     * 获取指定槽位的物品上限
+     *
+     * @param slot 槽位
+     */
+    default int getSlotLimit(int slot) {
+        return this.getFilterMenu().getSlotLimit(slot);
+    }
+
+    /**
+     * 设置指定槽位的物品上限
+     *
+     * @param slot  槽位
+     * @param limit 物品上限
+     */
+    default void setSlotLimit(int slot, int limit) {
+        this.getFilterMenu().setSlotLimit(slot, limit);
+    }
+
+    /**
      * 刷新
      */
     default void flush() {
@@ -128,6 +158,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         if (!slot.hasItem() && !filter.isEmpty()) {
             this.renderFilterItem(guiGraphics, slot, filter);
         }
+        this.renderSlotLimit(guiGraphics, slot);
     }
 
     /**
@@ -152,7 +183,36 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         int i = slot.x;
         int j = slot.y;
         RenderSupport.renderItemWithTransparency(stack, guiGraphics.pose(), i, j, 0.52f);
-        guiGraphics.fill(i, j, i + 16, j + 16, 0x80ffaaaa);
+        guiGraphics.fill(i, j, i + 16, j + 16, 0x60ffaaaa);
+    }
+
+    default void renderSlotLimit(GuiGraphics guiGraphics, Slot slot) {
+        if (!(slot instanceof SlotItemHandlerWithFilter filterSlot) || !filterSlot.isFilter()) {
+            return;
+        }
+        int slotIndex = slot.getContainerSlot();
+        int limit = this.getSlotLimit(slotIndex);
+        if (limit == 64) {
+            return;
+        }
+        String text = String.valueOf(limit);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, 300);
+        float scale = 0.6f;
+        guiGraphics.pose().scale(scale, scale, 1.0f);
+        int width = Minecraft.getInstance().font.width(text);
+        int height = Minecraft.getInstance().font.lineHeight;
+        int x = (int) ((slot.x + 16.25 - width * scale) / scale);
+        int y = (int) ((slot.y + 14 - height * 2 * scale + 1) / scale);
+        guiGraphics.drawString(
+            Minecraft.getInstance().font,
+            text,
+            x,
+            y,
+            0xFFA0A0,
+            true
+        );
+        guiGraphics.pose().popPose();
     }
 
     default int getOffsetY() {

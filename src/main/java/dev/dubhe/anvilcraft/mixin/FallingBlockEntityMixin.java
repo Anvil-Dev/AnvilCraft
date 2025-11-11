@@ -7,8 +7,10 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -40,6 +42,10 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     @Shadow
     public boolean cancelDrop;
 
+    @Shadow
+    private float fallDamagePerDistance;
+    @Shadow
+    private int fallDamageMax;
     @Unique
     private float anvilcraft$fallDistance;
 
@@ -121,15 +127,18 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         float pFallDistance,
         float pMultiplier,
         DamageSource pSource,
-        CallbackInfoReturnable<Boolean> cir,
-        @Local Predicate<Entity> predicate,
-        @Local(ordinal = 2) float f
+        CallbackInfoReturnable<Boolean> cir
     ) {
-        FallingBlockEntity anvil = Util.cast(this);
         Level level = this.level();
-        List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);
-        for (Entity entity : entities) {
-            NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(anvil, this.getOnPos(), level, entity, f));
+        FallingBlockEntity fallingBlockEntity = Util.cast(this);
+        Predicate<Entity> predicate = EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+        int i = Mth.ceil(this.fallDistance - 1.0F);
+        float f = (float) Math.min(Mth.floor((float) i * this.fallDamagePerDistance), this.fallDamageMax);
+        if (fallingBlockEntity.getBlockState().is(BlockTags.ANVIL)) {
+            List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);
+            for (Entity entity : entities) {
+                NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(fallingBlockEntity, this.getOnPos(), level, entity, f));
+            }
         }
     }
 

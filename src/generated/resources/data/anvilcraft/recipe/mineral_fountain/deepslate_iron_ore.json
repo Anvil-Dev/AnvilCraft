@@ -6,5 +6,7 @@
   "need_block": {
     "blocks": "minecraft:raw_iron_block"
   },
-  "to_block": "minecraft:deepslate_iron_ore"
+  "to_block": {
+    "block": "minecraft:deepslate_iron_ore"
+  }
 }

@@ -131,7 +131,7 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
         ).isEmpty()) {
             FallingSpectralBlockEntity.fall(
                 level,
-                pos.above(),
+                pos,
                 level.getBlockState(pos).setValue(POWERED, false),
                 false,
                 true

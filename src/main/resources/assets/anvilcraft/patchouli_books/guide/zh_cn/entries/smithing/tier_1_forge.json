@@ -5,27 +5,72 @@
   "sortnum": 13003,
   "entry_color": "004400",
   "pages": [
-    "本章将介绍如何锻造工具",
+    "本章将介绍如何锻造: $(li)$(l:smithing/tier_1_forge#dragon_rod)龙杖$(/l) $(li)$(l:smithing/tier_1_forge#royal_template)皇家钢工具$(/l) ",
     {
       "type": "patchouli:crafting",
       "anchor": "dragon_rod",
       "recipe": "anvilcraft:dragon_rod",
-      "recipe2": "anvilcraft:royal_dragon_rod"
-    },
-    {
-      "type": "patchouli:smithing",
-      "recipe": "anvilcraft:smithing/royal_dragon_rod",
       "text": "龙杖的操作十分简单。左键破坏一定范围内的方块，右键切换范围大小。有3x3、5x5、7x7、9x9四个范围，当手持龙杖准星指向方块时会显示范围框。3x3范围不消耗耐久，往后依次消耗1、2、4点耐久。当龙杖耐久消耗殆尽时不会完全损坏，而是失去所有功能，类似于$(item)鞘翅$()。"
     },
     {
       "type": "patchouli:text",
       "title": "龙杖挖掘",
-      "text": "龙杖遵循方块吞噬器的规则，当挖掘世界基底方块（$(item)石头$()、$(item)下界岩$()、$(item)末地石$()）时，只有5%%的概率掉落。但是它无法连锁顶部的可下落方块。$(br2)龙杖在挖掘一次后会有一段冷却时间，默认为1秒。这段冷却时长只受$(thing)急迫$()效果和$(thing)挖掘疲劳$()效果影响，每级急迫会减少0.2秒，每级挖掘疲劳会增加1秒。"
+      "text": "龙杖遵循方块吞噬器的规则，当挖掘世界基底方块[$(item)石头$()、$(item)下界岩$()、$(item)末地石$()]时，只有5%%的概率掉落。但是它无法连锁顶部的可下落方块。$(br2)龙杖在挖掘一次后会有一段冷却时间，默认为1秒。这段冷却时长只受$(thing)急迫$()效果和$(thing)挖掘疲劳$()效果影响，每级急迫会减少0.2秒，每级挖掘疲劳会增加1秒。"
     },
     {
       "type": "patchouli:text",
       "title": "你知道吗",
       "text": "$(o)在砧艺元年，没有龙杖的古人是如何开掘隧道的呢？ $(li)放下方块吞噬器 $(li)铁砧锤敲击方块吞噬器 $(li)主手持铁砧锤潜行右键收回方块吞噬器"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "royal_template",
+      "item": "anvilcraft:royal_steel_upgrade_smithing_template",
+      "link_recipe": true,
+      "text": "在村庄铁匠铺可以找到锻造模板，与$(l:smithing/jewelcrafting_table)珠宝匠$(/l)村民交易也可以得到锻造模板。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "royal_smithing_table",
+      "recipe": "anvilcraft:smithing/royal_smithing_table",
+      "text": "这是第一个你应该用皇家钢升级的物品，因为有了它之后你锻造的过程就无需再消耗任何锻造模板。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "royal_anvil",
+      "recipe": "anvilcraft:smithing/royal_anvil",
+      "text": "$(item)皇家铁砧$()无论如何使用都不会损坏，还能让你不用再担心过于昂贵。使用带特殊字符的$(item)命名牌$()还可以给物品名称修改样式。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "royal_grindstone",
+      "recipe": "anvilcraft:smithing/royal_grindstone",
+      "text": "在$(item)皇家砂轮$()上使用$(item)金锭$()可以为物品祛除$(#fb0505)诅咒$()和附魔惩罚，正常附魔则会被保留。金锭会转化为$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$(/l)。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "皇家钢工具",
+      "item": [
+        "anvilcraft:royal_steel_pickaxe",
+        "anvilcraft:royal_steel_axe",
+        "anvilcraft:royal_steel_shovel",
+        "anvilcraft:royal_steel_hoe",
+        "anvilcraft:royal_steel_sword"
+      ],
+      "link_recipe": true,
+      "text": "具有等同于钻石的品质 $(p)$(#888888)你与众不同$(br)你喜欢超越$(br)你有梦想$(br)你有力量$(br)你从不把成就作为终点$(br)记住，你的名字叫做$(br)皇家钢！$()"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/royal_steel_sword",
+      "recipe2": "anvilcraft:smithing/royal_steel_pickaxe",
+      "text": "使用$(thing)皇家钢锭$()升级你的武器，这是它们成长路上的第一步。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/royal_dragon_rod",
+      "recipe2": "anvilcraft:smithing/royal_anvil_hammer",
+      "text": "使用$(thing)皇家钢块$()升级你的武器，这是它们成长路上的第一步。"
     },
     {
       "type": "patchouli:relations",

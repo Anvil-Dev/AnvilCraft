@@ -4,65 +4,82 @@
   "icon": "anvilcraft:ember_smithing_table",
   "sortnum": 23007,
   "entry_color": "661100",
+  "extra_recipe_mappings": {
+    "anvilcraft:frost_metal_sword": 0,
+    "anvilcraft:frost_metal_pickaxe": 0,
+    "anvilcraft:frost_metal_shovel": 0,
+    "anvilcraft:frost_metal_hoe": 0,
+    "anvilcraft:frost_metal_axe": 0,
+    "anvilcraft:ember_metal_sword": 0,
+    "anvilcraft:ember_metal_pickaxe": 0,
+    "anvilcraft:ember_metal_shovel": 0,
+    "anvilcraft:ember_metal_hoe": 0,
+    "anvilcraft:ember_metal_axe": 0
+  },
   "pages": [
-    "本章将介绍如何锻造:$(li)$(l:smithing/tier_2_forge#heavy_halberd)重戟$() $(li)$(l:smithing/tier_2_forge#resonator)共振器$() $(li)$(l:smithing/tier_2_forge#multitool)多功能工具$() $(li)$(l:smithing/tier_2_forge#amulet)四合一护符$() $(p)$(#880000)注意$()：$(br)合并物品，需要$(l:smithing/tier_2_materials#multiple_templates)多合一模板$() $(br)余烬工具特性：$(l:advanced/tool_properties#reforging)重铸$(/l) $(br)浮霜工具特性：$(l:advanced/tool_properties#merciless)无情$(/l)",
+    "本章将介绍如何锻造: $(li)$(l:smithing/tier_2_forge#ember_smithing_table)余烬工作方块$(/l) $(li)$(l:smithing/tier_2_forge#ember_metal_tools)余烬工具$() $(li)$(l:smithing/tier_2_forge#frost_metal_tools)浮霜工具$() $(li)$(l:smithing/tier_2_forge#amulet)四合一护符$() $(p)余烬工具特性：$(l:advanced/tool_properties#reforging)重铸$(/l) $(br)浮霜工具特性：$(l:advanced/tool_properties#merciless)无情$(/l)",
+    {
+      "type": "anvilcraft:stamping",
+      "title": "余烬锻造模板",
+      "recipe": "anvilcraft:stamping/ember_metal_upgrade_smithing_template",
+      "text": "用于将$(thing)皇家钢工具$()升级为$(thing)余烬金属工具$()"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_smithing_table",
+      "recipe": "anvilcraft:smithing/ember_smithing_table",
+      "text": "这个锻造台用于锻造更加复杂的配方，有了它之后你就有能力在锻造上更进一步了。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_anvil",
+      "recipe": "anvilcraft:smithing/ember_anvil",
+      "text": "这个铁砧的功能与$(item)皇家铁砧$()几乎一致，但是它可以让你在生存模式下给物品强行添加一些不兼容的附魔。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_grindstone",
+      "recipe": "anvilcraft:smithing/ember_grindstone",
+      "text": "在$(item)余烬砂轮$()上，你可以消耗经验提取出附魔物品的附魔。只需放入待提取的物品和书，并选择一个附魔，就可以消耗其显示的经验提取出选择的附魔了。它不会有过于昂贵，但是仍会向提取的物品增加附魔惩罚。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_metal_tools",
+      "recipe": "anvilcraft:smithing/ember_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/ember_metal_sword",
+      "text": "使用$(item)余烬金属锭$()配合$(item)余烬锻造模板$()升级的工具，将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
+    },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:ember_dragon_rod",
-      "text": "升级后功能不变，只是耐久不同。$(br2)同样可以通过锻造升级。"
+      "text": "相比皇家钢版本，功能不变，具有更高的耐久。$(br2)可以通过锻造升级。"
     },
     {
-      "type": "patchouli:crafting",
-      "anchor": "heavy_halberd",
-      "recipe": "anvilcraft:heavy_halberd_core",
-      "text": "$(item)重戟$()融合了剑、斧、重锤和三叉戟的特性，是一个强力的武器。 $(br2)$(item)重戟核心$()是合成重戟的核心材料。"
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_dragon_rod",
+      "recipe2": "anvilcraft:smithing/ember_anvil_hammer",
+      "text": "使用$(item)余烬金属块$()配合$(item)余烬锻造模板$()升级的工具，将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
     },
     {
-      "type": "anvilcraft:multiple_to_one_smithing",
-      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_heavy_halberd",
-      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_heavy_halberd"
+      "type": "anvilcraft:time_warp",
+      "title": "浮霜锻造模板",
+      "recipe": "anvilcraft:time_warp/frost_metal_upgrade_smithing_template",
+      "text": "用于将$(thing)皇家钢工具$()升级为$(thing)浮霜金属工具$()。"
     },
     {
-      "type": "patchouli:text",
-      "title": "使用",
-      "text": "重戟可以作为合成它所需的四件武器中的任意一件使用。它能兼容剑、重锤和三叉戟的所有附魔。 $(br2)它的攻击伤害值与斧相同，攻击速度与剑相同，还具有它们的挖掘特性。从高处落下可以触发重锤的猛击。长按右键也可以像三叉戟一样投掷，但是投掷伤害根据速度计算，与箭类似。当它拥有忠诚魔咒时，掷入虚空会回到玩家处。"
+      "type": "patchouli:smithing",
+      "anchor": "frost_metal_tools",
+      "recipe": "anvilcraft:smithing/frost_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/frost_metal_sword",
+      "text": "使用$(item)浮霜金属锭$()配合$(item)浮霜锻造模板$()升级的工具，将自带$(l:advanced/tool_properties#merciless)无情$(/l)属性。"
     },
     {
-      "type": "patchouli:text",
-      "title": "损坏",
-      "text": "重戟同样不会完全损坏，类似于鞘翅，它会失去所有增益、功能等效果，攻击伤害变为0，附魔大部分失效，浮霜带来的$(thing)无情$()也会失效。"
-    },
-    {
-      "type": "patchouli:crafting",
-      "anchor": "resonator",
-      "recipe": "anvilcraft:resonator_core",
-      "text": "$(item)共振器$()融合了斧、镐、锹、锄的特性，是一个强力的工具。 $(br2)$(item)共振器核心$()是合成共振器的核心材料。"
-    },
-    {
-      "type": "anvilcraft:multiple_to_one_smithing",
-      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_resonator",
-      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_resonator"
-    },
-    {
-      "type": "patchouli:text",
-      "title": "使用",
-      "text": "共振器有五个模式：自动，和四种工具对应的模式。不同的模式有不同的模型。在自动模式下可以快速挖掘任意可挖掘方块，但是没有右键功能。"
-    },
-    {
-      "type": "patchouli:text",
-      "title": "调频",
-      "text": "手持共振器按住[$(k:anvilcraft.switch_resonate_mode)]可以打开一个轮盘选择界面，包含共振器的五个模式，将鼠标拖到对应的位置就可以选中该模式并切换。$(br2)在每种工具对应的模式下只能快速挖掘该工具允许的方块，但是拥有它们对应的右键功能，如斧模式可以去皮、脱蜡、除锈等。"
-    },
-    {
-      "type": "patchouli:text",
-      "title": "损坏",
-      "text": "共振器同样不会完全损坏，类似于鞘翅，它会失去所有增益、功能等效果，攻击伤害变为0，附魔大部分失效，浮霜带来的$(thing)无情$()也会失效。"
-    },
-    {
-      "type": "anvilcraft:multiple_to_one_smithing",
-      "anchor": "multitool",
-      "recipe": "anvilcraft:eight_to_one_smithing/multitool",
-      "text": "携带了八个工具的所有功能，按住[$(k:anvilcraft.switch_resonate_mode)]可以打开一个轮盘选择界面。 $(p)默认全选模式下使用反而会对自己造成伤害，选择其他功能后，可作为对应工具使用。"
+      "type": "patchouli:spotlight",
+      "anchor": "multiple_templates",
+      "item": "tag:anvilcraft:multiple_to_one_smithing_templates",
+      "title": "多合一锻造模板",
+      "link_recipe": true,
+      "text": "$(li)将多个互不相同的$(thing)锻造模板$()进行物品冲压加工获得，由模板数量决定获得的是几合一锻造模板 $(li)用于在$(item)余烬锻造台$()上参与多合一锻造"
     },
     {
       "type": "anvilcraft:multiple_to_one_smithing",

@@ -5,11 +5,78 @@
   "sortnum": 33009,
   "entry_color": "660066",
   "pages": [
-    "本章将介绍如何:$(li)升级工具至$(thing)超限$()等级 $(br2)超限工具特性：$(l:advanced/tool_properties#eternal)永恒$(/l)|$(l:advanced/tool_properties#providence)强运$(/l)",
+    "本章将介绍如何锻造: $(li)$(l:smithing/tier_3_forge#heavy_halberd)重戟$() $(li)$(l:smithing/tier_3_forge#resonator)共振器$() $(li)$(l:smithing/tier_3_forge#multitool)多功能工具$() $(li)$(l:smithing/tier_3_forge#transcendence_tools)超限工具$() $(br2)超限工具特性：$(l:advanced/tool_properties#eternal)永恒$(/l)|$(l:advanced/tool_properties#providence)强运$(/l)",
+    {
+      "type": "patchouli:crafting",
+      "anchor": "heavy_halberd",
+      "recipe": "anvilcraft:heavy_halberd_core",
+      "text": "$(item)重戟$()融合了剑、斧、重锤和三叉戟的特性，是一个强力的武器。 $(br2)$(item)重戟核心$()是合成重戟的核心材料。"
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_heavy_halberd",
+      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_heavy_halberd"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "使用",
+      "text": "重戟可以作为合成它所需的四件武器中的任意一件使用。它能兼容剑、重锤和三叉戟的所有附魔。 $(br2)它的攻击伤害值与斧相同，攻击速度与剑相同，还具有它们的挖掘特性。从高处落下可以触发重锤的猛击。长按右键也可以像三叉戟一样投掷，但是投掷伤害根据速度计算，与箭类似。当它拥有忠诚魔咒时，掷入虚空会回到玩家处。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "损坏",
+      "text": "重戟不会完全损坏，类似于鞘翅，它会失去所有增益、功能等效果，攻击伤害变为0，附魔大部分失效，浮霜带来的$(thing)无情$()也会失效。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "anchor": "resonator",
+      "recipe": "anvilcraft:resonator_core",
+      "text": "$(item)共振器$()融合了斧、镐、锹、锄的特性，是一个强力的工具。 $(br2)$(item)共振器核心$()是合成共振器的核心材料。"
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_resonator",
+      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_resonator"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "使用",
+      "text": "共振器有五个模式：自动，和四种工具对应的模式。不同的模式有不同的模型。在自动模式下可以快速挖掘任意可挖掘方块，但是没有右键功能。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "调频",
+      "text": "手持共振器按住[$(k:anvilcraft.switch_resonate_mode)]可以打开一个轮盘选择界面，包含共振器的五个模式，将鼠标拖到对应的位置就可以选中该模式并切换。$(br2)在每种工具对应的模式下只能快速挖掘该工具允许的方块，但是拥有它们对应的右键功能，如斧模式可以去皮、脱蜡、除锈等。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "损坏",
+      "text": "共振器不会完全损坏，类似于鞘翅，它会失去所有增益、功能等效果，攻击伤害变为0，附魔大部分失效，浮霜带来的$(thing)无情$()也会失效。"
+    },
+    {
+      "type": "anvilcraft:multiple_to_one_smithing",
+      "anchor": "multitool",
+      "recipe": "anvilcraft:eight_to_one_smithing/multitool",
+      "text": "携带了八个工具的所有功能，按住[$(k:anvilcraft.switch_resonate_mode)]可以打开一个轮盘选择界面。 $(p)默认全选模式下使用反而会对自己造成伤害，选择其他功能后，可作为对应工具使用。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "transcendence_tools",
+      "item": "anvilcraft:transcendium_upgrade_smithing_template",
+      "link_recipe": true,
+      "text": "如果在$(l:advanced/template_dissociation)模板解离$(/l)的过程中，掉落了4个互不相同的模板，就会额外产出一个$(item)超限模板$()"
+    },
     {
       "type": "patchouli:smithing",
-      "recipe": "anvilcraft:multiphase_transcendium",
-      "text": "锻造超限工具的关键材料 $(br2)赋予共振器和重戟$(l:advanced/tool_properties#multiphase)多相$(/l)"
+      "recipe": "anvilcraft:smithing/transcendence_anvil_hammer",
+      "recipe2": "anvilcraft:multiphase_transcendium",
+      "text": "锻造超限工具的关键材料 $(li)赋予共振器和重戟$(l:advanced/tool_properties#multiphase)多相$(/l)属性"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "transcendence_anvil",
+      "recipe": "anvilcraft:smithing/transcendence_anvil",
+      "text": "继承了余烬铁砧的锻造能力 $(li)合并附魔时，无视附魔等级上限 $(li)挖掘方块时，自带时运V $(li)杀伤生物视为玩家杀伤，且掉落更多"
     },
     {
       "type": "anvilcraft:multiple_to_one_smithing",
@@ -17,13 +84,14 @@
       "recipe2": "anvilcraft:two_to_one_smithing/transcendence_heavy_halberd"
     },
     {
-      "type": "patchouli:crafting",
-      "recipe": "anvilcraft:transcendence_dragon_rod",
-      "text": "升级后拥有无限耐久，且挖掘冷却降低为原来的20%%。$(br2)同样可以通过锻造升级。"
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/transcendence_dragon_rod",
+      "text": "升级后拥有无限耐久，且挖掘冷却降低为原来的$(thing)20%%$() $(li)可以直接用超限铁砧锤和方块吞噬器合成"
     },
     {
       "type": "patchouli:relations",
       "entries": [
+        "anvilcraft:smithing/tier_3_materials",
         "anvilcraft:advanced/tool_properties"
       ],
       "text": ""

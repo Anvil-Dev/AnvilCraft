@@ -81,6 +81,26 @@ public interface IFilterMenu {
         return this.getFilterBlockEntity().setFilter(slot, filter);
     }
 
+    /**
+     * 获取指定槽位的物品数量上限
+     *
+     * @param slot 槽位
+     * @return 物品数量上限
+     */
+    default int getSlotLimit(int slot) {
+        return this.getFilterBlockEntity().getSlotLimit(slot);
+    }
+
+    /**
+     * 设置指定槽位的物品数量上限
+     *
+     * @param slot  槽位
+     * @param limit 物品数量上限
+     */
+    default void setSlotLimit(int slot, int limit) {
+        this.getFilterBlockEntity().setSlotLimit(slot, limit);
+    }
+
     int getFilterSlotIndex(Slot slot);
 
     /**

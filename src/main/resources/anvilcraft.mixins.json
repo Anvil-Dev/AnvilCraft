@@ -22,7 +22,6 @@
     "DispenserBlockMixin",
     "EnchantmentHelperMixin",
     "EnchantmentPredicateMixin",
-    "EndPortalBlockMixin",
     "EntityMixin",
     "EntityTypeBuilderMixin",
     "ExplosionMixin",

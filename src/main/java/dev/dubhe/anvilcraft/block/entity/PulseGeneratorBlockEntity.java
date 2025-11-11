@@ -105,6 +105,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         CompoundTag data = new CompoundTag();
         data.putByte("StartMode", this.startMode.index());
         data.putBoolean("OutputMode", this.outputInvert);
+        data.putBoolean("Inputting", this.isInputtingSignal);
         data.putInt("WaitingTime", this.waitingTime);
         data.putInt("SignalDuration", this.signalDuration);
         return data;
@@ -113,6 +114,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     public PulseGeneratorBlockEntity readDataNbt(CompoundTag data) {
         this.startMode = Mode.fromIndex(data.getByte("StartMode"));
         this.outputInvert = data.getBoolean("OutputMode");
+        this.isInputtingSignal = data.getBoolean("Inputting");
         this.waitingTime = data.getInt("WaitingTime");
         this.signalDuration = data.getInt("SignalDuration");
         return this;
@@ -135,7 +137,9 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
 
     public void setStartMode(int mode) {
         this.startMode = Mode.fromIndex(mode % 3);
-        if (this.startMode.equals(Mode.LOOP) && !this.isInputtingSignal && this.level != null) {
+        if (this.startMode != Mode.LOOP) {
+            this.isDeadlock = false;
+        } else if (!this.isInputtingSignal && this.level != null) {
             Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
                 .ifPresent(block -> block.update(this.level, this.getBlockPos(), this::getBlockState));
         }

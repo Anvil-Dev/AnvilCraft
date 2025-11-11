@@ -6,5 +6,7 @@
   "need_block": {
     "blocks": "#c:storage_blocks/raw_tungsten"
   },
-  "to_block": "anvilcraft:deepslate_tungsten_ore"
+  "to_block": {
+    "block": "anvilcraft:deepslate_tungsten_ore"
+  }
 }

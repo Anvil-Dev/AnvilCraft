@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.recipe.mineral;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.recipe.component.BlockStatePredicate;
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.component.ChanceBlockState;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
+import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -16,9 +16,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,14 +39,16 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class MineralFountainChanceRecipe implements Recipe<MineralFountainChanceRecipe.Input> {
     private final ResourceLocation dimension;
     private final BlockStatePredicate fromBlock;
-    private final Block toBlock;
-    private final double chance;
+    private final ChanceBlockState toBlock;
 
-    public MineralFountainChanceRecipe(ResourceLocation dimension, BlockStatePredicate fromBlock, Block toBlock, double chance) {
+    public MineralFountainChanceRecipe(ResourceLocation dimension, BlockStatePredicate fromBlock, ChanceBlockState toBlock) {
         this.dimension = dimension;
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
-        this.chance = chance;
+    }
+
+    public double getChance(ServerLevel level) {
+        return this.toBlock.chance().getFloat(RecipeUtil.emptyLootContext(level));
     }
 
     @Contract(" -> new")
@@ -71,17 +73,21 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
 
     @Override
     public ItemStack assemble(Input input, HolderLookup.Provider provider) {
-        return this.toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(this.fromBlock.getStatesCache().getFirst().getBlock());
+        return this.toBlock.state().getBlock().asItem() == Items.AIR
+               ? ItemStack.EMPTY
+               : new ItemStack(this.fromBlock.getStatesCache().getFirst().getBlock());
     }
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return this.toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(this.fromBlock.getStatesCache().getFirst().getBlock());
+        return this.toBlock.state().getBlock().asItem() == Items.AIR
+               ? ItemStack.EMPTY
+               : new ItemStack(this.fromBlock.getStatesCache().getFirst().getBlock());
     }
 
     @Override
     public boolean matches(Input input, Level level) {
-        return input.dimension.equals(dimension) && fromBlock.test(level, input.fromBlock.defaultBlockState(), null);
+        return input.dimension.equals(this.dimension) && this.fromBlock.test(level, input.fromBlock.defaultBlockState(), null);
     }
 
     @Override
@@ -90,10 +96,9 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
     }
 
     public record Input(ResourceLocation dimension, Block fromBlock) implements RecipeInput {
-
         @Override
         public ItemStack getItem(int i) {
-            return new ItemStack(fromBlock);
+            return new ItemStack(this.fromBlock);
         }
 
         @Override
@@ -115,8 +120,9 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
                 BlockStatePredicate.CODEC
                     .fieldOf("from_block")
                     .forGetter(MineralFountainChanceRecipe::getFromBlock),
-                CodecUtil.BLOCK_CODEC.fieldOf("to_block").forGetter(MineralFountainChanceRecipe::getToBlock),
-                Codec.DOUBLE.fieldOf("chance").forGetter(MineralFountainChanceRecipe::getChance)
+                ChanceBlockState.CODEC
+                    .fieldOf("to_block")
+                    .forGetter(MineralFountainChanceRecipe::getToBlock)
             )
             .apply(ins, MineralFountainChanceRecipe::new));
 
@@ -126,32 +132,28 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
                 MineralFountainChanceRecipe::getDimension,
                 BlockStatePredicate.STREAM_CODEC,
                 MineralFountainChanceRecipe::getFromBlock,
-                CodecUtil.BLOCK_STREAM_CODEC,
+                ChanceBlockState.STREAM_CODEC,
                 MineralFountainChanceRecipe::getToBlock,
-                ByteBufCodecs.DOUBLE,
-                MineralFountainChanceRecipe::getChance,
                 MineralFountainChanceRecipe::new
             );
 
         @Override
         public MapCodec<MineralFountainChanceRecipe> codec() {
-            return CODEC;
+            return Serializer.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, MineralFountainChanceRecipe> streamCodec() {
-            return STREAM_CODEC;
+            return Serializer.STREAM_CODEC;
         }
     }
 
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<MineralFountainChanceRecipe> {
-
         private ResourceLocation dimension;
         private BlockStatePredicate fromBlock;
-        private Block toBlock;
-        private double chance;
+        private ChanceBlockState toBlock;
 
         public Builder fromBlock(Block fromBlock) {
             this.fromBlock = BlockStatePredicate.builder().of(fromBlock).build();
@@ -163,9 +165,41 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
             return this;
         }
 
+        /**
+         * 添加结果方块
+         *
+         * @param result 结果方块
+         * @return 构建器实例
+         */
+        public Builder toBlock(ChanceBlockState result) {
+            this.toBlock = result;
+            return this;
+        }
+
+        /**
+         * 添加结果方块（指定概率）
+         *
+         * @param result 结果方块
+         * @param chance 概率
+         * @return 构建器实例
+         */
+        public Builder toBlock(Block result, float chance) {
+            return this.toBlock(new ChanceBlockState(result.defaultBlockState(), chance));
+        }
+
+        /**
+         * 添加结果方块（默认概率为1.0f）
+         *
+         * @param result 结果方块
+         * @return 构建器实例
+         */
+        public Builder toBlock(Block result) {
+            return this.toBlock(result, 1.0f);
+        }
+
         @Override
         public MineralFountainChanceRecipe buildRecipe() {
-            return new MineralFountainChanceRecipe(dimension, fromBlock, toBlock, chance);
+            return new MineralFountainChanceRecipe(this.dimension, this.fromBlock, this.toBlock);
         }
 
         @Override
@@ -174,23 +208,20 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
                 recipeOutput,
                 AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
                     .withPrefix(getType() + "/")
-                    .withSuffix("_from_" + dimension.getPath())
+                    .withSuffix("_from_" + this.dimension.getPath())
             );
         }
 
         @Override
         public void validate(ResourceLocation pId) {
-            if (dimension == null) {
+            if (this.dimension == null) {
                 throw new IllegalArgumentException("Dimension must be not null, RecipeId: " + pId);
             }
-            if (fromBlock == null) {
+            if (this.fromBlock == null) {
                 throw new IllegalArgumentException("FromBlock must be not null, RecipeId: " + pId);
             }
-            if (toBlock == null) {
+            if (this.toBlock == null) {
                 throw new IllegalArgumentException("ToBlock must be not null, RecipeId: " + pId);
-            }
-            if (chance <= 0 || chance > 1) {
-                throw new IllegalArgumentException("Chance must be between 0 and 1, RecipeId: " + pId);
             }
         }
 
@@ -201,7 +232,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
 
         @Override
         public Item getResult() {
-            return toBlock.asItem();
+            return this.toBlock.state().getBlock().asItem();
         }
     }
 }

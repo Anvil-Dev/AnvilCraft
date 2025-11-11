@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -121,6 +122,9 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
+            if (level instanceof ServerLevel serverLevel) {
+                serverLevel.getBlockTicks().clearArea(new BoundingBox(pos));
+            }
             super.onRemove(state, level, pos, newState, false);
         }
         Direction facing = state.getValue(FACING);

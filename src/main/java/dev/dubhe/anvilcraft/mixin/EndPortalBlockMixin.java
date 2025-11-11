@@ -34,10 +34,14 @@ abstract class EndPortalBlockMixin {
     private void fallBlockEntityInside(
         BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity, CallbackInfo ci
     ) {
-        if (
-            pEntity instanceof FallingBlockEntity fallingBlockEntity
-            && !fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)
-        ) {
+        if (!(pEntity instanceof FallingBlockEntity fallingBlockEntity)) {
+            return;
+        }
+        if (fallingBlockEntity.anvilcraft$isSpectral()) {
+            fallingBlockEntity.discard();
+            return;
+        }
+        if (!fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) {
             BlockState newState = ModBlocks.END_DUST.getDefaultState();
             if (fallingBlockEntity.blockState.is(BlockTags.ANVIL)) {
                 double rand = pLevel.random.nextDouble();

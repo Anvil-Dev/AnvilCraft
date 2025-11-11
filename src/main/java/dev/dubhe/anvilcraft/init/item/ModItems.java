@@ -751,12 +751,12 @@ public class ModItems {
             .pattern("CDC")
             .define('A', IONOCRAFT.asItem())
             .define('B', ModItemTags.CAPACITOR)
-            .define('C', ModItemTags.TITANIUM_PLATES)
+            .define('C', ModItemTags.TIN_PLATES)
             .define('D', Items.LEATHER_CHESTPLATE)
             .group(ctx.getId().toString())
             .unlockedBy(AnvilCraftDatagen.hasItem(IONOCRAFT.asItem()), RegistrateRecipeProvider.has(IONOCRAFT.asItem()))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), RegistrateRecipeProvider.has(ModItemTags.CAPACITOR))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_PLATES), RegistrateRecipeProvider.has(ModItemTags.TITANIUM_PLATES))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_PLATES), RegistrateRecipeProvider.has(ModItemTags.TIN_PLATES))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.LEATHER_CHESTPLATE), RegistrateRecipeProvider.has(Items.LEATHER_CHESTPLATE))
             .save(provider);
     }).register();

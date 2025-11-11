@@ -115,7 +115,14 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         if (!(state.getBlock() instanceof ActivatorSlidingRailBlock other)) return false;
         Direction otherFacing = state.getValue(FACING);
         if (facing.getAxis() != otherFacing.getAxis()) return false;
-        return level.hasNeighborSignal(pos)
+        boolean hasSideSignal = false;
+        for (Direction d : SIGNAL_SOURCE_SIDES) {
+            if (level.hasSignal(pos.relative(d), d)) {
+                hasSideSignal = true;
+                break;
+            }
+        }
+        return hasSideSignal
                || other.findActivatorSlidingRailSignal(level, pos, state, searchForward, recursionCount + 1);
     }
 

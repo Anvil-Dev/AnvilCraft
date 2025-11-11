@@ -24,7 +24,7 @@
     {
       "type": "patchouli:spotlight",
       "item": ["minecraft:anvil","anvilcraft:spectral_anvil","anvilcraft:royal_anvil","anvilcraft:ember_anvil","anvilcraft:transcendence_anvil"],
-      "text": "使用不同的铁砧进行$(thing)铁砧挖掘$()，具有不同的破坏效果：$(li)普通铁砧：常规挖掘 $(li)$(l:basic/end_portal)幻灵铁砧$(/l)：同上 $(li)$(l:smithing/tier_1_materials#royal_anvil)皇家铁砧$(/l)：$(#004400)精准采集$() $(li)$(l:smithing/tier_2_materials#ember_anvil)余烬铁砧$(/l)：$(#661100)熔炼$() $(li)超限铁砧：$(#660066)时运V$() "
+      "text": "使用不同的铁砧进行$(thing)铁砧挖掘$()，具有不同的破坏效果：$(li)普通铁砧：常规挖掘 $(li)$(l:basic/end_portal)幻灵铁砧$(/l)：同上 $(li)$(l:smithing/tier_1_forge#royal_anvil)皇家铁砧$(/l)：$(#004400)精准采集$() $(li)$(l:smithing/tier_2_forge#ember_anvil)余烬铁砧$(/l)：$(#661100)熔炼$() $(li)$(l:smithing/tier_3_forge#transcendence_anvil)超限铁砧$(/l)：$(#660066)时运V$() "
     },
     {
       "type": "patchouli:text",

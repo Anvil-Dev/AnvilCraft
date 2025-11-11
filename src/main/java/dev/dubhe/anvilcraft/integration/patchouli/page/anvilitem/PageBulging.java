@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -38,7 +37,7 @@ public class PageBulging extends PageAnvilItemProcess<BulgingRecipe> {
         if (recipe.isProduceFluid()) {
             return Blocks.CAULDRON.defaultBlockState();
         } else {
-            return CauldronUtil.fullState(HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid()));
+            return recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
         }
     }
 }

@@ -4,76 +4,39 @@
   "icon": "anvilcraft:ember_metal_ingot",
   "sortnum": 23006,
   "entry_color": "661100",
+  "extra_recipe_mappings": {
+    "anvilcraft:frost_metal_block": 0,
+    "anvilcraft:frost_metal_nugget": 0,
+    "anvilcraft:ember_metal_block": 0,
+    "anvilcraft:ember_metal_nugget": 0
+  },
   "pages": [
-    "This page shows all available $(thing)tier 2 materials$(): $(li)地核碎片 $(li)虚空物质 $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#multiphase_matter)多相物质$(/l) $(li)$(l:smithing/tier_2_materials#multiple_templates)多合一锻造模板$(/l) $(li)$(l:smithing/tier_2_materials#neutronium_ingot)中子锭$(/l) ",
+    "本页面展示了目前所有可用的$(thing)二阶材料$(): $(li)$(item)地核碎片$() $(li)$(item)虚空物质$() $(li)$(l:smithing/tier_2_materials#frost_metal)浮霜金属$(/l) $(li)$(l:smithing/tier_2_materials#ember_metal)余烬金属$(/l) $(li)$(l:smithing/tier_2_materials#neutronium_ingot)中子锭$(/l) ",
     {
       "type": "patchouli:spotlight",
       "anchor": "earth_core_shard",
-      "item": [
-        "anvilcraft:earth_core_shard",
-        "anvilcraft:earth_core_shard_block",
-        "anvilcraft:earth_core_shard_ore"
-      ],
+      "item": ["anvilcraft:earth_core_shard","anvilcraft:earth_core_shard_block","anvilcraft:earth_core_shard_ore"],
       "link_recipe": true,
-      "text": "$(item)地核碎片$()系列物品不受$(item)熔岩$()和$(item)火焰$()损害，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可参与$(item)余烬金属锭$()的制作 $(br2)方块形态具有同黑曜石的挖掘等级"
+      "text": "$(li)通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产 $(li)$(item)地核碎片$()系列物品不受$(item)熔岩$()和$(item)火焰$()损害 $(li)可参与$(item)余烬金属锭$()的制作 $(li)方块形态具有同黑曜石的挖掘等级"
     },
     {
       "type": "patchouli:spotlight",
       "anchor": "void_matter",
-      "item": [
-        "anvilcraft:void_matter",
-        "anvilcraft:void_matter_block",
-        "anvilcraft:void_stone"
-      ],
+      "item": ["anvilcraft:void_matter","anvilcraft:void_matter_block","anvilcraft:void_stone"],
       "link_recipe": true,
-      "text": "$(item)虚空物质$()系列物品在$(thing)虚空$()中会上升，通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产。 $(br2)可用于制作$(l:power/void_energy_collection#void_energy_collector)虚空能收集器$() $(br2)方块形态具有同黑曜石的挖掘等级 $(br2)虚空物质块具有$(l:advanced/void_decay)特性：虚空衰变$()"
+      "text": "$(li)通过$(l:struct/mineral_fountain)矿物涌泉$(/l)生产 $(li)$(item)虚空物质$()系列物品在$(thing)虚空$()中会上升 $(li)可用于制作$(l:power/void_energy_collection#void_energy_collector)虚空能收集器$() $(li)方块形态具有同黑曜石的挖掘等级 $(li)虚空物质块具有$(l:advanced/void_decay)特性：虚空衰变$()"
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "anvilcraft:time_warp",
       "anchor": "frost_metal",
-      "item": "anvilcraft:frost_metal_ingot",
-      "text": "$(item)Frost Metal$() is a hard and cold metal."
-    },
-    {
-      "type": "anvilcraft:time_warp",
-      "title": "Frost Metal Template",
       "recipe": "anvilcraft:time_warp/frost_metal_ingot",
-      "text": "Use time warp with 1 $(item)Titanium Ingot$(), 1 $(item)Silver Ingot$() and 1 $(item)Iron Ingot$() to craft it."
-    },
-    {
-      "type": "patchouli:crafting",
-      "anchor": "frost_metal_block_and_nugget",
-      "recipe": "anvilcraft:frost_metal_block",
-      "recipe2": "anvilcraft:frost_metal_nugget"
-    },
-    {
-      "type": "anvilcraft:time_warp",
-      "recipe": "anvilcraft:time_warp/frost_metal_upgrade_smithing_template",
-      "text": "Use time warp with $(item)Royal Steel Upgrade Smithing Template$() to craft this. Can be used to upgrade $(thing)Royal Steel tools$() to $(thing)Frost Metal tools$()."
-    },
-    {
-      "type": "patchouli:smithing",
-      "anchor": "frost_metal_tools",
-      "recipe": "anvilcraft:smithing/frost_metal_pickaxe",
-      "recipe2": "anvilcraft:smithing/frost_metal_axe",
-      "text": "Use $(item)Frost Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#merciless)Merciless$(/l) property."
-    },
-    {
-      "type": "patchouli:smithing",
-      "recipe": "anvilcraft:smithing/frost_metal_shovel",
-      "recipe2": "anvilcraft:smithing/frost_metal_hoe",
-      "text": "Use $(item)Frost Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#merciless)Merciless$(/l) property."
-    },
-    {
-      "type": "patchouli:smithing",
-      "recipe": "anvilcraft:smithing/frost_metal_sword",
-      "text": "Use $(item)Frost Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#merciless)Merciless$(/l) property."
+      "text": "$(item)浮霜金属$()是一种坚固且寒冷的金属"
     },
     {
       "type": "patchouli:spotlight",
       "anchor": "ember_metal",
-      "item": "anvilcraft:ember_metal_ingot",
-      "text": "$(item)Ember Metal$() is a very hot metal. $(br)Use time warp with any $(thing)heated Netherite Blocks$() to craft this. You can add 1-3 $(item)Earth Core Shard$() to increase result. $(br)$(l:apply/oil)Click here$() to see how to get the Fire Cauldron"
+      "item": ["anvilcraft:ember_metal_ingot","anvilcraft:ember_metal_block","anvilcraft:ember_metal_nugget"],
+      "text": "$(item)余烬金属$()是一种炽热无比的金属。$(br)使用任意$(thing)高温的下界合金块$()进行时移来制作。加入1-3个$(item)地核碎片$()可以增加对应量的产出。$(br)$(l:apply/oil)点我$()查看如何获得$(item)燃烧的炼药锅$()"
     },
     {
       "type": "anvilcraft:time_warp",
@@ -86,76 +49,11 @@
       "recipe2": "anvilcraft:time_warp/ember_metal_ingot_3"
     },
     {
-      "type": "patchouli:crafting",
-      "recipe": "anvilcraft:ember_metal_block",
-      "recipe2": "anvilcraft:ember_metal_nugget_from_ingot"
-    },
-    {
-      "type": "anvilcraft:stamping",
-      "recipe": "anvilcraft:stamping/ember_metal_upgrade_smithing_template",
-      "text": "Use Stamping with $(item)Royal Steel Upgrade Smithing Template$() to craft this. Can be used to upgrade $(thing)Royal Steel tools$() to $(thing)Ember Metal tools$()."
-    },
-    {
-      "type": "patchouli:smithing",
-      "recipe": "anvilcraft:smithing/ember_smithing_table",
-      "text": "This smithing table is used to smith recipes more complex. With this, you will be able to go further on Smithing."
-    },
-    {
-      "type": "patchouli:smithing",
-      "anchor": "ember_anvil",
-      "recipe": "anvilcraft:smithing/ember_anvil",
-      "text": "This anvil is similar to $(item)Royal Steel Anvil$(), but it can make you combine some conflict enchantments to items forcefully."
-    },
-    {
-      "type": "patchouli:smithing",
-      "anchor": "ember_grindstone",
-      "recipe": "anvilcraft:smithing/ember_grindstone",
-      "text": "On $(item)Ember Grindstone$(), you can cost XP to extract enchantments from enchanted items. Only need to put the item and regular books in, select an enchantment, and you will be able to cost displayed XP to extract the selected enchantment. It will be no \"Too Expensive!\", but will still add repair cost to the item has been extracted."
-    },
-    {
-      "type": "patchouli:smithing",
-      "anchor": "ember_metal_tools",
-      "recipe": "anvilcraft:smithing/ember_metal_pickaxe",
-      "recipe2": "anvilcraft:smithing/ember_metal_axe",
-      "text": "Use $(item)Ember Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#reforging)Fire Reforging$(/l) property."
-    },
-    {
-      "type": "patchouli:smithing",
-      "recipe": "anvilcraft:smithing/ember_metal_shovel",
-      "recipe2": "anvilcraft:smithing/ember_metal_hoe",
-      "text": "Use $(item)Ember Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#reforging)Fire Reforging$(/l) property."
-    },
-    {
-      "type": "patchouli:smithing",
-      "recipe": "anvilcraft:smithing/ember_metal_sword",
-      "recipe2": "anvilcraft:smithing/ember_anvil_hammer",
-      "text": "Use $(item)Ember Metal Ingot$() to upgrade your tools. They will include $(l:advanced/tool_properties#reforging)Fire Reforging$(/l) property."
-    },
-    {
-      "type": "anvilcraft:anvil_collision",
-      "anchor": "multiphase_matter",
-      "recipe": "anvilcraft:anvil_collision/ember_anvil_and_frost_metal_block_32",
-      "text": "一次撞击获得4个$(item)多相物质$() $(p)用于在$(item)余烬锻造台$()上参与多合一锻造"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "anvilcraft:multiphase_matter_block",
-      "text": "$(#888888)把极冷与极热的物质掺和在一起是一件令人激动的事情，然后它就这么诞生了！ ——氙氪博士$()"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "anchor": "multiple_templates",
-      "item": "tag:anvilcraft:multiple_to_one_smithing_templates",
-      "title": "Multiple to One Smithing Template",
-      "link_recipe": true,
-      "text": "Use stamping with some different $(thing)Smithing Templates$() to craft them. The count of these templates decide you will get X to One Smithing Template. $(br2)It is used to participate in multiple_to_one smithing on the $(item)Embers smithing table$()"
-    },
-    {
       "type": "patchouli:spotlight",
       "anchor": "neutronium_ingot",
-      "item": "anvilcraft:neutronium_ingot",
+      "item": ["anvilcraft:neutronium_ingot", "anvilcraft:charged_neutronium_ingot"],
       "link_recipe": true,
-      "text": "通过$(l:smithing/space_overcompressor)空间超压器$(/l)制作。 $(br)密度奇大，寻常方块只会被它如空气般穿过，但会被基岩和末地石、末地尘等等含飘浮粉的方块拦截。 $(p)$(#888888)中子星是人类目前发现除黑洞外密度最大的星体，是演化到末期的恒星，经由引力坍缩发生超新星爆炸之后可能成为的少数终点之一。$()"
+      "text": "$(li)通过$(l:smithing/space_overcompressor)空间超压器$(/l)制作 $(li)密度奇大，寻常方块只会被它如空气般穿过，但会被基岩和末地石、末地尘等含飘浮粉的方块拦截 $(li)用充电器消耗[4000kW·300s]能量，获得$(item)充能中子锭$()，不会穿过方块"
     },
     {
       "type": "patchouli:crafting",
@@ -164,16 +62,9 @@
       "text": "被飘浮粉包裹，不会穿过方块"
     },
     {
-      "type": "patchouli:spotlight",
-      "item": "anvilcraft:charged_neutronium_ingot",
-      "link_recipe": true,
-      "text": "通过充电器充能获得，不会穿过方块 $(br)能量消耗：4000kW·300s"
-    },
-    {
       "type": "patchouli:relations",
       "entries": [
         "anvilcraft:struct/mineral_fountain",
-        "anvilcraft:struct/collision",
         "anvilcraft:advanced/tool_properties",
         "anvilcraft:apply/oil",
         "anvilcraft:smithing/space_overcompressor",

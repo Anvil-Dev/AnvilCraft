@@ -191,7 +191,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -4636,17 +4635,17 @@ public class ModBlocks {
         PlayerInHandItemDurabilityPressurePlateBlock::new,
         ModItemTags.PLUTONIUM_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> BRONZE_PRESSURE_PLATE = registerPressurePlate(
-        "bronze",
-        BRONZE_BLOCK,
-        PlayerInventoryPressurePlateBlock::new,
-        ModItemTags.BRONZE_INGOTS
-    );
     public static final BlockEntry<? extends PowerLevelPressurePlateBlock> BRASS_PRESSURE_PLATE = registerPressurePlate(
         "brass",
         BRASS_BLOCK,
-        PlayerHungerPressurePlateBlock::new,
+        PlayerInventoryPressurePlateBlock::new,
         ModItemTags.BRASS_INGOTS
+    );
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> BRONZE_PRESSURE_PLATE = registerPressurePlate(
+        "bronze",
+        BRONZE_BLOCK,
+        PlayerHungerPressurePlateBlock::new,
+        ModItemTags.BRONZE_INGOTS
     );
 
     public static void register() {

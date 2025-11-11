@@ -77,6 +77,16 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     @Override
+    public boolean anvilcraft$isSpectral() {
+        return true;
+    }
+
+    @Override
+    public float anvilcraft$getFallDistance() {
+        return 1.0F;
+    }
+
+    @Override
     public void tick() {
         if (this.blockState.isAir()) {
             this.discard();
@@ -101,9 +111,10 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                 } else if (
                     !this.level().isClientSide()
                     && (
-                        this.time > 100 && (
-                            blockPos.getY() <= this.level().getMinBuildHeight() || blockPos.getY() > this.level()
-                                .getMaxBuildHeight()
+                        this.time > 100
+                        && (
+                            blockPos.getY() <= this.level().getMinBuildHeight()
+                            || blockPos.getY() > this.level().getMaxBuildHeight()
                         )
                         || this.time > 600
                     )
@@ -288,7 +299,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         FallingSpectralBlockEntity fallingBlockEntity = new FallingSpectralBlockEntity(
             level,
             (double) pos.getX() + 0.5,
-            (double) pos.getY() - 0.96,
+            pos.getY(),
             (double) pos.getZ() + 0.5,
             blockState.hasProperty(BlockStateProperties.WATERLOGGED)
                 ? blockState.setValue(BlockStateProperties.WATERLOGGED, false)

@@ -181,6 +181,40 @@ public class AnvilCraftSceneBuilder extends PonderSceneBuilder {
                 }
             );
         }
+
+        public void letLivingEntitysDie(
+            ElementLink<EntityElement>[] links,
+            BlockPos[] particlesPositions,
+            boolean discard
+        ) {
+            for (int i = 0; i < links.length && i < particlesPositions.length; i++) {
+                BlockPos pos = particlesPositions[i];
+                AnvilCraftSceneBuilder.this.effects().emitParticles(
+                    new Vec3(pos.getX(), pos.getY(), pos.getZ()),
+                    AnvilCraftSceneBuilder.this.effects().simpleParticleEmitter(ParticleTypes.POOF, new Vec3(0, 0.1, 0)),
+                    10,
+                    1
+                );
+            }
+            for (int tick = 0; tick < 20; tick++) {
+                final int finalTick = tick;
+                for (ElementLink<EntityElement> link : links) {
+                    this.modifyEntity(
+                        link, entity -> {
+                            if (entity instanceof LivingEntity livingEntity) {
+                                livingEntity.deathTime = finalTick;
+                            }
+                        }
+                    );
+                }
+                AnvilCraftSceneBuilder.this.idle(1);
+            }
+            if (discard) {
+                for (ElementLink<EntityElement> link : links) {
+                    this.removeEntity(link);
+                }
+            }
+        }
     }
 
     public class EffectInstructions extends PonderEffectInstructions {

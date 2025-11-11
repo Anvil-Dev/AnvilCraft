@@ -112,5 +112,15 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.anvil_collision.maxcount", "Max Count: %s");
         provider.add("gui.anvilcraft.category.anvil_collision.consume", "Consume Anvil: %d");
         provider.add("gui.anvilcraft.category.anvil_collision.speed", "Need Speed: %s");
+
+        provider.add("gui.anvilcraft.category.transcendium_recipe", "Transcendium Recipe");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_0", "The amount of enchantments is 0");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_1_10", "The amount of enchantments is 1-10");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_11_14", "The amount of enchantments is 11-14");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_15", "The amount of enchantments is 15");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_>16", "The amount of enchantments is 16 or more");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.amount_is_3", "Amount is amount of enchantments x 3");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.amount_is_1", "Amount is amount of enchantments x 1");
+        provider.add("gui.anvilcraft.category.transcendium_recipe.probability", "probability: (10 x (amount of enchantments)) / 100");
     }
 }

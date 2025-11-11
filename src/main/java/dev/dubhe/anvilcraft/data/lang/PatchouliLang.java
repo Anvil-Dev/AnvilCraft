@@ -128,6 +128,7 @@ public class PatchouliLang {
         provider.add("title.anvilcraft.patchouli.smithing.tier_2_forge", "Tier 2 Forge");
         provider.add("title.anvilcraft.patchouli.smithing.tier_2_materials", "Tier 2 Materials");
         provider.add("title.anvilcraft.patchouli.smithing.tier_3_forge", "Tier 3 Forge");
+        provider.add("title.anvilcraft.patchouli.smithing.tier_3_materials", "Tier 3 Materials");
 
         // Entry titles for struct category
         provider.add("title.anvilcraft.patchouli.struct.collision", "Anvil Collision Craft");

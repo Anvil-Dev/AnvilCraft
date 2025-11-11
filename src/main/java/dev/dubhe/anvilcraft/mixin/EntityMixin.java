@@ -8,9 +8,13 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.SpectralAnvilConversionUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
@@ -18,6 +22,8 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Portal;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
@@ -147,6 +153,7 @@ public abstract class EntityMixin implements IEntityExtension {
             isFixed.set(true);
             anvil$fixedDeltaMovement = vec3.multiply(a, a, a);
             anvil$isDeflected = true;
+
             return;
         }
         anvil$isDeflected = false;
@@ -248,5 +255,33 @@ public abstract class EntityMixin implements IEntityExtension {
             )
         );
         NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, beforeBoundingMovement.get().length()));
+    }
+
+    @Inject(
+        method = "handlePortal",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;changeDimension("
+                     + "Lnet/minecraft/world/level/portal/DimensionTransition;"
+                     + ")Lnet/minecraft/world/entity/Entity;"
+        )
+    )
+    private void handlePortal(CallbackInfo ci) {
+        //noinspection ConstantValue
+        if (!(((Object) this) instanceof FallingBlockEntity fallingBlockEntity)) return;
+        if (fallingBlockEntity.anvilcraft$isSpectral()) {
+            fallingBlockEntity.discard();
+            return;
+        }
+        if (!fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) {
+            BlockState newState = ModBlocks.END_DUST.getDefaultState();
+            if (fallingBlockEntity.blockState.is(BlockTags.ANVIL)) {
+                double rand = this.level.random.nextDouble();
+                if (rand < SpectralAnvilConversionUtil.chance(fallingBlockEntity.blockState.getBlock())) {
+                    newState = ModBlocks.SPECTRAL_ANVIL.getDefaultState();
+                }
+            }
+            fallingBlockEntity.blockState = newState;
+        }
     }
 }

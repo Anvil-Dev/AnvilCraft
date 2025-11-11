@@ -144,6 +144,8 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
         List<Component> components = super.getTooltipFromContainerItem(stack);
         if (this.hoveringNonEmptyFilterSlot()) {
             components.add(scrollToChangeTooltip);
+            components.add(Component.translatable("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit")
+                .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
             components.add(shiftToScrollFasterTooltip);
         }
         return components;

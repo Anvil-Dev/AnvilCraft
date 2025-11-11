@@ -4,65 +4,82 @@
   "icon": "anvilcraft:ember_smithing_table",
   "sortnum": 23007,
   "entry_color": "661100",
+  "extra_recipe_mappings": {
+    "anvilcraft:frost_metal_sword": 0,
+    "anvilcraft:frost_metal_pickaxe": 0,
+    "anvilcraft:frost_metal_shovel": 0,
+    "anvilcraft:frost_metal_hoe": 0,
+    "anvilcraft:frost_metal_axe": 0,
+    "anvilcraft:ember_metal_sword": 0,
+    "anvilcraft:ember_metal_pickaxe": 0,
+    "anvilcraft:ember_metal_shovel": 0,
+    "anvilcraft:ember_metal_hoe": 0,
+    "anvilcraft:ember_metal_axe": 0
+  },
   "pages": [
-    "本章将介绍如何锻造:$(li)$(l:smithing/tier_2_forge#heavy_halberd)重戟$() $(li)$(l:smithing/tier_2_forge#resonator)共振器$() $(li)$(l:smithing/tier_2_forge#multitool)多功能工具$() $(li)$(l:smithing/tier_2_forge#amulet)四合一护符$() $(p)$(#880000)注意$()：$(br)合并物品，需要$(l:smithing/tier_2_materials#multiple_templates)多合一模板$() $(br)余烬工具特性：$(l:advanced/tool_properties#reforging)重铸$(/l) $(br)浮霜工具特性：$(l:advanced/tool_properties#merciless)无情$(/l)",
+    "本章将介绍如何锻造: $(li)$(l:smithing/tier_2_forge#ember_smithing_table)余烬工作方块$(/l) $(li)$(l:smithing/tier_2_forge#ember_metal_tools)余烬工具$() $(li)$(l:smithing/tier_2_forge#frost_metal_tools)浮霜工具$() $(li)$(l:smithing/tier_2_forge#amulet)四合一护符$() $(p)余烬工具特性：$(l:advanced/tool_properties#reforging)重铸$(/l) $(br)浮霜工具特性：$(l:advanced/tool_properties#merciless)无情$(/l)",
+    {
+      "type": "anvilcraft:stamping",
+      "title": "余烬锻造模板",
+      "recipe": "anvilcraft:stamping/ember_metal_upgrade_smithing_template",
+      "text": "用于将$(thing)皇家钢工具$()升级为$(thing)余烬金属工具$()"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_smithing_table",
+      "recipe": "anvilcraft:smithing/ember_smithing_table",
+      "text": "这个锻造台用于锻造更加复杂的配方，有了它之后你就有能力在锻造上更进一步了。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_anvil",
+      "recipe": "anvilcraft:smithing/ember_anvil",
+      "text": "这个铁砧的功能与$(item)皇家铁砧$()几乎一致，但是它可以让你在生存模式下给物品强行添加一些不兼容的附魔。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_grindstone",
+      "recipe": "anvilcraft:smithing/ember_grindstone",
+      "text": "在$(item)余烬砂轮$()上，你可以消耗经验提取出附魔物品的附魔。只需放入待提取的物品和书，并选择一个附魔，就可以消耗其显示的经验提取出选择的附魔了。它不会有过于昂贵，但是仍会向提取的物品增加附魔惩罚。"
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "ember_metal_tools",
+      "recipe": "anvilcraft:smithing/ember_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/ember_metal_sword",
+      "text": "使用$(item)余烬金属锭$()配合$(item)余烬锻造模板$()升级的工具，将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
+    },
     {
       "type": "patchouli:crafting",
       "recipe": "anvilcraft:ember_dragon_rod",
-      "text": "升级后功能不变，只是耐久不同。$(br2)同样可以通过锻造升级。"
+      "text": "相比皇家钢版本，功能不变，具有更高的耐久。$(br2)可以通过锻造升级。"
     },
     {
-      "type": "patchouli:crafting",
-      "anchor": "heavy_halberd",
-      "recipe": "anvilcraft:heavy_halberd_core",
-      "text": "$(item)Heavy Halberd$() fused the attacking abilities from Sword, Axe, Mace and Trident. It's a powerful weapon. $(br2)$(item)Heavy Halberd Core$() is the core ingredient of crafting Heavy Halberd."
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/ember_dragon_rod",
+      "recipe2": "anvilcraft:smithing/ember_anvil_hammer",
+      "text": "使用$(item)余烬金属块$()配合$(item)余烬锻造模板$()升级的工具，将自带$(l:advanced/tool_properties#reforging)重铸$(/l)属性。"
     },
     {
-      "type": "anvilcraft:multiple_to_one_smithing",
-      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_heavy_halberd",
-      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_heavy_halberd"
+      "type": "anvilcraft:time_warp",
+      "title": "浮霜锻造模板",
+      "recipe": "anvilcraft:time_warp/frost_metal_upgrade_smithing_template",
+      "text": "用于将$(thing)皇家钢工具$()升级为$(thing)浮霜金属工具$()。"
     },
     {
-      "type": "patchouli:text",
-      "title": "Use",
-      "text": "Heavy Halberd can be used with any one of the four weapons consumed while crafting. It can compat with all enchantments for Sword, Mace, and Trident. $(br2)Its attack damage is the same as Axe's, its attack speed is the same as Sword's, and it can mine all they can. Falling from a height can trigger the smash. It can also be thrown when holding right click like Tridents, but the damage will be calculated by the speed, similar to Arrows. When it has the Royalty enchantment and it touches the void, it will come back to the player."
+      "type": "patchouli:smithing",
+      "anchor": "frost_metal_tools",
+      "recipe": "anvilcraft:smithing/frost_metal_pickaxe",
+      "recipe2": "anvilcraft:smithing/frost_metal_sword",
+      "text": "使用$(item)浮霜金属锭$()配合$(item)浮霜锻造模板$()升级的工具，将自带$(l:advanced/tool_properties#merciless)无情$(/l)属性。"
     },
     {
-      "type": "patchouli:text",
-      "title": "Break",
-      "text": "Heavy Halberd will not be fully broken too; similar to Dragon Rods, it will lose all bonuses, abilities, attack damage will become 0, most enchantments will lose efficacy, and the $(thing)Merciless$() only in Frost Heavy Halberd will also lose efficacy."
-    },
-    {
-      "type": "patchouli:crafting",
-      "anchor": "resonator",
-      "recipe": "anvilcraft:resonator_core",
-      "text": "$(item)Resonator$() fused the mining abilities from Axe, Pickaxe, Shovel and Hoe. It's a powerful tool. $(br2)$(item)Resonator Core$() is the core ingredient of crafting Resonator."
-    },
-    {
-      "type": "anvilcraft:multiple_to_one_smithing",
-      "recipe": "anvilcraft:four_to_one_smithing/frost_metal_resonator",
-      "recipe2": "anvilcraft:four_to_one_smithing/ember_metal_resonator"
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Use",
-      "text": "Resonators have five modes: Auto and four tool modes. Different modes have different models. You can mine any minable blocks in Auto mode, but you don't have any special abilities when right-clicking."
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Choose",
-      "text": "Hold [$(k:anvilcraft.switch_resonate_mode)] while holding resonators to open a wheel; it contains five modes of resonators. You can switch the resonator's mode by scrolling the mouse or dragging the cursor to a mode. $(br2)In tool-specific modes, you can only mine what the tool can, but you can also get their special abilities when right-clicking. For example, Axe mode can strip logs, remove one layer of oxidization or wax."
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Break",
-      "text": "Resonator will not be fully broken too; similar to Dragon Rods, it will lose all bonuses, abilities, attack damage will become 0, most enchantments will lose efficacy, and the $(thing)Merciless$() only in Frost Resonator will also lose efficacy."
-    },
-    {
-      "type": "anvilcraft:multiple_to_one_smithing",
-      "anchor": "multitool",
-      "recipe": "anvilcraft:eight_to_one_smithing/multitool",
-      "text": "携带了八个工具的所有功能，按住[$(k:anvilcraft.switch_resonate_mode)]可以打开一个轮盘选择界面。 $(p)默认全选模式下使用反而会对自己造成伤害，选择其他功能后，可作为对应工具使用。"
+      "type": "patchouli:spotlight",
+      "anchor": "multiple_templates",
+      "item": "tag:anvilcraft:multiple_to_one_smithing_templates",
+      "title": "多合一锻造模板",
+      "link_recipe": true,
+      "text": "$(li)将多个互不相同的$(thing)锻造模板$()进行物品冲压加工获得，由模板数量决定获得的是几合一锻造模板 $(li)用于在$(item)余烬锻造台$()上参与多合一锻造"
     },
     {
       "type": "anvilcraft:multiple_to_one_smithing",

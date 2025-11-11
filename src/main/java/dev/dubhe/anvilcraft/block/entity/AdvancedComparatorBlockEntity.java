@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -137,7 +138,8 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     }
 
     public void updateInputtingSignal(Level level, BlockPos pos, BlockState state) {
-        this.inputtingSignal = AdvancedComparatorBlock.getInputSignal(level, pos, state);
+        int signal = AdvancedComparatorBlock.getInputSignal(level, pos, state);
+        this.inputtingSignal = Mth.clamp(signal, 0, 15);
         if (this.isRedstoneControl()) {
             this.highLimit = AdvancedComparatorBlock.getAlternateSignal(level, pos, state, true);
             this.lowLimit = AdvancedComparatorBlock.getAlternateSignal(level, pos, state, false);

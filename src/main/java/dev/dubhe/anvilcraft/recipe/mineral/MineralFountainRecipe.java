@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.recipe.mineral;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.recipe.component.BlockStatePredicate;
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.component.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
@@ -34,9 +34,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input> {
     private final BlockStatePredicate needBlock;
     private final BlockStatePredicate fromBlock;
-    private final Block toBlock;
+    private final ChanceBlockState toBlock;
 
-    public MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePredicate fromBlock, Block toBlock) {
+    public MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePredicate fromBlock, ChanceBlockState toBlock) {
         this.needBlock = needBlock;
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
@@ -59,7 +59,9 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
 
     @Override
     public ItemStack assemble(Input input, HolderLookup.Provider provider) {
-        return this.toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(this.needBlock.getStatesCache().getFirst().getBlock());
+        return this.toBlock.state().getBlock().asItem() == Items.AIR
+               ? ItemStack.EMPTY
+               : new ItemStack(this.needBlock.getStatesCache().getFirst().getBlock());
     }
 
     @Override
@@ -69,12 +71,16 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return this.toBlock.asItem() == Items.AIR ? ItemStack.EMPTY : new ItemStack(this.needBlock.getStatesCache().getFirst().getBlock());
+        return this.toBlock.state().getBlock().asItem() == Items.AIR
+               ? ItemStack.EMPTY
+               : new ItemStack(this.needBlock.getStatesCache().getFirst().getBlock());
     }
 
     @Override
     public boolean matches(Input input, Level level) {
-        if (!this.needBlock.test(level, input.needBlock.defaultBlockState(), null)) return false;
+        if (!this.needBlock.test(level, input.needBlock.defaultBlockState(), null)) {
+            return false;
+        }
         return this.fromBlock.test(level, input.fromBlock.defaultBlockState(), null);
     }
 
@@ -84,10 +90,9 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
     }
 
     public record Input(Block needBlock, Block fromBlock) implements RecipeInput {
-
         @Override
         public ItemStack getItem(int i) {
-            return new ItemStack(needBlock);
+            return new ItemStack(this.needBlock);
         }
 
         @Override
@@ -110,7 +115,7 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
             BlockStatePredicate.CODEC
                 .fieldOf("from_block")
                 .forGetter(MineralFountainRecipe::getFromBlock),
-            CodecUtil.BLOCK_CODEC
+            ChanceBlockState.CODEC
                 .fieldOf("to_block")
                 .forGetter(MineralFountainRecipe::getToBlock)
         ).apply(ins, MineralFountainRecipe::new));
@@ -121,19 +126,19 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
                 MineralFountainRecipe::getNeedBlock,
                 BlockStatePredicate.STREAM_CODEC,
                 MineralFountainRecipe::getFromBlock,
-                CodecUtil.BLOCK_STREAM_CODEC,
+                ChanceBlockState.STREAM_CODEC,
                 MineralFountainRecipe::getToBlock,
                 MineralFountainRecipe::new
             );
 
         @Override
         public MapCodec<MineralFountainRecipe> codec() {
-            return CODEC;
+            return Serializer.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, MineralFountainRecipe> streamCodec() {
-            return STREAM_CODEC;
+            return Serializer.STREAM_CODEC;
         }
     }
 
@@ -142,7 +147,7 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
     public static class Builder extends AbstractRecipeBuilder<MineralFountainRecipe> {
         private BlockStatePredicate needBlock;
         private BlockStatePredicate fromBlock;
-        private Block toBlock;
+        private ChanceBlockState toBlock;
 
         public Builder needBlock(Block needBlock) {
             this.needBlock = BlockStatePredicate.builder().of(needBlock).build();
@@ -164,20 +169,41 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
             return this;
         }
 
+        /**
+         * 添加结果方块
+         *
+         * @param result 结果方块
+         * @return 构建器实例
+         */
+        public Builder toBlock(ChanceBlockState result) {
+            this.toBlock = result;
+            return this;
+        }
+
+        /**
+         * 添加结果方块（默认概率为1.0f）
+         *
+         * @param result 结果方块
+         * @return 构建器实例
+         */
+        public Builder toBlock(Block result) {
+            return this.toBlock(new ChanceBlockState(result.defaultBlockState(), 1.0f));
+        }
+
         @Override
         public MineralFountainRecipe buildRecipe() {
-            return new MineralFountainRecipe(needBlock, fromBlock, toBlock);
+            return new MineralFountainRecipe(this.needBlock, this.fromBlock, this.toBlock);
         }
 
         @Override
         public void validate(ResourceLocation pId) {
-            if (needBlock == null) {
+            if (this.needBlock == null) {
                 throw new IllegalArgumentException("needBlock must not be null, RecipeId: " + pId);
             }
-            if (fromBlock == null) {
+            if (this.fromBlock == null) {
                 throw new IllegalArgumentException("fromBlock must not be null, RecipeId: " + pId);
             }
-            if (toBlock == null) {
+            if (this.toBlock == null) {
                 throw new IllegalArgumentException("toBlock must not be null, RecipeId: " + pId);
             }
         }
@@ -189,7 +215,7 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
 
         @Override
         public Item getResult() {
-            return toBlock.asItem();
+            return this.toBlock.state().getBlock().asItem();
         }
     }
 }

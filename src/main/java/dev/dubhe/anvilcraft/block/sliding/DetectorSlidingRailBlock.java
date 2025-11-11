@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -97,11 +98,10 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
         if (
             state.getValue(POWERED)
             && level.getEntitiesOfClass(SlidingBlockEntity.class, new AABB(pos.above())).isEmpty()
-            && level.getEntitiesOfClass(ItemEntity.class, new AABB(pos.above())).isEmpty()
+            && level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).isEmpty()
         ) {
             level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
             level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get()).ifPresent(DetectorSlidingRailBlockEntity::cleanPower);
-            level.updateNeighbourForOutputSignal(pos, this);
         }
         super.tick(state, level, pos, random);
     }
@@ -115,11 +115,6 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         if (!state.getValue(POWERED)) return 0;
         return side == Direction.DOWN ? 0 : 15;
-    }
-
-    @Override
-    protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return this.getSignal(state, level, pos, direction);
     }
 
     @Override
@@ -151,7 +146,6 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
         Optional<DetectorSlidingRailBlockEntity> blockEntity = level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get());
         blockEntity.ifPresent(detector -> detector.updatePower(entity.getBlockCount()));
         level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
-        level.updateNeighbourForOutputSignal(pos, this);
         level.scheduleTick(pos, this, 20);
     }
 
@@ -159,12 +153,19 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
         Optional<DetectorSlidingRailBlockEntity> blockEntity = level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get());
         blockEntity.ifPresent(detector -> detector.updatePower(1));
         level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
-        level.updateNeighbourForOutputSignal(pos, this);
         level.scheduleTick(pos, this, 20);
     }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.DETECTOR_SLIDING_RAIL.create(pos, state);
+    }
+
+    @Override
+    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() != this) return;
+        level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
+        level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get()).ifPresent(DetectorSlidingRailBlockEntity::cleanPower);
     }
 }

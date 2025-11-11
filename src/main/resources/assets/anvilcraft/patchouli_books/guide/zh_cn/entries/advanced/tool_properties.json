@@ -10,13 +10,13 @@
       "type": "patchouli:text",
       "title": "无情",
       "anchor": "merciless",
-      "text": "默认在$(l:smithing/tier_2_materials#frost_metal_tools)浮霜金属系列工具$(/l)上拥有。$(br)拥有此属性的工具除了$(thing)激流/$、$(thing)忠诚/$和$(thing)诅咒附魔/$之外的附魔将会全部失效，但是每级魔咒将会提供1点攻击伤害和1点挖掘速度。$(br2)由于$(thing)经验修补$()失效，工具只能用材料修复。"
+      "text": "默认在$(l:smithing/tier_2_forge#frost_metal_tools)浮霜金属系列工具$(/l)上拥有。$(br)拥有此属性的工具除了$(thing)激流/$、$(thing)忠诚/$和$(thing)诅咒附魔/$之外的附魔将会全部失效，但是每级魔咒将会提供1点攻击伤害和1点挖掘速度。$(br2)由于$(thing)经验修补$()失效，工具只能用材料修复。"
     },
     {
       "type": "patchouli:text",
       "title": "重铸",
       "anchor": "reforging",
-      "text": "默认在$(l:smithing/tier_2_materials#ember_metal_tools)余烬金属系列工具$(/l)上拥有。$(br)拥有此属性的工具在炎热环境下恢复耐久：$(li)火中:40耐久/秒 $(li)灵魂火中:100耐久/秒 $(li)熔岩(锅)中:200耐久/秒"
+      "text": "默认在$(l:smithing/tier_2_forge#ember_metal_tools)余烬金属系列工具$(/l)上拥有。$(br)拥有此属性的工具在炎热环境下恢复耐久：$(li)火中:40耐久/秒 $(li)灵魂火中:100耐久/秒 $(li)熔岩(锅)中:200耐久/秒"
     },
     {
       "type": "patchouli:text",
@@ -28,13 +28,13 @@
       "type": "patchouli:text",
       "title": "永恒",
       "anchor": "eternal",
-      "text": "默认在$(l:smithing/tier_3_materials#transcendence_tools)超限系列工具$(/l)上拥有。$(br)拥有此属性的工具将不会消耗耐久并拥有$(thing)不可破坏$()属性。$(br)它们还会免疫$(thing)火焰$()、$(thing)爆炸$()、$(thing)仙人掌$()和$(thing)虚空$()伤害。在$(thing)世界最低建造高度$()+5高度以下时，它们会缓慢上浮。$(br)同时，它们也不会因掉落时间过长而消失。"
+      "text": "默认在$(l:smithing/tier_3_forge#transcendence_tools)超限系列工具$(/l)上拥有。$(br)拥有此属性的工具将不会消耗耐久并拥有$(thing)不可破坏$()属性。$(br)它们还会免疫$(thing)火焰$()、$(thing)爆炸$()、$(thing)仙人掌$()和$(thing)虚空$()伤害。在$(thing)世界最低建造高度$()+5高度以下时，它们会缓慢上浮。$(br)同时，它们也不会因掉落时间过长而消失。"
     },
     {
       "type": "patchouli:text",
       "title": "强运",
       "anchor": "providence",
-      "text": "默认在$(l:smithing/tier_3_materials#transcendence_tools)超限系列工具$(/l)上拥有。$(br)拥有此属性的工具将会有概率多次触发特定附魔。$(br)目前支持的特定附魔有：$(thing)时运$()、$(thing)抢夺$()、$(thing)斩首$()、$(thing)荆棘$()和$(thing)海之眷顾$()。$(br)每次有20%%的概率可以再触发一次，5%%的概率可以再触发两次。按照总触发次数就是75%%触发一次+20%%触发两次+5%%触发三次。"
+      "text": "默认在$(l:smithing/tier_3_forge#transcendence_tools)超限系列工具$(/l)上拥有。$(br)拥有此属性的工具将会有概率多次触发特定附魔。$(br)目前支持的特定附魔有：$(thing)时运$()、$(thing)抢夺$()、$(thing)斩首$()、$(thing)荆棘$()和$(thing)海之眷顾$()。$(br)每次有20%%的概率可以再触发一次，5%%的概率可以再触发两次。按照总触发次数就是75%%触发一次+20%%触发两次+5%%触发三次。"
     }
   ]
 }

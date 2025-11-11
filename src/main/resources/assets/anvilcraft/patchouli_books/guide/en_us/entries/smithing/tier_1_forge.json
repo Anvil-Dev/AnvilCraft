@@ -5,27 +5,72 @@
   "sortnum": 13003,
   "entry_color": "004400",
   "pages": [
-    "本章将介绍如何锻造工具",
+    "本章将介绍如何锻造: $(li)$(l:smithing/tier_1_forge#dragon_rod)龙杖$(/l) $(li)$(l:smithing/tier_1_forge#royal_template)皇家钢工具$(/l) ",
     {
       "type": "patchouli:crafting",
       "anchor": "dragon_rod",
       "recipe": "anvilcraft:dragon_rod",
-      "recipe2": "anvilcraft:royal_dragon_rod"
-    },
-    {
-      "type": "patchouli:smithing",
-      "recipe": "anvilcraft:smithing/royal_dragon_rod",
       "text": "The ability of dragon rods is very simple. Left click to devour blocks in the range, and right click to change the range size. There are four range sizes: 3x3, 5x5, 7x7, and 9x9. When targeting a block while holding dragon rods, the range box will display. The 3x3 size will not damage the dragon rods, but 5x5 will damage 1, 7x7 will damage 2, and 9x9 will damage 4. The dragon rod will not be fully broken; instead, it will lose all its abilities, similar to $(item)Elytra$()."
     },
     {
       "type": "patchouli:text",
-      "title": "龙杖挖掘",
+      "title": "The Devouring of Dragon Rods",
       "text": "The devouring of dragon rods is similar to the Block Devourer. When devouring the base blocks of worlds (like $(item)Stone$(), $(item)Netherrack$(), $(item)End Stone$()), there is a 5%% chance to drop. But it cannot chain devour the fallible blocks. $(br)There will be a cooldown after mining; the default is 1 second. The length of the cooldown is only affected by $(thing)Haste$() and $(thing)Mining Fatigue$() effects. Haste will reduce 0.2 second, and Mining Fatigue will increase 1 second."
     },
     {
       "type": "patchouli:text",
       "title": "Story",
       "text": "$(o)how did the ancients, who did not have the dragon rod, dig tunnels? $(li)Put down $(item)Block Devourer$() $(li)Punch it with $(item)Anvil Hammer$() $(li)Take the devourer back"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "royal_template",
+      "item": "anvilcraft:royal_steel_upgrade_smithing_template",
+      "link_recipe": true,
+      "text": "You can find this template in the Village's Weaponsmith. Trade with $(l:smithing/jewelcrafting_table)Jeweler$(/l) villager can also get this template."
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "royal_smithing_table",
+      "recipe": "anvilcraft:smithing/royal_smithing_table",
+      "text": "This is the first item you should upgrade with Royal Steel, as with it, you no longer need to consume any smithing templates during the forging process."
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "royal_anvil",
+      "recipe": "anvilcraft:smithing/royal_anvil",
+      "text": "No matter how you use $(item)Royal Anvil$(), it will not break, and can let you forget \"Too Expensive!\". Use $(item)Name Tag$() with special codes can also modify item name's formats."
+    },
+    {
+      "type": "patchouli:smithing",
+      "anchor": "royal_grindstone",
+      "recipe": "anvilcraft:smithing/royal_grindstone",
+      "text": "You can remove $(#fb0505)curses$() and repair costs by using $(item)Gold Ingot$() on $(item)Royal Grindstone$(), and normal enchantments will be maintained. The gold ingots will turn into $(l:smithing/tier_1_materials#cursed_gold_ingot)Cursed Gold Ingot$(/l)."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "Royal Steel Tools",
+      "item": [
+        "anvilcraft:royal_steel_pickaxe",
+        "anvilcraft:royal_steel_axe",
+        "anvilcraft:royal_steel_shovel",
+        "anvilcraft:royal_steel_hoe",
+        "anvilcraft:royal_steel_sword"
+      ],
+      "link_recipe": true,
+      "text": "具有等同于钻石的品质 $(p)$(#888888)你与众不同$(br)你喜欢超越$(br)你有梦想$(br)你有力量$(br)你从不把成就作为终点$(br)记住，你的名字叫做$(br)皇家钢！$()"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/royal_steel_sword",
+      "recipe2": "anvilcraft:smithing/royal_steel_pickaxe",
+      "text": "Use Royal Steel Ingot to upgrade your tools. This is the first step of their growing path."
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "anvilcraft:smithing/royal_dragon_rod",
+      "recipe2": "anvilcraft:smithing/royal_anvil_hammer",
+      "text": "Use Royal Steel Block to upgrade your tools. This is the first step of their growing path."
     },
     {
       "type": "patchouli:relations",

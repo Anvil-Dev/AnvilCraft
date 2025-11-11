@@ -9,7 +9,7 @@
     {
       "type": "patchouli:text",
       "title": "获得升级",
-      "text": "$(item)负物质$()和$(item)铀$()可以用于发电 $(p)$(item)多相物质$()可用于制作更强大的装备。锻造时需要使用$(l:smithing/tier_2_materials#multiple_templates)多合一模板$()"
+      "text": "$(item)负物质$()和$(item)铀$()可以用于发电 $(p)$(item)多相物质$()可用于制作更强大的装备。锻造时需要使用$(l:smithing/tier_2_forge#multiple_templates)多合一模板$()"
     },
     {
       "type": "patchouli:relations",
