@@ -161,7 +161,13 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         int itemSliderBottom = itemSliderTop + 112;
         if (this.menu.canScroll()) {
             ResourceLocation sliderTex = TextureConstants.SHULKER_CONTAINER_SLIDER_BIG;
-            guiGraphics.blitSprite(sliderTex, itemSliderLeft, itemSliderTop + (int)((float)(itemSliderBottom - itemSliderTop - 17) * this.scrollOffs), 12, 15);
+            guiGraphics.blitSprite(
+                sliderTex,
+                itemSliderLeft,
+                itemSliderTop + (int) ((float) (itemSliderBottom - itemSliderTop - 17) * this.scrollOffs),
+                12,
+                15
+            );
         }
     }
 
@@ -245,6 +251,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     protected void reorder() {
         record CacheKey(String text, SearchMode search, SortMode sort, SortOrderMode sortOrder, NbtDisplayMode nbt) {
         }
+
         int key = new CacheKey(
             ShulkerContainerScreen.searching.getValue(),
             ShulkerContainerScreen.searchMode,

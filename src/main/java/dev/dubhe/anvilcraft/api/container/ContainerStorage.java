@@ -121,7 +121,9 @@ public class ContainerStorage {
     }
 
     public IntSet getOrder(Predicate<UnlimitedItemStack> filter, Comparator<UnlimitedItemStack> sorter) {
-        record StackPair(UnlimitedItemStack stack, int originalOrder) {}
+        record StackPair(UnlimitedItemStack stack, int originalOrder) {
+        }
+
         StackPair[] a = new StackPair[this.items.size()];
         for (int i = 0; i < this.items.size(); i++) {
             UnlimitedItemStack stack = this.items.get(i);
