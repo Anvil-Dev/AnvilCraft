@@ -47,7 +47,6 @@ public class ShulkerContainerSlot extends Slot {
 
     @Override
     public void setChanged() {
-        this.storage.setChanged();
     }
 
     @Override
@@ -62,7 +61,7 @@ public class ShulkerContainerSlot extends Slot {
 
     @Override
     public ItemStack remove(int amount) {
-        return this.storage.getEntries().removeCount(this.index, amount);
+        return this.storage.split(this.index, amount);
     }
 
     @Override

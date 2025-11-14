@@ -162,6 +162,15 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
         return true;
     }
 
+    public ItemStack split(int amount) {
+        if (amount > this.stack.getMaxStackSize()) {
+            throw new IllegalArgumentException("Cannot split amount that bigger than max stack size.");
+        }
+        amount = Math.min(this.count, amount);
+        this.count -= amount;
+        return this.getStack().copyWithCount(amount);
+    }
+
     public ItemStack toStack() {
         return this.stack.copyWithCount(this.count);
     }

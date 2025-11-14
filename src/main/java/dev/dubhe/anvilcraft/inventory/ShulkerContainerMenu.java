@@ -3,15 +3,19 @@ package dev.dubhe.anvilcraft.inventory;
 import com.mojang.logging.LogUtils;
 import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.ContainerStorages;
-import dev.dubhe.anvilcraft.api.container.item.ItemEntry;
 import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -32,7 +36,9 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private static final Logger LOGGER = LogUtils.getLogger();
     public final ShulkerContainerBlockEntity blockEntity;
     private final Level level;
-    private final ContainerStorage storage;
+    public final ContainerStorage storage;
+
+    private IntSet slotsOrder;
 
     @SuppressWarnings("DataFlowIssue")
     public ShulkerContainerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
@@ -52,11 +58,14 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         this.blockEntity = (ShulkerContainerBlockEntity) blockEntity;
         this.level = inventory.player.level();
         this.storage = ContainerStorages.get().getOrCreateStorage(this.blockEntity.getUUID());
+        this.slotsOrder = IntSets.fromTo(0, this.storage.getItems().size());
 
         this.addPlayerInventory(inventory);
         this.addPlayerHotbar(inventory);
 
         this.addContainerSlots();
+
+        this.scrollTo(0.0F);
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -81,13 +90,69 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         }
     }
 
+    public float applyOrder(IntSet order, float scrollOffs) {
+        int i = this.getRowIndexForScroll(scrollOffs);
+        this.slotsOrder = order;
+
+        this.scrollTo(scrollOffs);
+        return this.getScrollForRowIndex(i);
+    }
+
+    protected int calculateRowCount() {
+        return Mth.positiveCeilDiv(this.storage.getItems().size(), 9) - 6;
+    }
+
+    protected int getRowIndexForScroll(float scrollOffs) {
+        return Math.max((int) ((double) (scrollOffs * (float) this.calculateRowCount()) + 0.5), 0);
+    }
+
+    protected float getScrollForRowIndex(int rowIndex) {
+        return Mth.clamp((float) rowIndex / (float) this.calculateRowCount(), 0.0F, 1.0F);
+    }
+
+    public float subtractInputFromScroll(float scrollOffs, double input) {
+        return Mth.clamp(scrollOffs - (float) (input / (double) this.calculateRowCount()), 0.0F, 1.0F);
+    }
+
+    /**
+     * Updates the gui slot's ItemStacks based on scroll position.
+     */
+    public void scrollTo(float pos) {
+        int row = this.getRowIndexForScroll(pos);
+
+        int[] order = this.slotsOrder.toIntArray();
+        for (int rowDiff = 0; rowDiff < 6; rowDiff++) {
+            for (int column = 0; column < 9; column++) {
+                int index = column + (rowDiff + row) * 9;
+                int slotIndex = VANILLA_SLOT_COUNT + column + rowDiff * 9;
+                ShulkerContainerSlot slot = Util.cast(
+                    this.getSlot(slotIndex),
+                    () -> new IllegalStateException("Slot not ShulkerContainerSlot in index " + slotIndex)
+                );
+                if (index >= 0 && index < this.storage.getItems().size()) {
+                    if (index < order.length) {
+                        slot.setIndex(order[index]);
+                    } else {
+                        slot.setIndex(-1);
+                    }
+                } else {
+                    slot.setIndex(-1);
+                }
+            }
+        }
+    }
+
+    public boolean canScroll() {
+        return this.storage.getItems().size() > 54;
+    }
+
     // 致谢： diesieben07 |https://github.com/diesieben07/SevenCommons
     // 必须为 GUI 使用的每个插槽分配一个插槽编号。
     // 对于这个容器，我们可以看到瓷砖库存的插槽以及玩家库存插槽和快捷栏。
     // 每次我们向容器添加 Slot 时，它都会自动增加 slotIndex，这意味着
     // 0 - 8 = 快捷栏插槽（将映射到 InventoryPlayer 插槽编号 0 - 8）
     // 9 - 35 = 玩家库存槽（映射到 InventoryPlayer 槽位编号 9 - 35）
-    // 36 - 44 = TileInventory 插槽，映射到我们的 TileEntity 插槽编号 0 - 8）
+    // 36 - 89 = TileInventory 插槽（映射到我们的 TileEntity 插槽编号 0 - 53 （在行0的情况下    ））
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
@@ -132,7 +197,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private boolean moveItemToActiveSlot(int sourceIndex) {
         Slot source = this.slots.get(sourceIndex);
         ItemStack stack = source.getItem();
-        if (!this.storage.getEntries().isMaxEntries()) {
+        if (!this.storage.isMaxItems()) {
             boolean result = this.storage.addItem(stack);
             if (result) {
                 stack.setCount(0);
@@ -140,18 +205,21 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
             source.setChanged();
             return result;
         }
-        for (ItemEntry entry : this.storage.getEntries().getEntries()) {
-            if (stack.is(entry.item())) {
-                ItemEntry.MergeResult result = entry.merge(stack, this.storage.getUpgrades().getStackPower());
-                if (result.result().isTrue()) {
-                    stack.setCount(0);
-                    source.setChanged();
-                    return true;
-                } else if (result.result().isDefault()) {
-                    stack.setCount(result.remaining());
-                    source.setChanged();
-                    return true;
-                }
+        int maxSize = this.storage.getMaxStackSize(stack);
+        for (UnlimitedItemStack entry : this.storage.getItems()) {
+            if (!ItemStack.isSameItemSameComponents(stack, entry.getStack())) continue;
+            if (entry.getCount() >= maxSize) {
+                return false;
+            } else if (stack.getCount() + entry.getCount() > maxSize) {
+                entry.setCount(maxSize);
+                stack.setCount(stack.getCount() - (maxSize - entry.getCount()));
+                source.setChanged();
+                return true;
+            } else {
+                entry.grow(stack.getCount());
+                stack.setCount(0);
+                source.setChanged();
+                return true;
             }
         }
         return false;
