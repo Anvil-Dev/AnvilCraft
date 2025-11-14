@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
@@ -18,8 +19,8 @@ public class ItemCrushRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
         ItemCrushRecipe.builder()
             .requires(Tags.Items.CROPS_WHEAT)
-            .result(ModItems.FLOUR)
-            .result(ModItems.FLOUR, 0.5f)
+            .result(ModFoodItems.FLOUR)
+            .result(ModFoodItems.FLOUR, 0.5f)
             .save(provider);
         ItemCrushRecipe.builder()
             .requires(ItemTags.LOGS)
@@ -35,8 +36,8 @@ public class ItemCrushRecipeLoader {
             .save(provider, AnvilCraft.of("stamping/geode_gems"));
         StampingRecipe.builder()
             .requires(Items.COCOA_BEANS)
-            .result(ModItems.COCOA_BUTTER)
-            .result(ModItems.COCOA_POWDER)
+            .result(ModFoodItems.COCOA_BUTTER)
+            .result(ModFoodItems.COCOA_POWDER)
             .save(provider);
         StampingRecipe.builder()
             .requires(ModItems.PRISMARINE_CLUSTER)

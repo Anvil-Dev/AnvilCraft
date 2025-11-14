@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_crossbow": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:crossbow"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_phantom_membrane": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:phantom_membrane"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_spectral_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:spectral_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:spectral_slingshot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_phantom_membrane",
+      "has_spectral_anvil",
+      "has_crossbow"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:spectral_slingshot"
+    ]
+  }
+}

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
@@ -36,7 +37,7 @@ public class StampingRecipeLoader {
 
         StampingRecipe.builder()
             .requires(Items.MILK_BUCKET)
-            .result(ModItems.CREAM, 4)
+            .result(ModFoodItems.CREAM, 4)
             .result(Items.BUCKET)
             .save(provider, AnvilCraft.of("stamping/cream"));
         StampingRecipe.builder()

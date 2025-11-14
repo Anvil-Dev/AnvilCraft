@@ -1,15 +1,9 @@
 package dev.dubhe.anvilcraft.data.lang;
 
 import com.tterrag.registrate.providers.RegistrateLangProvider;
-import org.jetbrains.annotations.NotNull;
 
 public class OtherLang {
-    /**
-     * @param provider 提供器
-     */
-    public static void init(@NotNull RegistrateLangProvider provider) {
-        provider.add("modmenu.nameTranslation.anvilcraft", "AnvilCraft");
-
+    public static void init(RegistrateLangProvider provider) {
         provider.add("item.anvilcraft.inherent_enchantment.tooltip", "Inherent enchantments:");
         provider.add(
             "item.anvilcraft.amethyst_pickaxe.tooltip", "Stone pickaxe quality, can mine iron ore, not diamonds!");
@@ -53,5 +47,34 @@ public class OtherLang {
 
         provider.add("effect.anvilcraft.rage", "Rage");
         provider.add("effect.anvilcraft.invulnerable", "Invulnerable");
+
+        provider.add(
+            "item.anvilcraft.pill.tooltip",
+            "Pills made together with potion to achieve corresponding effects, can be taken quickly"
+        );
+        provider.add("item.anvilcraft.pill.effect.empty", "Ineffective Pill");
+        provider.add("item.anvilcraft.pill.effect.fire_resistance", "Pill of Fire Resistance");
+        provider.add("item.anvilcraft.pill.effect.harming", "Pill of Harming");
+        provider.add("item.anvilcraft.pill.effect.healing", "Pill of Healing");
+        provider.add("item.anvilcraft.pill.effect.infested", "Pill of Infested");
+        provider.add("item.anvilcraft.pill.effect.invisibility", "Pill of Invisibility");
+        provider.add("item.anvilcraft.pill.effect.leaping", "Pill of Leaping");
+        provider.add("item.anvilcraft.pill.effect.levitation", "Pill of Levitation");
+        provider.add("item.anvilcraft.pill.effect.luck", "Pill of Luck");
+        provider.add("item.anvilcraft.pill.effect.mundane", "Pill of Mundane");
+        provider.add("item.anvilcraft.pill.effect.night_vision", "Pill of Night Vision");
+        provider.add("item.anvilcraft.pill.effect.oozing", "Pill of Oozing");
+        provider.add("item.anvilcraft.pill.effect.poison", "Pill of Poison");
+        provider.add("item.anvilcraft.pill.effect.regeneration", "Pill of Regeneration");
+        provider.add("item.anvilcraft.pill.effect.slow_falling", "Pill of Slow Falling");
+        provider.add("item.anvilcraft.pill.effect.slowness", "Pill of Slowness");
+        provider.add("item.anvilcraft.pill.effect.strength", "Pill of Strength");
+        provider.add("item.anvilcraft.pill.effect.swiftness", "Pill of Swiftness");
+        provider.add("item.anvilcraft.pill.effect.thick", "Pill of Thick");
+        provider.add("item.anvilcraft.pill.effect.turtle_master", "Pill of Turtle Master");
+        provider.add("item.anvilcraft.pill.effect.water_breathing", "Pill of Water Breathing");
+        provider.add("item.anvilcraft.pill.effect.weakness", "Pill of Weakness");
+        provider.add("item.anvilcraft.pill.effect.weaving", "Pill of Weaving");
+        provider.add("item.anvilcraft.pill.effect.wind_charged", "Pill of Wind Charged");
     }
 }

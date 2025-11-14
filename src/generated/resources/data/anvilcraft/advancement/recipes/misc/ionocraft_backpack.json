@@ -31,11 +31,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_plates/titanium": {
+    "has_plates/tin": {
       "conditions": {
         "items": [
           {
-            "items": "#c:plates/titanium"
+            "items": "#c:plates/tin"
           }
         ]
       },
@@ -53,7 +53,7 @@
       "has_the_recipe",
       "has_ionocraft",
       "has_capacitor",
-      "has_plates/titanium",
+      "has_plates/tin",
       "has_leather_chestplate"
     ]
   ],

@@ -14,8 +14,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 public abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntityRenderer<B> {
@@ -48,16 +48,17 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
         return i;
     }
 
-    abstract ItemStack getDisplayItemStack(B blockEntity);
 
-    abstract int getSeed(B blockEntity);
+    protected @Nullable abstract ItemStack getDisplayItemStack(B blockEntity);
+
+    protected abstract int getSeed(B blockEntity);
 
     @Override
     public void render(
         B blockEntity,
         float partialTick,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource buffer,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
         int packedLight,
         int packedOverlay
     ) {

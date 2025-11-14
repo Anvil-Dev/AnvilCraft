@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:stamping",
+  "ingredients": [
+    {
+      "items": "#c:foods/flour"
+    }
+  ],
+  "results": [
+    {
+      "count": 4,
+      "id": "anvilcraft:pill"
+    }
+  ]
+}

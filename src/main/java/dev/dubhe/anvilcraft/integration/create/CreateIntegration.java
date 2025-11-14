@@ -75,7 +75,6 @@ public class CreateIntegration {
     }
 
     private static class MyProvider implements SimpleRegistry.Provider<Block, BoilerHeater> {
-
         @Override
         public @Nullable BoilerHeater get(Block block) {
             return switch (block) {
@@ -107,7 +106,7 @@ public class CreateIntegration {
             }
         )
         .properties(properties -> properties.stacksTo(1))
-        .removeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey())
+        .removeTab(ModItemGroups.ANVILCRAFT_FOOD.getKey())
         .recipe((ctx, provider) -> JewelCraftingRecipe.builder()
             .withCondition(new ModLoadedCondition("create"))
             .requires(ModItems.SILVER_INGOT, 1)
@@ -116,7 +115,6 @@ public class CreateIntegration {
             .save(provider)
         )
         .register();
-
 
     private static final DeferredHolder<AmuletType, ? extends AmuletType> COGWHEEL = REGISTER.register(
         "cogwheel", AmuletType.builder()

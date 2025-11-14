@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
@@ -168,6 +169,9 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CanningFoodRecipe>> CANNING_FOOD_SERIALIZER =
         RECIPE_SERIALIZERS.register("canning_food", () -> new SimpleCraftingRecipeSerializer<>(CanningFoodRecipe::new));
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PillRecipe>> PILL_RECIPE_SERIALIZER =
+        RECIPE_SERIALIZERS.register("pill_recipe", () -> new SimpleCraftingRecipeSerializer<>(PillRecipe::new));
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<ChargerChargingRecipe>> CHARGER_CHARGING_TYPE =
         registerType("charger_charging");

@@ -876,6 +876,8 @@
   "item.anvilcraft.ionocraft": "飘升机",
   "item.anvilcraft.ionocraft_backpack": "飘升机背包",
   "item.anvilcraft.ionocraft_backpack.flight_time_energy": "剩余电能：%sMJ，飞行时间：%s秒",
+  "item.anvilcraft.ionocraft_backpack.reallocate_power": "重新穿戴以重新分配充电功率",
+  "tooltip.anvilcraft.item.ionocraft_backpack": "装备时可创造飞行\n需要有电网供电或物品栏中有电容器才能正常使用",
   "item.anvilcraft.lead_ingot": "铅锭",
   "item.anvilcraft.lead_nugget": "铅粒",
   "item.anvilcraft.levitation_powder": "飘浮粉",
@@ -1188,7 +1190,6 @@
   "tooltip.anvilcraft.item.hollow_magnet_block": "吸引下方的铁砧，被活塞推拉时使相邻的铜块产生电荷",
   "tooltip.anvilcraft.item.induction_light": "照明，耗电功率为 1 kW\n使用红石粉右键该方块将其改为催熟模式\n使用荧石粉右键该方块将其改为防刷怪模式\n使用虚空物质右键该方块将其改为防刷动物模式\n以上三种模式耗电功率变为 16 kW",
   "tooltip.anvilcraft.item.ionocraft": "放在电网中会飘起来",
-  "tooltip.anvilcraft.item.ionocraft_backpack": "装备时可创造飞行\n需要有电网供电或物品栏中有电容器才能正常使用",
   "tooltip.anvilcraft.item.item_collector": "根据收集范围和间隔情况调整功耗，耗电功率范围为 2 kW ~ 32 kW",
   "tooltip.anvilcraft.item.lead_pressure_plate": "根据上方生物种类数量输出红石信号，同时也是铅板",
   "tooltip.anvilcraft.item.levitation_powder": "略有失重感",
@@ -1403,5 +1404,6 @@
   "anvilcraft.ponder.dectruction_mode.text_5": "当四边换为余烬铁砧时，撼地会带有自动熔炼效果",
   "anvilcraft.ponder.dectruction_mode.text_6": "此处石头被破坏掉落圆石，圆石又被熔炼为石头",
   "anvilcraft.ponder.dectruction_mode.text_7": "当四边换为超限铁砧时，撼地会带有时运V效果",
-  "anvilcraft.ponder.dectruction_mode.text_8": "幻灵铁砧在撼地的底座中，就相当于普通铁砧"
+  "anvilcraft.ponder.dectruction_mode.text_8": "幻灵铁砧在撼地的底座中，就相当于普通铁砧",
+  "anvilcraft.ponder.mode_of_shock.text_9": "非常适合用于处决大量怪物。"
 }

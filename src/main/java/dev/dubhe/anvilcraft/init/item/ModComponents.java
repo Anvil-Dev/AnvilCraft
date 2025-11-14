@@ -113,6 +113,16 @@ public class ModComponents {
         b -> b.persistent(ItemEnchantments.CODEC).networkSynchronized(ItemEnchantments.STREAM_CODEC)
     );
 
+    public static final DataComponentType<Boolean> CAN_TAKE_OUT_AMMO = register(
+        "can_take_out_ammo",
+        it -> it.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
+    public static final DataComponentType<Boolean> WEAKENING = register(
+        "weakening",
+        b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
     public static final DataComponentType<OverLimitItemContainerContents> OVER_LIMIT_CONTAINER = register(
         "over_limit_item_container_contents",
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)

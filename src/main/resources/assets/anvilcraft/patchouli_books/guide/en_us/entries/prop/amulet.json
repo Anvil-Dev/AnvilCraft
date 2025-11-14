@@ -38,7 +38,7 @@
     {
       "type": "anvilcraft:jewel_crafting",
       "recipe": "anvilcraft:jewel_crafting/abnormal_amulet",
-      "text": "$(n)同时$()受到因为携带[诅咒金、中子锭、飘浮粉、铀/钚]的负面效果，且受到辐射物带来的凋零效果的致命伤害概率获得。$(p)生效时，不再因携带上述物品获得异常效果。"
+      "text": "$(n)必须同时$()受到因为携带[诅咒金、中子锭、飘浮粉、铀/钚]的负面效果，且受到辐射物带来的凋零效果的致命伤害概率获得。$(p)生效时，不再因携带上述物品获得异常效果。"
     },
     {
       "type": "anvilcraft:jewel_crafting",

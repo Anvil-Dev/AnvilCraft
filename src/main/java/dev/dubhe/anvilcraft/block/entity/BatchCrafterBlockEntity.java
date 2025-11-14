@@ -46,11 +46,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +62,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Getter
-@SuppressWarnings("NullableProblems")
 public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasDisplayItem {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
@@ -92,7 +92,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     };
 
     @Getter
-    private ItemStack displayItemStack = null;
+    private @Nullable ItemStack displayItemStack = null;
 
     private boolean poweredBefore = false;
     private int cooldown = 0;
@@ -109,7 +109,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
      * @param level 世界
      * @param pos   位置
      */
-    public void tick(@NotNull Level level, BlockPos pos) {
+    public void tick(Level level, BlockPos pos) {
         this.flushState(level, pos);
         BlockState state = level.getBlockState(pos);
         level.updateNeighbourForOutputSignal(pos, state.getBlock());
@@ -125,14 +125,18 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         if (grid == null || !grid.isWorking()) return false;
         if (!itemHandler.isFilterEnabled()) return true;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (itemHandler.getStackInSlot(i).isEmpty()
-                && !itemHandler.getFilter(i).isEmpty()) return false;
+            if (
+                itemHandler.getStackInSlot(i).isEmpty()
+                && !itemHandler.getFilter(i).isEmpty()
+            ) {
+                return false;
+            }
         }
         return true;
     }
 
     @SuppressWarnings("UnreachableCode")
-    public boolean craft(@NotNull Level level) {
+    public boolean craft(Level level) {
         if (craftingContainer.isEmpty()) return false;
         if (!canCraft()) return false;
         ItemStack result;
@@ -188,7 +192,8 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         IItemHandler cap = Objects.requireNonNull(getLevel()).getCapability(
             Capabilities.ItemHandler.BLOCK,
             getBlockPos().relative(direction),
-            direction.getOpposite());
+            direction.getOpposite()
+        );
         if (cap != null) {
             // 尝试向容器插入物品
             ItemStack remained = ItemHandlerUtil.insertItem(cap, result, true);
@@ -225,7 +230,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
         if (tag.getBoolean("HasDisplayItemStack") && tag.contains("ResultItemStack")) {
@@ -238,7 +243,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         boolean hasDisplayItemStack = displayItemStack != null && !displayItemStack.isEmpty();
@@ -276,26 +281,51 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
      */
     public int getRedstoneSignal() {
         int strength = 0;
+        List<Integer> itemIdxList = new ArrayList<>();
         for (int index = 0; index < itemHandler.getSlots(); index++) {
             ItemStack itemStack = itemHandler.getStackInSlot(index);
             // 槽位为未设置过滤的已禁用槽位
-            if (itemHandler.isSlotDisabled(index)
-                && itemHandler.getFilter(index).isEmpty()) {
+            if (
+                itemHandler.isSlotDisabled(index)
+                && itemHandler.getFilter(index).isEmpty()
+            ) {
                 strength++;
-                continue;
             }
-            // 槽位上没有物品
-            if (itemStack.isEmpty()) {
-                continue;
+            // 槽位上有物品
+            else if (!itemStack.isEmpty()) {
+                strength++;
+                itemIdxList.add(index);
             }
-            strength++;
         }
-        return strength;
+        if (strength < 9) return strength;
+
+        // 找到数量最少的序号
+        int minIdx = itemIdxList.stream()
+            .min(
+                Comparator.comparingInt(
+                    (idx) -> itemHandler.getStackInSlot(idx).getCount()
+                )
+            ).orElse(-1);
+        // 不存在说明全是锁住的格子 -> 15
+        if (minIdx == -1) return 15;
+
+        // 考虑这个物品的堆叠上限，计算满堆比例
+        ItemStack itemStack = itemHandler.getStackInSlot(minIdx);
+        int maxStack = itemStack.getMaxStackSize();
+        int count = itemStack.getCount();
+        if (maxStack <= 1) {
+            return 15;
+        } else if (maxStack == 2) {
+            return count == 1 ? 9 : 15;
+        }
+
+        int range = 6;
+        return count == 1 ? 9 : 9 + ((count - 2) * (range - 1) + (maxStack - 2)) / (maxStack - 2);
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new BatchCrafterMenu(ModMenuTypes.BATCH_CRAFTER.get(), i, inventory, this);
     }
@@ -311,7 +341,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return this.getBlockPos();
     }
 
@@ -348,9 +378,10 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
          * @param remaining 返还物品
          */
         public AutoCrafterCache(
-            @NotNull Container container,
+            Container container,
             Optional<RecipeHolder<CraftingRecipe>> recipe,
-            NonNullList<ItemStack> remaining) {
+            NonNullList<ItemStack> remaining
+        ) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
                 ItemStack item = container.getItem(i).copy();
@@ -362,7 +393,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
 
         @Override
-        public boolean test(@NotNull Container container) {
+        public boolean test(Container container) {
             if (container.getContainerSize() != this.container.getContainerSize()) return false;
             for (int i = 0; i < this.container.getContainerSize(); i++) {
                 if (!ItemStack.isSameItemSameComponents(container.getItem(i), this.container.getItem(i))) return false;
@@ -382,7 +413,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         level.addFreshEntity(itemEntity);
     }
 
-    private void spawnItemEntity(@NotNull ItemStack stack) {
+    private void spawnItemEntity(ItemStack stack) {
         int maxStackSize = stack.getMaxStackSize();
         int stackSize = stack.getCount();
         for (; stackSize > maxStackSize; stackSize -= maxStackSize) {
@@ -487,7 +518,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
 
         @Override
-        public @NotNull List<ItemStack> getItems() {
+        public List<ItemStack> getItems() {
             int size = this.getContainerSize();
             List<ItemStack> list = NonNullList.withSize(size, ItemStack.EMPTY);
             for (int i = 0; i < size; i++) {
@@ -510,19 +541,19 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
         }
 
         @Override
-        public @NotNull ItemStack getItem(int slot) {
+        public ItemStack getItem(int slot) {
             ItemStack stack = itemHandler.getStackInSlot(slot);
             if (stack.isEmpty()) stack = itemHandler.getFilter(slot);
             return stack;
         }
 
         @Override
-        public @NotNull ItemStack removeItem(int slot, int amount) {
+        public ItemStack removeItem(int slot, int amount) {
             return this.getItem(slot);
         }
 
         @Override
-        public @NotNull ItemStack removeItemNoUpdate(int slot) {
+        public ItemStack removeItemNoUpdate(int slot) {
             return this.getItem(slot);
         }
 

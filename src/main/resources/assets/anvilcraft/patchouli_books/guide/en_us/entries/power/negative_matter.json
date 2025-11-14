@@ -2,7 +2,7 @@
   "name": "title.anvilcraft.patchouli.power.negative_matter",
   "category": "anvilcraft:power_system",
   "icon": "anvilcraft:negative_matter",
-  "sortnum": 22009,
+  "sortnum": 32009,
   "entry_color": "660066",
   "pages": [
     "本章节将会讲述：$(li)如何借助$(l:smithing/tier_3_materials#negative_matter_nugget)负物质$(/l)产生大量的电力",

@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.recipe.outcome.ProduceExplosion;
 import dev.anvilcraft.lib.recipe.outcome.SpawnItem;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemSubPredicates;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -46,7 +47,7 @@ public class ItemCompressRecipeLoader {
         ItemCompressRecipe.builder()
             .requires(ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
-            .requires(ModItems.CHOCOLATE)
+            .requires(ModFoodItems.CHOCOLATE)
             .result(ModBlocks.CHOCOLATE_CREAM_BLOCK)
             .save(provider);
 

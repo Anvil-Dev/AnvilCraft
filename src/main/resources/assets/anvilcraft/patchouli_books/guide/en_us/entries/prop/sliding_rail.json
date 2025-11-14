@@ -21,7 +21,7 @@
       "type": "patchouli:crafting",
       "anchor": "powered_sliding_rail",
       "recipe": "anvilcraft:powered_sliding_rail",
-      "text": "未收到红石信号时，与$(item)滑轨站$()表现一致，但不能束缚生物。$(br2)收到红石信号时，令上方的$(thing)物品$()和$(thing)方块$()沿朝向滑动。当动力滑轨背后是滑轨站时，滑轨站上的$(thing)物品$()和$(thing)方块$()会被转移至动力滑轨再被加速。"
+      "text": "$(#666666)未收到红石信号$()时，与$(item)滑轨站$()表现一致。$(br2)$(#666666)收到红石信号$()时，令上方的$(thing)实体$()和$(thing)方块$()沿朝向滑动。当动力滑轨背后是滑轨站时，滑轨站上的$(thing)实体$()和$(thing)方块$()会被转移至动力滑轨再被加速。"
     },
     {
       "type": "patchouli:text",
@@ -32,13 +32,13 @@
       "type": "patchouli:crafting",
       "anchor": "activator_sliding_rail",
       "recipe": "anvilcraft:activator_sliding_rail",
-      "text": "未收到红石信号时，与$(item)普通滑轨$()表现一致。$(br2)收到红石信号时，使滑行的$(thing)方块$()在上方停顿一下，并对其发出信号。如果上方是$(thing)静止的方块$()，则持续给于红石信号。"
+      "text": "$(#666666)未收到红石信号$()时，与$(item)普通滑轨$()表现一致。$(br2)$(#666666)收到红石信号$()时，使滑行的$(thing)方块$()在上方停顿一下，并对其发出信号。如果上方是$(thing)静止的方块$()，则持续给于红石信号。"
     },
     {
       "type": "patchouli:crafting",
       "anchor": "detector_sliding_rail",
       "recipe": "anvilcraft:detector_sliding_rail",
-      "text": "上方有$(thing)方块$()滑过时，自身向周围除了上方外的五个方向发出红石信号。$(br2)可被比较器检测，检测滑行的$(thing)方块$()所属结构的方块数量，输出红石信号强度。$(br)eg：四个方块粘在一起经过，则比较器发出信号强度为4"
+      "text": "上方有$(thing)方块$()或$(thing)物品$()滑过时，自身向周围除了上方外的五个方向发出红石信号。$(br2)可被比较器检测，检测滑行的$(thing)方块$()所属结构的方块数量，输出红石信号强度。$(br)eg：四个方块粘在一起经过，则比较器发出信号强度为4"
     }
   ]
 }

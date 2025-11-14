@@ -4,6 +4,7 @@ import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -89,15 +90,15 @@ public class VanillaRecipesLoader {
 
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 600)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))
             .save(provider, AnvilCraft.of("campfire_cooking_bread"));
         SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 100)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))
             .save(provider, AnvilCraft.of("smoking_bread"));
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 200)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()), AnvilCraftDatagen.has(ModItems.DOUGH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))
             .save(provider, AnvilCraft.of("smelting_cooking_bread"));
     }
 }

@@ -39,6 +39,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.SuperHeatingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.TimeWarpCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.UnpackCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.CanningFoodExtension;
+import dev.dubhe.anvilcraft.integration.jei.category.extension.PillRecipeExtension;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
@@ -53,6 +54,7 @@ import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
@@ -340,8 +342,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
-        registration.getCraftingCategory().addExtension(CanningFoodRecipe.class,
-            CanningFoodExtension.INSTANCE);
+        registration.getCraftingCategory().addExtension(CanningFoodRecipe.class, CanningFoodExtension.INSTANCE);
+        registration.getCraftingCategory().addExtension(PillRecipe.class, new PillRecipeExtension());
     }
 
     public static <T> RecipeType<T> createRecipeType(String name, Class<T> clazz) {

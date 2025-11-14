@@ -32,5 +32,6 @@ public class RecipeHandler {
         AnvilCollisionCraftRecipeLoader.init(provider);
         MultipleToOneSmithingRecipeLoader.init(provider);
         CoolingRecipeLoader.init(provider);
+        PillRecipeLoader.init(provider);
     }
 }

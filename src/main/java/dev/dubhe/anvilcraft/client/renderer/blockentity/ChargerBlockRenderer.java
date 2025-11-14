@@ -13,19 +13,21 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nullable;
+
 public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntity> {
     public ChargerBlockRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    ItemStack getDisplayItemStack(ChargerBlockEntity blockEntity) {
+    protected @Nullable ItemStack getDisplayItemStack(ChargerBlockEntity blockEntity) {
         // 使用从服务端同步过来的显示物品
         return blockEntity.getDisplayItemStack();
     }
 
     @Override
-    int getSeed(ChargerBlockEntity blockEntity) {
+    protected int getSeed(ChargerBlockEntity blockEntity) {
         return 0;
     }
 
@@ -39,7 +41,7 @@ public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntit
         int packedOverlay
     ) {
         ItemStack stack = getDisplayItemStack(be);
-        if (stack.isEmpty()) return;
+        if (stack == null || stack.isEmpty()) return;
         BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, be.getLevel(), null, getSeed(be));
 
         AABB aabb = RenderModelSupport.getSize(model);

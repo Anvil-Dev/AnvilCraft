@@ -53,14 +53,14 @@
       "type": "patchouli:spotlight",
       "anchor": "heliostats",
       "item": "anvilcraft:heliostats",
-      "text": "手持$(item)定日镜$()右键绑定可加热方块后。不同数量的定日镜会将可加热方块$(n)及其之上$()的方块加热为不同等级并每秒增加4秒持续时间。 $(li)4个：高温  12个：红热 $(li)32个：炽热 64个：白炽"
+      "text": "手持$(item)定日镜$()右键绑定方块后。不同数量的定日镜会将$(thing)可加热方块$()$(n)及其之上$()的方块加热为不同等级并每秒增加4秒持续时间。 $(li)4个：高温  12个：红热 $(li)32个：炽热 64个：白炽"
     },
     {
       "type": "patchouli:spotlight",
       "anchor": "laser",
       "title": "Laser",
       "item": "anvilcraft:ruby_laser,anvilcraft:ruby_prism",
-      "text": "When $(l:power/laser_system)Laser$() irradiates to heatable blocks can heat it.方块被激光照射时，根据激光等级决定加热能力：$(li)1到3级：Heated Tier $(li)4到15级：Redhot Tier $(li)16到63级：Glowing Tier $(li)64级及以上：Incandescent Tier $(br2)At any level, increase its duration by 0.1 seconds per second."
+      "text": "$(l:power/laser_system)激光$()根据激光等级将$(thing)可加热方块$()加热为不同等级并每秒增加0.1秒持续时间。 $(li)1级：高温  4级：红热 $(li)16级：炽热  64级：白炽"
     },
     {
       "type": "patchouli:text",

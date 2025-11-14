@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
@@ -75,7 +76,23 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
             stack,
             this.anvilcraft$component
         ) && IonoCraftBackpackItem.getFlightTime(stack) < AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime) {
-            IonoCraftBackpackItem.addFlightTime(stack, AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime / 120);
+            PowerGrid powerGrid = this.anvilcraft$component.getPowerGrid();
+            if (powerGrid != null && powerGrid.isWorking()) {
+                int chargeAmount = 0;
+                int consumption = this.anvilcraft$component.getPowerConsumption();
+                
+                if (consumption >= 512) {
+                    chargeAmount = 192;
+                } else if (consumption >= 256) {
+                    chargeAmount = 96;
+                } else if (consumption >= 128) {
+                    chargeAmount = 48;
+                } else if (consumption >= 64) {
+                    chargeAmount = 24;
+                }
+                
+                IonoCraftBackpackItem.addFlightTime(stack, chargeAmount);
+            }
         }
     }
 

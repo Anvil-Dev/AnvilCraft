@@ -58,7 +58,8 @@ public class AnvilCraftClient {
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
         ModFluids.onRegisterFluidType(e);
-        e.registerItem(new ItemExtensionImpl(), ModItems.IONOCRAFT_BACKPACK);
+        ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
+        e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
     }
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
