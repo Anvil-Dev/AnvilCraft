@@ -38,9 +38,11 @@ public class Util {
         Direction.DOWN
     };
     public static final Direction[][] CORNER_DIRECTIONS = new Direction[][] {
-        {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
-        {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
-        };
+        {Direction.EAST, Direction.NORTH},
+        {Direction.EAST, Direction.SOUTH},
+        {Direction.WEST, Direction.NORTH},
+        {Direction.WEST, Direction.SOUTH},
+    };
 
     /**
      * @return 模组是否加载
@@ -49,9 +51,6 @@ public class Util {
         return ModList.get().isLoaded(modid);
     }
 
-    /**
-     *
-     */
     public static Function<InteractionResult, ItemInteractionResult> interactionResultConverter() {
         return it -> switch (it) {
             case SUCCESS, SUCCESS_NO_ITEM_USED -> ItemInteractionResult.SUCCESS;

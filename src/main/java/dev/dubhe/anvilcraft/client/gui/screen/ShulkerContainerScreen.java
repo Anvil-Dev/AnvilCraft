@@ -237,7 +237,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     @Override
     public void onClose() {
         super.onClose();
-        //noinspection DataFlowIssue - For Minecraft.getInstance().getConnection().registryAccess() - 此时已有Connection
+        // noinspection DataFlowIssue - For Minecraft.getInstance().getConnection().registryAccess() - 此时已有Connection
         PacketSplitter.INSTANCE.split(
             ShulkerContainerSyncPacket.TYPE,
             ShulkerContainerSyncPacket.STREAM_CODEC,
@@ -341,8 +341,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
 
                 ResourceLocation id1 = BuiltInRegistries.ITEM.getKey(stack1.getStack().getItem());
                 ResourceLocation id2 = BuiltInRegistries.ITEM.getKey(stack2.getStack().getItem());
-                modCheck:
-                {
+                modCheck: {
                     String mod1 = id1.getNamespace();
                     String mod2 = id2.getNamespace();
                     boolean mod1IsMc = mod1.equals("minecraft");
@@ -367,8 +366,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
             case MOD -> {
                 ResourceLocation id1 = BuiltInRegistries.ITEM.getKey(stack1.getStack().getItem());
                 ResourceLocation id2 = BuiltInRegistries.ITEM.getKey(stack2.getStack().getItem());
-                modCheck:
-                {
+                modCheck: {
                     String mod1 = id1.getNamespace();
                     String mod2 = id2.getNamespace();
                     boolean mod1IsMc = mod1.equals("minecraft");
@@ -403,8 +401,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
 
                 ResourceLocation id1 = BuiltInRegistries.ITEM.getKey(stack1.getStack().getItem());
                 ResourceLocation id2 = BuiltInRegistries.ITEM.getKey(stack2.getStack().getItem());
-                modCheck:
-                {
+                modCheck: {
                     String mod1 = id1.getNamespace();
                     String mod2 = id2.getNamespace();
                     boolean mod1IsMc = mod1.equals("minecraft");

@@ -25,10 +25,10 @@ public class RenderUtil {
         PoseStack pose = graphics.pose();
         pose.pushPose();
         if (stack.getCount() != 1 || text != null) {
-            String s = text == null ? FormattingUtil.compatNumber(stack.getCount()) : text;
             pose.pushPose();
             pose.translate(x, y, 2000.0F);
             pose.scale(0.75f, 0.75f, 1);
+            String s = text == null ? FormattingUtil.compatNumber(stack.getCount()) : text;
             graphics.drawString(font, s, 24 - 2 - font.width(s), 14, 0xffffff, true);
             pose.popPose();
         }

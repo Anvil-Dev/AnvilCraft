@@ -45,7 +45,9 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
     ).apply(inst, UnlimitedItemStack::new));
     public static final Codec<UnlimitedItemStack> CODEC = Codec.lazyInitialized(MAP_CODEC::codec);
     public static final StreamCodec<RegistryFriendlyByteBuf, UnlimitedItemStack> OPTIONAL_STREAM_CODEC = new StreamCodec<>() {
-        private static final StreamCodec<RegistryFriendlyByteBuf, Holder<Item>> ITEM_STREAM_CODEC = ByteBufCodecs.holderRegistry(Registries.ITEM);
+        private static final StreamCodec<RegistryFriendlyByteBuf, Holder<Item>> ITEM_STREAM_CODEC = ByteBufCodecs.holderRegistry(
+            Registries.ITEM
+        );
 
         public UnlimitedItemStack decode(RegistryFriendlyByteBuf buf) {
             int count = buf.readVarInt();

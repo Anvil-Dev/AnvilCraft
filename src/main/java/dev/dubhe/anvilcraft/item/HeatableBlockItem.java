@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.init.item;
+package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
