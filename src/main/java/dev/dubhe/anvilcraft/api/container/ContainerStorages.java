@@ -49,7 +49,7 @@ public class ContainerStorages extends SavedData {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if (server != null) {
                 ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-                //noinspection ConstantConditions - 主世界已加载
+                // noinspection ConstantConditions - 主世界已加载
                 DimensionDataStorage storage = overworld.getDataStorage();
                 return storage.computeIfAbsent(new Factory<>(ContainerStorages::new, ContainerStorages::load), AnvilCraft.MOD_ID);
             }

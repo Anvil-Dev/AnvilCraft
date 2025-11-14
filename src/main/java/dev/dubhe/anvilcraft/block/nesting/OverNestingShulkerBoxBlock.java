@@ -41,8 +41,8 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -57,9 +57,6 @@ public class OverNestingShulkerBoxBlock extends BetterBlock implements EntityBlo
             .setValue(COOLDOWN, false).setValue(SOUNDSETID, 0));
     }
 
-    /**
-     *
-     */
     public InteractionResult use(
         BlockState state,
         Level level,
@@ -74,7 +71,6 @@ public class OverNestingShulkerBoxBlock extends BetterBlock implements EntityBlo
         level.scheduleTick(pos, this, SOUND_DELAY);
         return InteractionResult.SUCCESS;
     }
-
 
     @Override
     public void tick(

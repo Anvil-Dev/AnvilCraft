@@ -38,7 +38,7 @@ public enum TransferLevel implements IUpgradeLevel {
 
     TransferLevel(ItemStack upgrade, TagKey<Block> anvilTag) {
         this.upgrade = upgrade;
-        //noinspection deprecation
+        // noinspection deprecation
         this.filter = stack -> stack.getItem() instanceof AnvilHammerItem hammer
                                && hammer.getAnvil().builtInRegistryHolder().is(anvilTag);
     }

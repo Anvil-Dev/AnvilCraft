@@ -42,7 +42,7 @@ public enum EntryLimitLevel implements IUpgradeLevel {
     EntryLimitLevel(int limit, ItemStack upgrade, TagKey<Block> anvilTag) {
         this.limit = limit;
         this.upgrade = upgrade;
-        //noinspection deprecation
+        // noinspection deprecation
         this.filter = stack -> stack.getItem() instanceof AnvilHammerItem hammer
                                && hammer.getAnvil().builtInRegistryHolder().is(anvilTag);
     }

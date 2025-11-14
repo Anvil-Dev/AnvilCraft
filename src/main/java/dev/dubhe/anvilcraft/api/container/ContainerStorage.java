@@ -175,7 +175,10 @@ public class ContainerStorage {
             itemNbt.putString("id", itemId);
 
             CompoundTag dataNbt = new CompoundTag();
-            dataNbt.put("components", DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, stack.getStack().getComponentsPatch()).getOrThrow());
+            dataNbt.put("components", DataComponentPatch.CODEC.encodeStart(
+                NbtOps.INSTANCE,
+                stack.getStack().getComponentsPatch()
+            ).getOrThrow());
             dataNbt.putInt("count", stack.getCount());
             itemNbt.put("data", dataNbt);
 

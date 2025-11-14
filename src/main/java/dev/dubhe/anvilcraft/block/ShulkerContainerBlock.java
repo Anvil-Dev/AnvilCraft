@@ -273,7 +273,7 @@ public class ShulkerContainerBlock
                 if (player instanceof ServerPlayer serverPlayer) {
                     if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) result.set(InteractionResult.PASS);
                     ModMenuTypes.open(serverPlayer, entity, pos);
-                    //noinspection DataFlowIssue
+                    // noinspection DataFlowIssue
                     ContainerStorages.get().syncToClient(
                         serverPlayer.getServer().getLevel(serverPlayer.level().dimension()),
                         pos,

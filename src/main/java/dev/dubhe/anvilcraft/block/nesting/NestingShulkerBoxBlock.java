@@ -40,8 +40,8 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -54,9 +54,6 @@ public class NestingShulkerBoxBlock extends BetterBlock implements EntityBlock, 
         this.registerDefaultState(this.stateDefinition.any().setValue(COOLDOWN, false));
     }
 
-    /**
-     *
-     */
     public InteractionResult use(
         BlockState state,
         Level level,

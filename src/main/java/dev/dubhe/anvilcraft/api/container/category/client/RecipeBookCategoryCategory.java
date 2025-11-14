@@ -44,12 +44,12 @@ public record RecipeBookCategoryCategory(ItemStack icon, Component name, String 
             .orElse(List.of());
         for (RecipeCollection collection : collections) {
             for (RecipeHolder<?> recipe : collection.getRecipes()) {
-                if (
-                    ItemStack.isSameItemSameComponents(
-                        recipe.value().getResultItem(Minecraft.getInstance().player.registryAccess()),
-                        stack
-                    )
-                ) return true;
+                if (ItemStack.isSameItemSameComponents(
+                    recipe.value().getResultItem(Minecraft.getInstance().player.registryAccess()),
+                    stack
+                )) {
+                    return true;
+                }
             }
         }
         return false;
