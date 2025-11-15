@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Locale;
 
 public class NvidiaWorkarounds {
-    private static final Logger LOGGER = LoggerFactory.getLogger("Embeddium-NvidiaWorkarounds");
+    private static final Logger LOGGER = LoggerFactory.getLogger("AnvilCraft");
 
     public static void install() {
         LOGGER.warn("Applying workaround: Prevent the NVIDIA OpenGL driver from using broken optimizations (NVIDIA_THREADED_OPTIMIZATIONS)");

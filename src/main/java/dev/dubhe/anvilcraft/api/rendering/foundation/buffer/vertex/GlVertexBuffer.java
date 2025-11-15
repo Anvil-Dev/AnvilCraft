@@ -1,14 +1,17 @@
 package dev.dubhe.anvilcraft.api.rendering.foundation.buffer.vertex;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.api.rendering.foundation.Disposable;
 import dev.dubhe.anvilcraft.api.rendering.foundation.QuadSorter;
 import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.GlBufferStorage;
 import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.vertex.index.GlIndexBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL46;
 
 import static org.lwjgl.opengl.GL45.*;
 
@@ -72,5 +75,19 @@ public class GlVertexBuffer implements Disposable {
 
     public int getIndexType() {
         return indexType.asGLType;
+    }
+
+    public void bindIndexBuffer() {
+        indexBuffer.bind();
+    }
+
+    public void drawElements(Vec3 cameraPosition) {
+        if (renderType.sortOnUpload) {
+            //this.resortVertices(cameraPosition.toVector3f());
+        }
+        GL46.glBindVertexArray(arrayObjectId);
+        GL46.glDrawElements(GL46.GL_TRIANGLES, indexBuffer.getIndexCount(), indexType.asGLType, 0L);
+        GL46.glBindVertexArray(0);
+        RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS).bind(6);
     }
 }

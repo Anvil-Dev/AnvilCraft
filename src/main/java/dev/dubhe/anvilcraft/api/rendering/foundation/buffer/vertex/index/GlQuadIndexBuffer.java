@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.rendering.foundation.buffer.vertex.index;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.GlBufferStorage;
+import lombok.Getter;
 import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ public class GlQuadIndexBuffer implements GlIndexBuffer {
     private long ptr = alloc.calloc(1024, 4);
     private final VertexFormat.IndexType indexType;
     private final GlBufferStorage<?> backedBuffer;
+    @Getter
     private int indexCount;
 
     protected GlQuadIndexBuffer(VertexFormat.IndexType indexType) {

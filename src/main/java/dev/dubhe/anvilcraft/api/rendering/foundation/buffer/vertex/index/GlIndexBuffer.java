@@ -18,6 +18,8 @@ public interface GlIndexBuffer extends Disposable {
 
     void unbind();
 
+    int getIndexCount();
+
     static GlIndexBuffer forQuad(VertexFormat.IndexType indexType){
         return new GlQuadIndexBuffer(indexType);
     }

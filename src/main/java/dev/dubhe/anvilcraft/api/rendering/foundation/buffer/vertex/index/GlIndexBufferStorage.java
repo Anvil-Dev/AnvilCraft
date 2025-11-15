@@ -6,8 +6,8 @@ import dev.dubhe.anvilcraft.api.rendering.foundation.buffer.GlBufferStorageModer
 import org.lwjgl.opengl.GL45;
 
 public class GlIndexBufferStorage {
-    public static GlBufferStorage<?> create(){
-        if (GlBufferStorage.BUFFER_STORAGE_SUPPORT){
+    public static GlBufferStorage<?> create() {
+        if (GlBufferStorage.BUFFER_STORAGE_SUPPORT) {
             return new Modern();
         }
         return new Legacy();
