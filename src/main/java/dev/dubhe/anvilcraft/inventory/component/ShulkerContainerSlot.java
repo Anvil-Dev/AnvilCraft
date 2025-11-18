@@ -32,7 +32,7 @@ public class ShulkerContainerSlot extends Slot {
     }
 
     public UnlimitedItemStack getUnlimitedItem() {
-        return this.storage.getItem(this.index);
+        return this.storage.getItem(this.index).copy();
     }
 
     @Override
@@ -42,7 +42,18 @@ public class ShulkerContainerSlot extends Slot {
     @Override
     public void setByPlayer(ItemStack stack) {
         if (stack.isEmpty()) return;
-        this.storage.addItem(stack);
+        int result = this.storage.addItem(stack);
+        if (result != stack.getCount()) stack.setCount(result);
+    }
+
+    @Override
+    public ItemStack safeInsert(ItemStack stack, int increment) {
+        if (stack.isEmpty() || !this.mayPlace(stack)) return stack;
+
+        int result = this.storage.addItem(stack);
+        if (result != stack.getCount()) stack.setCount(result);
+
+        return stack;
     }
 
     @Override

@@ -57,6 +57,18 @@ public abstract class FlexibleMultiPartBlock<
         }
     }
 
+    public static <J extends Property<H>, H extends Comparable<H>> void updateState(
+        Block block,
+        Level level,
+        BlockPos pos,
+        J property,
+        H value,
+        int flag
+    ) {
+        if (!(block instanceof FlexibleMultiPartBlock<?,?,?> multiPartBlock)) return;
+        multiPartBlock.updateState(level, pos, property, value, flag);
+    }
+
     public <J extends Property<H>, H extends Comparable<H>> void updateState(Level level, BlockPos pos, J property, H value, int flag) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(this)) return;

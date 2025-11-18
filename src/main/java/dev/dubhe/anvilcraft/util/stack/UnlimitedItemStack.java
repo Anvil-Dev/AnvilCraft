@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util.stack;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -149,11 +151,11 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
     }
 
     public boolean isSameItemSameComponents(ItemStack stack) {
-        return ItemStack.isSameItemSameComponents(this.toStack(), stack);
+        return ItemStack.isSameItemSameComponents(this.getStack(), stack);
     }
 
     public boolean isSameItemSameComponents(UnlimitedItemStack stack) {
-        return this.isSameItemSameComponents(stack.toStack());
+        return this.isSameItemSameComponents(stack.getStack());
     }
 
     public static boolean listMatches(List<UnlimitedItemStack> list, List<UnlimitedItemStack> other) {
@@ -168,13 +170,45 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
         if (amount > this.stack.getMaxStackSize()) {
             throw new IllegalArgumentException("Cannot split amount that bigger than max stack size.");
         }
-        amount = Math.min(this.count, amount);
         this.count -= amount;
         return this.getStack().copyWithCount(amount);
     }
 
+    /**
+     * 将本Stack转为一个{@link ItemStack}。<br>
+     * 数量可能大于{@link ItemStack}允许的最大数量。<br>
+     * 若需要数量安全的{@link ItemStack}，请查看{@link UnlimitedItemStack#toStacks()}
+     *
+     * @return 一个与本Stack数据完全相同的ItemStack
+     * @see UnlimitedItemStack#toStacks()
+     */
     public ItemStack toStack() {
         return this.stack.copyWithCount(this.count);
+    }
+
+    /**
+     * 将本Stack按存储的{@link ItemStack}允许的最大数量转为一个{@link ItemStack}列表。
+     *
+     * @return 一个ItemStack列表。<br>
+     *         每个ItemStack都有相同的物品和数据组件。<br>
+     *         除最后一个外，每个ItemStack的数量都为其允许的最大数量；<br>
+     *         最后一个ItemStack的数量为{@code totalCount - [(size - 1) * maxCount]}
+     * @see UnlimitedItemStack#toStack()
+     */
+    public List<ItemStack> toStacks() {
+        int maxCount = this.stack.getMaxStackSize();
+        if (this.count <= maxCount) return List.of(this.stack.copyWithCount(count));
+
+        int fullStacks = this.count / maxCount;
+        ImmutableList.Builder<ItemStack> stacksBuilder = ImmutableList.builder();
+        for (int i = 0; i < fullStacks; i++) {
+            stacksBuilder.add(this.stack.copyWithCount(maxCount));
+        }
+
+        int remain = this.count % maxCount;
+        if (remain != 0) stacksBuilder.add(this.stack.copyWithCount(remain));
+
+        return stacksBuilder.build();
     }
 
     @Override

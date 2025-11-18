@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.api.container.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -86,16 +88,41 @@ public class ContainerStorage {
         this.upgrades.sync(upgrades);
     }
 
-    public boolean addItem(ItemStack stack) {
-        return this.items.add(new UnlimitedItemStack(stack));
+    public int addItem(ItemStack stack) {
+        for (UnlimitedItemStack item : this.items) {
+            if (!item.isSameItemSameComponents(stack)) continue;
+            if (this.isFull(item)) return stack.getCount();
+            int maxCount = this.getMaxStackSize(stack);
+            if (item.getCount() + stack.getCount() > maxCount) {
+                int remain = stack.getCount() - (maxCount - item.getCount());
+                item.setCount(maxCount);
+                return remain;
+            }
+            item.grow(stack.getCount());
+            return 0;
+        }
+        if (this.isMaxItems()) return stack.getCount();
+        this.items.add(new UnlimitedItemStack(stack));
+        return 0;
     }
 
     public UnlimitedItemStack getItem(int index) {
         return ListUtil.safelyGet(this.items, index).orElse(UnlimitedItemStack.EMPTY);
     }
 
+    public ItemStack splitUnchecked(int index, int amount) {
+        UnlimitedItemStack stack = this.getItem(index);
+        if (stack.getCount() == amount) {
+            this.items.remove(index);
+            return stack.toStack();
+        } else {
+            return stack.split(amount);
+        }
+    }
+
     public ItemStack split(int index, int amount) {
         UnlimitedItemStack stack = this.getItem(index);
+        amount = Math.min(amount, stack.getStack().getMaxStackSize());
         if (stack.getCount() == amount) {
             this.items.remove(index);
             return stack.toStack();
@@ -113,7 +140,7 @@ public class ContainerStorage {
     }
 
     public boolean isFull(UnlimitedItemStack stack) {
-        return stack.getStack().getMaxStackSize() * this.upgrades.getStackPower() >= stack.getCount();
+        return this.getMaxStackSize(stack.getStack()) <= stack.getCount();
     }
 
     public boolean isMaxItems() {
@@ -121,18 +148,18 @@ public class ContainerStorage {
     }
 
     public IntSet getOrder(Predicate<UnlimitedItemStack> filter, Comparator<UnlimitedItemStack> sorter) {
-        record StackPair(UnlimitedItemStack stack, int originalOrder) {
+        record OrderEntry(UnlimitedItemStack stack, int originalOrder) {
         }
 
-        StackPair[] a = new StackPair[this.items.size()];
+        List<OrderEntry> entries = new ArrayList<>();
         for (int i = 0; i < this.items.size(); i++) {
             UnlimitedItemStack stack = this.items.get(i);
             if (!filter.test(stack)) continue;
-            a[i] = new StackPair(stack, i);
+            entries.add(new OrderEntry(stack, i));
         }
-        Arrays.sort(a, Comparator.comparing(StackPair::stack, sorter));
-        IntSet order = new IntOpenHashSet();
-        for (StackPair pair : a) {
+        entries.sort(Comparator.comparing(OrderEntry::stack, sorter));
+        IntSet order = new IntArraySet();
+        for (OrderEntry pair : entries) {
             order.add(pair.originalOrder);
         }
         return IntSets.unmodifiable(order);
@@ -208,5 +235,19 @@ public class ContainerStorage {
         }
 
         return items;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ContainerStorage storage)) return false;
+        return Objects.equals(this.getId(), storage.getId())
+               && Objects.equals(this.getItems(), storage.getItems())
+               && Objects.equals(this.getCategories(), storage.getCategories())
+               && Objects.equals(this.getUpgrades(), storage.getUpgrades());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId(), this.getItems(), this.getCategories(), this.getUpgrades());
     }
 }

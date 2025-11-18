@@ -21,6 +21,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,6 +34,7 @@ import java.util.function.Function;
 
 public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskCloneable, MenuProvider {
     private Either<UUID, BlockPos> stacks;
+    private int openingPlayers = 0;
 
     public ShulkerContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -109,6 +111,23 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
+        if (this.level != null && !this.level.isClientSide) this.openingPlayers++;
         return new ShulkerContainerMenu(ModMenuTypes.SHULKER_CONTAINER.get(), containerId, inventory, this);
+    }
+
+    public void someoneClosedMenu() {
+        this.openingPlayers--;
+        if (this.openingPlayers <= 0) {
+            this.openingPlayers = 0;
+            if (this.level == null) return;
+            ShulkerContainerBlock.updateState(
+                this.getBlockState().getBlock(),
+                this.level,
+                this.getBlockPos(),
+                ShulkerContainerBlock.OPENED,
+                false,
+                Block.UPDATE_ALL
+            );
+        }
     }
 }

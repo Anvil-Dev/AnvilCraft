@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.client.util.RenderUtil;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.network.ShulkerContainerClosePacket;
+import dev.dubhe.anvilcraft.network.ShulkerContainerScreenSyncOrderPacket;
 import dev.dubhe.anvilcraft.network.ShulkerContainerSyncPacket;
 import dev.dubhe.anvilcraft.network.split.PacketSplitter;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
@@ -20,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -27,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerContainerMenu> {
@@ -42,6 +46,8 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
 
     private boolean scrolling = false;
     private float scrollOffs = 0.0f;
+
+    private int lastClickStorageHash;
 
     public ShulkerContainerScreen(ShulkerContainerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -78,7 +84,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         }
         ShulkerContainerScreen.searching.setBordered(false);
         ShulkerContainerScreen.searching.setTextShadow(false);
-        ShulkerContainerScreen.searching.setResponder(it -> this.onSearchingOther());
+        ShulkerContainerScreen.searching.setCanLoseFocus(true);
         this.addRenderableWidget(ShulkerContainerScreen.searching);
         this.addRenderableWidget(new SwitchableButton(
             this.getGuiLeft() + 2,
@@ -140,6 +146,8 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
 
         this.scrollOffs = 0.0f;
         this.reorder();
+
+        this.lastClickStorageHash = this.menu.storage.hashCode();
     }
 
     @Override
@@ -191,8 +199,20 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
             this.scrolling = this.menu.canScroll();
             return true;
         }
+        ShulkerContainerScreen.searching.setFocused(this.insideSearchBox(mouseX, mouseY));
 
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+        super.slotClicked(slot, slotId, mouseButton, type);
+
+        int storageHash = this.menu.storage.hashCode();
+        if (this.lastClickStorageHash != storageHash) {
+            this.reorder();
+            this.lastClickStorageHash = storageHash;
+        }
     }
 
     @Override
@@ -213,6 +233,32 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         if (button == 0) this.scrolling = false;
 
         return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        String oldSearching = ShulkerContainerScreen.searching.getValue();
+        if (ShulkerContainerScreen.searching.keyPressed(keyCode, scanCode, modifiers)) {
+            if (!Objects.equals(oldSearching, ShulkerContainerScreen.searching.getValue())) {
+                this.scrollOffs = 0.0f;
+                this.reorder();
+            }
+
+            return true;
+        }
+        return ShulkerContainerScreen.searching.isFocused() && ShulkerContainerScreen.searching.isVisible() && keyCode != 256
+               || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    protected boolean insideSearchBox(double mouseX, double mouseY) {
+        int left = this.leftPos + 7;
+        int top = this.topPos + 7;
+        int right = left + 92;
+        int bottom = top + 9;
+        return mouseX >= (double) left
+               && mouseY >= (double) top
+               && mouseX < (double) right
+               && mouseY < (double) bottom;
     }
 
     protected boolean insideScrollbar(double mouseX, double mouseY) {
@@ -246,28 +292,27 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
             Minecraft.getInstance().getConnection().registryAccess(),
             PacketDistributor::sendToServer
         );
+        PacketDistributor.sendToServer(new ShulkerContainerClosePacket(this.menu.blockEntity.getBlockPos()));
     }
 
     protected void reorder() {
-        record CacheKey(String text, SearchMode search, SortMode sort, SortOrderMode sortOrder, NbtDisplayMode nbt) {
-        }
-
-        int key = new CacheKey(
+        int key = Objects.hash(
             ShulkerContainerScreen.searching.getValue(),
             ShulkerContainerScreen.searchMode,
             ShulkerContainerScreen.sortMode,
             ShulkerContainerScreen.sortOrderMode,
-            ShulkerContainerScreen.nbtDisplayMode
-        ).hashCode();
+            ShulkerContainerScreen.nbtDisplayMode,
+            this.menu.storage.getItems().size()
+        );
+        IntSet order;
         if (!ShulkerContainerScreen.SLOTS_ORDER_CACHE.containsKey(key)) {
-            ShulkerContainerScreen.SLOTS_ORDER_CACHE.put(key, this.menu.storage.getOrder(ITEM_FILTER, ITEM_SORTER));
+            order = this.menu.storage.getOrder(ITEM_FILTER, ITEM_SORTER);
+            ShulkerContainerScreen.SLOTS_ORDER_CACHE.put(key, order);
+        } else {
+            order = ShulkerContainerScreen.SLOTS_ORDER_CACHE.get(key);
         }
-        this.scrollOffs = this.menu.applyOrder(ShulkerContainerScreen.SLOTS_ORDER_CACHE.get(key), this.scrollOffs);
-    }
-
-    protected void onSearchingOther() {
-        this.scrollOffs = 0.0f;
-        this.reorder();
+        PacketDistributor.sendToServer(new ShulkerContainerScreenSyncOrderPacket(order, this.scrollOffs));
+        this.scrollOffs = this.menu.applyOrder(order, this.scrollOffs);
     }
 
     protected void setSearchMode(SearchMode mode) {

@@ -89,12 +89,12 @@ public class ContainerStorages extends SavedData {
     }
 
     private void readStorages(CompoundTag nbt, HolderLookup.Provider registries) {
-        for (var entry : nbt.getList("Data", Tag.TAG_COMPOUND)) {
+        for (var entry : nbt.getList("AnvilCraftContainerStorages", Tag.TAG_COMPOUND)) {
             if (!(entry instanceof CompoundTag entryTag)) return;
             UUID id = entryTag.getUUID("id");
-            ContainerStorage.CODEC.codec().decode(registries.createSerializationContext(NbtOps.INSTANCE), entryTag.get("contents"))
-                .ifSuccess(pair -> this.storages.put(id, pair.getFirst()))
-                .ifError(pair -> this.storages.put(id, new ContainerStorage(id)));
+            ContainerStorage.CODEC.codec()
+                .decode(registries.createSerializationContext(NbtOps.INSTANCE), entryTag.get("contents"))
+                .ifSuccess(pair -> this.storages.put(id, pair.getFirst()));
         }
     }
 
@@ -113,12 +113,13 @@ public class ContainerStorages extends SavedData {
             entryTag.putUUID("id", entry.getKey());
             entryTag.put(
                 "contents",
-                ContainerStorage.CODEC.codec().encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), entry.getValue())
+                ContainerStorage.CODEC.codec()
+                    .encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), entry.getValue())
                     .getOrThrow()
             );
             data.add(entryTag);
         }
-        nbt.put("Data", data);
+        nbt.put("AnvilCraftContainerStorages", data);
     }
 
     private void saveVersion(CompoundTag nbt) {

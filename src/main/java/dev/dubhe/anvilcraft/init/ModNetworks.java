@@ -28,6 +28,8 @@ import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.RemoveTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
+import dev.dubhe.anvilcraft.network.ShulkerContainerClosePacket;
+import dev.dubhe.anvilcraft.network.ShulkerContainerScreenSyncOrderPacket;
 import dev.dubhe.anvilcraft.network.ShulkerContainerSyncPacket;
 import dev.dubhe.anvilcraft.network.SilencerSyncPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
@@ -276,6 +278,16 @@ public class ModNetworks {
             ShulkerContainerSyncPacket.TYPE,
             ShulkerContainerSyncPacket.STREAM_CODEC,
             ShulkerContainerSyncPacket.HANDLER
+        );
+        registrar.playToServer(
+            ShulkerContainerScreenSyncOrderPacket.TYPE,
+            ShulkerContainerScreenSyncOrderPacket.STREAM_CODEC,
+            ShulkerContainerScreenSyncOrderPacket.HANDLER
+        );
+        registrar.playToServer(
+            ShulkerContainerClosePacket.TYPE,
+            ShulkerContainerClosePacket.STREAM_CODEC,
+            ShulkerContainerClosePacket.HANDLER
         );
     }
 }
