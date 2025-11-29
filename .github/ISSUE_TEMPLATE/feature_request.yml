@@ -28,6 +28,13 @@ body:
         - label: I have searched the issue tracker and did not find an issue describing my bug. - 我已经搜索问题追踪器并且没有发现相同的 issue。
           required: true
 
+        - label: I confirm that I am using the latest CI build of the AnvilCraft mod. - 我确定我在使用铁砧工艺的最新CI构建。
+          required: true
+
+        - label: |
+            I confirm that I will provide a detailed description of the new feature I want, along with reasonable justification, rather than just filling in random information.
+            我确认我会详细描述我想要的新功能，并附上合理的理由，而不是随便填点东西。
+
         - label: |
             I confirm that I selected everything without carefully checking and directly submitted this Issue, and I agree that this Issue can be closed immediately.
             我确认只是全部选中而没有仔细确认就直接提交了这个 Issue，并且同意这个 Issue 可以直接被关闭

@@ -89,10 +89,21 @@ body:
   - type: checkboxes
     id: know
     attributes:
+  - type: checkboxes
+    id: know
+    attributes:
       label: Checks - 检查项
       options:
         - label: I have searched the issue tracker and did not find an issue describing my bug. - 我已经搜索问题追踪器并且没有发现相同的 issue。
           required: true
+
+        - label: I confirm that I am using the latest CI build of the AnvilCraft mod. - 我确定我在使用铁砧工艺的最新CI构建。
+          required: true
+
+        - label: |
+            I confirm that I will provide a detailed description of the issue I encountered and include logs or screenshots, rather than just filling in random information. 
+            我确认我会详细描述我遇到的问题，并附上日志或者截图，而不是随便填点东西。
+
         - label: |
             I confirm that I selected everything without carefully checking and directly submitted this Issue, and I agree that this Issue can be closed immediately.
             我确认只是全部选中而没有仔细确认就直接提交了这个 Issue，并且同意这个 Issue 可以直接被关闭
