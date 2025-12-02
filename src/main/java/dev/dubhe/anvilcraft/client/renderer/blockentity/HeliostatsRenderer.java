@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -18,7 +17,6 @@ import org.joml.Vector3f;
 
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
 public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity> {
     private static final ModelResourceLocation HELIOSTATS_HEAD = ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head"));
     private static final ModelResourceLocation HELIOSTATS_HEAD_SUNFLOWER = ModelResourceLocation.standalone(AnvilCraft.of(

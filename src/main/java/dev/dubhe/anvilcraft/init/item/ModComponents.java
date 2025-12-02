@@ -29,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 public class ModComponents {
-    public static final DeferredRegister<DataComponentType<?>> DR = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, AnvilCraft.MOD_ID);
+    public static final DeferredRegister<DataComponentType<?>> DR = DeferredRegister.create(
+        Registries.DATA_COMPONENT_TYPE, AnvilCraft.MOD_ID
+    );
 
     public static final DataComponentType<DiskData> DISK_DATA = register(
         "disk_data",

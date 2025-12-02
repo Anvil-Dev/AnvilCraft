@@ -25,18 +25,26 @@ public class AnvilLootingTrigger extends SimpleCriterionTrigger<AnvilLootingTrig
         this.trigger(player, (instance) -> instance.matches(context));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity) implements SimpleInstance {
+    public record TriggerInstance(
+        Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity
+    ) implements SimpleInstance {
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("entity").forGetter(TriggerInstance::entity)
         ).apply(instance, TriggerInstance::new));
 
         public static Criterion<TriggerInstance> looting() {
-            return ModCriterionTriggers.ANVIL_LOOTING.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.empty()));
+            return ModCriterionTriggers.ANVIL_LOOTING.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.empty())
+            );
         }
 
         public static Criterion<TriggerInstance> looting(EntityType<?> entityType) {
-            return ModCriterionTriggers.ANVIL_LOOTING.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(EntityPredicate.Builder.entity().of(entityType).build()))));
+            return ModCriterionTriggers.ANVIL_LOOTING.get().createCriterion(
+                new TriggerInstance(
+                    Optional.empty(),
+                    Optional.of(EntityPredicate.wrap(EntityPredicate.Builder.entity().of(entityType).build())))
+            );
         }
 
         public boolean matches(LootContext lootContext) {

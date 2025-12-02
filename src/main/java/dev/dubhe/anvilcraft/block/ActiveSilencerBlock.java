@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.MutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.util.Util;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -32,11 +31,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -51,8 +47,8 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(POWERED);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(POWERED);
     }
 
     @Nullable
@@ -62,67 +58,68 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
     }
 
     @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        return defaultBlockState().setValue(POWERED, pContext.getLevel().hasNeighborSignal(pContext.getClickedPos()));
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        return defaultBlockState().setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
     protected void neighborChanged(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Block pNeighborBlock,
-        BlockPos pNeighborPos,
-        boolean pMovedByPiston
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
     ) {
-        pLevel.setBlockAndUpdate(pPos, pState.setValue(POWERED, pLevel.hasNeighborSignal(pPos)));
+        level.setBlockAndUpdate(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)));
     }
 
     @Override
     protected ItemInteractionResult useItemOn(
-        ItemStack pStack,
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        InteractionHand pHand,
-        BlockHitResult pHitResult) {
-        if (pLevel.isClientSide) return ItemInteractionResult.SUCCESS;
-        if (pPlayer instanceof ServerPlayer serverPlayer) {
-            BlockEntity be = pLevel.getBlockEntity(pPos);
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (player instanceof ServerPlayer serverPlayer) {
+            BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof ActiveSilencerBlockEntity asbe
-                && pPlayer.getItemInHand(pHand).is(ModItems.DISK.get())
+                && player.getItemInHand(hand).is(ModItems.DISK.get())
             ) {
                 return Util.interactionResultConverter()
                     .apply(
                         asbe.useDisk(
-                            pLevel,
+                            level,
                             serverPlayer,
-                            pHand,
-                            serverPlayer.getItemInHand(pHand),
-                            pHitResult
+                            hand,
+                            serverPlayer.getItemInHand(hand),
+                            hitResult
                         )
                     );
             }
         }
-        return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        BlockHitResult pHitResult
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
     ) {
-        if (pLevel.isClientSide) {
+        if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity be = pLevel.getBlockEntity(pPos);
-        if (be instanceof ActiveSilencerBlockEntity asbe && pPlayer instanceof ServerPlayer sp) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof ActiveSilencerBlockEntity asbe && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-            ModMenuTypes.open(sp, asbe, pPos);
+            ModMenuTypes.open(sp, asbe, pos);
             PacketDistributor.sendToPlayer(sp, new MutedSoundSyncPacket(new ArrayList<>(asbe.getMutedSound())));
             return InteractionResult.SUCCESS;
         }

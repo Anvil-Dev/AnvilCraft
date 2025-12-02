@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.multipart;
 
 import dev.dubhe.anvilcraft.block.state.ISimpleMultiPartBlockState;
 import dev.dubhe.anvilcraft.util.Util;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -18,10 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartBlockState<P>>
     extends AbstractMultiPartBlock<P> {
     public SimpleMultiPartBlock(Properties properties) {
@@ -99,24 +94,36 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
 
     @Override
     protected ItemInteractionResult useItemOn(
-        ItemStack pStack,
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        InteractionHand pHand,
-        BlockHitResult pHitResult) {
-        return Util.interactionResultConverter().apply(this.use(pState, pLevel, pPos, pPlayer, pHand, pHitResult));
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        return Util.interactionResultConverter().apply(this.use(state, level, pos, player, hand, hitResult));
     }
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
-        return this.use(pState, pLevel, pPos, pPlayer, InteractionHand.MAIN_HAND, pHitResult);
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
+        return this.use(state, level, pos, player, InteractionHand.MAIN_HAND, hitResult);
     }
 
     public InteractionResult use(
-        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
         return InteractionResult.PASS;
     }
 }

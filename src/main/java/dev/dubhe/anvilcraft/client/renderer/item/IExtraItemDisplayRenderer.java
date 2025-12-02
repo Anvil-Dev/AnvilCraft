@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Consumer;
 
 public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
-    protected IExtraItemDisplayRenderer(ItemRenderer itemRenderer, IItemRenderer iItemRenderer) {
-        super(itemRenderer, iItemRenderer);
+    protected IExtraItemDisplayRenderer(ItemRenderer itemRenderer, IItemRenderer renderer) {
+        super(itemRenderer, renderer);
     }
 
     public static void renderGuiExtra(
@@ -41,7 +41,7 @@ public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         if (innerStack.isEmpty()) return;
         recursionSetter.accept(recursion + 1);
         pose.pushPose();
-        pose.translate(x + item.xOffset(stack), y + item.yOffset(stack), 0);
+        pose.translate(x + item.offsetX(stack), y + item.offsetY(stack), 0);
         float scale = item.scale(stack);
         pose.scale(scale, scale, 1.0f);
         itemRenderer.renderItem(entity, level, innerStack, 0, 0, seed, guiOffset + 10);
@@ -67,16 +67,15 @@ public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         HumanoidArm humanoidarm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
         boolean flag = humanoidarm == HumanoidArm.LEFT;
         int i = flag ? -1 : 1;
-        ItemStack displayedItem = display.getDisplayedItem(stack);
         float scale = display.scale(stack);
-        int xOffset = display.xOffset(stack);
-        int yOffset = display.yOffset(stack);
+        int offsetX = display.offsetX(stack);
+        int offsetY = display.offsetY(stack);
         poseStack.pushPose();
-        poseStack.translate(i * 0.024, 0.015 * i + 0.10 + yOffset * 0.03, 0.0225 * i - 0.1425 + xOffset * 0.03);
+        poseStack.translate(i * 0.024, 0.015 * i + 0.10 + offsetY * 0.03, 0.0225 * i - 0.1425 + offsetX * 0.03);
         poseStack.scale(scale, scale, scale);
         this.renderItem(
             player,
-            displayedItem,
+            display.getDisplayedItem(stack),
             ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
             flag,
             poseStack,

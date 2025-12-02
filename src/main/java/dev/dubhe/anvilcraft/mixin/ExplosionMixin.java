@@ -39,7 +39,7 @@ import java.util.List;
 abstract class ExplosionMixin implements IExplosionExtension {
 
     @Unique
-//    public HashMap<Block, ArrayList<BlockTransform>> anvilcraft$blockTransformMap = new HashMap<>();
+    // public HashMap<Block, ArrayList<BlockTransform>> anvilcraft$blockTransformMap = new HashMap<>();
     public Multimap<Block, BlockTransform> anvilcraft$blockTransformMap = MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Unique
@@ -59,14 +59,15 @@ abstract class ExplosionMixin implements IExplosionExtension {
         at =
         @At(
             value = "INVOKE",
-            target =
-                "Lnet/minecraft/world/level/block/state/BlockState;onExplosionHit(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;"
+                     + "onExplosionHit(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
             shift = At.Shift.AFTER
         ),
         locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private void finalizeExplosion(
-        boolean pSpawnParticles,
+        boolean spawnParticles,
         CallbackInfo ci,
         boolean flag,
         List<Pair<ItemStack, BlockPos>> list,
@@ -83,7 +84,8 @@ abstract class ExplosionMixin implements IExplosionExtension {
     @Inject(
         method = "explode()V", at = @At(
         value = "INVOKE",
-        target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
+        target = "Lnet/minecraft/world/level/Level;"
+                 + "getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
     )
     )
     private void anvilcraft$explosionBlockTransform(
@@ -113,8 +115,11 @@ abstract class ExplosionMixin implements IExplosionExtension {
         at =
         @At(
             value = "INVOKE",
-            target =
-                "Lnet/minecraft/world/level/ExplosionDamageCalculator;shouldBlockExplode(Lnet/minecraft/world/level/Explosion;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;F)Z"
+            target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;"
+                     + "shouldBlockExplode(Lnet/minecraft/world/level/Explosion;"
+                     + "Lnet/minecraft/world/level/BlockGetter;"
+                     + "Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/world/level/block/state/BlockState;F)Z"
         )
     )
     private boolean anvilcraft$explosionBlockTransform(

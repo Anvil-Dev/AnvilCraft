@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.builder;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
@@ -15,7 +14,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,8 +23,6 @@ import java.util.Map;
  *
  * @param <T> 配方类型
  */
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements RecipeBuilder {
     /**
      * 存储配方条件的映射表
@@ -36,44 +32,44 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
     /**
      * 添加解锁条件
      *
-     * @param pName      条件名称
-     * @param pCriterion 条件
+     * @param name      条件名称
+     * @param criterion 条件
      * @return 配方构建器实例
      */
     @Override
-    public RecipeBuilder unlockedBy(String pName, Criterion<?> pCriterion) {
-        criteria.put(pName, pCriterion);
+    public RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+        criteria.put(name, criterion);
         return this;
     }
 
     /**
      * 设置配方组
      *
-     * @param pGroupName 配方组名称
+     * @param groupName 配方组名称
      * @return 配方构建器实例
      */
     @Override
-    public RecipeBuilder group(@Nullable String pGroupName) {
+    public RecipeBuilder group(@Nullable String groupName) {
         return this;
     }
 
     /**
      * 保存配方到指定位置
      *
-     * @param pRecipeOutput 配方输出
-     * @param pId           配方ID
+     * @param output 配方输出
+     * @param id           配方ID
      */
     @Override
-    public void save(RecipeOutput pRecipeOutput, ResourceLocation pId) {
-        validate(pId);
-        Advancement.Builder advancement = pRecipeOutput
+    public void save(RecipeOutput output, ResourceLocation id) {
+        validate(id);
+        Advancement.Builder advancement = output
             .advancement()
-            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
-            .rewards(AdvancementRewards.Builder.recipe(pId))
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+            .rewards(AdvancementRewards.Builder.recipe(id))
             .requirements(AdvancementRequirements.Strategy.OR);
         criteria.forEach(advancement::addCriterion);
         T recipe = buildRecipe();
-        pRecipeOutput.accept(pId, recipe, advancement.build(pId.withPrefix("recipes/")));
+        output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
     }
 
     /**
@@ -99,9 +95,9 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
     /**
      * 验证配方参数
      *
-     * @param pId 配方ID
+     * @param id 配方ID
      */
-    public abstract void validate(ResourceLocation pId);
+    public abstract void validate(ResourceLocation id);
 
     /**
      * 获取配方类型

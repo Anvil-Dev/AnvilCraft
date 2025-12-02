@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 
 public abstract class MeltGemFluid extends BaseFlowingFluid {
@@ -29,7 +30,7 @@ public abstract class MeltGemFluid extends BaseFlowingFluid {
             FluidState fluidstate = level.getFluidState(pos);
             if (fluidstate.is(FluidTags.WATER)) {
                 if (blockState.getBlock() instanceof LiquidBlock) {
-                    level.setBlock(pos, net.neoforged.neoforge.event.EventHooks.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.STONE.defaultBlockState()), 3);
+                    level.setBlock(pos, EventHooks.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.STONE.defaultBlockState()), 3);
                 }
 
                 this.fizz(level, pos);
@@ -46,9 +47,7 @@ public abstract class MeltGemFluid extends BaseFlowingFluid {
         return super.canBeReplacedWith(state, level, pos, fluidIn, direction);
     }
 
-
     public static class Flowing extends MeltGemFluid {
-
         public Flowing(Properties properties) {
             super(properties);
             registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7));

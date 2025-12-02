@@ -26,7 +26,6 @@ public record HammerChangeBlockPacket(
             HammerChangeBlockPacket::new
         );
 
-
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;

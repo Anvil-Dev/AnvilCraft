@@ -17,9 +17,8 @@ import java.util.List;
 
 /**
  * 烹饪配方类
- * <p>
- * 该配方用于在铁砧下落时烹饪物品，需要在铁砧下方放置点燃的营火作为加热源
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时烹饪物品，需要在铁砧下方放置点燃的营火作为加热源</p>
  */
 @Getter
 public class CookingRecipe extends AbstractProcessRecipe<CookingRecipe> {

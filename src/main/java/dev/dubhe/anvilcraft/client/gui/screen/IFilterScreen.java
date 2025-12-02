@@ -29,11 +29,9 @@ import java.util.function.BiFunction;
 public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> extends IGhostIngredientScreen {
     ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
 
-    Component SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP =
-        Component.translatable("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit")
+    Component SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP = Component.translatable("screen.anvilcraft.filter.scroll_to_change")
             .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
-    Component SHIFT_TO_SCROLL_FASTER_TOOLTIP =
-        Component.translatable("screen.anvilcraft.filter.shift_to_scroll_faster")
+    Component SHIFT_TO_SCROLL_FASTER_TOOLTIP = Component.translatable("screen.anvilcraft.filter.shift_to_scroll_faster")
             .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
 
     T getFilterMenu();

@@ -2,13 +2,8 @@ package dev.dubhe.anvilcraft.item;
 
 import com.mojang.datafixers.util.Unit;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ShovelItem;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class EmberMetalShovelItem extends ShovelItem {
     public EmberMetalShovelItem(Properties properties) {
         super(

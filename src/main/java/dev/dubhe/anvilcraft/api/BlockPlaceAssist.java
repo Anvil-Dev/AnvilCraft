@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -17,15 +16,12 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class BlockPlaceAssist {
 
     private static List<Direction> orderDirectionByDistance(
@@ -39,9 +35,6 @@ public class BlockPlaceAssist {
             .collect(Collectors.toList());
     }
 
-    /**
-     *
-     */
     public static InteractionResult tryPlace(
         BlockState state,
         Level level,
@@ -79,6 +72,7 @@ public class BlockPlaceAssist {
                 }
                 if (blockState.canBeReplaced()) {
                     level.setBlockAndUpdate(blockPos, newBlockState.setValue(propertyDef, direction.getAxis()));
+                    @SuppressWarnings("deprecation")
                     SoundType soundType = newBlockState.getSoundType();
                     level.playSound(
                         null,

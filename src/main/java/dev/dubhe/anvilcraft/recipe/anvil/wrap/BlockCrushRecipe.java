@@ -19,9 +19,8 @@ import net.minecraft.world.level.block.Block;
 
 /**
  * 方块粉碎配方类
- * <p>
- * 该配方用于在铁砧下落时粉碎方块，是方块级别的粉碎处理配方
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时粉碎方块，是方块级别的粉碎处理配方</p>
  */
 public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
     /**
@@ -176,12 +175,12 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (input == null) {
-                throw new IllegalArgumentException("Recipe input must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe input must not be null, RecipeId: " + id);
             }
             if (result == null) {
-                throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + id);
             }
         }
 

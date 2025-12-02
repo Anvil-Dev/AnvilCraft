@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.recipe;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
@@ -15,13 +14,10 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CanningFoodRecipe extends CustomRecipe {
     public CanningFoodRecipe(CraftingBookCategory category) {
         super(category);

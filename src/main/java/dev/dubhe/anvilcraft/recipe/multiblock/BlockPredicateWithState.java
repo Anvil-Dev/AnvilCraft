@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.util.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,8 +28,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BlockPredicateWithState implements Predicate<BlockState> {
     private final Block block;
     private final Map<Property<?>, Comparable<?>> properties;
@@ -156,9 +152,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
 
     private Raw toRaw() {
         Map<String, String> propertiesMap = new HashMap<>();
-        this.properties.forEach((property, value) -> {
-            propertiesMap.put(property.getName(), getNameOf(value));
-        });
+        this.properties.forEach((property, value) -> propertiesMap.put(property.getName(), getNameOf(value)));
         return new Raw(this.block, propertiesMap);
     }
 

@@ -4,14 +4,10 @@ import dev.anvilcraft.lib.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.multiple.result.MultipleToOneResult;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TwoToOneSmithingRecipe extends BaseMultipleToOneSmithingRecipe {
     public TwoToOneSmithingRecipe(
         ItemIngredientPredicate template,

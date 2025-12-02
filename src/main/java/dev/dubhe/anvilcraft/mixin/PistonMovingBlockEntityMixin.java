@@ -22,6 +22,7 @@ abstract class PistonMovingBlockEntityMixin {
     @Shadow
     public abstract Direction getDirection();
 
+    @SuppressWarnings("checkstyle:MissingSwitchDefault")
     @Inject(
         method = "tick",
         at = @At(

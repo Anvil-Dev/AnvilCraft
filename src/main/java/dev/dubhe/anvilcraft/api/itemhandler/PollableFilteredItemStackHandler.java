@@ -40,7 +40,9 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
                 slot = index;
                 countInSlot = 0;
                 continue;
-            } else if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
+            } else if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) {
+                continue;
+            }
             int stackInSlotCount = stackInSlot.getCount();
             if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(index)) {
                 slot = index;

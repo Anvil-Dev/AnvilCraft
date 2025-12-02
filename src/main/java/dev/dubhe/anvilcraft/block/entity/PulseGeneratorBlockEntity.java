@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
 import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -27,13 +26,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 
 @Getter
 @Setter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvider, IDiskCloneable {
     protected Mode startMode = Mode.RISING_EDGE;
     protected boolean outputInvert = false;
@@ -188,8 +184,9 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
-        if (player.level().getBlockEntity(getBlockPos()) instanceof PulseGeneratorBlockEntity blockEntity)
+        if (player.level().getBlockEntity(getBlockPos()) instanceof PulseGeneratorBlockEntity blockEntity) {
             return new PulseGeneratorMenu(ModMenuTypes.PULSE_GENERATOR.get(), containerId, inventory, blockEntity);
+        }
         return null;
     }
 
@@ -208,6 +205,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         switch (this.state) {
             case WAITING -> level.scheduleTick(pos, state.getBlock(), this.getWaitingTime());
             case OUTPUTTING -> level.scheduleTick(pos, state.getBlock(), this.getSignalDuration());
+            default -> {
+            }
         }
         level.setBlock(pos, state.setValue(PulseGeneratorBlock.POWERED, this.isOutputting()), 3);
         this.isDeadlock = false;

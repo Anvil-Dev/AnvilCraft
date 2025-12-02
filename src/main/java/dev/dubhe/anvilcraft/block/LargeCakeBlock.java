@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -31,11 +30,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.stream.Stream;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
@@ -138,14 +134,10 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
         .get();
 
-    /**
-     * @param properties 属性
-     */
     public LargeCakeBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
-
 
     @Override
     public VoxelShape getShape(
@@ -254,8 +246,8 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         return state;
     }
 
-
     @Override
+    @SuppressWarnings("deprecation")
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return level.getBlockState(pos.below()).isSolid();
     }

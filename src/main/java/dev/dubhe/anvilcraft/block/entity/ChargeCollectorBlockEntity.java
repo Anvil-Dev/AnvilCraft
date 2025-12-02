@@ -131,7 +131,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
         }
         if (this.outputCooldownCount-- <= 1) {
             this.outputCooldownCount = OUTPUT_COOLDOWN;
-            int oldPower = this.power;
+            final int oldPower = this.power;
             this.power = 0;
             for (Integer charge : this.charges) {
                 this.power += charge;

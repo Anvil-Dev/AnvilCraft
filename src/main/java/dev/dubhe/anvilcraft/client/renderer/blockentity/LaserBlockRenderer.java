@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserCompiler;
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserState;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -13,12 +12,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class LaserBlockRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
-
     @SuppressWarnings("unused")
     public LaserBlockRenderer(BlockEntityRendererProvider.Context context) {
     }

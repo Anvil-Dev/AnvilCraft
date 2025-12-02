@@ -57,13 +57,10 @@ public class InspectionSupport {
 
     /**
      * 注册检查项
-     * <p>
-     * 检查项需同时在 {@link ModInspections} 和 {@link InspectionSupport} 中注册
-     * </p>
-     * <p>
-     * 对于 {@link ModInspections}
-     * 使用 {@link ModInspections#registerActionServer(ResourceLocation)} 注册检查项
-     * </p>
+     *
+     * <p>检查项需同时在 {@link ModInspections} 和 {@link InspectionSupport} 中注册</p>
+     *
+     * <p>对于 {@link ModInspections}，使用 {@link ModInspections#registerActionServer(ResourceLocation)} 注册检查项</p>
      *
      * @see ModInspections
      */

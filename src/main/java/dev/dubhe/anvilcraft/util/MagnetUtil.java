@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,8 +31,10 @@ import net.neoforged.fml.ModLoader;
 public abstract class MagnetUtil {
     public static boolean hasMagnetism(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos.above());
-        return (state.is(ModBlockTags.MAGNET) || state.getBlock() instanceof MagnetBlock) && state.hasProperty(MagnetBlock.LIT) && !state.getValue(
-            MagnetBlock.LIT);
+        return (state.is(ModBlockTags.MAGNET)
+                || state.getBlock() instanceof MagnetBlock)
+               && state.hasProperty(MagnetBlock.LIT)
+               && !state.getValue(MagnetBlock.LIT);
     }
 
     public static InteractionResult placeMagnetizedNode(Item item, UseOnContext context) {

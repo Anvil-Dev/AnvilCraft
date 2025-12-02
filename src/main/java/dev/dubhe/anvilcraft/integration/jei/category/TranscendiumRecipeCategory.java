@@ -76,11 +76,23 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
             .addItemStack(ModItems.CHARGED_NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                 switch (recipeId) {
-                    case 0 -> tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_0").withStyle(ChatFormatting.GOLD));
-                    case 1 -> tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_1_10").withStyle(ChatFormatting.GOLD));
-                    case 2 -> tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_11_14").withStyle(ChatFormatting.GOLD));
-                    case 3 -> tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_15").withStyle(ChatFormatting.GOLD));
-                    case 4 -> tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_>16").withStyle(ChatFormatting.GOLD));
+                    case 0 -> tooltip.add(Component.translatable(
+                        "gui.anvilcraft.category.transcendium_recipe.enchantments_amount_0"
+                    ).withStyle(ChatFormatting.GOLD));
+                    case 1 -> tooltip.add(Component.translatable(
+                        "gui.anvilcraft.category.transcendium_recipe.enchantments_amount_1_10"
+                    ).withStyle(ChatFormatting.GOLD));
+                    case 2 -> tooltip.add(Component.translatable(
+                        "gui.anvilcraft.category.transcendium_recipe.enchantments_amount_11_14"
+                    ).withStyle(ChatFormatting.GOLD));
+                    case 3 -> tooltip.add(Component.translatable(
+                        "gui.anvilcraft.category.transcendium_recipe.enchantments_amount_15"
+                    ).withStyle(ChatFormatting.GOLD));
+                    case 4 -> tooltip.add(Component.translatable(
+                        "gui.anvilcraft.category.transcendium_recipe.enchantments_amount_>16"
+                    ).withStyle(ChatFormatting.GOLD));
+                    default -> {
+                    }
                 }
             });
         switch (recipeId) {
@@ -88,37 +100,55 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
             case 1 -> {
                 builder.addOutputSlot(116, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                        tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.probability").withStyle(ChatFormatting.GRAY)));
+                        tooltip.add(Component.translatable(
+                            "gui.anvilcraft.category.transcendium_recipe.probability"
+                        ).withStyle(ChatFormatting.GRAY)));
                 builder.addOutputSlot(134, 15).addItemStack(ModItems.TRANSCENDIUM_INGOT.asStack(4));
                 builder.addOutputSlot(116, 33).addItemStack(ModItems.TRANSCENDIUM_NUGGET.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                        tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.amount_is_3").withStyle(ChatFormatting.GOLD)));
+                        tooltip.add(Component.translatable(
+                            "gui.anvilcraft.category.transcendium_recipe.amount_is_3"
+                        ).withStyle(ChatFormatting.GOLD)));
             }
             case 2 -> {
                 builder.addOutputSlot(116, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack());
                 builder.addOutputSlot(134, 15).addItemStack(ModItems.TRANSCENDIUM_INGOT.asStack(4));
                 builder.addOutputSlot(116, 33).addItemStack(ModItems.TRANSCENDIUM_NUGGET.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                        tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.amount_is_3").withStyle(ChatFormatting.GOLD)));
+                        tooltip.add(Component.translatable(
+                            "gui.anvilcraft.category.transcendium_recipe.amount_is_3"
+                        ).withStyle(ChatFormatting.GOLD)));
             }
             case 3 -> builder.addOutputSlot(125, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack());
             case 4 -> {
                 builder.addOutputSlot(116, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack());
                 builder.addOutputSlot(134, 15).addItemStack(ModItems.TRANSCENDIUM_NUGGET.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                        tooltip.add(Component.translatable("gui.anvilcraft.category.transcendium_recipe.amount_is_1").withStyle(ChatFormatting.GOLD)));
+                        tooltip.add(Component.translatable(
+                            "gui.anvilcraft.category.transcendium_recipe.amount_is_1"
+                        ).withStyle(ChatFormatting.GOLD)));
+            }
+            default -> {
             }
         }
     }
 
     @Override
     public void draw(TranscendiumRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        int recipeId = recipe.recipeId();
+        final int recipeId = recipe.recipeId();
         slotDefault.draw(guiGraphics, 20, 23);
         arrowIn.draw(guiGraphics, 54, 30);
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20, 12, RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(guiGraphics, ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getDefaultState(), 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
+            guiGraphics,
+            ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getDefaultState(),
+            81,
+            40,
+            10,
+            12,
+            RenderSupport.SINGLE_BLOCK
+        );
         arrowOut.draw(guiGraphics, 92, 29);
         switch (recipeId) {
             case 0 -> slotDefault.draw(guiGraphics, 124, 23);
@@ -134,18 +164,36 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
             }
             case 3 -> {
                 slotDefault.draw(guiGraphics, 124, 14);
-                RenderSupport.renderBlock(guiGraphics, ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(), 133, 45, 0, 12, RenderSupport.SINGLE_BLOCK);
+                RenderSupport.renderBlock(
+                    guiGraphics,
+                    ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(),
+                    133,
+                    45,
+                    0,
+                    12,
+                    RenderSupport.SINGLE_BLOCK
+                );
             }
             case 4 -> {
                 slotDefault.draw(guiGraphics, 115, 14);
                 slotDefault.draw(guiGraphics, 133, 14);
-                RenderSupport.renderBlock(guiGraphics, ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(), 133, 45, 0, 12, RenderSupport.SINGLE_BLOCK);
+                RenderSupport.renderBlock(
+                    guiGraphics,
+                    ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(),
+                    133,
+                    45,
+                    0,
+                    12,
+                    RenderSupport.SINGLE_BLOCK
+                );
+            }
+            default -> {
             }
         }
     }
 
     @Override
-    public void getTooltip(ITooltipBuilder tooltip, TranscendiumRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+    public void getTooltip(ITooltipBuilder tooltip, TranscendiumRecipe recipe, IRecipeSlotsView view, double mouseX, double mouseY) {
         int recipeId = recipe.recipeId();
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
@@ -159,6 +207,8 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
                         tooltip.addAll(TooltipUtil.tooltip(ModBlocks.TRANSCENDIUM_BLOCK.get()));
                     }
                 }
+            }
+            default -> {
             }
         }
     }

@@ -1,15 +1,9 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class InputRefusingItemHandlerWrapper implements IItemHandler {
-
     private final IItemHandler delegate;
 
     public InputRefusingItemHandlerWrapper(IItemHandler delegate) {

@@ -170,7 +170,9 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
         };
 
         public static final Codec<ModifyOperation> CODEC = StringRepresentable.fromEnum(ModifyOperation::values);
-        public static final StreamCodec<RegistryFriendlyByteBuf, ModifyOperation> STREAM_CODEC = CodecUtil.enumStreamCodec(ModifyOperation.class);
+        public static final StreamCodec<RegistryFriendlyByteBuf, ModifyOperation> STREAM_CODEC = CodecUtil.enumStreamCodec(
+            ModifyOperation.class
+        );
 
         public abstract void accept(Tag inputSrc, Tag tag, int index, String key);
 

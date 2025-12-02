@@ -32,8 +32,8 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -154,7 +154,7 @@ public record MobTransformWithItemRecipe(
         );
         if (newEntity == null) return null;
         if (newEntity instanceof Mob mob) {
-            //noinspection deprecation,OverrideOnly
+            // noinspection deprecation,OverrideOnly
             mob.finalizeSpawn(
                 level,
                 level.getCurrentDifficultyAt(newEntity.blockPosition()),

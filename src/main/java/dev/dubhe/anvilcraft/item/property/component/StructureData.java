@@ -36,20 +36,17 @@ public record StructureData(
         StructureData::new
     );
 
-
     public StructureData(BlockPos initPos) {
         this(initPos.getX(), initPos.getY(), initPos.getZ(), initPos.getX(), initPos.getY(), initPos.getZ());
     }
 
     public StructureData addPos(BlockPos pos) {
-        int newMinX, newMinY, newMinZ;
-        int newMaxX, newMaxY, newMaxZ;
-        newMinX = Math.min(minX, pos.getX());
-        newMinY = Math.min(minY, pos.getY());
-        newMinZ = Math.min(minZ, pos.getZ());
-        newMaxX = Math.max(maxX, pos.getX());
-        newMaxY = Math.max(maxY, pos.getY());
-        newMaxZ = Math.max(maxZ, pos.getZ());
+        int newMinX = Math.min(minX, pos.getX());
+        int newMinY = Math.min(minY, pos.getY());
+        int newMinZ = Math.min(minZ, pos.getZ());
+        int newMaxX = Math.max(maxX, pos.getX());
+        int newMaxY = Math.max(maxY, pos.getY());
+        int newMaxZ = Math.max(maxZ, pos.getZ());
         return new StructureData(newMinX, newMinY, newMinZ, newMaxX, newMaxY, newMaxZ);
     }
 

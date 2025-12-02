@@ -176,7 +176,6 @@ import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -235,8 +234,6 @@ import static dev.dubhe.anvilcraft.AnvilCraft.of;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 @SuppressWarnings({
     "unused",
     "CodeBlock2Expr"

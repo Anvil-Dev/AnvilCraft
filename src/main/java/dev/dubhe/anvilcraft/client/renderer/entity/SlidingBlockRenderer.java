@@ -28,11 +28,11 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity> {
     }
 
     @Override
-    public void render(SlidingBlockEntity entity, float yaw, float pTicks, PoseStack pose, MultiBufferSource buffer, int packedLight) {
+    public void render(SlidingBlockEntity entity, float yaw, float partialTick, PoseStack pose, MultiBufferSource buffer, int packedLight) {
         for (SlidingBlockInfo info : entity.getSection().blocks()) {
             this.renderSingleBlock(info, entity.level(), entity.getStartPos(), entity.blockPosition(), pose, buffer);
         }
-        super.render(entity, yaw, pTicks, pose, buffer, packedLight);
+        super.render(entity, yaw, partialTick, pose, buffer, packedLight);
     }
 
     private void renderSingleBlock(
@@ -44,21 +44,26 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity> {
         if (state.getRenderShape() != RenderShape.MODEL) return;
         if (state == level.getBlockState(center) || state.getRenderShape() == RenderShape.INVISIBLE) return;
         pose.pushPose();
-        BlockPos pos = info.getPos(center);
+        final BlockPos pos = info.getPos(center);
         startPos = info.getPos(startPos);
         pose.translate(-0.5, 0.0, -0.5);
-        pose.translate(info.x(), info.y(), info.z());
+        pose.translate(info.offsetX(), info.offsetY(), info.offsetZ());
         var model = this.dispatcher.getBlockModel(state);
         for (var renderType : model.getRenderTypes(state, RandomSource.create(state.getSeed(startPos)), ModelData.EMPTY)) {
-            this.dispatcher
-                .getModelRenderer()
-                .tesselateBlock(
-                    level, this.dispatcher.getBlockModel(state), state, pos,
-                    pose, buffer.getBuffer(RenderTypeHelper.getMovingBlockRenderType(renderType)),
-                    false,
-                    RandomSource.create(), state.getSeed(startPos),
-                    OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType
-                );
+            this.dispatcher.getModelRenderer().tesselateBlock(
+                level,
+                this.dispatcher.getBlockModel(state),
+                state,
+                pos,
+                pose,
+                buffer.getBuffer(RenderTypeHelper.getMovingBlockRenderType(renderType)),
+                false,
+                RandomSource.create(),
+                state.getSeed(startPos),
+                OverlayTexture.NO_OVERLAY,
+                ModelData.EMPTY,
+                renderType
+            );
         }
         pose.popPose();
     }

@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.multiple.result.MultipleToOneResult;
 import dev.dubhe.anvilcraft.recipe.multiple.result.ResultContext;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,15 +27,12 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<MultipleToOneSmithingRecipeInput> {
     protected final ItemIngredientPredicate template;
     protected final ItemIngredientPredicate material;
@@ -343,18 +339,18 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (this.template.items().isEmpty()) {
-                throw new IllegalArgumentException("The template of multiple to one recipe must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("The template of multiple to one recipe must not be empty, RecipeId: " + id);
             }
             if (this.material.items().isEmpty()) {
-                throw new IllegalArgumentException("The material of multiple to one recipe must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("The material of multiple to one recipe must not be empty, RecipeId: " + id);
             }
             List<ItemIngredientPredicate> cache = this.inputs.build();
             for (int i = 0; i < cache.size(); i++) {
                 ItemIngredientPredicate input = cache.get(i);
                 if (input.items().isPresent()) continue;
-                throw new IllegalArgumentException("The " + i + "th input of multiple to one recipe must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("The " + i + "th input of multiple to one recipe must not be empty, RecipeId: " + id);
             }
         }
 

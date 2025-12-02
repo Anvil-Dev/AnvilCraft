@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.DyeItem;
@@ -30,13 +29,10 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ModFluids {
-
-    public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, AnvilCraft.MOD_ID);
+    public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(
+        NeoForgeRegistries.FLUID_TYPES, AnvilCraft.MOD_ID
+    );
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, AnvilCraft.MOD_ID);
 
     public static final DeferredHolder<FluidType, FluidType> OIL_TYPE = FLUID_TYPES.register(
@@ -108,7 +104,6 @@ public class ModFluids {
         return FLUIDS.register("%s_cement".formatted(color), () -> new BaseFlowingFluid.Source(ModFluids.CEMENT_PROPERTIES.get(color)));
     }
 
-
     private static Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> registerAllFlowingCement() {
         Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
@@ -119,7 +114,10 @@ public class ModFluids {
     }
 
     private static DeferredHolder<Fluid, BaseFlowingFluid> registerFlowingCement(Color color) {
-        return FLUIDS.register("flowing_%s_cement".formatted(color), () -> new BaseFlowingFluid.Flowing(ModFluids.CEMENT_PROPERTIES.get(color)));
+        return FLUIDS.register(
+            "flowing_%s_cement".formatted(color),
+            () -> new BaseFlowingFluid.Flowing(ModFluids.CEMENT_PROPERTIES.get(color))
+        );
     }
 
     private static Object2ObjectMap<Color, BaseFlowingFluid.Properties> createAllCementProperties() {
@@ -162,7 +160,11 @@ public class ModFluids {
         "flowing_melt_gem",
         () -> new MeltGemFluid.Flowing(ModFluids.MELT_GEM_PROPERTIES)
     );
-    public static final BaseFlowingFluid.Properties MELT_GEM_PROPERTIES = new BaseFlowingFluid.Properties(MELT_GEM_TYPE, MELT_GEM, FLOWING_MELT_GEM)
+    public static final BaseFlowingFluid.Properties MELT_GEM_PROPERTIES = new BaseFlowingFluid.Properties(
+        MELT_GEM_TYPE,
+        MELT_GEM,
+        FLOWING_MELT_GEM
+    )
         .block(ModBlocks.MELT_GEM)
         .bucket(ModItems.MELT_GEM_BUCKET)
         .tickRate(20)
@@ -183,7 +185,10 @@ public class ModFluids {
                     Block block;
                     if (level.getFluidState(currentPos).isSource()) block = Blocks.TERRACOTTA;
                     else block = FLOWING_MELT_GEM_CONVERTIBLE[level.getRandom().nextInt(3)];
-                    level.setBlockAndUpdate(currentPos, EventHooks.fireFluidPlaceBlockEvent(level, currentPos, currentPos, block.defaultBlockState()));
+                    level.setBlockAndUpdate(
+                        currentPos,
+                        EventHooks.fireFluidPlaceBlockEvent(level, currentPos, currentPos, block.defaultBlockState())
+                    );
                     level.levelEvent(1501, currentPos, 0);
                 }
             ));

@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,7 +17,6 @@ import net.neoforged.neoforge.common.util.ItemStackMap;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,8 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BlockPattern {
     private final List<List<String>> layers;
     private final Map<Character, BlockPredicateWithState> symbols;
@@ -134,16 +130,14 @@ public class BlockPattern {
             }
         }
         Map<ItemStack, Integer> ingredients = ItemStackMap.createTypeAndTagMap();
-        states.forEach((state, stateCount) -> {
-            BlockStateUtil.ingredientsForPlacement(state)
-                .forEach(stack -> {
-                    int stackCount = stack.getCount();
-                    if (stackCount <= 0) return;
-                    stack.setCount(1);
-                    Integer totalCount = ingredients.computeIfAbsent(stack, ignore -> 0);
-                    ingredients.put(stack, totalCount + stateCount * stackCount);
-                });
-        });
+        states.forEach((state, stateCount) -> BlockStateUtil.ingredientsForPlacement(state)
+            .forEach(stack -> {
+                int stackCount = stack.getCount();
+                if (stackCount <= 0) return;
+                stack.setCount(1);
+                Integer totalCount = ingredients.computeIfAbsent(stack, ignore -> 0);
+                ingredients.put(stack, totalCount + stateCount * stackCount);
+            }));
         List<ItemStack> resultList = new ArrayList<>();
         ingredients.forEach((stack, count) -> {
             stack.setCount(count);

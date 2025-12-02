@@ -124,9 +124,9 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         )
     )
     private void anvilHurtEntity(
-        float pFallDistance,
-        float pMultiplier,
-        DamageSource pSource,
+        float fallDistance,
+        float multiplier,
+        DamageSource source,
         CallbackInfoReturnable<Boolean> cir
     ) {
         Level level = this.level();

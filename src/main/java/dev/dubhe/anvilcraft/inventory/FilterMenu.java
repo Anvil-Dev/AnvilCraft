@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.inventory.component.FilterOnlySlot;
 import dev.dubhe.anvilcraft.inventory.component.FilterSlot;
 import dev.dubhe.anvilcraft.inventory.container.FilterContainer;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,11 +17,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class FilterMenu extends AbstractContainerMenu {
     // 功劳归于：: diesieben07 | https://github.com/diesieben07/SevenCommons
     // 必须为 GUI 使用的每个插槽分配一个插槽编号.

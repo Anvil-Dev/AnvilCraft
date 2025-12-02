@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.InteractionHand;
@@ -19,15 +18,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class LavaCauldronBlock extends Layered4LevelCauldronBlock implements IHammerRemovable {
     public LavaCauldronBlock(Properties properties) {
         super(properties, ModInteractionMap.LAYERED_LAVA);
     }
-
 
     @Override
     public ItemInteractionResult useItemOn(

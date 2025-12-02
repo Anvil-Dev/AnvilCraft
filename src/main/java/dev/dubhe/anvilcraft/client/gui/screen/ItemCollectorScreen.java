@@ -24,11 +24,14 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+
 import java.util.List;
 import java.util.function.BiFunction;
 
 public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu> implements IFilterScreen<ItemCollectorMenu> {
-    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/machine/background/item_collector.png");
+    private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of(
+        "textures/gui/container/machine/background/item_collector.png"
+    );
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(75, 54);
 
     @Getter
@@ -167,7 +170,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             ItemStack carriedItem = this.menu.getCarried().copy();
             int realSlotId = slot.getContainerSlot();
             if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
-                ItemStack filter = this.menu.getFilter(realSlotId);
+                final ItemStack filter = this.menu.getFilter(realSlotId);
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);

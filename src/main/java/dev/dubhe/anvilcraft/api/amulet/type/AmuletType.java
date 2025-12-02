@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,13 +26,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.util.Lazy;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 @Getter
 @Accessors(fluent = true, chain = false)
-@MethodsReturnNonnullByDefault
 public class AmuletType {
     public static final Codec<AmuletType> CODEC = Codec.lazyInitialized(ModRegistries.AMULET_TYPE_REGISTRY::byNameCodec);
     public static final StreamCodec<RegistryFriendlyByteBuf, AmuletType> STREAM_CODEC = ByteBufCodecs.registry(
@@ -68,7 +65,6 @@ public class AmuletType {
         return this.effect.shouldImmuneDamage(player, source);
     }
 
-    @ParametersAreNonnullByDefault
     public static class Builder {
         private Obtain obtain = Obtain.NEVER;
         private InventoryTick inventoryTick = InventoryTick.NOP;

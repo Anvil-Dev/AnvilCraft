@@ -24,6 +24,7 @@ import java.util.Set;
 
 /**
  * 电感灯生物生成管理器
+ *
  * <p>
  * 该类负责管理电感灯方块对生物生成的控制功能，采用单例模式为每个世界维护一个实例。
  * 通过监听生物生成事件，检查生物是否在电感灯的生效区域内，并根据电感灯的设置阻止相应类型的生物生成。
@@ -53,6 +54,7 @@ public class SpawningManager {
 
     /**
      * 获取与指定世界关联的 SpawningManager 实例
+     *
      * <p>
      * 使用单例模式，为每个 Level 创建并缓存一个 SpawningManager 实例。<br/>
      * 如果指定的 Level 尚未创建实例，则通过 {@link SpawningManager#SpawningManager(Level)} 构造函数创建新实例。
@@ -72,6 +74,7 @@ public class SpawningManager {
 
     /**
      * 添加电感灯方块到对应的生物生成控制集合中
+     *
      * <p>
      * 根据 isAnimal 参数决定将指定位置的诱导灯添加到动物生成控制集合或非动物生物生成控制集合。<br/>
      * 该方法会获取对应世界的 SpawningManager 实例，并将方块位置添加到相应的集合中。
@@ -95,6 +98,7 @@ public class SpawningManager {
 
     /**
      * 检查并阻止特定类型的生物在电感灯方块的生效区域内生成
+     *
      * <p>
      * 遍历指定的诱导灯方块位置集合，检查每个方块是否仍有效并且处于点亮状态。<br/>
      * 如果生物位于某个有效诱导灯方块的阻挡区域内，则根据生物类型和诱导灯设置阻止其生成。<br/>
@@ -117,12 +121,16 @@ public class SpawningManager {
         while (iterator.hasNext()) {
             BlockPos lightPos = iterator.next();
             BlockState state = level.getBlockState(lightPos);
-            if (state.getBlock() instanceof InductionLightBlock
+            if (
+                state.getBlock() instanceof InductionLightBlock
                 && InductionLightBlock.isLit(state)
                 && (InductionLightBlock.canBlockMobSummoning(state)
-                || InductionLightBlock.canBlockAnimalSummoning(state))) {
-                if (level.getBlockEntity(lightPos) instanceof InductionLightBlockEntity blockEntity
-                && blockEntity.blockingArea.get().contains(entity.position())) {
+                || InductionLightBlock.canBlockAnimalSummoning(state))
+            ) {
+                if (
+                    level.getBlockEntity(lightPos) instanceof InductionLightBlockEntity blockEntity
+                    && blockEntity.blockingArea.get().contains(entity.position())
+                ) {
                     if (isAnimal) {
                         if (entity instanceof Animal) {
                             event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
@@ -141,6 +149,7 @@ public class SpawningManager {
 
     /**
      * 处理生物生成位置检查事件
+     *
      * <p>
      * 监听 Minecraft 的生物生成事件，只处理自然生成、区块生成和巡逻生成类型的生物。<br/>
      * 根据生物类型（动物或非动物）检查其生成位置是否在电感灯方块的阻挡区域内，<br/>
@@ -155,7 +164,11 @@ public class SpawningManager {
     @SubscribeEvent
     private static void blockEntitySummon(MobSpawnEvent.PositionCheck event) {
         MobSpawnType spawnType = event.getSpawnType();
-        if (!spawnType.equals(MobSpawnType.NATURAL) && !spawnType.equals(MobSpawnType.CHUNK_GENERATION) && !spawnType.equals(MobSpawnType.PATROL)) {
+        if (
+            !spawnType.equals(MobSpawnType.NATURAL)
+            && !spawnType.equals(MobSpawnType.CHUNK_GENERATION)
+            && !spawnType.equals(MobSpawnType.PATROL)
+        ) {
             return;
         }
         Entity entity = event.getEntity();

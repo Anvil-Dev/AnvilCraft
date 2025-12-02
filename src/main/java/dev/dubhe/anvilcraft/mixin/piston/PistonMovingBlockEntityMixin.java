@@ -51,7 +51,8 @@ abstract class PistonMovingBlockEntityMixin extends BlockEntity implements IPist
         method = "tick",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z",
+            target = "Lnet/minecraft/world/level/Level;"
+                     + "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z",
             shift = At.Shift.AFTER,
             ordinal = 1
         )
@@ -65,7 +66,7 @@ abstract class PistonMovingBlockEntityMixin extends BlockEntity implements IPist
         @Local(ordinal = 1) BlockState moveState
     ) {
         if (level.isClientSide()) return;
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (!(blockEntity instanceof IPistonMovingBlockEntityExtension blockEntity1)) return;
         if (!(moveState.getBlock() instanceof IMoveableEntityBlock entityBlock)) return;
         CompoundTag tag = blockEntity1.anvilcraft$clearData();
@@ -77,17 +78,18 @@ abstract class PistonMovingBlockEntityMixin extends BlockEntity implements IPist
     @Inject(
         method = "finalTick", at = @At(
         value = "INVOKE",
-        target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z",
+        target = "Lnet/minecraft/world/level/Level;"
+                 + "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z",
         shift = At.Shift.AFTER
     )
     )
     private void finalTick(CallbackInfo ci, @Local BlockState moveState) {
         if (this.level == null || this.level.isClientSide()) return;
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (!(this instanceof IPistonMovingBlockEntityExtension blockEntity1)) return;
         if (!(moveState.getBlock() instanceof IMoveableEntityBlock entityBlock)) return;
         CompoundTag tag = blockEntity1.anvilcraft$clearData();
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (tag != null) {
             entityBlock.setData(level, this.worldPosition, tag);
         }

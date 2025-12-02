@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.state.Orientation;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -43,15 +44,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumSet;
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers.anvilcraftBlockPlacer;
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getSourceItemHandlerRecursive;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammerChangeable {
 
     public static final VoxelShape NORTH_UP_SHAPE =
@@ -81,9 +76,6 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     public static final EnumProperty<Orientation> ORIENTATION = EnumProperty.create("orientation", Orientation.class);
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
 
-    /**
-     * @param properties 方块属性
-     */
     public BlockPlacerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -241,7 +233,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         BlockPos inputPos = blockPos.relative(direction.getOpposite());
         // 获取放置方块类型
         ItemStack placeItem = null;
-        IItemHandler itemHandler = getSourceItemHandlerRecursive(this, inputPos, direction, level);
+        IItemHandler itemHandler = ItemHandlerUtil.getSourceItemHandlerRecursive(this, inputPos, direction, level);
         int slot;
         for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
             ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
@@ -293,7 +285,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         BlockPos placePos = blockPos.relative(direction, distance);
         // 放置方块
-        if (anvilcraftBlockPlacer.placeBlock(
+        if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
             level,
             placePos,
             orientation,
@@ -318,6 +310,8 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     }
 
     /**
+     * 判断当前位置是否不能放置方块
+     *
      * @param level      放置世界
      * @param blockState 方块放置器前面方块的方块状态
      * @return 当前位置是否不能放置方块

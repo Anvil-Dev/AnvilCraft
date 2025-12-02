@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.math.MethodsReturnNonnullByDefault;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -35,10 +34,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SpectralAnvilBlock extends Block implements IHammerRemovable {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;

@@ -31,6 +31,4 @@ public interface TreeNode<T> {
     static <T> SetTreeNode<T> multiple(TreeNode<T>... children) {
         return new SetTreeNode<>(() -> new HashSet<>(List.of(children)));
     }
-
-
 }

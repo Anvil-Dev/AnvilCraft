@@ -33,6 +33,7 @@ public class BlockDevourerScene {
             .addStoryBoard("platform/9x", BlockDevourerScene::anvilFall, AnvilCraftPonderTags.POWER_COMPONENTS);
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private static void run(SceneBuilder scene, SceneBuildingUtil util) {
         AnvilCraftSceneBuilder builder = new AnvilCraftSceneBuilder(scene);
         builder.title("block_devourer", "Block Devourer");
@@ -178,7 +179,7 @@ public class BlockDevourerScene {
         BlockPos devourerPos = util.grid().at(4, 7, 4);
         builder.world().setBlock(devourerPos, ModBlocks.BLOCK_DEVOURER.getDefaultState()
             .setValue(BlockDevourerBlock.FACING, Direction.DOWN), false);
-        ElementLink<WorldSectionElement> devourerLink = builder.world()
+        final ElementLink<WorldSectionElement> devourerLink = builder.world()
             .showIndependentSection(util.select().position(devourerPos), Direction.DOWN);
 
         BlockPos anvilPos = devourerPos.above();

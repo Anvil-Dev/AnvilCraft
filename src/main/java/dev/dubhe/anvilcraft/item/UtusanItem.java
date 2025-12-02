@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.util.PlayerUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,12 +20,9 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class UtusanItem extends Item {
     public UtusanItem(Properties properties) {
         super(properties);
@@ -71,7 +67,7 @@ public class UtusanItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack pStack, LivingEntity pEntity) {
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return 10;
     }
 

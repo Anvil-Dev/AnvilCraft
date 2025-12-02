@@ -15,6 +15,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlockEntity> {
     private final BlockRenderDispatcher dispatcher;
@@ -45,6 +46,7 @@ public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlock
                 poseStack.pushPose();
                 BlockPos blockPos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
                 poseStack.translate(-0.5, 0.0, -0.5);
+                // noinspection DataFlowIssue,deprecation
                 this.dispatcher
                     .getModelRenderer()
                     .tesselateBlock(
@@ -57,8 +59,10 @@ public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlock
                         false,
                         RandomSource.create(),
                         blockState.getSeed(entity.getStartPos()),
-                        OverlayTexture.NO_OVERLAY
-                    );
+                        OverlayTexture.NO_OVERLAY,
+                        ModelData.EMPTY,
+                        null
+                );
                 poseStack.popPose();
                 super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
             }
@@ -66,6 +70,7 @@ public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlock
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public ResourceLocation getTextureLocation(AnimateAscendingBlockEntity entity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }

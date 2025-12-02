@@ -14,6 +14,4 @@ public interface IHasHammerEffect {
     BlockState renderingBlockState();
 
     RenderType renderType();
-
-
 }

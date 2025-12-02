@@ -15,21 +15,16 @@ import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MaceItem;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
-
-    @Unique
-    private static final ModelResourceLocation anvilcraft$HOLDING_ITEM =
+    private static final ModelResourceLocation HOLDING_ITEM =
         ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item"));
-
-    @Unique
-    private static final ModelResourceLocation anvilcraft$HOLDING_BLOCK =
+    private static final ModelResourceLocation HOLDING_BLOCK =
         ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_block"));
 
-    protected CrabClawItemInHandRenderer(ItemRenderer itemRenderer, IItemRenderer iItemRenderer) {
-        super(itemRenderer, iItemRenderer);
+    protected CrabClawItemInHandRenderer(ItemRenderer itemRenderer, IItemRenderer renderer) {
+        super(itemRenderer, renderer);
     }
 
     @Override
@@ -54,7 +49,7 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         boolean flag = hand == InteractionHand.MAIN_HAND;
         HumanoidArm humanoidarm = flag ? player.getMainArm() : player.getMainArm().getOpposite();
         boolean flag2 = humanoidarm == HumanoidArm.LEFT;
-        int i = flag2 ? -1 : 1;
+        final int i = flag2 ? -1 : 1;
         if (this.mainHandItem.isEmpty()) {
             this.renderItem(
                 player,
@@ -97,7 +92,7 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             this.itemRenderer
                 .getItemModelShaper()
                 .getModelManager()
-                .getModel(isBlockItem ? anvilcraft$HOLDING_BLOCK : anvilcraft$HOLDING_ITEM)
+                .getModel(isBlockItem ? HOLDING_BLOCK : HOLDING_ITEM)
         );
         if (isBlockItem) {
             poseStack.mulPose(Axis.YP.rotationDegrees(60f * i));

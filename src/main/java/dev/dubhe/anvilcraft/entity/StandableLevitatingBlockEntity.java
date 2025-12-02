@@ -23,10 +23,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@ParametersAreNonnullByDefault
 public class StandableLevitatingBlockEntity extends LevitatingBlockEntity {
     public StandableLevitatingBlockEntity(EntityType<? extends FallingBlockEntity> entityType, Level level) {
         super(entityType, level);

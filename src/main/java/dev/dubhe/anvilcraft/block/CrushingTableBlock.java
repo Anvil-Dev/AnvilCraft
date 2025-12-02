@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,13 +20,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-public class CrushingTableBlock extends Block
-    implements SimpleWaterloggedBlock, IHammerRemovable {
-
+public class CrushingTableBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape REDUCE_AABB = Shapes.or(
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
@@ -106,6 +99,4 @@ public class CrushingTableBlock extends Block
         }
         return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
     }
-
-
 }

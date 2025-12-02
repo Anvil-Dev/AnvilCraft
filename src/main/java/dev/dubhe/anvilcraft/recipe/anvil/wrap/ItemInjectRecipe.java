@@ -25,9 +25,8 @@ import java.util.function.Supplier;
 
 /**
  * 物品注入配方类
- * <p>
- * 该配方用于在铁砧下落时将物品注入到方块中，需要在铁砧下方放置特定方块作为注入目标
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时将物品注入到方块中，需要在铁砧下方放置特定方块作为注入目标</p>
  */
 @Getter
 public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
@@ -189,9 +188,9 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (this.itemIngredients.isEmpty()) {
-                throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
         }
 

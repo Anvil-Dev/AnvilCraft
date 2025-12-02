@@ -18,10 +18,8 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@ParametersAreNonnullByDefault
 public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedComparatorMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
         AnvilCraft.of("textures/gui/container/machine/background/advanced_comparator.png");
@@ -45,7 +43,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         AnvilCraft.of("textures/gui/container/machine/advanced_comparator_slider.png");
 
     private final Minecraft minecraft;
-    private final int GRID = 6;
+    private static final int GRID = 6;
     private int sliderY;
     private int sliderMax;
     private int sliderMin;
@@ -74,8 +72,9 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             comparator.getInputtingSignal()
         ));
         Level level = comparator.getLevel();
-        if (level != null)
+        if (level != null) {
             level.scheduleTick(comparator.getBlockPos(), comparator.getBlockState().getBlock(), AdvancedComparatorBlock.getDelay());
+        }
         super.onClose();
     }
 
@@ -120,9 +119,9 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         this.sliderMin = this.leftPos + 46;
         this.sliderMax = this.sliderMin + 91;
         this.slider1Pos = this.menu.getBlockEntity().getLowLimit();
-        this.slider1X = Math.clamp((long) this.slider1Pos * this.GRID + this.sliderMin, this.sliderMin, this.sliderMax);
+        this.slider1X = Math.clamp((long) this.slider1Pos * AdvancedComparatorScreen.GRID + this.sliderMin, this.sliderMin, this.sliderMax);
         this.slider2Pos = this.menu.getBlockEntity().getHighLimit();
-        this.slider2X = Math.clamp((long) this.slider2Pos * this.GRID + this.sliderMin, this.sliderMin, this.sliderMax);
+        this.slider2X = Math.clamp((long) this.slider2Pos * AdvancedComparatorScreen.GRID + this.sliderMin, this.sliderMin, this.sliderMax);
         this.addRenderableWidget(compareMode);
         this.addRenderableWidget(outputMode);
         this.addRenderableWidget(redstoneControl);
@@ -145,6 +144,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     }
 
     @Override
+    @SuppressWarnings("checkstyle:LocalVariableName")
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(CONTAINER_LOCATION, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
         int vOffset1 = this.isInSlider(mouseX, mouseY, this.slider1X, this.sliderY) ? 11 : 0;
@@ -216,11 +216,19 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (this.scrolling1) {
             this.slider1Pos = Math.clamp((int) (mouseX - this.sliderMin) / GRID, 0, 15);
-            this.slider1X = Math.clamp((long) this.slider1Pos * this.GRID + this.sliderMin, this.sliderMin, this.sliderMax);
+            this.slider1X = Math.clamp(
+                (long) this.slider1Pos * AdvancedComparatorScreen.GRID + this.sliderMin,
+                this.sliderMin,
+                this.sliderMax
+            );
             return true;
         } else if (this.scrolling2) {
             this.slider2Pos = Math.clamp((int) (mouseX - this.sliderMin) / GRID, 0, 15);
-            this.slider2X = Math.clamp((long) this.slider2Pos * this.GRID + this.sliderMin, this.sliderMin, this.sliderMax);
+            this.slider2X = Math.clamp(
+                (long) this.slider2Pos * AdvancedComparatorScreen.GRID + this.sliderMin,
+                this.sliderMin,
+                this.sliderMax
+            );
             return true;
         } else {
             return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);

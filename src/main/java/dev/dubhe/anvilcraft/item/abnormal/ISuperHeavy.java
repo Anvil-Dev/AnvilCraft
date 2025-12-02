@@ -11,9 +11,13 @@ public interface ISuperHeavy extends IAbnormal {
     default void addEffect(Player player) {
         int count = this.getItemCount(player);
         int amplifier = 0;
-        if (count > 64) amplifier = 3;
-        else if (count > 16) amplifier = 2;
-        else if (count > 4) amplifier = 1;
+        if (count > 64) {
+            amplifier = 3;
+        } else if (count > 16) {
+            amplifier = 2;
+        } else if (count > 4) {
+            amplifier = 1;
+        }
         player.addEffect(IAbnormal.makeEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, amplifier));
     }
 }

@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.block.IEmberBlock;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -12,12 +11,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
 @Setter
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class EmberMetalSlabBlock extends SlabBlock implements IEmberBlock {
     private BlockState checkBlockState;
 

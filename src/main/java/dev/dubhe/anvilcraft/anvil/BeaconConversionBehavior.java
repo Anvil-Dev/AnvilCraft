@@ -30,7 +30,7 @@ public class BeaconConversionBehavior implements IAnvilBehavior {
     public boolean handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilEvent.OnLand event) {
         BlockPos above = hitBlockPos.above();
         int beaconLevel = getBeaconLevel(level, hitBlockPos);
-        List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, new AABB(above));
+        final List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, new AABB(above));
         BlockEntity blockEntity = level.getBlockEntity(hitBlockPos);
         if (!(blockEntity instanceof BeaconBlockEntity beaconBlockEntity)) {
             return false;

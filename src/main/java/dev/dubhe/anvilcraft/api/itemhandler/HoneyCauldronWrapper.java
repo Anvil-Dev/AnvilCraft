@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -10,10 +9,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class HoneyCauldronWrapper implements IItemHandler {
     private final Level level;
     private final BlockPos pos;

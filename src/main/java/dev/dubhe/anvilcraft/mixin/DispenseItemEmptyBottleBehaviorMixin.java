@@ -28,7 +28,9 @@ abstract class DispenseItemEmptyBottleBehaviorMixin extends OptionalDispenseItem
                  + "Lnet/minecraft/world/item/ItemStack;",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/core/dispenser/OptionalDispenseItemBehavior;" + "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)" + "Lnet/minecraft/world/item/ItemStack;"
+            target = "Lnet/minecraft/core/dispenser/OptionalDispenseItemBehavior;"
+                     + "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
+                     + "Lnet/minecraft/world/item/ItemStack;"
         ),
         cancellable = true
     )

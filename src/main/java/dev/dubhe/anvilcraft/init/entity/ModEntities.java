@@ -79,7 +79,8 @@ public class ModEntities {
         .entity(
             "thrown_frost_metal_heavy_halberd",
             (ThrownHeavyHalberdEntity.Factory<ThrownFrostMetalHeavyHalberdEntity>) ThrownFrostMetalHeavyHalberdEntity::new,
-            MobCategory.MISC)
+            MobCategory.MISC
+        )
         .properties(it -> it.sized(0.5F, 0.5F)
             .eyeHeight(0.13F)
             .clientTrackingRange(4)
@@ -91,7 +92,8 @@ public class ModEntities {
         .entity(
             "thrown_ember_metal_heavy_halberd",
             (ThrownHeavyHalberdEntity.Factory<ThrownEmberMetalHeavyHalberdEntity>) ThrownEmberMetalHeavyHalberdEntity::new,
-            MobCategory.MISC)
+            MobCategory.MISC
+        )
         .properties(it -> it.sized(0.5F, 0.5F)
             .eyeHeight(0.13F)
             .clientTrackingRange(4)
@@ -99,17 +101,19 @@ public class ModEntities {
         .renderer(() -> ThrownHeavyHalberdRenderer::new)
         .register();
 
-    public static final EntityEntry<? extends ThrownTranscendenceHeavyHalberdEntity> THROWN_TRANSCENDENCE_HEAVY_HALBERD = AnvilCraft.REGISTRATE
-        .entity(
-            "thrown_transcendence_heavy_halberd",
-            (ThrownHeavyHalberdEntity.Factory<ThrownTranscendenceHeavyHalberdEntity>) ThrownTranscendenceHeavyHalberdEntity::new,
-            MobCategory.MISC)
-        .properties(it -> it.sized(0.5F, 0.5F)
-            .eyeHeight(0.13F)
-            .clientTrackingRange(4)
-            .updateInterval(20))
-        .renderer(() -> ThrownHeavyHalberdRenderer::new)
-        .register();
+    public static final EntityEntry<? extends ThrownTranscendenceHeavyHalberdEntity> THROWN_TRANSCENDENCE_HEAVY_HALBERD =
+        AnvilCraft.REGISTRATE
+            .entity(
+                "thrown_transcendence_heavy_halberd",
+                (ThrownHeavyHalberdEntity.Factory<ThrownTranscendenceHeavyHalberdEntity>) ThrownTranscendenceHeavyHalberdEntity::new,
+                MobCategory.MISC
+            )
+            .properties(it -> it.sized(0.5F, 0.5F)
+                .eyeHeight(0.13F)
+                .clientTrackingRange(4)
+                .updateInterval(20))
+            .renderer(() -> ThrownHeavyHalberdRenderer::new)
+            .register();
 
     public static final EntityEntry<? extends SlidingBlockEntity> SLIDING_BLOCK = AnvilCraft.REGISTRATE
         .<SlidingBlockEntity>entity("sliding_block", SlidingBlockEntity::new, MobCategory.MISC)

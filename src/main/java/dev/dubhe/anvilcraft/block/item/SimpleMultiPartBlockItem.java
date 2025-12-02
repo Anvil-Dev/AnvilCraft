@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.ISimpleMultiPartBlockState;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -15,10 +14,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class SimpleMultiPartBlockItem<P extends Enum<P> & ISimpleMultiPartBlockState<P>> extends BlockItem {
     private final SimpleMultiPartBlock<P> block;
 

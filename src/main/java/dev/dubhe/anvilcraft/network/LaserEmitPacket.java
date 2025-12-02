@@ -43,9 +43,6 @@ public class LaserEmitPacket implements CustomPacketPayload {
             .orElse(null);
     }
 
-    /**
-     *
-     */
     public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeVarInt(laserLevel);
         NetworkUtil.writeVarIntBlockPos(buf, laserBlockPos);
@@ -60,9 +57,6 @@ public class LaserEmitPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    /**
-     *
-     */
     public static void clientHandler(LaserEmitPacket data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().level != null

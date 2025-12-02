@@ -2,13 +2,8 @@ package dev.dubhe.anvilcraft.item;
 
 import com.mojang.datafixers.util.Unit;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.SwordItem;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class EmberMetalSwordItem extends SwordItem {
     public EmberMetalSwordItem(Properties properties) {
         super(

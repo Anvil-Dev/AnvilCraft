@@ -31,9 +31,6 @@ public class FrostMetalUpgradeTemplateItem extends SmithingTemplateItem {
     private static final ResourceLocation EMPTY_SLOT_INGOT =
         ResourceLocation.withDefaultNamespace("item/empty_slot_ingot");
 
-    /**
-     * @param properties 物品属性
-     */
     public FrostMetalUpgradeTemplateItem(@SuppressWarnings("unused") Properties properties) {
         super(
             APPLIES_TO,

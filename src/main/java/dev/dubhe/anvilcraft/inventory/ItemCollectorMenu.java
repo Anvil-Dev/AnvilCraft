@@ -19,6 +19,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterMenu, ContainerListener {
     @Getter
     private final ItemCollectorBlockEntity blockEntity;
@@ -48,7 +50,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
     }
 
     public ItemCollectorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -93,7 +95,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) {
             return ItemStack.EMPTY;
         } // EMPTY_ITEM
@@ -173,9 +175,6 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         this.onChanged();
     }
 
-    /**
-     *
-     */
     public void notify(int index, String name) {
         if (name.contentEquals("rangeRadius")) {
             blockEntity.getRangeRadius().fromIndex(index);

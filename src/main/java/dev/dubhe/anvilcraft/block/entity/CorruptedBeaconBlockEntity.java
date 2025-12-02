@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.recipe.transform.MobTransformInput;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -39,13 +38,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CorruptedBeaconBlockEntity extends BlockEntity {
     List<BeaconBeamSection> beamSections = Lists.newArrayList();
     private List<BeaconBeamSection> checkingBeamSections = Lists.newArrayList();

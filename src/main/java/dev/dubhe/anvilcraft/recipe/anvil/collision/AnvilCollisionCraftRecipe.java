@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +43,6 @@ import java.util.Map;
  * @param outputItems     输出物品列表
  * @param speed           最低撞击速度(m/tick)
  */
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public record AnvilCollisionCraftRecipe(
     BlockStatePredicate anvil,
     boolean consume,
@@ -100,10 +96,10 @@ public record AnvilCollisionCraftRecipe(
      */
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        if (!outputItems.isEmpty())
-            return outputItems.getFirst().stack();
-        if (!transformBlocks.isEmpty())
-            return new ItemStack(transformBlocks.getFirst().outputBlock().state().getBlock().asItem());
+        if (!this.outputItems.isEmpty()) return this.outputItems.getFirst().stack();
+        if (!this.transformBlocks.isEmpty()) {
+            return new ItemStack(this.transformBlocks.getFirst().outputBlock().state().getBlock().asItem());
+        }
         return ItemStack.EMPTY;
     }
 
@@ -488,15 +484,15 @@ public record AnvilCollisionCraftRecipe(
         /**
          * 验证配方参数
          *
-         * @param recipeId 配方ID
+         * @param id 配方ID
          */
         @Override
-        public void validate(ResourceLocation recipeId) {
+        public void validate(ResourceLocation id) {
             if (anvil == null) {
-                throw new IllegalArgumentException("Recipe has no anvil, RecipeId:" + recipeId);
+                throw new IllegalArgumentException("Recipe has no anvil, RecipeId:" + id);
             }
             if (hitBlock == null) {
-                throw new IllegalArgumentException("Recipe has no hitBlock, RecipeId:" + recipeId);
+                throw new IllegalArgumentException("Recipe has no hitBlock, RecipeId:" + id);
             }
         }
 

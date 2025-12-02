@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
@@ -12,10 +11,7 @@ import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class EndDustBlock extends Block {
     public EndDustBlock(Properties properties) {
         super(properties);

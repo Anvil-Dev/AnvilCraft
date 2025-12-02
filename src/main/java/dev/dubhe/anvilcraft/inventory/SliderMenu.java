@@ -15,27 +15,20 @@ import org.jetbrains.annotations.Nullable;
 public class SliderMenu extends AbstractContainerMenu {
     private final Callback<Integer> callback;
 
-    /**
-     * @param menuType    菜单类型
-     * @param containerId 容器ID
-     */
     public SliderMenu(@Nullable MenuType<?> menuType, int containerId) {
         super(menuType, containerId);
         this.callback = null;
     }
 
-    /**
-     * @param containerId 容器ID
-     * @param callback    更新回调
-     */
     public SliderMenu(int containerId, Callback<Integer> callback) {
         super(ModMenuTypes.SLIDER.get(), containerId);
         this.callback = callback;
     }
+
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
         Slot sourceSlot = slots.get(index);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
         return sourceSlot.getItem();
     }

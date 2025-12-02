@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.mixin.invoker.BlockBehaviourInvoker;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -21,7 +20,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -49,17 +47,14 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 import static dev.dubhe.anvilcraft.util.MultiPartBlockUtil.getChainableMainPartPos;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class AnvilHammerItem extends Item implements Equipable {
     public static final Property<?>[] SUPPORTED_PROPERTIES = {
         BlockStateProperties.FACING,
@@ -104,10 +99,10 @@ public class AnvilHammerItem extends Item implements Equipable {
         state = level.getBlockState(pos);
         block = state.getBlock();
         BlockPos posToRemove = pos;
-        List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         block.playerWillDestroy(level, posToRemove, state, player);
         level.destroyBlock(posToRemove, false);
         if (player.isCreative()) return;
+        List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         if (!player.isAlive() && player.hasDisconnected()) {
             drops.forEach(drop -> Block.popResource(level, posToRemove, drop));
             state.spawnAfterBreak(level, posToRemove, tool, true);
@@ -311,7 +306,7 @@ public class AnvilHammerItem extends Item implements Equipable {
     }
 
     @Override
-    public boolean isCorrectToolForDrops(ItemStack pStack, BlockState pState) {
+    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
         return false;
     }
 

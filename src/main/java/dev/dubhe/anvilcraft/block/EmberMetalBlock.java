@@ -3,17 +3,12 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.block.IEmberBlock;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class EmberMetalBlock extends Block implements IEmberBlock {
     private final double waterAbsorptionChance;
 

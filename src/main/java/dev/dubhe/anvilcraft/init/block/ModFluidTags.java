@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 
-@MethodsReturnNonnullByDefault
 public class ModFluidTags {
 
     public static final TagKey<Fluid> OIL = bindC("oil");

@@ -3,14 +3,15 @@ package dev.dubhe.anvilcraft.block;
 import com.google.common.collect.Streams;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -42,19 +43,9 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers.anvilcraftBlockPlacer;
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.dropAllToPos;
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.exportContentsToItemHandlers;
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItemHandlerList;
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.isEmptyContainer;
-import static dev.dubhe.anvilcraft.util.MultiPartBlockUtil.getChainableMainPartPos;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class BlockDevourerBlock extends DirectionalBlock implements HammerRotateBehavior, IHammerRemovable {
 
     public static final VoxelShape NORTH_SHAPE = Block.box(0, 0, 8, 16, 16, 16);
@@ -66,9 +57,6 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
 
-    /**
-     * @param properties 方块属性
-     */
     public BlockDevourerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
@@ -205,7 +193,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     ) {
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
-        final List<IItemHandler> itemHandlerList = getTargetItemHandlerList(
+        final List<IItemHandler> itemHandlerList = ItemHandlerUtil.getTargetItemHandlerList(
             outputPos,
             devourerDirection,
             level
@@ -268,8 +256,8 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         @Nullable List<IItemHandler> itemHandlerList, Vec3 center
     ) {
         AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
-        boolean insertEnabled = itemHandlerList != null && !itemHandlerList.isEmpty();
-        boolean dropOriginalPlace = !level.noCollision(aabb);
+        final boolean insertEnabled = itemHandlerList != null && !itemHandlerList.isEmpty();
+        final boolean dropOriginalPlace = !level.noCollision(aabb);
 
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
@@ -280,7 +268,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             level.destroyBlock(devourBlockPos, false);
             return;
         }
-        devourBlockPos = getChainableMainPartPos(level, devourBlockPos);
+        devourBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
         devourBlockState = level.getBlockState(devourBlockPos);
         List<ItemStack> dropList = switch (anvil) {
             case RoyalAnvilBlock ignore -> BreakBlockUtil.dropSilkTouch(level, devourBlockPos);
@@ -297,7 +285,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                     itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
                 }
             }
-            if (itemStack.isEmpty() && isEmptyContainer(source)) continue;
+            if (itemStack.isEmpty() && ItemHandlerUtil.isEmptyContainer(source)) continue;
             if (dropOriginalPlace) {
                 Block.popResource(level, devourBlockPos, itemStack);
             } else {
@@ -305,23 +293,28 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             }
         }
         if (!skipContentTransfer) {
-            if (insertEnabled) exportContentsToItemHandlers(source, itemHandlerList);
-            if (!dropOriginalPlace) dropAllToPos(source, level, center);
+            if (insertEnabled) ItemHandlerUtil.exportContentsToItemHandlers(source, itemHandlerList);
+            if (!dropOriginalPlace) ItemHandlerUtil.dropAllToPos(source, level, center);
         }
         if (level.getBlockEntity(devourBlockPos) instanceof LecternBlockEntity lectern) {
             transferLecternContents(level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace);
         }
-        if (!(devourBlockState.getBlock() instanceof DoublePlantBlock))
-            devourBlockState.getBlock().playerWillDestroy(level, devourBlockPos, devourBlockState, anvilcraftBlockPlacer.getPlayer());
+        if (!(devourBlockState.getBlock() instanceof DoublePlantBlock)) {
+            devourBlockState.getBlock().playerWillDestroy(
+                level,
+                devourBlockPos,
+                devourBlockState,
+                AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer()
+            );
+        }
         level.destroyBlock(devourBlockPos, false);
         TriggerUtil.devourerDevourBlock(level, devourBlockPos, devourBlockState.getBlock());
     }
 
     /**
-     * 特判讲台的转移
-     * 虽然溜槽/漏斗无法与讲台交互
-     * 但吞噬器这类直接破坏的
-     * 应该正常转移走才正常点(?)
+     * 转移讲台内容
+     *
+     * <p>虽然溜槽/漏斗无法与讲台交互，但吞噬器这类直接破坏的应该转移走才正常点</p>
      */
     private static void transferLecternContents(
         ServerLevel level,

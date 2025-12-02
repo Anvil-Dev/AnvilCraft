@@ -80,7 +80,7 @@ public class CorruptedBeaconScene {
             .placeNearTarget();
         builder.idle(50);
 
-        //更大的基座
+        // 更大的基座
         builder.world().hideSection(layerArea, Direction.UP);
         builder.world().hideSection(util.select().position(beaconPos), Direction.UP);
         builder.idle(20);
@@ -217,7 +217,9 @@ public class CorruptedBeaconScene {
         builder.overlay()
             .showText(100)
             .text(
-                "The more anvils you give to zombies, the greater the probability that they will be transformed into giants carrying giant anvils")
+                "The more anvils you give to zombies,"
+                + " the greater the probability that they will be transformed into giants carrying giant anvils"
+            )
             .pointAt(beaconPos.getCenter())
             .attachKeyFrame()
             .placeNearTarget();

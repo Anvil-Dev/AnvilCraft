@@ -40,6 +40,7 @@ public class BlockRecipeScene {
             .addStoryBoard("platform/5x", BlockRecipeScene::processing);
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private static void crafting(SceneBuilder scene, SceneBuildingUtil util) {
         AnvilCraftSceneBuilder builder = new AnvilCraftSceneBuilder(scene);
         builder.title("block_recipe", "Use anvil hit blocks");
@@ -54,7 +55,7 @@ public class BlockRecipeScene {
 
         // 方块粉碎
         builder.world().setBlock(anvilPos, Blocks.ANVIL.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> anvilLink = builder.world()
+        final ElementLink<WorldSectionElement> anvilLink = builder.world()
             .showIndependentSection(util.select().position(anvilPos), Direction.DOWN);
 
         builder.world().setBlock(downPos, Blocks.COBBLESTONE.defaultBlockState(), false);
@@ -250,7 +251,7 @@ public class BlockRecipeScene {
 
         // 强制刷怪
         builder.world().setBlock(anvilPos, Blocks.ANVIL.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> anvilLink = builder.world()
+        final ElementLink<WorldSectionElement> anvilLink = builder.world()
             .showIndependentSection(util.select().position(anvilPos), Direction.DOWN);
 
         builder.world().setBlock(blockPos, Blocks.SPAWNER.defaultBlockState(), false);
@@ -265,7 +266,7 @@ public class BlockRecipeScene {
 
         // 随机生成很多猪
         builder.world().falldownSection(anvilLink);
-        List<ElementLink<EntityElement>> zombies = spawnZombies(builder, blockPos);
+        final List<ElementLink<EntityElement>> zombies = spawnZombies(builder, blockPos);
         builder.world().riseSection(anvilLink);
         builder.idle(10);
 
@@ -296,7 +297,7 @@ public class BlockRecipeScene {
         builder.idle(10);
 
         builder.world().falldownSection(anvilLink, 4);
-        zombies = spawnZombies(builder, blockPos);
+        zombies.addAll(spawnZombies(builder, blockPos));
         builder.idle(10);
 
         builder.overlay()

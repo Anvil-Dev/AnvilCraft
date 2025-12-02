@@ -225,7 +225,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         this.xo = this.getX();
         this.yo = this.getY();
         this.zo = this.getZ();
-        Vec3 vec3 = this.getDeltaMovement();
+        final Vec3 vec3 = this.getDeltaMovement();
         this.applyGravity();
         this.noPhysics = false;
         if (
@@ -282,19 +282,17 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         return super.getPistonPushReaction();
     }
 
-    @SuppressWarnings(
-        {
-            "unused",
-            "SameParameterValue",
-            "SuspiciousNameCombination",
-            "deprecation"
-        }
-    )
+    @SuppressWarnings({
+        "unused",
+        "SameParameterValue",
+        "SuspiciousNameCombination",
+        "deprecation"
+    })
     @Unique
     private void anvilcraft$neutroniumMove(MoverType moverType, Vec3 motion) {
 
         this.level().getProfiler().push("move");
-        //代替原版move方法中的collide调用
+        // 代替原版move方法中的collide调用
         AABB box = this.getBoundingBox().expandTowards(motion);
         int x1 = Mth.floor(box.minX - 1.0E-7) - 1;
         int x2 = Mth.floor(box.maxX + 1.0E-7) + 1;
@@ -309,7 +307,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 for (int z = z1; z < z2; z++) {
                     pos.set(x, y, z);
                     BlockState blockState = this.level().getBlockState(pos);
-                    //只检测带有特定标签的方块的碰撞
+                    // 只检测带有特定标签的方块的碰撞
                     if (blockState.is(ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)) {
                         shapes.add(blockState.getCollisionShape(this.level(), pos).move(x, y, z));
                     }

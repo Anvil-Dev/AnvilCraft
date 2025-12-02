@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.state.ReinforcedConcreteHalf;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -13,24 +12,12 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import static dev.dubhe.anvilcraft.block.state.ReinforcedConcreteHalf.BOTTOM;
-import static dev.dubhe.anvilcraft.block.state.ReinforcedConcreteHalf.SINGLE;
-import static dev.dubhe.anvilcraft.block.state.ReinforcedConcreteHalf.TOP;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ReinforcedConcreteBlock extends Block {
-    public static final EnumProperty<ReinforcedConcreteHalf> HALF =
-        EnumProperty.create("half", ReinforcedConcreteHalf.class);
+    public static final EnumProperty<ReinforcedConcreteHalf> HALF = EnumProperty.create("half", ReinforcedConcreteHalf.class);
 
-    /**
-     * @param properties 方块属性
-     */
     public ReinforcedConcreteBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, SINGLE));
+        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, ReinforcedConcreteHalf.SINGLE));
     }
 
     @Override
@@ -70,27 +57,29 @@ public class ReinforcedConcreteBlock extends Block {
         BlockState belowState = level.getBlockState(pos.below());
         switch (half) {
             case TOP:
-                if (this.checkHalf(belowState, SINGLE)) {
-                    level.setBlock(pos.below(), state.setValue(HALF, BOTTOM), 2);
-                } else if (!this.checkHalf(belowState, BOTTOM)) {
-                    level.setBlock(pos, state.setValue(HALF, SINGLE), 2);
+                if (this.checkHalf(belowState, ReinforcedConcreteHalf.SINGLE)) {
+                    level.setBlock(pos.below(), state.setValue(HALF, ReinforcedConcreteHalf.BOTTOM), 2);
+                } else if (!this.checkHalf(belowState, ReinforcedConcreteHalf.BOTTOM)) {
+                    level.setBlock(pos, state.setValue(HALF, ReinforcedConcreteHalf.SINGLE), 2);
                 }
                 break;
             case BOTTOM:
-                if (this.checkHalf(aboveState, SINGLE)) {
-                    level.setBlock(pos.above(), state.setValue(HALF, TOP), 2);
-                } else if (!this.checkHalf(aboveState, TOP)) {
-                    level.setBlock(pos, state.setValue(HALF, SINGLE), 2);
+                if (this.checkHalf(aboveState, ReinforcedConcreteHalf.SINGLE)) {
+                    level.setBlock(pos.above(), state.setValue(HALF, ReinforcedConcreteHalf.TOP), 2);
+                } else if (!this.checkHalf(aboveState, ReinforcedConcreteHalf.TOP)) {
+                    level.setBlock(pos, state.setValue(HALF, ReinforcedConcreteHalf.SINGLE), 2);
                 }
                 break;
             case SINGLE:
-                if (neighborPos.equals(pos.below()) && this.checkHalf(belowState, SINGLE)) {
-                    level.setBlock(pos, state.setValue(HALF, TOP), 2);
-                    level.setBlock(pos.below(), state.setValue(HALF, BOTTOM), 2);
-                } else if (neighborPos.equals(pos.above()) && this.checkHalf(aboveState, SINGLE)) {
-                    level.setBlock(pos, state.setValue(HALF, BOTTOM), 2);
-                    level.setBlock(pos.above(), state.setValue(HALF, TOP), 2);
+                if (neighborPos.equals(pos.below()) && this.checkHalf(belowState, ReinforcedConcreteHalf.SINGLE)) {
+                    level.setBlock(pos, state.setValue(HALF, ReinforcedConcreteHalf.TOP), 2);
+                    level.setBlock(pos.below(), state.setValue(HALF, ReinforcedConcreteHalf.BOTTOM), 2);
+                } else if (neighborPos.equals(pos.above()) && this.checkHalf(aboveState, ReinforcedConcreteHalf.SINGLE)) {
+                    level.setBlock(pos, state.setValue(HALF, ReinforcedConcreteHalf.BOTTOM), 2);
+                    level.setBlock(pos.above(), state.setValue(HALF, ReinforcedConcreteHalf.TOP), 2);
                 }
+                break;
+            default:
         }
     }
 

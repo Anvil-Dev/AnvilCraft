@@ -44,9 +44,10 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
             }
         }
         for (Holder<Item> holder : registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
-            if (holder.value() instanceof BlockItem blockItem && (
-                blockItem.getBlock() instanceof SaplingBlock || blockItem.getBlock() instanceof AzaleaBlock
-            )) {
+            if (
+                holder.value() instanceof BlockItem blockItem
+                && (blockItem.getBlock() instanceof SaplingBlock || blockItem.getBlock() instanceof AzaleaBlock)
+            ) {
                 ResourceLocation saplingId = BuiltInRegistries.ITEM.getKey(blockItem);
                 logger.debug(
                     "Add a sapling {} for generating mesh recipes", saplingId);

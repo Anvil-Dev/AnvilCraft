@@ -110,13 +110,17 @@ public class ModAmuletTypes {
                         .flatMap(entity -> Util.castSafely(entity, FallingBlockEntity.class)))
                     .map(fbe -> fbe.getBlockState().is(BlockTags.ANVIL))
                     .orElse(false)
-                ) return true;
+                ) {
+                    return true;
+                }
                 if (Optional.ofNullable(source.getEntity())
                     .map(entity -> Util.instanceOfAny(entity, FallingGiantAnvilEntity.class))
                     .or(() -> Optional.ofNullable(source.getDirectEntity())
                         .map(entity -> Util.instanceOfAny(entity, FallingGiantAnvilEntity.class)))
                     .orElse(false)
-                ) return true;
+                ) {
+                    return true;
+                }
                 return Optional.ofNullable(source.getWeaponItem())
                     .map(stack -> stack.is(ModItemTags.ANVIL_HAMMER))
                     .orElse(false);
@@ -205,6 +209,10 @@ public class ModAmuletTypes {
         )
     );
 
+    public static void register(IEventBus eventBus) {
+        REGISTER.register(eventBus);
+    }
+
     private static DeferredHolder<AmuletType, ? extends AmuletType> register(String typeId, Function<String, AmuletType.Builder> builder) {
         return REGISTER.register(typeId, builder.apply(typeId)::build);
     }
@@ -213,9 +221,5 @@ public class ModAmuletTypes {
         String typeId, Supplier<? extends FourToOneAmuletType> getter
     ) {
         return REGISTER.register(typeId, getter);
-    }
-
-    public static void register(IEventBus eventBus) {
-        REGISTER.register(eventBus);
     }
 }

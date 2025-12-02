@@ -25,8 +25,8 @@ public class BlockTagUtil {
      * @param tag 方块标签
      * @return 与方块标签相对应的 {@link Ingredient}对象。
      * @implNote {@link BlockTagIngredient}对象在每次初始化时都会新建一个{@link ItemStack}数组，
-     * 为了防止某些内容特别多的标签被特别多的配方引用造成的内存空间浪费，本方法的实现将每个{@link TagKey}
-     * 对应的原料缓存在{@link HashMap}中。
+     *     为了防止某些内容特别多的标签被特别多的配方引用造成的内存空间浪费，本方法的实现将每个{@link TagKey}
+     *     对应的原料缓存在{@link HashMap}中。
      */
     public static Ingredient toIngredient(TagKey<Block> tag) {
         return CACHE.computeIfAbsent(tag, t -> new BlockTagIngredient(t).toVanilla());
@@ -52,7 +52,10 @@ public class BlockTagUtil {
      * @return 展示方块对应的工具提示。
      */
     public static List<Component> getTooltipsForInput(BlockStatePredicate input) {
-        Block block = input.constructStatesForRender().get((int) ((System.currentTimeMillis() / 1000) % input.constructStatesForRender().size())).getBlock();
+        Block block = input
+            .constructStatesForRender()
+            .get((int) ((System.currentTimeMillis() / 1000) % input.constructStatesForRender().size()))
+            .getBlock();
         return TooltipUtil.tooltip(block);
     }
 }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.anvil;
 
-import dev.anvilcraft.lib.injection.IRecipeManagerExtension;
 import dev.anvilcraft.lib.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.recipe.util.InWorldRecipeManager;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -84,7 +83,7 @@ public class AnvilEventListener {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockPos pos = event.getPos();
         FallingBlockEntity entity = event.getEntity();
-        InWorldRecipeManager manager = ((IRecipeManagerExtension) level.getRecipeManager()).anvillib$getInWorldRecipeManager();
+        InWorldRecipeManager manager = level.getRecipeManager().anvillib$getInWorldRecipeManager();
         InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
         manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
         boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
@@ -95,7 +94,7 @@ public class AnvilEventListener {
     private static void brokeBlock(Level level, BlockPos pos, AnvilEvent.OnLand event) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockState state = level.getBlockState(pos);
-        //noinspection deprecation
+        // noinspection deprecation
         if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
         if (state.getDestroySpeed(level, pos) < 0) return;
         boolean smeltDrop = Optional.of(event.getEntity())

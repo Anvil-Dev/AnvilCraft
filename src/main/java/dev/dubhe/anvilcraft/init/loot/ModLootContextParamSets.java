@@ -33,6 +33,6 @@ public class ModLootContextParamSets {
     }
 
     public static void registerAll() {
-        //intentionally empty
+        // intentionally empty
     }
 }

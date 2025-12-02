@@ -60,7 +60,6 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         return new AccelerationRingBlockEntity(type, pos, blockState);
     }
 
-
     @Override
     public @Nullable Level getCurrentLevel() {
         return this.level;

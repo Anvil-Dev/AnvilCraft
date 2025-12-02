@@ -88,7 +88,15 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
         if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
             int storedEnergy = propelPistonBlockEntity.getStoredEnergy();
             if (stack.is(ModItems.CAPACITOR)) {
@@ -112,7 +120,14 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.hasNeighborSignal(pos)) {
             if (!state.getValue(MOVING)) {
                 level.setBlockAndUpdate(pos, state.setValue(MOVING, true));
@@ -251,7 +266,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
 
             for (int k = list.size() - 1; k >= 0; k--) {
                 BlockPos blockPos3 = list.get(k);
-                BlockState blockState5 = level.getBlockState(blockPos3);
+                final BlockState blockState5 = level.getBlockState(blockPos3);
                 blockPos3 = blockPos3.relative(facing);
                 map.remove(blockPos3);
                 BlockState blockState8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, facing);

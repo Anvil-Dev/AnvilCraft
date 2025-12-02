@@ -32,11 +32,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
 public class SlidingBlockEntity extends Entity {
     public static final double DEFAULT_MOVEMENT = 0.35;
     protected static final EntityDataAccessor<BlockPos> DATA_START_POS = SynchedEntityData.defineId(
@@ -121,24 +119,24 @@ public class SlidingBlockEntity extends Entity {
     @Override
     public void move(MoverType type, Vec3 motion) {
         super.move(type, motion);
-//        if (motion.x == 0 && motion.y == 0 && motion.z == 0) return;
-//        List<Entity> list = this.level().getEntities(
-//            this,
-//            this.section.getBoundsOnSide(Direction.UP)
-//                .expandTowards(0, 1, 0)
-//                .move(this.blockPosition()),
-//            EntitySelector.pushableBy(this)
-//        );
-//        if (list.isEmpty()) return;
-//        for (Entity entity : list) {
-//            if (entity instanceof SlidingBlockEntity) continue;
-//            Vec3 collide = this.section.findCollide(this.position(), entity.getBoundingBox());
-//            entity.setDeltaMovement(
-//                entity.getDeltaMovement().x + collide.x() + DEFAULT_MOVEMENT * 2.8,
-//                entity.getDeltaMovement().y < 0 ? 0 : entity.getDeltaMovement().y,
-//                entity.getDeltaMovement().z + collide.z() + DEFAULT_MOVEMENT * 2.8
-//            );
-//        }
+        // if (motion.x == 0 && motion.y == 0 && motion.z == 0) return;
+        // List<Entity> list = this.level().getEntities(
+        //     this,
+        //     this.section.getBoundsOnSide(Direction.UP)
+        //         .expandTowards(0, 1, 0)
+        //         .move(this.blockPosition()),
+        //     EntitySelector.pushableBy(this)
+        // );
+        // if (list.isEmpty()) return;
+        // for (Entity entity : list) {
+        //     if (entity instanceof SlidingBlockEntity) continue;
+        //     Vec3 collide = this.section.findCollide(this.position(), entity.getBoundingBox());
+        //     entity.setDeltaMovement(
+        //         entity.getDeltaMovement().x + collide.x() + DEFAULT_MOVEMENT * 2.8,
+        //         entity.getDeltaMovement().y < 0 ? 0 : entity.getDeltaMovement().y,
+        //         entity.getDeltaMovement().z + collide.z() + DEFAULT_MOVEMENT * 2.8
+        //     );
+        // }
     }
 
     protected boolean checkCanMove() {

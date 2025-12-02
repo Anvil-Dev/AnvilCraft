@@ -14,7 +14,6 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -23,10 +22,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
     public CookingCategory(IGuiHelper helper) {
         super(
@@ -49,7 +44,7 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY) {
-        CookingRecipe recipe = recipeHolder.value();
+        final CookingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
             guiGraphics,

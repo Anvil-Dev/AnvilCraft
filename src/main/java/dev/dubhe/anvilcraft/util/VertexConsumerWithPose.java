@@ -4,14 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.core.BlockPos;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public class VertexConsumerWithPose implements VertexConsumer {
     private final VertexConsumer parent;
     private final PoseStack.Pose pose;
     private final BlockPos originPos;
-
 
     public VertexConsumerWithPose(VertexConsumer parent, PoseStack.Pose pose, BlockPos originPos) {
         this.parent = parent;

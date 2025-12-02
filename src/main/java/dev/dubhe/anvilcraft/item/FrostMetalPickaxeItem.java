@@ -2,13 +2,8 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.PickaxeItem;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class FrostMetalPickaxeItem extends PickaxeItem {
     public FrostMetalPickaxeItem(Properties properties) {
         super(

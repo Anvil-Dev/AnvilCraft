@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.entity.attribute.EntityReachAttribute;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.CommonComponents;
@@ -25,12 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Supplier;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CrabClawItem extends Item {
 
     public static final AttributeModifier RANGE_ATTRIBUTE_MODIFIER = new AttributeModifier(
@@ -42,7 +38,6 @@ public class CrabClawItem extends Item {
         EntityReachAttribute.getRangeModifierSupplier(RANGE_ATTRIBUTE_MODIFIER);
     public static final String CRAB_CLAW_MARKER = "crabClaw";
     public static final String DUAL_CRAB_CLAW_MARKER = "dualCrabClaw";
-
 
     public CrabClawItem(Properties properties) {
         super(properties);

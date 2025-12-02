@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.block.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.Util;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -44,13 +43,10 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements IHammerChangeable, IHammerRemovable, IMoveableEntityBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0);
@@ -129,9 +125,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         }
         Direction facing = state.getValue(FACING);
         BlockPos front = pos.relative(facing.getOpposite());
-        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false)
-            .isCanceled()
-        ) return;
+        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) return;
         level.neighborChanged(front, this, pos);
         level.updateNeighborsAtExceptFromFacing(front, this, facing);
     }
@@ -163,10 +157,14 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         Optional<PulseGeneratorBlockEntity> generatorOp = level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get());
         if (generatorOp.isEmpty()) return;
         PulseGeneratorBlockEntity generator = generatorOp.get();
-        if (!generator.isDeadlock()) switch (generator.getState()) {
-            case WAITING -> this.startOutputting(level, pos, () -> state, generator);
-            case OUTPUTTING -> this.checkOnSignalEnd(level, pos, () -> state, generator);
-            case DEFAULT -> this.updateBlockAndNeighbours(level, pos, () -> state, generator);
+        if (!generator.isDeadlock()) {
+            switch (generator.getState()) {
+                case WAITING -> this.startOutputting(level, pos, () -> state, generator);
+                case OUTPUTTING -> this.checkOnSignalEnd(level, pos, () -> state, generator);
+                case DEFAULT -> this.updateBlockAndNeighbours(level, pos, () -> state, generator);
+                default -> {
+                }
+            }
         }
     }
 
@@ -214,7 +212,12 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         }
     }
 
-    protected void updateBlockAndNeighbours(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
+    protected void updateBlockAndNeighbours(
+        Level level,
+        BlockPos pos,
+        Supplier<BlockState> stateGetter,
+        PulseGeneratorBlockEntity generator
+    ) {
         BlockState state = stateGetter.get();
         boolean powered = state.getValue(POWERED);
         boolean shouldPower = generator.isOutputting();
@@ -223,7 +226,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         BlockPos neighbourPos = pos.relative(direction);
         BlockState newState = state.setValue(POWERED, shouldPower);
         level.setBlockAndUpdate(pos, newState);
-        //noinspection deprecation
+        // noinspection deprecation
         generator.setBlockState(newState);
         level.neighborChanged(neighbourPos, state.getBlock(), pos);
         level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite());
@@ -260,20 +263,20 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        BlockHitResult pHitResult
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
     ) {
-        if (pLevel.isClientSide) {
+        if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity be = pLevel.getBlockEntity(pPos);
-        if (be instanceof PulseGeneratorBlockEntity blockEntity && pPlayer instanceof ServerPlayer sp) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof PulseGeneratorBlockEntity blockEntity && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
             sp.openMenu(blockEntity, buf -> {
-                buf.writeBlockPos(pPos);
+                buf.writeBlockPos(pos);
                 buf.writeNbt(blockEntity.constructDataNbt());
             });
             return InteractionResult.SUCCESS;

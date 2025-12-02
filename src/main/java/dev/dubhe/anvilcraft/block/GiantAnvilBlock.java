@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -55,11 +54,8 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.stream.Stream;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements Fallable, IHammerRemovable {
     public static final SoundType SOUND_TYPE = new DeferredSoundType(
         0.55F, 0.45F,
@@ -204,9 +200,6 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         )
     );
 
-    /**
-     * @param properties 属性
-     */
     public GiantAnvilBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -214,7 +207,6 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER)
             .setValue(CUBE, GiantAnvilCube.CORNER));
     }
-
 
     @Override
     public VoxelShape getShape(
@@ -310,7 +302,6 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         return new Vec3i(0, 1, 0);
     }
 
-
     @Override
     public void tick(
         BlockState state,
@@ -319,15 +310,20 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         RandomSource random
     ) {
         BlockState ringState = level.getBlockState(pos.subtract(state.getValue(HALF).getOffset()).above(3));
-        if (ringState.hasProperty(AccelerationRingBlock.HALF) && ringState.getValue(AccelerationRingBlock.HALF) == DirectionCube3x3PartHalf.BOTTOM_CENTER && ringState.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.ON && !ringState.getValue(AccelerationRingBlock.OVERLOAD) && ringState.getValue(AccelerationRingBlock.FACING) == Direction.UP)
+        if (
+            ringState.hasProperty(AccelerationRingBlock.HALF)
+            && ringState.getValue(AccelerationRingBlock.HALF) == DirectionCube3x3PartHalf.BOTTOM_CENTER
+            && ringState.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.ON
+            && !ringState.getValue(AccelerationRingBlock.OVERLOAD)
+            && (ringState.getValue(AccelerationRingBlock.FACING) == Direction.UP
+                || ringState.getValue(DeflectionRingBlock.FACING).getAxis() == Direction.Axis.Y)
+        ) {
             return;
-        if (ringState.hasProperty(DeflectionRingBlock.HALF) && ringState.getValue(DeflectionRingBlock.HALF) == DirectionCube3x3PartHalf.BOTTOM_CENTER && ringState.getValue(DeflectionRingBlock.SWITCH) == IPowerComponent.Switch.ON && !ringState.getValue(DeflectionRingBlock.OVERLOAD) && ringState.getValue(DeflectionRingBlock.FACING).getAxis() == Direction.Axis.Y)
-            return;
+        }
         if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
         for (Cube3x3PartHalf part : getParts()) {
             if (part.getOffsetY() != 0) continue;
-            if (!FallingBlock.isFree(
-                level.getBlockState(pos.offset(part.getOffset()).below()))) return;
+            if (!FallingBlock.isFree(level.getBlockState(pos.offset(part.getOffset()).below()))) return;
         }
         BlockPos above = pos.above();
         BlockState state1 = level.getBlockState(above);
@@ -365,7 +361,6 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         entity.setHurtsEntities(10.0F, AnvilCraft.CONFIG.giantAnvilFallDamageMax);
     }
 
-
     @Override
     public void onPlace(
         BlockState state,
@@ -398,7 +393,6 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         return 2;
     }
 
-
     @Override
     public InteractionResult use(
         BlockState state,
@@ -416,7 +410,6 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             return InteractionResult.CONSUME;
         }
     }
-
 
     @Override
     @Nullable

@@ -24,11 +24,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import java.util.Objects;
 
 @Getter
-@ParametersAreNonnullByDefault
 public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
     private PowerGrid grid = null;
 
@@ -123,13 +121,11 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
 
     @Override
     public Level getCurrentLevel() {
-        return super.getLevel();
+        return Objects.requireNonNull(super.getLevel());
     }
 
     @Override
     public int getRange() {
         return 2;
     }
-
-
 }

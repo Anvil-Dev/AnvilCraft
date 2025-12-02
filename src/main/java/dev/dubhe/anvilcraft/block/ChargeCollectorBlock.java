@@ -26,9 +26,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16)

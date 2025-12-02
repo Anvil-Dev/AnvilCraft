@@ -29,8 +29,8 @@ public class HeatCollectorBlock extends BaseEntityBlock implements IHammerRemova
     public static final VoxelShape SHAPE = Shapes.or(Block.box(0, 0, 0, 16, 4, 16));
     public static BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    public HeatCollectorBlock(Properties pProperties) {
-        super(pProperties);
+    public HeatCollectorBlock(Properties properties) {
+        super(properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(POWERED, false));
     }
 

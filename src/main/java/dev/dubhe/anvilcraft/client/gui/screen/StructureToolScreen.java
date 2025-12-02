@@ -25,7 +25,6 @@ import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -50,7 +49,6 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -62,12 +60,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class StructureToolScreen extends AbstractContainerScreen<StructureToolMenu> {
     private static final ResourceLocation CONTAINER_LOCATION = AnvilCraft.of("textures/gui/container/structure_tool/background.png");
 
-    private static final WidgetSprites SPRITES = new WidgetSprites(AnvilCraft.of("widget/structure_tool/button"), AnvilCraft.of("widget/structure_tool/button_highlighted"));
+    private static final WidgetSprites SPRITES = new WidgetSprites(
+        AnvilCraft.of("widget/structure_tool/button"),
+        AnvilCraft.of("widget/structure_tool/button_highlighted")
+    );
 
     private static final Component REGULAR_RECIPE_TOOLTIP =
         Component.translatable("screen.anvilcraft.structure_tool.regular_recipe");

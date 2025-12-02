@@ -56,10 +56,6 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
         return this.getLevel();
     }
 
-    /**
-     * @param level 世界
-     * @param pos   位置
-     */
     public void tick(@NotNull Level level, @NotNull BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;

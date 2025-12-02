@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,14 +25,11 @@ import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDatagen {
     private final BlockPattern inputPattern;
     private final BlockPattern outputPattern;
@@ -311,16 +307,16 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (inputPattern.getSize() != outputPattern.getSize()) {
                 throw new IllegalArgumentException(("Input size must be same as output size: %s input size: %d, output size: %d")
-                    .formatted(pId, inputPattern.getSize(), outputPattern.getSize()));
+                    .formatted(id, inputPattern.getSize(), outputPattern.getSize()));
             }
             if (!inputPattern.checkSymbols()) {
-                throw new IllegalArgumentException("Input pattern must contain all valid symbols: " + pId);
+                throw new IllegalArgumentException("Input pattern must contain all valid symbols: " + id);
             }
             if (!outputPattern.checkSymbols()) {
-                throw new IllegalArgumentException("Output pattern must contain all valid symbols: " + pId);
+                throw new IllegalArgumentException("Output pattern must contain all valid symbols: " + id);
             }
         }
 

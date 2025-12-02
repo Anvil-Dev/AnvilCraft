@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.util.MathUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -13,13 +12,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ItemDurabilityPressurePlateBlock extends PowerLevelPressurePlateBlock {
     private final boolean useMin;
 

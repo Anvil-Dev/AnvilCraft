@@ -71,6 +71,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
                     this.minecraft.gameRenderer.displayItemActivation(ModItems.TOTEM_OF_RAGE.asStack());
                 }
                 break;
+            default:
         }
     }
 }

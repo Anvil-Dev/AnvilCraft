@@ -146,8 +146,8 @@ public class ChargerBlockEntity extends BlockEntity
             ItemStack transformed = recipe.getResult().copy();
             itemHandler.setStackInSlot(1, transformed);
         }
-        timeLeft = recipe.time + 1; //since there is a "timeLeft--" after this, here +1 to negate
-        timeTotalCache = recipe.time; //make a total time cache for client display
+        timeLeft = recipe.time + 1; // since there is a "timeLeft--" after this, here +1 to negate
+        timeTotalCache = recipe.time; // make a total time cache for client display
         powerValue = recipe.power;
         if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
@@ -313,7 +313,7 @@ public class ChargerBlockEntity extends BlockEntity
         }
         if (timeLeft > 0) {
             if (!isCharger || isGridWorking()) {
-                //if isDisCharger or (isCharger and isGridWorking)
+                // if isDisCharger or (isCharger and isGridWorking)
                 timeLeft--;
             }
         }

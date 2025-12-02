@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -30,10 +29,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class RemoteTransmissionPoleBlock
     extends SimpleMultiPartBlock<Vertical4PartHalf>
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {
@@ -48,9 +43,6 @@ public class RemoteTransmissionPoleBlock
     public static final VoxelShape TRANSMISSION_POLE_BASE =
         Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(4, 4, 4, 12, 16, 12));
 
-    /**
-     * @param properties 属性
-     */
     public RemoteTransmissionPoleBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -88,12 +80,10 @@ public class RemoteTransmissionPoleBlock
         builder.add(HALF).add(OVERLOAD).add(SWITCH);
     }
 
-
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
-
 
     @Override
     public VoxelShape getShape(
@@ -105,7 +95,6 @@ public class RemoteTransmissionPoleBlock
             case BOTTOM -> TRANSMISSION_POLE_BASE;
             case MID_UPPER, MID_LOWER -> TRANSMISSION_POLE_MID;
             case TOP -> TRANSMISSION_POLE_TOP;
-            default -> super.getShape(state, level, pos, context);
         };
     }
 

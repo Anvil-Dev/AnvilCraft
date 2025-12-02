@@ -35,14 +35,14 @@ public class SlidingRailStopScene {
         scene.idle(20);
 
         int distance = 5;
-        BlockPos railStartPos1 = util.grid().at(2, 1, 2);
-        BlockPos railStartPos2 = railStartPos1.south(4);
+        final BlockPos railStartPos1 = util.grid().at(2, 1, 2);
+        final BlockPos railStartPos2 = railStartPos1.south(4);
 
-        BlockPos railEndPos1 = railStartPos1.east(distance);
-        BlockPos railEndPos2 = railStartPos2.east(distance);
+        final BlockPos railEndPos1 = railStartPos1.east(distance);
+        final BlockPos railEndPos2 = railStartPos2.east(distance);
 
-        BlockPos railStopPos1 = railStartPos1.west();
-        BlockPos railStopPos2 = railStartPos2.west();
+        final BlockPos railStopPos1 = railStartPos1.west();
+        final BlockPos railStopPos2 = railStartPos2.west();
 
         Selection railsSection1 = util.select().fromTo(railStartPos1, railEndPos1);
         Selection railsSection2 = util.select().fromTo(railStartPos2, railEndPos2);

@@ -111,7 +111,9 @@ public class InventoryUtil {
 
             int remaining = stack.getMaxStackSize() - inventory.getItem(slot).getCount();
             if (inventory.add(slot, stack.split(remaining)) && inventory.player instanceof ServerPlayer) {
-                ((ServerPlayer) inventory.player).connection.send(new ClientboundContainerSetSlotPacket(-2, 0, slot, inventory.getItem(slot)));
+                ((ServerPlayer) inventory.player).connection.send(
+                    new ClientboundContainerSetSlotPacket(-2, 0, slot, inventory.getItem(slot))
+                );
             }
         }
         return stack;

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.plate;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,11 +10,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Set;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class FireImmunePressurePlateBlock extends PowerLevelPressurePlateBlock {
     public FireImmunePressurePlateBlock(Properties properties) {
         super(BlockSetType.IRON, properties);

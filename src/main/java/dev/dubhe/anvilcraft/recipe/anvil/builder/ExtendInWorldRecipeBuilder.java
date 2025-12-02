@@ -18,10 +18,8 @@ import java.util.function.Supplier;
 
 /**
  * 世界内配方构建器
- * <p>
- * 用于构建在世界中使用的铁砧配方，支持各种触发器、谓词和结果。
- * 可以设置配方的触发条件、前置条件、冲突条件和结果操作等。
- * </p>
+ *
+ * <p>用于构建在世界中使用的铁砧配方，支持各种触发器、谓词和结果。可以设置配方的触发条件、前置条件、冲突条件和结果操作等。</p>
  */
 @SuppressWarnings("unused")
 @EqualsAndHashCode(callSuper = true)

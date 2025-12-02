@@ -51,7 +51,6 @@ public class RenderEventListener {
         );
     }
 
-
     @SubscribeEvent
     public static void onRender(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;

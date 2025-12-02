@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -11,11 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CrabTrapBlockEntity extends BlockEntity implements IItemHandlerHolder {
     public CrabTrapBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);

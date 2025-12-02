@@ -23,9 +23,8 @@ import java.util.List;
 
 /**
  * 方块压缩配方类
- * <p>
- * 该配方用于在铁砧下落时压缩方块，是方块级别的压缩处理配方
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时压缩方块，是方块级别的压缩处理配方</p>
  */
 public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressRecipe> {
     /**
@@ -182,12 +181,12 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (inputs.size() != 2) {
-                throw new IllegalArgumentException("Recipe input list size must in 2, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe input list size must in 2, RecipeId: " + id);
             }
             if (result == null) {
-                throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }
 

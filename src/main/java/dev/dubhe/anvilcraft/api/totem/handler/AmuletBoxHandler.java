@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.Map;
 
-
 public class AmuletBoxHandler implements TotemHandler {
     @Override
     public boolean canExecute(DamageSource damageSource, LivingEntity entity, ItemStack totemItem) {

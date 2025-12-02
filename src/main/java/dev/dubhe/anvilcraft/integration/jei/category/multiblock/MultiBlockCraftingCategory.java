@@ -32,7 +32,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -54,14 +53,11 @@ import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<MultiblockRecipe>> {
     private static final Component TITLE = Component.translatable("gui.anvilcraft.category.multiblock");
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
@@ -178,11 +174,11 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             level = RecipeUtil.asLevelLike(recipe.value().pattern);
             cache.put(recipe, level);
         }
-        boolean renderAllLayers = level.isAllLayersVisible();
-        int visibleLayer = level.getCurrentVisibleLayer();
+        final boolean renderAllLayers = level.isAllLayersVisible();
+        final int visibleLayer = level.getCurrentVisibleLayer();
         RenderSystem.enableBlend();
-        int xPos = 45;
-        int yPos = 50;
+        final int xPos = 45;
+        final int yPos = 50;
         Minecraft minecraft = Minecraft.getInstance();
         DeltaTracker tracker = minecraft.getTimer();
         ClientLevel clientLevel = minecraft.level;

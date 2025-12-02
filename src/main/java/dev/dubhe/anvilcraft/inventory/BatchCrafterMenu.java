@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Getter
@@ -33,9 +34,8 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     private final Slot resultSlot;
     private final Level level;
 
-    public BatchCrafterMenu(
-        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
-        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+    public BatchCrafterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+        this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
 
     /**
@@ -46,7 +46,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
      * @param inventory   背包
      * @param blockEntity 方块实体
      */
-    public BatchCrafterMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public BatchCrafterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, blockEntity);
         BatchCrafterMenu.checkContainerSize(inventory, 9);
 
@@ -109,7 +109,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) {
             return ItemStack.EMPTY; // EMPTY_ITEM
         }

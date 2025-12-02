@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.plate;
 
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -18,10 +17,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements EntityBlock {
     public final int needTick;
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
@@ -59,10 +54,10 @@ public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        if (!(blockEntityType == ModBlockEntities.TIME_COUNTED_PRESSURE_PLATE.get())) return null;
-        return (level1, pos, state1, blockEntity) -> ((TimeCountedPressurePlateBlockEntity) blockEntity).tick(level1, pos);
+        if (!(type == ModBlockEntities.TIME_COUNTED_PRESSURE_PLATE.get())) return null;
+        return (level1, pos, state1, be) -> ((TimeCountedPressurePlateBlockEntity) be).tick(level1, pos);
     }
 
     protected int getPressedTime() {

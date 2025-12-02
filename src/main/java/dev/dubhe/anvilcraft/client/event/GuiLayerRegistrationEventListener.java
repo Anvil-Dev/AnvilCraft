@@ -69,35 +69,30 @@ public class GuiLayerRegistrationEventListener {
     }
 
     public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-//        PoseStack poseStack = guiGraphics.pose();
-//        Matrix4f matrix4f = poseStack.last().pose();
-//        Tesselator tesselator = Tesselator.getInstance();
-//        BufferBuilder bufferBuilder = tesselator.begin(
-//            VertexFormat.Mode.QUADS,
-//            DefaultVertexFormat.POSITION_COLOR
-//        );
-//
-//        bufferBuilder.addVertex(matrix4f, 0, 0, 5).setColor(0xFFffffff);
-//        bufferBuilder.addVertex(matrix4f, 0, 20, 5).setColor(0xFFffffff);
-//        bufferBuilder.addVertex(matrix4f, 20, 20, 5).setColor(0xFFffffff);
-//        bufferBuilder.addVertex(matrix4f, 20, 0, 5).setColor(0xFFffffff);
-//        Window window = Minecraft.getInstance().getWindow();
-//        float guiScale = (float) window.getGuiScale();
-//        RenderSystem.setShader(ModShaders::getRingShader);
-//
-//        ModShaders.getRingShader()
-//            .safeGetUniform("Center")
-//            .set(10f * guiScale, 10f * guiScale);
-//        ModShaders.getRingShader()
-//            .safeGetUniform("FramebufferSize")
-//            .set((float)window.getWidth(),(float) window.getHeight());
-//        ModShaders.getRingShader()
-//            .safeGetUniform("Radius")
-//            .set(10f * guiScale);
-//
-//        RenderSystem.setShaderColor(1, 1, 1, 1);
-//        BufferUploader.drawWithShader(bufferBuilder.build());
-
-
+        // PoseStack poseStack = guiGraphics.pose();
+        // Matrix4f matrix4f = poseStack.last().pose();
+        // Tesselator tesselator = Tesselator.getInstance();
+        // BufferBuilder bufferBuilder = tesselator.begin(
+        //     VertexFormat.Mode.QUADS,
+        //     DefaultVertexFormat.POSITION_COLOR
+        // );
+        // bufferBuilder.addVertex(matrix4f, 0, 0, 5).setColor(0xFFffffff);
+        // bufferBuilder.addVertex(matrix4f, 0, 20, 5).setColor(0xFFffffff);
+        // bufferBuilder.addVertex(matrix4f, 20, 20, 5).setColor(0xFFffffff);
+        // bufferBuilder.addVertex(matrix4f, 20, 0, 5).setColor(0xFFffffff);
+        // Window window = Minecraft.getInstance().getWindow();
+        // float guiScale = (float) window.getGuiScale();
+        // RenderSystem.setShader(ModShaders::getRingShader);
+        // ModShaders.getRingShader()
+        //     .safeGetUniform("Center")
+        //     .set(10f * guiScale, 10f * guiScale);
+        // ModShaders.getRingShader()
+        //     .safeGetUniform("FramebufferSize")
+        //     .set((float)window.getWidth(),(float) window.getHeight());
+        // ModShaders.getRingShader()
+        //     .safeGetUniform("Radius")
+        //     .set(10f * guiScale);
+        // RenderSystem.setShaderColor(1, 1, 1, 1);
+        // BufferUploader.drawWithShader(bufferBuilder.build());
     }
 }

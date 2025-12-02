@@ -37,7 +37,7 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
     private void onFlyingHitBlock(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Optional<ServerPlayer> playerOp = Util.castSafely(this, ServerPlayer.class);
         if (playerOp.isEmpty()) return;
-        ServerPlayer thiS = playerOp.get();
+        final ServerPlayer thiS = playerOp.get();
         if (!this.isFallFlying()) return;
         if (!(this.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem)
             && !this.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.ROYAL_ANVIL_HAMMER.get())) {

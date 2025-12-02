@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -29,16 +28,10 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
 
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getSourceItemHandler;
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItemHandlerList;
-
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class BaseChuteBlockEntity
     extends BaseMachineBlockEntity
     implements IFilterBlockEntity, IDiskCloneable, IItemHandlerHolder {
@@ -128,7 +121,7 @@ public abstract class BaseChuteBlockEntity
             if (isEnabled()) {
                 BlockPos targetPos = getBlockPos().relative(getOutputDirection());
                 // 尝试向朝向容器输出
-                List<IItemHandler> targetList = getTargetItemHandlerList(
+                List<IItemHandler> targetList = ItemHandlerUtil.getTargetItemHandlerList(
                     targetPos,
                     getOutputDirection().getOpposite(),
                     level
@@ -139,7 +132,7 @@ public abstract class BaseChuteBlockEntity
                         boolean setChuteCD = targetBE != null && isTargetEmpty(targetBE);
                         boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                         if (success) {
-                            //特判溜槽cd7gt
+                            // 特判溜槽cd7gt
                             if (setChuteCD) setChuteCD(targetBE);
                             resetCD = true;
                             break;
@@ -195,7 +188,7 @@ public abstract class BaseChuteBlockEntity
                 }
                 // 尝试从上方容器输入
                 if (!this.inventoryFull()) {
-                    IItemHandler source = getSourceItemHandler(
+                    IItemHandler source = ItemHandlerUtil.getSourceItemHandler(
                         getBlockPos().relative(getInputDirection()),
                         getInputDirection().getOpposite(),
                         level
@@ -297,8 +290,7 @@ public abstract class BaseChuteBlockEntity
     private boolean inventoryFull() {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack itemstack = itemHandler.getStackInSlot(i);
-            if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize())
-                return false;
+            if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) return false;
         }
         return true;
     }

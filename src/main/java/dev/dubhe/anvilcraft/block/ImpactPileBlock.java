@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -15,10 +14,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ImpactPileBlock extends Block implements IHammerRemovable {
     private static final VoxelShape SHAPE =
         Shapes.or(
@@ -65,8 +60,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
             for (int z = blockPos.getZ() - 1; z <= blockPos.getZ() + 1; z++) {
                 for (int y = minY; y <= minY + 5; y++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    if (y <= minY + 2)
-                        setSturdyDeepslate(level, pos);
+                    if (y <= minY + 2) setSturdyDeepslate(level, pos);
                 }
             }
         }

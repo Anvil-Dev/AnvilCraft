@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.network;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -17,7 +15,6 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Random;
 
-@MethodsReturnNonnullByDefault
 public record ChargeCollectorIncomingChargePacket(
     BlockPos srcPos,
     BlockPos dstPos,
@@ -48,13 +45,13 @@ public record ChargeCollectorIncomingChargePacket(
         return TYPE;
     }
 
-    public static void acceptClient(ChargeCollectorIncomingChargePacket packet, IPayloadContext ctx) {
-        ClientLevel level = Minecraft.getInstance().level;
-        Vec3 srcPos = packet.srcPos.getCenter();
-        Vec3 dstPos = packet.dstPos.getCenter();
+    public void acceptClient(IPayloadContext ctx) {
+        ClientLevel level = (ClientLevel) ctx.player().level();
+        Vec3 srcPos = this.srcPos.getCenter();
+        Vec3 dstPos = this.dstPos.getCenter();
         Vec3 offset = dstPos.subtract(srcPos);
         RANDOM.setSeed(System.nanoTime());
-        double dRandom = Math.clamp(RANDOM.nextGaussian() + 1, 1, 1.5);
+        final double dRandom = Math.clamp(RANDOM.nextGaussian() + 1, 1, 1.5);
         level.addParticle(
             ParticleTypes.END_ROD,
             srcPos.x + Math.clamp(RANDOM.nextGaussian(), 0, 0.3),

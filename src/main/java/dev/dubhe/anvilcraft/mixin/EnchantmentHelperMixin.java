@@ -47,7 +47,8 @@ abstract class EnchantmentHelperMixin {
                  + ")V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentInSlotVisitor;" + "accept(Lnet/minecraft/core/Holder;ILnet/minecraft/world/item/enchantment/EnchantedItemInUse;)V"
+            target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentInSlotVisitor;"
+                     + "accept(Lnet/minecraft/core/Holder;ILnet/minecraft/world/item/enchantment/EnchantedItemInUse;)V"
         )
     )
     private static void checkShouldTriggerProvidence(

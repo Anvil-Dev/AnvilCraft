@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.ponder.scene.recipe;
 
-
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
@@ -83,7 +82,7 @@ public class HeaterScene {
             .placeNearTarget();
         builder.idle(10);
 
-        ElementLink<EntityElement> inputItemEntityLink = builder.world()
+        final ElementLink<EntityElement> inputItemEntityLink = builder.world()
             .createItemEntity(inputItemPos, Items.RAW_IRON.getDefaultInstance());
         builder.overlay().showControls(util.vector().of(2.5, 3.5, 2.5), Pointing.DOWN, 20).withItem(new ItemStack(Items.RAW_IRON));
         builder.idle(30);

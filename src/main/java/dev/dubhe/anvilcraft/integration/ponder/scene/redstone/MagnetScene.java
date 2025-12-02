@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.phys.Vec3;
 
-
 public class MagnetScene {
     public static void register(PonderSceneRegistrationHelper<ResourceLocation> registrationHelper) {
         PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> helper = registrationHelper.withKeyFunction(RegistryEntry::getId);
@@ -138,7 +137,7 @@ public class MagnetScene {
         // 创建铁砧
         BlockPos anvilPos = cauldronPos.above();
         builder.world().setBlock(anvilPos, Blocks.ANVIL.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> anvilLink = builder.world()
+        final ElementLink<WorldSectionElement> anvilLink = builder.world()
             .showIndependentSection(util.select().position(anvilPos), Direction.NORTH);
         builder.idle(10);
 

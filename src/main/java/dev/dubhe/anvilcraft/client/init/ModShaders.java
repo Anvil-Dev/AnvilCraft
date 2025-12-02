@@ -35,7 +35,6 @@ public class ModShaders {
     @Getter
     static Matrix4f orthoMatrix = new Matrix4f();
 
-
     public static void register(RegisterShadersEvent event) {
         try {
             event.registerShader(new ShaderInstance(

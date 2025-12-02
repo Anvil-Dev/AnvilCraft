@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.api.item;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -8,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
  * 注意：额外渲染嵌套层数过深时不会继续渲染。
  */
 
-@MethodsReturnNonnullByDefault
 public interface IExtraItemDisplay {
     /**
      * 判断一个物品的额外渲染物品。若无需额外渲染，返回{@link ItemStack#EMPTY}。
@@ -25,7 +23,7 @@ public interface IExtraItemDisplay {
      * @param stack 需判断偏移量的物品
      * @return 水平偏移量
      */
-    int xOffset(ItemStack stack);
+    int offsetX(ItemStack stack);
 
     /**
      * 渲染的额外物品相对于<b>上侧</b>的垂直偏移量。
@@ -34,8 +32,7 @@ public interface IExtraItemDisplay {
      * @param stack 需判断偏移量的物品
      * @return 垂直偏移量
      */
-    int yOffset(ItemStack stack);
-
+    int offsetY(ItemStack stack);
 
     /**
      * 渲染的额外物品相对于自身的缩放大小。

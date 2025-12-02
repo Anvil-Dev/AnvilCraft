@@ -36,8 +36,10 @@ public class RipeningManager {
     }
 
     /**
+     * 进行催熟
+     *
      * @param pos     灯的位置
-     * @param ripened 在本轮催熟中，已经被催熟过的位置。
+     * @param ripened 在本轮催熟中，已经被催熟过的位置
      */
     private void doRipen(BlockPos pos, HashSet<BlockPos> ripened) {
         int radius = AnvilCraft.CONFIG.inductionLightBlockRipeningRange / 2;
@@ -46,10 +48,13 @@ public class RipeningManager {
             BlockState state = level.getBlockState(plantPos);
             Block block = state.getBlock();
 
-            if (block instanceof BonemealableBlock growable && !(growable instanceof GrassBlock) && !(growable instanceof NyliumBlock) && growable.isValidBonemealTarget(level,
-                plantPos,
-                state
-            ) && level.getBrightness(LightLayer.BLOCK, plantPos) >= 10) {
+            if (
+                block instanceof BonemealableBlock growable
+                && !(growable instanceof GrassBlock)
+                && !(growable instanceof NyliumBlock)
+                && growable.isValidBonemealTarget(level, plantPos, state)
+                && level.getBrightness(LightLayer.BLOCK, plantPos) >= 10
+            ) {
                 growable.performBonemeal((ServerLevel) level, level.getRandom(), plantPos, state);
                 level.addParticle(
                     ParticleTypes.HAPPY_VILLAGER,

@@ -13,10 +13,12 @@ import net.minecraft.resources.ResourceLocation;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
+@SuppressWarnings("unused")
 @Integration(value = "ponder", type = {IntegrationType.CLIENT, IntegrationType.DATA})
 public class AnvilCraftPonderPlugin implements PonderPlugin {
-
     /**
+     * Get the ModID of the mod that added this plugin
+     *
      * @return the ModID of the mod that added this plugin
      */
     @Override

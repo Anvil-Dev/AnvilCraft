@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.ponder.scene.redstone;
 
-
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
@@ -66,7 +65,7 @@ public class BlockPlacerScene {
         builder.idle(20);
 
         // 将身后的掉落物作为方块放置在前方
-        ElementLink<EntityElement> itemLink = builder.world()
+        final ElementLink<EntityElement> itemLink = builder.world()
             .createItemEntity(backPos.above().getCenter(), Vec3.ZERO, new ItemStack(Items.GRASS_BLOCK));
         builder.idle(20);
 
@@ -121,7 +120,7 @@ public class BlockPlacerScene {
         builder.idle(10);
 
         // 创建猪实体
-        ElementLink<EntityElement> pigLink = builder.world().createEntity(world -> {
+        final ElementLink<EntityElement> pigLink = builder.world().createEntity(world -> {
             Pig pig = EntityType.PIG.create(world);
             if (pig != null) {
                 pig.moveTo(frontPos.getBottomCenter());
@@ -157,13 +156,13 @@ public class BlockPlacerScene {
         builder.idle(20);
 
         // 初始化
-        BlockPos placerAPos = util.grid().at(3, 1, 3);
-        BlockPos placerBPos = util.grid().at(3, 1, 4);
-        BlockPos backPos = util.grid().at(3, 1, 5);
-        BlockPos anvilAPos = util.grid().at(3, 3, 3);
-        BlockPos anvilBPos = util.grid().at(3, 3, 4);
-        BlockPos frontAPos = util.grid().at(3, 1, 1);
-        BlockPos frontBPos = util.grid().at(3, 1, 2);
+        final BlockPos placerAPos = util.grid().at(3, 1, 3);
+        final BlockPos placerBPos = util.grid().at(3, 1, 4);
+        final BlockPos backPos = util.grid().at(3, 1, 5);
+        final BlockPos anvilAPos = util.grid().at(3, 3, 3);
+        final BlockPos anvilBPos = util.grid().at(3, 3, 4);
+        final BlockPos frontAPos = util.grid().at(3, 1, 1);
+        final BlockPos frontBPos = util.grid().at(3, 1, 2);
 
         // 使用普通Section替代IndependentSection以保持一致的动画效果
         builder.world().setBlock(placerBPos, ModBlocks.BLOCK_PLACER.getDefaultState(), false);
@@ -172,7 +171,7 @@ public class BlockPlacerScene {
 
         builder.world().setBlock(anvilBPos, Blocks.ANVIL.defaultBlockState(), false);
         Selection anvilBSelection = util.select().position(anvilBPos);
-        ElementLink<WorldSectionElement> anvilBLink = builder.world().showIndependentSection(anvilBSelection, Direction.DOWN);
+        final ElementLink<WorldSectionElement> anvilBLink = builder.world().showIndependentSection(anvilBSelection, Direction.DOWN);
 
         Selection frontASelection = util.select().position(frontAPos);
         Selection frontBSelection = util.select().position(frontBPos);

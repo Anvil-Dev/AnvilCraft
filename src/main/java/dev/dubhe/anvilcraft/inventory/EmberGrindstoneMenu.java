@@ -30,13 +30,11 @@ import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@ParametersAreNonnullByDefault
 public class EmberGrindstoneMenu extends AbstractContainerMenu {
     private final Container tool;
     private final Container book;

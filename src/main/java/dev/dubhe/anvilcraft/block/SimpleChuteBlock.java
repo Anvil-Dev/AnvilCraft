@@ -4,11 +4,11 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -48,14 +48,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.exportToTarget;
-import static dev.dubhe.anvilcraft.block.ChuteBlock.getFacing;
-import static dev.dubhe.anvilcraft.block.ChuteBlock.isChuteBlock;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class SimpleChuteBlock
     extends BaseEntityBlock
     implements SimpleWaterloggedBlock, IHammerChangeable, IHammerRemovable {
@@ -79,9 +71,6 @@ public class SimpleChuteBlock
     public static final VoxelShape AABB_TALL_W =
         Shapes.join(Block.box(0, 4, 4, 12, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
 
-    /**
-     * @param properties 方块属性
-     */
     public SimpleChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -109,14 +98,20 @@ public class SimpleChuteBlock
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.isClientSide) return;
         BlockState neighborState = level.getBlockState(neighborPos);
         Block neighborBlock1 = neighborState.getBlock();
-        if (isChuteBlock(neighborBlock) || isChuteBlock(neighborBlock1)) {
+        if (ChuteBlock.isChuteBlock(neighborBlock) || ChuteBlock.isChuteBlock(neighborBlock1)) {
             BlockState newState = getState(level, pos, state.getValue(FACING));
-            if (newState != null && newState != state)
-                level.setBlockAndUpdate(pos, newState);
+            if (newState != null && newState != state) level.setBlockAndUpdate(pos, newState);
         }
         this.checkPoweredState(level, pos, state);
     }
@@ -129,7 +124,14 @@ public class SimpleChuteBlock
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
+    protected BlockState updateShape(
+        BlockState state,
+        Direction facing,
+        BlockState facingState,
+        LevelAccessor level,
+        BlockPos currentPos,
+        BlockPos facingPos
+    ) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
@@ -137,20 +139,23 @@ public class SimpleChuteBlock
     }
 
     @Override
-    @MethodsReturnNonnullByDefault
-    @ParametersAreNonnullByDefault
     public ItemStack getCloneItemStack(
-        BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
         return new ItemStack(ModBlocks.CHUTE);
     }
-
 
     @Override
     public void tick(
         BlockState state,
         ServerLevel level,
         BlockPos pos,
-        RandomSource random) {
+        RandomSource random
+    ) {
         if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(ENABLED), 2);
         }
@@ -173,7 +178,7 @@ public class SimpleChuteBlock
                     if (level.getBlockEntity(pos) instanceof ChuteBlockEntity newEntity) {
                         newHandler = newEntity.getItemHandler();
                     }
-                    exportToTarget(oldHandler, 64, stack -> true, newHandler);
+                    ItemHandlerUtil.exportToTarget(oldHandler, 64, stack -> true, newHandler);
                 } else level.removeBlockEntity(pos);
                 Vec3 vec3 = oldEntity.getBlockPos().getCenter();
                 for (int slot = 0; slot < oldHandler.getSlots(); slot++) {
@@ -195,7 +200,6 @@ public class SimpleChuteBlock
             ModBlockEntities.SIMPLE_CHUTE.get(),
             ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
     }
-
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -277,12 +281,12 @@ public class SimpleChuteBlock
         boolean success = false;
         boolean tall = false;
         BlockState result = level.getBlockState(pos);
-        //遍历六个方向 获取指向自己的溜槽
+        // 遍历六个方向 获取指向自己的溜槽
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
-            if (isChuteBlock(neighborState)) {
-                if (getFacing(neighborState) == dir.getOpposite()) {
+            if (ChuteBlock.isChuteBlock(neighborState)) {
+                if (ChuteBlock.getFacing(neighborState) == dir.getOpposite()) {
                     success = true;
                     if (dir == Direction.UP) {
                         tall = !neighborState.is(ModBlocks.MAGNETIC_CHUTE.get());
@@ -291,12 +295,13 @@ public class SimpleChuteBlock
 
             }
         }
-        if (!success)
+        if (!success) {
             result = ModBlocks.CHUTE.getDefaultState()
                 .setValue(FACING, facing)
                 .setValue(ENABLED, !level.hasNeighborSignal(pos));
-        else
+        } else {
             result = result.setValue(TALL, tall);
+        }
         return result;
     }
 }

@@ -32,7 +32,7 @@ abstract class PlayerMixin extends LivingEntity {
         super(entityType, level);
     }
 
-    //飘升机背包飞行时无挖掘惩罚
+    // 飘升机背包飞行时无挖掘惩罚
     @ModifyExpressionValue(
         method = "getDigSpeed",
         at = @At(

@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,9 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (text == null || text.isEmpty()) {
             this.filterText = "";
             filteredFilters.addAll(allFilter);
-            filteredFilters.removeIf(it -> whiteFilters.stream().anyMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())));
+            filteredFilters.removeIf(it -> whiteFilters.stream()
+                .anyMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
+            );
             return;
         } else {
             this.filterText = text;
@@ -77,7 +80,9 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             String search = text.replaceFirst("#", "");
             allFilter.stream()
                 .filter(it -> it.right().contains(search))
-                .filter(it -> whiteFilters.stream().noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())))
+                .filter(it -> whiteFilters.stream()
+                    .noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
+                )
                 .forEach(filteredFilters::add);
         } else {
             if (text.startsWith("~")) {
@@ -157,7 +162,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         }
     }
 
-    public String getFilterToolTipAt(int index, int variant) {
+    public @Nullable String getFilterToolTipAt(int index, int variant) {
         int actualIndex = index;
         if (variant == FILTER_FILTERED) {
             actualIndex += leftScrollOff;
@@ -182,7 +187,6 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         this.imageHeight = 166;
     }
 
-    @SuppressWarnings("ExtractMethodRecommender")
     @Override
     protected void init() {
         super.init();
@@ -282,18 +286,18 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double pScrollX, double pScrollY) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
         if (mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
             if (this.filteredFilters.size() > 8) {
-                this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - pScrollY, 0, this.filteredFilters.size() - 7);
+                this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - scrollY, 0, this.filteredFilters.size() - 7);
             }
         } else {
             if (mouseInRight(mouseX, mouseY, leftPos, topPos)) {
                 if (this.whiteFilters.size() > 8) {
                     this.rightScrollOff =
-                        (int) Mth.clamp(this.rightScrollOff - pScrollY, 0, this.whiteFilters.size() - 7);
+                        (int) Mth.clamp(this.rightScrollOff - scrollY, 0, this.whiteFilters.size() - 7);
                 }
             }
         }

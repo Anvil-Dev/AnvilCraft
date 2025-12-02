@@ -71,15 +71,14 @@ public class OutputDirectionButton extends Button {
 
     @Override
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation location =
-            switch (direction) {
-                case UP -> UP;
-                case EAST -> EAST;
-                case WEST -> WEST;
-                case SOUTH -> SOUTH;
-                case NORTH -> NORTH;
-                default -> DOWN;
-            };
+        ResourceLocation location = switch (direction) {
+            case UP -> UP;
+            case EAST -> EAST;
+            case WEST -> WEST;
+            case SOUTH -> SOUTH;
+            case NORTH -> NORTH;
+            default -> DOWN;
+        };
         this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
@@ -115,15 +114,14 @@ public class OutputDirectionButton extends Button {
      * @return 方向
      */
     public Direction next(@NotNull Direction direction) {
-        Direction direction1 =
-            switch (direction) {
-                case UP -> Direction.DOWN;
-                case EAST -> Direction.WEST;
-                case WEST -> Direction.SOUTH;
-                case SOUTH -> Direction.NORTH;
-                case NORTH -> Direction.UP;
-                default -> Direction.EAST;
-            };
+        Direction direction1 = switch (direction) {
+            case UP -> Direction.DOWN;
+            case EAST -> Direction.WEST;
+            case WEST -> Direction.SOUTH;
+            case SOUTH -> Direction.NORTH;
+            case NORTH -> Direction.UP;
+            default -> Direction.EAST;
+        };
         return this.skip.contains(direction1) ? next(direction1) : direction1;
     }
 }

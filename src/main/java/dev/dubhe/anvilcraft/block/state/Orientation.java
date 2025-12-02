@@ -112,7 +112,7 @@ public enum Orientation implements StringRepresentable {
                 };
             }
             default -> {
-                //rotate clockwise 180
+                // rotate clockwise 180
                 return switch (this) {
                     case NORTH_UP -> Orientation.SOUTH_UP;
                     case SOUTH_UP -> Orientation.NORTH_UP;
@@ -159,7 +159,7 @@ public enum Orientation implements StringRepresentable {
                 };
             }
             default -> {
-                //mirror left_right (invert z)
+                // mirror left_right (invert z)
                 return switch (this) {
                     case NORTH_UP -> Orientation.SOUTH_UP;
                     case SOUTH_UP -> Orientation.NORTH_UP;

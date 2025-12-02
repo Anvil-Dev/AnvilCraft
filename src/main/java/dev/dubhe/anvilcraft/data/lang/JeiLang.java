@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.lang;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 
 public class JeiLang {
+    @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrateLangProvider provider) {
         provider.add("gui.anvilcraft.category.chance", "Chance: %s%%");
         provider.add("gui.anvilcraft.category.average_output", "Average: %s");

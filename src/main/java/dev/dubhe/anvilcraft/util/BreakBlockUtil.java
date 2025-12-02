@@ -62,14 +62,17 @@ public class BreakBlockUtil {
 
     public static List<ItemStack> dropSmelt(ServerLevel level, BlockPos pos) {
         List<ItemStack> drops = drop(level, pos);
-        if (drops.size() == 1
+        if (
+            drops.size() == 1
             && drops.getFirst().is(ModItemTags.HEATABLE_BLOCKS)
             && Util.instanceOfAny(drops.getFirst().getItem(), BlockItem.class)
-        ) return List.of(
-            HeatRecorder.getNextTierHeatableBlock(level, pos, Block.byItem(drops.getFirst().getItem()).defaultBlockState())
-                .map(block -> block.asItem().getDefaultInstance())
-                .orElse(ItemStack.EMPTY)
-        );
+        ) {
+            return List.of(
+                HeatRecorder.getNextTierHeatableBlock(level, pos, Block.byItem(drops.getFirst().getItem()).defaultBlockState())
+                    .map(block -> block.asItem().getDefaultInstance())
+                    .orElse(ItemStack.EMPTY)
+            );
+        }
         return drops.stream()
             .map(it -> {
                 SingleRecipeInput cont = new SingleRecipeInput(it);

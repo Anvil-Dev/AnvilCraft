@@ -30,7 +30,7 @@ abstract class HolderReferenceMixin {
         Operation<Holder.Reference<T>> original
     ) {
         if (value instanceof ResonatorItem resonator) {
-            //noinspection unchecked
+            // noinspection unchecked
             return (Holder.Reference<T>) new ResonatorItem.ResonatorHolder(
                 type,
                 (HolderOwner<Item>) owner,
@@ -38,7 +38,7 @@ abstract class HolderReferenceMixin {
                 resonator
             );
         } else if (value instanceof MultitoolItem multitoolItem) {
-            //noinspection unchecked
+            // noinspection unchecked
             return (Holder.Reference<T>) new MultitoolItem.MultitoolHolder(
                 type,
                 (HolderOwner<Item>) owner,

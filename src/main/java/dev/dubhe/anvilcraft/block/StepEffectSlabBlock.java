@@ -1,17 +1,13 @@
 package dev.dubhe.anvilcraft.block;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class StepEffectSlabBlock extends SlabBlock {
     private final Consumer<Entity> stepAction;
 

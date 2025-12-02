@@ -26,9 +26,9 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        if (Util.jadePresent.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return null;
-        if (!(value instanceof ChargerBlockEntity charger)) return null;
-        List<Component> lines = new ArrayList<>();
+        if (Util.jadePresent.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
+        if (!(value instanceof ChargerBlockEntity charger)) return List.of();
+        final List<Component> lines = new ArrayList<>();
         boolean overloaded = false;
         BlockPos pos = charger.getBlockPos();
         if (charger.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
@@ -38,7 +38,7 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
         if (powerGrids.isEmpty()) return List.of();
         SimplePowerGrid grid = powerGrids.get();
         final Optional<PowerComponentInfo> optional = grid.getInfoForPos(pos);
-        if (optional.isEmpty()) return null;
+        if (optional.isEmpty()) return List.of();
         PowerComponentInfo componentInfo = optional.get();
         overloaded |= grid.getConsume() > grid.getGenerate();
         PowerComponentType type = componentInfo.type();

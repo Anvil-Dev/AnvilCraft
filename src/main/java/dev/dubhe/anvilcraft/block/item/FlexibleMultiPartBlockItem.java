@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -16,11 +15,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-public class FlexibleMultiPartBlockItem<P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>, T extends Property<E>, E extends Comparable<E>> extends BlockItem {
+public class FlexibleMultiPartBlockItem<
+    P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>,
+    T extends Property<E>,
+    E extends Comparable<E>
+    > extends BlockItem {
     private final FlexibleMultiPartBlock<P, T, E> block;
 
     public FlexibleMultiPartBlockItem(FlexibleMultiPartBlock<P, T, E> block, Properties properties) {

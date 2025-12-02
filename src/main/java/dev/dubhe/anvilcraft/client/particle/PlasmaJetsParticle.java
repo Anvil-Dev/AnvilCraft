@@ -14,16 +14,16 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
     protected PlasmaJetsParticle(
-        ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed,
+        ClientLevel level, double x, double y, double z, double speedX, double speedY, double speedZ,
         SpriteSet sprites
     ) {
         super(level, x, y, z);
         this.gravity = 0.2F;
         this.friction = 0.9F;
         this.sprites = sprites;
-        this.xd = xSpeed + (Math.random() * 2.0 - 1.0) * 0.05F;
-        this.yd = ySpeed + (Math.random() * 2.0 - 1.0) * 0.05F;
-        this.zd = zSpeed + (Math.random() * 2.0 - 1.0) * 0.05F;
+        this.xd = speedX + (Math.random() * 2.0 - 1.0) * 0.05F;
+        this.yd = speedY + (Math.random() * 2.0 - 1.0) * 0.05F;
+        this.zd = speedZ + (Math.random() * 2.0 - 1.0) * 0.05F;
         this.rCol = 1;
         this.gCol = 1;
         this.bCol = 1;
@@ -77,11 +77,11 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
             double x,
             double y,
             double z,
-            double xSpeed,
-            double ySpeed,
-            double zSpeed
+            double speedX,
+            double speedY,
+            double speedZ
         ) {
-            return new PlasmaJetsParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, this.sprites);
+            return new PlasmaJetsParticle(level, x, y, z, speedX, speedY, speedZ, this.sprites);
         }
     }
 }

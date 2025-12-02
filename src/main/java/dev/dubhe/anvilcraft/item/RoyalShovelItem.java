@@ -1,12 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ShovelItem;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class RoyalShovelItem extends ShovelItem {
     public RoyalShovelItem(Properties properties) {
         super(

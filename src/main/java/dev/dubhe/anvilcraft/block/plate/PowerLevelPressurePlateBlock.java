@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block.plate;
 import com.google.common.collect.Sets;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -21,14 +20,11 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashSet;
 import java.util.Set;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
     public static final MapCodec<PowerLevelPressurePlateBlock> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(

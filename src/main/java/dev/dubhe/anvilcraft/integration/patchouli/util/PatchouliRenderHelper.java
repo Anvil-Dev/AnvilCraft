@@ -18,9 +18,9 @@ public class PatchouliRenderHelper {
     public static final ResourceLocation CRAFTING = ResourceLocation.fromNamespaceAndPath(PatchouliAPI.MOD_ID, "textures/gui/crafting.png");
     public static final ResourceLocation EXTRA = AnvilCraft.of("textures/gui/patchouli/crafting.png");
 
-    public static void renderCraftingCustomUV(GuiGraphics guiGraphics, int x, int y, float uOffset, float vOffset, int width, int height) {
+    public static void renderCraftingCustomUV(GuiGraphics guiGraphics, int x, int y, float offsetU, float offsetV, int width, int height) {
         RenderSystem.enableBlend();
-        guiGraphics.blit(EXTRA, x, y, uOffset, vOffset, width, height, 256, 256);
+        guiGraphics.blit(EXTRA, x, y, offsetU, offsetV, width, height, 256, 256);
     }
 
     public static void renderArray(GuiGraphics guiGraphics, int x, int y) {

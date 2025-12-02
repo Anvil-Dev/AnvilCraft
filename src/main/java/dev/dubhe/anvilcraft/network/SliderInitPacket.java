@@ -22,9 +22,6 @@ public class SliderInitPacket implements CustomPacketPayload {
 
     private final int value;
 
-    /**
-     * @param value 当前值
-     */
     public SliderInitPacket(int value) {
         this.value = value;
     }

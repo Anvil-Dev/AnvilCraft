@@ -46,10 +46,35 @@ public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity>
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
-        PartDefinition rotating = partdefinition.addOrReplaceChild("rotating", CubeListBuilder.create().texOffs(0, 4).addBox(-3.0F, -3.0F, -1.0F, 1.0F, 6.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
-        rotating.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 4).addBox(-3.0F, -3.0F, -1.0F, 1.0F, 6.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 2.0944F, 0.0F));
-        rotating.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 4).addBox(-3.0F, -3.0F, -1.0F, 1.0F, 6.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
-        partdefinition.addOrReplaceChild("main", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -1.0F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+        PartDefinition rotating = partdefinition.addOrReplaceChild(
+            "rotating",
+            CubeListBuilder.create()
+                .texOffs(0, 4)
+                .addBox(-3.0F, -3.0F, -1.0F, 1.0F, 6.0F, 2.0F, new CubeDeformation(0.0F)),
+            PartPose.offset(0.0F, 24.0F, 0.0F)
+        );
+        rotating.addOrReplaceChild(
+            "cube_r1",
+            CubeListBuilder.create()
+                .texOffs(0, 4)
+                .addBox(-3.0F, -3.0F, -1.0F, 1.0F, 6.0F, 2.0F, new CubeDeformation(0.0F)),
+            PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 2.0944F, 0.0F)
+        );
+        rotating.addOrReplaceChild(
+            "cube_r2",
+            CubeListBuilder.create()
+                .texOffs(0, 4)
+                .addBox(-3.0F, -3.0F, -1.0F, 1.0F, 6.0F, 2.0F, new CubeDeformation(0.0F)),
+            PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F)
+        );
+        partdefinition.addOrReplaceChild(
+            "main",
+            CubeListBuilder.create()
+                .texOffs(0, 0)
+                .addBox(-1.0F, -1.0F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)),
+            PartPose.offset(0.0F, 24.0F, 0.0F)
+        );
+
         return LayerDefinition.create(meshdefinition, 16, 16);
     }
 

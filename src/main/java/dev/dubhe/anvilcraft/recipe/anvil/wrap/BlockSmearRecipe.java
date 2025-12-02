@@ -23,9 +23,8 @@ import java.util.List;
 
 /**
  * 方块涂抹配方类
- * <p>
- * 该配方用于在铁砧下落时将多个方块涂抹成一个方块
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时将多个方块涂抹成一个方块</p>
  */
 public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
     /**
@@ -180,12 +179,12 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (inputs.isEmpty()) {
-                throw new IllegalArgumentException("Recipe inputs must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe inputs must not be empty, RecipeId: " + id);
             }
             if (result == null) {
-                throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + id);
             }
         }
 

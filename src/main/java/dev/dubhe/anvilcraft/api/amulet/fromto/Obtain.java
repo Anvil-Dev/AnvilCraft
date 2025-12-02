@@ -1,17 +1,13 @@
 package dev.dubhe.anvilcraft.api.amulet.fromto;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface Obtain extends BiPredicate<ServerPlayer, DamageSource> {
     Obtain NEVER = (player, source) -> false;
 

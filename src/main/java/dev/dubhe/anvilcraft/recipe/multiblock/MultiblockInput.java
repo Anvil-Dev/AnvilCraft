@@ -1,16 +1,12 @@
 package dev.dubhe.anvilcraft.recipe.multiblock;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public record MultiblockInput(List<List<List<BlockState>>> blocks, int size) implements RecipeInput {
     @Override
     public ItemStack getItem(int i) {

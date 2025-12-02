@@ -39,23 +39,23 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, CompoundTag entit
         return center.offset(this.offset);
     }
 
-    public int x() {
+    public int offsetX() {
         return this.offset.getX();
     }
 
-    public int y() {
+    public int offsetY() {
         return this.offset.getY();
     }
 
-    public int z() {
+    public int offsetZ() {
         return this.offset.getZ();
     }
 
     public IntIntPair getPos2D(Direction side) {
         return switch (side.getAxis()) {
-            case X -> IntIntPair.of(this.y(), this.z());
-            case Y -> IntIntPair.of(this.x(), this.z());
-            case Z -> IntIntPair.of(this.x(), this.y());
+            case X -> IntIntPair.of(this.offsetY(), this.offsetZ());
+            case Y -> IntIntPair.of(this.offsetX(), this.offsetZ());
+            case Z -> IntIntPair.of(this.offsetX(), this.offsetY());
         };
     }
 }

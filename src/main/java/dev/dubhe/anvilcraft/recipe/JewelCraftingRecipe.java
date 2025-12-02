@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -30,13 +29,10 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import org.jetbrains.annotations.Contract;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     public final List<ICondition> conditions;
     public final NonNullList<Ingredient> ingredients;
@@ -176,20 +172,20 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             return requires(ingredient, 1);
         }
 
-        public Builder requires(ItemLike pItem, int count) {
-            return requires(Ingredient.of(pItem), count);
+        public Builder requires(ItemLike item, int count) {
+            return requires(Ingredient.of(item), count);
         }
 
-        public Builder requires(ItemLike pItem) {
-            return requires(pItem, 1);
+        public Builder requires(ItemLike item) {
+            return requires(item, 1);
         }
 
-        public Builder requires(TagKey<Item> pTag, int count) {
-            return requires(Ingredient.of(pTag), count);
+        public Builder requires(TagKey<Item> tag, int count) {
+            return requires(Ingredient.of(tag), count);
         }
 
-        public Builder requires(TagKey<Item> pTag) {
-            return requires(pTag, 1);
+        public Builder requires(TagKey<Item> tag) {
+            return requires(tag, 1);
         }
 
         @Override
@@ -198,12 +194,12 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (ingredients.isEmpty() || ingredients.size() > 256) {
-                throw new IllegalArgumentException("Recipe ingredients size must in 0-256, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe ingredients size must in 0-256, RecipeId: " + id);
             }
             if (result.isEmpty()) {
-                throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }
 

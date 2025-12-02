@@ -26,7 +26,6 @@ import java.util.Objects;
 
 import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItemHandlerList;
 
-
 @Getter
 public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
@@ -83,7 +82,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                 for (IItemHandler target : targetList) {
                     boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                     if (success) {
-                        //特判溜槽cd7gt
+                        // 特判溜槽cd7gt
                         if (isTargetEmpty) setChuteCD(targetBE);
                         break;
                     }
@@ -166,9 +165,6 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
         return Direction.DOWN;
     }
 
-    /**
-     * @return 红石信号强度
-     */
     public int getRedstoneSignal() {
         int i = 0;
         for (int j = 0; j < itemHandler.getSlots(); ++j) {

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -147,9 +146,9 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         this.totalCurseCount = 0;
         this.removedRepairCost = 0;
         this.removedCurseCount = 0;
-        ItemStack repairTool = repairToolSlots.getItem(0);
-        ItemStack repairMaterialSlotItem = repairMaterialSlots.getItem(0);
-        ItemStack resultMaterialSlotItem = resultMaterialSlots.getItem(0);
+        final ItemStack repairTool = repairToolSlots.getItem(0);
+        final ItemStack repairMaterialSlotItem = repairMaterialSlots.getItem(0);
+        final ItemStack resultMaterialSlotItem = resultMaterialSlots.getItem(0);
         this.repairMaterial = repairMaterialSlotItem.getItem();
         ItemStack result = repairTool.copy();
         this.currentRecipe = REPAIR_COST_RECIPES.getOrDefault(repairMaterialSlotItem.getItem(), null);
@@ -173,7 +172,10 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             this.usedGold = 0;
             return ItemStack.EMPTY;
         }
-        int repairMaterialUsable = Math.min(repairMaterialSlotItem.getCount(), currentRecipe.item.getDefaultMaxStackSize() - resultMaterialSlotItem.getCount());
+        int repairMaterialUsable = Math.min(
+            repairMaterialSlotItem.getCount(),
+            currentRecipe.item.getDefaultMaxStackSize() - resultMaterialSlotItem.getCount()
+        );
         int perUnitRepair = this.currentRecipe.count;
         int maxUnitsByCost = repairCost / perUnitRepair;
         this.usedGold = Math.min(maxUnitsByCost, repairMaterialUsable);

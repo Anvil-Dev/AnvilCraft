@@ -25,14 +25,18 @@ public class PlayerKilledEntityByAnvilHammerTrigger extends SimpleCriterionTrigg
         this.trigger(player, (instance) -> instance.matches(context));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity) implements SimpleCriterionTrigger.SimpleInstance {
+    public record TriggerInstance(
+        Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity
+    ) implements SimpleCriterionTrigger.SimpleInstance {
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("entity").forGetter(TriggerInstance::entity)
         ).apply(instance, TriggerInstance::new));
 
         public static Criterion<TriggerInstance> killedEntity(EntityType<?> type) {
-            return ModCriterionTriggers.PLAYER_KILLED_ENTITY_BY_ANVIL_HAMMER.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(EntityPredicate.Builder.entity().of(type)))));
+            return ModCriterionTriggers.PLAYER_KILLED_ENTITY_BY_ANVIL_HAMMER.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(EntityPredicate.Builder.entity().of(type))))
+            );
         }
 
         public boolean matches(LootContext context) {

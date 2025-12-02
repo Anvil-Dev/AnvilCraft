@@ -29,9 +29,6 @@ public record SilencerSyncPacket(BlockPos pos, List<ResourceLocation> sounds) im
         return TYPE;
     }
 
-    /**
-     *
-     */
     public void handler(IPayloadContext context) {
         context.enqueueWork(() -> {
             BlockEntity entity = context.player().level().getBlockEntity(this.pos);

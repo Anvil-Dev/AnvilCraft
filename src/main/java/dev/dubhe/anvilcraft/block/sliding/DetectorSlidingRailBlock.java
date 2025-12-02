@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -32,12 +31,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IHammerChangeable, IMoveableEntityBlock {
     public static final VoxelShape AABB_X = Stream.of(
             Block.box(0, 0, 0, 16, 6, 16),

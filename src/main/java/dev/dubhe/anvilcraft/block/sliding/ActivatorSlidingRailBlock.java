@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -35,13 +34,10 @@ import net.neoforged.neoforge.common.util.TriState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements IHammerChangeable, IMoveableEntityBlock {
     public static final List<Direction> SIGNAL_SOURCE_SIDES = List.of(
         Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
@@ -88,6 +84,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         switch (facing.getAxis()) {
             case X -> x += searchForward ? 1 : -1;
             case Z -> z += searchForward ? 1 : -1;
+            default -> throw new IllegalStateException("Unexpected value: " + facing.getAxis());
         }
 
         return this.isSameRailWithPower(level, new BlockPos(x, y, z), searchForward, 0, facing);
@@ -105,6 +102,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         switch (facing.getAxis()) {
             case X -> x += searchForward ? 1 : -1;
             case Z -> z += searchForward ? 1 : -1;
+            default -> throw new IllegalStateException("Unexpected value: " + facing.getAxis());
         }
 
         return this.isSameRailWithPower(level, new BlockPos(x, y, z), searchForward, recursionCount, facing);
@@ -202,7 +200,8 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         Optional<ActivatorSlidingRailBlockEntity> beOp = level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get());
-        switch (beOp.map(ActivatorSlidingRailBlockEntity::getShouldPower).orElse(TriState.DEFAULT)) {
+        TriState shouldPower = beOp.map(ActivatorSlidingRailBlockEntity::getShouldPower).orElse(TriState.DEFAULT);
+        switch (shouldPower) {
             case TRUE -> {
                 beOp.ifPresent(ActivatorSlidingRailBlockEntity::stopPulse);
                 level.scheduleTick(pos, this, 5);
@@ -220,6 +219,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
             }
             case DEFAULT -> {
             }
+            default -> throw new IllegalStateException("Unexpected value: " + shouldPower);
         }
         super.tick(state, level, pos, random);
     }
@@ -249,10 +249,13 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         if (!state.getValue(POWERED)) return 0;
-        if (!level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get())
+        if (
+            !level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get())
             .map(ActivatorSlidingRailBlockEntity::shouldPower)
             .orElse(false)
-        ) return 0;
+        ) {
+            return 0;
+        }
         return direction == Direction.DOWN ? 15 : 0;
     }
 

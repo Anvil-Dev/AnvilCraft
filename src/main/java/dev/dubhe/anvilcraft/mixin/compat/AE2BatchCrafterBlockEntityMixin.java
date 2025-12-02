@@ -52,7 +52,6 @@ public abstract class AE2BatchCrafterBlockEntityMixin
     @Unique
     private final Deque<Consumer<BatchCrafterBlockEntity>> anvilcraft$deferredTasks = new ArrayDeque<>();
 
-
     public AE2BatchCrafterBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }

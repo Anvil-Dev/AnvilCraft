@@ -20,7 +20,9 @@ public final class TooltipUtil {
         ResourceLocation key = BuiltInRegistries.BLOCK.getKey(block);
         tooltip.add(block.getName());
         tooltip.add(Component.literal(key.toString()).withStyle(ChatFormatting.DARK_GRAY));
-        tooltip.add(Component.literal(getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true)));
+        tooltip.add(
+            Component.literal(getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true))
+        );
         return tooltip;
     }
 
@@ -30,7 +32,9 @@ public final class TooltipUtil {
         tooltip.add(block.getName());
         tooltip.add(Component.literal(key.toString()).withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(Component.translatable("jei.tooltip.recipe.id", id.toString()).withStyle(ChatFormatting.DARK_GRAY));
-        tooltip.add(Component.literal(getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true)));
+        tooltip.add(
+            Component.literal(getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true))
+        );
         return tooltip;
     }
 

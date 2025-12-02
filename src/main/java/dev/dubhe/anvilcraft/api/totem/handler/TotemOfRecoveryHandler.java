@@ -44,7 +44,9 @@ public class TotemOfRecoveryHandler implements TotemHandler {
                 deathPos = deathPos.atY(deathPos.getY() + 1);
                 player.setLastDeathLocation(Optional.of(GlobalPos.of(deathDimension, deathPos)));
                 ResourceKey<Level> respawnDimension = player.getRespawnDimension();
-                BlockPos respawnPos = player.getRespawnPosition() == null ? player.level().getSharedSpawnPos() : player.getRespawnPosition();
+                BlockPos respawnPos = player.getRespawnPosition() == null
+                                      ? player.level().getSharedSpawnPos()
+                                      : player.getRespawnPosition();
                 RecoveryPearl.crossDimensionTeleportTo(respawnDimension, player, respawnPos);
             }
             entity.setHealth(1.0f);

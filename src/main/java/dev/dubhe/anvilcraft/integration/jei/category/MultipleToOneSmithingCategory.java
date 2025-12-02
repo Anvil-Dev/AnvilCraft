@@ -18,7 +18,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -26,12 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class MultipleToOneSmithingCategory implements
-    IRecipeCategory<RecipeHolder<BaseMultipleToOneSmithingRecipe>> {
+public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHolder<BaseMultipleToOneSmithingRecipe>> {
     public static final int WIDTH = 176;
     public static final int HEIGHT = 64;
 

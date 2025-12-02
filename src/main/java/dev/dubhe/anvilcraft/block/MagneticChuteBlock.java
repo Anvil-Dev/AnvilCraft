@@ -15,7 +15,6 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -51,11 +50,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
@@ -158,26 +152,22 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             && (neighborState.is(ModBlocks.SIMPLE_CHUTE) || neighborState.is(ModBlocks.CHUTE))
             && neighborState.getValue(FACING_HOPPER) == Direction.DOWN;
         if (cannotPlace) {
-            if (player != null)
-                player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
+            if (player != null) player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
             return null;
         }
-        BlockState result = this.defaultBlockState()
+        return this.defaultBlockState()
             .setValue(FACING, facing)
             .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
-        return result;
     }
-
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override

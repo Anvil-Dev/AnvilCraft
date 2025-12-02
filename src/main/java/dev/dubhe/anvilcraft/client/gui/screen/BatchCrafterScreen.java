@@ -101,11 +101,11 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
             ItemStack carriedItem = this.menu.getCarried().copy();
             int realSlotId = slot.getContainerSlot();
             if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
-                ItemStack filter = this.menu.getFilter(realSlotId);
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
+                ItemStack filter = this.menu.getFilter(realSlotId);
                 PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;

@@ -39,9 +39,6 @@ public class AddTeslaFilterPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    /**
-     *
-     */
     public static void serverHandler(AddTeslaFilterPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {

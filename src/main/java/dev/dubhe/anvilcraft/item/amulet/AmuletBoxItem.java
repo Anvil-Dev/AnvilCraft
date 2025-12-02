@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -29,12 +28,9 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class AmuletBoxItem extends Item {
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;

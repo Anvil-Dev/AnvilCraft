@@ -83,7 +83,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     protected void renderEnchantmentSelectingArea(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
         int scrollOver = this.lastRowIndex * 3;
-        if (!this.menu.getEnchantments().isEmpty())
+        if (!this.menu.getEnchantments().isEmpty()) {
             for (int i = 0; i < Math.min(this.menu.getEnchantments().size() + scrollOver, 6); i++) {
                 int x = this.leftPos + 65 + 18 * (i % 3);
                 int y = this.topPos + 23 + 18 * (i / 3);
@@ -94,19 +94,20 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
                 if (enchantment == null) continue;
                 ItemStack willRender = EnchantedBookItem.createForEnchantment(enchantment);
                 boolean selected = false;
-                int vOffset = 0;
+                int offsetV = 0;
                 if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
-                    vOffset = 36;
+                    offsetV = 36;
                     this.renderingTooltipEnchantedBook = willRender;
                 }
                 if (this.menu.getSelectedIndex() - scrollOver == i) {
-                    vOffset = 18;
+                    offsetV = 18;
                     selected = true;
                 }
-                guiGraphics.blit(BUTTON, x, y, 0, vOffset, 18, 18, 18, 54);
+                guiGraphics.blit(BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
 
                 guiGraphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
             }
+        }
     }
 
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -135,7 +136,13 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-        RenderSupport.renderItemWithTransparency(Items.BOOK.getDefaultInstance(), guiGraphics.pose(), this.leftPos + 25, this.topPos + 42, 0.5F);
+        RenderSupport.renderItemWithTransparency(
+            Items.BOOK.getDefaultInstance(),
+            guiGraphics.pose(),
+            this.leftPos + 25,
+            this.topPos + 42,
+            0.5F
+        );
 
         if (this.menu.canScroll()) {
             int left = this.leftPos + 122;

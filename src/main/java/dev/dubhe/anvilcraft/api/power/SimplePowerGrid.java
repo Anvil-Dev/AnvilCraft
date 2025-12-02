@@ -51,7 +51,6 @@ public class SimplePowerGrid {
     }
 
     private final Random random = new Random();
-    private final int[] EMPTY = {};
     private final int id;
     private final String level;
     private final BlockPos pos;
@@ -82,9 +81,6 @@ public class SimplePowerGrid {
         createTransmitterVisualLines();
     }
 
-    /**
-     * @param grid 电网
-     */
     public SimplePowerGrid(PowerGrid grid) {
         this.id = grid.hashCode();
         this.level = grid.getLevel().dimension().location().toString();
@@ -183,9 +179,6 @@ public class SimplePowerGrid {
         EXECUTOR = Executors.newThreadPerTaskExecutor(new VirtualThreadFactoryImpl());
     }
 
-    /**
-     * @param buf 缓冲区
-     */
     public void encode(FriendlyByteBuf buf) {
         Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
         CompoundTag data = new CompoundTag();
@@ -255,7 +248,7 @@ public class SimplePowerGrid {
                 float size = it.range() * 2 + 1;
                 input.add(Shapes.create(AABB.ofSize(center, size, size, size)));
             }
-            //noinspection CatchMayIgnoreException
+            // noinspection CatchMayIgnoreException
             try {
                 Future<VoxelShape> future = ShapeUtil.threadedJoin(input, BooleanOp.OR, EXECUTOR);
                 VoxelShape shape = future.get();

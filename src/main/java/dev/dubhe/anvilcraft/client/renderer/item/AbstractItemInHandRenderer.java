@@ -16,11 +16,11 @@ public abstract class AbstractItemInHandRenderer {
     protected ItemStack offHandItem;
     protected ItemStack mainHandItem;
     protected final ItemRenderer itemRenderer;
-    private final IItemRenderer iItemRenderer;
+    private final IItemRenderer renderer;
 
-    protected AbstractItemInHandRenderer(ItemRenderer itemRenderer, IItemRenderer iItemRenderer) {
+    protected AbstractItemInHandRenderer(ItemRenderer itemRenderer, IItemRenderer renderer) {
         this.itemRenderer = itemRenderer;
-        this.iItemRenderer = iItemRenderer;
+        this.renderer = renderer;
     }
 
     public void renderItem(
@@ -32,7 +32,7 @@ public abstract class AbstractItemInHandRenderer {
         MultiBufferSource buffer,
         int seed
     ) {
-        this.iItemRenderer.renderItem(entity, itemStack, displayContext, leftHand, poseStack, buffer, seed);
+        this.renderer.renderItem(entity, itemStack, displayContext, leftHand, poseStack, buffer, seed);
     }
 
     public abstract void render(

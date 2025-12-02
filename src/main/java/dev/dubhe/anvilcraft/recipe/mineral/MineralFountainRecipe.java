@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -26,11 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Contract;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input> {
     private final BlockStatePredicate needBlock;
     private final BlockStatePredicate fromBlock;
@@ -196,15 +191,15 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (this.needBlock == null) {
-                throw new IllegalArgumentException("needBlock must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("needBlock must not be null, RecipeId: " + id);
             }
             if (this.fromBlock == null) {
-                throw new IllegalArgumentException("fromBlock must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("fromBlock must not be null, RecipeId: " + id);
             }
             if (this.toBlock == null) {
-                throw new IllegalArgumentException("toBlock must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("toBlock must not be null, RecipeId: " + id);
             }
         }
 

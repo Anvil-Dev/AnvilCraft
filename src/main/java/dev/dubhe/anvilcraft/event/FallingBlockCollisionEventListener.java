@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event;
 
-
 import dev.anvilcraft.lib.recipe.component.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
@@ -130,21 +129,20 @@ public class FallingBlockCollisionEventListener {
         explosion.finalizeExplosion(spawnParticles);
         for (ServerPlayer serverplayer : serverLevel.players()) {
             if (serverplayer.distanceToSqr(x, y, z) < 4096.0) {
-                serverplayer.connection
-                    .send(
-                        new ClientboundExplodePacket(
-                            x,
-                            y,
-                            z,
-                            radius,
-                            explosion.getToBlow(),
-                            explosion.getHitPlayers().get(serverplayer),
-                            explosion.getBlockInteraction(),
-                            explosion.getSmallExplosionParticles(),
-                            explosion.getLargeExplosionParticles(),
-                            explosion.getExplosionSound()
-                        )
-                    );
+                serverplayer.connection.send(
+                    new ClientboundExplodePacket(
+                        x,
+                        y,
+                        z,
+                        radius,
+                        explosion.getToBlow(),
+                        explosion.getHitPlayers().get(serverplayer),
+                        explosion.getBlockInteraction(),
+                        explosion.getSmallExplosionParticles(),
+                        explosion.getLargeExplosionParticles(),
+                        explosion.getExplosionSound()
+                    )
+                );
             }
         }
 
@@ -158,7 +156,7 @@ public class FallingBlockCollisionEventListener {
             int number = Math.min(itemStack.getCount(), 16);
             Vec3 originItemPos = entityPos.add(pos.getCenter().subtract(entityPos).scale(0.5)).subtract(0, 0.4, 0);
             Vec3 normal = pos.getCenter().subtract(entityPos).scale(0.6).multiply(1, 0, 1);
-            float dRoute;
+            final float dRoute;
             if (number == 2) {
                 dRoute = 0f;
             } else {

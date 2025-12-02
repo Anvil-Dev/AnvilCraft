@@ -31,20 +31,14 @@ public class ConcreteRecipeLoader {
                 .requires(Tags.Items.GRAVELS, 4)
                 .requires(Tags.Items.SANDS, 4)
                 .result(concrete, 16)
-                .save(
-                    provider,
-                    AnvilCraft.of("concrete/minecraft_%s_concrete".formatted(color.getSerializedName()))
-                );
+                .save(provider, AnvilCraft.of("concrete/minecraft_%s_concrete".formatted(color.getSerializedName())));
             BulgingRecipe.builder()
                 .cauldron(cauldronBlock)
                 .requires(Tags.Items.GRAVELS, 2)
                 .requires(Tags.Items.SANDS, 2)
                 .requires(Items.IRON_BARS, 8)
                 .result(reinforcedConcrete, 16)
-                .save(
-                    provider,
-                    AnvilCraft.of("concrete/anvilcraft_reinforced_concrete_%s".formatted(color.getSerializedName()))
-                );
+                .save(provider, AnvilCraft.of("concrete/anvilcraft_reinforced_concrete_%s".formatted(color.getSerializedName())));
         }
     }
 }

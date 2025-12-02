@@ -48,12 +48,11 @@ public class VillagerEventListener {
 
             // level 3
             trades.get(3).add((entity, random) -> {
-                ItemCost cost =
-                    switch ((int) (random.nextDouble() * 3)) {
-                        case 0 -> new ItemCost(ModBlocks.TOPAZ_BLOCK);
-                        case 1 -> new ItemCost(ModBlocks.SAPPHIRE_BLOCK);
-                        default -> new ItemCost(ModBlocks.RUBY_BLOCK);
-                    };
+                ItemCost cost = switch ((int) (random.nextDouble() * 3)) {
+                    case 0 -> new ItemCost(ModBlocks.TOPAZ_BLOCK);
+                    case 1 -> new ItemCost(ModBlocks.SAPPHIRE_BLOCK);
+                    default -> new ItemCost(ModBlocks.RUBY_BLOCK);
+                };
                 return new MerchantOffer(cost, new ItemStack(Items.EMERALD, 8), 8, 10, 0.05f);
             });
             trades.get(3)

@@ -7,37 +7,37 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class TexturedButton extends Button {
-    private final int yDiffTex;
+    private final int texYDiff;
     private final int textureWidth;
     private final int textureHeight;
     private final ResourceLocation texture;
 
     public TexturedButton(
-        int pX,
-        int pY,
-        int pWidth,
-        int pHeight,
+        int x,
+        int y,
+        int width,
+        int height,
         ResourceLocation texture,
-        int yDiffTex,
+        int texYDiff,
         int textureWidth,
         int textureHeight,
-        OnPress pOnPress
+        OnPress onPress
     ) {
-        super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, DEFAULT_NARRATION);
+        super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
 
-        this.yDiffTex = yDiffTex;
+        this.texYDiff = texYDiff;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
         this.texture = texture;
     }
 
     @Override
-    public void render(@NotNull GuiGraphics gg, int pMouseX, int pMouseY, float pPartialTick) {
-        this.isHovered = this.isMouseOver(pMouseX, pMouseY);
-        int pVOffset = 0;
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.isHovered = this.isMouseOver(mouseX, mouseY);
+        int offsetV = 0;
         if (this.isHovered) {
-            pVOffset = yDiffTex;
+            offsetV = texYDiff;
         }
-        gg.blit(texture, this.getX(), this.getY(), 0, pVOffset, width, height, textureWidth, textureHeight);
+        graphics.blit(texture, this.getX(), this.getY(), 0, offsetV, width, height, textureWidth, textureHeight);
     }
 }

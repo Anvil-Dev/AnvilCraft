@@ -21,15 +21,26 @@ public class PageMultipleToOneSmithing extends PageDoubleRecipeRegistry<BaseMult
     }
 
     @Override
-    protected void drawRecipe(GuiGraphics graphics, BaseMultipleToOneSmithingRecipe recipe, int recipeX, int recipeY, int mouseX, int mouseY, boolean second) {
-        int vOffset = 186;
-        if (recipe instanceof TwoToOneSmithingRecipe) vOffset = 58;
-        if (recipe instanceof FourToOneSmithingRecipe) vOffset = 122;
+    protected void drawRecipe(
+        GuiGraphics graphics,
+        BaseMultipleToOneSmithingRecipe recipe,
+        int recipeX,
+        int recipeY,
+        int mouseX,
+        int mouseY,
+        boolean second
+    ) {
+        int offsetV = 186;
+        if (recipe instanceof TwoToOneSmithingRecipe) offsetV = 58;
+        if (recipe instanceof FourToOneSmithingRecipe) offsetV = 122;
         PatchouliRenderHelper.renderCraftingCustomUV(
             graphics,
-            recipeX - 1, recipeY - 1,
-            8, vOffset,
-            100, 62
+            recipeX - 1,
+            recipeY - 1,
+            8,
+            offsetV,
+            100,
+            62
         );
 
         this.parent.drawCenteredStringNoShadow(

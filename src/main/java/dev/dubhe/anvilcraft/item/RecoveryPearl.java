@@ -29,7 +29,8 @@ public class RecoveryPearl extends Item {
         if (!level.isClientSide) {
             MinecraftServer server = level.getServer();
             ServerPlayer serverPlayer = server.getPlayerList().getPlayer(player.getUUID());
-            DimensionTransition dimensionTransition = serverPlayer.findRespawnPositionAndUseSpawnBlock(false, DimensionTransition.DO_NOTHING);
+            DimensionTransition dimensionTransition = serverPlayer
+                .findRespawnPositionAndUseSpawnBlock(false, DimensionTransition.DO_NOTHING);
 
             Optional<GlobalPos> lastDeathLocation = player.getLastDeathLocation();
             ResourceKey<Level> currentDimension = level.dimension();

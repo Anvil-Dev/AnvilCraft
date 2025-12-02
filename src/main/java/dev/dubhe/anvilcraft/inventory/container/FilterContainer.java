@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import dev.dubhe.anvilcraft.network.FilterContentSyncPacket;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,11 +14,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class FilterContainer implements Container {
     @Setter
     private FilterContent content;

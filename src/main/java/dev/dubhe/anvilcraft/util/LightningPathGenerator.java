@@ -1,16 +1,17 @@
 package dev.dubhe.anvilcraft.util;
 
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 import java.util.function.BiConsumer;
 
 public class LightningPathGenerator {
-    public static void generatePath(@NotNull Vec3 start, @NotNull Vec3 end, int branches, double deviationPercentage, @Nullable PathConsumer consumer) {
-        consumer = consumer == null ? (s, e) -> {
-        } : consumer;
+    public static void generatePath(Vec3 start, Vec3 end, int branches, double deviationPercentage, @Nullable PathConsumer consumer) {
+        if (consumer == null) {
+            consumer = (s, e) -> {
+            };
+        }
         Vec3 current = start;
         Vec3 vector = end.subtract(start);
         double length = vector.length();

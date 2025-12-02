@@ -34,7 +34,7 @@ public class BulgingScene {
 
         BlockPos anvilPos = util.grid().at(2, 3, 2);
         builder.world().setBlock(anvilPos, Blocks.ANVIL.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> anvilLink =
+        final ElementLink<WorldSectionElement> anvilLink =
             builder.world().showIndependentSection(util.select().position(anvilPos), Direction.DOWN);
 
         BlockPos cauldronPos = util.grid().at(2, 1, 2);
@@ -42,16 +42,16 @@ public class BulgingScene {
         builder.world().showSection(util.select().position(cauldronPos), Direction.NORTH);
         builder.idle(20);
 
-        ItemStack[] inputs = new ItemStack[]{
+        ItemStack[] inputs = new ItemStack[] {
             Items.COPPER_BLOCK.getDefaultInstance(),
             Items.FIRE_CORAL.getDefaultInstance(),
             Items.ORANGE_CONCRETE_POWDER.getDefaultInstance(),
-            };
-        ItemStack[] outputs = new ItemStack[]{
+        };
+        ItemStack[] outputs = new ItemStack[] {
             Items.EXPOSED_COPPER.getDefaultInstance(),
             Items.FIRE_CORAL_BLOCK.getDefaultInstance(),
             Items.ORANGE_CONCRETE.getDefaultInstance(),
-            };
+        };
         ElementLink<EntityElement> itemEntity;
         for (int i = 0; i < inputs.length; i++) {
             itemEntity = builder.world().createItemEntity(cauldronPos.above(), inputs[i]);

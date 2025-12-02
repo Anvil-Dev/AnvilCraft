@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.recipe.util.IRecipeResultOffsetBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -26,10 +25,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, IRecipeResultOffsetBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;

@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -11,10 +10,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public record PulseGeneratorUpdatePacket(
     byte startMode, boolean outputInvert, int waitingTime, int signalDuration
 ) implements CustomPacketPayload {

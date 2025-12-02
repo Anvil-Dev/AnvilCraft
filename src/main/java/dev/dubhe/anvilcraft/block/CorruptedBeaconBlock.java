@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -22,11 +21,8 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovable {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
@@ -60,7 +56,12 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
         return InteractionResult.PASS;
     }
 

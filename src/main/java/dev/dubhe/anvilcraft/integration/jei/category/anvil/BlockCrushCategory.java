@@ -20,7 +20,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -32,11 +31,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCrushRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -106,8 +102,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
             12,
             RenderSupport.SINGLE_BLOCK);
 
-        renderInput:
-        {
+        renderInput: {
             List<BlockState> input = recipe.value().getFirstInputBlock().constructStatesForRender();
             if (input.isEmpty()) break renderInput;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
@@ -116,9 +111,23 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         }
 
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics,
+            Blocks.ANVIL.defaultBlockState(),
+            110,
+            30,
+            10,
+            12,
+            RenderSupport.SINGLE_BLOCK
+        );
         RenderSupport.renderBlock(
-            guiGraphics, recipe.value().getFirstResultBlock().state(), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics,
+            recipe.value().getFirstResultBlock().state(),
+            110,
+            40,
+            0,
+            12,
+            RenderSupport.SINGLE_BLOCK
+        );
     }
 
     @Override

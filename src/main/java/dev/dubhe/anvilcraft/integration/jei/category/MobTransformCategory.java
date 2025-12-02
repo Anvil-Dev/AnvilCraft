@@ -110,8 +110,7 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
                 ItemStack x = Items.BARRIER.getDefaultInstance();
                 x.set(DataComponents.CUSTOM_NAME, Component.literal(name));
                 outputStacks.add(ChanceItemStack.of(x, (float) result.probability()));
-            } else
-                outputStacks.add(ChanceItemStack.of(spawnEggOutput.getDefaultInstance(), (float) result.probability()));
+            } else outputStacks.add(ChanceItemStack.of(spawnEggOutput.getDefaultInstance(), (float) result.probability()));
         }
         JeiSlotUtil.addOutputSlots(builder, outputStacks);
 
@@ -136,7 +135,7 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY) {
-        MobTransformRecipe recipe = recipeHolder.value();
+        final MobTransformRecipe recipe = recipeHolder.value();
 
         BlockState block = ModBlocks.CORRUPTED_BEACON
             .get()

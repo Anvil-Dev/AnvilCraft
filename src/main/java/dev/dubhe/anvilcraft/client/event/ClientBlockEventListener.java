@@ -49,7 +49,6 @@ public class ClientBlockEventListener {
         }
     }
 
-
     private static boolean clientHandle(
         PlayerInteractEvent.@NotNull RightClickBlock event,
         BlockState targetBlockState,

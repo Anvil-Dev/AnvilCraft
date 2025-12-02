@@ -21,7 +21,6 @@ public record InspectionStateChangedPacket(ResourceLocation id, boolean state) i
         InspectionStateChangedPacket::new
     );
 
-
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;

@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.mixin.plugin;
 
 import net.neoforged.fml.loading.LoadingModList;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 

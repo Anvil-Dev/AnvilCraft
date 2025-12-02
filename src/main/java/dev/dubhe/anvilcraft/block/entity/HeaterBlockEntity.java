@@ -11,8 +11,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 @Getter
 public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
@@ -27,7 +28,7 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
         super(type, pos, blockState);
     }
 
-    public static @NotNull HeaterBlockEntity createBlockEntity(
+    public static HeaterBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
@@ -41,7 +42,7 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return this.getBlockPos();
     }
 
@@ -50,17 +51,13 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
         this.grid = grid;
     }
 
-    /**
-     * @param level 世界
-     * @param pos   位置
-     */
-    public void tick(@NotNull Level level, @NotNull BlockPos pos) {
+    public void tick(Level level, BlockPos pos) {
         this.flushState(level, pos);
         HeaterManager.addProducer(pos, level, ModHeaterInfos.HEATER);
     }
 
     @Override
     public Level getCurrentLevel() {
-        return this.getLevel();
+        return Objects.requireNonNull(this.getLevel());
     }
 }

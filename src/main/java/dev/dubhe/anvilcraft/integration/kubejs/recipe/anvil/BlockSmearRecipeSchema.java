@@ -47,7 +47,6 @@ public interface BlockSmearRecipeSchema {
         }
     }
 
-
     RecipeKey<List<BlockStatePredicate>> INPUTS = BlockStatePredicateComponent.INSTANCE
         .asList()
         .key("inputs", ComponentRole.INPUT)

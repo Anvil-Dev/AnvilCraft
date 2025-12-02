@@ -35,14 +35,14 @@ public class MobAmberBlockEntity extends HasMobBlockEntity {
         setYRot(displayEntity, state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot());
     }
 
-    private void setYRot(LivingEntity displayEntity, float yRot) {
-        if (displayEntity.yHeadRot != yRot) {
-            displayEntity.yHeadRot = yRot;
-            displayEntity.yHeadRotO = yRot;
+    private void setYRot(LivingEntity displayEntity, float rotY) {
+        if (displayEntity.yHeadRot != rotY) {
+            displayEntity.yHeadRot = rotY;
+            displayEntity.yHeadRotO = rotY;
         }
-        if (displayEntity.yBodyRot != yRot) {
-            displayEntity.yBodyRot = yRot;
-            displayEntity.yBodyRotO = yRot;
+        if (displayEntity.yBodyRot != rotY) {
+            displayEntity.yBodyRot = rotY;
+            displayEntity.yBodyRotO = rotY;
         }
     }
 }

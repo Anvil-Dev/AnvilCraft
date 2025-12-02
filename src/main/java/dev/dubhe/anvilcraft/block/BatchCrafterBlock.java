@@ -14,7 +14,6 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -51,15 +50,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@MethodsReturnNonnullByDefault
 public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    /**
-     * @param properties 方块属性
-     */
     public BatchCrafterBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -246,6 +241,6 @@ public class BatchCrafterBlock extends BetterBaseEntityBlock implements HammerRo
 
     @Override
     public @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 }

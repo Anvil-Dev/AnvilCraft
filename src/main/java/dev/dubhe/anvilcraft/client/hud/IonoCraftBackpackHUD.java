@@ -33,9 +33,9 @@ public class IonoCraftBackpackHUD {
             return;
         }
         int flightTime = IonoCraftBackpackItem.getFlightTime(itemStack);
-        int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);
+        final int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);
 
-        Font font = mc.font;
+        final Font font = mc.font;
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
@@ -52,7 +52,7 @@ public class IonoCraftBackpackHUD {
         int textWidth = font.width(text);
         guiGraphics.drawString(font, text, 0, 0, 0xFFFFFFFF, true);
 
-        int batteryHeight = (int) (percent / 100f * 16);
+        final int batteryHeight = (int) (percent / 100f * 16);
 
         poseStack.translate(textWidth + 4, -4, 0);
         guiGraphics.blitSprite(BATTERY_EMPTY, 0, 0, 8, 16);

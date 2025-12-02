@@ -30,7 +30,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -39,14 +38,11 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolder<MultiblockConversionRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 136;
@@ -256,8 +252,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                         drawable.setPosition(this.outputSlotPosX(i) + 1, this.slotPosY(i) + 1);
                     }
                 }
-                boolean modifiedInput = !input.isAllLayersVisible();
-                boolean modifiedOutput = !output.isAllLayersVisible();
+                final boolean modifiedInput = !input.isAllLayersVisible();
+                final boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
                 RenderSupport.renderLevelLike(input, guiGraphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0f);
@@ -304,6 +300,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             case OUTPUT:
                 rendered = output;
                 break;
+            default:
         }
         if (this.displayMode == DisplayMode.OVERVIEW) return;
 
@@ -391,6 +388,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                         );
                         outputLevel.setAllLayersVisible(!outputLevel.isAllLayersVisible());
                         break;
+                    default:
                 }
             },
             recipe
@@ -416,6 +414,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.nextLayer();
                         break;
+                    default:
                 }
             },
             recipe
@@ -441,6 +440,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.previousLayer();
                         break;
+                    default:
                 }
             },
             recipe

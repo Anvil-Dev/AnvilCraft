@@ -13,9 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,7 +25,6 @@ import java.util.Set;
  * 电网
  */
 @SuppressWarnings("unused")
-@ParametersAreNonnullByDefault
 public class PowerGrid {
     public static boolean isServerClosing = false;
     public static final PowerGridManager MANAGER = new PowerGridManager();
@@ -69,9 +66,6 @@ public class PowerGrid {
         ConnectivityChecker.register(new FastCollisionConnectivityChecker());
     }
 
-    /**
-     *
-     */
     public void update(boolean forced) {
         if (forced || changed) {
             PacketDistributor.sendToPlayersTrackingChunk(
@@ -82,16 +76,10 @@ public class PowerGrid {
         }
     }
 
-    /**
-     * @return 获取电网中的元件数量
-     */
     public int getComponentCount() {
         return this.transmitters.size() + this.producers.size() + this.consumers.size() + this.storages.size();
     }
 
-    /**
-     * @return 该电网是否为空电网
-     */
     public boolean isEmpty() {
         return this.getComponentCount() <= 0;
     }
@@ -163,8 +151,8 @@ public class PowerGrid {
     }
 
     public boolean flush() {
-        int oldGenerate = this.generate;
-        int oldConsume = this.consume;
+        final int oldGenerate = this.generate;
+        final int oldConsume = this.consume;
         this.generate = 0;
         this.consume = 0;
         for (IPowerTransmitter transmitter : transmitters) {
@@ -294,7 +282,7 @@ public class PowerGrid {
         for (IPowerComponent component : this.components) {
             component.setGrid(null);
         }
-        Set<IPowerComponent> set = new HashSet<>(this.components);
+        final Set<IPowerComponent> set = new HashSet<>(this.components);
         this.transmitters.clear();
         this.storages.clear();
         this.producers.clear();
@@ -326,6 +314,8 @@ public class PowerGrid {
     }
 
     /**
+     * 判断元件是否在电网范围内
+     *
      * @param component 元件
      * @return 元件是否在电网范围内
      */

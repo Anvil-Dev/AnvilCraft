@@ -9,9 +9,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public class LevitationPowderBlock extends Block {
     public LevitationPowderBlock(Properties properties) {
         super(properties);
@@ -20,7 +17,7 @@ public class LevitationPowderBlock extends Block {
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         BlockState above = level.getBlockState(pos.above());
-        //noinspection deprecation
+        // noinspection deprecation
         if (above.getBlock() instanceof FallingBlock || above.isAir() || above.liquid()) {
             LevitatingBlockEntity.levitate(level, pos, state);
         }
@@ -37,7 +34,7 @@ public class LevitationPowderBlock extends Block {
         boolean movedByPiston
     ) {
         BlockState above = level.getBlockState(pos.above());
-        //noinspection deprecation
+        // noinspection deprecation
         if (above.getBlock() instanceof FallingBlock || above.isAir() || above.liquid()) {
             level.scheduleTick(pos, this, this.getDelayAfterPlace());
         }

@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.data.lang;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 
 public class AdvancementLang {
-    /**
-     * @param provider 提供器
-     */
+    @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrateLangProvider provider) {
         // region root
         provider.add("advancements.anvilcraft.root.title", "Welcome to AnvilCraft");

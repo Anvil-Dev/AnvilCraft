@@ -95,14 +95,14 @@ public class TransformWithItemRecipeBuilder {
                 .withPrefix("mob_transform_with_item/"));
     }
 
-    public void save(RecipeOutput pRecipeOutput, ResourceLocation pId) {
-        Advancement.Builder advancement = pRecipeOutput
+    public void save(RecipeOutput output, ResourceLocation id) {
+        Advancement.Builder advancement = output
             .advancement()
-            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
-            .rewards(AdvancementRewards.Builder.recipe(pId))
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+            .rewards(AdvancementRewards.Builder.recipe(id))
             .requirements(AdvancementRequirements.Strategy.OR);
         criteria.forEach(advancement::addCriterion);
         MobTransformWithItemRecipe recipe = create();
-        pRecipeOutput.accept(pId, recipe, advancement.build(pId.withPrefix("recipe/")));
+        output.accept(id, recipe, advancement.build(id.withPrefix("recipe/")));
     }
 }

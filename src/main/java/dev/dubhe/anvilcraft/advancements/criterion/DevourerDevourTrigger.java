@@ -33,7 +33,9 @@ public class DevourerDevourTrigger extends SimpleCriterionTrigger<DevourerDevour
         }
 
         public static Criterion<TriggerInstance> devourBlock(BlockPredicate.Builder block) {
-            return ModCriterionTriggers.DEVOURER_DEVOUR_BLOCK.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(block.build())));
+            return ModCriterionTriggers.DEVOURER_DEVOUR_BLOCK.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of(block.build()))
+            );
         }
 
         public boolean matches(Block block) {

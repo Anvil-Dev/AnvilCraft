@@ -36,9 +36,6 @@ public class AddMutedSoundPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    /**
-     *
-     */
     public static void serverHandler(AddMutedSoundPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {

@@ -10,13 +10,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class EntityUtil {
     public static void setShulkerOpen(Shulker shulker) {
         try {
-            shulker.getAttribute(Attributes.ARMOR).removeModifier(Shulker.COVERED_ARMOR_MODIFIER_ID);
+            Objects.requireNonNull(shulker.getAttribute(Attributes.ARMOR)).removeModifier(Shulker.COVERED_ARMOR_MODIFIER_ID);
         } catch (Exception ignored) {
+            // do nothing
         }
 
         shulker.getEntityData().set(Shulker.DATA_PEEK_ID, (byte) 100);

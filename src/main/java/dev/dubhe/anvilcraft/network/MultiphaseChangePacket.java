@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -16,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
 public record MultiphaseChangePacket(InteractionHand hand, byte index, boolean merciless) implements CustomPacketPayload {
     public static final Type<MultiphaseChangePacket> TYPE = new Type<>(AnvilCraft.of("multiphase_change"));
     public static final StreamCodec<FriendlyByteBuf, MultiphaseChangePacket> STREAM_CODEC = StreamCodec.ofMember(

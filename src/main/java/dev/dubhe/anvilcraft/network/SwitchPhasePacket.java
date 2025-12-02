@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
 public record SwitchPhasePacket() implements CustomPacketPayload {
     public static final Type<SwitchPhasePacket> TYPE = new Type<>(AnvilCraft.of("switch_phase"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SwitchPhasePacket> STREAM_CODEC =

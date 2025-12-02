@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -11,10 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.capabilities.Capabilities;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ChuteBlockItem extends BlockItem {
     public ChuteBlockItem(Block block, Properties properties) {
         super(block, properties);

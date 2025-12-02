@@ -44,7 +44,7 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
                 0,
                 LightTexture.FULL_BLOCK,
                 packedOverlay
-            );
+        );
         poseStack.popPose();
     }
 

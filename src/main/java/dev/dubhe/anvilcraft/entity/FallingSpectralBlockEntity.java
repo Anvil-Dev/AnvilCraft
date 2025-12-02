@@ -37,14 +37,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Predicate;
 
-@ParametersAreNonnullByDefault
 public class FallingSpectralBlockEntity extends FallingBlockEntity {
     private boolean isGhostEntity;
 
@@ -52,9 +50,6 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         super(entityType, level);
     }
 
-    /**
-     * @param isGhostEntity 是否为分身
-     */
     private FallingSpectralBlockEntity(
         Level level, double x, double y, double z, BlockState state, boolean isGhostEntity
     ) {
@@ -91,11 +86,11 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         if (this.blockState.isAir()) {
             this.discard();
         } else {
-            Block block = this.blockState.getBlock();
             this.time++;
             this.applyGravity();
             this.move(MoverType.SELF, this.getDeltaMovement());
             this.handlePortal();
+            Block block = this.blockState.getBlock();
             if (!this.level().isClientSide() && (this.isAlive() || this.forceTickAfterTeleportToDuplicate)) {
                 BlockPos blockPos = this.blockPosition();
                 if (this.onGround()) {
@@ -229,7 +224,6 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         );
     }
 
-
     @Override
     protected void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
@@ -274,7 +268,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     protected static boolean shouldIgnoreBlockInMovement(BlockState state) {
-        //noinspection deprecation
+        // noinspection deprecation
         return (
                    state.isAir()
                    || state.is(BlockTags.FIRE)

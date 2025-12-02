@@ -43,9 +43,6 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         return stacks;
     }
 
-    /**
-     *
-     */
     public FilteredItemStackHandler(
         boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
         super(filteredItems.size());
@@ -273,16 +270,10 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         }
     }
 
-    /**
-     *
-     */
     public CompoundTag serializeFiltering() {
         return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
     }
 
-    /**
-     *
-     */
     public void deserializeFiltering(@NotNull CompoundTag tag) {
         FilteredItemStackHandler handler =
             CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();

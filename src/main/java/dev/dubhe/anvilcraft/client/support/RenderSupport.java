@@ -53,26 +53,31 @@ import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("deprecation")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RenderSupport {
-
     private static final int MAX_CACHE_SIZE = 64;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
     public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
 
-    private static final ModelResourceLocation TRIDENT_MODEL = ModelResourceLocation.inventory(ResourceLocation.withDefaultNamespace("trident"));
-    private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.inventory(ResourceLocation.withDefaultNamespace("spyglass"));
+    private static final ModelResourceLocation TRIDENT_MODEL = ModelResourceLocation.inventory(
+        ResourceLocation.withDefaultNamespace("trident")
+    );
+    private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.inventory(
+        ResourceLocation.withDefaultNamespace("spyglass")
+    );
     private static ClientLevel currentClientLevel = null;
     private static LevelLike.AirLevelLike airLevelLike = null;
 
@@ -119,7 +124,7 @@ public class RenderSupport {
 
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 
-        FluidState fluidState = block.getFluidState();
+        final FluidState fluidState = block.getFluidState();
         MultiBufferSource.BufferSource buffers =
             Minecraft.getInstance().renderBuffers().bufferSource();
 
@@ -180,7 +185,7 @@ public class RenderSupport {
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         poseStack.translate(0, 0, -1);
 
-        FluidState fluidState = block.getFluidState();
+        final FluidState fluidState = block.getFluidState();
         MultiBufferSource.BufferSource buffers =
             Minecraft.getInstance().renderBuffers().bufferSource();
 
@@ -209,7 +214,6 @@ public class RenderSupport {
         poseStack.popPose();
     }
 
-
     public static void renderBlock(
         GuiGraphics guiGraphics,
         BlockState block,
@@ -235,10 +239,11 @@ public class RenderSupport {
     public static void renderLevelLike(
         LevelLike level,
         GuiGraphics guiGraphics,
-        int xPos,
-        int yPos,
+        int posX,
+        int posY,
         float scaleFactor,
-        float rotationSpeed) {
+        float rotationSpeed
+    ) {
         RenderSystem.enableBlend();
         Minecraft minecraft = Minecraft.getInstance();
         DeltaTracker tracker = minecraft.getTimer();
@@ -248,7 +253,7 @@ public class RenderSupport {
         int sizeY = level.verticalSize();
 
         pose.pushPose();
-        pose.translate(xPos, yPos, 100);
+        pose.translate(posX, posY, 100);
         float scaleX = scaleFactor / (sizeX * Mth.SQRT_OF_TWO);
         float scaleY = scaleFactor / (float) sizeY;
         float scale = Math.min(scaleY, scaleX);
@@ -309,10 +314,11 @@ public class RenderSupport {
     public static void renderLevelLike(
         LevelLike level,
         GuiGraphics guiGraphics,
-        int xPos,
-        int yPos,
-        float scale) {
-        renderLevelLike(level, guiGraphics, xPos, yPos, scale, 0.0f);
+        int posX,
+        int posY,
+        float scale
+    ) {
+        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {
@@ -340,9 +346,9 @@ public class RenderSupport {
         try {
             renderer.render(blockEntity, getPartialTick(), pose, buffers, 0xF000F0, OverlayTexture.NO_OVERLAY);
         } catch (Exception ignored) {
+            // do nothing
         }
     }
-
 
     public static void renderItemWithTransparency(ItemStack stack, PoseStack poseStack, int x, int y, float alpha) {
         renderItemWithTransparency(Minecraft.getInstance().player, Minecraft.getInstance().level, poseStack, stack, x, y, alpha);
@@ -402,43 +408,49 @@ public class RenderSupport {
         MultiBufferSource bufferSource,
         int combinedLight,
         int combinedOverlay,
-        BakedModel pModel,
+        BakedModel bakedModel,
         float alpha
     ) {
         if (!itemStack.isEmpty()) {
             poseStack.pushPose();
-            boolean flag = displayContext == ItemDisplayContext.GUI || displayContext == ItemDisplayContext.GROUND || displayContext == ItemDisplayContext.FIXED;
+            boolean flag = displayContext == ItemDisplayContext.GUI
+                           || displayContext == ItemDisplayContext.GROUND
+                           || displayContext == ItemDisplayContext.FIXED;
             if (flag) {
                 if (itemStack.is(Items.TRIDENT)) {
-                    pModel = itemRenderer.getItemModelShaper().getModelManager().getModel(TRIDENT_MODEL);
+                    bakedModel = itemRenderer.getItemModelShaper().getModelManager().getModel(TRIDENT_MODEL);
                 } else if (itemStack.is(Items.SPYGLASS)) {
-                    pModel = itemRenderer.getItemModelShaper().getModelManager().getModel(SPYGLASS_MODEL);
+                    bakedModel = itemRenderer.getItemModelShaper().getModelManager().getModel(SPYGLASS_MODEL);
                 }
             }
 
-            pModel = net.neoforged.neoforge.client.ClientHooks.handleCameraTransforms(poseStack, pModel, displayContext, leftHand);
+            bakedModel = net.neoforged.neoforge.client.ClientHooks.handleCameraTransforms(poseStack, bakedModel, displayContext, leftHand);
             poseStack.translate(-0.5F, -0.5F, -0.5F);
-            if (!pModel.isCustomRenderer() && (!itemStack.is(Items.TRIDENT) || flag)) {
+            if (!bakedModel.isCustomRenderer() && (!itemStack.is(Items.TRIDENT) || flag)) {
                 boolean flag1;
-                if (displayContext != ItemDisplayContext.GUI && !displayContext.firstPerson() && itemStack.getItem() instanceof BlockItem blockitem) {
+                if (
+                    displayContext != ItemDisplayContext.GUI
+                    && !displayContext.firstPerson()
+                    && itemStack.getItem() instanceof BlockItem blockitem
+                ) {
                     Block block = blockitem.getBlock();
                     flag1 = !(block instanceof HalfTransparentBlock) && !(block instanceof StainedGlassPaneBlock);
                 } else {
                     flag1 = true;
                 }
 
-                for (BakedModel model : pModel.getRenderPasses(itemStack, flag1)) {
+                for (BakedModel model : bakedModel.getRenderPasses(itemStack, flag1)) {
                     for (RenderType rendertype : model.getRenderTypes(itemStack, flag1)) {
                         VertexConsumer vertexconsumer;
                         if (hasAnimatedTexture(itemStack) && itemStack.hasFoil()) {
-                            PoseStack.Pose posestack$pose = poseStack.last().copy();
+                            PoseStack.Pose pose = poseStack.last().copy();
                             if (displayContext == ItemDisplayContext.GUI) {
-                                MatrixUtil.mulComponentWise(posestack$pose.pose(), 0.5F);
+                                MatrixUtil.mulComponentWise(pose.pose(), 0.5F);
                             } else if (displayContext.firstPerson()) {
-                                MatrixUtil.mulComponentWise(posestack$pose.pose(), 0.75F);
+                                MatrixUtil.mulComponentWise(pose.pose(), 0.75F);
                             }
 
-                            vertexconsumer = getCompassFoilBuffer(bufferSource, rendertype, posestack$pose);
+                            vertexconsumer = getCompassFoilBuffer(bufferSource, rendertype, pose);
                         } else {
                             if (flag1) {
                                 vertexconsumer = getFoilBufferDirect(bufferSource, rendertype, true, itemStack.hasFoil());
@@ -447,11 +459,22 @@ public class RenderSupport {
                             }
                         }
 
-                        renderModelListsWithTransparency(itemRenderer, model, itemStack, combinedLight, combinedOverlay, poseStack, vertexconsumer, alpha);
+                        renderModelListsWithTransparency(
+                            itemRenderer,
+                            model,
+                            itemStack,
+                            combinedLight,
+                            combinedOverlay,
+                            poseStack,
+                            vertexconsumer,
+                            alpha
+                        );
                     }
                 }
             } else {
-                net.neoforged.neoforge.client.extensions.common.IClientItemExtensions.of(itemStack).getCustomRenderer().renderByItem(itemStack, displayContext, poseStack, bufferSource, combinedLight, combinedOverlay);
+                IClientItemExtensions.of(itemStack)
+                    .getCustomRenderer()
+                    .renderByItem(itemStack, displayContext, poseStack, bufferSource, combinedLight, combinedOverlay);
             }
 
             poseStack.popPose();
@@ -474,53 +497,97 @@ public class RenderSupport {
 
     public static VertexConsumer getCompassFoilBuffer(MultiBufferSource bufferSource, RenderType renderType, PoseStack.Pose pose) {
         return VertexMultiConsumer.create(
-            new SheetedDecalTextureGenerator(bufferSource.getBuffer(RenderType.glint()), pose, 0.0078125F), bufferSource.getBuffer(useTranslucentIfPossible(renderType))
+            new SheetedDecalTextureGenerator(bufferSource.getBuffer(RenderType.glint()), pose, 0.0078125F),
+            bufferSource.getBuffer(useTranslucentIfPossible(renderType))
         );
     }
 
-    public static VertexConsumer getFoilBuffer(MultiBufferSource bufferSource, RenderType renderType, boolean isItem, boolean glint) {
+    public static VertexConsumer getFoilBuffer(MultiBufferSource source, RenderType type, boolean isItem, boolean glint) {
         if (glint) {
-            return Minecraft.useShaderTransparency() && renderType == Sheets.translucentItemSheet()
-                ? VertexMultiConsumer.create(bufferSource.getBuffer(RenderType.glintTranslucent()), bufferSource.getBuffer(useTranslucentIfPossible(renderType)))
-                : VertexMultiConsumer.create(bufferSource.getBuffer(isItem ? RenderType.glint() : RenderType.entityGlint()), bufferSource.getBuffer(useTranslucentIfPossible(renderType)));
+            return Minecraft.useShaderTransparency() && type == Sheets.translucentItemSheet()
+                ? VertexMultiConsumer.create(
+                    source.getBuffer(RenderType.glintTranslucent()),
+                    source.getBuffer(useTranslucentIfPossible(type)))
+                : VertexMultiConsumer.create(
+                    source.getBuffer(isItem ? RenderType.glint() : RenderType.entityGlint()),
+                    source.getBuffer(useTranslucentIfPossible(type)));
         } else {
-            return bufferSource.getBuffer(renderType);
+            return source.getBuffer(type);
         }
     }
 
-    public static VertexConsumer getFoilBufferDirect(MultiBufferSource bufferSource, RenderType renderType, boolean noEntity, boolean withGlint) {
+    public static VertexConsumer getFoilBufferDirect(MultiBufferSource source, RenderType type, boolean noEntity, boolean withGlint) {
         return withGlint
-            ? VertexMultiConsumer.create(bufferSource.getBuffer(noEntity ? RenderType.glint() : RenderType.entityGlintDirect()), bufferSource.getBuffer(useTranslucentIfPossible(renderType)))
-            : bufferSource.getBuffer(useTranslucentIfPossible(renderType));
+            ? VertexMultiConsumer.create(
+                source.getBuffer(noEntity ? RenderType.glint() : RenderType.entityGlintDirect()),
+                source.getBuffer(useTranslucentIfPossible(type)))
+            : source.getBuffer(useTranslucentIfPossible(type));
     }
 
-    public static void renderModelListsWithTransparency(ItemRenderer itemRenderer, BakedModel model, ItemStack stack, int combinedLight, int combinedOverlay, PoseStack poseStack, VertexConsumer buffer, float alpha) {
+    public static void renderModelListsWithTransparency(
+        ItemRenderer renderer,
+        BakedModel model,
+        ItemStack stack,
+        int combinedLight,
+        int combinedOverlay,
+        PoseStack pose,
+        VertexConsumer buffer,
+        float alpha
+    ) {
         RandomSource randomsource = RandomSource.create();
         long i = 42L;
 
         for (Direction direction : Direction.values()) {
-            randomsource.setSeed(42L);
-            renderQuadListWithTransparency(itemRenderer, poseStack, buffer, model.getQuads(null, direction, randomsource), stack, combinedLight, combinedOverlay, alpha);
+            randomsource.setSeed(i);
+            renderQuadListWithTransparency(
+                renderer,
+                pose,
+                buffer,
+                model.getQuads(null, direction, randomsource),
+                stack,
+                combinedLight,
+                combinedOverlay,
+                alpha
+            );
         }
 
-        randomsource.setSeed(42L);
-        renderQuadListWithTransparency(itemRenderer, poseStack, buffer, model.getQuads(null, null, randomsource), stack, combinedLight, combinedOverlay, alpha);
+        randomsource.setSeed(i);
+        renderQuadListWithTransparency(
+            renderer,
+            pose,
+            buffer,
+            model.getQuads(null, null, randomsource),
+            stack,
+            combinedLight,
+            combinedOverlay,
+            alpha
+        );
     }
 
-    private static void renderQuadListWithTransparency(ItemRenderer itemRenderer, PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads, ItemStack itemStack, int combinedLight, int combinedOverlay, float alpha) {
-        boolean flag = !itemStack.isEmpty();
-        PoseStack.Pose posestack$pose = poseStack.last();
+    private static void renderQuadListWithTransparency(
+        ItemRenderer renderer,
+        PoseStack poseStack,
+        VertexConsumer buffer,
+        List<BakedQuad> quads,
+        ItemStack stack,
+        int combinedLight,
+        int combinedOverlay,
+        float alpha
+    ) {
+        boolean flag = !stack.isEmpty();
+        PoseStack.Pose pose = poseStack.last();
 
         for (BakedQuad bakedquad : quads) {
             int i = -1;
             if (flag && bakedquad.isTinted()) {
-                i = itemRenderer.itemColors.getColor(itemStack, bakedquad.getTintIndex());
+                i = renderer.itemColors.getColor(stack, bakedquad.getTintIndex());
             }
 
             float f1 = (float) FastColor.ARGB32.red(i) / 255.0F;
             float f2 = (float) FastColor.ARGB32.green(i) / 255.0F;
             float f3 = (float) FastColor.ARGB32.blue(i) / 255.0F;
-            buffer.putBulkData(posestack$pose, bakedquad, f1, f2, f3, alpha, combinedLight, combinedOverlay, true); // Neo: pass readExistingColor=true
+            // Neo: pass readExistingColor=true
+            buffer.putBulkData(pose, bakedquad, f1, f2, f3, alpha, combinedLight, combinedOverlay, true);
         }
     }
 
@@ -531,7 +598,6 @@ public class RenderSupport {
     public static float getPartialTick() {
         return Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused());
     }
-
 
     @FunctionalInterface
     public interface BlockRenderFunction {

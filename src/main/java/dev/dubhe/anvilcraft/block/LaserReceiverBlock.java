@@ -140,11 +140,9 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        if (level.isClientSide) {
-            return null;
-        }
-        return createTickerHelper(blockEntityType, ModBlockEntities.LASER_RECEIVER.get(), (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level));
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (level.isClientSide) return null;
+        return createTickerHelper(type, ModBlockEntities.LASER_RECEIVER.get(), (level1, pos, state1, entity) -> entity.tick(level));
     }
 
     @Override

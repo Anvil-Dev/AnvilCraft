@@ -31,7 +31,7 @@ public class ItemHandlerUtil {
         IItemHandler source,
         int maxAmountWeight,
         Predicate<ItemStack> predicate,
-        IItemHandler target
+        @Nullable IItemHandler target
     ) {
         boolean success = false;
         ItemStack filterStack = null;
@@ -44,7 +44,9 @@ public class ItemHandlerUtil {
             if (filterStack == null) {
                 filterStack = sourceStack.copy();
                 maxAmount = (int) (maxAmountWeight / 64f * sourceStack.getMaxStackSize());
-            } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) continue;
+            } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) {
+                continue;
+            }
             for (int i = 0; i < maxAmount; i++) {
                 ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
                 int amountToInsert = sourceStack.getCount() - remainder.getCount();
@@ -87,7 +89,9 @@ public class ItemHandlerUtil {
             if (filterStack == null) {
                 filterStack = sourceStack.copy();
                 maxAmount = (int) (maxAmountWeight / 64f * sourceStack.getMaxStackSize());
-            } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) continue;
+            } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) {
+                continue;
+            }
             for (int i = 0; i < maxAmount; i++) {
                 ItemStack remainder = ItemHandlerHelper.insertItem(target, sourceStack, true);
                 int amountToInsert = sourceStack.getCount() - remainder.getCount();
@@ -143,7 +147,7 @@ public class ItemHandlerUtil {
         AnvilUtil.dropItems(items, level, pos);
     }
 
-    public static IItemHandler getSourceItemHandler(BlockPos inputBlockPos, Direction context, Level level) {
+    public static @Nullable IItemHandler getSourceItemHandler(BlockPos inputBlockPos, Direction context, @Nullable Level level) {
         if (level == null) return null;
         IItemHandler itemHandler = level.getCapability(
             Capabilities.ItemHandler.BLOCK,
@@ -166,7 +170,7 @@ public class ItemHandlerUtil {
         return itemHandler;
     }
 
-    public static List<IItemHandler> getTargetItemHandlerList(BlockPos inputBlockPos, Direction context, Level level) {
+    public static @Nullable List<IItemHandler> getTargetItemHandlerList(BlockPos inputBlockPos, Direction context, @Nullable Level level) {
         if (level == null) return null;
         List<IItemHandler> list = new ArrayList<>();
         IItemHandler input = level.getCapability(
@@ -208,23 +212,24 @@ public class ItemHandlerUtil {
     }
 
     @Nullable
-    public static IItemHandler getSourceItemHandlerRecursive(Block source, BlockPos inputBlockPos, Direction context, Level level) {
+    public static IItemHandler getSourceItemHandlerRecursive(Block source, BlockPos inputPos, Direction context, @Nullable Level level) {
         int i = 0;
         do {
             if (level == null) return null;
-            if (level.getBlockState(inputBlockPos).is(source)
-                && level.getBlockState(inputBlockPos).getValue(ORIENTATION).getDirection() == context
+            if (
+                level.getBlockState(inputPos).is(source)
+                && level.getBlockState(inputPos).getValue(ORIENTATION).getDirection() == context
             ) {
                 i++;
-                inputBlockPos = inputBlockPos.relative(context.getOpposite());
+                inputPos = inputPos.relative(context.getOpposite());
             } else {
-                return getSourceItemHandler(inputBlockPos, context, level);
+                return getSourceItemHandler(inputPos, context, level);
             }
         } while (i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
         return null;
     }
 
-    public static ItemStack insertItem(IItemHandler dest, ItemStack stack, boolean simulate) {
+    public static ItemStack insertItem(@Nullable IItemHandler dest, ItemStack stack, boolean simulate) {
         if (dest == null || stack.isEmpty()) {
             return stack;
         }
@@ -243,7 +248,7 @@ public class ItemHandlerUtil {
         }
     }
 
-    public static boolean isEmptyContainer(IItemHandler handler) {
+    public static boolean isEmptyContainer(@Nullable IItemHandler handler) {
         if (handler != null) {
             for (int i = 0; i < handler.getSlots(); i++) {
                 if (!handler.getStackInSlot(i).isEmpty()) return true;

@@ -52,14 +52,17 @@ public class RoyalAnvilMenu extends AnvilMenu {
         if (!inputItemLeft.isEmpty() && EnchantmentHelper.canStoreEnchantments(inputItemLeft)) {
             ItemStack inputItemLeftCopy = inputItemLeft.copy();
             ItemStack inputItemRight = this.inputSlots.getItem(1);
-            ItemEnchantments.Mutable enchantmentsOnLeft =
-                new ItemEnchantments.Mutable(EnchantmentHelper.getEnchantmentsForCrafting(inputItemLeftCopy));
+            final ItemEnchantments.Mutable enchantmentsOnLeft = new ItemEnchantments.Mutable(
+                EnchantmentHelper.getEnchantmentsForCrafting(inputItemLeftCopy)
+            );
             repairCost += (long) inputItemLeft.getOrDefault(DataComponents.REPAIR_COST, 0)
                 + (long) inputItemRight.getOrDefault(DataComponents.REPAIR_COST, 0);
             this.repairItemCountCost = 0;
             boolean hasStoredEnchantmentsOnInput2 = false;
-            if (!CommonHooks.onAnvilChange(
-                this, inputItemLeft, inputItemRight, this.resultSlots, this.itemName, repairCost, this.player)) {
+            if (
+                !CommonHooks.onAnvilChange(
+                this, inputItemLeft, inputItemRight, this.resultSlots, this.itemName, repairCost, this.player)
+            ) {
                 return;
             }
 

@@ -4,13 +4,11 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
-@MethodsReturnNonnullByDefault
 public class ModBlockTags {
 
     private static final String MEKANISM_MODID = "mekanism";
@@ -107,7 +105,7 @@ public class ModBlockTags {
 
     public static final TagKey<Block> COLLISION_IMMUNE = bind("collision_immune");
 
-    //mekanism tags
+    // mekanism tags
     public static final TagKey<Block> MEKANISM_CARDBOARD_BOX_BLACKLIST = bindMekanism("cardboard_blacklist");
 
     private static TagKey<Block> bindC(String id) {

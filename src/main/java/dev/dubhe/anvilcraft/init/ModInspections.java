@@ -12,6 +12,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -26,13 +27,10 @@ public class ModInspections {
 
     /**
      * 注册检查项
-     * <p>
-     * 检查项需同时在{@link ModInspections}和{@link InspectionSupport}中注册
-     * </p>
-     * <p>
-     * 对于{@link InspectionSupport}
-     * 使用{@link InspectionSupport#registerActionClient} 注册检查项
-     * </p>
+     *
+     * <p>检查项需同时在{@link ModInspections}和{@link InspectionSupport}中注册</p>
+     *
+     * <p>对于{@link InspectionSupport}，使用{@link InspectionSupport#registerActionClient} 注册检查项</p>
      *
      * @see InspectionSupport
      */
@@ -52,13 +50,13 @@ public class ModInspections {
                 literal(option.toString())
                     .then(literal("enable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(ctx.getSource().getPlayer(), option, true)
+                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, true)
                             : 0
                         )
                     )
                     .then(literal("disable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(ctx.getSource().getPlayer(), option, false)
+                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, false)
                             : 0
                         )
                     )

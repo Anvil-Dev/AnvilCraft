@@ -34,7 +34,7 @@ abstract class PigMixin extends Animal {
             new TemptGoal(
                 this,
                 1.25,
-                (itemStack) -> itemStack.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(itemStack) == MultitoolItem.CARROT_ON_A_STICK_MODE,
+                (stack) -> stack.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(stack) == MultitoolItem.CARROT_ON_A_STICK_MODE,
                 false
             )
         );

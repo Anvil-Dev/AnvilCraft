@@ -9,29 +9,29 @@ import org.jetbrains.annotations.NotNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ColorUtil {
     public static float @NotNull [] rgbToHsv(int r, int g, int b) {
-        float rNorm = r / 255.0f;
-        float gNorm = g / 255.0f;
-        float bNorm = b / 255.0f;
+        float normR = r / 255.0f;
+        float normG = g / 255.0f;
+        float normB = b / 255.0f;
 
-        float cMax = Math.max(rNorm, Math.max(gNorm, bNorm));
-        float cMin = Math.min(rNorm, Math.min(gNorm, bNorm));
-        float delta = cMax - cMin;
+        float maxC = Math.max(normR, Math.max(normG, normB));
+        float minC = Math.min(normR, Math.min(normG, normB));
+        float delta = maxC - minC;
 
         float h;
         if (delta == 0) {
             // HSV undefined
             h = 0;
-        } else if (cMax == rNorm) {
-            h = 60 * (((gNorm - bNorm) / delta) % 6);
-        } else if (cMax == gNorm) {
-            h = 60 * (((bNorm - rNorm) / delta) + 2);
+        } else if (maxC == normR) {
+            h = 60 * (((normG - normB) / delta) % 6);
+        } else if (maxC == normG) {
+            h = 60 * (((normB - normR) / delta) + 2);
         } else {
-            h = 60 * (((rNorm - gNorm) / delta) + 4);
+            h = 60 * (((normR - normG) / delta) + 4);
         }
 
-        float s = (cMax == 0) ? 0 : (delta / cMax);
+        float s = (maxC == 0) ? 0 : (delta / maxC);
 
-        return new float[]{h, s * 100, cMax * 100};
+        return new float[]{h, s * 100, maxC * 100};
     }
 
     public static int @NotNull [] hsvToRgb(float h, float s, float v) {
@@ -39,7 +39,9 @@ public class ColorUtil {
         float x = c * (1 - Math.abs(((h / 60) % 2) - 1));
         float m = v / 100 - c;
 
-        float r, g, b;
+        float r;
+        float g;
+        float b;
 
         if (h >= 0 && h < 60) {
             r = c;

@@ -16,11 +16,11 @@ public enum SpaceOvercompressorProvider implements IBlockComponentProvider, ISer
     INSTANCE;
 
     @Override
-    public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
+    public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
         CompoundTag serverData = blockAccessor.getServerData();
         if (serverData.contains("storedMass")) {
             long mass = serverData.getLong("storedMass");
-            iTooltip.add(Component.translatable("tooltip.anvilcraft.space_overcompressor.stored_mass",
+            tooltip.add(Component.translatable("tooltip.anvilcraft.space_overcompressor.stored_mass",
                 MassInjectRecipe.displayMassValue(mass)));
         }
     }

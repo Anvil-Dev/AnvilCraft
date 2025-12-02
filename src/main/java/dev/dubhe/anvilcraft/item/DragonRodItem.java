@@ -145,7 +145,7 @@ public class DragonRodItem extends Item {
                         Block.popResource(level, devouringPos, remaining);
                     }
                 }
-                //特判雕纹书架一类
+                // 特判雕纹书架一类
                 IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devouringPos, null);
                 if (source != null && dropList.isEmpty()) {
                     for (IntListIterator it = IntIterators.fromTo(0, source.getSlots()); it.hasNext(); ) {
@@ -158,7 +158,7 @@ public class DragonRodItem extends Item {
                         }
                     }
                 }
-                //特判讲台
+                // 特判讲台
                 BlockEntity devouringBlockEntity = level.getBlockEntity(devouringPos);
                 if (devouringBlockEntity instanceof LecternBlockEntity lectern) {
                     ItemStack bookStack = lectern.getBook();

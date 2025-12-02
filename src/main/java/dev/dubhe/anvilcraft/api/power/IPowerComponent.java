@@ -29,14 +29,8 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     default void gridTick() {
     }
 
-    /**
-     * @return 元件位置
-     */
     BlockPos getPos();
 
-    /**
-     * @return 覆盖范围
-     */
     default AABB getShape() {
         float range = getRange() * 2 + 1;
         return AABB.ofSize(getPos().getCenter(), range, range, range);
@@ -60,9 +54,6 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
      */
     @Nullable PowerGrid getGrid();
 
-    /**
-     * @return 元件类型
-     */
     PowerComponentType getComponentType();
 
     enum Switch implements StringRepresentable {
@@ -84,10 +75,6 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
         }
     }
 
-    /**
-     * @param level 世界
-     * @param pos   位置
-     */
     default void flushState(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.hasProperty(OVERLOAD)) return;
@@ -105,9 +92,9 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     }
 
     @Override
-    default int compareTo(IPowerComponent iPowerComponent) {
-        if (this.equals(iPowerComponent)) return 0;
-        int i = getComponentType().compareTo(iPowerComponent.getComponentType());
+    default int compareTo(IPowerComponent powerComponent) {
+        if (this.equals(powerComponent)) return 0;
+        int i = getComponentType().compareTo(powerComponent.getComponentType());
         return i == 0 ? 1 : i;
     }
 

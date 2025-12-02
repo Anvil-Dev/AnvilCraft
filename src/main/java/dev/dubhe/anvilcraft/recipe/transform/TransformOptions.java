@@ -16,7 +16,6 @@ import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-
 public enum TransformOptions implements StringRepresentable {
     KEEP_INVENTORY("keepInventory", 900) {
         @Override
@@ -67,7 +66,9 @@ public enum TransformOptions implements StringRepresentable {
     };
 
     public static final Codec<TransformOptions> CODEC = StringRepresentable.fromEnum(TransformOptions::values);
-    public static final StreamCodec<RegistryFriendlyByteBuf, TransformOptions> STREAM_CODEC = CodecUtil.enumStreamCodec(TransformOptions.class);
+    public static final StreamCodec<RegistryFriendlyByteBuf, TransformOptions> STREAM_CODEC = CodecUtil.enumStreamCodec(
+        TransformOptions.class
+    );
     private final String name;
 
     @Getter

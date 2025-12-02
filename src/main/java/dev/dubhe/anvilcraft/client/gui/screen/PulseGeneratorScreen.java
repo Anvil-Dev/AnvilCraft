@@ -16,12 +16,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-@ParametersAreNonnullByDefault
 public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGeneratorMenu> {
     private static final ResourceLocation CONTAINER_LOCATION =
         AnvilCraft.of("textures/gui/container/machine/background/pulse_generator.png");
@@ -76,7 +74,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     protected void init() {
         super.init();
         this.clearWidgets();
-        SwitchableButton startMode = new SwitchableButton(
+        final SwitchableButton startMode = new SwitchableButton(
             this.leftPos + 28,
             this.topPos + 25,
             16, 16,
@@ -87,7 +85,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop"))
         );
-        SwitchableButton outputMode = new SwitchableButton(
+        final SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 28,
             this.topPos + 43,
             16, 16,
@@ -97,7 +95,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"))
         );
-        BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
+        final BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
             this.topPos + 25,
             10, 10,
@@ -105,7 +103,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10, 20,
             button -> tickAdder.accept(!hasShiftDown() ? 1 : 5)
         );
-        BiFunction<Integer, Consumer<Integer>, TexturedButton> addSecFunc = (offsetX, tickAdder) -> new TexturedButton(
+        final BiFunction<Integer, Consumer<Integer>, TexturedButton> addSecFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
             this.topPos + 25,
             10, 10,
@@ -113,7 +111,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10, 20,
             button -> tickAdder.accept(!hasShiftDown() ? 20 : 100)
         );
-        BiFunction<Integer, Consumer<Integer>, TexturedButton> addMinFunc = (offsetX, tickAdder) -> new TexturedButton(
+        final BiFunction<Integer, Consumer<Integer>, TexturedButton> addMinFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
             this.topPos + 25,
             10, 10,
@@ -121,7 +119,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10, 20,
             button -> tickAdder.accept(!hasShiftDown() ? 1200 : 6000)
         );
-        BiFunction<Integer, Consumer<Integer>, TexturedButton> minusTickFunc = (offsetX, tickAdder) -> new TexturedButton(
+        final BiFunction<Integer, Consumer<Integer>, TexturedButton> minusTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
             this.topPos + 49,
             10, 10,
@@ -129,7 +127,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10, 20,
             button -> tickAdder.accept(!hasShiftDown() ? -1 : -5)
         );
-        BiFunction<Integer, Consumer<Integer>, TexturedButton> minusSecFunc = (offsetX, tickAdder) -> new TexturedButton(
+        final BiFunction<Integer, Consumer<Integer>, TexturedButton> minusSecFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
             this.topPos + 49,
             10, 10,
@@ -137,7 +135,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10, 20,
             button -> tickAdder.accept(!hasShiftDown() ? -20 : -100)
         );
-        BiFunction<Integer, Consumer<Integer>, TexturedButton> minusMinFunc = (offsetX, tickAdder) -> new TexturedButton(
+        final BiFunction<Integer, Consumer<Integer>, TexturedButton> minusMinFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
             this.topPos + 49,
             10, 10,

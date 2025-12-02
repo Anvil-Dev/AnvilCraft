@@ -54,7 +54,15 @@ public abstract class SectionCompilerMixin {
                  + ")Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/block/BlockRenderDispatcher;renderBatched(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/BlockAndTintGetter;Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;ZLnet/minecraft/util/RandomSource;Lnet/neoforged/neoforge/client/model/data/ModelData;Lnet/minecraft/client/renderer/RenderType;)V"
+            target = "Lnet/minecraft/client/renderer/block/BlockRenderDispatcher;"
+                     + "renderBatched(Lnet/minecraft/world/level/block/state/BlockState;"
+                     + "Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/world/level/BlockAndTintGetter;"
+                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
+                     + "Lcom/mojang/blaze3d/vertex/VertexConsumer;"
+                     + "ZLnet/minecraft/util/RandomSource;"
+                     + "Lnet/neoforged/neoforge/client/model/data/ModelData;"
+                     + "Lnet/minecraft/client/renderer/RenderType;)V"
         )
     )
     void skipBlockAt(
@@ -113,7 +121,9 @@ public abstract class SectionCompilerMixin {
                  + ")Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/SectionCompiler;handleBlockEntity(Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;Lnet/minecraft/world/level/block/entity/BlockEntity;)V"
+            target = "Lnet/minecraft/client/renderer/chunk/SectionCompiler;"
+                     + "handleBlockEntity(Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;"
+                     + "Lnet/minecraft/world/level/block/entity/BlockEntity;)V"
         )
     )
     void compile(
@@ -127,27 +137,27 @@ public abstract class SectionCompilerMixin {
         @Local(index = 16) BlockEntity blockEntity,
         @Local(index = 11) Map<RenderType, BufferBuilder> map
     ) {
-        if (!RenderState.isEnhancedRenderingAvailable()) return;
-        if (!(blockEntity instanceof BaseLaserBlockEntity baseLaserBlockEntity)) return;
-//        poseStack.pushPose();
-//        BlockPos pos = blockEntity.getBlockPos();
-//        poseStack.translate(
-//            (float) SectionPos.sectionRelative(pos.getX()),
-//            (float) SectionPos.sectionRelative(pos.getY()),
-//            (float) SectionPos.sectionRelative(pos.getZ())
-//        );
-//        LaserState laserState = LaserState.create(baseLaserBlockEntity, poseStack);
-//        if (laserState != null) {
-//            LaserCompiler.compile(
-//                laserState,
-//                renderType -> this.getOrBeginLayer(
-//                    map,
-//                    sectionBufferBuilderPack,
-//                    renderType
-//                )
-//            );
-//        }
-//        poseStack.popPose();
+        // if (!RenderState.isEnhancedRenderingAvailable()) return;
+        // if (!(blockEntity instanceof BaseLaserBlockEntity baseLaserBlockEntity)) return;
+        // poseStack.pushPose();
+        // BlockPos pos = blockEntity.getBlockPos();
+        // poseStack.translate(
+        //     (float) SectionPos.sectionRelative(pos.getX()),
+        //     (float) SectionPos.sectionRelative(pos.getY()),
+        //     (float) SectionPos.sectionRelative(pos.getZ())
+        // );
+        // LaserState laserState = LaserState.create(baseLaserBlockEntity, poseStack);
+        // if (laserState != null) {
+        //     LaserCompiler.compile(
+        //         laserState,
+        //         renderType -> this.getOrBeginLayer(
+        //             map,
+        //             sectionBufferBuilderPack,
+        //             renderType
+        //         )
+        //     );
+        // }
+        // poseStack.popPose();
     }
 
     @WrapOperation(

@@ -157,25 +157,25 @@ public class HeatCollectorManager {
             BlockState state = this.level.getBlockState(pos);
             if (state.is(ModBlocks.HEAT_COLLECTOR) && !pos.equals(collectorPos)) {
                 collector.setResult(HeatCollectorBlockEntity.WorkResult.TOO_CLOSE);
-                //heatSources.values().removeIf(map -> map.values().removeIf(entity -> entity.equals(collector)));
+                // heatSources.values().removeIf(map -> map.values().removeIf(entity -> entity.equals(collector)));
                 return;
             }
             if (Math.abs(pos.getX() - collectorPos.getX()) > 2
                 || Math.abs(pos.getY() - collectorPos.getY()) > 2
                 || Math.abs(pos.getZ() - collectorPos.getZ()) > 2
-            ) continue;
+            ) {
+                continue;
+            }
             BlockPos finalPos = pos;
             getEntry(state)
                 .ifPresent(entry -> {
-                    heatSourcesCache
-                        .computeIfAbsent(
-                            new Entry(finalPos, state, entry), it -> new Double2ObjectAVLTreeMap<>())
+                    heatSourcesCache.computeIfAbsent(new Entry(finalPos, state, entry), it -> new Double2ObjectAVLTreeMap<>())
                         .put(
                             Vector3i.distance(
                                 finalPos.getX(), finalPos.getY(), finalPos.getZ(),
                                 collector.getPos().getX(), collector.getPos().getY(), collector.getPos().getZ()
                             ), collector
-                        );
+                    );
                     TriggerUtil.heatCollectOn(this.level, finalPos, state, this.level.getBlockEntity(finalPos));
                 });
         }

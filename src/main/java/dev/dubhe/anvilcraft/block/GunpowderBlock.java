@@ -45,7 +45,13 @@ public class GunpowderBlock extends Block {
             null,
             new ExplosionDamageCalculator() {
                 @Override
-                public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter reader, BlockPos pos, BlockState state, FluidState fluid) {
+                public Optional<Float> getBlockExplosionResistance(
+                    Explosion explosion,
+                    BlockGetter reader,
+                    BlockPos pos,
+                    BlockState state,
+                    FluidState fluid
+                ) {
                     return Optional.of(Float.MAX_VALUE);
                 }
 
@@ -63,7 +69,15 @@ public class GunpowderBlock extends Block {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
         if (stack.is(Items.FLINT_AND_STEEL)
             || stack.is(Items.FIRE_CHARGE)
             || (stack.is(ModItems.MULTITOOL_ITEM)
@@ -84,7 +98,14 @@ public class GunpowderBlock extends Block {
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
+    ) {
         if (!level.isClientSide()) {
             BlockState block = level.getBlockState(pos.relative(direction));
             if (block.getBlock() instanceof BaseFireBlock

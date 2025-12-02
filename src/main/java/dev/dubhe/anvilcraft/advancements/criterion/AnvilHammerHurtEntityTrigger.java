@@ -28,11 +28,15 @@ public class AnvilHammerHurtEntityTrigger extends SimpleCriterionTrigger<AnvilHa
         ).apply(instance, TriggerInstance::new));
 
         public static Criterion<TriggerInstance> hurtEntity() {
-            return ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.empty()));
+            return ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.empty())
+            );
         }
 
         public static Criterion<TriggerInstance> hurtEntity(float damage) {
-            return ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(damage)));
+            return ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of(damage))
+            );
         }
 
         public boolean matches(Float damage) {

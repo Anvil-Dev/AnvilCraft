@@ -14,8 +14,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 public abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntityRenderer<B> {
@@ -48,8 +48,8 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
         return i;
     }
 
-
-    protected @Nullable abstract ItemStack getDisplayItemStack(B blockEntity);
+    @Nullable
+    protected abstract ItemStack getDisplayItemStack(B blockEntity);
 
     protected abstract int getSeed(B blockEntity);
 
@@ -65,12 +65,13 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
         Level level = blockEntity.getLevel();
         ItemStack itemStack = getDisplayItemStack(blockEntity);
         if (itemStack == null || itemStack.isEmpty()) return;
-        int seed = itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
+        int seed = Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
         this.random.setSeed(seed);
         BakedModel bakedModel = this.itemRenderer.getModel(itemStack, level, null, getSeed(blockEntity));
         poseStack.pushPose();
         final boolean isGui3d = bakedModel.isGui3d();
         final int renderAmount = this.getRenderAmount(itemStack);
+        @SuppressWarnings("deprecation")
         float transformedGroundScaleY = bakedModel
             .getTransforms()
             .getTransform(ItemDisplayContext.GROUND)
@@ -79,8 +80,11 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
         poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.15f, 0.5F);
         float rotation = (Objects.requireNonNull(blockEntity.getLevel()).getGameTime() + partialTick) * 2f;
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
+        @SuppressWarnings("deprecation")
         float groundScaleX = bakedModel.getTransforms().ground.scale.x();
+        @SuppressWarnings("deprecation")
         float groundScaleY = bakedModel.getTransforms().ground.scale.y();
+        @SuppressWarnings("deprecation")
         float groundScaleZ = bakedModel.getTransforms().ground.scale.z();
 
         if (!isGui3d) {

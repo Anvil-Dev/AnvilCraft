@@ -93,8 +93,8 @@ public class AmuletManager {
         return List.copyOf(this.getAmuletsFromInventory(player).keySet());
     }
 
-    public Optional<Holder<AmuletType>> getTypeMatchedDamage(ServerPlayer player, DamageSource source, HolderLookup.Provider registryAccess) {
-        Optional<HolderLookup.RegistryLookup<AmuletType>> lookupOptional = registryAccess.lookup(ModRegistries.AMULET_TYPE_KEY);
+    public Optional<Holder<AmuletType>> getTypeMatchedDamage(ServerPlayer player, DamageSource source, HolderLookup.Provider registries) {
+        Optional<HolderLookup.RegistryLookup<AmuletType>> lookupOptional = registries.lookup(ModRegistries.AMULET_TYPE_KEY);
         return lookupOptional.flatMap(lookup -> lookup.listElements()
             .filter(reference -> reference.value().canObtain(player, source))
             .findFirst());

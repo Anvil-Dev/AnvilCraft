@@ -28,10 +28,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@ParametersAreNonnullByDefault
 public class StandableFallingBlockEntity extends FallingBlockEntity {
     public StandableFallingBlockEntity(EntityType<? extends FallingBlockEntity> entityType, Level level) {
         super(entityType, level);

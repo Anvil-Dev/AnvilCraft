@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -13,10 +12,6 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class FullBrightLevel implements BlockAndTintGetter {
 
     private final Level delegate;
@@ -32,7 +27,7 @@ public class FullBrightLevel implements BlockAndTintGetter {
 
     @Override
     public LevelLightEngine getLightEngine() {
-        //noinspection DataFlowIssue
+        // noinspection DataFlowIssue
         return null;
     }
 

@@ -17,6 +17,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 enum DestroyMode {
     NORMAL {
@@ -80,7 +81,7 @@ enum DestroyMode {
 
         @Override
         public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
-            RecipeManager recipeManager = ServerLifecycleHooks.getCurrentServer().getRecipeManager();
+            RecipeManager recipeManager = Objects.requireNonNull(ServerLifecycleHooks.getCurrentServer()).getRecipeManager();
             List<ItemStack> itemStacks = new ArrayList<>();
             for (ItemStack it : blockState.getDrops(
                 new LootParams.Builder((ServerLevel) shockContext.level())
@@ -96,9 +97,9 @@ enum DestroyMode {
                         shockContext.level()
                     ).map(it1 -> it1.value().assemble(input, shockContext.level().registryAccess()))
                     .orElse(it);
-//                if (itemStack.getItem() != Items.AIR && itemStack.getCount() == 0) {
-//                    itemStack.setCount(1);
-//                }
+                // if (itemStack.getItem() != Items.AIR && itemStack.getCount() == 0) {
+                //     itemStack.setCount(1);
+                // }
                 itemStacks.add(itemStack);
             }
             return itemStacks;

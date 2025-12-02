@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAbstractCauldronBlock;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.InteractionHand;
@@ -17,12 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MeltGemCauldron extends BetterAbstractCauldronBlock implements IHammerRemovable {
-
     public MeltGemCauldron(Properties properties) {
         super(properties, ModInteractionMap.MELT_GEM);
     }

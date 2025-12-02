@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -242,10 +241,13 @@ public abstract class ResonatorItem extends TieredItem {
         BlockState state = level.getBlockState(pos);
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
-        if (context.getHand().equals(InteractionHand.MAIN_HAND)
+        if (
+            context.getHand().equals(InteractionHand.MAIN_HAND)
             && player.getOffhandItem().is(Items.SHIELD)
             && !player.isSecondaryUseActive()
-        ) return InteractionResult.PASS;
+        ) {
+            return InteractionResult.PASS;
+        }
         Optional<BlockState> optional = Optional.<BlockState>empty()
             .or(() -> {
                 Optional<BlockState> optional1 = Optional.ofNullable(state.getToolModifiedState(context, ItemAbilities.AXE_STRIP, false));

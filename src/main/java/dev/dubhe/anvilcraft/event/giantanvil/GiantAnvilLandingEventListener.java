@@ -112,7 +112,7 @@ public class GiantAnvilLandingEventListener {
                 Rotation rotation = value.getMatchedRotation();
                 BlockPattern outputPattern = value.getOutputPattern();
                 BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
-                Optional<EntityType<?>> entity = value.getModifySpawnerAction()
+                final Optional<EntityType<?>> entity = value.getModifySpawnerAction()
                     .map(ModifySpawnerAction::fromPos)
                     .map(pos -> rotatePos(pos, size, rotation))
                     .map(inputCorner::offset)

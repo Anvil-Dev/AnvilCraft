@@ -46,9 +46,9 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -102,13 +102,9 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
     public BatchCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        id = COUNTER.incrementAndGet();
+        this.id = COUNTER.incrementAndGet();
     }
 
-    /**
-     * @param level 世界
-     * @param pos   位置
-     */
     public void tick(Level level, BlockPos pos) {
         this.flushState(level, pos);
         BlockState state = level.getBlockState(pos);
@@ -282,17 +278,11 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     public int getRedstoneSignal() {
         int strength = 0;
         List<Integer> itemIdxList = new ArrayList<>();
-        for (int index = 0; index < itemHandler.getSlots(); index++) {
-            ItemStack itemStack = itemHandler.getStackInSlot(index);
-            // 槽位为未设置过滤的已禁用槽位
-            if (
-                itemHandler.isSlotDisabled(index)
-                && itemHandler.getFilter(index).isEmpty()
-            ) {
+        for (int index = 0; index < this.itemHandler.getSlots(); index++) {
+            ItemStack itemStack = this.itemHandler.getStackInSlot(index);
+            if (this.itemHandler.isSlotDisabled(index) && this.itemHandler.getFilter(index).isEmpty()) { // 槽位为未设置过滤的已禁用槽位
                 strength++;
-            }
-            // 槽位上有物品
-            else if (!itemStack.isEmpty()) {
+            } else if (!itemStack.isEmpty()) { // 槽位上有物品
                 strength++;
                 itemIdxList.add(index);
             }
@@ -426,7 +416,7 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
 
     @Override
     public Level getCurrentLevel() {
-        return this.getLevel();
+        return Objects.requireNonNull(this.getLevel());
     }
 
     @Getter

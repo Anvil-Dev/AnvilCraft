@@ -6,8 +6,8 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class SlotItemHandlerWithFilter extends SlotItemHandler {
-    public SlotItemHandlerWithFilter(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
-        super(itemHandler, index, xPosition, yPosition);
+    public SlotItemHandlerWithFilter(IItemHandler itemHandler, int index, int posX, int posY) {
+        super(itemHandler, index, posX, posY);
     }
 
     /**

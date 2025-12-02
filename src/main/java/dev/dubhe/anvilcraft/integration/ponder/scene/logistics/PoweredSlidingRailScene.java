@@ -39,17 +39,17 @@ public class PoweredSlidingRailScene {
         scene.idle(20);
 
         int distance = 7;
-        BlockPos railStartPos = util.grid().at(1, 1, 4);
-        BlockPos railEndPos = railStartPos.east(distance);
-        BlockPos poweredRailPos = railStartPos.east(4);
-        BlockPos railStopPos = railStartPos.west();
-        BlockPos leverPos = poweredRailPos.north();
+        final BlockPos railStartPos = util.grid().at(1, 1, 4);
+        final BlockPos railEndPos = railStartPos.east(distance);
+        final BlockPos poweredRailPos = railStartPos.east(4);
+        final BlockPos railStopPos = railStartPos.west();
+        final BlockPos leverPos = poweredRailPos.north();
 
-        Vec3 poweredRailVec = util.vector().centerOf(poweredRailPos);
+        final Vec3 poweredRailVec = util.vector().centerOf(poweredRailPos);
 
-        Selection poweredRail = util.select().position(poweredRailPos);
-        Selection rail = util.select().fromTo(railStartPos, railEndPos).substract(poweredRail);
-        Selection lever = util.select().position(leverPos);
+        final Selection poweredRail = util.select().position(poweredRailPos);
+        final Selection rail = util.select().fromTo(railStartPos, railEndPos).substract(poweredRail);
+        final Selection lever = util.select().position(leverPos);
 
         // 放置普通滑轨
         scene.world().setBlocks(rail, ModBlocks.SLIDING_RAIL.getDefaultState(), false);
@@ -89,7 +89,7 @@ public class PoweredSlidingRailScene {
         scene.idle(70);
 
         // 添加鹦鹉演示生物不受影响
-        ElementLink<ParrotElement> birb = scene.special().createBirb(util.vector().topOf(railEndPos), ParrotPose.FaceCursorPose::new);
+        final ElementLink<ParrotElement> birb = scene.special().createBirb(util.vector().topOf(railEndPos), ParrotPose.FaceCursorPose::new);
         scene.idle(20);
 
         scene.overlay()
@@ -160,15 +160,15 @@ public class PoweredSlidingRailScene {
         scene.idle(20);
 
         int distance = 4;
-        BlockPos railStartPos = util.grid().at(1, 1, 4);
-        BlockPos railEndPos = railStartPos.east(distance);
-        BlockPos poweredRailPos = railEndPos.east();
-        BlockPos railStopPos = poweredRailPos.east();
-        BlockPos leverPos = poweredRailPos.north();
+        final BlockPos railStartPos = util.grid().at(1, 1, 4);
+        final BlockPos railEndPos = railStartPos.east(distance);
+        final BlockPos poweredRailPos = railEndPos.east();
+        final BlockPos railStopPos = poweredRailPos.east();
+        final BlockPos leverPos = poweredRailPos.north();
 
-        Selection poweredRail = util.select().position(poweredRailPos);
-        Selection rail = util.select().fromTo(railStartPos, railEndPos);
-        Selection lever = util.select().position(leverPos);
+        final Selection poweredRail = util.select().position(poweredRailPos);
+        final Selection rail = util.select().fromTo(railStartPos, railEndPos);
+        final Selection lever = util.select().position(leverPos);
 
         // 放置普通滑轨
         scene.world().setBlocks(rail, ModBlocks.SLIDING_RAIL.getDefaultState(), false);
@@ -212,7 +212,7 @@ public class PoweredSlidingRailScene {
 
         // 放置方块
         scene.world().setBlock(railStopPos.above(), Blocks.GLASS.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> glass = scene.world()
+        final ElementLink<WorldSectionElement> glass = scene.world()
             .showIndependentSection(util.select().position(railStopPos.above()), Direction.DOWN);
         scene.idle(20);
 

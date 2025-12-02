@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.entity;
 
 import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderSet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -30,15 +29,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.Serializable;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     private static final EntityDataAccessor<Byte> ID_LOYALTY = SynchedEntityData.defineId(
         ThrownHeavyHalberdEntity.class, EntityDataSerializers.BYTE);

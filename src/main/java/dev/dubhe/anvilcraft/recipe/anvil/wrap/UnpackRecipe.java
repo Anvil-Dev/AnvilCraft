@@ -17,9 +17,8 @@ import java.util.List;
 
 /**
  * 解包配方类
- * <p>
- * 该配方用于在铁砧下落时将物品从容器中解包出来，需要在铁砧下方放置特定的铁活板门作为触发条件
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时将物品从容器中解包出来，需要在铁砧下方放置特定的铁活板门作为触发条件</p>
  */
 @Getter
 public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {

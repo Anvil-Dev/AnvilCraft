@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -27,11 +26,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class OverseerBlock
     extends SimpleMultiPartBlock<Vertical3PartHalf>
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {
@@ -42,9 +36,6 @@ public class OverseerBlock
     public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
 
-    /**
-     * @param properties 属性
-     */
     public OverseerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -75,12 +66,10 @@ public class OverseerBlock
         builder.add(HALF).add(LEVEL);
     }
 
-
     @Override
-    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
-
 
     @Override
     public VoxelShape getShape(

@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.loot.conditions;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.loot.ModLootItemConditions;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -13,7 +12,6 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
 public record MatchDataComponent(Optional<DataComponentPredicate> predicate) implements LootItemCondition {
     public static final MapCodec<MatchDataComponent> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
         DataComponentPredicate.CODEC.optionalFieldOf("predicate").forGetter(MatchDataComponent::predicate)

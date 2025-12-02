@@ -86,7 +86,6 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingRecipe>> STAMPING_SERIALIZER =
         RECIPE_SERIALIZERS.register("stamping", StampingRecipe.Serializer::new);
 
-
     public static final DeferredHolder<RecipeType<?>, RecipeType<StampingUniqueItemsRecipe>> STAMPING_UNIQUE_ITEMS_TYPE =
         registerType("stamping_unique_items");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingUniqueItemsRecipe>> STAMPING_UNIQUE_ITEMS_SERIALIZER =
@@ -145,7 +144,8 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<MobTransformWithItemRecipe>> MOB_TRANSFORM_WITH_ITEM_TYPE =
         registerType("mob_transform_with_item");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformWithItemRecipe>>
-        MOB_TRANSFORM_WITH_ITEM_SERIALIZER = RECIPE_SERIALIZERS.register("mob_transform_with_item", MobTransformWithItemRecipe.Serializer::new);
+        MOB_TRANSFORM_WITH_ITEM_SERIALIZER =
+        RECIPE_SERIALIZERS.register("mob_transform_with_item", MobTransformWithItemRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MultiblockRecipe>> MULTIBLOCK_TYPE =
         registerType("multiblock");

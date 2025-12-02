@@ -137,7 +137,7 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
         }
 
         @Override
-        public void validate(ResourceLocation pid) {
+        public void validate(ResourceLocation id) {
         }
 
         @Override

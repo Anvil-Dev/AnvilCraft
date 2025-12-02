@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.inventory.component.jewel.JewelResultSlot;
 import dev.dubhe.anvilcraft.inventory.container.JewelSourceContainer;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,10 +26,6 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class JewelCraftingMenu extends AbstractContainerMenu {
     public static final int RESULT_SLOT = 0;
     public static final int SOURCE_SLOT = 1;
@@ -102,7 +97,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
 
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (sourceSlot != null && sourceSlot.hasItem()) {
             if (index >= RESULT_SLOT && index < CRAFT_SLOT_END) {
                 if (!moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
@@ -144,7 +139,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         }
         return sourceStack;
     }
-
 
     @Override
     public boolean stillValid(Player player) {

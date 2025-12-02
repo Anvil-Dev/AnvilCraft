@@ -7,19 +7,15 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.lwjgl.system.MemoryUtil;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource implements AutoCloseable {
     private static final MemoryUtil.MemoryAllocator ALLOCATOR = MemoryUtil.getAllocator(false);
     private final Map<RenderType, ByteBufferBuilder> byteBuffers = new HashMap<>();

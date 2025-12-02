@@ -10,6 +10,7 @@ public class ItemTooltipLang {
      *
      * @param provider 提供器
      */
+    @SuppressWarnings("checkstyle:LineLength")
     public static void init(@NotNull RegistrateLangProvider provider) {
         ItemTooltipManager.NEED_TOOLTIP_ITEM.forEach(
             (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));

@@ -11,7 +11,6 @@ public class ExecutionContext<T> {
         this.context = context;
     }
 
-
     public void putAttachment(String key, Object item) {
         attachment.put(key, item);
     }

@@ -48,7 +48,11 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         if (level == null || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()), new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), storedEnergy));
+        PacketDistributor.sendToPlayersTrackingChunk(
+            serverLevel,
+            new ChunkPos(getBlockPos()),
+            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), storedEnergy)
+        );
     }
 
     public void addEnergy(int energy) {

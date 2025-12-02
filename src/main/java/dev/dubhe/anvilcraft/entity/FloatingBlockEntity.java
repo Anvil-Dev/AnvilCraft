@@ -28,9 +28,6 @@ public class FloatingBlockEntity extends FallingBlockEntity {
 
     private boolean underCeiling = false;
 
-    /**
-     *
-     */
     public FloatingBlockEntity(EntityType<? extends FallingBlockEntity> entityType, Level level) {
         super(entityType, level);
         this.setNoGravity(true);
@@ -49,11 +46,6 @@ public class FloatingBlockEntity extends FallingBlockEntity {
         this.setStartPos(this.blockPosition());
     }
 
-    /**
-     * @param level      世界
-     * @param pos        方块坐标
-     * @param blockState 方块状态
-     */
     @SuppressWarnings({"checkstyle:MethodName", "UnusedReturnValue"})
     public static FloatingBlockEntity _float(Level level, BlockPos pos, BlockState blockState) {
         FloatingBlockEntity floatingBlockEntity = new FloatingBlockEntity(
@@ -100,16 +92,13 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 }
 
                                 if (this.level().setBlock(blockPos, this.blockState, 3)) {
-                                    ((ServerLevel) this.level())
-                                        .getChunkSource()
-                                        .chunkMap
-                                        .broadcast(
-                                            this,
-                                            new ClientboundBlockUpdatePacket(
-                                                blockPos,
-                                                this.level().getBlockState(blockPos)
-                                            )
-                                        );
+                                    ((ServerLevel) this.level()).getChunkSource().chunkMap.broadcast(
+                                        this,
+                                        new ClientboundBlockUpdatePacket(
+                                            blockPos,
+                                            this.level().getBlockState(blockPos)
+                                        )
+                                    );
                                     this.discard();
                                     if (block instanceof Fallable) {
                                         ((Fallable) block).onLand(this.level(), blockPos, this.blockState, blockState, this);

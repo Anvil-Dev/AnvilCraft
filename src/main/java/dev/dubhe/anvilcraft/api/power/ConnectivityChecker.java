@@ -4,9 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 import java.util.List;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
 public abstract class ConnectivityChecker {
     private static final List<ConnectivityChecker> instances = ObjectLists.synchronize(new ObjectArrayList<>());
 

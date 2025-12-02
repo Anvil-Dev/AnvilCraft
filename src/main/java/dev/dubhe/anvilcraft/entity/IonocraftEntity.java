@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
@@ -23,15 +22,12 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static net.minecraft.world.entity.vehicle.Boat.canVehicleCollide;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class IonocraftEntity extends VehicleEntity {
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION = new DynamicPowerComponent.PowerConsumption(16);
     private final DynamicPowerComponent component;
@@ -94,7 +90,11 @@ public class IonocraftEntity extends VehicleEntity {
         }
         this.move(MoverType.SELF, this.getDeltaMovement());
         super.tick();
-        List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, -0.01F, 0.2F), EntitySelector.pushableBy(this));
+        List<Entity> list = this.level().getEntities(
+            this,
+            this.getBoundingBox().inflate(0.2F, -0.01F, 0.2F),
+            EntitySelector.pushableBy(this)
+        );
         if (!list.isEmpty()) {
             for (Entity entity : list) {
                 if (!entity.hasPassenger(this)) {

@@ -199,7 +199,7 @@ public class BlockTagLoader {
             .add(ModBlocks.SPACE_OVERCOMPRESSOR.getKey())
             .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES);
 
-        //mekanism integration
+        // mekanism integration
         provider.addTag(ModBlockTags.MEKANISM_CARDBOARD_BOX_BLACKLIST)
             .add(ModBlocks.GIANT_ANVIL.getKey())
             .add(ModBlocks.TRANSMISSION_POLE.getKey())

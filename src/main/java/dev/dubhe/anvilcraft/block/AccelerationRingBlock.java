@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -31,11 +30,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3PartHalf, DirectionProperty, Direction>
     implements EntityBlock, IHammerRemovable {
     public static final EnumProperty<DirectionCube3x3PartHalf> HALF = EnumProperty.create("half", DirectionCube3x3PartHalf.class);
@@ -80,7 +76,12 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getPlayer() != null && context.getPlayer().isShiftKeyDown() ? context.getNearestLookingDirection().getOpposite() : context.getNearestLookingDirection());
+            .setValue(
+                FACING,
+                context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
+                ? context.getNearestLookingDirection().getOpposite()
+                : context.getNearestLookingDirection()
+            );
     }
 
     @Override
@@ -92,7 +93,11 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        boolean isSignal = Arrays.stream(getParts()).anyMatch(it -> level.hasNeighborSignal(pos.subtract(state.getValue(getPart()).getOffset()).offset(it.getOffset())));
+        boolean isSignal = Arrays.stream(getParts())
+            .anyMatch(it -> level.hasNeighborSignal(
+                pos.subtract(state.getValue(this.getPart()).getOffset())
+                    .offset(it.getOffset())
+            ));
         if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {
             updateState(level, pos, SWITCH, IPowerComponent.Switch.OFF, 3);
         } else if (!isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.OFF) {
@@ -144,7 +149,7 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return (level1, pos, state1, entity) -> {
             if (entity instanceof AccelerationRingBlockEntity be) be.tick();
         };

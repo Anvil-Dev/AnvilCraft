@@ -24,11 +24,6 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     private Slider slider = null;
     private EditBox value;
 
-    /**
-     * @param menu      菜单
-     * @param inventory 背包
-     * @param title     标题
-     */
     public SliderScreen(SliderMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = 176;
@@ -163,7 +158,6 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
-
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {

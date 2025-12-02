@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.block.better.BetterAbstractCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.InteractionHand;
@@ -20,11 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CementCauldronBlock extends BetterAbstractCauldronBlock implements IHammerRemovable {
 
     public static final MapCodec<CementCauldronBlock> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -33,17 +28,21 @@ public class CementCauldronBlock extends BetterAbstractCauldronBlock implements 
 
     private final Color color;
 
-    /**
-     * @param properties 方块属性
-     */
     public CementCauldronBlock(Properties properties, Color color) {
         super(properties, ModInteractionMap.CEMENT);
         this.color = color;
     }
 
-
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
         CauldronInteraction interaction = this.interactions.map().get(stack.getItem());
         if (interaction == null) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;

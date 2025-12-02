@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Getter
 public class ItemCollectorBlockEntity extends BlockEntity
@@ -83,7 +84,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         public void onContentsChanged(int slot) {
             if (level == null || level.isClientSide || changed) return;
             changed = true;
-            level.getServer().execute(() -> {
+            Objects.requireNonNull(level.getServer()).execute(() -> {
                 try {
                     setChanged();
                     flushState(level, getBlockPos());
@@ -107,7 +108,6 @@ public class ItemCollectorBlockEntity extends BlockEntity
     public BlockPos getPos() {
         return this.getBlockPos();
     }
-
 
     private static final Map<Integer, Map<Integer, Integer>> POWER_CONSUMPTION = Map.of(
         0,
@@ -222,8 +222,8 @@ public class ItemCollectorBlockEntity extends BlockEntity
     public void gridTick() {
         if (level == null || level.isClientSide) return;
         this.updatePoachingMapForThis();
-        //如果保持“截胡模式就不再主动吸取物品”的设定就把下面一行取消注释回来
-        //if (cooldown.get() == 0) return;
+        // 如果保持“截胡模式就不再主动吸取物品”的设定就把下面一行取消注释回来
+        // if (cooldown.get() == 0) return;
 
         if (cd > 1) {
             cd--;
@@ -254,7 +254,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         if (this.cooldown.get() > 0) {
             this.cd = this.cooldown.get();
         } else {
-            this.cd = 5; //这个地方是给“即便是截胡模式也主动吸取物品”的设定准备的，暂时随便写了个数值
+            this.cd = 5; // 这个地方是给“即便是截胡模式也主动吸取物品”的设定准备的，暂时随便写了个数值
         }
     }
 

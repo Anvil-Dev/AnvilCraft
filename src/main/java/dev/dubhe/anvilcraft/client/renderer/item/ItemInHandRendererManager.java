@@ -18,11 +18,11 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
     public final CrabClawItemInHandRenderer crabClawItemRenderer;
     public final IExtraItemDisplayRenderer extraItemRenderer;
 
-    public ItemInHandRendererManager(ItemRenderer itemRenderer, IItemRenderer iItemRenderer) {
-        super(itemRenderer, iItemRenderer);
-        this.crabClawItemRenderer = new CrabClawItemInHandRenderer(itemRenderer, iItemRenderer);
+    public ItemInHandRendererManager(ItemRenderer itemRenderer, IItemRenderer renderer) {
+        super(itemRenderer, renderer);
+        this.crabClawItemRenderer = new CrabClawItemInHandRenderer(itemRenderer, renderer);
         this.renderers.add(this.crabClawItemRenderer);
-        this.extraItemRenderer = new IExtraItemDisplayRenderer(itemRenderer, iItemRenderer);
+        this.extraItemRenderer = new IExtraItemDisplayRenderer(itemRenderer, renderer);
         this.renderers.add(this.extraItemRenderer);
     }
 

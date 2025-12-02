@@ -94,7 +94,6 @@ public class ModRenderTypes {
             .createCompositeState(true)
     );
 
-
     public static final RenderType LINE_BLOOM = RenderType.create(
         "anvilcraft:line_bloom",
         DefaultVertexFormat.POSITION_COLOR_NORMAL,

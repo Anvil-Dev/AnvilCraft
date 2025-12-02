@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
 import dev.dubhe.anvilcraft.network.ComparatorSyncPacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -21,12 +20,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 @Mixin(ComparatorBlockEntity.class)
 public abstract class ComparatorBlockEntityMixin extends BlockEntity implements ITooltipProviderExtension {
     public ComparatorBlockEntityMixin(

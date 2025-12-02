@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.multipart;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -16,12 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block implements IMultiPartBlockModelHolder {
-
     public AbstractMultiPartBlock(Properties properties) {
         super(properties);
     }
@@ -122,6 +116,4 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
             level.setBlock(bp, blockState.getFluidState().createLegacyBlock(), 3, 0);
         }
     }
-
-
 }

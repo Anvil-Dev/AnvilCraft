@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -16,12 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class MineralFountainBlock extends BaseEntityBlock {
-
     public MineralFountainBlock(Properties properties) {
         super(properties);
     }
@@ -60,7 +54,14 @@ public class MineralFountainBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
+    ) {
         setTickCount(level, pos);
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }

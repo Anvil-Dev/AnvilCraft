@@ -4,9 +4,6 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 import org.jetbrains.annotations.NotNull;
 
 public class EnchantmentDescriptionsLang {
-    /**
-     * @param provider 提供器
-     */
     public static void init(@NotNull RegistrateLangProvider provider) {
         provider.add("enchantment.anvilcraft.felling.desc",
             "Vein mining of logs and their variants, higher level increases number limit.");

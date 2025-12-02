@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -33,7 +32,6 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,8 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarriedAware {
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_64 = new DynamicPowerComponent.PowerConsumption(64);
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_128 = new DynamicPowerComponent.PowerConsumption(128);
@@ -239,7 +235,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     }
 
     public static void playerTick(ServerPlayer player) {
-        IDynamicPowerComponentHolder holder = IDynamicPowerComponentHolder.of(player);
+        final IDynamicPowerComponentHolder holder = IDynamicPowerComponentHolder.of(player);
 
         refreshPower(player);
         refreshFlight(player);

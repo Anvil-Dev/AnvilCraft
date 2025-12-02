@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
 @Mixin(EndPortalBlock.class)
 abstract class EndPortalBlockMixin {
     @Inject(
@@ -32,9 +31,9 @@ abstract class EndPortalBlockMixin {
         cancellable = true
     )
     private void fallBlockEntityInside(
-        BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity, CallbackInfo ci
+        BlockState state, Level level, BlockPos pos, Entity entity, CallbackInfo ci
     ) {
-        if (!(pEntity instanceof FallingBlockEntity fallingBlockEntity)) {
+        if (!(entity instanceof FallingBlockEntity fallingBlockEntity)) {
             return;
         }
         if (fallingBlockEntity.anvilcraft$isSpectral()) {
@@ -44,13 +43,13 @@ abstract class EndPortalBlockMixin {
         if (!fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) {
             BlockState newState = ModBlocks.END_DUST.getDefaultState();
             if (fallingBlockEntity.blockState.is(BlockTags.ANVIL)) {
-                double rand = pLevel.random.nextDouble();
+                double rand = level.random.nextDouble();
                 if (rand < SpectralAnvilConversionUtil.chance(fallingBlockEntity.blockState.getBlock())) {
                     newState = ModBlocks.SPECTRAL_ANVIL.getDefaultState();
                 }
             }
             fallingBlockEntity.blockState = newState;
-            fallingBlockEntity.setAsInsidePortal((Portal) this, pPos);
+            fallingBlockEntity.setAsInsidePortal((Portal) this, pos);
             ci.cancel();
         }
     }

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,7 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
 @Mixin(RedStoneWireBlock.class)
 public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtension {
     @Shadow

@@ -21,8 +21,8 @@ import java.util.List;
 public class TranscendiumBehavior implements IAnvilBehavior {
     @Override
     public boolean handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilEvent.OnLand event) {
-        RandomSource random = level.getRandom();
-        List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos.above()));
+        final RandomSource random = level.getRandom();
+        final List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos.above()));
 
         if (!hitBlockState.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK)) {
             return false;

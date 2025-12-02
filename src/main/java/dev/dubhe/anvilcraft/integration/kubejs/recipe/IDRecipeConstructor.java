@@ -21,7 +21,13 @@ public class IDRecipeConstructor extends RecipeConstructor {
     }
 
     @Override
-    public KubeRecipe create(Context cx, SourceLine sourceLine, RecipeTypeFunction type, RecipeSchemaType schemaType, ComponentValueMap from) {
+    public KubeRecipe create(
+        Context cx,
+        SourceLine sourceLine,
+        RecipeTypeFunction type,
+        RecipeSchemaType schemaType,
+        ComponentValueMap from
+    ) {
         var r = super.create(cx, sourceLine, type, schemaType, from);
         RecipeScriptContext ctx = new RecipeScriptContext.Impl(cx, r, new ErrorStack());
         r.id(KubeResourceLocation.wrap(from.getValue(ctx, ID)));

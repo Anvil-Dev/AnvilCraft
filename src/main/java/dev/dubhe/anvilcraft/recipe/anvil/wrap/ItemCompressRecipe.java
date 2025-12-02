@@ -14,9 +14,8 @@ import java.util.List;
 
 /**
  * 物品压缩配方类
- * <p>
- * 该配方用于在铁砧下落时压缩物品，需要在铁砧下方放置炼药锅作为触发条件
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时压缩物品，需要在铁砧下方放置炼药锅作为触发条件</p>
  */
 @Getter
 public class ItemCompressRecipe extends AbstractProcessRecipe<ItemCompressRecipe> {

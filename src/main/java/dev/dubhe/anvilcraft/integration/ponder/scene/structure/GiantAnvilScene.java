@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.ponder.AnvilCraftPonderTags;
 import dev.dubhe.anvilcraft.integration.ponder.api.AnvilCraftSceneBuilder;
 import dev.dubhe.anvilcraft.integration.ponder.api.instruction.Interpolation;
+import dev.dubhe.anvilcraft.util.Util;
 import net.createmod.ponder.api.element.ElementLink;
 import net.createmod.ponder.api.element.EntityElement;
 import net.createmod.ponder.api.element.WorldSectionElement;
@@ -63,7 +64,7 @@ public class GiantAnvilScene {
         Selection heavyIronBlock = util.select().position(16, 0, 16);
         builder.world().showSection(heavyIronBlock, Direction.DOWN);
         // 生成XeKr
-        ElementLink<EntityElement> mushroomCow = GiantAnvilScene.spawnMushroomCow(util, builder);
+        final ElementLink<EntityElement> mushroomCow = GiantAnvilScene.spawnMushroomCow(util, builder);
         // 延时10gt
         builder.idle(10);
         // 文本：当巨型铁砧落在重质铁块上
@@ -129,7 +130,7 @@ public class GiantAnvilScene {
         Selection heavyIronBlock = util.select().position(16, 0, 16);
         builder.world().showSection(heavyIronBlock, Direction.DOWN);
         // 生成XeKr
-        ElementLink<EntityElement> mushroomCow = GiantAnvilScene.spawnMushroomCow(util, builder);
+        final ElementLink<EntityElement> mushroomCow = GiantAnvilScene.spawnMushroomCow(util, builder);
         // 选择框5x1x5，文本：下落3格高的巨型铁砧可以撼地5x5的范围
         builder.overlay()
             .showOutlineWithText(util.select().fromTo(14, 0, 14, 18, 0, 18), 70)
@@ -243,7 +244,7 @@ public class GiantAnvilScene {
         // 放置铁砧并链接
         builder.world().setBlock(new BlockPos(15, 1, 13), Blocks.ANVIL.defaultBlockState(), false);
         Selection anvil = util.select().position(15, 1, 13);
-        ElementLink<WorldSectionElement> anvilLink = builder.world().showIndependentSection(anvil, Direction.NORTH);
+        final ElementLink<WorldSectionElement> anvilLink = builder.world().showIndependentSection(anvil, Direction.NORTH);
         // 放置巨型铁砧并链接
         builder.world().setBlock(
             new BlockPos(16, 12, 16),
@@ -253,7 +254,7 @@ public class GiantAnvilScene {
             false
         );
         Selection giantAnvil = util.select().position(16, 12, 16);
-        ElementLink<WorldSectionElement> giantAnvilLink = builder.world().showIndependentSection(giantAnvil, Direction.NORTH);
+        final ElementLink<WorldSectionElement> giantAnvilLink = builder.world().showIndependentSection(giantAnvil, Direction.NORTH);
         // 延时20gt
         builder.idle(20);
         // 巨型铁砧下落10m
@@ -267,7 +268,7 @@ public class GiantAnvilScene {
         // 巨型铁砧上升10m
         builder.world().moveSection(giantAnvilLink, new Vec3(0, 10, 0), 10);
         // 生成XeKr
-        ElementLink<EntityElement> mushroomCow = GiantAnvilScene.spawnMushroomCow(util, builder);
+        final ElementLink<EntityElement> mushroomCow = GiantAnvilScene.spawnMushroomCow(util, builder);
         // 四边放置诅咒金块
         BlockPos[] cursedGoldPath = {
             new BlockPos(15, 0, 16),
@@ -376,18 +377,18 @@ public class GiantAnvilScene {
             .attachKeyFrame()
             .placeNearTarget();
         // 生成一群钻石套僵尸
-        ElementLink<EntityElement> zombie1 = GiantAnvilScene.spawnZombie(util, builder);
-        ElementLink<EntityElement> zombie2 = GiantAnvilScene.spawnZombie(util, builder);
-        ElementLink<EntityElement> zombie3 = GiantAnvilScene.spawnZombie(util, builder);
-        ElementLink<EntityElement> zombie4 = GiantAnvilScene.spawnZombie(util, builder);
-        ElementLink<EntityElement> zombie5 = GiantAnvilScene.spawnZombie(util, builder);
-        ElementLink<EntityElement> zombie6 = GiantAnvilScene.spawnZombie(util, builder);
-        ElementLink<EntityElement> zombie7 = GiantAnvilScene.spawnZombie(util, builder);
-        ElementLink<EntityElement> zombie8 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie1 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie2 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie3 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie4 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie5 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie6 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie7 = GiantAnvilScene.spawnZombie(util, builder);
+        final ElementLink<EntityElement> zombie8 = GiantAnvilScene.spawnZombie(util, builder);
         // 分散放置僵尸
-        ElementLink<EntityElement>[] zombies = new ElementLink[]{
+        final ElementLink<EntityElement>[] zombies = Util.cast(new ElementLink[] {
             zombie1, zombie2, zombie3, zombie4, zombie5, zombie6, zombie7, zombie8
-        };
+        });
         Vec3[] positions = {
             util.vector().of(13, 1, 13),
             util.vector().of(19, 1, 13),
@@ -406,15 +407,16 @@ public class GiantAnvilScene {
                 // 让僵尸面向中心点(16, 1, 16)
                 Vec3 center = util.vector().of(16, 1, 16);
                 Vec3 direction = center.subtract(positions[index]).normalize();
-                float yRot = (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
-                entity.setYRot(yRot);
-                entity.setYHeadRot(yRot);
-                entity.yRotO = yRot;
+                float rotY = (float) Math.toDegrees(Math.atan2(-direction.x, direction.z));
+                entity.setYRot(rotY);
+                entity.setYHeadRot(rotY);
+                entity.yRotO = rotY;
                 try {
                     var field = entity.getClass().getDeclaredField("yHeadRotO");
                     field.setAccessible(true);
-                    field.setFloat(entity, yRot);
+                    field.setFloat(entity, rotY);
                 } catch (Exception ignored) {
+                    // do nothing
                 }
             });
         }
@@ -424,8 +426,8 @@ public class GiantAnvilScene {
         builder.world().moveSectionInterpolation(giantAnvilLink, new Vec3(0, -10, 0), Interpolation.acceleration(0.05));
         // 僵尸同时冒烟红温倒地
         builder.world().letLivingEntitysDie(
-            new ElementLink[]{zombie1, zombie2, zombie3, zombie4, zombie5, zombie6, zombie7, zombie8},
-            new BlockPos[]{
+            Util.cast(new ElementLink[] {zombie1, zombie2, zombie3, zombie4, zombie5, zombie6, zombie7, zombie8}),
+            new BlockPos[] {
                 util.grid().at(13, 1, 13),
                 util.grid().at(19, 1, 13),
                 util.grid().at(13, 1, 19),
@@ -486,7 +488,7 @@ public class GiantAnvilScene {
             Direction.NORTH
         };
 
-        ElementLink<WorldSectionElement>[] anvilLinks = new ElementLink[4];
+        final ElementLink<WorldSectionElement>[] anvilLinks = Util.cast(new ElementLink[4]);
         for (int i = 0; i < anvilPositions.length; i++) {
             builder.world().setBlock(anvilPositions[i], Blocks.ANVIL.defaultBlockState()
                 .setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, anvilDirections[i]), false);
@@ -566,7 +568,7 @@ public class GiantAnvilScene {
             false
         );
         Selection giantAnvil = util.select().position(16, 12, 16);
-        ElementLink<WorldSectionElement> giantAnvilLink = builder.world().showIndependentSection(giantAnvil, Direction.DOWN);
+        final ElementLink<WorldSectionElement> giantAnvilLink = builder.world().showIndependentSection(giantAnvil, Direction.DOWN);
 
         // 在旁边排成一行放置石头，冰块，金矿石，基岩
         BlockPos[] blockRowPositions = {
@@ -580,8 +582,8 @@ public class GiantAnvilScene {
             Blocks.ICE
         };
 
-        ElementLink<WorldSectionElement>[] blockRowLinks = new ElementLink[blockRowPositions.length];
-        ElementLink<EntityElement>[] itemLinks1 = new ElementLink[2];
+        final ElementLink<WorldSectionElement>[] blockRowLinks = Util.cast(new ElementLink[blockRowPositions.length]);
+        final ElementLink<EntityElement>[] itemLinks1 = Util.cast(new ElementLink[2]);
         for (int i = 0; i < blockRowPositions.length; i++) {
             builder.world().setBlock(blockRowPositions[i], blocks[i].defaultBlockState(), false);
             Selection blockSelection = util.select().position(blockRowPositions[i]);
@@ -638,7 +640,7 @@ public class GiantAnvilScene {
         builder.idle(10);
 
         // 在旁边排成一行放置石头，冰块，金矿石
-        ElementLink<EntityElement>[] itemLinks2 = new ElementLink[3];
+        final ElementLink<EntityElement>[] itemLinks2 = Util.cast(new ElementLink[3]);
         for (int i = 0; i < blockRowPositions.length; i++) {
             builder.world().setBlock(blockRowPositions[i], blocks[i].defaultBlockState(), false);
             blockRowLinks[i] = builder.world().showIndependentSection(util.select().position(blockRowPositions[i]), Direction.DOWN);
@@ -696,7 +698,7 @@ public class GiantAnvilScene {
         builder.idle(10);
 
         // 在旁边放置石头，冰块，金矿石
-        ElementLink<EntityElement>[] itemLinks3 = new ElementLink[2];
+        final ElementLink<EntityElement>[] itemLinks3 = Util.cast(new ElementLink[2]);
         for (int i = 0; i < blockRowPositions.length; i++) {
             builder.world().setBlock(blockRowPositions[i], blocks[i].defaultBlockState(), false);
             blockRowLinks[i] = builder.world().showIndependentSection(util.select().position(blockRowPositions[i]), Direction.DOWN);
@@ -761,7 +763,7 @@ public class GiantAnvilScene {
         builder.idle(10);
 
         // 在旁边排成一行放置石头，冰块，金矿石
-        ElementLink<EntityElement>[] itemLinks4 = new ElementLink[2];
+        final ElementLink<EntityElement>[] itemLinks4 = Util.cast(new ElementLink[2]);
         for (int i = 0; i < blockRowPositions.length; i++) {
             builder.world().setBlock(blockRowPositions[i], blocks[i].defaultBlockState(), false);
             blockRowLinks[i] = builder.world().showIndependentSection(util.select().position(blockRowPositions[i]), Direction.DOWN);
@@ -817,7 +819,7 @@ public class GiantAnvilScene {
         builder.idle(10);
 
         // 在旁边排成一行放置石头，冰块，金矿石
-        ElementLink<EntityElement>[] itemLinks5 = new ElementLink[2]; // 添加物品链接数组
+        final ElementLink<EntityElement>[] itemLinks5 = Util.cast(new ElementLink[2]); // 添加物品链接数组
         for (int i = 0; i < blockRowPositions.length; i++) {
             builder.world().setBlock(blockRowPositions[i], blocks[i].defaultBlockState(), false);
             blockRowLinks[i] = builder.world().showIndependentSection(util.select().position(blockRowPositions[i]), Direction.DOWN);
@@ -894,9 +896,9 @@ public class GiantAnvilScene {
             Blocks.WHEAT
         };
 
-        ElementLink<WorldSectionElement>[] groundBlockLinks = new ElementLink[groundBlocks.length];
-        ElementLink<WorldSectionElement>[] plantBlockLinks = new ElementLink[plantBlocks.length];
-        ElementLink<EntityElement>[] itemLinks6 = new ElementLink[4];
+        final ElementLink<WorldSectionElement>[] groundBlockLinks = Util.cast(new ElementLink[groundBlocks.length]);
+        final ElementLink<WorldSectionElement>[] plantBlockLinks = Util.cast(new ElementLink[plantBlocks.length]);
+        final ElementLink<EntityElement>[] itemLinks6 = Util.cast(new ElementLink[4]);
         
         for (int i = 0; i < groundBlocks.length; i++) {
             // 放置地面方块
@@ -915,7 +917,7 @@ public class GiantAnvilScene {
             plantBlockLinks[i] = builder.world().showIndependentSection(util.select().position(plantPos), Direction.UP);
         }
 
-            // 选择框，文本：四角为草方块时，撼地会破坏花草、雪片等附着物
+        // 选择框，文本：四角为草方块时，撼地会破坏花草、雪片等附着物
         builder.overlay()
             .showOutlineWithText(util.select().fromTo(13, 0, 14, 13, 1, 17), 65)
             .attachKeyFrame()
@@ -1040,10 +1042,10 @@ public class GiantAnvilScene {
             new BlockPos(19, 2, 17),
             new BlockPos(19, 3, 17)
         };
-        
-        ElementLink<WorldSectionElement>[] jungleLogLinks = new ElementLink[jungleLogPositions.length];
-        ElementLink<WorldSectionElement>[] cocoaLinks = new ElementLink[jungleLogPositions.length];
-        ElementLink<EntityElement>[] itemLinks7 = new ElementLink[5];
+
+        final ElementLink<WorldSectionElement>[] jungleLogLinks = Util.cast(new ElementLink[jungleLogPositions.length]);
+        final ElementLink<WorldSectionElement>[] cocoaLinks = Util.cast(new ElementLink[jungleLogPositions.length]);
+        final ElementLink<EntityElement>[] itemLinks7 = Util.cast(new ElementLink[5]);
         
         for (int i = 0; i < jungleLogPositions.length; i++) {
             builder.world().setBlock(jungleLogPositions[i], Blocks.JUNGLE_LOG.defaultBlockState(), false);
@@ -1070,7 +1072,7 @@ public class GiantAnvilScene {
             Blocks.GRASS_BLOCK
         };
 
-        ElementLink<WorldSectionElement>[] netherPlantLinks = new ElementLink[netherFarmBlocks.length];
+        ElementLink<WorldSectionElement>[] netherPlantLinks = Util.cast(new ElementLink[netherFarmBlocks.length]);
         
         for (int i = 0; i < netherFarmBlocks.length; i++) {
             builder.world().setBlock(netherFarmBlocks[i], netherGroundBlocks[i].defaultBlockState(), false);
@@ -1150,7 +1152,7 @@ public class GiantAnvilScene {
 
         // 清除掉落物
         for (ElementLink<EntityElement> link : itemLinks7) {
-                builder.world().removeEntity(link);
+            builder.world().removeEntity(link);
         }
 
         // 移走丛林原木
@@ -1225,9 +1227,9 @@ public class GiantAnvilScene {
             new BlockPos(14, 4, 15),
             new BlockPos(14, 5, 15)
         };
-        
-        ElementLink<WorldSectionElement>[] treeLogLinks = new ElementLink[treeLogPositions.length];
-        ElementLink<WorldSectionElement>[] treeLeafLinks = new ElementLink[treeLeafPositions.length];
+
+        final ElementLink<WorldSectionElement>[] treeLogLinks = Util.cast(new ElementLink[treeLogPositions.length]);
+        final ElementLink<WorldSectionElement>[] treeLeafLinks = Util.cast(new ElementLink[treeLeafPositions.length]);
         
         for (int i = 0; i < treeLogPositions.length; i++) {
             builder.world().setBlock(treeLogPositions[i], Blocks.OAK_LOG.defaultBlockState(), false);
@@ -1245,7 +1247,7 @@ public class GiantAnvilScene {
             new BlockPos(16, 0, 13),
             new BlockPos(17, 0, 13)
         };
-        ElementLink<WorldSectionElement>[] waterLinks = new ElementLink[waterPositions.length];
+        ElementLink<WorldSectionElement>[] waterLinks = Util.cast(new ElementLink[waterPositions.length]);
         
         for (int i = 0; i < waterPositions.length; i++) {
             builder.world().setBlock(waterPositions[i], Blocks.WATER.defaultBlockState(), false);
@@ -1264,7 +1266,7 @@ public class GiantAnvilScene {
             new BlockPos(18, 1, 13),
             new BlockPos(18, 2, 13)
         };
-        ElementLink<WorldSectionElement>[] sugarcaneLinks = new ElementLink[sugarcanePositions.length];
+        ElementLink<WorldSectionElement>[] sugarcaneLinks = Util.cast(new ElementLink[sugarcanePositions.length]);
         for (int i = 0; i < sugarcanePositions.length; i++) {
             builder.world().setBlock(sugarcanePositions[i], Blocks.SUGAR_CANE.defaultBlockState(), false);
             sugarcaneLinks[i] = builder.world().showIndependentSection(util.select().position(sugarcanePositions[i]), Direction.UP);
@@ -1278,7 +1280,10 @@ public class GiantAnvilScene {
             .attachKeyFrame()
             .placeNearTarget()
             .pointAt(util.vector().blockSurface(util.grid().at(12, 1, 13), Direction.WEST))
-            .text("When the corners are logs, Shock breaks entire trees, as well as huge fungi stems, cacti, sugar canes, chorus plants, and other large plants.");
+            .text(
+                "When the corners are logs, Shock breaks entire trees, "
+                + "as well as huge fungi stems, cacti, sugar canes, chorus plants, and other large plants."
+        );
 
         builder.idle(40);
 

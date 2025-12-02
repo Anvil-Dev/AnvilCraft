@@ -246,20 +246,20 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
         player.awardStat(Stats.ITEM_USED.get(this));
         if (spinStrength <= 0.0F) return;
-        float yRot = player.getYRot();
-        float xRot = player.getXRot();
-        float xDelta = -Mth.sin(yRot * (float) (Math.PI / 180.0)) * Mth.cos(xRot * (float) (Math.PI / 180.0));
-        float yDelta = -Mth.sin(xRot * (float) (Math.PI / 180.0));
-        float zDelta = Mth.cos(yRot * (float) (Math.PI / 180.0)) * Mth.cos(xRot * (float) (Math.PI / 180.0));
-        float fixer = Mth.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
-        xDelta *= spinStrength / fixer;
-        yDelta *= spinStrength / fixer;
-        zDelta *= spinStrength / fixer;
-        player.push(xDelta, yDelta, zDelta);
+        float rotY = player.getYRot();
+        float rotX = player.getXRot();
+        float deltaX = -Mth.sin(rotY * (float) (Math.PI / 180.0)) * Mth.cos(rotX * (float) (Math.PI / 180.0));
+        float deltaY = -Mth.sin(rotX * (float) (Math.PI / 180.0));
+        float deltaZ = Mth.cos(rotY * (float) (Math.PI / 180.0)) * Mth.cos(rotX * (float) (Math.PI / 180.0));
+        float fixer = Mth.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+        deltaX *= spinStrength / fixer;
+        deltaY *= spinStrength / fixer;
+        deltaZ *= spinStrength / fixer;
+        player.push(deltaX, deltaY, deltaZ);
         player.startAutoSpinAttack(20, 8.0F, stack);
         if (player.onGround()) {
-            float yFix = 1.1999999F;
-            player.move(MoverType.SELF, new Vec3(0.0, yFix, 0.0));
+            float fixY = 1.1999999F;
+            player.move(MoverType.SELF, new Vec3(0.0, fixY, 0.0));
         }
 
         level.playSound(null, player, soundEvent.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -291,7 +291,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         if (!(attacker instanceof ServerPlayer player) || !MaceItem.canSmashAttack(player)) return true;
-        ServerLevel level = (ServerLevel) attacker.level();
+        final ServerLevel level = (ServerLevel) attacker.level();
         if (player.isIgnoringFallDamageFromCurrentImpulse() && player.currentImpulseImpactPos != null) {
             if (player.currentImpulseImpactPos.y > player.position().y) {
                 player.currentImpulseImpactPos = player.position();

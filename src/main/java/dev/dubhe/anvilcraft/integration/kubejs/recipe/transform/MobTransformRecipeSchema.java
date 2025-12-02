@@ -38,8 +38,7 @@ public interface MobTransformRecipeSchema {
         }
 
         public MobTransformKubeRecipe predicate(Consumer<NumericTagValuePredicate.Builder> consumer) {
-            if (getValue(NUMERIC_TAG_VALUE_PREDICATES) == null)
-                setValue(NUMERIC_TAG_VALUE_PREDICATES, new ArrayList<>());
+            if (getValue(NUMERIC_TAG_VALUE_PREDICATES) == null) setValue(NUMERIC_TAG_VALUE_PREDICATES, new ArrayList<>());
             var builder = NumericTagValuePredicate.builder();
             consumer.accept(builder);
             getValue(NUMERIC_TAG_VALUE_PREDICATES).add(builder.build());

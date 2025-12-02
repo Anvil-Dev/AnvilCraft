@@ -15,12 +15,16 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModDamageTypeTagProvider extends DamageTypeTagsProvider {
 
-    public ModDamageTypeTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, AnvilCraft.MOD_ID, existingFileHelper);
+    public ModDamageTypeTagProvider(
+        PackOutput output,
+        CompletableFuture<HolderLookup.Provider> future,
+        @Nullable ExistingFileHelper helper
+    ) {
+        super(output, future, AnvilCraft.MOD_ID, helper);
     }
 
     @Override
-    protected void addTags(@NotNull HolderLookup.Provider pProvider) {
+    protected void addTags(@NotNull HolderLookup.Provider registries) {
         this.tag(DamageTypeTags.BYPASSES_ARMOR).addOptional(ModDamageTypes.LOST_IN_TIME.location());
         this.tag(DamageTypeTags.BYPASSES_RESISTANCE).addOptional(ModDamageTypes.LOST_IN_TIME.location());
         this.tag(DamageTypeTags.NO_KNOCKBACK).addOptional(ModDamageTypes.LOST_IN_TIME.location());

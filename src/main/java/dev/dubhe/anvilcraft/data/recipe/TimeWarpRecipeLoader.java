@@ -283,7 +283,7 @@ public class TimeWarpRecipeLoader {
             .save(
                 provider,
                 AnvilCraft.of("time_warp/oil_from_" + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath())
-            );
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -295,6 +295,6 @@ public class TimeWarpRecipeLoader {
             .save(
                 provider,
                 AnvilCraft.of("time_warp/oil_from_" + input.location().getPath())
-            );
+        );
     }
 }

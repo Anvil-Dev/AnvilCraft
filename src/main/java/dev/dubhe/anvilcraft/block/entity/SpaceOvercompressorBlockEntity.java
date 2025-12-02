@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -19,12 +18,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 @Getter
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class SpaceOvercompressorBlockEntity extends BlockEntity {
 
     public static long NEUTRONIUM_INGOT_MASS = 10_000_000;

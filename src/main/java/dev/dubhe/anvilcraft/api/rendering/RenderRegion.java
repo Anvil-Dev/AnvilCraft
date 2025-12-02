@@ -188,6 +188,4 @@ public class RenderRegion {
             cancelled = true;
         }
     }
-
-
 }

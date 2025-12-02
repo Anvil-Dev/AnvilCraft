@@ -78,15 +78,11 @@ public class ModCriterionTriggers {
         AnvilHammerHurtEntityTrigger::new
     );
 
-    public static final DeferredHolder<CriterionTrigger<?>, PlayerKilledEntityByAnvilHammerTrigger> PLAYER_KILLED_ENTITY_BY_ANVIL_HAMMER = REGISTER.register(
-        "player_killed_entity_by_anvil_hammer",
-        PlayerKilledEntityByAnvilHammerTrigger::new
-    );
+    public static final DeferredHolder<CriterionTrigger<?>, PlayerKilledEntityByAnvilHammerTrigger> PLAYER_KILLED_ENTITY_BY_ANVIL_HAMMER =
+        REGISTER.register("player_killed_entity_by_anvil_hammer", PlayerKilledEntityByAnvilHammerTrigger::new);
 
-    public static final DeferredHolder<CriterionTrigger<?>, AnvilHitPiezoelectricCrystalTrigger> ANVIL_HIT_PIEZOELECTRIC_CRYSTAL = REGISTER.register(
-        "anvil_hit_piezoelectric_crystal",
-        AnvilHitPiezoelectricCrystalTrigger::new
-    );
+    public static final DeferredHolder<CriterionTrigger<?>, AnvilHitPiezoelectricCrystalTrigger> ANVIL_HIT_PIEZOELECTRIC_CRYSTAL =
+        REGISTER.register("anvil_hit_piezoelectric_crystal", AnvilHitPiezoelectricCrystalTrigger::new);
 
     public static final DeferredHolder<CriterionTrigger<?>, PlayerWearAnvilHammerTrigger> PLAYER_WEAR_ANVIL_HAMMER = REGISTER.register(
         "player_wear_anvil_hammer",

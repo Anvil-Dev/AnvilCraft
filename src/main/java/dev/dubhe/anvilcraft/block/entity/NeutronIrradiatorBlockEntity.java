@@ -23,7 +23,6 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
 
     //    public static void tick(Level level, BlockPos pos, BlockState state, NeutronIrradiatorBlockEntity blockEntity) {
     //        if (level.getGameTime() % 2 != 0) return;
-    //
     //        // 定义检测范围 - 中子辐照器自身及上方7格范围
     //        AABB detectionArea = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + RANGE + 1, pos.getZ() + 1);
     //        // 获取范围内的所有实体

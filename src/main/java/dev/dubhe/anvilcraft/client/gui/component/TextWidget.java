@@ -1,16 +1,11 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TextWidget extends StringWidget {
     private final TextProvider provider;
     protected float alignX = 0.5F;
@@ -72,8 +67,11 @@ public class TextWidget extends StringWidget {
                     return;
                 }
 
-                if (scaleX < 1 && scaleY > 1) scaleY = 1;
-                else if (scaleY < 1 && scaleX > 1) scaleX = 1;
+                if (scaleX < 1 && scaleY > 1) {
+                    scaleY = 1;
+                } else if (scaleY < 1 && scaleX > 1) {
+                    scaleX = 1;
+                }
 
                 double offsetX = scaleX >= 1 ? this.alignX * (this.getWidth() - font.width(component)) : 0;
                 double offsetY = scaleY >= 1 ? (this.getHeight() - font.lineHeight) / 2.0 : 0;

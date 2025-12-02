@@ -14,7 +14,10 @@ import java.util.UUID;
 
 @EventBusSubscriber
 public class FakePlayerSupport {
-    public static final GameProfile GAME_PROFILE = new GameProfile(UUID.fromString("11451400-4ed2-4b39-8ef5-7d39ce3379a6"), "TheGiantAnvil");
+    public static final GameProfile GAME_PROFILE = new GameProfile(
+        UUID.fromString("11451400-4ed2-4b39-8ef5-7d39ce3379a6"),
+        "TheGiantAnvil"
+    );
 
     private static Map<ServerLevel, FakePlayer> fakePlayers = new HashMap<>();
 

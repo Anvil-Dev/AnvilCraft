@@ -81,7 +81,9 @@ public class TeslaTowerButton extends Button {
                 id, searchText.replaceFirst("#", ""), ChatFormatting.GRAY);
             guiGraphics.renderTooltip(
                 Minecraft.getInstance().font,
-                filterText.getString().isEmpty() ? List.of(message.getVisualOrderText()) : List.of(message.getVisualOrderText(), filterText.getVisualOrderText()),
+                filterText.getString().isEmpty()
+                ? List.of(message.getVisualOrderText())
+                : List.of(message.getVisualOrderText(), filterText.getVisualOrderText()),
                 mouseX,
                 mouseY);
         }

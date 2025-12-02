@@ -25,9 +25,8 @@ import java.util.List;
 
 /**
  * 膨发配方类
- * <p>
- * 该配方用于在铁砧下落时使物品在炼药锅中膨发，需要在铁砧下方放置炼药锅作为触发条件
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时使物品在炼药锅中膨发，需要在铁砧下方放置炼药锅作为触发条件</p>
  */
 @Getter
 public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
@@ -228,7 +227,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
         }
 
         @Override

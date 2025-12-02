@@ -5,7 +5,8 @@ import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public enum DirectionCube3x3PartHalf implements IFlexibleMultiPartBlockState<DirectionCube3x3PartHalf, Direction>, ISimpleMultiPartBlockState<DirectionCube3x3PartHalf> {
+public enum DirectionCube3x3PartHalf
+    implements IFlexibleMultiPartBlockState<DirectionCube3x3PartHalf, Direction>, ISimpleMultiPartBlockState<DirectionCube3x3PartHalf> {
     BOTTOM_CENTER("bottom_center", 0, 0, 0),
     BOTTOM_W("bottom_w", -1, 0, 0),
     BOTTOM_E("bottom_e", 1, 0, 0),

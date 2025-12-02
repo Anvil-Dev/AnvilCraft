@@ -262,7 +262,7 @@ public interface InWorldRecipeSchema {
                 Comparable<?> value = state.getValue(property);
                 Comparable<?> defaultValue = defaultState.getValue(property);
                 if (value.equals(defaultValue)) continue;
-                //noinspection unchecked
+                // noinspection unchecked
                 builder.with((Property<T>) property, (T) value);
             }
             return this.addPredicate(builder.build());
@@ -340,7 +340,7 @@ public interface InWorldRecipeSchema {
             for (Property<?> property : state.getProperties()) {
                 Comparable<?> value = state.getValue(property);
                 if (value.equals(defaultState.getValue(property))) continue;
-                //noinspection unchecked
+                // noinspection unchecked
                 builder.with((Property<T>) property, (T) value);
             }
             return this.addPredicate(builder.build());

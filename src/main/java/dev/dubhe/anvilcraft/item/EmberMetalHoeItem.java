@@ -2,13 +2,8 @@ package dev.dubhe.anvilcraft.item;
 
 import com.mojang.datafixers.util.Unit;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.HoeItem;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class EmberMetalHoeItem extends HoeItem {
     public EmberMetalHoeItem(Properties properties) {
         super(

@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -20,13 +19,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.Contract;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     public final BlockPattern pattern;
     public final ItemStack result;

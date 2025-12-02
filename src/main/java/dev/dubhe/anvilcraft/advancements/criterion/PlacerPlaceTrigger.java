@@ -22,7 +22,9 @@ public class PlacerPlaceTrigger extends SimpleCriterionTrigger<PlacerPlaceTrigge
         this.trigger(player, (instance) -> instance.matches(block));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<BlockPredicate> block) implements SimpleCriterionTrigger.SimpleInstance {
+    public record TriggerInstance(
+        Optional<ContextAwarePredicate> player, Optional<BlockPredicate> block
+    ) implements SimpleCriterionTrigger.SimpleInstance {
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             BlockPredicate.CODEC.optionalFieldOf("block").forGetter(TriggerInstance::block)
@@ -33,7 +35,9 @@ public class PlacerPlaceTrigger extends SimpleCriterionTrigger<PlacerPlaceTrigge
         }
 
         public static Criterion<TriggerInstance> placeBlock(BlockPredicate.Builder block) {
-            return ModCriterionTriggers.PLACER_PLACE_BLOCK.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(block.build())));
+            return ModCriterionTriggers.PLACER_PLACE_BLOCK.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of(block.build()))
+            );
         }
 
         public boolean matches(Block block) {

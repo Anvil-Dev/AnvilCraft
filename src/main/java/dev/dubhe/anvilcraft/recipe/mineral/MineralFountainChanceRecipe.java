@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -31,11 +30,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Contract;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MineralFountainChanceRecipe implements Recipe<MineralFountainChanceRecipe.Input> {
     private final ResourceLocation dimension;
     private final BlockStatePredicate fromBlock;
@@ -213,15 +208,15 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (this.dimension == null) {
-                throw new IllegalArgumentException("Dimension must be not null, RecipeId: " + pId);
+                throw new IllegalArgumentException("Dimension must be not null, RecipeId: " + id);
             }
             if (this.fromBlock == null) {
-                throw new IllegalArgumentException("FromBlock must be not null, RecipeId: " + pId);
+                throw new IllegalArgumentException("FromBlock must be not null, RecipeId: " + id);
             }
             if (this.toBlock == null) {
-                throw new IllegalArgumentException("ToBlock must be not null, RecipeId: " + pId);
+                throw new IllegalArgumentException("ToBlock must be not null, RecipeId: " + id);
             }
         }
 

@@ -10,9 +10,6 @@ public class Lazy<T> {
         this.supplier = supplier;
     }
 
-    /**
-     *
-     */
     public T get() {
         synchronized (supplier) {
             if (instance == null) {

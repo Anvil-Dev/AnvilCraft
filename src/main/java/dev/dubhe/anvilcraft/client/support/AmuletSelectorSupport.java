@@ -229,6 +229,8 @@ public class AmuletSelectorSupport {
                 switch (getCurrentSelectedIndex()) {
                     case 0 -> this.renderSelectionBox(guiGraphics, x + 3, y + 3, x + 3 + 35, y + 3 + 53);
                     case 1 -> this.renderSelectionBox(guiGraphics, x + 39, y + 3, x + 39 + 35, y + 3 + 53);
+                    default -> {
+                    }
                 }
                 poseStack.popPose();
 
@@ -271,14 +273,14 @@ public class AmuletSelectorSupport {
                 if (index >= totems.size()) return;
                 if (this.alreadyUsed[i / 4][i % 4]) continue;
                 ItemStack totem = totems.get(index++);
-                int pX = x + i % 4 * 18;
-                int pY = y + i / 4 * 18;
-                guiGraphics.fill(pX, pY, pX + 17, pY + 17, COLOR_TOTEM);
-                guiGraphics.renderFakeItem(totem, pX + 1, pY + 1);
-                guiGraphics.renderItemDecorations(Minecraft.getInstance().font, totem, pX + 1, pY + 1);
+                int minX = x + i % 4 * 18;
+                int minY = y + i / 4 * 18;
+                guiGraphics.fill(minX, minY, minX + 17, minY + 17, COLOR_TOTEM);
+                guiGraphics.renderFakeItem(totem, minX + 1, minY + 1);
+                guiGraphics.renderItemDecorations(Minecraft.getInstance().font, totem, minX + 1, minY + 1);
 
                 if (index + this.alreadyUsedIndexes - 1 != getCurrentSelectedIndex()) continue;
-                this.renderSelectionBox(guiGraphics, pX, pY, pX + 18, pY + 18);
+                this.renderSelectionBox(guiGraphics, minX, minY, minX + 18, minY + 18);
             }
         }
 
@@ -291,21 +293,21 @@ public class AmuletSelectorSupport {
             guiGraphics.blit(SELECTION_BOX, minX, maxY, 9, 9, 0, 9, 9, 9, 18, 18);
             guiGraphics.blit(SELECTION_BOX, maxX, maxY, 9, 9, 9, 9, 9, 9, 18, 18);
 
-            int uWidth = maxX - minX - 9;
-            int vHeight = maxY - minY - 9;
-            if (uWidth != 0) {
+            int widthU = maxX - minX - 9;
+            int heightV = maxY - minY - 9;
+            if (widthU != 0) {
                 minX += 9;
                 maxY += 9;
-                guiGraphics.fill(minX, minY, minX + uWidth, minY + 1, COLOR_SELECTION_BOX_FRAME);
-                guiGraphics.fill(minX, maxY - 1, minX + uWidth, maxY, COLOR_SELECTION_BOX_FRAME);
+                guiGraphics.fill(minX, minY, minX + widthU, minY + 1, COLOR_SELECTION_BOX_FRAME);
+                guiGraphics.fill(minX, maxY - 1, minX + widthU, maxY, COLOR_SELECTION_BOX_FRAME);
                 minX -= 9;
                 maxY -= 9;
             }
-            if (vHeight != 0) {
+            if (heightV != 0) {
                 minY += 9;
                 maxX += 9;
-                guiGraphics.fill(minX, minY, minX + 1, minY + vHeight, COLOR_SELECTION_BOX_FRAME);
-                guiGraphics.fill(maxX - 1, minY, maxX, minY + vHeight, COLOR_SELECTION_BOX_FRAME);
+                guiGraphics.fill(minX, minY, minX + 1, minY + heightV, COLOR_SELECTION_BOX_FRAME);
+                guiGraphics.fill(maxX - 1, minY, maxX, minY + heightV, COLOR_SELECTION_BOX_FRAME);
                 minY -= 9;
                 maxX -= 9;
             }

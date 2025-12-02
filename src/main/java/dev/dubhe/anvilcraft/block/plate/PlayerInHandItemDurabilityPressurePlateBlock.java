@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.plate;
 
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -12,12 +11,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Set;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PlayerInHandItemDurabilityPressurePlateBlock extends PowerLevelPressurePlateBlock {
     public PlayerInHandItemDurabilityPressurePlateBlock(Properties properties) {
         super(BlockSetType.IRON, properties);

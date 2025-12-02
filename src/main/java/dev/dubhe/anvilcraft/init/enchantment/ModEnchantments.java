@@ -28,9 +28,6 @@ public class ModEnchantments {
         return ResourceKey.create(Registries.ENCHANTMENT, AnvilCraft.of(name));
     }
 
-    /**
-     *
-     */
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         HolderGetter<DamageType> damageTypeHolderGetter = context.lookup(Registries.DAMAGE_TYPE);
         HolderGetter<Enchantment> enchantmentHolderGetter = context.lookup(Registries.ENCHANTMENT);

@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.util.Util;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
@@ -34,10 +33,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements IDynamicPowerComponentHolder {
     @Shadow
@@ -46,8 +41,8 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @Unique
     private DynamicPowerComponent anvilcraft$component;
 
-    public ServerPlayerMixin(Level level, BlockPos pos, float yRot, GameProfile gameProfile) {
-        super(level, pos, yRot, gameProfile);
+    public ServerPlayerMixin(Level level, BlockPos pos, float rotY, GameProfile gameProfile) {
+        super(level, pos, rotY, gameProfile);
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))

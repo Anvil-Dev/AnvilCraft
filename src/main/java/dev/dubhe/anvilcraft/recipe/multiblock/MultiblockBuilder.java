@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -11,12 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Setter
 @Accessors(fluent = true, chain = true)
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     private BlockPattern pattern = BlockPattern.create();
@@ -57,12 +52,12 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
     }
 
     @Override
-    public void validate(ResourceLocation pId) {
+    public void validate(ResourceLocation id) {
         if (result == null) {
-            throw new IllegalArgumentException("Recipe result must not be null, Recipe: " + pId);
+            throw new IllegalArgumentException("Recipe result must not be null, Recipe: " + id);
         }
         if (!pattern.checkSymbols()) {
-            throw new IllegalArgumentException("Recipe pattern must contain all valid symbols: " + pId);
+            throw new IllegalArgumentException("Recipe pattern must contain all valid symbols: " + id);
         }
     }
 

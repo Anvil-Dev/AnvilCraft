@@ -35,7 +35,7 @@ final class CompileResult {
 
     void upload(VertexBuffer vertexBuffer) {
         if (freed) return;
-        VertexFormat.Mode mode = renderType.mode;
+        final VertexFormat.Mode mode = renderType.mode;
         vertexBuffer.bind();
         if (vertexBuffer.format != null) {
             vertexBuffer.format.clearBufferState();

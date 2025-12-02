@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.sliding;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -31,12 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.stream.Stream;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHammerChangeable {
     public static final List<Direction> SIGNAL_SOURCE_SIDES = List.of(
         Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
@@ -85,6 +81,8 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
             case SOUTH -> z += searchForward ? 1 : -1;
             case EAST -> x += searchForward ? 1 : -1;
             case WEST -> x -= searchForward ? 1 : -1;
+            default -> {
+            }
         }
 
         return this.isSameRailWithPower(level, new BlockPos(x, y, z), searchForward, 0, facing);
@@ -102,6 +100,8 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
             case SOUTH -> z += searchForward ? 1 : -1;
             case EAST -> x += searchForward ? 1 : -1;
             case WEST -> x -= searchForward ? 1 : -1;
+            default -> {
+            }
         }
 
         return this.isSameRailWithPower(level, new BlockPos(x, y, z), searchForward, recursionCount, facing);

@@ -10,16 +10,13 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
-import dev.dubhe.anvilcraft.recipe.generate.RecipeGenerator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.common.conditions.WithConditions;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,29 +37,6 @@ abstract class RecipeManagerMixin {
 
     @Shadow
     private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
-
-    @Inject(
-        method = "lambda$apply$0",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/google/common/collect/ImmutableMultimap$Builder;put(Ljava/lang/Object;Ljava/lang/Object;)Lcom/google/common/collect/ImmutableMultimap$Builder;"
-        )
-    )
-    private static void onBuildRecipe(
-        ResourceLocation resourceLocation,
-        ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byTypeBuilder,
-        ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byNameBuilder,
-        WithConditions<Recipe<?>> r,
-        CallbackInfo ci,
-        @Local Recipe<?> recipe,
-        @Local RecipeHolder<?> recipeHolder
-    ) {
-        RecipeGenerator.handleVanillaRecipe(recipe.getType(), recipeHolder)
-            .ifPresent(v -> {
-                byTypeBuilder.put(v.value().getType(), v);
-                byNameBuilder.put(v.id(), v);
-            });
-    }
 
     @Inject(
         method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;"

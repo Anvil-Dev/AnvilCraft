@@ -48,9 +48,6 @@ public class TeslaFilterSyncPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    /**
-     *
-     */
     public static void clientHandler(TeslaFilterSyncPacket data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().screen instanceof TeslaTowerScreen screen) {

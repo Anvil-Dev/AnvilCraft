@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -16,11 +15,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PulseGeneratorMenu extends AbstractContainerMenu {
     @Getter
     private final PulseGeneratorBlockEntity blockEntity;

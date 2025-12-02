@@ -25,7 +25,7 @@ public enum ItemDetectorProvider implements IProbeInfoProvider {
     @Override
     public void addProbeInfo(
         ProbeMode probeMode,
-        IProbeInfo iProbeInfo,
+        IProbeInfo probeInfo,
         Player player,
         Level level,
         BlockState blockState,
@@ -36,9 +36,9 @@ public enum ItemDetectorProvider implements IProbeInfoProvider {
             .ifPresent(b -> {
                 ItemDetectorBlockEntity blockEntity = (ItemDetectorBlockEntity) b;
                 int range = blockEntity.getRange();
-                iProbeInfo.text(Component.translatable("tooltip.anvilcraft.jade.item_detector", range));
+                probeInfo.text(Component.translatable("tooltip.anvilcraft.jade.item_detector", range));
                 ItemDetectorBlockEntity.Mode filterMode = blockEntity.getFilterMode();
-                iProbeInfo.text(Component.translatable("screen.anvilcraft.button.filter_mode",
+                probeInfo.text(Component.translatable("screen.anvilcraft.button.filter_mode",
                     Component.translatable("screen.anvilcraft.button.filter_mode_" + filterMode.buttonPath))
                 );
             });

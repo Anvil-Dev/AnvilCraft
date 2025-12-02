@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.ponder.scene.structure;
 
-
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.ponder.api.AnvilCraftSceneBuilder;
 import net.createmod.catnip.math.Pointing;

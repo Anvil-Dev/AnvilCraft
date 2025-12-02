@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.item;
 import dev.dubhe.anvilcraft.integration.patchouli.util.PatchouliUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -14,10 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class GuideBookItem extends Item {
     public GuideBookItem(Properties properties) {
         super(properties);

@@ -45,17 +45,17 @@ public class ChuteScene {
         BlockPos chutePos = hopperPos.east(2);
         BlockPos chuteTargetPos = chutePos.below();
 
-        Vec3 hopperItemVec = util.vector().topOf(hopperPos).add(0, 1, 0);
-        Vec3 chuteItemVec = util.vector().topOf(chutePos).add(0, 1, 0);
-        Vec3 targetItemVec = util.vector().topOf(chuteTargetPos);
-        Vec3 itemEntityPos = util.vector().centerOf(chuteTargetPos);
+        final Vec3 hopperItemVec = util.vector().topOf(hopperPos).add(0, 1, 0);
+        final Vec3 chuteItemVec = util.vector().topOf(chutePos).add(0, 1, 0);
+        final Vec3 targetItemVec = util.vector().topOf(chuteTargetPos);
+        final Vec3 itemEntityPos = util.vector().centerOf(chuteTargetPos);
 
-        ItemStack ironIngot = new ItemStack(Items.IRON_INGOT, 1);
-        ItemStack ironIngots = new ItemStack(Items.IRON_INGOT, 64);
-        ItemStack goldIngot = new ItemStack(Items.GOLD_INGOT, 64);
+        final ItemStack ironIngot = new ItemStack(Items.IRON_INGOT, 1);
+        final ItemStack ironIngots = new ItemStack(Items.IRON_INGOT, 64);
+        final ItemStack goldIngot = new ItemStack(Items.GOLD_INGOT, 64);
 
-        Selection hopper = util.select().position(hopperPos);
-        Selection chute = util.select().position(chutePos);
+        final Selection hopper = util.select().position(hopperPos);
+        final Selection chute = util.select().position(chutePos);
 
         // 放置漏斗
         builder.world().setBlock(hopperPos, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.DOWN), false);
@@ -93,7 +93,7 @@ public class ChuteScene {
         builder.idle(8);
 
         // 溜槽一次性输出一组物品
-        ElementLink<EntityElement> chuteItem2 = builder.world().createItemEntity(targetItemVec, Vec3.ZERO, ironIngots);
+        final ElementLink<EntityElement> chuteItem2 = builder.world().createItemEntity(targetItemVec, Vec3.ZERO, ironIngots);
         builder.idle(8);
 
         // 并且可以将物品作为掉落物投掷出来
@@ -160,18 +160,18 @@ public class ChuteScene {
         BlockPos topChutePos = util.grid().at(2, 3, 2);
         BlockPos simplePos = util.grid().at(2, 2, 2);
 
-        Selection simple = util.select().position(simplePos);
-        Selection topChute = util.select().position(topChutePos);
-        Selection lever = util.select().position(leverPos);
+        final Selection simple = util.select().position(simplePos);
+        final Selection topChute = util.select().position(topChutePos);
+        final Selection lever = util.select().position(leverPos);
 
-        Vec3 topItemVec = util.vector().topOf(topChutePos).add(0, 1, 0);
-        Vec3 targetItemVec = util.vector().topOf(new BlockPos(2, 1, 2));
-        Vec3 leftItemVec = util.vector().topOf(chutePos).add(0, 1, 0);
+        final Vec3 topItemVec = util.vector().topOf(topChutePos).add(0, 1, 0);
+        final Vec3 targetItemVec = util.vector().topOf(new BlockPos(2, 1, 2));
+        final Vec3 leftItemVec = util.vector().topOf(chutePos).add(0, 1, 0);
 
-        ItemStack diamonds = new ItemStack(Items.DIAMOND, 16);
-        ItemStack emeralds = new ItemStack(Items.EMERALD, 32);
-        ItemStack redstoneItems = new ItemStack(Items.REDSTONE, 16);
-        ItemStack moreItems = new ItemStack(Items.DIAMOND, 16);
+        final ItemStack diamonds = new ItemStack(Items.DIAMOND, 16);
+        final ItemStack emeralds = new ItemStack(Items.EMERALD, 32);
+        final ItemStack redstoneItems = new ItemStack(Items.REDSTONE, 16);
+        final ItemStack moreItems = new ItemStack(Items.DIAMOND, 16);
 
         // 放置一个溜槽
         builder.world().setBlock(chutePos, ModBlocks.CHUTE.getDefaultState().setValue(ChuteBlock.FACING, Direction.EAST), false);
@@ -185,12 +185,11 @@ public class ChuteScene {
         builder.idle(20);
 
         // 第二个溜槽变为简易溜槽
-        builder.world()
-            .modifyBlock(
-                simplePos,
-                state -> ModBlocks.SIMPLE_CHUTE.getDefaultState().setValue(SimpleChuteBlock.FACING, Direction.DOWN),
-                false
-            );
+        builder.world().modifyBlock(
+            simplePos,
+            state -> ModBlocks.SIMPLE_CHUTE.getDefaultState().setValue(SimpleChuteBlock.FACING, Direction.DOWN),
+            false
+        );
 
         builder.overlay()
             .showText(40)
@@ -291,11 +290,11 @@ public class ChuteScene {
 
         BlockPos chutePos = util.grid().at(2, 2, 2);
 
-        Vec3 itemDropPos = util.vector().topOf(chutePos).add(0, 1, 0);
-        Vec3 targetItemPos = util.vector().topOf(util.grid().at(2, 1, 2));
+        final Vec3 itemDropPos = util.vector().topOf(chutePos).add(0, 1, 0);
+        final Vec3 targetItemPos = util.vector().topOf(util.grid().at(2, 1, 2));
 
-        ItemStack diamond = new ItemStack(Items.DIAMOND);
-        ItemStack iron = new ItemStack(Items.IRON_INGOT);
+        final ItemStack diamond = new ItemStack(Items.DIAMOND);
+        final ItemStack iron = new ItemStack(Items.IRON_INGOT);
 
         // 放置溜槽
         builder.world().setBlock(chutePos, ModBlocks.CHUTE.getDefaultState().setValue(ChuteBlock.FACING, Direction.DOWN), false);

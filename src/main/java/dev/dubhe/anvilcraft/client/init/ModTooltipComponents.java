@@ -4,6 +4,6 @@ import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactori
 
 public class ModTooltipComponents {
     public static void register(RegisterClientTooltipComponentFactoriesEvent event) {
-        //event.register(BoxTooltip.class, ClientBoxTooltip::new);
+        // event.register(BoxTooltip.class, ClientBoxTooltip::new);
     }
 }

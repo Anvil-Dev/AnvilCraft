@@ -41,9 +41,8 @@ import java.util.Objects;
 
 /**
  * 抽象处理配方类
- * <p>
- * 该类是所有处理类型配方的基类，定义了配方的基本结构和通用方法
- * </p>
+ *
+ * <p>该类是所有处理类型配方的基类，定义了配方的基本结构和通用方法</p>
  */
 @Getter
 public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InWorldRecipe {
@@ -416,21 +415,20 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (itemIngredients.isEmpty()) {
-                throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
             if (results.isEmpty()) {
-                throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }
     }
 
     /**
      * 配方属性类
-     * <p>
-     * 定义配方的各种属性，包括输入输出偏移量、输入输出内容等
-     * </p>
+     *
+     * <p>定义配方的各种属性，包括输入输出偏移量、输入输出内容等</p>
      */
     @Getter
     public static class Property {
@@ -599,6 +597,16 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         }
 
         /**
+         * 设置输入方块列表（可变参数形式）
+         *
+         * @param inputBlocks 输入方块数组
+         * @return 属性实例
+         */
+        public Property setInputBlocks(BlockStatePredicate... inputBlocks) {
+            return this.setInputBlocks(Arrays.asList(inputBlocks));
+        }
+
+        /**
          * 设置是否消耗输入方块
          *
          * @param consumeInputBlocks 是否消耗输入方块
@@ -607,16 +615,6 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         public Property setConsumeInputBlocks(boolean consumeInputBlocks) {
             this.consumeInputBlocks = consumeInputBlocks;
             return this;
-        }
-
-        /**
-         * 设置输入方块列表（可变参数形式）
-         *
-         * @param inputBlocks 输入方块数组
-         * @return 属性实例
-         */
-        public Property setInputBlocks(BlockStatePredicate... inputBlocks) {
-            return this.setInputBlocks(Arrays.asList(inputBlocks));
         }
 
         /**

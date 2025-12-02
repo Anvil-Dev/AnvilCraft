@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.network.ItemDetectorChangeRangePacket;
 import dev.dubhe.anvilcraft.network.MachineCycleFilterModePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -25,12 +24,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu>
     implements IFilterScreen<ItemDetectorMenu> {
 
@@ -144,7 +140,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
         List<Component> components = super.getTooltipFromContainerItem(stack);
         if (this.hoveringNonEmptyFilterSlot()) {
             components.add(scrollToChangeTooltip);
-            components.add(Component.translatable("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit")
+            components.add(Component.translatable("screen.anvilcraft.filter.scroll_to_change")
                 .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
             components.add(shiftToScrollFasterTooltip);
         }

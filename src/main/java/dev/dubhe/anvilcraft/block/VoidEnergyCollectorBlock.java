@@ -29,18 +29,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
 public class VoidEnergyCollectorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16)
     );
     public static BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    public VoidEnergyCollectorBlock(Properties pProperties) {
-        super(pProperties);
+    public VoidEnergyCollectorBlock(Properties properties) {
+        super(properties);
     }
 
     @Override

@@ -77,7 +77,14 @@ public abstract class HeatableBlock extends Block {
 
     @Override
     @SuppressWarnings("deprecation")
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.getBlockState(neighborPos).is(Blocks.TNT)) {
             TntBlock.explode(level, neighborPos);
             level.removeBlock(neighborPos, false);

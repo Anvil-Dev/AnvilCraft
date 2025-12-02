@@ -273,6 +273,7 @@ public class AnvilCraftRecipeComponents {
         public RecipeComponentType<?> type() {
             return TYPE;
         }
+
         @Override
         public Codec<TransformOptions> codec() {
             return TransformOptions.CODEC;

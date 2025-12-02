@@ -20,7 +20,7 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
 
     @Override
     protected MapCodec<? extends DirectionalBlock> codec() {
-        return null;
+        return Block.simpleCodec(BlockDevourerBlock::new);
     }
 
     @Override
@@ -29,7 +29,6 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
         builder.add(FACING);
     }
 
-
     @Override
     public @NotNull BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
@@ -37,7 +36,7 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
 
     @Override
     public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override

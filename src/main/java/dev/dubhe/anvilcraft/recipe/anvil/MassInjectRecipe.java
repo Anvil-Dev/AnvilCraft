@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -32,15 +31,12 @@ import net.neoforged.neoforge.common.conditions.NotCondition;
 import net.neoforged.neoforge.common.conditions.TagEmptyCondition;
 import org.jetbrains.annotations.Contract;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * 质量注入配方类，用于定义向物品注入质量的配方
  * 该类继承自 SingleItemRecipe，表示一种特殊的单物品配方
  */
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MassInjectRecipe extends SingleItemRecipe {
     /**
      * 质量值
@@ -139,23 +135,23 @@ public class MassInjectRecipe extends SingleItemRecipe {
     /**
      * 获取配方结果物品堆
      *
-     * @param pRegistries 注册表提供器
+     * @param registries 注册表提供器
      * @return 配方结果物品堆
      */
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
+    public ItemStack getResultItem(HolderLookup.Provider registries) {
         return ItemStack.EMPTY;
     }
 
     /**
      * 组装配方结果
      *
-     * @param pInput      配方输入
-     * @param pRegistries 注册表提供器
+     * @param input      配方输入
+     * @param registries 注册表提供器
      * @return 配方结果物品堆
      */
     @Override
-    public ItemStack assemble(SingleRecipeInput pInput, HolderLookup.Provider pRegistries) {
+    public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
         return ItemStack.EMPTY;
     }
 
@@ -222,7 +218,6 @@ public class MassInjectRecipe extends SingleItemRecipe {
     /**
      * 质量注入配方构建器类
      */
-    @MethodsReturnNonnullByDefault
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<MassInjectRecipe> {
         /**
@@ -303,16 +298,16 @@ public class MassInjectRecipe extends SingleItemRecipe {
         /**
          * 验证配方参数
          *
-         * @param pId 配方ID
+         * @param id 配方ID
          */
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (this.ingredient == null) {
-                throw new IllegalArgumentException("Recipe ingredient must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe ingredient must not be null, RecipeId: " + id);
             }
             if (this.mass <= 0) {
-                throw new IllegalArgumentException("Mass value must be non-negative, RecipeId: " + pId
-                    + "value: " + this.mass);
+                throw new IllegalArgumentException("Mass value must be non-negative, RecipeId: " + id
+                                                   + "value: " + this.mass);
             }
         }
 
@@ -350,15 +345,15 @@ public class MassInjectRecipe extends SingleItemRecipe {
         /**
          * 保存配方到指定位置
          *
-         * @param recipeOutput 配方输出
+         * @param output 配方输出
          * @param id           配方ID
          */
         @Override
-        public void save(RecipeOutput recipeOutput, ResourceLocation id) {
+        public void save(RecipeOutput output, ResourceLocation id) {
             if (this.tagCondition != null) {
-                recipeOutput = recipeOutput.withConditions(new NotCondition(new TagEmptyCondition(this.tagCondition)));
+                output = output.withConditions(new NotCondition(new TagEmptyCondition(this.tagCondition)));
             }
-            super.save(recipeOutput, id);
+            super.save(output, id);
         }
     }
 }

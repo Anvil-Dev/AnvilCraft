@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import dev.dubhe.anvilcraft.util.Util;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -43,10 +42,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class TeslaTowerBlock
     extends SimpleMultiPartBlock<Vertical4PartHalf>
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {
@@ -58,9 +53,6 @@ public class TeslaTowerBlock
     public static final VoxelShape UPPER_SHAPE = Shapes.join(Block.box(6, 8, 6, 10, 16, 10), Block.box(4, 0, 4, 12, 8, 12), BooleanOp.OR);
     public static final VoxelShape TOP_SHAPE = Shapes.join(Block.box(3, 6, 3, 13, 16, 13), Block.box(6, 0, 6, 10, 8, 10), BooleanOp.OR);
 
-    /**
-     * @param properties 属性
-     */
     public TeslaTowerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -98,12 +90,10 @@ public class TeslaTowerBlock
         builder.add(HALF).add(OVERLOAD).add(SWITCH);
     }
 
-
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
-
 
     @Override
     public VoxelShape getShape(
@@ -195,19 +185,19 @@ public class TeslaTowerBlock
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        BlockHitResult pHitResult
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
     ) {
-        if (pLevel.isClientSide) {
+        if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity be = pLevel.getBlockEntity(pPos);
-        if (be instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && pPlayer instanceof ServerPlayer sp) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-            ModMenuTypes.open(sp, teslaTowerBlockEntity, pPos);
+            ModMenuTypes.open(sp, teslaTowerBlockEntity, pos);
             PacketDistributor.sendToPlayer(sp, new TeslaFilterSyncPacket(teslaTowerBlockEntity.getWhiteList()));
             return InteractionResult.SUCCESS;
         }

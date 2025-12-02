@@ -24,11 +24,11 @@ import java.util.ArrayList;
 
 public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
     private static final int COOLDOWN = 2;
-//    private static final int DECAY_COOLDOWN = 60;
+    // private static final int DECAY_COOLDOWN = 60;
 
     private int cooldownCount = 2;
-    //注意：这里的decayCooldownCount初始值为1会让机器第一次发电（2秒后）时同时衰变一次空气
-    //这是为了防止放下来之后在“发电了”之后，在“衰变空气”之前破坏方块，来稳定白嫖电力
+    // 注意：这里的decayCooldownCount初始值为1会让机器第一次发电（2秒后）时同时衰变一次空气
+    // 这是为了防止放下来之后在“发电了”之后，在“衰变空气”之前破坏方块，来稳定白嫖电力
     private int decayCooldownCount = 1;
     private int blockCount = 0;
     private PowerGrid grid = null;
@@ -37,7 +37,6 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     private int time = 0;
     @Getter
     private float rotation = 0;
-
 
     public VoidEnergyCollectorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -113,7 +112,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         if (level == null || level.isClientSide()) return;
         if (this.cooldownCount-- > 1) return;
         this.cooldownCount = COOLDOWN;
-        int oldPower = this.power;
+        final int oldPower = this.power;
         this.blockCount = countBlocksInRange();
         this.power = getPowerFromBlockCount(this.blockCount);
         if (this.power > 0 && this.getBlockState().getBlock() instanceof VoidEnergyCollectorBlock voidEnergyCollector) {
@@ -143,9 +142,8 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
                     mpos.set(pos).move(i, j, k);
                     if (level.isOutsideBuildHeight(mpos)) continue;
                     BlockState blockState = level.getBlockState(mpos);
-                    //this disables the collector when there is another in 9x9x9
-                    if ((i != 0 || j != 0 || k != 0) && blockState.getBlock() instanceof VoidEnergyCollectorBlock)
-                        return true;
+                    // this disables the collector when there is another in 9x9x9
+                    if ((i != 0 || j != 0 || k != 0) && blockState.getBlock() instanceof VoidEnergyCollectorBlock) return true;
                 }
             }
         }
@@ -167,17 +165,18 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         for (int i = -2; i <= 2; i++) {
             for (int j = -2; j <= 2; j++) {
                 for (int k = -2; k <= 2; k++) {
-                    //the 5x5x5 detection that counts how many blocks are there
+                    // the 5x5x5 detection that counts how many blocks are there
                     mpos.set(this.getBlockPos()).move(i, j, k);
                     if (level.isOutsideBuildHeight(mpos)) continue;
                     BlockState blockState = level.getBlockState(mpos);
-                    if (blockState.getBlock() instanceof NegativeMatterBlock)
-                        count -= 1;
-                    else if (!blockState.isAir()
+                    if (blockState.getBlock() instanceof NegativeMatterBlock) count -= 1;
+                    else if (
+                        !blockState.isAir()
                         && !(blockState.getBlock() instanceof VoidMatterBlock)
                         && !(blockState.getBlock() instanceof VoidEnergyCollectorBlock)
-                    )
+                    ) {
                         count += 1;
+                    }
                 }
             }
         }

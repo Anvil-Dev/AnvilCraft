@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.util.MathUtil;
 import dev.dubhe.anvilcraft.util.function.Consumer4;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -17,12 +16,9 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class WheelWidget extends AbstractWidget {
     public static final int IGNORE_CURSOR_MOVE_LENGTH = 15;
     private static final Vector2f ROTATION_START = new Vector2f(0, 1);
@@ -31,9 +27,9 @@ public class WheelWidget extends AbstractWidget {
     private final Vector2f centerPos;
     private final float ringInnerRadius;
     private final float ringOuterRadius;
-    private final int delay; //ms
-    private final int animationMs; //ms
-    private final int closingAnimationMs; //ms
+    private final int delay; // ms
+    private final int animationMs; // ms
+    private final int closingAnimationMs; // ms
     private final int ringColor;
     private final int selectionEffectColor;
     private final int selectionEffectRadius;
@@ -282,7 +278,7 @@ public class WheelWidget extends AbstractWidget {
             this.animationStarted = true;
             this.displayTime = System.currentTimeMillis();
         }
-        PoseStack poseStack = guiGraphics.pose();
+        final PoseStack poseStack = guiGraphics.pose();
         float delta = this.displayTime + this.animationMs - System.currentTimeMillis();
         if (delta > 0) {
             float progress = 1 - (delta / this.animationMs);
@@ -380,7 +376,7 @@ public class WheelWidget extends AbstractWidget {
             poseStack.translate(x - 10, y - 10, 100);
             value.renderer.accept(guiGraphics, poseStack, 20, 20);
             poseStack.popPose();
-            int textAlpha = (int) (progress * 0xff) << 24;
+            final int textAlpha = (int) (progress * 0xff) << 24;
             poseStack.pushPose();
             float coordinateScale = 0.7f;
             float offsetX = 0.1f * this.width;

@@ -21,22 +21,31 @@ public class AnvilHammerClickBlockTrigger extends SimpleCriterionTrigger<AnvilHa
         this.trigger(player, (instance) -> instance.matches(type));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<String> type) implements SimpleCriterionTrigger.SimpleInstance {
+    public record TriggerInstance(
+        Optional<ContextAwarePredicate> player,
+        Optional<String> type
+    ) implements SimpleCriterionTrigger.SimpleInstance {
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             Codec.STRING.optionalFieldOf("type").forGetter(TriggerInstance::type)
         ).apply(instance, TriggerInstance::new));
 
         public static Criterion<TriggerInstance> leftClickBlock() {
-            return ModCriterionTriggers.ANVIL_HAMMER_CLICK_BLOCK.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of("left_click")));
+            return ModCriterionTriggers.ANVIL_HAMMER_CLICK_BLOCK.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of("left_click"))
+            );
         }
 
         public static Criterion<TriggerInstance> rightClickBlock() {
-            return ModCriterionTriggers.ANVIL_HAMMER_CLICK_BLOCK.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of("right_click")));
+            return ModCriterionTriggers.ANVIL_HAMMER_CLICK_BLOCK.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of("right_click"))
+            );
         }
 
         public static Criterion<TriggerInstance> shiftRightClickBlock() {
-            return ModCriterionTriggers.ANVIL_HAMMER_CLICK_BLOCK.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of("shift_right_click")));
+            return ModCriterionTriggers.ANVIL_HAMMER_CLICK_BLOCK.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of("shift_right_click"))
+            );
         }
 
         public boolean matches(String type) {

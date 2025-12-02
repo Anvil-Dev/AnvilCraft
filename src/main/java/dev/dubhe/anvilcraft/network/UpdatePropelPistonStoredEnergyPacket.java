@@ -11,7 +11,9 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 public record UpdatePropelPistonStoredEnergyPacket(BlockPos pos, Integer energy) implements CustomPacketPayload {
-    public static final Type<UpdatePropelPistonStoredEnergyPacket> TYPE = new Type<>(AnvilCraft.of("client_update_propel_piston_stored_energy"));
+    public static final Type<UpdatePropelPistonStoredEnergyPacket> TYPE = new Type<>(AnvilCraft.of(
+        "client_update_propel_piston_stored_energy"
+    ));
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdatePropelPistonStoredEnergyPacket> STREAM_CODEC =
         StreamCodec.ofMember(UpdatePropelPistonStoredEnergyPacket::encode, UpdatePropelPistonStoredEnergyPacket::new);
     public static final IPayloadHandler<UpdatePropelPistonStoredEnergyPacket> HANDLER = UpdatePropelPistonStoredEnergyPacket::clientHandler;

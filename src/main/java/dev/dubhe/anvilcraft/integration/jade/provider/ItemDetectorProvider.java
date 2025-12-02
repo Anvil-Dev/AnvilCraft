@@ -21,7 +21,7 @@ public enum ItemDetectorProvider implements IBlockComponentProvider, IServerData
     INSTANCE;
 
     @Override
-    public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
+    public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
         boolean shiftKeyDown = Optional.ofNullable(Minecraft.getInstance().player)
             .map(LocalPlayer::isShiftKeyDown)
             .orElse(false);
@@ -29,13 +29,13 @@ public enum ItemDetectorProvider implements IBlockComponentProvider, IServerData
         CompoundTag serverData = blockAccessor.getServerData();
         if (serverData.contains("Range")) {
             int range = serverData.getInt("Range");
-            iTooltip.add(Component.translatable("tooltip.anvilcraft.jade.item_detector", range));
+            tooltip.add(Component.translatable("tooltip.anvilcraft.jade.item_detector", range));
         }
         if (serverData.contains("FilterMode")) {
             int ordinal = serverData.getInt("FilterMode");
             if (ordinal >= 0 && ordinal < Mode.values().length) {
                 Mode filterMode = Mode.values()[ordinal];
-                iTooltip.add(Component.translatable("screen.anvilcraft.button.filter_mode",
+                tooltip.add(Component.translatable("screen.anvilcraft.button.filter_mode",
                     Component.translatable("screen.anvilcraft.button.filter_mode_" + filterMode.buttonPath))
                 );
             }

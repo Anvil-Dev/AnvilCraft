@@ -15,7 +15,8 @@ abstract class AE2BatchCrafterBlockMixin {
         method = "onRemove",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/Containers;dropItemStack(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V"
+            target = "Lnet/minecraft/world/Containers;"
+                     + "dropItemStack(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V"
         )
     )
     void avoidDropWrappedGenericStack(

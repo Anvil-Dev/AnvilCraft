@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.data.lang;
 
 import com.tterrag.registrate.providers.RegistrateLangProvider;
-import org.jetbrains.annotations.NotNull;
 
 public class PatchouliLang {
 
@@ -10,6 +9,7 @@ public class PatchouliLang {
      *
      * @param provider 提供器
      */
+    @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrateLangProvider provider) {
         provider.add("message.anvilcraft.need_patchouli_installed", "Patchouli needs to be installed");
 

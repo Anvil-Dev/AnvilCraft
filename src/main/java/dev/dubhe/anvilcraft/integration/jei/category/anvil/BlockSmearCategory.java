@@ -21,7 +21,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -33,11 +32,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSmearRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -134,19 +130,17 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
         RenderSupport.renderBlock(
             guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderSupport.SINGLE_BLOCK
         );
-        if (recipe.getFirstInputBlock() != null) {
-            List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
-            BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-            RenderSupport.renderBlock(
-                guiGraphics,
-                renderedState,
-                110,
-                30,
-                10,
-                12,
-                RenderSupport.SINGLE_BLOCK
-            );
-        }
+        List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
+        BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
+        RenderSupport.renderBlock(
+            guiGraphics,
+            renderedState,
+            110,
+            30,
+            10,
+            12,
+            RenderSupport.SINGLE_BLOCK
+        );
         RenderSupport.renderBlock(
             guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK
         );

@@ -43,7 +43,7 @@ public record Merciless(boolean enabled) {
                 "InventoryUtil.getItems(Inventory, Predicate<ItemStack>) method has some problem. The predicate didn't work."
             ).enabled();
             int levelSum = 0;
-            float attackDamage;
+            final float attackDamage;
             float miningEfficiency = 0;
 
             ItemEnchantments.Mutable enchantmentsMutable = new ItemEnchantments.Mutable(

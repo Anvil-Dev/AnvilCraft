@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -24,12 +23,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@Setter
 @Getter
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@Setter
 public class EmberGrindstoneBlock extends BetterGrindstoneBlock implements IHammerRemovable, IEmberBlock {
 
     private static final Component CONTAINER_TITLE = Component.translatable("container.grindstone_title");
@@ -39,9 +34,6 @@ public class EmberGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
         super(properties);
     }
 
-    /**
-     *
-     */
     @SuppressWarnings("UnreachableCode")
     public InteractionResult use(
         BlockState state,

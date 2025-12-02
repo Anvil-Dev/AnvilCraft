@@ -34,9 +34,6 @@ public class RoyalUpgradeTemplateItem extends SmithingTemplateItem {
     private static final ResourceLocation EMPTY_SLOT_HAMMER = AnvilCraft.of("item/empty_slot_hammer");
     private static final ResourceLocation EMPTY_SLOT_BLOCK = AnvilCraft.of("item/empty_slot_block");
 
-    /**
-     * @param properties 物品属性
-     */
     public RoyalUpgradeTemplateItem(@SuppressWarnings("unused") Properties properties) {
         super(
             APPLIES_TO,

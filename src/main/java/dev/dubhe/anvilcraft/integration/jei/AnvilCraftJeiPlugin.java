@@ -155,7 +155,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<AnvilCollisionCraftRecipe>> ANVIL_COLLISION =
         createRecipeHolderType("anvil_collision");
 
-
     @Override
     public ResourceLocation getPluginUid() {
         return AnvilCraft.of("jei_plugin");

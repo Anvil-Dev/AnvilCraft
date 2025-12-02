@@ -11,9 +11,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public class MagnetoElectricCoreBlock extends Block implements IHammerRemovable {
     public static final MapCodec<MagnetoElectricCoreBlock> CODEC = simpleCodec(MagnetoElectricCoreBlock::new);
     public static final VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);

@@ -14,7 +14,6 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -22,10 +21,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressRecipe> {
     public ItemCompressCategory(IGuiHelper helper) {
         super(
@@ -47,7 +42,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY) {
-        ItemCompressRecipe recipe = recipeHolder.value();
+        final ItemCompressRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
             guiGraphics,

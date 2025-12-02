@@ -42,6 +42,8 @@ public class Slider extends AbstractWidget {
     public static boolean scrolling = false;
 
     /**
+     * 构建一个Slider
+     *
      * @param x        X
      * @param y        Y
      * @param min      最小值
@@ -124,7 +126,7 @@ public class Slider extends AbstractWidget {
     }
 
     /**
-     * @param value 设置 Value 并更新
+     * 设置 Value 并更新
      */
     public void setValueWithUpdate(int value) {
         this.setValue(value);

@@ -19,8 +19,8 @@ import java.util.Optional;
  * 一个用于处理各种炼药锅逻辑的工具类，集中了各种各样的特判代码。<s>把特判集中到一个类里面总比在各种类里面到处特判要好吧</s>
  *
  * @apiNote 本类中所有的名为 {@code cauldronContent}的方法参数代表“炼药锅内容物”，传入的是一种非空的炼药锅方块。
- * 它是一个类似于“流体”的抽象概念，但由于细雪炼药锅装的不是流体，我们不能用{@code Fluid}作为参数。<br/>
- * 本类的大部分方法在 {@code cauldronContent} 方法参数不是一种炼药锅时不会抛出异常，而是返回一些默认值。<br/>
+ *     它是一个类似于“流体”的抽象概念，但由于细雪炼药锅装的不是流体，我们不能用{@code Fluid}作为参数。<br>
+ *     本类的大部分方法在 {@code cauldronContent} 方法参数不是一种炼药锅时不会抛出异常，而是返回一些默认值。<br>
  */
 public class CauldronUtil {
 
@@ -97,8 +97,8 @@ public class CauldronUtil {
      * @param cauldronContent 需获取方块状态的炼药锅内容物
      * @param cauldronLevel   需获取的方块状态的层数
      * @return 炼药锅内容物在对应层数下的方块状态
-     * @apiNote 此方法不检测 {@code cauldronLevel} 参数的合法性，而是将其钳制在 {@code 0}与最大层数之间。
-     * 此外，此方法暂时不考虑炼药锅有除了 {@code level}以外的方块状态。<s>等出现兼容性问题以后再改</s>
+     * @apiNote 此方法不检测 {@code cauldronLevel} 参数的合法性，而是将其钳制在 {@code 0}与最大层数之间。<br>
+     *     此外，此方法暂时不考虑炼药锅有除了 {@code level} 以外的方块状态。<s>等出现兼容性问题以后再改</s>
      */
     public static BlockState getStateFromContentAndLevel(Block cauldronContent, int cauldronLevel) {
         if (!(cauldronContent instanceof AbstractCauldronBlock cauldron)) return cauldronContent.defaultBlockState();

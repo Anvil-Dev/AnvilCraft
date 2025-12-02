@@ -39,7 +39,7 @@ public class TwilightIntegration {
             .save(
                 provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
                 AnvilCraft.of("jewel_crafting/twilight_forest_lamp_of_cinders")
-            );
+        );
 
         JewelCraftingRecipe.builder()
             .requires(ModItems.MAGNET_INGOT, 4)
@@ -50,7 +50,7 @@ public class TwilightIntegration {
             .save(
                 provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
                 AnvilCraft.of("jewel_crafting/twilight_forest_ore_magnet")
-            );
+        );
 
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, TFBlocks.KNIGHTMETAL_BLOCK)
             .pattern("CCC")
@@ -62,7 +62,7 @@ public class TwilightIntegration {
             .save(
                 provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
                 AnvilCraft.of("twilight_forest_knightmetal_block")
-            );
+        );
 
         ItemInjectRecipe.builder()
             .requires(ModItems.EMBER_METAL_INGOT)
@@ -71,20 +71,20 @@ public class TwilightIntegration {
             .save(
                 provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
                 AnvilCraft.of("item_inject/twilight_forest_fiery_block")
-            );
+        );
 
         MobTransformWithItemRecipe.from(EntityType.ZOMBIE, Items.STONE_PICKAXE, EntityType.GIANT, TFItems.GIANT_PICKAXE.toStack())
             .setItemChancePercentagePerItem(50)
             .save(
                 provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
                 AnvilCraft.of("mob_transform_with_item/zombie_to_giant_pickaxe")
-            );
+        );
 
         MobTransformWithItemRecipe.from(EntityType.ZOMBIE, Items.STONE_SWORD, EntityType.GIANT, TFItems.GIANT_SWORD.toStack())
             .setItemChancePercentagePerItem(50)
             .save(
                 provider.withConditions(new ModLoadedCondition(TwilightForestMod.ID)),
                 AnvilCraft.of("mob_transform_with_item/zombie_to_giant_sword")
-            );
+        );
     }
 }

@@ -39,7 +39,7 @@ public class SpaceOvercompressorScene {
         // 创建铁砧
         BlockPos anvilPos = new BlockPos(2, 4, 2);
         builder.world().setBlock(anvilPos, Blocks.ANVIL.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> anvilLink =
+        final ElementLink<WorldSectionElement> anvilLink =
             builder.world().showIndependentSection(util.select().position(anvilPos), Direction.NORTH);
         builder.idle(10);
         // 在 y=0 层，从 (1,0,1) 到 (3,0,3) 的 3x3 区域内放置飘浮粉块

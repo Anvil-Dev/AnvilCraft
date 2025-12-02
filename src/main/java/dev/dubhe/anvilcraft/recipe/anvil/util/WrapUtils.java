@@ -21,9 +21,8 @@ import java.util.List;
 
 /**
  * 包装工具类
- * <p>
- * 提供各种配方相关对象的创建和转换工具方法
- * </p>
+ *
+ * <p>提供各种配方相关对象的创建和转换工具方法</p>
  */
 public class WrapUtils {
     /**
@@ -88,14 +87,11 @@ public class WrapUtils {
      * 根据ChanceBlockState和Y轴偏移创建结果列表（不可变）
      *
      * @param result  ChanceBlockState
-     * @param yOffset Y轴偏移
+     * @param offsetY Y轴偏移
      * @return 结果列表
      */
-    public static @Unmodifiable List<IRecipeOutcome<?>> getOutcomes(
-        ChanceBlockState result,
-        int yOffset
-    ) {
-        return List.of(result.toSetBlock(new Vec3(0, yOffset, 0)));
+    public static @Unmodifiable List<IRecipeOutcome<?>> getOutcomes(ChanceBlockState result, int offsetY) {
+        return List.of(result.toSetBlock(new Vec3(0, offsetY, 0)));
     }
 
     /**

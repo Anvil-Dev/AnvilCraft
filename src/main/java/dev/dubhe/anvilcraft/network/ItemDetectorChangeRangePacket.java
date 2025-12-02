@@ -36,12 +36,12 @@ public record ItemDetectorChangeRangePacket(int range) implements CustomPacketPa
         });
     }
 
-//    public static void clientHandler(ItemDetectorChangeRangePacket data, IPayloadContext context) {
-//        Minecraft client = Minecraft.getInstance();
-//        context.enqueueWork(() -> {
-//            if (client.screen instanceof ItemDetectorScreen screen) {
-//                screen.getMenu().setRange(data.range);
-//            }
-//        });
-//    }
+    // public static void clientHandler(ItemDetectorChangeRangePacket data, IPayloadContext context) {
+    //     Minecraft client = Minecraft.getInstance();
+    //     context.enqueueWork(() -> {
+    //         if (client.screen instanceof ItemDetectorScreen screen) {
+    //             screen.getMenu().setRange(data.range);
+    //         }
+    //     });
+    // }
 }

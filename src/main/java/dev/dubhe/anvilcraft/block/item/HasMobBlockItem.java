@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -32,12 +31,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class HasMobBlockItem extends BlockItem {
     public HasMobBlockItem(Block block, Properties properties) {
         super(block, properties);
@@ -107,7 +103,6 @@ public class HasMobBlockItem extends BlockItem {
         if (savedEntity == null) return null;
         return savedEntity.toEntity(level);
     }
-
 
     @SuppressWarnings("deprecation")
     public static ItemStack saveMobInItem(Level level, Mob entity, @Nullable Player player, ItemStack stack) {

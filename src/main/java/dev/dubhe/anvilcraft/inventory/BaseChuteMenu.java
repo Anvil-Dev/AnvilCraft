@@ -17,13 +17,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @Getter
 public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends BaseMachineMenu implements IFilterMenu {
     public final T blockEntity;
     private final Level level;
 
     public BaseChuteMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
 
     /**
@@ -34,7 +36,8 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
      * @param inventory   背包
      * @param blockEntity 方块实体
      */
-    public BaseChuteMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    @SuppressWarnings("unchecked")
+    public BaseChuteMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, blockEntity);
         this.blockEntity = (T) blockEntity;
         this.level = inventory.player.level();
@@ -87,7 +90,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) {
             return ItemStack.EMPTY;
         } // EMPTY_ITEM
@@ -118,7 +121,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         sourceSlot.onTake(playerIn, sourceStack);
         return copyOfSourceStack;
     }
-
 
     // 移动物品到可用槽位
     private boolean moveItemToActiveSlot(ItemStack stack) {

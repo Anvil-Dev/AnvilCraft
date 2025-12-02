@@ -16,6 +16,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 
 // CHECKSTYLE:OFF
+@SuppressWarnings("checkstyle:all")
 public class ember_metal_heavy_halberd<T extends Entity> extends EntityModel<T> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "ember_metal_heavy_halberd"), "main");

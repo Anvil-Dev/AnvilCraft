@@ -87,7 +87,6 @@ public abstract class LevelRendererMixin {
         CacheableBERenderingPipeline.getInstance().runTasks();
     }
 
-
     @Inject(
         method = "renderLevel",
         at = @At(
@@ -126,7 +125,7 @@ public abstract class LevelRendererMixin {
         RenderTarget mcInput = ModShaders.getBloomChain().getTempTarget("mcinput");
         mcInput.setClearColor(0, 0, 0, 0);
         mcInput.clear(Minecraft.ON_OSX);
-        int oldTexture = GlStateManager._getActiveTexture();
+        final int oldTexture = GlStateManager._getActiveTexture();
         if (ModRenderTargets.getTempTarget() != null) {
             ModRenderTargets.getTempTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
         }

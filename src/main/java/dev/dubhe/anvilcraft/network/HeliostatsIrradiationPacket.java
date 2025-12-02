@@ -51,9 +51,6 @@ public class HeliostatsIrradiationPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    /**
-     *
-     */
     public static void clientHandler(HeliostatsIrradiationPacket data, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (Minecraft.getInstance().level != null
@@ -64,9 +61,6 @@ public class HeliostatsIrradiationPacket implements CustomPacketPayload {
         });
     }
 
-    /**
-     *
-     */
     public static void serverHandler(HeliostatsIrradiationPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {

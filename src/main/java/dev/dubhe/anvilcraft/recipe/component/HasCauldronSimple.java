@@ -14,9 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * 简单的炼药锅条件
- * <p>
- * 该类用于定义配方中对炼药锅的要求，包括所需流体、消耗量和转换后的流体
- * </p>
+ *
+ * <p>该类用于定义配方中对炼药锅的要求，包括所需流体、消耗量和转换后的流体</p>
  *
  * @param fluid     流体ID
  * @param consume   消耗量（负数表示产生）

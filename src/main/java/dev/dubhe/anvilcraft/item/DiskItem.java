@@ -50,9 +50,6 @@ public class DiskItem extends Item {
             .tag();
     }
 
-    /**
-     *
-     */
     public static CompoundTag createData(ItemStack stack) {
         CompoundTag tag = new CompoundTag();
         stack.set(ModComponents.DISK_DATA, new DiskData(tag));

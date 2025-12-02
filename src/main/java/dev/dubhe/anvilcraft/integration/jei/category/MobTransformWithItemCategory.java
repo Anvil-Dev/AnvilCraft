@@ -144,7 +144,7 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
         double mouseX,
         double mouseY
     ) {
-        MobTransformWithItemRecipe recipe = recipeHolder.value();
+        final MobTransformWithItemRecipe recipe = recipeHolder.value();
 
         BlockState block = ModBlocks.CORRUPTED_BEACON
             .get()

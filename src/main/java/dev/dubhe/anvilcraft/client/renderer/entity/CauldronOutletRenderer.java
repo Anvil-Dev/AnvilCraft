@@ -12,9 +12,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity> {
     private final CauldronOutletModel model;
 

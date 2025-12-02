@@ -34,7 +34,7 @@ public class CookingScene {
 
         BlockPos anvilPos = util.grid().at(2, 4, 2);
         builder.world().setBlock(anvilPos, Blocks.ANVIL.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> anvilLink = builder.world()
+        final ElementLink<WorldSectionElement> anvilLink = builder.world()
             .showIndependentSection(util.select().position(anvilPos), Direction.DOWN);
 
         BlockPos cauldronPos = util.grid().at(2, 2, 2);

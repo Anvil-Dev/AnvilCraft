@@ -55,7 +55,7 @@ public class VanillaRecipesWrap {
         for (RecipeHolder<?> recipeHolder : recipes) {
             Recipe<?> recipe = recipeHolder.value();
             ItemStack stack = recipe.getResultItem(registries);
-            //noinspection ConstantValue
+            // noinspection ConstantValue
             if (stack == null) continue;
             Item item = stack.getItem();
             if (recipe.getIngredients().isEmpty() || recipe.getIngredients().getFirst().isCustom()) {
@@ -86,7 +86,7 @@ public class VanillaRecipesWrap {
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         Ingredient first = ingredients.getFirst();
         ItemStack result = recipe.getResultItem(registries);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
         ItemIngredientPredicate.Builder builder1 = ItemIngredientPredicate.Builder.item();
@@ -140,10 +140,10 @@ public class VanillaRecipesWrap {
         if (recipe == null) return;
         if (recipe.getHeight() != recipe.getWidth()) return;
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        Ingredient first = ingredients.getFirst();
+        final Ingredient first = ingredients.getFirst();
         if (ingredients.size() <= 1) return;
         ItemStack result = recipe.getResultItem(registries);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
         if (!result.is(ModItemTags.COMPRESS_ITEM)) return;
@@ -175,7 +175,7 @@ public class VanillaRecipesWrap {
         if (recipe == null) return;
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         ItemStack result = recipe.getResultItem(registries);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
         Ingredient first = ingredients.getFirst();
@@ -218,7 +218,7 @@ public class VanillaRecipesWrap {
         if (recipe == null) return;
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         ItemStack result = recipe.getResultItem(registries);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
         Ingredient first = ingredients.getFirst();
@@ -250,7 +250,7 @@ public class VanillaRecipesWrap {
     public static void wrap(HolderLookup.Provider registries, @Nullable CampfireCookingRecipe recipe) {
         if (recipe == null) return;
         ItemStack result = recipe.getResultItem(registries);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
         if (VanillaRecipesWrap.smokingRecipes.containsKey(result.getItem())) return;
@@ -284,7 +284,7 @@ public class VanillaRecipesWrap {
     public static void wrap(HolderLookup.Provider registries, @Nullable SmeltingRecipe recipe) {
         if (recipe == null) return;
         ItemStack result = recipe.getResultItem(registries);
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
         if (VanillaRecipesWrap.smokingRecipes.containsKey(result.getItem())) return;

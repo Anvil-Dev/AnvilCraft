@@ -82,20 +82,26 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
                 BlockState state = level.getBlockState(posx);
                 FluidState fluidState = level.getFluidState(posx);
                 if (!fluidState.is(Fluids.WATER)) return false;
-                if (state.getBlock() instanceof BucketPickup bucketpickup
+                if (
+                    state.getBlock() instanceof BucketPickup bucketpickup
                     && !bucketpickup.pickupBlock(null, level, posx, state).isEmpty()
-                ) return true;
+                ) {
+                    return true;
+                }
 
                 if (state.getBlock() instanceof LiquidBlock) {
                     level.setBlock(posx, Blocks.AIR.defaultBlockState(), 3);
                     return true;
                 }
 
-                if (!state.is(Blocks.KELP)
+                if (
+                    !state.is(Blocks.KELP)
                     && !state.is(Blocks.KELP_PLANT)
                     && !state.is(Blocks.SEAGRASS)
                     && !state.is(Blocks.TALL_SEAGRASS)
-                ) return false;
+                ) {
+                    return false;
+                }
 
                 BlockEntity blockentity = state.hasBlockEntity() ? level.getBlockEntity(posx) : null;
                 dropResources(state, level, posx, blockentity);

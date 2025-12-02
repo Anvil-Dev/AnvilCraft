@@ -21,7 +21,11 @@ abstract class SodiumChunkBuilderMeshingTaskMixin {
                  + ")Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderer;renderModel(Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)V"
+            target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderer;"
+                     + "renderModel(Lnet/minecraft/client/resources/model/BakedModel;"
+                     + "Lnet/minecraft/world/level/block/state/BlockState;"
+                     + "Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/core/BlockPos;)V"
         )
     )
     void skipBlock(

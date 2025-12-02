@@ -57,7 +57,7 @@ public class SlidingBlockStructureResolver {
             return false;
         } else {
             // 若替换为增强的for循环，则会报ConcurrentModificationException错误
-            //noinspection ForLoopReplaceableByForEach
+            // noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < this.toPush.size(); i++) {
                 BlockPos blockpos = this.toPush.get(i);
                 if (this.level.getBlockState(blockpos).isStickyBlock() && !this.addBranchingBlocks(blockpos)) return false;
@@ -69,10 +69,13 @@ public class SlidingBlockStructureResolver {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean addBlockLine(BlockPos originPos, Direction direction) {
         BlockState nowState = this.level.getBlockState(originPos);
-        if (nowState.isAir()
+        if (
+            nowState.isAir()
             || !PistonBaseBlock.isPushable(nowState, this.level, originPos, this.pushDirection, false, direction)
             || this.toPush.contains(originPos)
-        ) return true;
+        ) {
+            return true;
+        }
 
         int toPushSize = 1;
         if (toPushSize + this.toPush.size() > MAX_PUSH_DEPTH) return false;
@@ -83,12 +86,15 @@ public class SlidingBlockStructureResolver {
             BlockPos oldPos = nowPos.relative(this.pushDirection);
             oldState = nowState;
             nowState = this.level.getBlockState(nowPos);
-            if (nowState.isAir()
+            if (
+                nowState.isAir()
                 || !(oldState.anvilcraft$canStickTo(oldPos, nowPos, nowState)
                     && nowState.anvilcraft$canStickTo(nowPos, oldPos, oldState))
                 || !PistonBaseBlock.isPushable(
                     nowState, this.level, nowPos, this.pushDirection, false, this.pushDirection.getOpposite())
-            ) break;
+            ) {
+                break;
+            }
 
             if (++toPushSize + this.toPush.size() > MAX_PUSH_DEPTH) return false;
         }
@@ -119,9 +125,12 @@ public class SlidingBlockStructureResolver {
             nowState = this.level.getBlockState(addingPos);
             if (nowState.isAir()) return true;
 
-            if (!PistonBaseBlock.isPushable(
+            if (
+                !PistonBaseBlock.isPushable(
                 nowState, this.level, addingPos, this.pushDirection, true, this.pushDirection)
-            ) return false;
+            ) {
+                return false;
+            }
 
             if (nowState.getPistonPushReaction() == PushReaction.DESTROY) {
                 this.toDestroy.add(addingPos);
@@ -157,10 +166,13 @@ public class SlidingBlockStructureResolver {
             if (dir.getAxis() != this.pushDirection.getAxis()) {
                 BlockPos branchPos = fromPos.relative(dir);
                 BlockState branchState = this.level.getBlockState(branchPos);
-                if (branchState.anvilcraft$canStickTo(branchPos, fromPos, fromState)
+                if (
+                    branchState.anvilcraft$canStickTo(branchPos, fromPos, fromState)
                     && fromState.anvilcraft$canStickTo(fromPos, branchPos, branchState)
                     && !this.addBlockLine(branchPos, dir)
-                ) return false;
+                ) {
+                    return false;
+                }
             }
         }
 

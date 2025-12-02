@@ -142,9 +142,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         }
         Direction facing = state.getValue(FACING);
         BlockPos front = pos.relative(facing.getOpposite());
-        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false)
-            .isCanceled()
-        ) return;
+        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) return;
         level.neighborChanged(front, this, pos);
         level.updateNeighborsAtExceptFromFacing(front, this, facing);
     }
@@ -161,22 +159,19 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         switch (comparator.getState()) {
             case OUTPUT_LOW -> {
                 if (mode == Mode.HYSTERESIS) {
-                    if (inputtingSignal >= highLimit)
-                        comparator.setState(State.OUTPUT_HIGH);
+                    if (inputtingSignal >= highLimit) comparator.setState(State.OUTPUT_HIGH);
                 } else if (mode == Mode.WINDOW) {
-                    if (inputtingSignal >= lowLimit && inputtingSignal <= highLimit)
-                        comparator.setState(State.OUTPUT_HIGH);
+                    if (inputtingSignal >= lowLimit && inputtingSignal <= highLimit) comparator.setState(State.OUTPUT_HIGH);
                 }
             }
             case OUTPUT_HIGH -> {
                 if (mode == Mode.HYSTERESIS) {
-                    if (inputtingSignal < lowLimit)
-                        comparator.setState(State.OUTPUT_LOW);
+                    if (inputtingSignal < lowLimit) comparator.setState(State.OUTPUT_LOW);
                 } else if (mode == Mode.WINDOW) {
-                    if (inputtingSignal < lowLimit || inputtingSignal > highLimit)
-                        comparator.setState(State.OUTPUT_LOW);
+                    if (inputtingSignal < lowLimit || inputtingSignal > highLimit) comparator.setState(State.OUTPUT_LOW);
                 }
             }
+            default -> throw new IllegalStateException("Unexpected value: " + comparator.getState());
         }
         comparator.setChanged();
         this.updateBlockAndNeighbours(level, pos, state, comparator);
@@ -205,8 +200,18 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Nullable
     private static ItemFrame getItemFrame(Level level, Direction facing, BlockPos pos) {
-        List<ItemFrame> list = level.getEntitiesOfClass(ItemFrame.class, new AABB(
-            pos.getX(), pos.getY(), pos.getZ(), (pos.getX() + 1), (pos.getY() + 1), (pos.getZ() + 1)), (frame) -> frame != null && frame.getDirection() == facing);
+        List<ItemFrame> list = level.getEntitiesOfClass(
+            ItemFrame.class,
+            new AABB(
+                pos.getX(),
+                pos.getY(),
+                pos.getZ(),
+                pos.getX() + 1,
+                pos.getY() + 1,
+                pos.getZ() + 1
+            ),
+            (frame) -> frame != null && frame.getDirection() == facing
+        );
         if (!list.isEmpty()) return list.getFirst();
         return null;
     }
@@ -256,20 +261,20 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState pState,
-        Level pLevel,
-        BlockPos pPos,
-        Player pPlayer,
-        BlockHitResult pHitResult
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
     ) {
-        if (pLevel.isClientSide) {
+        if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity be = pLevel.getBlockEntity(pPos);
-        if (be instanceof AdvancedComparatorBlockEntity blockEntity && pPlayer instanceof ServerPlayer sp) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof AdvancedComparatorBlockEntity blockEntity && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
             sp.openMenu(blockEntity, buf -> {
-                buf.writeBlockPos(pPos);
+                buf.writeBlockPos(pos);
                 buf.writeNbt(blockEntity.constructDataNbt());
             });
             return InteractionResult.SUCCESS;

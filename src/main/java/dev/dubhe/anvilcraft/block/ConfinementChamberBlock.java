@@ -48,7 +48,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         return RenderShape.MODEL;
     }
 
-    //Unimplemented for current version
+    // Unimplemented for current version
     /*@Override
     protected @NotNull ItemInteractionResult useItemOn(
             @NotNull ItemStack stack,
@@ -103,7 +103,15 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
         if (!level.isClientSide) {
             if (stack.is(ModItems.CHARGED_NEUTRONIUM_INGOT)) {
                 level.setBlockAndUpdate(pos, ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK.getDefaultState());

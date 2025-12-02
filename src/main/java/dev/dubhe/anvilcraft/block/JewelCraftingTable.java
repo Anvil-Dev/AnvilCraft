@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,10 +28,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class JewelCraftingTable extends Block implements IHammerRemovable {
     public static final VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 3, 2, 3),
@@ -54,7 +51,7 @@ public class JewelCraftingTable extends Block implements IHammerRemovable {
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
     @Nullable
@@ -86,7 +83,7 @@ public class JewelCraftingTable extends Block implements IHammerRemovable {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        ModMenuTypes.open((ServerPlayer) player, getMenuProvider(state, level, pos));
+        ModMenuTypes.open((ServerPlayer) player, Objects.requireNonNull(this.getMenuProvider(state, level, pos)));
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
 

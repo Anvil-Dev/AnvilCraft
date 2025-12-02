@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -30,16 +29,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Contract;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
     public final Ingredient ingredient;
     public final ItemStack result;
-    public final int power; //units: kW, positive for discharge and negative for charge
-    public final int time; //units: tick
+    public final int power; // units: kW, positive for discharge and negative for charge
+    public final int time; // units: tick
 
     public ChargerChargingRecipe(Ingredient input, ItemStack result, int power, int time) {
         this.ingredient = input;
@@ -139,8 +134,8 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         private int power = 0;
         private int time = 0;
 
-        public ChargerChargingRecipe.Builder requires(ItemLike pItem) {
-            ingredient = Ingredient.of(pItem);
+        public ChargerChargingRecipe.Builder requires(ItemLike item) {
+            ingredient = Ingredient.of(item);
             return this;
         }
 
@@ -149,8 +144,8 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
             return this;
         }
 
-        public ChargerChargingRecipe.Builder result(ItemLike pItem) {
-            result = pItem.asItem().getDefaultInstance();
+        public ChargerChargingRecipe.Builder result(ItemLike item) {
+            result = item.asItem().getDefaultInstance();
             return this;
         }
 
@@ -170,15 +165,19 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
-            if (ingredient == null)
-                throw new IllegalArgumentException("Recipe has no ingredient, RecipeId: " + pId);
-            if (result == null)
-                throw new IllegalArgumentException("Recipe has no result, RecipeId: " + pId);
-            if (power == 0)
-                throw new IllegalArgumentException("The power release of charging/discharging recipe must be positive or negative, RecipeId: " + pId);
-            if (time <= 0)
-                throw new IllegalArgumentException("Charging time must be a positive number, RecipeId: " + pId);
+        public void validate(ResourceLocation id) {
+            if (this.ingredient == null) throw new IllegalArgumentException("Recipe has no ingredient, RecipeId: " + id);
+            if (this.result == null) throw new IllegalArgumentException("Recipe has no result, RecipeId: " + id);
+            if (this.power == 0) {
+                throw new IllegalArgumentException(
+                    "The power release of charging/discharging recipe must be positive or negative, RecipeId: " + id
+                );
+            }
+            if (this.time <= 0) {
+                throw new IllegalArgumentException(
+                    "Charging time must be a positive number, RecipeId: " + id
+                );
+            }
         }
 
         @Override

@@ -41,9 +41,6 @@ public class AnimateAscendingBlockEntity extends Entity {
         EntityDataSerializers.BLOCK_POS
     );
 
-    /**
-     *
-     */
     public AnimateAscendingBlockEntity(EntityType<? extends AnimateAscendingBlockEntity> entityType, Level level) {
         super(entityType, level);
         this.blockState = Blocks.SAND.defaultBlockState();

@@ -37,9 +37,6 @@ public class CyclingValueSyncPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    /**
-     *
-     */
     public static void serverHandler(CyclingValueSyncPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         if (player.containerMenu instanceof ItemCollectorMenu menu) {

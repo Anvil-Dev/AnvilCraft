@@ -40,9 +40,6 @@ import java.util.List;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
-    /**
-     * @param event 玩家右键实体事件
-     */
     @SubscribeEvent
     public static void useEntity(PlayerInteractEvent.EntityInteract event) {
         InteractionHand hand = event.getHand();
@@ -95,13 +92,13 @@ public class PlayerEventListener {
 
     @SubscribeEvent
     public static void handleDragonRod(PlayerInteractEvent.LeftClickBlock event) {
-        Level level = event.getLevel();
-        BlockPos pos = event.getPos();
-        BlockState state = level.getBlockState(pos);
-        Player player = event.getEntity();
-        InteractionHand hand = event.getHand();
-        ItemStack stack = event.getItemStack();
-        Direction blockFace = event.getFace();
+        final Level level = event.getLevel();
+        final BlockPos pos = event.getPos();
+        final BlockState state = level.getBlockState(pos);
+        final Player player = event.getEntity();
+        final InteractionHand hand = event.getHand();
+        final ItemStack stack = event.getItemStack();
+        final Direction blockFace = event.getFace();
 
         if (blockFace == null) return;
         if (state.getDestroySpeed(level, pos) == 0.0F) return;

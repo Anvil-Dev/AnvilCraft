@@ -40,7 +40,7 @@ public class AnvilScene {
 
         builder.world().setBlock(new BlockPos(2, 1, 2), Blocks.ANVIL.defaultBlockState(), false);
         Selection anvil = util.select().fromTo(2, 1, 2, 2, 1, 2);
-        ElementLink<WorldSectionElement> anvilLink = scene.world().showIndependentSection(anvil, Direction.NORTH);
+        final ElementLink<WorldSectionElement> anvilLink = scene.world().showIndependentSection(anvil, Direction.NORTH);
 
         builder.idle(40);
 

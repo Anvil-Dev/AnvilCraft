@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,14 +26,11 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Getter
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
     public final NonNullList<Ingredient> ingredients;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
@@ -58,17 +54,17 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
     }
 
     @Override
-    public boolean canCraftInDimensions(int pWidth, int pHeight) {
+    public boolean canCraftInDimensions(int width, int height) {
         return true;
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
+    public ItemStack getResultItem(HolderLookup.Provider registries) {
         return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().stack();
     }
 
     @Override
-    public ItemStack assemble(ItemProcessInput pInput, HolderLookup.Provider pRegistries) {
+    public ItemStack assemble(ItemProcessInput input, HolderLookup.Provider registries) {
         return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().stack();
     }
 
@@ -78,13 +74,13 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
     }
 
     @Override
-    public boolean matches(ItemProcessInput pInput, Level pLevel) {
-        if (pInput.items().size() != Set.copyOf(pInput.items()).size()) return false;
-        if (pInput.items().size() != this.ingredients.size()) return false;
-        if (!CollectionUtil.allMatch(pInput.items(), itemStack -> itemStack.getCount() == 1)) return false;
+    public boolean matches(ItemProcessInput input, Level level) {
+        if (input.items().size() != Set.copyOf(input.items()).size()) return false;
+        if (input.items().size() != this.ingredients.size()) return false;
+        if (!CollectionUtil.allMatch(input.items(), itemStack -> itemStack.getCount() == 1)) return false;
 
-        for (int i = 0; i < pInput.size(); i++) {
-            if (!this.ingredients.get(i).test(pInput.getItem(i))) return false;
+        for (int i = 0; i < input.size(); i++) {
+            if (!this.ingredients.get(i).test(input.getItem(i))) return false;
         }
 
         return true;
@@ -165,20 +161,20 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
             return requires(ingredient, 1);
         }
 
-        public Builder requires(ItemLike pItem, int count) {
-            return requires(Ingredient.of(pItem), count);
+        public Builder requires(ItemLike item, int count) {
+            return requires(Ingredient.of(item), count);
         }
 
-        public Builder requires(ItemLike pItem) {
-            return requires(pItem, 1);
+        public Builder requires(ItemLike item) {
+            return requires(item, 1);
         }
 
-        public Builder requires(TagKey<Item> pTag, int count) {
-            return requires(Ingredient.of(pTag), count);
+        public Builder requires(TagKey<Item> tag, int count) {
+            return requires(Ingredient.of(tag), count);
         }
 
-        public Builder requires(TagKey<Item> pTag) {
-            return requires(pTag, 1);
+        public Builder requires(TagKey<Item> tag) {
+            return requires(tag, 1);
         }
 
         public Builder result(ChanceItemStack stack) {
@@ -208,12 +204,12 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
         }
 
         @Override
-        public void validate(ResourceLocation pId) {
+        public void validate(ResourceLocation id) {
             if (ingredients.isEmpty() || ingredients.size() > 9) {
-                throw new IllegalArgumentException("Recipe ingredients size must in 0-9, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe ingredients size must in 0-9, RecipeId: " + id);
             }
             if (results.isEmpty()) {
-                throw new IllegalArgumentException("Recipe results must not be null, RecipeId: " + pId);
+                throw new IllegalArgumentException("Recipe results must not be null, RecipeId: " + id);
             }
         }
 

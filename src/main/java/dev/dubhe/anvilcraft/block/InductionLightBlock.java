@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.block.state.LightColor;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -46,10 +45,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class InductionLightBlock extends BetterBaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
     public static final VoxelShape SHAPE_X = Block.box(0, 6, 6, 16, 10, 10);
     public static final VoxelShape SHAPE_Y = Block.box(6, 0, 6, 10, 16, 10);

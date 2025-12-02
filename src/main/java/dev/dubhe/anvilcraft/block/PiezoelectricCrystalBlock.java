@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.BlockGetter;
@@ -23,10 +22,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable {
 
     public static final Map<Block, List<Integer>> ANVIL_TYPES = new HashMap<>();

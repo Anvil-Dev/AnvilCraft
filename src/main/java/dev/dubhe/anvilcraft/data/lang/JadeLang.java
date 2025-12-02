@@ -3,9 +3,6 @@ package dev.dubhe.anvilcraft.data.lang;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 
 public class JadeLang {
-    /**
-     * @param provider 提供器
-     */
     public static void init(RegistrateLangProvider provider) {
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");

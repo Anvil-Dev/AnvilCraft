@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -30,12 +29,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@Setter
 @Getter
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@Setter
 public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammerRemovable, ITranscendiumBlock {
     private static final VoxelShape BASE = Shapes.or(
         Block.box(2.0, 0.0, 2.0, 14.0, 4.0, 14.0),

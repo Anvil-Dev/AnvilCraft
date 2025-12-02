@@ -42,13 +42,13 @@ public class SlidingRailScene {
         builder.idle(20);
 
         int distance = 5;
-        BlockPos railStartPos = util.grid().at(1, 1, 4);
-        BlockPos railEndPos = railStartPos.east(distance);
-        Selection railsSection = util.select().fromTo(railStartPos, railEndPos);
-        BlockPos chutePos = railEndPos.east();
-        Vec3 chuteInputPos = util.vector().topOf(chutePos).add(1, 1, 0);
-        Vec3 railItemPos = util.vector().centerOf(chutePos.west());
-        ItemStack ironIngots = new ItemStack(Items.IRON_INGOT, 64);
+        final BlockPos railStartPos = util.grid().at(1, 1, 4);
+        final BlockPos railEndPos = railStartPos.east(distance);
+        final Selection railsSection = util.select().fromTo(railStartPos, railEndPos);
+        final BlockPos chutePos = railEndPos.east();
+        final Vec3 chuteInputPos = util.vector().topOf(chutePos).add(1, 1, 0);
+        final Vec3 railItemPos = util.vector().centerOf(chutePos.west());
+        final ItemStack ironIngots = new ItemStack(Items.IRON_INGOT, 64);
 
         // 创建一条长滑轨
         builder.world().setBlocks(railsSection, ModBlocks.SLIDING_RAIL.getDefaultState(), false);
@@ -102,16 +102,16 @@ public class SlidingRailScene {
         builder.idle(20);
 
         int distance = 6;
-        BlockPos railStartPos = util.grid().at(1, 1, 4);
-        BlockPos railEndPos = railStartPos.east(distance);
-        BlockPos pistonPos = railEndPos.east().above();
-        BlockPos pistonHeadPos = pistonPos.above();
-        BlockPos leverPos = pistonPos.below();
-        BlockPos slimePos = pistonPos.west();
-        BlockPos glassPos = slimePos.above();
+        final BlockPos railStartPos = util.grid().at(1, 1, 4);
+        final BlockPos railEndPos = railStartPos.east(distance);
+        final BlockPos pistonPos = railEndPos.east().above();
+        final BlockPos pistonHeadPos = pistonPos.above();
+        final BlockPos leverPos = pistonPos.below();
+        final BlockPos slimePos = pistonPos.west();
+        final BlockPos glassPos = slimePos.above();
 
-        Selection rail = util.select().fromTo(railStartPos, railEndPos);
-        Selection lever = util.select().position(leverPos);
+        final Selection rail = util.select().fromTo(railStartPos, railEndPos);
+        final Selection lever = util.select().position(leverPos);
 
         // 创建一条长滑轨
         builder.world().setBlocks(rail, ModBlocks.SLIDING_RAIL.getDefaultState(), false);
@@ -130,7 +130,8 @@ public class SlidingRailScene {
 
         // 在滑轨上放置方块
         builder.world().setBlock(slimePos, Blocks.GLASS.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> glass = builder.world().showIndependentSection(util.select().position(slimePos), Direction.DOWN);
+        final ElementLink<WorldSectionElement> glass = builder.world()
+            .showIndependentSection(util.select().position(slimePos), Direction.DOWN);
         builder.idle(5);
 
         builder.overlay()
@@ -177,7 +178,7 @@ public class SlidingRailScene {
         // 在滑轨上放置结构
         builder.world().setBlock(slimePos, Blocks.SLIME_BLOCK.defaultBlockState(), false);
         builder.world().setBlock(glassPos, Blocks.GLASS.defaultBlockState(), false);
-        ElementLink<WorldSectionElement> structure = builder.world()
+        final ElementLink<WorldSectionElement> structure = builder.world()
             .showIndependentSection(util.select().fromTo(slimePos, glassPos), Direction.DOWN);
         builder.idle(5);
 

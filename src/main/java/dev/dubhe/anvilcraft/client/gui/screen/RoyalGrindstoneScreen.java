@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import net.minecraft.client.gui.GuiGraphics;
@@ -92,7 +91,10 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         g.fill(RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
     }
 
-    private Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry> getCurrentRecipe(List<Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry>> recipes, int repairCost) {
+    private Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry> getCurrentRecipe(
+        List<Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry>> recipes,
+        int repairCost
+    ) {
         recipes.sort(Comparator.comparingInt(entry -> entry.getValue().count()));
         recipeIndex = recipeIndex % recipes.size();
         int checked = 0;
@@ -108,7 +110,6 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
             RoyalGrindstoneMenu.REPAIR_COST_RECIPES.get(RoyalGrindstoneMenu.DEFAULT_REPAIR_MATERIAL)
         );
     }
-
 
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {

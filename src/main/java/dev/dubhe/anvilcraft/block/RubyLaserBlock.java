@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -33,10 +32,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class RubyLaserBlock extends BaseLaserBlock implements IHammerRemovable, HammerRotateBehavior {
     public static final VoxelShape UP_MODEL =
         Shapes.or(Block.box(4, 3, 4, 12, 13, 12), Block.box(5, 13, 5, 11, 16, 11), Block.box(3, 0, 3, 13, 3, 13));

@@ -43,9 +43,6 @@ public class MachineOutputDirectionPacket implements CustomPacketPayload {
         buf.writeEnum(this.getDirection());
     }
 
-    /**
-     *
-     */
     public static void serverHandler(MachineOutputDirectionPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
@@ -57,9 +54,6 @@ public class MachineOutputDirectionPacket implements CustomPacketPayload {
         });
     }
 
-    /**
-     *
-     */
     public static void clientHandler(MachineOutputDirectionPacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {

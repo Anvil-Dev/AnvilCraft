@@ -15,9 +15,8 @@ import java.util.List;
 
 /**
  * 筛网配方类
- * <p>
- * 该配方用于在铁砧下落时通过筛网过滤物品，需要在铁砧下方放置脚手架作为筛网
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时通过筛网过滤物品，需要在铁砧下方放置脚手架作为筛网</p>
  */
 @Getter
 public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {

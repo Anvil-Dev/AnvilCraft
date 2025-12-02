@@ -12,10 +12,13 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class UpdateDeflectionRingLastEntitySpeedPacket implements CustomPacketPayload {
-    public static final Type<UpdateDeflectionRingLastEntitySpeedPacket> TYPE = new Type<>(AnvilCraft.of("client_update_deflection_ring_last_entity_speed"));
+    public static final Type<UpdateDeflectionRingLastEntitySpeedPacket> TYPE = new Type<>(AnvilCraft.of(
+        "client_update_deflection_ring_last_entity_speed"
+    ));
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdateDeflectionRingLastEntitySpeedPacket> STREAM_CODEC =
             StreamCodec.ofMember(UpdateDeflectionRingLastEntitySpeedPacket::encode, UpdateDeflectionRingLastEntitySpeedPacket::new);
-    public static final IPayloadHandler<UpdateDeflectionRingLastEntitySpeedPacket> HANDLER = UpdateDeflectionRingLastEntitySpeedPacket::clientHandler;
+    public static final IPayloadHandler<UpdateDeflectionRingLastEntitySpeedPacket> HANDLER =
+        UpdateDeflectionRingLastEntitySpeedPacket::clientHandler;
 
     private final BlockPos pos;
     private final double speed;
@@ -44,8 +47,7 @@ public class UpdateDeflectionRingLastEntitySpeedPacket implements CustomPacketPa
         Minecraft mc = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (mc.level == null) return;
-            if (!(mc.level.getBlockEntity(data.pos) instanceof DeflectionRingBlockEntity deflectionRingBlockEntity))
-                return;
+            if (!(mc.level.getBlockEntity(data.pos) instanceof DeflectionRingBlockEntity deflectionRingBlockEntity)) return;
             deflectionRingBlockEntity.setLastEntitySpeed(data.speed);
         });
     }

@@ -10,9 +10,6 @@ import java.util.Optional;
  * 发电
  */
 public interface IPowerProducer extends IPowerComponent {
-    /**
-     * @return 输出功率
-     */
     default int getOutputPower() {
         return 0;
     }

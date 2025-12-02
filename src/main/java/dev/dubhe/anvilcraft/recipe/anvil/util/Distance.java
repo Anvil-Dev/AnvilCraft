@@ -13,9 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * 距离定义类
- * <p>
- * 用于定义不同类型的距離计算方式和范围检查
- * </p>
+ *
+ * <p>用于定义不同类型的距離计算方式和范围检查</p>
  */
 public record Distance(Type type, int distance, boolean isHorizontal) {
     /**
@@ -50,11 +49,17 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
      * @return 是否在范围内
      */
     public boolean isInRange(Vec3 original, Vec3 other) {
-        Vec3 dV = original.subtract(other);
+        Vec3 deltaV = original.subtract(other);
         return switch (this.type) {
-            case EUCLIDEAN -> dV.x * dV.x + dV.z * dV.z + (this.isHorizontal ? 0 : dV.y * dV.y) < this.distance * this.distance;
-            case MANHATTAN -> Math.abs(dV.x) + Math.abs(dV.z) + (this.isHorizontal ? 0 : Math.abs(dV.y)) < this.distance;
-            case CHEBYSHEV -> (this.isHorizontal ? Math.max(dV.x, dV.z) : Math.max(Math.max(dV.x, dV.z), dV.y)) < this.distance;
+            case EUCLIDEAN -> deltaV.x * deltaV.x
+                              + deltaV.z * deltaV.z
+                              + (this.isHorizontal ? 0 : deltaV.y * deltaV.y)
+                              < this.distance * this.distance;
+            case MANHATTAN -> Math.abs(deltaV.x) + Math.abs(deltaV.z) + (this.isHorizontal ? 0 : Math.abs(deltaV.y)) < this.distance;
+            case CHEBYSHEV -> (this.isHorizontal
+                               ? Math.max(deltaV.x, deltaV.z)
+                               : Math.max(Math.max(deltaV.x, deltaV.z), deltaV.y)
+                              ) < this.distance;
         };
     }
 
@@ -70,24 +75,24 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
             case EUCLIDEAN -> () -> new AbstractIterator<>() {
                 private final int radiusSq = distance * distance;
 
-                private int x = -distance;
-                private int y = -distance;
-                private int z = -distance - 1;
+                private int offsetX = -distance;
+                private int offsetY = -distance;
+                private int offsetZ = -distance - 1;
 
                 @Override
                 protected @Nullable BlockPos computeNext() {
-                    while (x <= distance) {
-                        while (y <= distance) {
-                            while (++z <= distance) {
-                                if (x * x + y * y + z * z <= radiusSq) {
-                                    return center.offset(x, y, z);
+                    while (offsetX <= distance) {
+                        while (offsetY <= distance) {
+                            while (++offsetZ <= distance) {
+                                if (offsetX * offsetX + offsetY * offsetY + offsetZ * offsetZ <= radiusSq) {
+                                    return center.offset(offsetX, offsetY, offsetZ);
                                 }
                             }
-                            z = -distance - 1;
-                            y++;
+                            offsetZ = -distance - 1;
+                            offsetY++;
                         }
-                        y = -distance;
-                        x++;
+                        offsetY = -distance;
+                        offsetX++;
                     }
                     return endOfData();
                 }

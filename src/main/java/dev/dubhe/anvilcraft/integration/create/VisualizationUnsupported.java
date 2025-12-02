@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.create;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -46,12 +45,9 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Predicate;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class VisualizationUnsupported extends Level {
 
     private final Level level;
@@ -147,18 +143,36 @@ public class VisualizationUnsupported extends Level {
     }
 
     @Override
-    public void playSeededSound(@Nullable Player player, double x, double y, double z, Holder<SoundEvent> sound, SoundSource category, float volume, float pitch, long seed) {
+    public void playSeededSound(
+        @Nullable Player player,
+        double x,
+        double y,
+        double z,
+        Holder<SoundEvent> sound,
+        SoundSource category,
+        float volume,
+        float pitch,
+        long seed
+    ) {
         level.playSeededSound(player, x, y, z, sound, category, volume, pitch, seed);
     }
 
     @Override
-    public void playSeededSound(@Nullable Player player, Entity entity, Holder<SoundEvent> sound, SoundSource category, float volume, float pitch, long seed) {
+    public void playSeededSound(
+        @Nullable Player player,
+        Entity entity,
+        Holder<SoundEvent> sound,
+        SoundSource category,
+        float volume,
+        float pitch,
+        long seed
+    ) {
         level.playSeededSound(player, entity, sound, category, volume, pitch, seed);
     }
 
     @Override
-    public void addParticle(ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-        level.addParticle(particleData, x, y, z, xSpeed, ySpeed, zSpeed);
+    public void addParticle(ParticleOptions particleData, double x, double y, double z, double speedX, double speedY, double speedZ) {
+        level.addParticle(particleData, x, y, z, speedX, speedY, speedZ);
     }
 
     @Override

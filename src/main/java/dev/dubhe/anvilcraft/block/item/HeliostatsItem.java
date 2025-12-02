@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -27,11 +26,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class HeliostatsItem extends BlockItem {
     public HeliostatsItem(Block block, Properties properties) {
         super(block, properties);
@@ -111,7 +107,7 @@ public class HeliostatsItem extends BlockItem {
     }
 
     @Override
-    protected SoundEvent getPlaceSound(BlockState pState, Level world, BlockPos pos, Player entity) {
+    protected SoundEvent getPlaceSound(BlockState state, Level world, BlockPos pos, Player entity) {
         return ModBlocks.HELIOSTATS.getDefaultState().getSoundType(world, pos, entity).getPlaceSound();
     }
 

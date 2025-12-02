@@ -18,10 +18,8 @@ import net.minecraft.world.level.storage.loot.predicates.LocationCheck;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.BiConsumer;
 
-@ParametersAreNonnullByDefault
 public class CrabTrapLootSubProvider implements LootTableSubProvider {
     private final HolderLookup.Provider provider;
 

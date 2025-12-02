@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.util;
 
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
@@ -11,10 +10,6 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensions {
     public final ResourceLocation stillTexture;
     public final ResourceLocation flowingTexture;
@@ -59,7 +54,14 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
     }
 
     @Override
-    public Vector3f modifyFogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor) {
+    public Vector3f modifyFogColor(
+        Camera camera,
+        float partialTick,
+        ClientLevel level,
+        int renderDistance,
+        float darkenWorldAmount,
+        Vector3f fluidFogColor
+    ) {
         if (this.noFog) return fluidFogColor;
         float fogRed = ((this.fogColor >> 16) & 255) / 255.0F;
         float fogGreen = ((this.fogColor >> 8) & 255) / 255.0F;
@@ -68,7 +70,15 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
     }
 
     @Override
-    public void modifyFogRender(Camera camera, FogRenderer.FogMode mode, float renderDistance, float partialTick, float nearDistance, float farDistance, FogShape shape) {
+    public void modifyFogRender(
+        Camera camera,
+        FogRenderer.FogMode mode,
+        float renderDistance,
+        float partialTick,
+        float nearDistance,
+        float farDistance,
+        FogShape shape
+    ) {
         if (camera.getEntity().isSpectator() || this.noFog) return;
         RenderSystem.setShaderFogStart(0.0f);
         RenderSystem.setShaderFogEnd(this.fogDistance);

@@ -36,9 +36,6 @@ public class MachineEnableFilterPacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    /**
-     *
-     */
     public static void serverHandler(MachineEnableFilterPacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
@@ -58,9 +55,6 @@ public class MachineEnableFilterPacket implements CustomPacketPayload {
         });
     }
 
-    /**
-     *
-     */
     public static void clientHandler(MachineEnableFilterPacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {

@@ -29,7 +29,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -46,12 +45,9 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder<AnvilCollisionCraftRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -202,7 +198,9 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                 for (BlockTransform blockTransform : blockTransforms) {
                     BlockStatePredicate inputBlock = blockTransform.inputBlock();
                     List<BlockState> inputBlockState = inputBlock.constructStatesForRender();
-                    BlockState inputBlockRenderedState = inputBlockState.get((int) ((System.currentTimeMillis() / 1000) % inputBlockState.size()));
+                    BlockState inputBlockRenderedState = inputBlockState.get(
+                        (int) ((System.currentTimeMillis() / 1000) % inputBlockState.size())
+                    );
                     RenderSupport.renderBlock(
                         guiGraphics,
                         inputBlockRenderedState,
@@ -242,7 +240,9 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                 for (BlockTransform blockTransform : blockTransforms) {
                     BlockStatePredicate inputBlock = blockTransform.inputBlock();
                     List<BlockState> inputBlockState = inputBlock.constructStatesForRender();
-                    BlockState inputBlockRenderedState = inputBlockState.get((int) ((System.currentTimeMillis() / 1000) % inputBlockState.size()));
+                    BlockState inputBlockRenderedState = inputBlockState.get(
+                        (int) ((System.currentTimeMillis() / 1000) % inputBlockState.size())
+                    );
                     RenderSupport.renderBlock(
                         guiGraphics,
                         inputBlockRenderedState,

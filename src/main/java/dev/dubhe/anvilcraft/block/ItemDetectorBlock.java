@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,11 +40,8 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumSet;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBlock, HammerRotateBehavior, IHammerRemovable {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -140,8 +136,9 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     public void updateNeighborsInFront(Level level, BlockPos pos, BlockState state) {
         Direction direction = state.getValue(FACING);
         BlockPos blockpos = pos.relative(direction.getOpposite());
-        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(direction.getOpposite()), false).isCanceled())
+        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(direction.getOpposite()), false).isCanceled()) {
             return;
+        }
         level.neighborChanged(blockpos, this, pos);
         level.updateNeighborsAtExceptFromFacing(blockpos, this, direction);
     }

@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.recipe.anvil.cache;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -11,7 +10,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,8 +17,6 @@ import java.util.Set;
  * 宝石工艺配方缓存类，用于缓存和管理宝石工艺配方
  * 该类提供了对宝石工艺配方的缓存、构建和同步功能
  */
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class JewelCraftingRecipeCache {
     /**
      * 宝石工艺配方缓存映射表

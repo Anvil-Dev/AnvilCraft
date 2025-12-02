@@ -7,7 +7,6 @@ import dev.anvilcraft.lib.util.CodecUtil;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.EnchantmentUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,7 +20,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,8 +29,6 @@ import java.util.Optional;
  *
  * @param phases 所有相
  */
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public record Multiphase(LinkedList<Phase> phases) {
     public static final Multiphase EMPTY = make(Component.literal("Empty"));
 
@@ -40,7 +36,7 @@ public record Multiphase(LinkedList<Phase> phases) {
     private static final int MAX_PHASE_COUNT = 4;
 
     public static Component makeName(int index) {
-        //noinspection DataFlowIssue
+        // noinspection DataFlowIssue
         index = index % Math.min(DEFAULT_SUFFIXES.length(), MAX_PHASE_COUNT);
         return Component.translatableWithFallback(
             "tooltip.anvilcraft.property.multiphase.name." + index,
@@ -49,7 +45,7 @@ public record Multiphase(LinkedList<Phase> phases) {
     }
 
     public static Component makeSuffix(int index) {
-        //noinspection DataFlowIssue
+        // noinspection DataFlowIssue
         index = index % Math.min(DEFAULT_SUFFIXES.length(), MAX_PHASE_COUNT);
         return Component.translatableWithFallback(
             "tooltip.anvilcraft.property.multiphase.suffix." + index,
@@ -217,13 +213,12 @@ public record Multiphase(LinkedList<Phase> phases) {
             )
             .withStoredEnchantments(
                 beta.map(phase -> { // TODO: 兼容性后删除STORED相关
-                        ItemEnchantments enchantments = stack.set(ModComponents.MERCILESS_ENCHANTMENTS, phase.storedEnchantments);
-                        if (enchantments == null) {
-                            enchantments = stack.set(DataComponents.STORED_ENCHANTMENTS, null);
-                        }
-                        return enchantments;
-                    })
-                    .orElse(ItemEnchantments.EMPTY)
+                    ItemEnchantments enchantments = stack.set(ModComponents.MERCILESS_ENCHANTMENTS, phase.storedEnchantments);
+                    if (enchantments == null) {
+                        enchantments = stack.set(DataComponents.STORED_ENCHANTMENTS, null);
+                    }
+                    return enchantments;
+                }).orElse(ItemEnchantments.EMPTY)
             );
 
         phases.offer(storing[0]);

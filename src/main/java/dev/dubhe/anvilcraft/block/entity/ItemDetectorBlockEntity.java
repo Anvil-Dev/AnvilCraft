@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -37,14 +36,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
 import static dev.dubhe.anvilcraft.block.ItemDetectorBlock.POWERED;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider, IFilterBlockEntity, IHasAffectRange,
     IDiskCloneable {
 
@@ -82,6 +78,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     if (value < 0 || value >= Mode.values().length) return;
                     ItemDetectorBlockEntity.this.setFilterMode(Mode.values()[value]);
                     break;
+                default:
             }
         }
 

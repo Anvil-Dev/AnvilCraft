@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.util.CodecUtil;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -26,16 +25,13 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public record MobTransformRecipe(
     EntityType<?> input,
     List<TransformResult> results,
@@ -132,7 +128,7 @@ public record MobTransformRecipe(
         );
         if (newEntity == null) return null;
         if (newEntity instanceof Mob mob) {
-            //noinspection deprecation,OverrideOnly
+            // noinspection deprecation,OverrideOnly
             mob.finalizeSpawn(
                 level,
                 level.getCurrentDifficultyAt(newEntity.blockPosition()),

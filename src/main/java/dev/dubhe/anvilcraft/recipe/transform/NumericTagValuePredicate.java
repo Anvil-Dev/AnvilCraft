@@ -55,7 +55,9 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
         LESS_OR_EQUAL((a, b) -> a <= b);
 
         public static final Codec<ValueFunction> CODEC = StringRepresentable.fromEnum(ValueFunction::values);
-        public static final StreamCodec<RegistryFriendlyByteBuf, ValueFunction> STREAM_CODEC = CodecUtil.enumStreamCodec(ValueFunction.class);
+        public static final StreamCodec<RegistryFriendlyByteBuf, ValueFunction> STREAM_CODEC = CodecUtil.enumStreamCodec(
+            ValueFunction.class
+        );
         private final BiFunction<Long, Long, Boolean> fn;
 
         ValueFunction(BiFunction<Long, Long, Boolean> fn) {

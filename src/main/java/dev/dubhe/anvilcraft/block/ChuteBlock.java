@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
@@ -14,7 +15,6 @@ import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -53,15 +53,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.stream.Stream;
 
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.exportToTarget;
-import static dev.dubhe.anvilcraft.block.SimpleChuteBlock.TALL;
-import static dev.dubhe.anvilcraft.block.SimpleChuteBlock.WATERLOGGED;
-
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
@@ -167,7 +160,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
@@ -176,14 +169,20 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
         if (level.isClientSide) return;
         BlockState neighborState = level.getBlockState(neighborPos);
         Block neighborBlock1 = neighborState.getBlock();
         if (isChuteBlock(neighborBlock) || isChuteBlock(neighborBlock1)) {
             BlockState newState = getState(level, pos, state.getValue(FACING));
-            if (newState != null && newState != state)
-                level.setBlockAndUpdate(pos, newState);
+            if (newState != null && newState != state) level.setBlockAndUpdate(pos, newState);
         }
         this.checkPoweredState(level, pos, state);
     }
@@ -291,7 +290,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                     if (level.getBlockEntity(pos) instanceof SimpleChuteBlockEntity newEntity) {
                         newHandler = newEntity.getItemHandler();
                     }
-                    exportToTarget(oldHandler, 64, stack -> true, newHandler);
+                    ItemHandlerUtil.exportToTarget(oldHandler, 64, stack -> true, newHandler);
                 } else level.removeBlockEntity(pos);
                 Vec3 vec3 = oldEntity.getBlockPos().getCenter();
                 for (int slot = 0; slot < oldHandler.getSlots(); slot++) {
@@ -329,7 +328,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockState result = this.defaultBlockState()
             .setValue(FACING, facing)
             .setValue(ENABLED, !level.hasNeighborSignal(pos));
-        //遍历六个方向 获取指向自己的溜槽
+        // 遍历六个方向 获取指向自己的溜槽
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
@@ -356,12 +355,13 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
             }
         }
-        if (success)
+        if (success) {
             result = ModBlocks.SIMPLE_CHUTE.getDefaultState()
-                .setValue(FACING, facing)
-                .setValue(TALL, tall)
-                .setValue(ENABLED, !level.hasNeighborSignal(pos))
-                .setValue(WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
+                .setValue(SimpleChuteBlock.FACING, facing)
+                .setValue(SimpleChuteBlock.TALL, tall)
+                .setValue(SimpleChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
+                .setValue(SimpleChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
+        }
         return result;
     }
 }

@@ -35,8 +35,7 @@ public class EndDustBlockItem extends BlockItem {
         BlockHitResult blockHitResult =
             new BlockHitResult(blockPos.getCenter(), player.getDirection(), blockPos, false);
         BlockPlaceContext blockPlaceContext = new BlockPlaceContext(level, player, usedHand, itemStack, blockHitResult);
-        if (!this.canPlace(blockPlaceContext, this.getBlock().defaultBlockState()))
-            return InteractionResultHolder.fail(itemStack);
+        if (!this.canPlace(blockPlaceContext, this.getBlock().defaultBlockState())) return InteractionResultHolder.fail(itemStack);
         if (this.place(blockPlaceContext) == InteractionResult.FAIL) return InteractionResultHolder.fail(itemStack);
         return InteractionResultHolder.success(itemStack);
     }

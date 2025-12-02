@@ -98,7 +98,17 @@ public class ModInteractionMap {
             (state, level, pos, player, hand, stack) -> {
                 if (level.getBlockState(pos).getBlock() instanceof CementCauldronBlock cauldronBlock) {
                     Color color = cauldronBlock.getColor();
-                    return CauldronInteraction.fillBucket(state, level, pos, player, hand, stack, ModItems.CEMENT_BUCKETS.get(color).asStack(), (s) -> true, SoundEvents.BUCKET_FILL);
+                    return CauldronInteraction.fillBucket(
+                        state,
+                        level,
+                        pos,
+                        player,
+                        hand,
+                        stack,
+                        ModItems.CEMENT_BUCKETS.get(color).asStack(),
+                        (s) -> true,
+                        SoundEvents.BUCKET_FILL
+                    );
                 }
                 return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             }

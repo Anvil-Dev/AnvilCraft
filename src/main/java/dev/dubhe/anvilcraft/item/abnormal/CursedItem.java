@@ -5,9 +5,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public class CursedItem extends Item implements ICursed {
     public CursedItem(Properties properties) {
         super(properties);

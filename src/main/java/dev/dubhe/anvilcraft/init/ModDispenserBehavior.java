@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
@@ -35,14 +34,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.UUID;
 
 import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ModDispenserBehavior {
     /*
     "anvilcraft".hashcode() == 976850d4

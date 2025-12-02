@@ -108,11 +108,10 @@ public class HeaterManager {
             if (producerOp.isEmpty()) {
                 removals.add(producerPos);
             }
-            producerOp.map(producer -> new Pair<>(info.posesGetter().apply(producer), info.countGetter().applyAsInt(producer)))
-                .ifPresent(
-                    pair -> pair.getFirst()
-                        .forEach(heatablePos -> heatablePosesAndProducerCount.mergeInt(heatablePos, pair.getSecond(), Integer::sum))
-                );
+            producerOp.map(producer -> new Pair<>(info.posesGetter().apply(producer), info.countGetter().applyAsInt(producer))).ifPresent(
+                pair -> pair.getFirst()
+                    .forEach(heatablePos -> heatablePosesAndProducerCount.mergeInt(heatablePos, pair.getSecond(), Integer::sum))
+            );
         }
         for (BlockPos heatablePos : heatablePosesAndProducerCount.keySet()) {
             Optional<HeatTierLine.Point> pointOp = info.line().getPoint(heatablePosesAndProducerCount.getInt(heatablePos));

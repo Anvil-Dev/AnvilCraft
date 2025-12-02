@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.gui.component;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -17,7 +16,6 @@ import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 
-@MethodsReturnNonnullByDefault
 public class CycleFilterModeButton extends Button {
 
     private final Supplier<Mode> filterMode;

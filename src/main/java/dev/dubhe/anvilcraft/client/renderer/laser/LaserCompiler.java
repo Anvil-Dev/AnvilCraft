@@ -75,7 +75,7 @@ public class LaserCompiler {
         renderQuadX(consumer, pose, maxX, maxX, minY, minZ, maxY, maxZ, a, sprite);
         renderQuadX(consumer, pose, minX, minX, minY, maxZ, maxY, minZ, a, sprite);
         renderQuadY(consumer, pose, maxY, maxY, minX, minZ, maxX, maxZ, a - 0.25f, endSprite);
-        //renderQuadY(consumer, pose, minY, minY, maxX, minZ, minX, maxZ, a, endSprite);
+        // renderQuadY(consumer, pose, minY, minY, maxX, minZ, minX, maxZ, a, endSprite);
         renderQuadZ(consumer, pose, maxZ, maxZ, minX, maxY, maxX, minY, a, sprite);
         renderQuadZ(consumer, pose, minZ, minZ, minX, minY, maxX, maxY, a, sprite);
     }
@@ -147,6 +147,4 @@ public class LaserCompiler {
             .setUv2(240, 240)
             .setNormal(1, 0, 0);
     }
-
-
 }

@@ -78,7 +78,7 @@ public final class SlidingBlockSection {
     public Vec3 findCollide(Vec3 center, AABB box) {
         Vec3 vector = Vec3.ZERO;
         for (SlidingBlockInfo info : this.blocks) {
-            Vec3 min = new Vec3(info.x() + center.x, info.y() + center.y, info.z() + center.z);
+            Vec3 min = new Vec3(info.offsetX() + center.x, info.offsetY() + center.y, info.offsetZ() + center.z);
             Vec3 max = min.add(1, 1, 1);
             box.clip(min, max).ifPresent(vector::add);
         }

@@ -102,9 +102,9 @@ public class OverseerBlockEntity extends BlockEntity {
         int waterLoggedBlockCount = 0;
         BlockPos.MutableBlockPos pos = selfPos.mutable().move(Direction.DOWN);
         for (int i = 0; i < 3; i++) {
-            int tBase = checkBaseAt(level, pos);
-            if (tBase == -1) break;
-            waterLoggedBlockCount += tBase;
+            int baseT = checkBaseAt(level, pos);
+            if (baseT == -1) break;
+            waterLoggedBlockCount += baseT;
             supportLevel++;
             pos.move(Direction.DOWN);
         }
@@ -115,7 +115,7 @@ public class OverseerBlockEntity extends BlockEntity {
     private boolean isBaseValid() {
         BlockPos thizPos = getBlockPos();
         if (!checkBlocks()) return false;
-        int supportsLevel = checkBaseSupportsLevel(level, thizPos);
+        int supportsLevel = checkBaseSupportsLevel(this.level, thizPos);
         for (int i = 0; i < 3; i++) {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
             BlockState state = level.getBlockState(pos);

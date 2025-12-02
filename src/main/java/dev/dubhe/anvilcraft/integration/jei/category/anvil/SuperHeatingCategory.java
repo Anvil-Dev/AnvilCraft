@@ -21,7 +21,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -31,10 +30,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingRecipe> {
     public SuperHeatingCategory(IGuiHelper helper) {
         super(
@@ -60,7 +55,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
         double mouseX,
         double mouseY
     ) {
-        SuperHeatingRecipe recipe = recipeHolder.value();
+        final SuperHeatingRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
             guiGraphics,

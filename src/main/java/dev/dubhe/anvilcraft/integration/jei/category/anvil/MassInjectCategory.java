@@ -23,7 +23,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -32,15 +31,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 import java.util.List;
 
 import static dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity.DISPLAYED_MASS;
 import static dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInjectRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -101,7 +97,10 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             .addIngredients(recipe.getIngredient());
         builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24)
             .addItemStack(ModItems.NEUTRONIUM_INGOT.asStack())
-            .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.translatable(KEY_MASS_NEEDED, DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)));
+            .addRichTooltipCallback(
+                (recipeSlotView, tooltip) -> tooltip.add(
+                    Component.translatable(KEY_MASS_NEEDED, DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
+                ));
     }
 
     @Override
@@ -110,8 +109,9 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
-        double mouseY) {
-        MassInjectRecipe recipe = recipeHolder.value();
+        double mouseY
+    ) {
+        final MassInjectRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
             guiGraphics,

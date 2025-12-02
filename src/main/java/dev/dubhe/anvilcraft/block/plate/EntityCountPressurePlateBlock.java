@@ -1,18 +1,14 @@
 package dev.dubhe.anvilcraft.block.plate;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Set;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class EntityCountPressurePlateBlock extends PowerLevelPressurePlateBlock {
     private final Predicate<Entity> filter;
 

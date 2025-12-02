@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import lombok.Getter;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.food.FoodProperties;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Getter
-@MethodsReturnNonnullByDefault
 public class CannedFoodItem extends Item implements IExtraItemDisplay {
     public CannedFoodItem(Properties properties) {
         super(properties);
@@ -81,12 +79,12 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
     }
 
     @Override
-    public int xOffset(ItemStack stack) {
+    public int offsetX(ItemStack stack) {
         return 5;
     }
 
     @Override
-    public int yOffset(ItemStack stack) {
+    public int offsetY(ItemStack stack) {
         return 2;
     }
 

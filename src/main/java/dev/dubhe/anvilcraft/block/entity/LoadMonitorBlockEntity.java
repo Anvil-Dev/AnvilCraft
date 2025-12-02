@@ -48,9 +48,6 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
         return getBlockPos();
     }
 
-    /**
-     *
-     */
     public int getRedstoneSignal() {
         if (getGrid() == null) return 0;
         // 空载
@@ -60,9 +57,6 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
         return (int) Math.ceil(((double) getGrid().getConsume() / getGrid().getGenerate()) * 15);
     }
 
-    /**
-     *
-     */
     public void tick() {
         if (cooldown > 0) {
             cooldown--;

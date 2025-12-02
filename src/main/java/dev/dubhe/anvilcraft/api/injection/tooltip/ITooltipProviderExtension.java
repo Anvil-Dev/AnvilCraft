@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.api.injection.tooltip;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,7 +10,6 @@ import java.util.List;
 /**
  * 头戴铁砧锤时需要显示tooltip，用于接口注入至原版内容
  */
-@MethodsReturnNonnullByDefault
 public interface ITooltipProviderExtension {
     /**
      * 获取需要渲染的tooltip<br>

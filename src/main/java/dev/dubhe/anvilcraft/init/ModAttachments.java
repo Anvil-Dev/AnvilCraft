@@ -9,8 +9,10 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
-public class ModAttatchments {
-    private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, AnvilCraft.MOD_ID);
+public class ModAttachments {
+    private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(
+        NeoForgeRegistries.ATTACHMENT_TYPES, AnvilCraft.MOD_ID
+    );
 
     public static final Supplier<AttachmentType<DfuMetadata>> DFU = ATTACHMENT_TYPES.register(
         "dfu_metadata", () -> AttachmentType.builder(() -> DfuMetadata.DEFAULT).serialize(DfuMetadata.CODEC).build()

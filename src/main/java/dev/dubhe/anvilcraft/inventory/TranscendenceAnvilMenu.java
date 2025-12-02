@@ -48,13 +48,13 @@ public class TranscendenceAnvilMenu extends AnvilMenu {
         if (!inputLeft.isEmpty() && EnchantmentHelper.canStoreEnchantments(inputLeft)) {
             ItemStack inputLeftCopy = inputLeft.copy();
             ItemStack inputRight = this.inputSlots.getItem(1);
-            ItemEnchantments.Mutable enchantmentsOnLeft =
+            final ItemEnchantments.Mutable enchantmentsOnLeft =
                 new ItemEnchantments.Mutable(EnchantmentHelper.getEnchantmentsForCrafting(inputLeftCopy));
             repairCost += (long) inputLeft.getOrDefault(DataComponents.REPAIR_COST, 0)
                 + (long) inputRight.getOrDefault(DataComponents.REPAIR_COST, 0);
             this.repairItemCountCost = 0;
             boolean hasStoredEnchantmentsOnInput2 = false;
-            //noinspection DataFlowIssue
+            // noinspection DataFlowIssue
             if (!CommonHooks.onAnvilChange(
                 this, inputLeft, inputRight, this.resultSlots, this.itemName, repairCost, this.player)) {
                 return;

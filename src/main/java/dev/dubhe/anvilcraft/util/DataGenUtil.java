@@ -77,13 +77,12 @@ public class DataGenUtil {
             provider.models().existingFileHelper
         );
 
-        provider.getVariantBuilder(context.get())
-            .forAllStates(
-                state -> ConfiguredModel.builder()
-                    .modelFile(model)
-                    .rotationY(((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + 180) % 360)
-                    .build()
-            );
+        provider.getVariantBuilder(context.get()).forAllStates(
+            state -> ConfiguredModel.builder()
+                .modelFile(model)
+                .rotationY(((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + 180) % 360)
+                .build()
+        );
     }
 
     @SuppressWarnings("unused")

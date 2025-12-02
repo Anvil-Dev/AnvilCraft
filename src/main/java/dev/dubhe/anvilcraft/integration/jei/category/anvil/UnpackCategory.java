@@ -14,7 +14,6 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -24,10 +23,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.properties.Half;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public UnpackCategory(IGuiHelper helper) {
         super(
@@ -49,8 +44,9 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
-        double mouseY) {
-        UnpackRecipe recipe = recipeHolder.value();
+        double mouseY
+    ) {
+        final UnpackRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
             guiGraphics,

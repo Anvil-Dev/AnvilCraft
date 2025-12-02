@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
 import static java.lang.Math.atan2;
@@ -44,16 +45,10 @@ public class MathUtil {
         return new Vector2f(v.x, v.y);
     }
 
-    /**
-     * @return Angle in radians
-     */
     public static float angle(Vector2f from, Vector2f to) {
         return (float) ((atan2(to.y, to.x) - atan2(from.y, from.x)) % (Math.PI * 2));
     }
 
-    /**
-     * @return Angle in degrees
-     */
     public static float angleDegrees(Vector2f from, Vector2f to) {
         return (float) toDegrees(angle(from, to));
     }
@@ -92,7 +87,7 @@ public class MathUtil {
         return new Vec3i(a.getX() - b.getX(), a.getY() - b.getY(), a.getZ() - b.getZ());
     }
 
-    public static Direction getDirection(BlockPos from, BlockPos to) {
+    public static @Nullable Direction getDirection(BlockPos from, BlockPos to) {
         return Direction.fromDelta(from.getX() - to.getX(), from.getY() - to.getY(), from.getZ() - to.getZ());
     }
 

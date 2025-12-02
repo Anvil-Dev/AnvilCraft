@@ -27,10 +27,13 @@ public class FormattingUtil {
     public static @NotNull String toLowerCaseUnderscore(@NotNull String string) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
-            if (i != 0
+            if (
+                i != 0
                 && (Character.isUpperCase(string.charAt(i))
-                || (Character.isDigit(string.charAt(i - 1)) ^ Character.isDigit(string.charAt(i)))))
+                || (Character.isDigit(string.charAt(i - 1)) ^ Character.isDigit(string.charAt(i))))
+            ) {
                 result.append("_");
+            }
             result.append(Character.toLowerCase(string.charAt(i)));
         }
         return result.toString();
@@ -56,6 +59,7 @@ public class FormattingUtil {
     }
 
     /**
+     * 对应表：
      * <table>
      *     <tr><th>tick数</th><th>阈值</th><th>显示效果</th></tr>
      *     <tr><td>30gt</td><td>1</td><td>1"50</td></tr>
@@ -107,18 +111,8 @@ public class FormattingUtil {
     }
 
     /**
-     * @param progress 进度，0-1
-     * @param unfilled 未填充的进度条的style，无需reset
-     * @return 进度条文本
-     */
-    public static Component toPipeProgress(double progress, int pipeCount, ChatFormatting[] filled, ChatFormatting[] unfilled) {
-        int filledPipeCount = (int) Math.floor(pipeCount * progress);
-        int unfilledPipeCount = pipeCount - filledPipeCount;
-        return Component.literal("|".repeat(filledPipeCount)).withStyle(filled)
-            .append(Component.literal("|".repeat(unfilledPipeCount)).withStyle(ChatFormatting.RESET).withStyle(unfilled));
-    }
-
-    /**
+     * 根据进度生成一个给定长度的进度条
+     *
      * @param progress 进度，0-1
      * @return 进度条文本
      */

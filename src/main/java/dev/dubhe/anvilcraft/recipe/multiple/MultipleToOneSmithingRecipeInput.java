@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.recipe.multiple;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
 public record MultipleToOneSmithingRecipeInput(ItemStack template, ItemStack material, List<ItemStack> inputs) implements RecipeInput {
     public MultipleToOneSmithingRecipeInput(ItemStack template, ItemStack material, ItemStack... inputs) {
         this(template, material, List.of(inputs));

@@ -27,7 +27,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -50,17 +49,17 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    public @NotNull Property<DirectionCube3x3PartHalf> getPart() {
+    public Property<DirectionCube3x3PartHalf> getPart() {
         return HALF;
     }
 
     @Override
-    public DirectionCube3x3PartHalf @NotNull [] getParts() {
+    public DirectionCube3x3PartHalf[] getParts() {
         return DirectionCube3x3PartHalf.values();
     }
 
     @Override
-    public @NotNull DirectionProperty getAdditionalProperty() {
+    public DirectionProperty getAdditionalProperty() {
         return FACING;
     }
 
@@ -69,28 +68,34 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    protected @NotNull BlockState placedState(@NotNull DirectionCube3x3PartHalf part, BlockState state) {
+    protected BlockState placedState(DirectionCube3x3PartHalf part, BlockState state) {
         return state
             .setValue(this.getPart(), part);
     }
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState()
-            .setValue(FACING, context.getPlayer() != null && context.getPlayer().isShiftKeyDown() ? context.getNearestLookingDirection().getOpposite() : context.getNearestLookingDirection());
+        return this.defaultBlockState().setValue(
+            FACING,
+            context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
+            ? context.getNearestLookingDirection().getOpposite()
+            : context.getNearestLookingDirection()
+        );
     }
-
 
     @Override
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        boolean isSignal = Arrays.stream(getParts()).anyMatch(it -> level.hasNeighborSignal(pos.subtract(state.getValue(getPart()).getOffset()).offset(it.getOffset())));
+        boolean isSignal = Arrays.stream(getParts())
+            .anyMatch(it -> level.hasNeighborSignal(
+                pos.subtract(state.getValue(getPart()).getOffset()).offset(it.getOffset())
+            ));
         if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {
             updateState(level, pos, SWITCH, IPowerComponent.Switch.OFF, 3);
         } else if (!isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.OFF) {
@@ -104,7 +109,12 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    protected VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context
+    ) {
         return switch (state.getValue(FACING).getAxis()) {
             case Z -> state.getValue(HALF).getOffset().getZ() == 0 ? Shapes.empty() : Shapes.block();
             case X -> state.getValue(HALF).getOffset().getX() == 0 ? Shapes.empty() : Shapes.block();
@@ -113,17 +123,21 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    protected @NotNull VoxelShape getInteractionShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
         return Shapes.block();
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos blockPos, @NotNull BlockState blockState) {
+    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new DeflectionRingBlockEntity(blockPos, blockState);
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level level,
+        BlockState state,
+        BlockEntityType<T> blockEntityType
+    ) {
         return (level1, pos, state1, entity) -> {
             if (entity instanceof DeflectionRingBlockEntity be) be.tick();
         };
@@ -144,7 +158,7 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    protected float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter getter, @NotNull BlockPos pos) {
+    protected float getShadeBrightness(BlockState state, BlockGetter getter, BlockPos pos) {
         return 1.0F;
     }
 }

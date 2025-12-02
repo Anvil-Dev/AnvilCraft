@@ -17,13 +17,11 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@ParametersAreNonnullByDefault
 public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
     private final Map<ResourceKey<Enchantment>, Item> enchantmentMappings = new Object2ObjectOpenHashMap<>() {
         {
@@ -112,7 +110,9 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
                 }
 
                 for (Item item : result) {
-                    level.addFreshEntity(new ItemEntity(level, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), new ItemStack(item)));
+                    level.addFreshEntity(
+                        new ItemEntity(level, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), new ItemStack(item))
+                    );
                 }
             }
         }

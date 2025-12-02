@@ -15,9 +15,8 @@ import java.util.List;
 
 /**
  * 冲压配方类
- * <p>
- * 该配方用于在铁砧下落时冲压物品，需要在铁砧下方放置冲压平台作为触发条件
- * </p>
+ *
+ * <p>该配方用于在铁砧下落时冲压物品，需要在铁砧下方放置冲压平台作为触发条件</p>
  */
 @Getter
 public class StampingRecipe extends AbstractProcessRecipe<StampingRecipe> {
