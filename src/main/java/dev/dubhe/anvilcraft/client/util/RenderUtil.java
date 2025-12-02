@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.client.Minecraft;
@@ -16,20 +17,25 @@ public class RenderUtil {
     public static void renderItemDecorations(
         GuiGraphics graphics,
         Font font,
+        ShulkerContainerSlot slot,
         UnlimitedItemStack stack,
         int x,
         int y,
         @Nullable String text
     ) {
         if (stack.isEmpty()) return;
+
         PoseStack pose = graphics.pose();
         pose.pushPose();
-        if (stack.getCount() != 1 || text != null) {
+
+        if (slot.isFolded()) {
             pose.pushPose();
-            pose.translate(x, y, 2000.0F);
-            pose.scale(0.75f, 0.75f, 1);
-            String s = text == null ? FormattingUtil.compatNumber(stack.getCount()) : text;
-            graphics.drawString(font, s, 24 - 2 - font.width(s), 14, 0xffffff, true);
+            pose.translate(x, y, -10);
+            graphics.fill(-1, -1, 17, 17, 0xff555555);
+            graphics.fill(-1, -1, 16, 16, 0xff444444);
+            graphics.fill(0, 0, 17, 17, 0xff666666);
+            graphics.fill(0, 0, 16, 14, 0xff888888);
+            graphics.fill(0, 14, 16, 16, 0xff999999);
             pose.popPose();
         }
 
@@ -38,8 +44,17 @@ public class RenderUtil {
             int i = stack.getStack().getBarColor();
             int j = x + 2;
             int k = y + 13;
-            graphics.fill(RenderType.guiOverlay(), j, k, j + 13, k + 2, 0, -16777216);
-            graphics.fill(RenderType.guiOverlay(), j, k, j + l, k + 1, 0, i | 0xFF000000);
+            graphics.fill(RenderType.guiOverlay(), j, k, j + 13, k + 2, -100, 0xff000000);
+            graphics.fill(RenderType.guiOverlay(), j, k, j + l, k + 1, -90, i | 0xff000000);
+        }
+
+        if (stack.getCount() != 1 || text != null) {
+            pose.pushPose();
+            pose.translate(x, y, 200.0F);
+            pose.scale(0.75f, 0.75f, 1);
+            String s = text == null ? FormattingUtil.compatNumber(stack.getCount()) : text;
+            graphics.drawString(font, s, 24 - 2 - font.width(s), 14, 0xffffff, true);
+            pose.popPose();
         }
 
         LocalPlayer localplayer = Minecraft.getInstance().player;

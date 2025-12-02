@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.inventory.component;
 
 import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
+import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -14,6 +15,8 @@ public class ShulkerContainerSlot extends Slot {
     private final ContainerStorage storage;
     private final int containerSlot;
     private int index;
+    @Getter
+    private boolean folded;
 
     public ShulkerContainerSlot(ContainerStorage storage, int row, int column, int leftPos, int topPos, int slotSize) {
         super(ShulkerContainerSlot.EMPTY, 0, leftPos + column * slotSize, topPos + row * slotSize);
@@ -72,7 +75,12 @@ public class ShulkerContainerSlot extends Slot {
 
     @Override
     public ItemStack remove(int amount) {
-        return this.storage.split(this.index, amount);
+        UnlimitedItemStack stack = this.storage.getItem(this.index);
+        ItemStack result = this.storage.split(this.index, amount);
+        if (stack.getCount() == result.getCount() && this.folded) {
+            this.index = this.storage.getEntries().getFirstIndexForItem(result.getItemHolder());
+        }
+        return result;
     }
 
     @Override

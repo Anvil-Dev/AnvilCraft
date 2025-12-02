@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.api.container.category.ICategory;
+import dev.dubhe.anvilcraft.api.container.datafixer.StorageDataFixer;
 import dev.dubhe.anvilcraft.api.container.upgrade.IUpgrade;
 import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
@@ -58,6 +59,14 @@ public class ModRegistries {
         .maxId(512)
         .create();
 
+    public static final ResourceKey<Registry<StorageDataFixer>> FIXER_KEY = ResourceKey.createRegistryKey(
+        AnvilCraft.of("storage_data_fixer")
+    );
+    public static final Registry<StorageDataFixer> FIXER_REGISTRY = new RegistryBuilder<>(FIXER_KEY)
+        .sync(true)
+        .maxId(512)
+        .create();
+
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(AMULET_TYPE_REGISTRY);
@@ -65,6 +74,7 @@ public class ModRegistries {
         event.register(CUSTOM_DATA_TYPE_REGISTRY);
         event.register(CATEGORY_TYPE_REGISTRY);
         event.register(UPGRADE_TYPE_REGISTRY);
+        event.register(FIXER_REGISTRY);
     }
 
     @SubscribeEvent

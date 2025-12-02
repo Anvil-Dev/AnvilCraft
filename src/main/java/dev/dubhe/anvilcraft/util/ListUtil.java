@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.util;
 
+import it.unimi.dsi.fastutil.ints.IntList;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
@@ -10,6 +13,11 @@ public class ListUtil {
     public static <T> Optional<T> safelyGet(List<T> list, int index) {
         if (index < 0 || list.isEmpty() || index >= list.size()) return Optional.empty();
         return Optional.ofNullable(list.get(index));
+    }
+
+    public static int safelyGet(IntList list, int index) {
+        if (index < 0 || list.isEmpty() || index >= list.size()) return -1;
+        return list.getInt(index);
     }
 
     public static <T> List<T> cycle(List<T> original, int times) {
@@ -55,5 +63,18 @@ public class ListUtil {
             if (clazz.isInstance(r)) return Optional.of(Util.cast(r));
         }
         return Optional.empty();
+    }
+
+    public static <T> Optional<T> findLast(List<T> list) {
+        try {
+            return Optional.of(list.getLast());
+        } catch (NoSuchElementException e) {
+            return Optional.empty();
+        }
+    }
+
+    public static <E> Optional<List<E>> intoOptional(List<E> collection) {
+        if (collection.isEmpty()) return Optional.empty();
+        return Optional.of(collection);
     }
 }

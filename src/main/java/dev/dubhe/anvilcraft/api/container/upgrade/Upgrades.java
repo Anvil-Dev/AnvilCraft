@@ -1,16 +1,18 @@
 package dev.dubhe.anvilcraft.api.container.upgrade;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.container.upgrade.level.TransferLevel;
-import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
 
-@Getter(AccessLevel.PRIVATE)
+import java.util.Objects;
+
+@Getter
 public class Upgrades {
-    public static final Codec<Upgrades> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+    public static final MapCodec<Upgrades> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         EntryLimitUpgrade.Type.CODEC
             .fieldOf("entryLimit")
             .forGetter(Upgrades::getEntryLimitUpgrade),
@@ -52,8 +54,20 @@ public class Upgrades {
         return this.entryLimitUpgrade.getLevel().getLimit();
     }
 
+    public int getEntryLevel() {
+        return this.entryLimitUpgrade.getLevel().ordinal();
+    }
+
+    public int getMaxStackSize(ItemStack stack) {
+        return stack.getMaxStackSize() * this.getStackPower();
+    }
+
     public int getStackPower() {
         return this.stackPowerUpgrade.getLevel().getPower();
+    }
+
+    public int getStackLevel() {
+        return this.stackPowerUpgrade.getLevel().ordinal();
     }
 
     public TransferLevel getTransfer() {
@@ -64,5 +78,10 @@ public class Upgrades {
         this.entryLimitUpgrade.sync(upgrades.entryLimitUpgrade);
         this.stackPowerUpgrade.sync(upgrades.stackPowerUpgrade);
         this.transferUpgrade.sync(upgrades.transferUpgrade);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.entryLimitUpgrade, this.stackPowerUpgrade, this.transferUpgrade);
     }
 }

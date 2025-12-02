@@ -22,9 +22,19 @@ import java.util.function.Consumer;
 
 public class PacketSplitter {
     public static final PacketSplitter INSTANCE = new PacketSplitter();
+    private static final int DEFAULT_PART_SIZE = 1640;
     private final ExecutorService workThread = Executors.newFixedThreadPool(2);
 
     public PacketSplitter() {
+    }
+
+    public <T extends CustomPacketPayload> void split(
+        final CustomPacketPayload.Type<T> type,
+        final StreamCodec<? super FriendlyByteBuf, T> codec,
+        final T payload,
+        Consumer<CustomPacketPayload> sender
+    ) {
+        this.split(type, codec, payload, PacketSplitter.DEFAULT_PART_SIZE, sender);
     }
 
     public <T extends CustomPacketPayload> void split(
@@ -58,6 +68,16 @@ public class PacketSplitter {
             }
             buffer.release();
         });
+    }
+
+    public <T extends CustomPacketPayload> void split(
+        final CustomPacketPayload.Type<T> type,
+        final StreamCodec<RegistryFriendlyByteBuf, T> codec,
+        final T payload,
+        RegistryAccess registryAccess,
+        Consumer<CustomPacketPayload> sender
+    ) {
+        this.split(type, codec, payload, PacketSplitter.DEFAULT_PART_SIZE, registryAccess, sender);
     }
 
     public <T extends CustomPacketPayload> void split(

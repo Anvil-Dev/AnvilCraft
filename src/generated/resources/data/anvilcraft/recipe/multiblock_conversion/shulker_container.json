@@ -9,7 +9,7 @@
       ],
       [
         "ABA",
-        "BCB",
+        "B B",
         "ABA"
       ],
       [
@@ -24,9 +24,6 @@
       },
       "B": {
         "block": "minecraft:shulker_box"
-      },
-      "C": {
-        "block": "anvilcraft:space_overcompressor"
       }
     }
   },

@@ -5,20 +5,18 @@ import dev.dubhe.anvilcraft.client.util.RenderUtil;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
-import dev.dubhe.anvilcraft.network.ShulkerContainerClosePacket;
-import dev.dubhe.anvilcraft.network.ShulkerContainerScreenSyncOrderPacket;
-import dev.dubhe.anvilcraft.network.ShulkerContainerSyncPacket;
+import dev.dubhe.anvilcraft.network.ShulkerContainerPackets;
 import dev.dubhe.anvilcraft.network.split.PacketSplitter;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,7 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerContainerMenu> {
@@ -41,8 +41,6 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     private static SortMode sortMode = SortMode.COUNT;
     private static SortOrderMode sortOrderMode = SortOrderMode.SEQUENTIAL;
     private static NbtDisplayMode nbtDisplayMode = NbtDisplayMode.UNFOLD;
-
-    private static final Int2ObjectMap<IntSet> SLOTS_ORDER_CACHE = new Int2ObjectArrayMap<>(20);
 
     private boolean scrolling = false;
     private float scrollOffs = 0.0f;
@@ -144,10 +142,23 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
             (button, i) -> this.setNbtDisplayMode(NbtDisplayMode.values()[i])
         ).setCurrent(ShulkerContainerScreen.nbtDisplayMode.ordinal()));
 
+        this.lastClickStorageHash = this.menu.storage.hashCode();
+
         this.scrollOffs = 0.0f;
         this.reorder();
+    }
 
-        this.lastClickStorageHash = this.menu.storage.hashCode();
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        var title = this.title.getVisualOrderText();
+        guiGraphics.drawString(this.font, title, this.titleLabelX + font.width(title) / 2, this.titleLabelY, 0x404040, false);
+        guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040, false);
     }
 
     @Override
@@ -177,6 +188,21 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
                 15
             );
         }
+
+        if (this.menu.isWaitingServerSync()) {
+            int minX = this.leftPos + 107;
+            int minY = this.topPos + 17;
+            int maxX = minX + 162;
+            int maxY = minY + 108;
+            guiGraphics.fill(minX, minY, maxX, maxY, 0x99FFFFFF);
+            guiGraphics.drawCenteredString(
+                this.font,
+                Component.translatable("screen.anvilcraft.shulker_container.waiting_sync"),
+                minX + 81,
+                minY + 54,
+                0xEE0000
+            );
+        }
     }
 
     @Override
@@ -187,9 +213,46 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         guiGraphics.renderFakeItem(itemstack, i, j, j1);
 
         if (slot instanceof ShulkerContainerSlot scSlot) {
-            RenderUtil.renderItemDecorations(guiGraphics, this.font, scSlot.getUnlimitedItem(), i, j, countString);
+            RenderUtil.renderItemDecorations(guiGraphics, this.font, scSlot, scSlot.getUnlimitedItem(), i, j, countString);
         } else {
             guiGraphics.renderItemDecorations(this.font, itemstack, i, j, countString);
+        }
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
+        if (this.insideSearchModeButton(x, y)) {
+            guiGraphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.shulker_container.search", ShulkerContainerScreen.searchMode.getTooltip()),
+                x,
+                y
+            );
+        }
+        if (this.insideSortModeButton(x, y)) {
+            guiGraphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.shulker_container.sort", ShulkerContainerScreen.sortMode.getTooltip()),
+                x,
+                y
+            );
+        }
+        if (this.insideSortOrderModeButton(x, y)) {
+            guiGraphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.shulker_container.sort_order", ShulkerContainerScreen.sortOrderMode.getTooltip()),
+                x,
+                y
+            );
+        }
+        if (this.insideNbtDisplayModeButton(x, y)) {
+            guiGraphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.shulker_container.nbt", ShulkerContainerScreen.nbtDisplayMode.getTooltip()),
+                x,
+                y
+            );
         }
     }
 
@@ -261,6 +324,50 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
                && mouseY < (double) bottom;
     }
 
+    protected boolean insideSearchModeButton(double mouseX, double mouseY) {
+        int left = this.leftPos + 2;
+        int top = this.topPos + 23;
+        int right = left + 24;
+        int bottom = top + 20;
+        return mouseX >= (double) left
+               && mouseY >= (double) top
+               && mouseX < (double) right
+               && mouseY < (double) bottom;
+    }
+
+    protected boolean insideSortModeButton(double mouseX, double mouseY) {
+        int left = this.leftPos + 28;
+        int top = this.topPos + 23;
+        int right = left + 24;
+        int bottom = top + 20;
+        return mouseX >= (double) left
+               && mouseY >= (double) top
+               && mouseX < (double) right
+               && mouseY < (double) bottom;
+    }
+
+    protected boolean insideSortOrderModeButton(double mouseX, double mouseY) {
+        int left = this.leftPos + 54;
+        int top = this.topPos + 23;
+        int right = left + 24;
+        int bottom = top + 20;
+        return mouseX >= (double) left
+               && mouseY >= (double) top
+               && mouseX < (double) right
+               && mouseY < (double) bottom;
+    }
+
+    protected boolean insideNbtDisplayModeButton(double mouseX, double mouseY) {
+        int left = this.leftPos + 80;
+        int top = this.topPos + 23;
+        int right = left + 24;
+        int bottom = top + 20;
+        return mouseX >= (double) left
+               && mouseY >= (double) top
+               && mouseX < (double) right
+               && mouseY < (double) bottom;
+    }
+
     protected boolean insideScrollbar(double mouseX, double mouseY) {
         int left = this.leftPos + 280;
         int top = this.topPos + 18;
@@ -285,33 +392,23 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         super.onClose();
         // noinspection DataFlowIssue - For Minecraft.getInstance().getConnection().registryAccess() - 此时已有Connection
         PacketSplitter.INSTANCE.split(
-            ShulkerContainerSyncPacket.TYPE,
-            ShulkerContainerSyncPacket.STREAM_CODEC,
-            new ShulkerContainerSyncPacket(this.menu.blockEntity.getUUID()),
-            1640,
+            ShulkerContainerPackets.StorageSync.TYPE,
+            ShulkerContainerPackets.StorageSync.STREAM_CODEC,
+            new ShulkerContainerPackets.StorageSync(this.menu.storage),
             Minecraft.getInstance().getConnection().registryAccess(),
             PacketDistributor::sendToServer
         );
-        PacketDistributor.sendToServer(new ShulkerContainerClosePacket(this.menu.blockEntity.getBlockPos()));
+        PacketDistributor.sendToServer(new ShulkerContainerPackets.ScreenClose(this.menu.blockEntity.getBlockPos()));
     }
 
     protected void reorder() {
-        int key = Objects.hash(
-            ShulkerContainerScreen.searching.getValue(),
-            ShulkerContainerScreen.searchMode,
-            ShulkerContainerScreen.sortMode,
-            ShulkerContainerScreen.sortOrderMode,
-            ShulkerContainerScreen.nbtDisplayMode,
-            this.menu.storage.getItems().size()
+        if (this.menu.isWaitingServerSync()) return;
+        Int2BooleanMap order = this.menu.storage.getOrder(
+            ITEM_FILTER,
+            ITEM_SORTER,
+            ShulkerContainerScreen.nbtDisplayMode == NbtDisplayMode.FOLD
         );
-        IntSet order;
-        if (!ShulkerContainerScreen.SLOTS_ORDER_CACHE.containsKey(key)) {
-            order = this.menu.storage.getOrder(ITEM_FILTER, ITEM_SORTER);
-            ShulkerContainerScreen.SLOTS_ORDER_CACHE.put(key, order);
-        } else {
-            order = ShulkerContainerScreen.SLOTS_ORDER_CACHE.get(key);
-        }
-        PacketDistributor.sendToServer(new ShulkerContainerScreenSyncOrderPacket(order, this.scrollOffs));
+        PacketDistributor.sendToServer(new ShulkerContainerPackets.ScreenSync(order, this.scrollOffs));
         this.scrollOffs = this.menu.applyOrder(order, this.scrollOffs);
     }
 
@@ -336,24 +433,60 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     }
 
     protected enum SearchMode {
-        CLEAR,
-        RETENTION
+        CLEAR(text -> text.withStyle(ChatFormatting.RED)),
+        RETENTION(text -> text.withStyle(ChatFormatting.GREEN)),
+        ;
+
+        private final Consumer<MutableComponent> styler;
+
+        SearchMode(Consumer<MutableComponent> styler) {
+            this.styler = styler;
+        }
+
+        public Component getTooltip() {
+            var tooltip = Component.translatable("screen.anvilcraft.shulker_container.search." + this.name().toLowerCase(Locale.ROOT));
+            this.styler.accept(tooltip);
+            return tooltip;
+        }
     }
 
     protected enum SortMode {
         COUNT,
         MOD,
-        NAME
+        NAME,
+        ;
+
+        public Component getTooltip() {
+            return Component.translatable("screen.anvilcraft.shulker_container.sort." + this.name().toLowerCase(Locale.ROOT));
+        }
     }
 
     protected enum SortOrderMode {
         SEQUENTIAL,
-        REVERSE
+        REVERSE,
+        ;
+
+        public Component getTooltip() {
+            return Component.translatable("screen.anvilcraft.shulker_container.sort_order." + this.name().toLowerCase(Locale.ROOT));
+        }
     }
 
     protected enum NbtDisplayMode {
-        UNFOLD,
-        FOLD
+        UNFOLD(text -> text.withStyle(ChatFormatting.RED)),
+        FOLD(text -> text.withStyle(ChatFormatting.GREEN)),
+        ;
+
+        private final Consumer<MutableComponent> styler;
+
+        NbtDisplayMode(Consumer<MutableComponent> styler) {
+            this.styler = styler;
+        }
+
+        public Component getTooltip() {
+            var tooltip = Component.translatable("screen.anvilcraft.shulker_container.nbt." + this.name().toLowerCase(Locale.ROOT));
+            this.styler.accept(tooltip);
+            return tooltip;
+        }
     }
 
     protected static boolean shouldDisplay(UnlimitedItemStack stack) {
@@ -417,7 +550,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
                     boolean mod1IsMc = mod1.equals("minecraft");
                     boolean mod2IsMc = mod2.equals("minecraft");
                     if (mod1IsMc && mod2IsMc) break modCheck;
-                    if (mod1IsMc || mod2IsMc) yield mod1IsMc ? 1 : -1;
+                    if (mod1IsMc || mod2IsMc) yield mod1IsMc ? -1 : 1;
                     int result = mod1.compareTo(mod2);
                     if (result != 0) yield result * side;
                 }

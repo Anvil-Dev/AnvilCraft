@@ -153,4 +153,8 @@ public class AnvilCraftServerConfig {
 
     @Comment("Pushing or pulling a sliding rail will chain to other rails")
     public boolean slidingRailStickToEachOther = false;
+
+    @Comment("Shulker Container's storage recover station max size")
+    @BoundedDiscrete(max = Integer.MAX_VALUE, min = 0)
+    public int containerStorageRecoverMaxSize = 20;
 }

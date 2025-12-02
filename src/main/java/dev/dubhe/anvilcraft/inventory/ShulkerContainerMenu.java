@@ -7,10 +7,11 @@ import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.ints.IntSets;
+import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -36,9 +37,9 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private static final Logger LOGGER = LogUtils.getLogger();
     public final ShulkerContainerBlockEntity blockEntity;
     private final Level level;
-    public final ContainerStorage storage;
+    public ContainerStorage storage;
 
-    private IntSet slotsOrder;
+    private Int2BooleanMap slotsOrder;
 
     @SuppressWarnings("DataFlowIssue")
     public ShulkerContainerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
@@ -57,15 +58,25 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = (ShulkerContainerBlockEntity) blockEntity;
         this.level = inventory.player.level();
-        this.storage = ContainerStorages.get().getOrCreateStorage(this.blockEntity.getUUID());
-        this.slotsOrder = IntSets.fromTo(0, this.storage.getItems().size());
+        this.storage = ContainerStorages.get().getStorage(this.blockEntity.getStorageId()).orElse(null);
 
         this.addPlayerInventory(inventory);
         this.addPlayerHotbar(inventory);
 
         this.addContainerSlots();
 
-        this.scrollTo(0.0F);
+        if (this.storage != null) {
+            this.slotsOrder = ShulkerContainerMenu.initOrder(this.storage);
+            this.scrollTo(0.0F);
+        }
+    }
+
+    private static Int2BooleanMap initOrder(ContainerStorage storage) {
+        Int2BooleanMap order = new Int2BooleanArrayMap();
+        for (int i = 0; i < storage.getEntries().stackSize(); i++) {
+            order.put(i, false);
+        }
+        return order;
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -90,7 +101,15 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         }
     }
 
-    public float applyOrder(IntSet order, float scrollOffs) {
+    public boolean isWaitingServerSync() {
+        if (this.storage == null) {
+            ContainerStorages.get().getStorage(this.blockEntity.getStorageId())
+                .ifPresent(storage -> this.storage = storage);
+        }
+        return this.storage == null;
+    }
+
+    public float applyOrder(Int2BooleanMap order, float scrollOffs) {
         int i = this.getRowIndexForScroll(scrollOffs);
         this.slotsOrder = order;
 
@@ -99,7 +118,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     }
 
     protected int calculateRowCount() {
-        return Mth.positiveCeilDiv(this.storage.getItems().size(), 9) - 6;
+        return Mth.positiveCeilDiv(this.storage.getEntries().stackSize(), 9) - 6;
     }
 
     protected int getRowIndexForScroll(float scrollOffs) {
@@ -120,7 +139,6 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     public void scrollTo(float pos) {
         int row = this.getRowIndexForScroll(pos);
 
-        int[] order = this.slotsOrder.toIntArray();
         for (int rowDiff = 0; rowDiff < 6; rowDiff++) {
             for (int column = 0; column < 9; column++) {
                 int index = column + (rowDiff + row) * 9;
@@ -129,9 +147,11 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
                     this.getSlot(slotIndex),
                     () -> new IllegalStateException("Slot not ShulkerContainerSlot in index " + slotIndex)
                 );
-                if (index >= 0 && index < this.storage.getItems().size()) {
-                    if (index < order.length) {
-                        slot.setIndex(order[index]);
+                if (index >= 0 && index < this.storage.getEntries().stackSize()) {
+                    if (index < this.slotsOrder.size()) {
+                        var entry = CollectionUtil.get(this.slotsOrder.int2BooleanEntrySet(), index);
+                        slot.setIndex(entry.getIntKey());
+                        slot.setFolded(entry.getBooleanValue());
                     } else {
                         slot.setIndex(-1);
                     }
@@ -143,7 +163,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     }
 
     public boolean canScroll() {
-        return this.storage.getItems().size() > 54;
+        return !this.isWaitingServerSync() && this.storage.getEntries().stackSize() > 54;
     }
 
     // 致谢： diesieben07 |https://github.com/diesieben07/SevenCommons
@@ -197,7 +217,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private boolean moveItemToActiveSlot(int sourceIndex) {
         Slot source = this.slots.get(sourceIndex);
         ItemStack stack = source.getItem();
-        if (!this.storage.isMaxItems()) {
+        if (!this.storage.isMaxEntries()) {
             int result = this.storage.addItem(stack);
             if (result != stack.getCount()) {
                 stack.setCount(result);
@@ -207,7 +227,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
             return result == -1;
         }
         int maxSize = this.storage.getMaxStackSize(stack);
-        for (UnlimitedItemStack entry : this.storage.getItems()) {
+        for (UnlimitedItemStack entry : this.storage.getEntries()) {
             if (!ItemStack.isSameItemSameComponents(stack, entry.getStack())) continue;
             if (entry.getCount() >= maxSize) {
                 return false;
@@ -275,6 +295,11 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.SHULKER_CONTAINER.get());
     }
 
+    @Override
+    public boolean canDragTo(Slot slot) {
+        return super.canDragTo(slot) && !(slot instanceof ShulkerContainerSlot);
+    }
+
     // region 修复快速移动死锁的问题
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
@@ -315,6 +340,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
                 ItemStack carried = this.getCarried();
                 if (
                     AbstractContainerMenu.canItemQuickReplace(slot, carried, true)
+                    && slot.getContainerSlot() < VANILLA_SLOT_COUNT
                     && slot.mayPlace(carried)
                     && (this.quickcraftType == 2 || carried.getCount() > this.quickcraftSlots.size())
                     && this.canDragTo(slot)

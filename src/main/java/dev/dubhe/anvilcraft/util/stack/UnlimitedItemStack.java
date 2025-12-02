@@ -113,10 +113,6 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
         return new UnlimitedItemStack(this.stack, count);
     }
 
-    public ItemStack copyToStackWithCount(int count) {
-        return this.copyWithCount(Math.min(this.count, this.stack.getMaxStackSize())).toStack();
-    }
-
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         return Util.cast(CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), this).getOrThrow());
@@ -150,6 +146,18 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
         this.setCount(stack.getCount());
     }
 
+    public Item getItem() {
+        return this.stack.getItem();
+    }
+
+    public Holder<Item> getItemHolder() {
+        return this.stack.getItemHolder();
+    }
+
+    public DataComponentPatch getComponentsPatch() {
+        return this.stack.getComponentsPatch();
+    }
+
     public boolean isSameItemSameComponents(ItemStack stack) {
         return ItemStack.isSameItemSameComponents(this.getStack(), stack);
     }
@@ -164,6 +172,14 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
             if (!list.get(i).isSameItemSameComponents(other.get(i))) return false;
         }
         return true;
+    }
+
+    public UnlimitedItemStack splitUnlimited(int amount) {
+        if (amount > this.stack.getMaxStackSize()) {
+            throw new IllegalArgumentException("Cannot split amount that bigger than max stack size.");
+        }
+        this.count -= amount;
+        return this.copyWithCount(amount);
     }
 
     public ItemStack split(int amount) {

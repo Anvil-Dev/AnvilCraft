@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.multipart;
 
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
 import dev.dubhe.anvilcraft.util.Util;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -22,12 +21,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class FlexibleMultiPartBlock<
     P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>,
     T extends Property<E>,
@@ -75,8 +71,9 @@ public abstract class FlexibleMultiPartBlock<
         state = state.setValue(property, value);
         for (P part : getParts()) {
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
-            if (level.getBlockState(partPos).is(this))
+            if (level.getBlockState(partPos).is(this)) {
                 level.setBlock(partPos, state.setValue(getPart(), part), flag);
+            }
         }
     }
 

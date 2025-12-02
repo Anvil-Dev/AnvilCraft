@@ -126,6 +126,10 @@ public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<Opened
         return this == OpenedCube3x3PartHalf.MID_CENTER;
     }
 
+    public BlockPos fromMain(BlockPos pos) {
+        return pos.offset(this.offsetX, this.offsetY, this.offsetZ).below();
+    }
+
     public BlockPos toMain(BlockPos pos) {
         return pos.offset(-this.offsetX, -this.offsetY, -this.offsetZ).above();
     }

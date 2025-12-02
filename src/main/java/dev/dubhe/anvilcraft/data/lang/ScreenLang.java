@@ -251,5 +251,23 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.mismatch_component", "Mismatch Component");
 
         provider.add("screen.anvilcraft.shulker_container.title", "Shulker Container");
+        provider.add("screen.anvilcraft.shulker_container.waiting_sync", "Waiting for Server...");
+
+        provider.add("screen.anvilcraft.shulker_container.search", "Retain Searching: Currently %s");
+        provider.add("screen.anvilcraft.shulker_container.search.retention", "Yes");
+        provider.add("screen.anvilcraft.shulker_container.search.clear", "No");
+
+        provider.add("screen.anvilcraft.shulker_container.sort", "Sort Type: Currently by %s");
+        provider.add("screen.anvilcraft.shulker_container.sort.count", "Count");
+        provider.add("screen.anvilcraft.shulker_container.sort.mod", "Mod Id");
+        provider.add("screen.anvilcraft.shulker_container.sort.name", "Display Name");
+
+        provider.add("screen.anvilcraft.shulker_container.sort_order", "Sort Order: Currently is %s");
+        provider.add("screen.anvilcraft.shulker_container.sort_order.sequential", "Sequential Order");
+        provider.add("screen.anvilcraft.shulker_container.sort_order.reverse", "Reverse Order");
+
+        provider.add("screen.anvilcraft.shulker_container.nbt", "Fold Items with Diff. Nbt: Currently %s");
+        provider.add("screen.anvilcraft.shulker_container.nbt.fold", "Yes");
+        provider.add("screen.anvilcraft.shulker_container.nbt.unfold", "No");
     }
 }

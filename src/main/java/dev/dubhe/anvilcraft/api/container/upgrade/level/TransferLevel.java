@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
@@ -58,5 +59,9 @@ public enum TransferLevel implements IUpgradeLevel {
     @Override
     public String getSerializedName() {
         return this.name().toLowerCase(Locale.ROOT);
+    }
+
+    public Component getDesc() {
+        return Component.translatable("command.anvilcraft.storage.info.transfer.desc." + this.getSerializedName());
     }
 }

@@ -28,9 +28,7 @@ import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.RemoveTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
-import dev.dubhe.anvilcraft.network.ShulkerContainerClosePacket;
-import dev.dubhe.anvilcraft.network.ShulkerContainerScreenSyncOrderPacket;
-import dev.dubhe.anvilcraft.network.ShulkerContainerSyncPacket;
+import dev.dubhe.anvilcraft.network.ShulkerContainerPackets;
 import dev.dubhe.anvilcraft.network.SilencerSyncPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
@@ -51,9 +49,6 @@ import dev.dubhe.anvilcraft.network.split.PacketSplitter;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class ModNetworks {
-    /**
-     *
-     */
     public static void init(PayloadRegistrar registrar) {
         registrar.playBidirectional(
             MachineOutputDirectionPacket.TYPE,
@@ -274,20 +269,6 @@ public class ModNetworks {
             UpdatePropelPistonStoredEnergyPacket.HANDLER
         );
         PacketSplitter.registerSplitPackets(registrar);
-        registrar.playBidirectional(
-            ShulkerContainerSyncPacket.TYPE,
-            ShulkerContainerSyncPacket.STREAM_CODEC,
-            ShulkerContainerSyncPacket.HANDLER
-        );
-        registrar.playToServer(
-            ShulkerContainerScreenSyncOrderPacket.TYPE,
-            ShulkerContainerScreenSyncOrderPacket.STREAM_CODEC,
-            ShulkerContainerScreenSyncOrderPacket.HANDLER
-        );
-        registrar.playToServer(
-            ShulkerContainerClosePacket.TYPE,
-            ShulkerContainerClosePacket.STREAM_CODEC,
-            ShulkerContainerClosePacket.HANDLER
-        );
+        ShulkerContainerPackets.register(registrar);
     }
 }

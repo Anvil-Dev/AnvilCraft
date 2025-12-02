@@ -13,8 +13,6 @@ import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.dfu.AnvilCraftDfu;
 import dev.dubhe.anvilcraft.init.ModAttatchments;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
-import dev.dubhe.anvilcraft.init.ModCommands;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
@@ -27,6 +25,8 @@ import dev.dubhe.anvilcraft.init.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.command.ModCommands;
+import dev.dubhe.anvilcraft.init.command.ModSuggestionProviders;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffects;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
@@ -43,6 +43,8 @@ import dev.dubhe.anvilcraft.init.loot.ModLootItemFunctions;
 import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.init.shulkercontainer.ModStorageDataFixers;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModUpgradeTypes;
 import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
@@ -112,6 +114,7 @@ public class AnvilCraft {
         ModAmuletTypes.register(modEventBus);
         ModCategories.register(modEventBus);
         ModUpgradeTypes.register(modEventBus);
+        ModStorageDataFixers.register(modEventBus);
         // datagen
         AnvilCraftDatagen.init();
 
@@ -151,6 +154,7 @@ public class AnvilCraft {
     }
 
     public static void registerCommand(@NotNull RegisterCommandsEvent event) {
+        ModSuggestionProviders.register();
         ModCommands.register(event.getDispatcher());
     }
 

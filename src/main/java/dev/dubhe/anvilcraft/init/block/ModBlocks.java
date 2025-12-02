@@ -128,6 +128,7 @@ import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.RadiationBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.block.item.UncontainableBlockItem;
@@ -155,7 +156,6 @@ import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.FragmentationDegree;
-import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
@@ -211,7 +211,6 @@ import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
@@ -226,8 +225,8 @@ import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 import static dev.dubhe.anvilcraft.AnvilCraft.of;
@@ -236,12 +235,10 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-@SuppressWarnings(
-    {
-        "unused",
-        "CodeBlock2Expr"
-    }
-)
+@SuppressWarnings({
+    "unused",
+    "CodeBlock2Expr"
+})
 public class ModBlocks {
     static {
         REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
@@ -1283,7 +1280,7 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
-        .item(FlexibleMultiPartBlockItem<OpenedCube3x3PartHalf, BooleanProperty, Boolean>::new)
+        .item(ShulkerContainerBlockItem::new)
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -3594,7 +3591,6 @@ public class ModBlocks {
         )
         .register();
 
-
     public static final BlockEntry<? extends Block> MULTIPHASE_MATTER_BLOCK = REGISTRATE.block("multiphase_matter_block", Block::new)
         .lang("Block of Multiphase Matter")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
@@ -3701,7 +3697,6 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
-
 
     public static final Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> CEMENT_CAULDRONS = registerAllCementCauldrons();
 
@@ -4573,21 +4568,12 @@ public class ModBlocks {
                 .save(provider, AnvilCraft.of("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
         })
         .register();
-    public static final BlockEntry<? extends TimeCountedPressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE = registerOtherCopperPressurePlate(
-        "exposed_",
-        Blocks.EXPOSED_COPPER,
-        20
-    );
-    public static final BlockEntry<? extends TimeCountedPressurePlateBlock> WEATHERED_COPPER_PRESSURE_PLATE = registerOtherCopperPressurePlate(
-        "weathered_",
-        Blocks.WEATHERED_COPPER,
-        40
-    );
-    public static final BlockEntry<? extends TimeCountedPressurePlateBlock> OXIDIZED_COPPER_PRESSURE_PLATE = registerOtherCopperPressurePlate(
-        "oxidized_",
-        Blocks.OXIDIZED_COPPER,
-        80
-    );
+    public static final BlockEntry<? extends TimeCountedPressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE =
+        registerOtherCopperPressurePlate("exposed_", Blocks.EXPOSED_COPPER, 20);
+    public static final BlockEntry<? extends TimeCountedPressurePlateBlock> WEATHERED_COPPER_PRESSURE_PLATE =
+        registerOtherCopperPressurePlate("weathered_", Blocks.WEATHERED_COPPER, 40);
+    public static final BlockEntry<? extends TimeCountedPressurePlateBlock> OXIDIZED_COPPER_PRESSURE_PLATE =
+        registerOtherCopperPressurePlate("oxidized_", Blocks.OXIDIZED_COPPER, 80);
     public static final BlockEntry<? extends PowerLevelPressurePlateBlock> TUNGSTEN_PRESSURE_PLATE = registerPressurePlate(
         "tungsten",
         TUNGSTEN_BLOCK,
