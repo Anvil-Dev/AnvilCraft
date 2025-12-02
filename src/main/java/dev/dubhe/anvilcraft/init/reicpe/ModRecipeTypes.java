@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
@@ -122,6 +123,11 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<BulgingRecipe>> BULGING_TYPE = registerType("bulging");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BulgingRecipe>> BULGING_SERIALIZER =
         RECIPE_SERIALIZERS.register("bulging", BulgingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION =
+        registerType("neutron_irradiation");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION_SERIALIZER =
+        RECIPE_SERIALIZERS.register("neutron_irradiation", NeutronIrradiationRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<TimeWarpRecipe>> TIME_WARP_TYPE =
         registerType("time_warp");

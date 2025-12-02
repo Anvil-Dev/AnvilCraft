@@ -108,7 +108,7 @@
     {
       "type": "patchouli:relations",
       "entries": [
-        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:apply/corrupted_beacon",
         "anvilcraft:smithing/jewelcrafting_table",
         "anvilcraft:basic/item_processing"
       ],

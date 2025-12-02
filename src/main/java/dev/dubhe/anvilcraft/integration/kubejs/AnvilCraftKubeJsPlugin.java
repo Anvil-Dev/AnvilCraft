@@ -5,7 +5,6 @@ import dev.anvilcraft.lib.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.recipe.trigger.IRecipeTrigger;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.integration.kubejs.recipe.AnvilCraftRecipeComponents;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.JewelCraftingRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.anvil.BlockCompressRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.anvil.BlockCrushRecipeSchema;
@@ -17,10 +16,6 @@ import dev.dubhe.anvilcraft.integration.kubejs.recipe.anvil.ItemProcessRecipeSch
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.anvil.SqueezingRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.anvil.SuperHeatingRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.anvil.TimeWarpRecipeSchema;
-import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.BlockStatePredicateComponent;
-import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceBlockStateComponent;
-import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ChanceItemStackComponent;
-import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.ItemIngredientPredicateComponent;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.mineral.MineralFountainChanceRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.mineral.MineralFountainRecipeSchema;
 import dev.dubhe.anvilcraft.integration.kubejs.recipe.multiblock.MultiblockRecipeSchema;
@@ -31,7 +26,6 @@ import dev.dubhe.anvilcraft.recipe.transform.TagModification;
 import dev.dubhe.anvilcraft.recipe.transform.TransformOptions;
 import dev.latvian.mods.kubejs.plugin.ClassFilter;
 import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
-import dev.latvian.mods.kubejs.recipe.schema.RecipeComponentFactoryRegistry;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchemaRegistry;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
 
@@ -54,25 +48,6 @@ public class AnvilCraftKubeJsPlugin implements KubeJSPlugin {
         bindings.add("IRecipeTrigger", IRecipeTrigger.class);
         bindings.add("IRecipePredicate", IRecipePredicate.class);
         bindings.add("IRecipeOutcome", IRecipeOutcome.class);
-    }
-
-    @Override
-    public void registerRecipeComponents(RecipeComponentFactoryRegistry registry) {
-        registry.register(AnvilCraftRecipeComponents.RESOURCE_LOCATION);
-        registry.register(AnvilCraftRecipeComponents.TRIGGER);
-        registry.register(AnvilCraftRecipeComponents.RECIPE_PREDICATE);
-        registry.register(AnvilCraftRecipeComponents.RECIPE_OUTCOME);
-        registry.register(AnvilCraftRecipeComponents.BLOCK_PATTERN);
-        registry.register(AnvilCraftRecipeComponents.ENTITY_TYPE);
-        registry.register(AnvilCraftRecipeComponents.TRANSFORM_RESULT);
-        registry.register(AnvilCraftRecipeComponents.NUMERIC_TAG_VALUE_PREDICATE);
-        registry.register(AnvilCraftRecipeComponents.TAG_MODIFICATION);
-        registry.register(AnvilCraftRecipeComponents.TRANSFORM_OPTIONS);
-
-        registry.register(BlockStatePredicateComponent.INSTANCE);
-        registry.register(ChanceBlockStateComponent.INSTANCE);
-        registry.register(ChanceItemStackComponent.INSTANCE);
-        registry.register(ItemIngredientPredicateComponent.INSTANCE);
     }
 
     @Override

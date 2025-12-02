@@ -1,0 +1,15 @@
+{
+  "name": "title.anvilcraft.patchouli.apply.neutron_irradiator",
+  "category": "anvilcraft:technology_application",
+  "icon": "anvilcraft:neutron_irradiator",
+  "sortnum": 36008,
+  "entry_color": "660066",
+  "pages": [
+    "防火防炸防凋零 $(li)搭配炼药锅执行$(thing)中子辐照$() $(li)如果把$(item)铀块$()丢进去加工会引发大爆炸",
+    {
+      "type": "patchouli:crafting",
+      "recipe": "anvilcraft:neutron_irradiator",
+      "text": "$(#888888)负重力与超重力达成了微妙的平衡$()"
+    }
+  ]
+}

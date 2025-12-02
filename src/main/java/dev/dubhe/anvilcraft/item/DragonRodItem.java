@@ -42,7 +42,7 @@ public class DragonRodItem extends Item {
     private final int enchantmentValue;
 
     public DragonRodItem(Properties properties, int enchantmentValue) {
-        super(properties.component(ModComponents.DEVOUR_RANGE, DEFAULT_RANGE).rarity(Rarity.EPIC));
+        super(properties.component(ModComponents.DEVOUR_RANGE, DEFAULT_RANGE).rarity(Rarity.UNCOMMON));
         this.enchantmentValue = enchantmentValue;
     }
 

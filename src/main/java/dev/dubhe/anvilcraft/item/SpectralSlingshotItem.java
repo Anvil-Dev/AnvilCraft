@@ -378,7 +378,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
      */
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.CROSSBOW;
+        return UseAnim.BOW;
     }
 
     CrossbowItem.ChargingSounds getChargingSounds(ItemStack stack) {

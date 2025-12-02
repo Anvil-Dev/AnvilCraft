@@ -1,0 +1,15 @@
+{
+  "name": "title.anvilcraft.patchouli.prop.pill",
+  "category": "anvilcraft:special_props",
+  "icon": "anvilcraft:pill",
+  "sortnum": 4006,
+  "pages": [
+    "药片是药水的替代品： $(li)造价便宜 $(li)可堆叠 $(li)食用快 $(#888888)畅启速食$() $(li)效果无损耗 $(li)不同药可通过$(item)药盒$()一起吃",
+    {
+      "type": "anvilcraft:stamping",
+      "anchor": "pill",
+      "recipe": "anvilcraft:stamping/pill",
+      "text": "空药片和药水一起合成即可获得效果"
+    }
+  ]
+}

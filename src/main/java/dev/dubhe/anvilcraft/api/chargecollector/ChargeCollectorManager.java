@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,35 @@ public class ChargeCollectorManager {
             INSTANCES.put(level, new ChargeCollectorManager(level));
         }
         return INSTANCES.get(level);
+    }
+
+    /**
+     * 充电
+     *
+     * @param chargeNum 充电量
+     * @param level     维度
+     * @param blockPos  充电的位置
+     */
+    public static void charge(double chargeNum, Level level, BlockPos blockPos) {
+        ChargeCollectorManager instance = ChargeCollectorManager.getInstance(level);
+        instance.charge(chargeNum, blockPos);
+    }
+
+    /**
+     * 充电
+     *
+     * @param chargeNum 充电量
+     * @param blockPos  充电的位置
+     */
+    public void charge(double chargeNum, BlockPos blockPos) {
+        Collection<Entry> chargeCollectorCollection = this.getNearestChargeCollect(blockPos);
+        double surplus = chargeNum;
+        for (Entry entry : chargeCollectorCollection) {
+            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
+            if (!this.canCollect(chargeCollectorBlockEntity, blockPos)) return;
+            surplus = chargeCollectorBlockEntity.incomingCharge(surplus, blockPos);
+            if (surplus == 0) return;
+        }
     }
 
     /**

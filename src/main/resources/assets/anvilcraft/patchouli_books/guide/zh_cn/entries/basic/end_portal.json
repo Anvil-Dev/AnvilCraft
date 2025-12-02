@@ -3,14 +3,12 @@
   "category": "anvilcraft:basic_gameplay",
   "icon": "minecraft:end_portal_frame",
   "sortnum": 1010,
-  "extra_recipe_mappings": {
-    "anvilcraft:spectral_anvil": 2
-  },
   "pages": [
     "本模组改变了一部分末地门的机制。末地门可以用来制造$(item)末地尘$()和$(item)幻灵铁砧$()",
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:end_dust",
+      "link_recipe": true,
       "text": "落入末地门的$(thing)重力方块$()会变成$(item)末地尘$()。$(br2)特性：非重力方块，且可以凭空放置。$(br2)$(#888888)铁砧工艺有制造沙子的方式，而且比原版刷沙机更好$()"
     },
     {
@@ -21,7 +19,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:spectral_anvil",
-      "text": "非重力方块，可被推动，且不会损坏。$(br2)当头顶的磁铁消失或磁性消失时，会向下掉落一个虚影，完成类似于普通铁砧的加工方式。$(br2)$(#aa0000)注意$()：无法进行$(l:basic/more_processing#loot)铁砧抢劫$()，砸击$(l:power/basic_generation)压电晶体$()产生的电荷也会偏少。"
+      "text": "非重力方块，可被推动，且不会损坏 $(li)当头顶的磁铁消失或磁性消失时，会向下掉落一个虚影 $(li)无论从多高砸到一个物体，相当于从2格高下落的铁砧 $(li)$(#aa0000)不同于铁砧$()：无法进行$(l:basic/more_processing#loot)铁砧抢劫$()，砸击$(l:power/basic_generation)压电晶体$()产生的电荷也会偏少。"
     }
   ]
 }

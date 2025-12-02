@@ -9,7 +9,7 @@
     {
       "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/ember_metal_ingot_3",
-      "text": "将高温的下界合金块丢入燃烧锅中，可加入若干$(l:smithing/tier_2_materials#earth_core_shard)地核碎片$()，进行$(l:smithing/corrupted_beacon#time_warp)时移$()便可获得$(item)余烬金属$()。$(br)$(l:smithing/tier_2_materials#ember_metal)点我$()查看更多合成。"
+      "text": "将高温的下界合金块丢入燃烧锅中，可加入若干$(l:smithing/tier_2_materials#earth_core_shard)地核碎片$()，进行$(l:apply/corrupted_beacon#time_warp)时移$()便可获得$(item)余烬金属$()。$(br)$(l:smithing/tier_2_materials#ember_metal)点我$()查看更多合成。"
     },
     {
       "type": "patchouli:text",

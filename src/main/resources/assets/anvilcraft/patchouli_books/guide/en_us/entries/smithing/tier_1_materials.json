@@ -23,7 +23,7 @@
       "anchor": "cursed_gold_ingot",
       "item": ["anvilcraft:cursed_gold_ingot","anvilcraft:cursed_gold_block","anvilcraft:cursed_gold_nugget"],
       "link_recipe": true,
-      "text": "An item emanating a curse aura. The carriers will get $(thing)debuffs$(), and hitting by a lightning bolt when using $(item)Royal Anvil$(). $(br2)Gold Ingot will turn into Cursed Gold Ingot when using $(l:smithing/tier_1_materials#royal_grindstone)Royal Grindstone$() to remove curses and repair costs from items. $(br2)$(item)Piglin$() holding curse gold will be zombified and drop additional curse gold upon death. $(li)Can be used to product $(l:smithing/corrupted_beacon)Corrupted Beacon$(/l)"
+      "text": "An item emanating a curse aura. The carriers will get $(thing)debuffs$(), and hitting by a lightning bolt when using $(item)Royal Anvil$(). $(br2)Gold Ingot will turn into Cursed Gold Ingot when using $(l:smithing/tier_1_materials#royal_grindstone)Royal Grindstone$() to remove curses and repair costs from items. $(br2)$(item)Piglin$() holding curse gold will be zombified and drop additional curse gold upon death. $(li)Can be used to product $(l:apply/corrupted_beacon)Corrupted Beacon$(/l)"
     },
     {
       "type": "patchouli:relations",

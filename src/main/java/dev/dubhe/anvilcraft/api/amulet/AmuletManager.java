@@ -163,7 +163,15 @@ public class AmuletManager {
         return !holders.isEmpty() && CollectionUtil.anyMatch(holders, holder -> holder.equals(type));
     }
 
+    public void resetState(ServerPlayer player) {
+        for (Supplier<AmuletItem> amuletGetter : this.amuletItems) {
+            AmuletType type = amuletGetter.get().getType().value();
+            type.inventoryTick(player, type.amulet().get(), false);
+        }
+    }
+
     public void inventoryTick(ServerPlayer player) {
+        resetState(player);
         HashMultimap<Holder<AmuletType>, ItemStack> amulets = this.getAmuletsFromInventory(player);
         for (Supplier<AmuletItem> amuletGetter : this.amuletItems) {
             AmuletItem amuletItem = amuletGetter.get();

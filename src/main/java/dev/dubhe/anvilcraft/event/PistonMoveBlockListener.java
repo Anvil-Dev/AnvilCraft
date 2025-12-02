@@ -10,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.Collection;
@@ -32,25 +31,16 @@ public class PistonMoveBlockListener {
     /**
      * 活塞移动方块
      */
-    public static void onPistonMoveBlocks(@NotNull Level level, @NotNull List<BlockPos> blocks) {
+    public static void onPistonMoveBlocks(Level level, List<BlockPos> blocks) {
         for (BlockPos pos : blocks) {
             BlockState blockState = level.getBlockState(pos);
             if (!(blockState.getBlock() instanceof MagnetBlock)) continue;
             if (blockState.getValue(MagnetBlock.LIT)) continue;
             double n = getChargeNum(level, pos);
-            if (n > 0) {
-                Collection<Entry> nearestChargeCollect =
-                    ChargeCollectorManager.getInstance(level).getNearestChargeCollect(pos);
-                for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
-                    ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
-                    if (ChargeCollectorManager.getInstance(level).canCollect(blockEntity, pos)) {
-                        double unCharged = blockEntity.incomingCharge(n, pos);
-                        if (unCharged == 0) {
-                            break;
-                        }
-                    }
-                }
+            if (n <= 0) {
+                continue;
             }
+            ChargeCollectorManager.charge(n, level, pos);
         }
     }
 

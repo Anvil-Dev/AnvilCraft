@@ -19,18 +19,18 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public record FellingEffect(int range) implements EnchantmentEntityEffect {
 
-    public static final MapCodec<FellingEffect> CODEC = RecordCodecBuilder.mapCodec(it ->
-        it.group(
-            Codec.INT.optionalFieldOf("range", 3).forGetter(FellingEffect::range)
-        ).apply(it, FellingEffect::new)
-    );
+    public static final MapCodec<FellingEffect> CODEC = RecordCodecBuilder.mapCodec(it -> it.group(
+        Codec.INT
+            .optionalFieldOf("range", 3)
+            .forGetter(FellingEffect::range)
+    ).apply(it, FellingEffect::new));
 
     @Override
     public void apply(ServerLevel level, int i, EnchantedItemInUse enchantedItemInUse, Entity entity, Vec3 vec3) {
@@ -38,7 +38,7 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
         if (entity.isShiftKeyDown()) return;
         int max = (i * AnvilCraft.CONFIG.fellingBlockPerLevel) + 1;
         if (!(entity instanceof Player player)) return;
-        chainMine(
+        FellingEffect.chainMine(
             level,
             player,
             BlockPos.containing(vec3),

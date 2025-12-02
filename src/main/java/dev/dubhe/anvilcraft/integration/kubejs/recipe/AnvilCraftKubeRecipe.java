@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.kubejs.recipe;
 
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
+import dev.latvian.mods.kubejs.recipe.component.RecipeValidationContext;
 import dev.latvian.mods.rhino.util.HideFromJS;
 
 import java.util.function.Supplier;
@@ -21,9 +22,8 @@ public abstract class AnvilCraftKubeRecipe extends KubeRecipe {
     protected abstract void validate();
 
     @Override
-    public void afterLoaded() {
-        super.afterLoaded();
-
+    public void validate(RecipeValidationContext cx) {
+        super.validate(cx);
         this.validate();
     }
 }

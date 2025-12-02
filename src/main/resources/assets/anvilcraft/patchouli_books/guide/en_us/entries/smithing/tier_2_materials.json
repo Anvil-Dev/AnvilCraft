@@ -53,7 +53,7 @@
       "anchor": "neutronium_ingot",
       "item": ["anvilcraft:neutronium_ingot", "anvilcraft:charged_neutronium_ingot"],
       "link_recipe": true,
-      "text": "$(li)通过$(l:smithing/space_overcompressor)空间超压器$(/l)制作 $(li)密度奇大，寻常方块只会被它如空气般穿过，但会被基岩和末地石、末地尘等含飘浮粉的方块拦截 $(li)用充电器消耗[4000kW·300s]能量，获得$(item)充能中子锭$()，不会穿过方块"
+      "text": "$(li)通过$(l:apply/space_overcompressor)空间超压器$(/l)制作 $(li)密度奇大，寻常方块只会被它如空气般穿过，但会被基岩和末地石、末地尘等含飘浮粉的方块拦截 $(li)用充电器消耗[4000kW·300s]能量，获得$(item)充能中子锭$()，不会穿过方块"
     },
     {
       "type": "patchouli:crafting",
@@ -67,7 +67,7 @@
         "anvilcraft:struct/mineral_fountain",
         "anvilcraft:advanced/tool_properties",
         "anvilcraft:apply/oil",
-        "anvilcraft:smithing/space_overcompressor",
+        "anvilcraft:apply/space_overcompressor",
         "anvilcraft:power/store"
       ],
       "text": ""

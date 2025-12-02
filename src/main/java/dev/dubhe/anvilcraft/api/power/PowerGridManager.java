@@ -23,7 +23,7 @@ public class PowerGridManager {
     public PowerGridManager() {
     }
 
-    public synchronized void addComponent(@NotNull IPowerComponent component) {
+    public synchronized void addComponent(IPowerComponent component) {
         try {
             if (component.getCurrentLevel() == null) return;
             addQueue.offer(Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);

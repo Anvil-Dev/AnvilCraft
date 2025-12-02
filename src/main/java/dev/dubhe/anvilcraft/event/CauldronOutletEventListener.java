@@ -7,10 +7,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -34,14 +34,9 @@ public class CauldronOutletEventListener {
 
         // 检查是否是炼药锅且手持铁砧锤
         if (
-            !blockState.is(Blocks.CAULDRON)
-            && !blockState.is(Blocks.WATER_CAULDRON)
-            && !blockState.is(Blocks.LAVA_CAULDRON)
-            && !blockState.is(Blocks.POWDER_SNOW_CAULDRON)
+            !blockState.is(BlockTags.CAULDRONS)
+            || !(itemStack.getItem() instanceof AnvilHammerItem)
         ) {
-            return;
-        }
-        if (!(itemStack.getItem() instanceof AnvilHammerItem)) {
             return;
         }
 
@@ -124,6 +119,6 @@ public class CauldronOutletEventListener {
     }
 
     private static Vec3 calculateMouthPositionForBottom(BlockPos cauldronPos) {
-        return new Vec3(cauldronPos.getX() + 0.5, cauldronPos.getY() - 0.45, cauldronPos.getZ() + 0.5);
+        return new Vec3(cauldronPos.getX() + 0.5, cauldronPos.getY() + 0.05, cauldronPos.getZ() + 0.5);
     }
 }

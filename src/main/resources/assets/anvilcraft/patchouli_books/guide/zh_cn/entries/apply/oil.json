@@ -11,7 +11,7 @@
       "item": "anvilcraft:oil_bucket",
       "link_recipe": true,
       "title": "原油",
-      "text": "通过$(l:smithing/corrupted_beacon#time_warp)时移$()，一层原油(250mB)可由以下材料转换而来：$(br)1个$(item)僵尸/猪灵的头$()$(br)16个$(item)生牛/羊/猪/兔肉$()$(br)64个$(item)生鱼/鸡肉/腐肉/蜘蛛眼$()"
+      "text": "通过$(l:apply/corrupted_beacon#time_warp)时移$()，一层原油(250mB)可由以下材料转换而来：$(br)1个$(item)僵尸/猪灵的头$()$(br)16个$(item)生牛/羊/猪/兔肉$()$(br)64个$(item)生鱼/鸡肉/腐肉/蜘蛛眼$()"
     },
     {
       "type": "patchouli:spotlight",
@@ -35,7 +35,7 @@
       "entries": [
         "anvilcraft:power/heat_collection",
         "anvilcraft:smithing/tier_2_materials",
-        "anvilcraft:smithing/corrupted_beacon"
+        "anvilcraft:apply/corrupted_beacon"
       ],
       "text": ""
     }

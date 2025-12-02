@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.CauldronOutletModel;
 import dev.dubhe.anvilcraft.entity.model.IonocraftBackpackModel;
 import dev.dubhe.anvilcraft.entity.model.IonocraftModel;
 import dev.dubhe.anvilcraft.entity.model.MagnetizedNodeModel;
@@ -14,6 +15,7 @@ public class ModModelLayers {
     public static final ModelLayerLocation IONOCRAFT_BACKPACK = new ModelLayerLocation(AnvilCraft.of("ionocraft_backpack"), "main");
     public static final ModelLayerLocation THROWN_HEAVY_HALBERD = new ModelLayerLocation(AnvilCraft.of("thrown_heavy_halberd"), "main");
     public static final ModelLayerLocation MAGNETIZED_NODE = new ModelLayerLocation(AnvilCraft.of("magnetized_node"), "main");
+    public static final ModelLayerLocation CAULDRON_OUTLET = CauldronOutletModel.LAYER_LOCATION;
 
     @Getter
     private static IonocraftBackpackModel ionocraftBackpackModel;
@@ -34,6 +36,10 @@ public class ModModelLayers {
         event.registerLayerDefinition(
             MAGNETIZED_NODE,
             MagnetizedNodeModel::createBodyLayer
+        );
+        event.registerLayerDefinition(
+            CAULDRON_OUTLET,
+            CauldronOutletModel::createBodyLayer
         );
     }
 

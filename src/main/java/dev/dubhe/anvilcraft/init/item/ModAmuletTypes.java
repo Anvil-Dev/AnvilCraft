@@ -64,12 +64,12 @@ public class ModAmuletTypes {
                 if (effect == null) {
                     player.addEffect(new MobEffectInstance(
                         MobEffects.FIRE_RESISTANCE,
-                        2, 0, false, false
+                        3, 0, false, false
                     ));
                 } else if (effect.getDuration() < 3600) {
                     player.addEffect(new MobEffectInstance(
                         MobEffects.FIRE_RESISTANCE,
-                        effect.getDuration() + 2, effect.getAmplifier(),
+                        effect.getDuration() + 3, effect.getAmplifier(),
                         effect.isAmbient(), effect.isVisible()
                     ));
                 }
@@ -87,12 +87,12 @@ public class ModAmuletTypes {
                 if (effect == null) {
                     player.addEffect(new MobEffectInstance(
                         MobEffects.CONDUIT_POWER,
-                        2, 0, false, false
+                        3, 0, false, false
                     ));
                 } else if (effect.getDuration() < 3600) {
                     player.addEffect(new MobEffectInstance(
                         MobEffects.CONDUIT_POWER,
-                        effect.getDuration() + 2, effect.getAmplifier(),
+                        effect.getDuration() + 3, effect.getAmplifier(),
                         effect.isAmbient(), effect.isVisible()
                     ));
                 }
@@ -144,7 +144,7 @@ public class ModAmuletTypes {
             .obtain((player, source) -> {
                 if (
                     source.typeHolder().is(DamageTypes.FALL)
-                    && Optional.ofNullable(source.getEntity())
+                        && Optional.ofNullable(source.getEntity())
                         .map(entity -> Util.instanceOfAny(entity, FallingGiantAnvilEntity.class))
                         .or(() -> Optional.ofNullable(source.getDirectEntity())
                             .map(entity -> Util.instanceOfAny(entity, FallingGiantAnvilEntity.class)))
@@ -185,9 +185,9 @@ public class ModAmuletTypes {
         type -> AmuletType.builder()
             .obtainByDamage(type)
             .obtain((player, source) -> IAbnormal.getAbnormalCount(player, ICursed.class) > 0
-                    && IAbnormal.getAbnormalCount(player, ILevitation.class) >= 64
-                    && IAbnormal.getAbnormalCount(player, ISuperHeavy.class) > 0
-                    && IAbnormal.getAbnormalCount(player, IRadiation.class) >= 1152)
+                && IAbnormal.getAbnormalCount(player, ILevitation.class) >= 64
+                && IAbnormal.getAbnormalCount(player, ISuperHeavy.class) > 0
+                && IAbnormal.getAbnormalCount(player, IRadiation.class) >= 1152)
             .amulet(ModItems.ABNORMAL_AMULET)
     );
     public static final DeferredHolder<AmuletType, ? extends AmuletType> GEM = registerFour(

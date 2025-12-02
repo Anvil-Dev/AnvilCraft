@@ -7,7 +7,7 @@
     "anvilcraft:post_break_block": [
       {
         "effect": {
-          "type": "anvilcraft:weeding",
+          "type": "anvilcraft:haevest_left_click",
           "range": 5
         },
         "requirements": {
@@ -21,7 +21,7 @@
     "anvilcraft:use_on_block": [
       {
         "effect": {
-          "type": "anvilcraft:harvest",
+          "type": "anvilcraft:harvest_right_click",
           "range": 5
         },
         "requirements": {

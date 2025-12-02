@@ -1,0 +1,70 @@
+{
+  "type": "anvillib:in_world_recipe",
+  "compatible": true,
+  "conflicting": [
+    {
+      "type": "anvillib:has_item_ingredient",
+      "item": {
+        "items": "anvilcraft:uranium_block"
+      },
+      "offset": [
+        0.0,
+        -0.375,
+        0.0
+      ],
+      "range": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    }
+  ],
+  "icon": {
+    "count": 1,
+    "id": "minecraft:anvil"
+  },
+  "non_conflicting": [
+    {
+      "type": "anvilcraft:has_cauldron",
+      "offset": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "type": "anvillib:has_block",
+      "offset": [
+        0.0,
+        -2.0,
+        0.0
+      ],
+      "predicate": {
+        "blocks": "anvilcraft:neutron_irradiator"
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "type": "anvillib:choose_one",
+      "choices": [
+        {
+          "outcome": {
+            "type": "anvillib:produce_explosion",
+            "fire": false,
+            "interact": "block",
+            "offset": [
+              0.0,
+              -0.75,
+              0.0
+            ],
+            "power": 3.0
+          },
+          "weight": 1.0
+        }
+      ]
+    }
+  ],
+  "priority": 5,
+  "trigger": "anvilcraft:on_anvil_fall_on"
+}

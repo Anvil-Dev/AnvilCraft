@@ -33,6 +33,7 @@ public class PillRecipe extends CustomRecipe {
         return item.is(ModFoodItems.PILL) && potion.isEmpty();
     }
 
+    @SuppressWarnings("deprecation")
     public boolean validatePotion(ItemStack item) {
         PotionContents potionContents = item.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
         Optional<Holder<Potion>> potion = potionContents.potion();
@@ -41,7 +42,11 @@ public class PillRecipe extends CustomRecipe {
                 || item.is(Items.SPLASH_POTION)
                 || item.is(Items.LINGERING_POTION)
         )
-            && potion.isPresent() && !potion.get().is(Potions.WATER);
+            && potion.isPresent()
+            && !potion.get().is(Potions.WATER)
+            && !potion.get().is(Potions.MUNDANE)
+            && !potion.get().is(Potions.THICK)
+            && !potion.get().is(Potions.AWKWARD);
     }
 
     @Override
@@ -86,7 +91,20 @@ public class PillRecipe extends CustomRecipe {
 
     @Override
     public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
-        return NonNullList.withSize(input.size(), Items.GLASS_BOTTLE.getDefaultInstance());
+        NonNullList<ItemStack> nonnulllist = NonNullList.withSize(input.size(), ItemStack.EMPTY);
+
+        for (int i = 0; i < nonnulllist.size(); i++) {
+            ItemStack item = input.getItem(i);
+            if (
+                item.is(Items.POTION)
+                || item.is(Items.SPLASH_POTION)
+                || item.is(Items.LINGERING_POTION)
+            ) {
+                nonnulllist.set(i, new ItemStack(Items.GLASS_BOTTLE, 1));
+            }
+        }
+
+        return nonnulllist;
     }
 
     @Override

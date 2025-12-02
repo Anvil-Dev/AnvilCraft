@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:neutron_irradiation",
+  "ingredients": [
+    {
+      "items": "#c:ingots/uranium"
+    }
+  ],
+  "results": [
+    {
+      "count": 6,
+      "id": "anvilcraft:plutonium_nugget"
+    }
+  ]
+}

@@ -21,7 +21,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -77,7 +76,10 @@ public class GiantAnvilShockEventListener {
                     ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.CLEANING)),
                     TreeNode.<ShockContext>predicatedExecutable(it ->
                         it.unwrap().testCorner(Blocks.OBSIDIAN)
-                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.GENERAL))
+                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.GENERAL)),
+                    TreeNode.<ShockContext>predicatedExecutable(it ->
+                        it.unwrap().testCorner(Blocks.AMETHYST_BLOCK)
+                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.BROKEN_CRYSTALS))
                 )
             )
         ).then(
@@ -149,7 +151,7 @@ public class GiantAnvilShockEventListener {
     }
 
     @SubscribeEvent
-    public static void onLand(@NotNull AnvilEvent.GiantOnLand event) {
+    public static void onLand(AnvilEvent.GiantOnLand event) {
         ShockContext context = ShockContext.inflate(event);
         behaviorTree.run(context);
     }

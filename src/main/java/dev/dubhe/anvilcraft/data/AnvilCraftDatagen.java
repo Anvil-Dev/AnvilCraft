@@ -6,16 +6,16 @@ import dev.anvilcraft.lib.integration.IntegrationHook;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.advancement.AdvancementHandler;
 import dev.dubhe.anvilcraft.data.lang.LangHandler;
-import dev.dubhe.anvilcraft.data.provider.ModDamageTypeProvider;
 import dev.dubhe.anvilcraft.data.provider.ModDamageTypeTagProvider;
 import dev.dubhe.anvilcraft.data.provider.ModFurnaceFuelProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootModifierProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.provider.ModParticleDescriptionProvider;
 import dev.dubhe.anvilcraft.data.provider.ModPoiTagProvider;
-import dev.dubhe.anvilcraft.data.provider.ModRegistryProvider;
 import dev.dubhe.anvilcraft.data.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.tags.TagsHandler;
+import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
@@ -44,11 +44,9 @@ public class AnvilCraftDatagen {
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         PackOutput packOutput = generator.getPackOutput();
 
-        generator.addProvider(event.includeServer(), new ModRegistryProvider(packOutput, lookupProvider));
         generator.addProvider(event.includeServer(), new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(event.includeServer(), new ModPoiTagProvider(packOutput, lookupProvider, existingFileHelper));
         generator.addProvider(event.includeServer(), new ModFurnaceFuelProvider(packOutput, lookupProvider));
-        generator.addProvider(event.includeServer(), new ModDamageTypeProvider(packOutput, lookupProvider));
         generator.addProvider(event.includeServer(), new ModDamageTypeTagProvider(packOutput, lookupProvider, existingFileHelper));
         generator.addProvider(event.includeServer(), new ModLootModifierProvider(packOutput, lookupProvider, AnvilCraft.MOD_ID));
         generator.addProvider(event.includeClient(), new ModParticleDescriptionProvider(packOutput, existingFileHelper));
@@ -61,6 +59,12 @@ public class AnvilCraftDatagen {
      * 初始化生成器
      */
     public static void init() {
+        var genInit = REGISTRATE.getDataGenInitializer();
+        genInit.add(Registries.ENCHANTMENT, ModEnchantments::bootstrap);
+        genInit.add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap);
+
+        genInit.addDependency(ProviderType.RECIPE, ProviderType.DYNAMIC);
+
         REGISTRATE.addDataGenerator(ProviderType.ITEM_TAGS, TagsHandler::initItem);
         REGISTRATE.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
         REGISTRATE.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);

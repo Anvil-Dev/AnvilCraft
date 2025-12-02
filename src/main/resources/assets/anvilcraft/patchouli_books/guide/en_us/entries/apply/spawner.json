@@ -11,7 +11,7 @@
     "anvilcraft:resentful_amber_block": 0
   },
   "pages": [
-    "$(l:smithing/corrupted_beacon#time_warp)时移$()操作可以将$(item)树脂(块)$()转化为$(item)琥珀(块)$()。$(br2)如果$(item)树脂块$()中含有的不是被动生物，则有$(thing)5%%$()的概率产生$(item)怨恨琥珀块$()。$(br2)利用它和$(l:smithing/tier_1_materials#cursed_gold_block)诅咒金块$()可以生产对应敌对生物的$(item)刷怪笼$()。",
+    "$(l:apply/corrupted_beacon#time_warp)时移$()操作可以将$(item)树脂(块)$()转化为$(item)琥珀(块)$()。$(br2)如果$(item)树脂块$()中含有的不是被动生物，则有$(thing)5%%$()的概率产生$(item)怨恨琥珀块$()。$(br2)利用它和$(l:smithing/tier_1_materials#cursed_gold_block)诅咒金块$()可以生产对应敌对生物的$(item)刷怪笼$()。",
     {
       "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/amber",
@@ -62,7 +62,7 @@
     {
       "type": "patchouli:relations",
       "entries": [
-        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:apply/corrupted_beacon",
         "anvilcraft:basic/material",
         "anvilcraft:struct/multiblock",
         "anvilcraft:smithing/jewelcrafting_table"

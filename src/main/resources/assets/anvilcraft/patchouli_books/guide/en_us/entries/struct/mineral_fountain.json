@@ -71,7 +71,7 @@
     {
       "type": "patchouli:text",
       "title": "应用：无限金属矿",
-      "text": "在获得一定量的金属后，你可以通过$(l:smithing/corrupted_beacon#time_warp)时移$()将金属块转化为粗矿，$(item)矿物涌泉$()再生矿物，$(l:power/laser_system)激光系统$()自动采矿。$(br2)这要求你现阶段有能力制造$(l:smithing/corrupted_beacon)腐化信标$()、$(l:struct/mineral_fountain#impact_pile)冲击桩$()、$(l:power/laser_system#ruby_laser)激光器$()、$(l:power/laser_system#ruby_prism)棱镜$()并有充足的电力以供$(item)激光器$()工作"
+      "text": "在获得一定量的金属后，你可以通过$(l:apply/corrupted_beacon#time_warp)时移$()将金属块转化为粗矿，$(item)矿物涌泉$()再生矿物，$(l:power/laser_system)激光系统$()自动采矿。$(br2)这要求你现阶段有能力制造$(l:apply/corrupted_beacon)腐化信标$()、$(l:struct/mineral_fountain#impact_pile)冲击桩$()、$(l:power/laser_system#ruby_laser)激光器$()、$(l:power/laser_system#ruby_prism)棱镜$()并有充足的电力以供$(item)激光器$()工作"
     },
     {
       "type": "patchouli:multiblock",
@@ -130,7 +130,7 @@
       "type": "patchouli:relations",
       "entries": [
         "anvilcraft:basic/minerals",
-        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:apply/corrupted_beacon",
         "anvilcraft:power/laser_system",
         "anvilcraft:power/void_energy_collection",
         "anvilcraft:advanced/heated_block",

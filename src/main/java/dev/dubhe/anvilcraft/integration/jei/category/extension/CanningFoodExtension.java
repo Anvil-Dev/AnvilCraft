@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.extension;
 
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -47,7 +48,7 @@ public class CanningFoodExtension implements ICraftingCategoryExtension<CanningF
                 .filter(recipe::isFood)
             )
         ), 0, 0);
-        craftingGridHelper.createAndSetOutputs(builder, List.of(ModItems.CANNED_FOOD.asStack()));
+        craftingGridHelper.createAndSetOutputs(builder, List.of(ModFoodItems.CANNED_FOOD.asStack()));
     }
 
     @Override
@@ -69,7 +70,7 @@ public class CanningFoodExtension implements ICraftingCategoryExtension<CanningF
             .forEach(slot -> {
                 if (slot.getRole() == RecipeIngredientRole.OUTPUT) {
                     slot.getDisplayedItemStack().ifPresent(canStack -> slot.createDisplayOverrides()
-                        .addItemStack(ModItems.CANNED_FOOD.get().setFood(canStack, displayedFood)));
+                        .addItemStack(ModFoodItems.CANNED_FOOD.get().setFood(canStack, displayedFood)));
                 }
             });
     }

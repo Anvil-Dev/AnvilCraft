@@ -2,7 +2,7 @@
   "name": "title.anvilcraft.patchouli.prop.amulet_box",
   "category": "anvilcraft:special_props",
   "icon": "anvilcraft:amulet_box",
-  "sortnum": 4006,
+  "sortnum": 4007,
   "pages": [
     {
       "type": "text",

@@ -34,41 +34,34 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * 充电器
- */
 public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, IHammerChangeable {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    /**
-     * 充电器
-     */
     public ChargerBlock(Properties properties) {
         super(properties);
         registerDefaultState(getStateDefinition().any().setValue(POWERED, false).setValue(OVERLOAD, true));
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(ChargerBlock::new);
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(POWERED, false).setValue(OVERLOAD, true);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        @NotNull Level level,
-        @NotNull BlockState state,
-        @NotNull BlockEntityType<T> type
+        Level level,
+        BlockState state,
+        BlockEntityType<T> type
     ) {
         if (level.isClientSide) {
             return null;
@@ -82,11 +75,11 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
 
     @Override
     public void neighborChanged(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Block neighborBlock,
-        @NotNull BlockPos neighborPos,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
         boolean movedByPiston
     ) {
         if (level.isClientSide) {
@@ -97,7 +90,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ChargerBlockEntity(ModBlockEntities.CHARGER.get(), pos, state);
     }
 
@@ -107,16 +100,16 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
     public void onRemove(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull BlockState newState,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        BlockState newState,
         boolean movedByPiston
     ) {
         if (state.is(newState.getBlock())) return;
@@ -132,18 +125,19 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    public void tick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         level.setBlock(blockPos, ModBlocks.DISCHARGER.getDefaultState(), 2);
         if (level.getBlockEntity(blockPos) instanceof IStateListener<?> listener) {
-            IStateListener<Boolean> thiz = (IStateListener<Boolean>) listener;
-            thiz.notifyStateChanged(false);
+            IStateListener<Boolean> self = (IStateListener<Boolean>) listener;
+            self.notifyStateChanged(false);
         }
         return true;
     }
@@ -174,35 +168,41 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.getBlockEntity(pos) instanceof ChargerBlockEntity charger) {
-            if (level.isClientSide) {
-                return ItemInteractionResult.SUCCESS;
-            }
-            // 玩家空手时尝试取出物品
-            if (stack.isEmpty()) {
-                // 优先从输出槽（槽位2）取物品，如果为空则从输入槽（槽位0）取
-                for (int slot : new int[]{
-                    2,
-                    0
-                }) {
-                    ItemStack itemInSlot = charger.getFilteredItemStackHandler().getStackInSlot(slot);
-                    if (!itemInSlot.isEmpty()) {
-                        ItemStack extracted = charger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
-                        player.getInventory().placeItemBackInInventory(extracted);
-                        level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+        if (!level.isClientSide()) {
+            if (level.getBlockEntity(pos) instanceof ChargerBlockEntity charger) {
+                // 玩家空手时尝试取出物品
+                if (stack.isEmpty()) {
+                    // 优先从输出槽（槽位2）取物品，如果为空则从输入槽（槽位0）取
+                    for (int slot : new int[]{
+                        2,
+                        0
+                    }) {
+                        ItemStack itemInSlot = charger.getFilteredItemStackHandler().getStackInSlot(slot);
+                        if (!itemInSlot.isEmpty()) {
+                            ItemStack extracted = charger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
+                            player.getInventory().placeItemBackInInventory(extracted);
+                            level.playSound(
+                                null,
+                                pos,
+                                SoundEvents.ITEM_PICKUP,
+                                SoundSource.PLAYERS,
+                                .2f,
+                                1f + level.getRandom().nextFloat()
+                            );
+                            return ItemInteractionResult.SUCCESS;
+                        }
+                    }
+                } else if (charger.containsValidItem(stack)) {
+                    ItemStack result = charger.getFilteredItemStackHandler().insertItem(0, stack, true);
+                    if (result.isEmpty() || result.getCount() < stack.getCount()) {
+                        int countDiff = stack.getCount() - (result.isEmpty() ? 0 : result.getCount());
+                        ItemStack toInsert = stack.split(countDiff);
+                        charger.getFilteredItemStackHandler().insertItem(0, toInsert, false);
                         return ItemInteractionResult.SUCCESS;
                     }
                 }
-            } else if (charger.containsValidItem(stack)) {
-                ItemStack result = charger.getFilteredItemStackHandler().insertItem(0, stack, true);
-                if (result.isEmpty() || result.getCount() < stack.getCount()) {
-                    int countDiff = stack.getCount() - (result.isEmpty() ? 0 : result.getCount());
-                    ItemStack toInsert = stack.split(countDiff);
-                    charger.getFilteredItemStackHandler().insertItem(0, toInsert, false);
-                    return ItemInteractionResult.SUCCESS;
-                }
             }
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 }

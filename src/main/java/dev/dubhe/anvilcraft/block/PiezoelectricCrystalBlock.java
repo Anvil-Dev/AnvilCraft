@@ -20,11 +20,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -78,29 +77,17 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         if (chargeNums == null) return;
         int distance = (int) Math.min(chargeNums.size() - 1, fallDistance);
         int chargeNum = chargeNums.get(distance);
-        this.charge(chargeNum, level, blockPos);
+        ChargeCollectorManager.charge(chargeNum, level, blockPos);
         pressureConduction(level, blockPos, chargeNum / 2);
         TriggerUtil.anvilHitPiezoelectricCrystal(level, blockPos);
         level.scheduleTick(blockPos, this, 4);
-    }
-
-    private void charge(int chargeNum, Level level, BlockPos blockPos) {
-        Collection<Entry> chargeCollectorCollection =
-            ChargeCollectorManager.getInstance(level).getNearestChargeCollect(blockPos);
-        double surplus = chargeNum;
-        for (Entry entry : chargeCollectorCollection) {
-            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
-            if (!ChargeCollectorManager.getInstance(level).canCollect(chargeCollectorBlockEntity, blockPos)) return;
-            surplus = chargeCollectorBlockEntity.incomingCharge(surplus, blockPos);
-            if (surplus == 0) return;
-        }
     }
 
     private void pressureConduction(Level level, BlockPos blockPos, int chargeNum) {
         BlockPos pos = blockPos.below();
         if (level.getBlockState(pos).getBlock() instanceof PiezoelectricCrystalBlock block) {
             if (chargeNum == 0) return;
-            this.charge(chargeNum, level, blockPos);
+            ChargeCollectorManager.charge(chargeNum, level, blockPos);
             block.pressureConduction(level, pos, chargeNum / 2);
         }
     }

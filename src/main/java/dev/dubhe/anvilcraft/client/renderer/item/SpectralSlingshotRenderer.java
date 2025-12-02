@@ -139,6 +139,10 @@ public class SpectralSlingshotRenderer extends BlockEntityWithoutLevelRenderer {
             super(renderer);
         }
 
+        public static SpectralSlingshotExtensions of(BlockEntityWithoutLevelRenderer renderer) {
+            return new SpectralSlingshotExtensions(renderer);
+        }
+
         @Nullable
         @Override
         public HumanoidModel.ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {

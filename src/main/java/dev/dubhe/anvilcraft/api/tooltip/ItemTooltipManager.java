@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
@@ -103,7 +104,7 @@ public class ItemTooltipManager {
         map.put(ModBlocks.CUT_EMBER_METAL_STAIRS.asItem(), "Wither proof");
 
         map.put(ModItems.TIN_CAN.asItem(), "Tin cans can be combined with any food to obtain canned food");
-        map.put(ModItems.CANNED_FOOD.asItem(), "Stackable instant food");
+        map.put(ModFoodItems.CANNED_FOOD.asItem(), "Stackable instant food");
         map.put(ModItems.IONOCRAFT.asItem(), "It will float when placed in the power grid");
         map.put(ModItems.IONOCRAFT_BACKPACK.asItem(), """
             When equipping to start flying like gamemode creative

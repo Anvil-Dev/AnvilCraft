@@ -507,7 +507,7 @@ public interface InWorldRecipeSchema {
         }
     }
 
-    RecipeKey<ItemStack> ICON = ItemStackComponent.STRICT_ITEM_STACK
+    RecipeKey<ItemStack> ICON = ItemStackComponent.OPTIONAL_ITEM_STACK
         .key("icon", ComponentRole.OTHER)
         .optional(ItemStack.EMPTY)
         .alwaysWrite();

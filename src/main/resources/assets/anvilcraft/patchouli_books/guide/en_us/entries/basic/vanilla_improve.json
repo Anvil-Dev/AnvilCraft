@@ -52,7 +52,13 @@
     },
     {
       "type": "patchouli:spotlight",
-      "item": "minecraft:anvil",
+      "title": "炼药锅输出口",
+      "item": "minecraft:cauldron",
+      "text": "持$(l:power/introduction#anvil_hammer)铁砧锤$()右键炼药锅侧面生成$(item)炼药锅输出口$() $(li)一个锅最多有一个输出口 $(li)自动输出加工产物"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": ["minecraft:anvil","minecraft:chipped_anvil","minecraft:damaged_anvil"],
       "title": "铁砧修补术",
       "text": "手持铁块潜行右键可以修复铁砧。"
     }

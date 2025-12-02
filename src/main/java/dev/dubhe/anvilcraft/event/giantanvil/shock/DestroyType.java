@@ -1,14 +1,15 @@
 package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AmethystClusterBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CaveVinesPlantBlock;
@@ -97,10 +98,7 @@ enum DestroyType {
                                 DestroyType.dropItems(itemStack, it, level);
                                 return true;
                             }
-                            if (blockState.is(BlockTags.JUNGLE_LOGS)) {
-                                return true;
-                            }
-                            return false;
+                            return blockState.is(BlockTags.JUNGLE_LOGS);
                         }
                     );
                 }
@@ -205,6 +203,21 @@ enum DestroyType {
                 level.destroyBlock(pos, false);
             }
         }
+    }, BROKEN_CRYSTALS {
+        @Override
+        void accept(ShockContext context, List<BlockPos> list, DestroyMode mode) {
+            Level level = context.level();
+            for (BlockPos blockPos : list) {
+                BlockState blockState = level.getBlockState(blockPos);
+                AnvilCraft.LOGGER.debug("block: {}", blockState.getBlock());
+                if (blockState.isAir() || !(blockState.getBlock() instanceof AmethystClusterBlock)) {
+                    continue;
+                }
+                level.destroyBlock(blockPos, false);
+                List<ItemStack> dropItems = mode.apply(blockState, blockPos, context);
+                DestroyType.dropItems(dropItems, blockPos, level);
+            }
+        }
     };
 
     public static final int TRAVERSE_DEPTH = 64;
@@ -214,8 +227,7 @@ enum DestroyType {
 
     private static void dropItems(List<ItemStack> itemStacks, BlockPos pos, Level level) {
         for (ItemStack itemStack : itemStacks) {
-            ItemEntity itemEntity = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), itemStack);
-            level.addFreshEntity(itemEntity);
+            Block.popResource(level, pos, itemStack);
         }
     }
 }

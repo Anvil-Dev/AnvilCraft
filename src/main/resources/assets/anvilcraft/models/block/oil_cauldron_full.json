@@ -1,5 +1,6 @@
 {
   "parent": "minecraft:block/template_cauldron_full",
+  "render_type": "minecraft:cutout",
   "textures": {
     "bottom": "minecraft:block/cauldron_bottom",
     "content": "anvilcraft:block/oil",

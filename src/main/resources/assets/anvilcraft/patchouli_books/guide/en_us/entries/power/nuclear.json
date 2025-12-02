@@ -17,7 +17,7 @@
       "anchor": "nuclear_fission",
       "item": "anvilcraft:corrupted_beacon",
       "title": "时移核衰变",
-      "text": "$(l:smithing/corrupted_beacon#time_warp)时移$()$(item)铀块$()或$(item)钚块$()会在一瞬间爆发出通常需要数万年才能释放大量的热能。$(br2)将与锅水平相邻的方块加热为$(thing)白炽$()并持续5/10分钟，可用于热能发电"
+      "text": "$(l:apply/corrupted_beacon#time_warp)时移$()$(item)铀块$()或$(item)钚块$()会在一瞬间爆发出通常需要数万年才能释放大量的热能。$(br2)将与锅水平相邻的方块加热为$(thing)白炽$()并持续5/10分钟，可用于热能发电"
     },
     {
       "type": "patchouli:spotlight",

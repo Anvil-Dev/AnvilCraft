@@ -106,7 +106,7 @@ public class CreateIntegration {
             }
         )
         .properties(properties -> properties.stacksTo(1))
-        .removeTab(ModItemGroups.ANVILCRAFT_FOOD.getKey())
+        .removeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey())
         .recipe((ctx, provider) -> JewelCraftingRecipe.builder()
             .withCondition(new ModLoadedCondition("create"))
             .requires(ModItems.SILVER_INGOT, 1)

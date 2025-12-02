@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.init.enchantment;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.enchantment.FellingEffect;
-import dev.dubhe.anvilcraft.enchantment.HarvestEffect;
-import dev.dubhe.anvilcraft.enchantment.WeedingEffect;
+import dev.dubhe.anvilcraft.enchantment.HarvestLeftClickEffect;
+import dev.dubhe.anvilcraft.enchantment.HarvestRightClickEffect;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
 import net.neoforged.bus.api.IEventBus;
@@ -16,16 +16,16 @@ public class ModEnchantmentEffects {
 
     static {
         REGISTER.register(
-            "harvest",
-            () -> HarvestEffect.CODEC
+            "haevest_left_click",
+            () -> HarvestLeftClickEffect.CODEC
+        );
+        REGISTER.register(
+            "harvest_right_click",
+            () -> HarvestRightClickEffect.CODEC
         );
         REGISTER.register(
             "felling",
             () -> FellingEffect.CODEC
-        );
-        REGISTER.register(
-            "weeding",
-            () -> WeedingEffect.CODEC
         );
     }
 

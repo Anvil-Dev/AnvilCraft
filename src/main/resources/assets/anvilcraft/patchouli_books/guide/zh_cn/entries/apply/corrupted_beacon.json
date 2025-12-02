@@ -1,8 +1,8 @@
 {
-  "name": "title.anvilcraft.patchouli.smithing.corrupted_beacon",
-  "category": "anvilcraft:smithing_system",
+  "name": "title.anvilcraft.patchouli.apply.corrupted_beacon",
+  "category": "anvilcraft:technology_application",
   "icon": "anvilcraft:corrupted_beacon",
-  "sortnum": 13004,
+  "sortnum": 16000,
   "entry_color": "004400",
   "pages": [
     "本章将依次介绍： $(li)$(item)腐化信标$()的制作过程 $(li)$(item)腐化信标$()的黑色光柱附带的效果 $(li)如何搭建包含$(item)腐化信标$()的结构，以进行$(thing)时移$() $(p)$(#888888)释放了被封印在信标之中的凋灵之力。$()",
@@ -11,13 +11,13 @@
       "anchor": "corrupted_beacon",
       "link_recipe": true,
       "item": "anvilcraft:corrupted_beacon",
-      "text": "When you fully using $(l:smithing/tier_1_materials#cursed_gold_block)Cursed Gold Block$() as the base of beacons and use $(l:smithing/tier_1_materials#cursed_gold_ingot)Cursed Gold Ingot$() to activate it, the beacon will have chance to convert into $(item)Corrupted Beacon$(). The more layers of the base, the higher the conversion probability.$(br)($(thing)Automation Method$(): Use an anvil to press the curse gold ingot into the beacon. The probabilities are the same.) $(p)Use Cursed Gold Ingot to activate beacons will make weather set to Thunder."
+      "text": "完全使用$(l:smithing/tier_1_materials#cursed_gold_block)诅咒金块$()作为信标底座，并使用$(l:smithing/tier_1_materials#cursed_gold_ingot)诅咒金锭$()激活信标，则信标有概率转化为$(item)腐化信标$()。底座层数越多，转化概率越大。$(br)($(thing)自动化$()：使用铁砧将诅咒金锭压入信标，概率相同) $(p)使用诅咒金锭激活信标时天气将转为雷雨天。"
     },
-    "The beacon's light column will give entities in its beam $(thing)Wither$() effect and transform some mobs to another mob.: $(br)Pig→$(thing)Hoglin$() Cow→$(thing)Ravager$()$(br)Guardian→$(thing)Elder Guardian$()$(br)Piglin→$(thing)Piglin Brute$()$(br)Villager→30%%$(thing)Pillager$()、60%%$(thing)Vindicator$()、10%%$(thing)Evoker$()$(br)Allay→$(thing)Vex$()$(br)Bat→$(thing)Phantom$()$(br)Horse→10%%$(thing)Zombie Horse$()、90%%$(thing)Skeleton Horse$()$(br)Silverfish→$(thing)Endermite$()$(br)Skeleton→20%%$(thing)Wither Skeleton$()、80%%$(thing)Stray$() $(br)villager's Iron Golem→$(thing)Warden()",
+    "信标光柱会赋予生物$(thing)凋零$()效果，并将部分生物转化为另一种生物：$(br)猪→$(thing)疣猪兽$()   牛→$(thing)劫掠兽$()$(br)守卫者→$(thing)远古守卫者$()$(br)猪灵→$(thing)猪灵蛮兵$()$(br)村民→30%%$(thing)掠夺者$()、60%%$(thing)卫道士$()、10%%$(thing)唤魔者$()$(br)悦灵→$(thing)恼鬼$()$(br)蝙蝠→$(thing)幻翼$()$(br)马→10%%$(thing)僵尸马$()、90%%$(thing)骷髅马$()$(br)蠹虫→$(thing)末影螨$()$(br)骷髅→20%%$(thing)凋零骷髅$()、80%%$(thing)流浪者$()$(br)村庄铁傀儡→$(thing)监守者$()",
     {
       "type": "patchouli:multiblock",
       "anchor": "time_warp",
-      "name": "Time Warp",
+      "name": "时移",
       "multiblock": {
         "mapping": {
           "G": "anvilcraft:cursed_gold_block",
@@ -37,12 +37,12 @@
         ]
       },
       "enable_visualize": "true",
-      "text": "Time Warp operation requires lit Corrupted Beacon. This means if you want to use magnet block to control anvils on top, you need to use $(item)Hollow Magnet Block$()."
+      "text": "想要实现时移操作，腐化信标必须是激活状态。这意味着如果你想使用磁铁块控制顶上的铁砧，你必须使用$(item)空心磁铁块$()。"
     },
     {
       "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/raw_copper",
-      "text": "Metals can be transformed into coarse ores"
+      "text": "金属块可被时移为粗矿形式"
     },
     {
       "type": "anvilcraft:time_warp",

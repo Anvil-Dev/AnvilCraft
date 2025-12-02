@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.Set;
  * 电网
  */
 @SuppressWarnings("unused")
+@ParametersAreNonnullByDefault
 public class PowerGrid {
     public static boolean isServerClosing = false;
     public static final PowerGridManager MANAGER = new PowerGridManager();
@@ -61,6 +63,10 @@ public class PowerGrid {
 
     public PowerGrid(Level level) {
         this.level = level;
+    }
+
+    static {
+        ConnectivityChecker.register(new FastCollisionConnectivityChecker());
     }
 
     /**
@@ -265,7 +271,7 @@ public class PowerGrid {
      *
      * @param components 元件
      */
-    public static void removeComponent(IPowerComponent @NotNull ... components) {
+    public static void removeComponent(IPowerComponent... components) {
         try {
             if (PowerGrid.isServerClosing) return;
             for (IPowerComponent component : components) {
@@ -283,7 +289,7 @@ public class PowerGrid {
      *
      * @param components 电力元件
      */
-    public void remove(IPowerComponent @NotNull ... components) {
+    public void remove(IPowerComponent... components) {
         this.markedRemoval = true;
         for (IPowerComponent component : this.components) {
             component.setGrid(null);
@@ -301,7 +307,7 @@ public class PowerGrid {
         PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
     }
 
-    private boolean clearGrid(@NotNull IPowerComponent component) {
+    private boolean clearGrid(IPowerComponent component) {
         component.setGrid(null);
         return true;
     }
@@ -311,7 +317,7 @@ public class PowerGrid {
      *
      * @param grid 电网
      */
-    public void merge(@NotNull PowerGrid grid) {
+    public void merge(PowerGrid grid) {
         grid.producers.forEach(this::add);
         grid.consumers.forEach(this::add);
         grid.storages.forEach(this::add);
@@ -323,8 +329,8 @@ public class PowerGrid {
      * @param component 元件
      * @return 元件是否在电网范围内
      */
-    public boolean isInRange(@NotNull IPowerComponent component) {
-        return collideFast(component.getShape());
+    public boolean isInRange(IPowerComponent component) {
+        return ConnectivityChecker.check(this, component);
     }
 
     /**
@@ -332,7 +338,7 @@ public class PowerGrid {
      *
      * @param components 元件
      */
-    public static void addComponent(IPowerComponent @NotNull ... components) {
+    public static void addComponent(IPowerComponent... components) {
         for (IPowerComponent component : components) {
             MANAGER.addComponent(component);
         }

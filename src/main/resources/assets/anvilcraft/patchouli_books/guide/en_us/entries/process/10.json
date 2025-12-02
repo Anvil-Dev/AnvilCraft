@@ -5,7 +5,7 @@
   "sortnum": 10,
   "entry_color": "004400",
   "pages": [
-    "$(li)下界岩→$(item)下界尘$()[$(l:basic/block_processing#crush)粉碎$()] $(li)下界尘→$(item)钨粒$()[$(l:basic/item_processing#mesh)过筛$()] $(li)钨块→$(item)粗钨块$()[$(l:smithing/corrupted_beacon#time_warp)时移$()] $(li)利用$(l:struct/mineral_fountain)矿物涌泉$()生产$(item)钨矿石$()。$(br2)$(#888888)80组下界尘有95%%的把握筛出12个钨块$()",
+    "$(li)下界岩→$(item)下界尘$()[$(l:basic/block_processing#crush)粉碎$()] $(li)下界尘→$(item)钨粒$()[$(l:basic/item_processing#mesh)过筛$()] $(li)钨块→$(item)粗钨块$()[$(l:apply/corrupted_beacon#time_warp)时移$()] $(li)利用$(l:struct/mineral_fountain)矿物涌泉$()生产$(item)钨矿石$()。$(br2)$(#888888)80组下界尘有95%%的把握筛出12个钨块$()",
     {
       "type": "patchouli:spotlight",
       "item": "minecraft:netherite_ingot",
@@ -17,7 +17,7 @@
         "anvilcraft:basic/block_processing",
         "anvilcraft:basic/item_processing",
         "anvilcraft:basic/minerals",
-        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:apply/corrupted_beacon",
         "anvilcraft:apply/item_regeneration"
       ],
       "text": ""

@@ -12,7 +12,7 @@
         "anvilcraft:apply/gem_transformation",
         "anvilcraft:machine/automation",
         "anvilcraft:power/consumption",
-        "anvilcraft:smithing/corrupted_beacon"
+        "anvilcraft:apply/corrupted_beacon"
       ],
       "text": "更详细的加工流程可看$(l:apply/gem_transformation)宝石转化流程$()；可以使用手册自带的$(l:machine/automation#gem_machine)自动宝石再生机$()"
     }

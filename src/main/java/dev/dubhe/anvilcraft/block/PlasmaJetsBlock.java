@@ -31,16 +31,25 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
     public static boolean trySpawn(BlockPos pos, Level level) {
         BlockState cauldron = level.getBlockState(pos.below());
         BlockState heater = level.getBlockState(pos.below().below());
-        if (!cauldron.is(ModBlocks.FIRE_CAULDRON)
+        if (
+            !cauldron.is(ModBlocks.FIRE_CAULDRON)
             || !heater.is(ModBlocks.HEATER)
             || heater.getValue(HeaterBlock.OVERLOAD)
-        ) return false;
+        ) {
+            return false;
+        }
         for (int i = 0; i < 8; i++) {
-            if (!level.getBlockState(pos.above(i)).isAir()) return false;
+            if (!level.getBlockState(pos.above(i)).isAir()) {
+                return false;
+            }
         }
         for (Direction direction : Direction.values()) {
-            if (!direction.getAxis().isHorizontal()) continue;
-            if (level.getBlockState(pos.relative(direction)).isAir()) return false;
+            if (!direction.getAxis().isHorizontal()) {
+                continue;
+            }
+            if (!level.getBlockState(pos.relative(direction)).isFaceSturdy(level, pos.relative(direction), direction.getOpposite())) {
+                return false;
+            }
         }
         level.setBlock(pos, ModBlocks.PLASMA_JETS.getDefaultState(), 3);
         return true;

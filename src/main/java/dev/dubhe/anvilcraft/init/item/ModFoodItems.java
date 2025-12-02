@@ -5,6 +5,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.item.CannedFoodItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
 import dev.dubhe.anvilcraft.item.PillItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
@@ -21,21 +22,6 @@ import net.neoforged.neoforge.common.Tags;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 
 public class ModFoodItems {
-    static {
-        REGISTRATE.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FOOD.getKey());
-    }
-
-    public static final ItemEntry<PillItem> PILL = REGISTRATE
-        .item("pill", PillItem::new)
-        .properties((properties) -> properties.component(DataComponents.POTION_CONTENTS, PotionContents.EMPTY))
-        .recipe(
-            (ctx, provider) -> StampingRecipe.builder()
-                .requires(ModItemTags.FLOUR)
-                .result(ModFoodItems.PILL, 4)
-                .save(provider)
-        )
-        .register();
-
     public static final ItemEntry<Item> CREAM = REGISTRATE
         .item("cream", Item::new)
         .tag(Tags.Items.FOODS, ModItemTags.CREAM)
@@ -165,6 +151,21 @@ public class ModFoodItems {
 
     public static final ItemEntry<UtusanItem> UTUSAN = REGISTRATE
         .item("utusan", UtusanItem::new)
+        .register();
+
+    public static final ItemEntry<CannedFoodItem> CANNED_FOOD = REGISTRATE.item("canned_food", CannedFoodItem::new)
+        .tag(Tags.Items.FOODS)
+        .register();
+
+    public static final ItemEntry<PillItem> PILL = REGISTRATE
+        .item("pill", PillItem::new)
+        .properties((properties) -> properties.component(DataComponents.POTION_CONTENTS, PotionContents.EMPTY))
+        .recipe((ctx, provider) -> {
+            StampingRecipe.builder()
+                .requires(ModItemTags.FLOUR)
+                .result(ModFoodItems.PILL, 4)
+                .save(provider);
+        })
         .register();
 
     public static void register() {

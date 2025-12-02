@@ -5,12 +5,14 @@ import dev.anvilcraft.lib.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.recipe.trigger.IRecipeTrigger;
 import dev.anvilcraft.lib.util.CodecUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import dev.dubhe.anvilcraft.recipe.transform.TagModification;
 import dev.dubhe.anvilcraft.recipe.transform.TransformOptions;
 import dev.dubhe.anvilcraft.recipe.transform.TransformResult;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
+import dev.latvian.mods.kubejs.recipe.component.RecipeComponentType;
 import dev.latvian.mods.rhino.type.TypeInfo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -18,6 +20,16 @@ import net.minecraft.world.entity.EntityType;
 public class AnvilCraftRecipeComponents {
 
     public static final RecipeComponent<ResourceLocation> RESOURCE_LOCATION = new RecipeComponent<>() {
+
+        public static final RecipeComponentType<ResourceLocation> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("resource_location"),
+            RESOURCE_LOCATION
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
 
         @Override
         public Codec<ResourceLocation> codec() {
@@ -36,6 +48,16 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<IRecipeTrigger> TRIGGER = new RecipeComponent<>() {
+        public static final RecipeComponentType<IRecipeTrigger> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("trigger"),
+            TRIGGER
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
+
         @Override
         public Codec<IRecipeTrigger> codec() {
             return IRecipeTrigger.CODEC;
@@ -53,6 +75,16 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<IRecipePredicate<?>> RECIPE_PREDICATE = new RecipeComponent<>() {
+        public static final RecipeComponentType<IRecipePredicate<?>> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("recipe_predicate"),
+            RECIPE_PREDICATE
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
+
         @Override
         public Codec<IRecipePredicate<?>> codec() {
             return IRecipePredicate.CODEC;
@@ -70,6 +102,16 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<IRecipeOutcome<?>> RECIPE_OUTCOME = new RecipeComponent<>() {
+        public static final RecipeComponentType<IRecipeOutcome<?>> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("recipe_outcome"),
+            RECIPE_OUTCOME
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
+
         @Override
         public Codec<IRecipeOutcome<?>> codec() {
             return IRecipeOutcome.CODEC;
@@ -87,6 +129,15 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<BlockPattern> BLOCK_PATTERN = new RecipeComponent<>() {
+        public static final RecipeComponentType<BlockPattern> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("block_pattern"),
+            BLOCK_PATTERN
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
 
         @Override
         public Codec<BlockPattern> codec() {
@@ -105,6 +156,15 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<EntityType<?>> ENTITY_TYPE = new RecipeComponent<>() {
+        public static final RecipeComponentType<EntityType<?>> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("entity_type"),
+            ENTITY_TYPE
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
 
         @Override
         public Codec<EntityType<?>> codec() {
@@ -123,6 +183,15 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<TransformResult> TRANSFORM_RESULT = new RecipeComponent<>() {
+        public static final RecipeComponentType<TransformResult> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("transform_result"),
+            TRANSFORM_RESULT
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
 
         @Override
         public Codec<TransformResult> codec() {
@@ -141,6 +210,15 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<NumericTagValuePredicate> NUMERIC_TAG_VALUE_PREDICATE = new RecipeComponent<>() {
+        public static final RecipeComponentType<NumericTagValuePredicate> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("numeric_tag_value_predicate"),
+            NUMERIC_TAG_VALUE_PREDICATE
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
 
         @Override
         public Codec<NumericTagValuePredicate> codec() {
@@ -159,6 +237,15 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<TagModification> TAG_MODIFICATION = new RecipeComponent<>() {
+        public static final RecipeComponentType<TagModification> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("tag_modification"),
+            TAG_MODIFICATION
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
 
         @Override
         public Codec<TagModification> codec() {
@@ -177,6 +264,15 @@ public class AnvilCraftRecipeComponents {
     };
 
     public static final RecipeComponent<TransformOptions> TRANSFORM_OPTIONS = new RecipeComponent<>() {
+        public static final RecipeComponentType<TransformOptions> TYPE = RecipeComponentType.unit(
+            AnvilCraft.of("transform_options"),
+            TRANSFORM_OPTIONS
+        );
+
+        @Override
+        public RecipeComponentType<?> type() {
+            return TYPE;
+        }
         @Override
         public Codec<TransformOptions> codec() {
             return TransformOptions.CODEC;

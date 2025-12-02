@@ -2,7 +2,7 @@
   "name": "title.anvilcraft.patchouli.prop.amulet",
   "category": "anvilcraft:special_props",
   "icon": "anvilcraft:anvil_amulet",
-  "sortnum":4007,
+  "sortnum":4008,
   "pages":[
     "$(item)护符$()是一系列有特殊作用的物品，需要手持生效。$(p)想要获取$(item)护符$()，需要手持含有$(n)$(item)不死图腾$()的$(item)护符盒$()受到特定类型的致命伤害。 $(p)$(#880000)注意$()：得到第一个护符后，才可以通过珠宝台复制$()",
     {

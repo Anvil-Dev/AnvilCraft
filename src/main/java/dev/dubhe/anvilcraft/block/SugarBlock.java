@@ -26,7 +26,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 public class SugarBlock extends Block {
-    public static final EnumProperty<FragmentationDegree> FRAGMENTATION_DEGREE = EnumProperty.create("fragmentation_degree", FragmentationDegree.class);
+    public static final EnumProperty<FragmentationDegree> FRAGMENTATION_DEGREE = EnumProperty.create(
+        "fragmentation_degree",
+        FragmentationDegree.class
+    );
 
     public SugarBlock(Properties properties) {
         super(properties);
@@ -59,15 +62,7 @@ public class SugarBlock extends Block {
 
     public void onHit(Level level, BlockPos pos) {
         level.scheduleTick(pos, this, 4);
-        Collection<ChargeCollectorManager.Entry> chargeCollectorCollection =
-            ChargeCollectorManager.getInstance(level).getNearestChargeCollect(pos);
-        double surplus = 1;
-        for (ChargeCollectorManager.Entry entry : chargeCollectorCollection) {
-            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
-            if (!ChargeCollectorManager.getInstance(level).canCollect(chargeCollectorBlockEntity, pos)) return;
-            surplus = chargeCollectorBlockEntity.incomingCharge(surplus, pos);
-            if (surplus == 0) return;
-        }
+        ChargeCollectorManager.charge(1, level, pos);
     }
 
     @Override

@@ -37,7 +37,7 @@ public interface MultiblockRecipeSchema {
     }
 
     RecipeKey<BlockPattern> BLOCK_PATTERN = AnvilCraftRecipeComponents.BLOCK_PATTERN.inputKey("pattern").defaultOptional();
-    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.outputKey("result").defaultOptional();
+    RecipeKey<ItemStack> RESULT = ItemStackComponent.ITEM_STACK.outputKey("result").defaultOptional();
 
     RecipeSchema SCHEMA = new RecipeSchema(BLOCK_PATTERN, RESULT)
         .factory(new KubeRecipeFactory(AnvilCraft.of("mulitblock"), MultiblockKubeRecipe.class, MultiblockKubeRecipe::new))

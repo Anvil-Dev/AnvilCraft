@@ -62,7 +62,7 @@ body:
       label: Existing behavior - 现有行为
       description: |
         Please describe the problem you have encountered carefully.Log and crash-report please upload to mclo.gs, and paste the link from the address bar here. Do not upload files or directly paste into the text.
-        请仔细描述你所遇到的问题。 log 与 crash-report 请上传至 mclo.gs ，并将地址栏中的链接复制到这里，请勿上传文件或直接粘贴至正文中。
+        请仔细描述你所遇到的问题。 log 与 crash-report 请上传至 [mclo.gs](https://mclo.gs/) ，并将地址栏中的链接复制到这里，请勿上传文件或直接粘贴至正文中。
     validations:
       required: true
 
@@ -89,7 +89,12 @@ body:
   - type: checkboxes
     id: know
     attributes:
-      label: This issue is unique - 这个issue是唯一的
+      label: Checks - 检查项
       options:
-        - label: I have searched the issue tracker and did not find an issue describing my bug. - 我已经搜索问题追踪器并且没有发现相同的 issue。
+        - label: I have searched the [issue tracker](https://github.com/Anvil-Dev/AnvilCraft/issues) and confirmed that there is no identical issue. 我已经搜索[问题追踪器](https://github.com/Anvil-Dev/AnvilCraft/issues)并且确认没有相同的 Issue。
+          required: true
+        - label: I admit that I previously checked all options without thorough verification and directly submitted this Issue, and I agree that it can be closed directly. 我承认此前未充分核实便勾选了所有选项并直接提交此 Issue ，且同意该 Issue 可被直接关闭。
+        - label: I confirm that I am currently using the latest snapshot or LTS version of AnvilCraft. If not, this issue can be closed directly. 我确认当前使用的是铁砧工艺的最新快照版本或 LTS 版本，若非如此，此 Issue 可被直接关闭。
+          required: true
+        - label: I promise to provide a detailed description of the encountered issue, along with relevant logs and screenshots, rather than offering incomplete or vague information. 我承诺将详细描述遇到的问题，并提供相关日志与截图，而非提供不完整或模糊的信息。
           required: true

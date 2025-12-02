@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
@@ -306,6 +307,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<LaserReceiverBlockEntity> LASER_RECEIVER = REGISTRATE
         .blockEntity("laser_receiver", LaserReceiverBlockEntity::new)
         .validBlocks(ModBlocks.LASER_RECEIVER)
+        .register();
+
+    public static final BlockEntityEntry<NeutronIrradiatorBlockEntity> NEUTRON_IRRADIATOR = REGISTRATE
+        .blockEntity("neutron_irradiator", NeutronIrradiatorBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.NEUTRON_IRRADIATOR)
         .register();
 
     public static final BlockEntityEntry<ShulkerContainerBlockEntity> SHULKER_CONTAINER = REGISTRATE

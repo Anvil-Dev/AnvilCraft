@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -14,17 +15,18 @@ public class PageBulging extends PageAnvilItemProcess<BulgingRecipe> {
             ModRecipeTypes.BULGING_TYPE.get(),
             BulgingRecipe::getInputItems,
             BulgingRecipe::getResultItems,
-            recipe -> CauldronUtil.fullState(Blocks.WATER_CAULDRON),
+            PageBulging::getInputCauldron,
             null
         );
     }
 
     @Override
     protected void drawExtra(GuiGraphics graphics, BulgingRecipe recipe, int recipeX, int recipeY, int mouseX, int mouseY, boolean second) {
+        // 如果产生液体，渲染装有液体的锅
         if (!recipe.getResultItems().isEmpty()) return;
         RenderSupport.renderBlock(
             graphics,
-            getCauldron(recipe),
+            getResultCauldron(recipe),
             recipeX + 90,
             recipeY + 29,
             10,
@@ -33,11 +35,25 @@ public class PageBulging extends PageAnvilItemProcess<BulgingRecipe> {
         );
     }
 
-    static BlockState getCauldron(BulgingRecipe recipe) {
-        if (recipe.isProduceFluid()) {
+    static BlockState getInputCauldron(BulgingRecipe recipe) {
+        if (recipe.isFromWater()) {
+            return CauldronUtil.fullState(Blocks.WATER_CAULDRON);
+        } else if (recipe.isProduceFluid()) {
             return Blocks.CAULDRON.defaultBlockState();
         } else {
             return recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
         }
     }
+
+    static BlockState getResultCauldron(BulgingRecipe recipe) {
+        Block result = recipe.getHasCauldron().getTransformCauldron();
+        if (recipe.isConsumeFluid()) {
+            return CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
+        } else if (recipe.isProduceFluid()) {
+            return CauldronUtil.getStateFromContentAndLevel(result, 1);
+        } else {
+            return CauldronUtil.fullState(result);
+        }
+    }
+
 }

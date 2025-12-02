@@ -23,7 +23,12 @@ body:
   - type: checkboxes
     id: know
     attributes:
-      label: This issue is unique - 这个issue是唯一的
+      label: Checks - 检查项
       options:
-        - label: I have searched the issue tracker and did not find an issue describing my bug. - 我已经搜索问题追踪器并且没有发现相同的 issue。
+        - label: I have searched the [issue tracker](https://github.com/Anvil-Dev/AnvilCraft/issues) and confirmed that there is no identical issue. 我已经搜索[问题追踪器](https://github.com/Anvil-Dev/AnvilCraft/issues)并且确认没有相同的 Issue。
+          required: true
+        - label: I admit that I previously checked all options without thorough verification and directly submitted this Issue, and I agree that it can be closed directly. 我承认此前未充分核实便勾选了所有选项并直接提交此 Issue ，且同意该 Issue 可被直接关闭。
+        - label: I confirm that I am currently using the latest snapshot or LTS version of AnvilCraft. If not, this issue can be closed directly. 我确认当前使用的是铁砧工艺的最新快照版本或 LTS 版本，若非如此，此 Issue 可被直接关闭。
+          required: true
+        - label: I promise to provide a detailed description of the new feature I want, along with reasonable justification, rather than offering incomplete or vague information. 我承诺我会详细描述我想要的新功能，并附上合理的理由，而非提供不完整或模糊的信息。
           required: true

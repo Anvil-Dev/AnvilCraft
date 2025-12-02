@@ -25,5 +25,8 @@
   ],
   "net/minecraft/world/level/Explosion": [
     "dev/dubhe/anvilcraft/api/injection/IExplosionExtension"
+  ],
+  "net/minecraft/world/level/block/GrowingPlantBlock": [
+    "dev/dubhe/anvilcraft/api/injection/block/IGrowingPlantBlockGetter"
   ]
 }

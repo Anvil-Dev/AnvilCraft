@@ -5,7 +5,7 @@
   "sortnum": 7,
   "entry_color": "004400",
   "pages": [
-    "$(li)手持$(item)铁砧$()右键僵尸，将铁砧塞到它手上 $(li)持有铁砧的僵尸被$(l:smithing/corrupted_beacon)腐化信标$()照射，就会发生$(l:smithing/corrupted_beacon)生物转化$() $(li)僵尸有[手持铁砧数量*5%%]的概率变为拿着$(l:struct/multiblock#giant_anvil)巨型铁砧$()的$(item)巨人僵尸$() $(li)$(#666666)可以使用$(l:basic/material#resin_block)树脂块$(/l)抓捕$(item)僵尸$()$()",
+    "$(li)手持$(item)铁砧$()右键僵尸，将铁砧塞到它手上 $(li)持有铁砧的僵尸被$(l:apply/corrupted_beacon)腐化信标$()照射，就会发生$(l:apply/corrupted_beacon)生物转化$() $(li)僵尸有[手持铁砧数量*5%%]的概率变为拿着$(l:struct/multiblock#giant_anvil)巨型铁砧$()的$(item)巨人僵尸$() $(li)$(#666666)可以使用$(l:basic/material#resin_block)树脂块$(/l)抓捕$(item)僵尸$()$()",
     {
       "type": "patchouli:spotlight",
       "item": "anvilcraft:giant_anvil",
@@ -14,7 +14,7 @@
     {
       "type": "patchouli:relations",
       "entries": [
-        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:apply/corrupted_beacon",
         "anvilcraft:basic/more_device",
         "anvilcraft:struct/multiblock"
       ],

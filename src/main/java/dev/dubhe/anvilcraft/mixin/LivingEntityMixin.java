@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.totem.TotemManager;
 import dev.dubhe.anvilcraft.api.totem.handler.TotemHandler;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -235,6 +236,17 @@ public abstract class LivingEntityMixin extends Entity {
             if (!source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
                 cir.setReturnValue(false);
             }
+        }
+    }
+
+    @Inject(
+        method = "jumpFromGround",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onJumpFromGround(CallbackInfo ci) {
+        if (NeutronIrradiatorBlockEntity.isInIrradiatorRange(level(), blockPosition())) {
+            ci.cancel();
         }
     }
 }

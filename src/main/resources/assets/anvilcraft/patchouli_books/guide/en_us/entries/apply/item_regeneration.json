@@ -9,7 +9,7 @@
     "anvilcraft:prismarine_blade": 8
   },
   "pages": [
-    "在获得$(item)腐化信标$()可以进行$(l:smithing/corrupted_beacon#time_warp)时移$()操作后，便有了再生原版珍惜资源的能力。包括以下物品：$(li)$(l:apply/item_regeneration#ancient_debris)远古残骸$() $(li)$(l:apply/item_regeneration#sea_heart)海洋之心$() $(li)$(l:apply/item_regeneration#trident)三叉戟$() $(li)$(l:apply/item_regeneration#diamond)钻石&煤炭$() $(li)$(l:apply/item_regeneration#powder_snow)细雪&冰$()",
+    "在获得$(item)腐化信标$()可以进行$(l:apply/corrupted_beacon#time_warp)时移$()操作后，便有了再生原版珍惜资源的能力。包括以下物品：$(li)$(l:apply/item_regeneration#ancient_debris)远古残骸$() $(li)$(l:apply/item_regeneration#sea_heart)海洋之心$() $(li)$(l:apply/item_regeneration#trident)三叉戟$() $(li)$(l:apply/item_regeneration#diamond)钻石&煤炭$() $(li)$(l:apply/item_regeneration#powder_snow)细雪&冰$()",
     {
       "type": "patchouli:spotlight",
       "anchor": "ancient_debris",
@@ -28,7 +28,7 @@
       "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/ancient_debris",
       "title": "再生远古残骸",
-      "text": "将$(item)下界合金晶核$()$(l:smithing/corrupted_beacon#time_warp)时移$()为$(item)远古残骸$()。$(br)综上，$(item)远古残骸$()+2*$(item)钨锭$()→2*$(item)远古残骸$()"
+      "text": "将$(item)下界合金晶核$()$(l:apply/corrupted_beacon#time_warp)时移$()为$(item)远古残骸$()。$(br)综上，$(item)远古残骸$()+2*$(item)钨锭$()→2*$(item)远古残骸$()"
     },
     {
       "type": "anvilcraft:stamping",
@@ -41,7 +41,7 @@
       "type": "anvilcraft:time_warp",
       "recipe": "anvilcraft:time_warp/sea_heart_shell",
       "title": "再生海洋之心",
-      "text": "将$(item)海心壳碎片$()$(l:smithing/corrupted_beacon#time_warp)时移$()为$(item)海心壳$()"
+      "text": "将$(item)海心壳碎片$()$(l:apply/corrupted_beacon#time_warp)时移$()为$(item)海心壳$()"
     },
     {
       "type": "patchouli:crafting",

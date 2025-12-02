@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:item_compress/plutonium_nugget_from_stable_neutronium_ingot"
+        "recipe": "minecraft:uranium_block_explosion"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:item_compress/plutonium_nugget_from_stable_neutronium_ingot"
+      "minecraft:uranium_block_explosion"
     ]
   }
 }

@@ -15,10 +15,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ServerBlockEntityEventListener {
-
-    /**
-     * @param event 服务端方块实体加载事件
-     */
     @SubscribeEvent
     public static void onLoad(BlockEntityEvent.ServerLoad event) {
         if (event.getEntity() instanceof IPowerComponent component) {
@@ -32,9 +28,6 @@ public class ServerBlockEntityEventListener {
         }
     }
 
-    /**
-     * @param event 服务端方块实体卸载事件
-     */
     @SubscribeEvent
     public static void onUnload(BlockEntityEvent.ServerUnload event) {
         if (event.getEntity() instanceof IPowerComponent component) {
@@ -42,11 +35,8 @@ public class ServerBlockEntityEventListener {
         }
         if (event.getEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
             ChargeCollectorManager.getInstance(event.getLevel()).removeChargeCollector(chargeCollector);
-            return;
-        }
-        if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
+        } else if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
             LevelLoadManager.unregister(overseerBlockEntity.getBlockPos(), event.getLevel());
-            return;
         }
     }
 }

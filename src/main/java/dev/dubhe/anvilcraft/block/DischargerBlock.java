@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 public class DischargerBlock extends ChargerBlock {
 
@@ -14,12 +13,13 @@ public class DischargerBlock extends ChargerBlock {
         super(properties);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         level.setBlock(blockPos, ModBlocks.CHARGER.getDefaultState(), 2);
         if (level.getBlockEntity(blockPos) instanceof IStateListener<?> listener) {
-            IStateListener<Boolean> thiz = (IStateListener<Boolean>) listener;
-            thiz.notifyStateChanged(true);
+            IStateListener<Boolean> self = (IStateListener<Boolean>) listener;
+            self.notifyStateChanged(true);
         }
         return true;
     }

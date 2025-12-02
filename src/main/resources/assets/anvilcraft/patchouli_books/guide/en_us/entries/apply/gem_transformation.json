@@ -42,7 +42,7 @@
       "entries": [
         "anvilcraft:machine/automation",
         "anvilcraft:power/consumption",
-        "anvilcraft:smithing/corrupted_beacon",
+        "anvilcraft:apply/corrupted_beacon",
         "anvilcraft:basic/material",
         "anvilcraft:apply/spawner"
       ],

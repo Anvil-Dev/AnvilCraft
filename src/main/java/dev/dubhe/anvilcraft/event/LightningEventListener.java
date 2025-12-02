@@ -42,16 +42,7 @@ public class LightningEventListener {
 
     private static void lightningCharge(BlockPos pos, Level level, BlockState state) {
         if (state.is(Blocks.COPPER_BLOCK) || state.is(Blocks.LIGHTNING_ROD)) {
-            double unCharged = 32;
-            Collection<Entry> nearestChargeCollect =
-                ChargeCollectorManager.getInstance(level).getNearestChargeCollect(pos);
-            for (var floatChargeCollectorBlockEntityEntry : nearestChargeCollect) {
-                ChargeCollectorBlockEntity blockEntity = floatChargeCollectorBlockEntityEntry.getBlockEntity();
-                if (ChargeCollectorManager.getInstance(level).canCollect(blockEntity, pos)) {
-                    unCharged = blockEntity.incomingCharge(unCharged, pos);
-                    if (unCharged <= 0) break;
-                }
-            }
+            ChargeCollectorManager.charge(32, level, pos);
         }
     }
 }

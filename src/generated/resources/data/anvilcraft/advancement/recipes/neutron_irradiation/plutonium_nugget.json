@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:item_compress/plutonium_nugget_from_neutronium_ingot"
+        "recipe": "anvilcraft:neutron_irradiation/plutonium_nugget"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:item_compress/plutonium_nugget_from_neutronium_ingot"
+      "anvilcraft:neutron_irradiation/plutonium_nugget"
     ]
   }
 }

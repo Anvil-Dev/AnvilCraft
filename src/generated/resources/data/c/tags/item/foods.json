@@ -8,7 +8,6 @@
     "anvilcraft:berry_cake_block",
     "anvilcraft:chocolate_cake_block",
     "anvilcraft:large_cake",
-    "anvilcraft:canned_food",
     "anvilcraft:cream",
     "anvilcraft:flour",
     "anvilcraft:dough",
@@ -16,6 +15,7 @@
     "anvilcraft:chocolate_black",
     "anvilcraft:chocolate_white",
     "anvilcraft:creamy_bread_roll",
-    "anvilcraft:beef_mushroom_stew"
+    "anvilcraft:beef_mushroom_stew",
+    "anvilcraft:canned_food"
   ]
 }

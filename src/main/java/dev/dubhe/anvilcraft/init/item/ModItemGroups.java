@@ -3,14 +3,10 @@ package dev.dubhe.anvilcraft.init.item;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.alchemy.Potions;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -30,7 +26,6 @@ public class ModItemGroups {
             .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("tools_and_utilities"), "AnvilCraft: Tools and Utilities"))
             .withTabsAfter(
                 AnvilCraft.of("ingredients"),
-                AnvilCraft.of("food"),
                 AnvilCraft.of("functional_blocks"),
                 AnvilCraft.of("building_blocks"))
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
@@ -43,33 +38,6 @@ public class ModItemGroups {
             })
             .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("ingredients"), "AnvilCraft: Ingredients"))
             .withTabsBefore(ANVILCRAFT_TOOL.getId())
-            .withTabsAfter(AnvilCraft.of("food"), AnvilCraft.of("functional_blocks"), AnvilCraft.of("building_blocks"))
-            .build());
-
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FOOD =
-        DF.register("food", () -> CreativeModeTab.builder()
-            .icon(ModFoodItems.CHOCOLATE::asStack)
-            .displayItems((ctx, entries) -> {
-                ctx.holders().lookup(Registries.POTION).ifPresent((potion) -> {
-                    potion.listElements()
-                        .filter((potion1) -> {
-                            boolean enabled = potion1.value().isEnabled(ctx.enabledFeatures());
-                            return enabled
-                                && !potion1.is(Potions.WATER)
-                                && !potion1.is(Potions.MUNDANE)
-                                && !potion1.is(Potions.THICK)
-                                && !potion1.is(Potions.AWKWARD);
-                        })
-                        .map((potion1) -> {
-                            ItemStack stack = ModFoodItems.PILL.asStack();
-                            stack.set(DataComponents.POTION_CONTENTS, new PotionContents(potion1));
-                            return stack;
-                        })
-                        .forEach(entries::accept);
-                });
-            })
-            .title(REGISTRATE.addLang("itemGroup", AnvilCraft.of("food"), "AnvilCraft: Food"))
-            .withTabsBefore(ANVILCRAFT_INGREDIENTS.getId())
             .withTabsAfter(AnvilCraft.of("functional_blocks"), AnvilCraft.of("building_blocks"))
             .build());
 

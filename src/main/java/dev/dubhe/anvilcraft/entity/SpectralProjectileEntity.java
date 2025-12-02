@@ -94,6 +94,8 @@ public class SpectralProjectileEntity extends AbstractArrow {
         }
         this.setNoGravity(true);
         this.pickup = Pickup.DISALLOWED;
+        this.life++;
+        if (this.life > 200) this.discard();
         super.tick();
     }
 

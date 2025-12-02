@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageBulging;
 import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageCooking;
 import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageItemCompress;
 import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageItemCrush;
+import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageNeutronIrradiation;
 import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageStamping;
 import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageSuperHeating;
 import dev.dubhe.anvilcraft.integration.patchouli.page.anvilitem.PageTimeWarp;
@@ -27,6 +28,7 @@ public class PatchouliIntegration {
 
     public void applyClient() {
         ClientBookRegistry.INSTANCE.pageTypes.put(AnvilCraft.of("time_warp"), PageTimeWarp.class);
+        ClientBookRegistry.INSTANCE.pageTypes.put(AnvilCraft.of("neutron_irradiation"), PageNeutronIrradiation.class);
         ClientBookRegistry.INSTANCE.pageTypes.put(AnvilCraft.of("super_heating"), PageSuperHeating.class);
         ClientBookRegistry.INSTANCE.pageTypes.put(AnvilCraft.of("jewel_crafting"), PageJewelCrafting.class);
         ClientBookRegistry.INSTANCE.pageTypes.put(AnvilCraft.of("multiple_to_one_smithing"), PageMultipleToOneSmithing.class);

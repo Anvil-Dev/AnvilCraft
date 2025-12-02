@@ -5,6 +5,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Range;
 
 import java.util.Comparator;
 
@@ -32,5 +34,16 @@ public class EnchantmentUtil {
             mutable.set(holder, Math.max(oldData.getLevel(holder), entry.getIntValue()));
         }
         return mutable.toImmutable();
+    }
+
+    public static ItemEnchantments.Mutable builderOf() {
+        return new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+    }
+
+    @Contract(value = "_, _ -> new", pure = true)
+    public static ItemEnchantments builtOf(Holder<Enchantment> enchHolder, @Range(from = 1, to = 255) int level) {
+        var builder = builderOf();
+        builder.set(enchHolder, level);
+        return builder.toImmutable();
     }
 }

@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.integration.kubejs.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.integration.kubejs.recipe.components.IngredientListComponent;
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
-import dev.latvian.mods.kubejs.recipe.component.IngredientComponent;
 import dev.latvian.mods.kubejs.recipe.component.ItemStackComponent;
 import dev.latvian.mods.kubejs.recipe.schema.KubeRecipeFactory;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
@@ -36,8 +36,8 @@ public interface JewelCraftingRecipeSchema {
         }
     }
 
-    RecipeKey<List<Ingredient>> INGREDIENTS = IngredientComponent.INGREDIENT.asList().inputKey("ingredients").defaultOptional();
-    RecipeKey<ItemStack> RESULT = ItemStackComponent.STRICT_ITEM_STACK.inputKey("result").defaultOptional();
+    RecipeKey<List<Ingredient>> INGREDIENTS = IngredientListComponent.TYPE.inputKey("ingredients").defaultOptional();
+    RecipeKey<ItemStack> RESULT = ItemStackComponent.ITEM_STACK.inputKey("result").defaultOptional();
 
     RecipeSchema SCHEMA = new RecipeSchema(INGREDIENTS, RESULT)
         .factory(new KubeRecipeFactory(AnvilCraft.of("jewel_crafting"), JewelCraftingKubeRecipe.class, JewelCraftingKubeRecipe::new))

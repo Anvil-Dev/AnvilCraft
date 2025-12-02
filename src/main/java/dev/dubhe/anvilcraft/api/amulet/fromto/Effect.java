@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 public record Effect(InventoryTick inventoryTick, ImmuneDamage immuneDamage) {
     public static final Effect NOP = new Effect(InventoryTick.NOP, ImmuneDamage.NEVER);
 
-    public void inventoryTick(ServerPlayer player, ItemStack amulet, Boolean isEnabled) {
+    public void inventoryTick(ServerPlayer player, ItemStack amulet, boolean isEnabled) {
         this.inventoryTick.inventoryTick(player, amulet, isEnabled);
     }
 

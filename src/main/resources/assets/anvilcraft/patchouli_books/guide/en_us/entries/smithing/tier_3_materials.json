@@ -31,7 +31,7 @@
     {
       "type": "anvilcraft:anvil_collision",
       "recipe": "anvilcraft:anvil_collision/anvil_tier_1_and_levitation_powder_block_32",
-      "text": "用等级至少为皇家的铁砧撞击$(l:basic/minerals#levitation_powder_block)漂浮粉块$(/l)有概率获得6~8个负物质粒"
+      "text": "用等级至少为皇家的铁砧撞击$(l:basic/minerals#levitation_powder_block)漂浮粉块$(/l)有概率获得6~10个负物质粒"
     },
     {
       "type": "patchouli:spotlight",
@@ -47,9 +47,9 @@
       "text": "一次撞击平均获得8.5个$(item)铀粒$() $(li)可以通过$(item)矿物涌泉$()量产 "
     },
     {
-      "type": "anvilcraft:item_compress",
-      "recipe": "anvilcraft:item_compress/plutonium_nugget_from_stable_neutronium_ingot",
-      "text": "中子锭不消耗 $(li)钚过于活跃而没有粗矿形式，无法通过$(item)矿物涌泉$()量产"
+      "type": "anvilcraft:neutron_irradiation",
+      "recipe": "anvilcraft:neutron_irradiation/plutonium_nugget",
+      "text": "通过$(l:apply/neutron_irradiator)中子辐照器$(/l)生产 $(li)钚过于活跃而没有粗矿形式，无法通过$(item)矿物涌泉$()量产"
     },
     {
       "type": "anvilcraft:time_warp",
@@ -72,7 +72,8 @@
       "entries": [
         "anvilcraft:struct/collision",
         "anvilcraft:advanced/tool_properties",
-        "anvilcraft:advanced/special_heated_block"
+        "anvilcraft:advanced/special_heated_block",
+        "anvilcraft:apply/neutron_irradiator"
       ]
     }
   ]

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe;
 
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -27,8 +28,8 @@ public class CanningFoodRecipe extends CustomRecipe {
     }
 
     public boolean isFood(ItemStack foodStack) {
-        if (foodStack.is(ModItems.CANNED_FOOD)) return false;
-        return foodStack.has(DataComponents.FOOD) && !foodStack.is(ModItems.CANNED_FOOD);
+        if (foodStack.is(ModFoodItems.CANNED_FOOD)) return false;
+        return foodStack.has(DataComponents.FOOD) && !foodStack.is(ModFoodItems.CANNED_FOOD);
     }
 
     public boolean matches(CraftingInput input, Level level) {
@@ -72,7 +73,7 @@ public class CanningFoodRecipe extends CustomRecipe {
             }
         }
 
-        return ModItems.CANNED_FOOD.get().setFood(ModItems.CANNED_FOOD.asStack(), food);
+        return ModFoodItems.CANNED_FOOD.get().setFood(ModFoodItems.CANNED_FOOD.asStack(), food);
     }
 
     @Override
