@@ -33,6 +33,7 @@ public class GuideMEIntegration {
         .item("guideme_book", GuideMEBookItem::new)
         .lang("AnvilCraft GuideME Book")
         .model(DataGenUtil::noExtraModelOrState)
+        .removeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey())
         .properties(properties -> properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
         .register();
 
