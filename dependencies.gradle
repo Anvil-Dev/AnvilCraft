@@ -65,4 +65,8 @@ dependencies {
 
     // Twilight Forest
     implementation "team-twilight:twilightforest:${libs.versions.twilightForest.get()}:universal"
+
+    // GuideME
+    compileOnly("org.appliedenergistics:guideme:${libs.versions.guideme.get()}:api")
+    runtimeOnly(libs.guideme)
 }
