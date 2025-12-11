@@ -54,6 +54,7 @@ public class BreakBlockUtil {
             .withParameter(LootContextParams.TOOL, tool)
             .withOptionalParameter(LootContextParams.THIS_ENTITY, fakePlayer)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
+        AnvilCraftFakePlayers.anvilcraftDestroyer.recyclePlayer(fakePlayer);
         return state.getDrops(builder);
     }
 
