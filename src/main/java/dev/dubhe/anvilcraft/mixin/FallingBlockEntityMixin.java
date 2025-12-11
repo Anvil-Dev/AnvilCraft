@@ -60,8 +60,6 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private int fallDamageMax;
     @Unique
     private float anvilcraft$fallDistance;
-    @Unique
-    private BlockPos anvilcraft$cachedSupportPos;
 
     public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -99,7 +97,6 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         Level level = instance.level();
         BlockPos pos = BlockPos.containing(instance.position());
         BlockPos supportPos = pos.relative(gravityDir);
-        BlockState supportState = level.getBlockState(supportPos);
         BlockHitResult hitResult = this.anvilcraft$hitResult(instance, gravityDir);
 
         // 0. 平衡环境保持实体状态（大概也许可能可以叫拉格朗日点？）
@@ -110,9 +107,9 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             return false;
         }
 
+        BlockState supportState = level.getBlockState(supportPos);
         // 如果撞了但是射线检测为空就是撞了硬实体
         if (hitResult.getType() == HitResult.Type.MISS) {
-
             // 重力向上的方块需要处理因为实体位置是底面中心
             if (gravityDir == Direction.UP) {
                 supportPos = supportPos.above();
@@ -122,6 +119,8 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             // 如果1格内就是地面就着陆，否则碎裂
             if (!FallingBlock.isFree(level.getBlockState(supportPos))) {
                 if (level.setBlock(pos, instance.blockState, 3)) {
+                    AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), pos, instance, this.anvilcraft$fallDistance);
+                    NeoForge.EVENT_BUS.post(event);
                     instance.discard();
                 } else {
                     this.anvilcraft$breakEntity(instance);
@@ -267,11 +266,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         // 被摩擦力抓住则稳定，没被抓住则不稳定
         boolean heldByFriction = this.anvilcraft$isHeldByFriction(blockGravity, dir, friction);
 
-        if (!heldByFriction && this.anvilcraft$hasSlidingPath(instance.level(), pos, blockGravity, dir)) {
-            return false;
-        }
-
-        return true;
+        return heldByFriction || !this.anvilcraft$hasSlidingPath(instance.level(), pos, blockGravity, dir);
     }
 
     /**
@@ -298,11 +293,12 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     }
 
     @Inject(
-        method = "tick", at = @At(
-        value = "INVOKE",
-        ordinal = 0,
-        target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"
-    )
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            ordinal = 0,
+            target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;level()Lnet/minecraft/world/level/Level;"
+        )
     )
     private void anvilPerFallOnGround(CallbackInfo ci) {
         if (this.level().isClientSide()) return;
