@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
+import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.client.gui.screen.AnvilHammerScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -59,6 +61,14 @@ public class ClientBlockEventListener {
         Property<?> property = AnvilHammerItem.findModifyableProperty(targetBlockState);
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return false;
+
+        if (targetBlockState.getBlock() instanceof DeflectionRingBlock || targetBlockState.getBlock() instanceof AccelerationRingBlock) {
+            if (!event.getEntity().isShiftKeyDown()) {
+                PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
+                return true;
+            }
+        }
+        
         if (property != null) {
             if (event.getEntity().isShiftKeyDown()) {
                 PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
