@@ -4,7 +4,7 @@
     "blocks": "minecraft:deepslate"
   },
   "need_block": {
-    "blocks": "minecraft:raw_gold_block"
+    "blocks": "#c:storage_blocks/raw_gold"
   },
   "to_block": {
     "block": "minecraft:deepslate_gold_ore"

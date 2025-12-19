@@ -23,7 +23,7 @@ public interface ICustomDataComponent<T> {
     Codec<ICustomDataComponent<?>> CODEC = Codec.lazyInitialized(() -> ModRegistries.CUSTOM_DATA_TYPE_REGISTRY
         .byNameCodec().dispatch(ICustomDataComponent::getType, ICustomDataComponent.Type::codec));
     StreamCodec<RegistryFriendlyByteBuf, ICustomDataComponent<?>> STREAM_CODEC = StreamCodec.recursive(
-        streamCodec -> ByteBufCodecs.registry(ModRegistries.CUSTOM_DATA_KEY)
+        streamCodec -> ByteBufCodecs.registry(ModRegistries.CUSTOM_DATA_TYPE_KEY)
             .dispatch(ICustomDataComponent::getType, ICustomDataComponent.Type::streamCodec));
 
     /**

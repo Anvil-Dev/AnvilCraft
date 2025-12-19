@@ -102,7 +102,7 @@
     {
       "type": "anvilcraft:super_heating",
       "anchor": "lime_powder",
-      "recipe": "anvilcraft:super_heating/lime_powder_from_crab_claw",
+      "recipe": "anvilcraft:super_heating/lime_powder/lime_powder_from_crab_claw",
       "text": "除了$(item)蟹钳$()，还可以熔炼以下物品得到：$(li)失活的珊瑚扇：1$(li)滴水石锥：1$(li)鹦鹉螺壳：1$(li)失活的珊瑚块：4$(li)滴水石块：4$(li)方解石：4"
     },
     {

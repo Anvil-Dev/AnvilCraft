@@ -6,9 +6,14 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
+
+import static dev.dubhe.anvilcraft.data.recipe.util.RecipeLoaderUtil.getName;
 
 public class SuperHeatingRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
@@ -69,34 +74,6 @@ public class SuperHeatingRecipeLoader {
             .requires(Blocks.COAL_BLOCK, 8)
             .result(Items.DIAMOND)
             .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(ModItems.CRAB_CLAW)
-            .result(ModItems.LIME_POWDER)
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_crab_claw"));
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.DEAD_CORALS)
-            .result(ModItems.LIME_POWDER)
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_dead_corals"));
-        SuperHeatingRecipe.builder()
-            .requires(Items.NAUTILUS_SHELL)
-            .result(ModItems.LIME_POWDER)
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_nautilus_shell"));
-        SuperHeatingRecipe.builder()
-            .requires(Items.POINTED_DRIPSTONE)
-            .result(ModItems.LIME_POWDER)
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_pointed_dripstone"));
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.DEAD_CORAL_BLOCKS)
-            .result(ModItems.LIME_POWDER, 4)
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_dead_coral_blocks"));
-        SuperHeatingRecipe.builder()
-            .requires(Items.DRIPSTONE_BLOCK)
-            .result(ModItems.LIME_POWDER, 4)
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_dripstone_block"));
-        SuperHeatingRecipe.builder()
-            .requires(Items.CALCITE)
-            .result(ModItems.LIME_POWDER, 4)
-            .save(provider, AnvilCraft.of("super_heating/lime_powder_from_calcite"));
 
         SuperHeatingRecipe.builder()
             .requires(ModBlocks.END_DUST)
@@ -109,45 +86,66 @@ public class SuperHeatingRecipeLoader {
             .requires(ModItemTags.GEM_BLOCKS)
             .save(provider, AnvilCraft.of("super_heating/melt_gem_cauldron"));
 
+        // metalBlockFromRaw
+        metalBlockFromRaw(provider, Tags.Items.STORAGE_BLOCKS_RAW_COPPER, Items.COPPER_BLOCK);
+        metalBlockFromRaw(provider, Tags.Items.STORAGE_BLOCKS_RAW_IRON, Items.IRON_BLOCK);
+        metalBlockFromRaw(provider, Tags.Items.STORAGE_BLOCKS_RAW_GOLD, Items.GOLD_BLOCK);
+        metalBlockFromRaw(provider, ModItemTags.STORAGE_BLOCKS_RAW_ZINC, ModBlocks.ZINC_BLOCK);
+        metalBlockFromRaw(provider, ModItemTags.STORAGE_BLOCKS_RAW_TIN, ModBlocks.TIN_BLOCK);
+        metalBlockFromRaw(provider, ModItemTags.STORAGE_BLOCKS_RAW_TITANIUM, ModBlocks.TITANIUM_BLOCK);
+        metalBlockFromRaw(provider, ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN, ModBlocks.TUNGSTEN_BLOCK);
+        metalBlockFromRaw(provider, ModItemTags.STORAGE_BLOCKS_RAW_LEAD, ModBlocks.LEAD_BLOCK);
+        metalBlockFromRaw(provider, ModItemTags.STORAGE_BLOCKS_RAW_SILVER, ModBlocks.SILVER_BLOCK);
+        metalBlockFromRaw(provider, ModItemTags.STORAGE_BLOCKS_RAW_URANIUM, ModBlocks.URANIUM_BLOCK);
+
+        // limePowder
+        limePowder(provider, ModItems.CRAB_CLAW, 1);
+        limePowder(provider, Items.NAUTILUS_SHELL, 1);
+        limePowder(provider, Items.POINTED_DRIPSTONE, 1);
+        limePowder(provider, Items.DRIPSTONE_BLOCK, 4);
+        limePowder(provider, Items.CALCITE, 4);
+        limePowder(provider, ModItemTags.DEAD_CORAL_BLOCKS, 4);
+        limePowder(provider, ModItemTags.DEAD_CORALS, 1);
+
+        // ingotFromEarth
+        ingotFromEarth(provider, Tags.Items.RAW_MATERIALS_COPPER, Items.COPPER_INGOT);
+        ingotFromEarth(provider, Tags.Items.RAW_MATERIALS_IRON, Items.IRON_INGOT);
+        ingotFromEarth(provider, Tags.Items.RAW_MATERIALS_GOLD, Items.GOLD_INGOT);
+        ingotFromEarth(provider, ModItemTags.RAW_ZINC, ModItems.ZINC_INGOT);
+        ingotFromEarth(provider, ModItemTags.RAW_TIN, ModItems.TIN_INGOT);
+        ingotFromEarth(provider, ModItemTags.RAW_TITANIUM, ModItems.TITANIUM_INGOT);
+        ingotFromEarth(provider, ModItemTags.RAW_TUNGSTEN, ModItems.TUNGSTEN_INGOT);
+        ingotFromEarth(provider, ModItemTags.RAW_LEAD, ModItems.LEAD_INGOT);
+        ingotFromEarth(provider, ModItemTags.RAW_SILVER, ModItems.SILVER_INGOT);
+        ingotFromEarth(provider, ModItemTags.RAW_URANIUM, ModItems.URANIUM_INGOT);
+    }
+
+    private static void metalBlockFromRaw(RegistrateRecipeProvider provider, TagKey<Item> raw, ItemLike result) {
         SuperHeatingRecipe.builder()
-            .requires(Items.RAW_COPPER_BLOCK)
-            .result(Items.COPPER_BLOCK, 2)
-            .save(provider);
+            .requires(raw)
+            .result(result, 2)
+            .save(provider, AnvilCraft.of("super_heating/metal_block/%s_from_%s".formatted(getName(result), getName(raw))));
+    }
+
+    private static void ingotFromEarth(RegistrateRecipeProvider provider, TagKey<Item> raw, ItemLike result) {
         SuperHeatingRecipe.builder()
-            .requires(Items.RAW_IRON_BLOCK)
-            .result(Items.IRON_BLOCK, 2)
-            .save(provider);
+            .requires(raw, 8)
+            .requires(ModItems.EARTH_CORE_SHARD)
+            .result(result, 24)
+            .save(provider, AnvilCraft.of("super_heating/raw/%s".formatted(getName(result))));
+    }
+
+    private static void limePowder(RegistrateRecipeProvider provider, ItemLike item, int resultCount) {
         SuperHeatingRecipe.builder()
-            .requires(Items.RAW_GOLD_BLOCK)
-            .result(Items.GOLD_BLOCK, 2)
-            .save(provider);
+            .requires(item)
+            .result(ModItems.LIME_POWDER, resultCount)
+            .save(provider, AnvilCraft.of("super_heating/lime_powder/%s_from_%s".formatted("lime_powder", getName(item))));
+    }
+
+    private static void limePowder(RegistrateRecipeProvider provider, TagKey<Item> tag, int resultCount) {
         SuperHeatingRecipe.builder()
-            .requires(ModItemTags.STORAGE_BLOCKS_RAW_LEAD)
-            .result(ModBlocks.LEAD_BLOCK, 2)
-            .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.STORAGE_BLOCKS_RAW_URANIUM)
-            .result(ModBlocks.URANIUM_BLOCK, 2)
-            .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TITANIUM)
-            .result(ModBlocks.TITANIUM_BLOCK, 2)
-            .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.STORAGE_BLOCKS_RAW_SILVER)
-            .result(ModBlocks.SILVER_BLOCK, 2)
-            .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.STORAGE_BLOCKS_RAW_ZINC)
-            .result(ModBlocks.ZINC_BLOCK, 2)
-            .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TIN)
-            .result(ModBlocks.TIN_BLOCK, 2)
-            .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN)
-            .result(ModBlocks.TUNGSTEN_BLOCK, 2)
-            .save(provider);
+            .requires(tag)
+            .result(ModItems.LIME_POWDER, resultCount)
+            .save(provider, AnvilCraft.of("super_heating/lime_powder/%s_from_%s".formatted("lime_powder", getName(tag))));
     }
 }

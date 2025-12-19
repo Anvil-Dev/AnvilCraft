@@ -5,9 +5,6 @@
   "net/minecraft/world/level/block/state/BlockState": [
     "dev/dubhe/anvilcraft/api/injection/block/state/IBlockStateExtension"
   ],
-  "net/minecraft/world/level/block/piston/PistonMovingBlockEntity": [
-    "dev/dubhe/anvilcraft/api/injection/block/entity/IPistonMovingBlockEntityExtension"
-  ],
   "net/minecraft/world/entity/Entity": [
     "dev/dubhe/anvilcraft/api/injection/entity/IEntityExtension"
   ],

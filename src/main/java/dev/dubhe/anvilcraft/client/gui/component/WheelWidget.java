@@ -2,10 +2,8 @@ package dev.dubhe.anvilcraft.client.gui.component;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.client.gui.screen.AnvilHammerScreen;
 import dev.dubhe.anvilcraft.util.MathUtil;
-import dev.dubhe.anvilcraft.util.function.Consumer4;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -51,7 +49,7 @@ public class WheelWidget extends AbstractWidget {
     public WheelWidget(
         int x, int y, int width, int height,
         float ringInnerRadius, float ringOuterRadius, float textScale,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         this(x, y, width, height, Component.empty(), ringInnerRadius, ringOuterRadius, textScale, sections);
     }
@@ -59,7 +57,7 @@ public class WheelWidget extends AbstractWidget {
     public WheelWidget(
         int x, int y, int width, int height,
         float ringInnerRadius, float ringOuterRadius, float textScale, float degreeOffsetAngle,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         this(x, y, width, height, Component.empty(), ringInnerRadius, ringOuterRadius, textScale, degreeOffsetAngle, sections);
     }
@@ -67,7 +65,7 @@ public class WheelWidget extends AbstractWidget {
     public WheelWidget(
         int x, int y, int width, int height,
         float ringInnerRadius, float ringOuterRadius,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         this(x, y, width, height, Component.empty(), ringInnerRadius, ringOuterRadius, sections);
     }
@@ -75,7 +73,7 @@ public class WheelWidget extends AbstractWidget {
     public WheelWidget(
         int x, int y, int width, int height, Component message,
         float ringInnerRadius, float ringOuterRadius, float textScale, float degreeOffsetAngle,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         this(
             x, y, width, height, message,
@@ -91,7 +89,7 @@ public class WheelWidget extends AbstractWidget {
     public WheelWidget(
         int x, int y, int width, int height, Component message,
         float ringInnerRadius, float ringOuterRadius,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         this(
             x, y, width, height, message,
@@ -107,7 +105,7 @@ public class WheelWidget extends AbstractWidget {
     public WheelWidget(
         int x, int y, int width, int height, Component message,
         float ringInnerRadius, float ringOuterRadius, float degreeOffsetAngle,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         this(
             x, y, width, height, message,
@@ -127,7 +125,7 @@ public class WheelWidget extends AbstractWidget {
         int ringColor,
         int selectionEffectColor, int selectionEffectRadius, float selectionAnimationSpeedFactor,
         int textColor, float textScale,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         this(
             x, y, width, height, Component.empty(),
@@ -147,7 +145,7 @@ public class WheelWidget extends AbstractWidget {
         int ringColor,
         int selectionEffectColor, int selectionEffectRadius, float selectionAnimationSpeedFactor,
         int textColor, float textScale, float degreeOffsetAngle,
-        List<Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>>> sections
+        List<RawSection> sections
     ) {
         super(x, y, width, height, message);
         this.centerPos = new Vector2f(this.getX() + this.getWidth() / 2f, this.getY() + this.getHeight() / 2f);
@@ -164,7 +162,7 @@ public class WheelWidget extends AbstractWidget {
         this.textScale = textScale;
         float degreeEachRotation = 360f / sections.size();
         for (int i = 0; i < sections.size(); i++) {
-            Pair<Component, Consumer4<GuiGraphics, PoseStack, Integer, Integer>> section = sections.get(i);
+            RawSection section = sections.get(i);
             float rotation = MathUtil.clampWithProportion((degreeEachRotation * i + degreeOffsetAngle) % 360, 0, 360);
             Vector2f rotated = MathUtil.rotationDegrees(ROTATION_START, rotation)
                 .mul(1, -1)
@@ -179,8 +177,7 @@ public class WheelWidget extends AbstractWidget {
                 (float) (Math.toRadians(rotation) % (Math.PI * 2)),
                 detectionStart,
                 detectionEnd,
-                section.getFirst(),
-                section.getSecond()
+                section
             ));
         }
         this.selectionEffectPos = MathUtil.rotate(
@@ -301,7 +298,7 @@ public class WheelWidget extends AbstractWidget {
             float y = value.center.y;
             poseStack.pushPose();
             poseStack.translate(x - 10, y - 10, 100);
-            value.renderer.accept(guiGraphics, poseStack, 20, 20);
+            value.renderer().render(guiGraphics, poseStack, 20, 20);
             poseStack.popPose();
             poseStack.pushPose();
             float coordinateScale = 0.7f;
@@ -374,7 +371,7 @@ public class WheelWidget extends AbstractWidget {
             float y = center.y;
             poseStack.pushPose();
             poseStack.translate(x - 10, y - 10, 100);
-            value.renderer.accept(guiGraphics, poseStack, 20, 20);
+            value.renderer().render(guiGraphics, poseStack, 20, 20);
             poseStack.popPose();
             final int textAlpha = (int) (progress * 0xff) << 24;
             poseStack.pushPose();
@@ -450,7 +447,24 @@ public class WheelWidget extends AbstractWidget {
         float angleStart,
         float angleEnd,
         Component subTitle,
-        Consumer4<GuiGraphics, PoseStack, Integer, Integer> renderer
+        SectionRenderer renderer
     ) {
+        public WheelSection(
+            Vector2f center,
+            float angle,
+            float angleStart,
+            float angleEnd,
+            RawSection section
+        ) {
+            this(center, angle, angleStart, angleEnd, section.name(), section.renderer());
+        }
+    }
+
+    public record RawSection(Component name, SectionRenderer renderer) {
+    }
+
+    @FunctionalInterface
+    public interface SectionRenderer {
+        void render(GuiGraphics graphics, PoseStack pose, int width, int height);
     }
 }

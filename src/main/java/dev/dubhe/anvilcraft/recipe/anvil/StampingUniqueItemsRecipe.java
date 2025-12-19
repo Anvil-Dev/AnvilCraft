@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.recipe.component.ChanceItemStack;
@@ -75,7 +76,7 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
 
     @Override
     public boolean matches(ItemProcessInput input, Level level) {
-        if (input.items().size() != Set.copyOf(input.items()).size()) return false;
+        if (input.items().size() != Set.copyOf(Lists.transform(input.items(), ItemStack::getItem)).size()) return false;
         if (input.items().size() != this.ingredients.size()) return false;
         if (!CollectionUtil.allMatch(input.items(), itemStack -> itemStack.getCount() == 1)) return false;
 

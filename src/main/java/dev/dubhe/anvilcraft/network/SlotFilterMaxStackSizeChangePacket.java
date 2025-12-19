@@ -9,6 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -59,6 +60,10 @@ public class SlotFilterMaxStackSizeChangePacket implements CustomPacketPayload {
             if (!(player.containerMenu instanceof IFilterMenu menu)) return;
             if (!(menu.getFilterBlockEntity() instanceof IFilterBlockEntity blockEntity)) return;
             blockEntity.setSlotLimit(data.index, data.maxStackSize);
+            if (blockEntity instanceof BlockEntity be) {
+                be.setChanged();
+                be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+            }
             menu.flush();
             PacketDistributor.sendToPlayer(player, data);
         });

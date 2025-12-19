@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -159,7 +160,7 @@ public abstract class BaseChuteBlockEntity
                                 }
                                 if (sameItemCount < slotLimit) {
                                     ItemStack droppedItemStack = stack.copy();
-                                    int droppedItemCount = 
+                                    int droppedItemCount =
                                         Math.min(stack.getCount(), slotLimit - sameItemCount);
                                     droppedItemStack.setCount(droppedItemCount);
                                     stack.setCount(stack.getCount() - droppedItemCount);
@@ -293,5 +294,37 @@ public abstract class BaseChuteBlockEntity
             if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) return false;
         }
         return true;
+    }
+
+    /**
+     * 获取更新标签 (由服务端调用，决定发给客户端什么数据)
+     */
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag, provider);
+        return tag;
+    }
+
+    /**
+     * 获取更新数据包 (区块加载时调用)
+     */
+    @Nullable
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    /**
+     * 客户端接收数据包 (由客户端调用)
+     * 收到包 -> 读取NBT -> 覆盖本地数据
+     */
+    @Override
+    public void onDataPacket(net.minecraft.network.Connection net,
+        ClientboundBlockEntityDataPacket pkt,
+        HolderLookup.Provider lookupProvider
+    ) {
+        CompoundTag tag = pkt.getTag();
+        this.loadAdditional(tag, lookupProvider);
     }
 }

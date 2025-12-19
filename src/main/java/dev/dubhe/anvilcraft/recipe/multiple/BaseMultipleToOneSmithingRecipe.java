@@ -94,7 +94,8 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
             registries,
             input.template(), input.material(),
             input.inputs(),
-            this.result.getResult().copy()));
+            this.result.getResult().copy()
+        ));
     }
 
     @Override

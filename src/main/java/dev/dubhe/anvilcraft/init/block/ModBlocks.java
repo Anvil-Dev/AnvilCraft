@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.BerryCreamBlock;
+import dev.dubhe.anvilcraft.block.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
@@ -123,6 +124,7 @@ import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
 import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
@@ -370,6 +372,7 @@ public class ModBlocks {
             .explosionResistance(1200))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties((properties) -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -378,13 +381,13 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> NEUTRON_IRRADIATOR = REGISTRATE.block("neutron_irradiator", NeutronIrradiatorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties(p -> p.strength(50.0f, 1200f))
+        .properties(p -> p.strength(50.0f, 1200f).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
                 .pattern("NIN")
                 .pattern("NVN")
                 .pattern("BBB")
-                .define('I', ModItems.NEUTRONIUM_INGOT)
+                .define('I', ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
                 .define('N', ModItems.NEGATIVE_MATTER)
                 .define('B', ModBlocks.NEGATIVE_MATTER_BLOCK)
                 .define('V', ModItems.VOID_MATTER)
@@ -1642,6 +1645,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
+        .properties((properties) -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1652,6 +1656,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
+        .properties((properties) -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -3087,6 +3092,7 @@ public class ModBlocks {
             ctx.add(prov, builder);
         })
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties((properties) -> properties.stacksTo(16))
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
         .build()
         .register();
@@ -4774,6 +4780,14 @@ public class ModBlocks {
         PlayerHungerPressurePlateBlock::new,
         ModItemTags.BRONZE_INGOTS
     );
+
+    public static final BlockEntry<BlackHoleBlock> BLACK_HOLE = REGISTRATE.block("black_hole", BlackHoleBlock::new)
+        .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .register();
 
     public static void register() {
     }

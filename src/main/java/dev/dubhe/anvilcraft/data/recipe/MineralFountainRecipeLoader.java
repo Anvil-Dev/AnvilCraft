@@ -9,12 +9,13 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 public class MineralFountainRecipeLoader {
     public static void init(RegistrateRecipeProvider provider) {
-        mineralFountainDeepslate(provider, Blocks.RAW_COPPER_BLOCK, Blocks.DEEPSLATE_COPPER_ORE);
-        mineralFountainDeepslate(provider, Blocks.RAW_IRON_BLOCK, Blocks.DEEPSLATE_IRON_ORE);
-        mineralFountainDeepslate(provider, Blocks.RAW_GOLD_BLOCK, Blocks.DEEPSLATE_GOLD_ORE);
+        mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_COPPER, Blocks.DEEPSLATE_COPPER_ORE);
+        mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_IRON, Blocks.DEEPSLATE_IRON_ORE);
+        mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_GOLD, Blocks.DEEPSLATE_GOLD_ORE);
         mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_ZINC, ModBlocks.DEEPSLATE_ZINC_ORE.get());
         mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TIN, ModBlocks.DEEPSLATE_TIN_ORE.get());
         mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_LEAD, ModBlocks.DEEPSLATE_LEAD_ORE.get());
@@ -46,14 +47,6 @@ public class MineralFountainRecipeLoader {
             .dimension(Level.END.location())
             .fromBlock(Blocks.DEEPSLATE)
             .toBlock(ModBlocks.VOID_STONE.get(), 0.1f)
-            .save(provider);
-    }
-
-    private static void mineralFountainDeepslate(RegistrateRecipeProvider provider, Block require, Block result) {
-        MineralFountainRecipe.builder()
-            .needBlock(require)
-            .fromBlock(Blocks.DEEPSLATE)
-            .toBlock(result)
             .save(provider);
     }
 

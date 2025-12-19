@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import net.minecraft.core.BlockPos;
@@ -106,6 +107,21 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
                 return true;
             }
         ) > 1;
+    }
+
+    @Override
+    public void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        if (level.isClientSide) return;
+        if (AnvilCraft.CONFIG.cleanFluidAfterUpdateMengerSponge) {
+            removeFluidBreadthFirstSearch(level, pos);
+        }
     }
 
     @Override

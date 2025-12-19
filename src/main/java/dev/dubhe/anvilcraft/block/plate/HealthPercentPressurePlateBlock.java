@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.floats.FloatAVLTreeSet;
+import it.unimi.dsi.fastutil.floats.FloatFloatPair;
 import it.unimi.dsi.fastutil.floats.FloatSortedSet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -12,8 +13,8 @@ import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class HealthPercentPressurePlateBlock extends PowerLevelPressurePlateBlock {
@@ -51,16 +52,13 @@ public class HealthPercentPressurePlateBlock extends PowerLevelPressurePlateBloc
             ));
         }
 
-        float healthPercent = HealthPercentPressurePlateBlock.getLargestHealthPercent(entities);
+        var healthPercents = HealthPercentPressurePlateBlock.getHealthPercents(entities);
 
-        try {
-            return new Pair<>(Math.max(healthPercent, 0), Math.min(healthPercent, 1));
-        } catch (NoSuchElementException ignored) {
-            return new Pair<>(0F, 0F);
-        }
+        if (healthPercents == null) return new Pair<>(0F, 0F);
+        return new Pair<>(Math.max(healthPercents.leftFloat(), 0), Math.min(healthPercents.rightFloat(), 1));
     }
 
-    private static float getLargestHealthPercent(Set<Entity> entities) {
+    private static @Nullable FloatFloatPair getHealthPercents(Set<Entity> entities) {
         FloatSortedSet set = new FloatAVLTreeSet();
         for (Entity entity : entities) {
             float healthPercent;
@@ -75,6 +73,7 @@ public class HealthPercentPressurePlateBlock extends PowerLevelPressurePlateBloc
 
             set.add(healthPercent);
         }
-        return set.getLast();
+        if (set.isEmpty()) return null;
+        return FloatFloatPair.of(set.firstFloat(), set.lastFloat());
     }
 }

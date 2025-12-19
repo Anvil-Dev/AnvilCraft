@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "count": 8,
+      "items": "#c:raw_materials/uranium"
+    },
+    {
+      "items": "anvilcraft:earth_core_shard"
+    }
+  ],
+  "results": [
+    {
+      "count": 24,
+      "id": "anvilcraft:uranium_ingot"
+    }
+  ]
+}

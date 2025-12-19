@@ -6,6 +6,8 @@ import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AabbUtil;
 import dev.dubhe.anvilcraft.util.MathUtil;
 import io.netty.buffer.ByteBuf;
@@ -133,6 +135,13 @@ public final class SlidingBlockSection {
             }
             if (level.getFluidState(pos).getType() == Fluids.WATER) {
                 state = state.setValue(BlockStateProperties.WATERLOGGED, true);
+            }
+
+            if (state.is(ModBlockTags.HEATABLE_BLOCKS)) {
+                Optional<Block> prevTierBlock = HeatRecorder.getPrevTierHeatableBlock(level, pos, state);
+                if (prevTierBlock.isPresent()) {
+                    state = prevTierBlock.get().defaultBlockState();
+                }
             }
 
             boolean canBeReplaced = level.getBlockState(pos).canBeReplaced(

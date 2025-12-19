@@ -72,6 +72,9 @@ public class ModRenderTargets {
             true,
             Minecraft.ON_OSX
         );
+        if (laserTarget.isStencilEnabled()) {
+            tempTarget.enableStencil();
+        }
     }
 
 }

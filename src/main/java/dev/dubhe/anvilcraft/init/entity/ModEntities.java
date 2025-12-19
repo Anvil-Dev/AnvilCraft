@@ -54,16 +54,19 @@ public class ModEntities {
 
     public static final EntityEntry<? extends LevitatingBlockEntity> LEVITATING_BLOCK = AnvilCraft.REGISTRATE
         .entity("levitating_block", LevitatingBlockEntity::new, MobCategory.MISC)
+        .properties(builder -> builder.sized(0.98f, 0.98f))
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends StandableFallingBlockEntity> STANDABLE_FALLING_BLOCK = AnvilCraft.REGISTRATE
         .entity("standable_falling_block", StandableFallingBlockEntity::new, MobCategory.MISC)
+        .properties(builder -> builder.sized(0.98f, 0.98f))
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends StandableLevitatingBlockEntity> STANDABLE_LEVITATING_BLOCK = AnvilCraft.REGISTRATE
         .entity("standable_levitating_block", StandableLevitatingBlockEntity::new, MobCategory.MISC)
+        .properties(builder -> builder.sized(0.98f, 0.98f))
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 

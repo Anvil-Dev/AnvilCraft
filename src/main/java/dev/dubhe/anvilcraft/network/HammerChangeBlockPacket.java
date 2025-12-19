@@ -31,7 +31,7 @@ public record HammerChangeBlockPacket(
         return TYPE;
     }
 
-    public void handle(IPayloadContext context) {
+    public  void handle(IPayloadContext context) {
         context.enqueueWork(() -> {
             Level level = context.player().level();
             if (level.isLoaded(pos)) {

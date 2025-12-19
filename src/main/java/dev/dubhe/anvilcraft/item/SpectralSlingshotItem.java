@@ -412,6 +412,16 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                     tooltipComponents.addAll(list);
                 }
             }
+            tooltipComponents.add(
+                Component
+                    .literal("  ")
+                    .append(
+                        canTakeOutAmmo(stack)
+                            ? Component.translatable("item.anvilcraft.spectral_slingshot.unload_return")
+                            : Component.translatable("item.anvilcraft.spectral_slingshot.unload_vanish")
+                    )
+                    .withStyle(ChatFormatting.GRAY)
+            );
         }
     }
 

@@ -53,6 +53,7 @@ import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
+import dev.dubhe.anvilcraft.item.PillBoxItem;
 import dev.dubhe.anvilcraft.item.RecoveryPearl;
 import dev.dubhe.anvilcraft.item.ResonatorCoreItem;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
@@ -1066,6 +1067,22 @@ public class ModItems {
     public static final ItemEntry<StructureToolItem> STRUCTURE_TOOL = REGISTRATE.item("structure_tool", StructureToolItem::new)
         .model((ctx, provider) -> provider.generated(ctx::get, ResourceLocation.parse("item/paper")))
         .properties(properties -> properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .register();
+
+    public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRATE
+        .item("pill_box", PillBoxItem::new)
+        .properties((properties) -> properties.stacksTo(1))
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+                .pattern("AAA")
+                .pattern("ABA")
+                .pattern("AAA")
+                .define('A', ModItems.HARDEND_RESIN)
+                .define('B', ModFoodItems.PILL)
+                .unlockedBy("has_hardend_resin", RegistrateRecipeProvider.has(ModItems.HARDEND_RESIN))
+                .unlockedBy("has_pill", RegistrateRecipeProvider.has(ModFoodItems.PILL))
+                .save(provider);
+        })
         .register();
 
     static {

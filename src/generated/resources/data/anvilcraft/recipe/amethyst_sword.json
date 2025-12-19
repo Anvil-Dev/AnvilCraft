@@ -10,9 +10,9 @@
     }
   },
   "pattern": [
-    " A ",
-    " A ",
-    " B "
+    "A",
+    "A",
+    "B"
   ],
   "result": {
     "components": {

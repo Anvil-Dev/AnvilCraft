@@ -48,7 +48,7 @@ public class HeatCollectorManager {
         registerEntry(HeatSourceEntry.predicate(
             4,
             CampfireBlock::isLitCampfire,
-            t -> t.setValue(CampfireBlock.LIT, false)
+            it -> it.setValue(CampfireBlock.LIT, false)
         ));
         registerEntry(HeatSourceEntry.predicate(
             4,

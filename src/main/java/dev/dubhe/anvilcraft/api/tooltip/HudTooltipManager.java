@@ -64,19 +64,19 @@ public class HudTooltipManager {
         INSTANCE.registerBlockEntityTooltip(new PropelPistonTooltipProvider());
     }
 
-    private void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {
+    public void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {
         affectRangeProviders.add(affectRangeProvider);
     }
 
-    private void registerBlockTooltip(ITooltipProvider.BlockTooltipProvider provider) {
+    public void registerBlockTooltip(ITooltipProvider.BlockTooltipProvider provider) {
         blockProviders.add(provider);
     }
 
-    private void registerBlockEntityTooltip(ITooltipProvider.BlockEntityTooltipProvider provider) {
+    public void registerBlockEntityTooltip(ITooltipProvider.BlockEntityTooltipProvider provider) {
         blockEntityProviders.add(provider);
     }
 
-    private void registerHandHeldItemTooltip(IHandHeldItemTooltipProvider provider) {
+    public void registerHandHeldItemTooltip(IHandHeldItemTooltipProvider provider) {
         handItemProviders.add(provider);
     }
 

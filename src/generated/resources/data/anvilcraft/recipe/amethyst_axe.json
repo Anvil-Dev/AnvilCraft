@@ -10,9 +10,9 @@
     }
   },
   "pattern": [
-    "AA ",
-    "AB ",
-    " B "
+    "AA",
+    "AB",
+    " B"
   ],
   "result": {
     "components": {

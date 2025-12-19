@@ -4,7 +4,7 @@
     "blocks": "minecraft:deepslate"
   },
   "need_block": {
-    "blocks": "minecraft:raw_iron_block"
+    "blocks": "#c:storage_blocks/raw_iron"
   },
   "to_block": {
     "block": "minecraft:deepslate_iron_ore"

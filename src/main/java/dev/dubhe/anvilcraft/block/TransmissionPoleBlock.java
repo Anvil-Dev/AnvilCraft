@@ -26,7 +26,6 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHalf>
@@ -63,7 +62,7 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
 
     @Override
     @Nullable
-    public BlockState getPlacementState(@NotNull BlockPlaceContext context) {
+    public BlockState getPlacementState(BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         IPowerComponent.Switch sw =
@@ -75,7 +74,7 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF).add(OVERLOAD).add(SWITCH);
     }
 
@@ -102,13 +101,13 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
     }
 
     @Override
-    protected BlockState placedState(@NotNull Vertical3PartHalf part, BlockState state) {
+    public BlockState placedState(Vertical3PartHalf part, BlockState state) {
         return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
     }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new TransmissionPoleBlockEntity(pos, state);
     }
 
@@ -153,10 +152,10 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
     }
 
     @Override
-    public void onPlace(@NotNull Level level, BlockPos pos, BlockState state) {
+    public void onPlace(Level level, BlockPos pos, BlockState state) {
     }
 
     @Override
-    public void onRemove(@NotNull Level level, BlockPos pos, BlockState state) {
+    public void onRemove(Level level, BlockPos pos, BlockState state) {
     }
 }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -169,9 +170,20 @@ public class ItemTooltipManager {
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
         if (stack.has(ModComponents.MULTIPHASE)) {
+            if (AnvilCraftClient.CONFIG.showMultiphaseStoredId) {
+                propertyTooltip(
+                    "multiphase.id",
+                    tooltip,
+                    0xDD91FA,
+                    stack.get(ModComponents.MULTIPHASE).id().toString()
+                );
+            }
             propertyTooltip(
-                "multiphase", tooltip, 0xDD91FA,
-                ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName());
+                "multiphase",
+                tooltip,
+                0xDD91FA,
+                ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName()
+            );
         }
         if (stack.has(ModComponents.PROVIDENCE)) {
             if (Screen.hasShiftDown()) {

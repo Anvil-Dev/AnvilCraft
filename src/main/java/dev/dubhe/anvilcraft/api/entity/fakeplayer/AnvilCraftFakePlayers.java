@@ -9,4 +9,5 @@ public class AnvilCraftFakePlayers {
     public static Set<String> BLOCK_PLACER_BLACKLIST = new HashSet<>();
     public static IAnvilCraftBlockPlacer anvilcraftBlockPlacer = null;
     public static AnvilCraftKillerFakePlayer anvilcraftKiller = null;
+    public static AnvilCraftDestroyerFakePlayer anvilcraftDestroyer = null;
 }

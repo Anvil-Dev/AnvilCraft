@@ -13,6 +13,24 @@ public class CommandLang {
         provider.add("command.anvilcraft.powergrid.info.transmitter", "%1$s at %2$s, %3$s, %4$s (Range: %5$s)");
         provider.add("command.anvilcraft.powergrid.info.not_found", "No power grid found at position %1$s, %2$s, %3$s");
 
+        provider.add("command.anvilcraft.multiphase.not_found", "No multiphase using this id %s");
+        provider.add("command.anvilcraft.multiphase.info.multiphase_id", "Multiphase ID: ");
+        provider.add("command.anvilcraft.multiphase.info.phases", "Phases: ");
+        provider.add("command.anvilcraft.multiphase.info.custom_name", "Custom Name: ");
+        provider.add("command.anvilcraft.multiphase.info.item_name", "Item Name: ");
+        provider.add("command.anvilcraft.multiphase.info.name.empty", "Empty");
+        provider.add("command.anvilcraft.multiphase.info.repair_cost", "Repair Cost: ");
+        provider.add("command.anvilcraft.multiphase.info.enchantments", "Enchantments: ");
+        provider.add("command.anvilcraft.multiphase.info.merciless_enchantments", "Merciless Enchantments: ");
+        provider.add(
+            "command.anvilcraft.multiphase.remove.success",
+            "Successfully removed multiphase %1$s.\nYou can recover it by \"%2$s\""
+        );
+        provider.add("command.anvilcraft.multiphase.remove.success.hovering", "Click to Run Command");
+        provider.add("command.anvilcraft.multiphase.recover.success", "Successfully recovered multiphase %s");
+        provider.add("command.anvilcraft.multiphase.recover.clear.success", "Successfully cleared recover station");
+        provider.add("command.anvilcraft.multiphase.apply.not_player", "Command runner is not player");
+
         provider.add("command.anvilcraft.storage.no_id", "No id provided");
         provider.add("command.anvilcraft.storage.not_found", "No storage using this id %s");
         provider.add("command.anvilcraft.storage.info.name", "Storage Name: %s");
@@ -33,5 +51,7 @@ public class CommandLang {
         provider.add("command.anvilcraft.storage.remove.success.hovering", "Click to Run Command");
         provider.add("command.anvilcraft.storage.recover.success", "Successfully recovered storage %s");
         provider.add("command.anvilcraft.storage.recover.clear.success", "Successfully cleared recover station");
+
+        provider.add("command.anvilcraft.universe.no_id", "No ID provided and cannot find ID in items on hand");
     }
 }

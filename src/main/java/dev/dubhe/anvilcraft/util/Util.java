@@ -7,14 +7,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.util.thread.SidedThreadGroups;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
@@ -57,8 +62,7 @@ public class Util {
     }
 
     public static boolean findCaller(String caller) {
-        return STACK_WALKER.walk(
-            it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
+        return STACK_WALKER.walk(it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
     }
 
     public static void acceptDirections(BlockPos blockPos, Consumer<BlockPos> blockPosConsumer) {
@@ -86,6 +90,14 @@ public class Util {
         for (Direction direction : HORIZONTAL_DIRECTIONS) {
             blockPosConsumer.accept(blockPos.relative(direction));
         }
+    }
+
+    public static boolean isClient() {
+        return Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER;
+    }
+
+    public static boolean isServer() {
+        return Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER;
     }
 
     /**
@@ -178,5 +190,18 @@ public class Util {
         var op2 = op2Getter.get();
         if (op2.isEmpty()) return;
         runnable.accept(op1.get(), op2.get());
+    }
+
+    /**
+     * 使用传入的参数运行代码，并返回原参数
+     *
+     * @param value 原参数
+     * @param consumer 需要在传入前调用的方法
+     * @param <T> 原参数的类型
+     * @return 原参数
+     */
+    public static <T> T run(T value, Consumer<T> consumer) {
+        consumer.accept(value);
+        return value;
     }
 }

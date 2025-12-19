@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -104,13 +105,13 @@ public class HeaterManager {
         Collection<BlockPos> producerPoses = this.producers.get(info);
         Object2IntMap<BlockPos> heatablePosesAndProducerCount = new Object2IntArrayMap<>();
         for (BlockPos producerPos : producerPoses) {
-            Optional<T> producerOp = info.getter().apply(this.level, producerPos);
-            if (producerOp.isEmpty()) {
-                removals.add(producerPos);
-            }
-            producerOp.map(producer -> new Pair<>(info.posesGetter().apply(producer), info.countGetter().applyAsInt(producer))).ifPresent(
-                pair -> pair.getFirst()
-                    .forEach(heatablePos -> heatablePosesAndProducerCount.mergeInt(heatablePos, pair.getSecond(), Integer::sum))
+            info.getter().apply(this.level, producerPos)
+                .map(producer -> new Pair<>(info.posesGetter().apply(producer), info.countGetter().applyAsInt(producer)))
+                .ifPresentOrElse(
+                    pair -> pair.getFirst().forEach(
+                        heatablePos -> heatablePosesAndProducerCount.mergeInt(heatablePos, pair.getSecond(), Integer::sum)
+                    ),
+                    () -> removals.add(producerPos)
             );
         }
         for (BlockPos heatablePos : heatablePosesAndProducerCount.keySet()) {
@@ -122,6 +123,7 @@ public class HeaterManager {
 
     private void tickHeatableBlock(BlockPos pos, @Nullable HeatTierLine.Point point) {
         this.heatableBlocks.remove(pos);
+        if (!this.level.isLoaded(pos)) return;
         BlockState heatableState = this.level.getBlockState(pos);
         if (!heatableState.is(ModBlockTags.HEATABLE_BLOCKS)) return;
         this.heatableBlocks.add(pos);
@@ -142,7 +144,22 @@ public class HeaterManager {
             BlockEntity deltaBlockEntity = deltaEntityBlock.newBlockEntity(pos, deltaBlock.defaultBlockState());
             if (!(deltaBlockEntity instanceof HeatableBlockEntity heatableEntity)) return;
             this.level.setBlockEntity(heatableEntity);
-            this.level.updateNeighbourForOutputSignal(pos, deltaBlock);
+            // region this.level.updateNeighbourForOutputSignal(pos, deltaBlock);
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbourPos = pos.relative(direction);
+                if (this.level.isLoaded(neighbourPos)) {
+                    BlockState neighbourState = this.level.getBlockState(neighbourPos);
+                    neighbourState.onNeighborChange(this.level, neighbourPos, pos);
+                    if (neighbourState.isRedstoneConductor(this.level, neighbourPos)) {
+                        neighbourPos = neighbourPos.relative(direction);
+                        neighbourState = this.level.getBlockState(neighbourPos);
+                        if (neighbourState.getWeakChanges(this.level, neighbourPos)) {
+                            this.level.neighborChanged(neighbourState, neighbourPos, deltaBlock, pos, false);
+                        }
+                    }
+                }
+            }
+            // endregion
             heatable = heatableEntity;
         } else if (tierDelta.compareTo(tier) < 0) {
             durationDelta = 0;
@@ -165,7 +182,22 @@ public class HeaterManager {
             if (!(tierEntity instanceof HeatableBlockEntity heatableEntity)) return;
             heatableEntity.addDuration(10);
             this.level.setBlockEntity(heatableEntity);
-            this.level.updateNeighbourForOutputSignal(pos, prevState.getBlock());
+            // region this.level.updateNeighbourForOutputSignal(pos, prevState.getBlock());
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbourPos = pos.relative(direction);
+                if (this.level.isLoaded(neighbourPos)) {
+                    BlockState neighbourState = this.level.getBlockState(neighbourPos);
+                    neighbourState.onNeighborChange(this.level, neighbourPos, pos);
+                    if (neighbourState.isRedstoneConductor(this.level, neighbourPos)) {
+                        neighbourPos = neighbourPos.relative(direction);
+                        neighbourState = this.level.getBlockState(neighbourPos);
+                        if (neighbourState.getWeakChanges(this.level, neighbourPos)) {
+                            this.level.neighborChanged(neighbourState, neighbourPos, prevState.getBlock(), pos, false);
+                        }
+                    }
+                }
+            }
+            // endregion
         }
     }
 

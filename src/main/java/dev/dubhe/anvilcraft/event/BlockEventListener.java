@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -58,8 +57,7 @@ public class BlockEventListener {
         BlockPos blockPos = event.getPos();
         BlockState targetBlockState = level.getBlockState(blockPos);
         if (
-            itemStack.getItem() instanceof AnvilHammerItem
-                || (itemStack.is(Tags.Items.TOOLS_WRENCH) && targetBlockState.getBlock() instanceof IHammerChangeable)
+            itemStack.getItem() instanceof AnvilHammerItem && targetBlockState.getBlock() instanceof IHammerChangeable
         ) {
             if (player.level().isClientSide()) return;
             if (AnvilHammerItem.ableToUseAnvilHammer(level, blockPos, player)) {

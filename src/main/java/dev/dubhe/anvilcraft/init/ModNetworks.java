@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.network.FilterContentSyncPacket;
 import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
+import dev.dubhe.anvilcraft.network.HammerChangeFlexibleMultiPartBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.network.HeatableSyncPacket;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
@@ -19,7 +20,6 @@ import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.network.MachineCycleFilterModePacket;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
-import dev.dubhe.anvilcraft.network.MultiphaseChangePacket;
 import dev.dubhe.anvilcraft.network.MutedSoundSyncPacket;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
@@ -38,13 +38,14 @@ import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
-import dev.dubhe.anvilcraft.network.SwitchPhasePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.SyncEmberGrindstonePacket;
 import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import dev.dubhe.anvilcraft.network.UpdateDeflectionRingLastEntitySpeedPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import dev.dubhe.anvilcraft.network.UpdatePropelPistonStoredEnergyPacket;
+import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
+import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.network.split.PacketSplitter;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -102,6 +103,11 @@ public class ModNetworks {
             HammerChangeBlockPacket.TYPE,
             HammerChangeBlockPacket.STREAM_CODEC,
             HammerChangeBlockPacket::handle
+        );
+        registrar.playToServer(
+            HammerChangeFlexibleMultiPartBlockPacket.TYPE,
+            HammerChangeFlexibleMultiPartBlockPacket.STREAM_CODEC,
+            HammerChangeFlexibleMultiPartBlockPacket::handle
         );
         registrar.playToServer(
             CyclingValueSyncPacket.TYPE,
@@ -199,16 +205,6 @@ public class ModNetworks {
             AdvancedComparatorUpdatePacket.HANDLER
         );
         registrar.playToServer(
-            SwitchPhasePacket.TYPE,
-            SwitchPhasePacket.STREAM_CODEC,
-            SwitchPhasePacket.HANDLER
-        );
-        registrar.playBidirectional(
-            MultiphaseChangePacket.TYPE,
-            MultiphaseChangePacket.STREAM_CODEC,
-            MultiphaseChangePacket.HANDLER
-        );
-        registrar.playToServer(
             SyncEmberGrindstonePacket.TYPE,
             SyncEmberGrindstonePacket.STREAM_CODEC,
             SyncEmberGrindstonePacket.HANDLER
@@ -268,7 +264,13 @@ public class ModNetworks {
             UpdatePropelPistonStoredEnergyPacket.STREAM_CODEC,
             UpdatePropelPistonStoredEnergyPacket.HANDLER
         );
+        registrar.playToServer(
+            UsePillBoxPacket.TYPE,
+            UsePillBoxPacket.STREAM_CODEC,
+            UsePillBoxPacket.HANDLER
+        );
         PacketSplitter.registerSplitPackets(registrar);
+        MultiphasePackets.register(registrar);
         ShulkerContainerPackets.register(registrar);
     }
 }

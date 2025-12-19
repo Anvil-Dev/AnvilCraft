@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import com.google.common.collect.Multimap;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,14 +39,12 @@ public class CollectionUtil {
         return new LinkedList<>();
     }
 
-    public static <T> T get(Collection<T> c, int index) {
-        Objects.checkIndex(index, c.size());
+    public static <T> @Nullable T get(Collection<T> collection, int index) {
         int i = 0;
-        for (T t : c) {
-            if (i == index) return t;
-            i++;
+        for (T t : collection) {
+            if (i++ == index) return t;
         }
-        throw new IllegalStateException("Unexpected no value on an in-range-index");
+        return null;
     }
 
     public static <T> Optional<T> getLast(Collection<T> c) {

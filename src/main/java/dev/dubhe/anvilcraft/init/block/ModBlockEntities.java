@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -218,6 +219,11 @@ public class ModBlockEntities {
         .blockEntity("space_overcompressor", SpaceOvercompressorBlockEntity::createBlockEntity)
         .validBlocks(ModBlocks.SPACE_OVERCOMPRESSOR)
         .register();
+
+    public static final BlockEntityEntry<BlackHoleBlockEntity> BLACK_HOLE = REGISTRATE.blockEntity(
+        "black_hole",
+        BlackHoleBlockEntity::createBlockEntity
+    ).validBlocks(ModBlocks.BLACK_HOLE).register();
 
     public static final BlockEntityEntry<TimeCountedPressurePlateBlockEntity> TIME_COUNTED_PRESSURE_PLATE = REGISTRATE
         .blockEntity("time_counted_pressure_plate", TimeCountedPressurePlateBlockEntity::createBlockEntity)

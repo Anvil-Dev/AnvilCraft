@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.sliding;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -211,6 +213,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
+        if (!level.getEntitiesOfClass(MagnetizedNodeEntity.class, new AABB(pos)).isEmpty()) return;
         if (entity.getType() != EntityType.ITEM && !(entity instanceof LivingEntity)) return;
         boolean isSneakPlayer = entity instanceof Player player && player.isShiftKeyDown();
         if (!state.getValue(POWERED)) {

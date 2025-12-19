@@ -6,7 +6,7 @@
       "item": "anvilcraft:negative_matter_block"
     },
     "I": {
-      "item": "anvilcraft:neutronium_ingot"
+      "tag": "anvilcraft:uncharged_neutronium_ingots"
     },
     "N": {
       "item": "anvilcraft:negative_matter"

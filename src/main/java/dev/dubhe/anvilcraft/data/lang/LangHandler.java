@@ -3,11 +3,6 @@ package dev.dubhe.anvilcraft.data.lang;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 
 public class LangHandler {
-    /**
-     * 语言文件初始化
-     *
-     * @param provider 提供器
-     */
     public static void init(RegistrateLangProvider provider) {
         AdvancementLang.init(provider);
         ConfigScreenLang.init(provider);
@@ -22,6 +17,8 @@ public class LangHandler {
         CuriosLang.init(provider);
         ToolPropertyLang.init(provider);
         CommandLang.init(provider);
+        KeyMappingLang.init(provider);
+        FluidLang.init(provider);
         CategoryLang.init(provider);
     }
 }

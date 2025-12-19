@@ -15,7 +15,7 @@ public enum HeatTier implements Comparable<HeatTier> {
     public static final Codec<HeatTier> LOWER_NAME_CODEC = CodecUtil.enumCodecInLowerName(HeatTier.class);
     public static final StreamCodec<ByteBuf, HeatTier> STREAM_CODEC = CodecUtil.enumStreamCodec(HeatTier.class);
 
-    public Component toComponent() {
+    public Component getDisplayName() {
         return Component.translatable("tooltip.anvilcraft.heat.tier." + this);
     }
 

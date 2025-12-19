@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.api.container.datafixer.StorageDataFixer;
 import dev.dubhe.anvilcraft.api.container.upgrade.IUpgrade;
 import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
+import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -32,10 +33,18 @@ public class ModRegistries {
         .maxId(512)
         .create();
 
-    public static final ResourceKey<Registry<ICustomDataComponent.Type<?>>> CUSTOM_DATA_KEY = ResourceKey.createRegistryKey(
+    public static final ResourceKey<Registry<ICustomDataComponent.Type<?>>> CUSTOM_DATA_TYPE_KEY = ResourceKey.createRegistryKey(
         AnvilCraft.of("custom_data_component")
     );
-    public static final Registry<ICustomDataComponent.Type<?>> CUSTOM_DATA_TYPE_REGISTRY = new RegistryBuilder<>(CUSTOM_DATA_KEY)
+    public static final Registry<ICustomDataComponent.Type<?>> CUSTOM_DATA_TYPE_REGISTRY = new RegistryBuilder<>(CUSTOM_DATA_TYPE_KEY)
+        .sync(true)
+        .maxId(512)
+        .create();
+
+    public static final ResourceKey<Registry<IUuidProvider.Type<?>>> UUID_PROVIDER_TYPE_KEY = ResourceKey.createRegistryKey(
+        AnvilCraft.of("uuid_provider")
+    );
+    public static final Registry<IUuidProvider.Type<?>> UUID_PROVIDER_TYPE_REGISTRY = new RegistryBuilder<>(UUID_PROVIDER_TYPE_KEY)
         .sync(true)
         .maxId(512)
         .create();
@@ -75,6 +84,7 @@ public class ModRegistries {
         event.register(CATEGORY_TYPE_REGISTRY);
         event.register(UPGRADE_TYPE_REGISTRY);
         event.register(FIXER_REGISTRY);
+        event.register(UUID_PROVIDER_TYPE_REGISTRY);
     }
 
     @SubscribeEvent

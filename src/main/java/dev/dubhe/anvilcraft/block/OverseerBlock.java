@@ -91,7 +91,7 @@ public class OverseerBlock
     }
 
     @Override
-    protected BlockState placedState(Vertical3PartHalf part, BlockState state) {
+    public BlockState placedState(Vertical3PartHalf part, BlockState state) {
         return super.placedState(part, state).setValue(LEVEL, 1);
     }
 

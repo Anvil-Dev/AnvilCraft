@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -97,30 +96,6 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             ));
         }
         this.anvilcraft$blockPos = blockPos;
-    }
-
-    @WrapOperation(
-        method = "tick",
-        at = @At(
-            value = "INVOKE",
-            target =
-                "Lnet/minecraft/world/entity/item/ItemEntity;"
-                + "getDeltaMovement()Lnet/minecraft/world/phys/Vec3;"
-        )
-    )
-    private Vec3 slowDown(ItemEntity instance, Operation<Vec3> original) {
-        Vec3 vec3 = original.call(instance);
-        double dy = 1;
-        if (this.getItem().is(ModItemTags.LEVITATIONALS)) dy *= -0.005;
-        if (this.level().getBlockState(this.blockPosition()).is(ModBlocks.HOLLOW_MAGNET_BLOCK)) dy *= 0.2;
-        if (this.getItem().is(ModItems.NEGATIVE_MATTER_NUGGET)
-            || this.getItem().is(ModItems.NEGATIVE_MATTER)
-            || this.getItem().is(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem())) {
-            if (this.position().y <= this.level().getMaxBuildHeight()) {
-                if (vec3.y < 0) dy *= -1;
-            }
-        }
-        return new Vec3(vec3.x, vec3.y * dy, vec3.z);
     }
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
@@ -359,35 +334,15 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         anvilcraft$mergeCooldown = cooldown;
     }
 
-    @Inject(
-        method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V",
-        at = @At("TAIL")
-    )
-    public void itemCollectorPoach0(CallbackInfo ci) {
-        this.anvilcraft$poach();
-    }
-
-    @Inject(
-        method = "<init>(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;DDD)V",
-        at = @At("TAIL")
-    )
-    public void itemCollectorPoach1(CallbackInfo ci) {
-        this.anvilcraft$poach();
-    }
-
-    @Inject(
-        method = "<init>(Lnet/minecraft/world/entity/item/ItemEntity;)V",
-        at = @At("TAIL")
-    )
-    public void itemCollectorPoach2(CallbackInfo ci) {
-        this.anvilcraft$poach();
-    }
-
     @Unique
     public boolean anvilcraft$discarded = false;
 
     @Unique
-    private void anvilcraft$poach() {
+    public boolean anvilcraft$shouldPoach = true;
+
+    @Unique
+    public void anvilcraft$poach() {
+        if (!anvilcraft$shouldPoach) return;
         Level level = this.level();
         if (level.isClientSide) return;
         Map<ChunkPos, List<ItemCollectorBlockEntity>> map = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level);
@@ -422,6 +377,11 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Override
     public boolean anvilcraft$getDiscarded() {
         return anvilcraft$discarded;
+    }
+
+    @Override
+    public void anvilcraft$setShouldPoach(boolean shouldPoach) {
+        this.anvilcraft$shouldPoach = shouldPoach;
     }
 
     @Override

@@ -1,11 +1,8 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.client.gui.component.WheelWidget;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
-import dev.dubhe.anvilcraft.util.function.Consumer4;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -36,35 +33,45 @@ public class ResonatorScreen extends Screen {
 
     @Override
     protected void init() {
+        this.clearWidgets();
         int leftPos = (this.width - 75) / 2;
         int topPos = (this.height - 75) / 2;
-        ItemStack holding = player.getItemInHand(this.hand);
+        ItemStack holding = this.player.getItemInHand(this.hand);
         WheelWidget wheel = new WheelWidget(
-            leftPos, topPos, 75, 75,
-            12.5f, 32.5f, 0.75f,
+            leftPos,
+            topPos,
+            75,
+            75,
+            12.5f,
+            32.5f,
+            0.75f,
             List.of(
-                new Pair<>(
+                new WheelWidget.RawSection(
                     Component.translatable("screen.anvilcraft.resonator.auto"),
-                    renderResonator(holding, ResonatorItem.AUTO_MODE)),
-                new Pair<>(
+                    ResonatorScreen.renderResonator(holding, ResonatorItem.AUTO_MODE)
+                ),
+                new WheelWidget.RawSection(
                     Component.translatable("screen.anvilcraft.resonator.axe"),
-                    renderResonator(holding, ResonatorItem.AXE_MODE)),
-                new Pair<>(
+                    ResonatorScreen.renderResonator(holding, ResonatorItem.AXE_MODE)
+                ),
+                new WheelWidget.RawSection(
                     Component.translatable("screen.anvilcraft.resonator.shovel"),
-                    renderResonator(holding, ResonatorItem.SHOVEL_MODE)),
-                new Pair<>(
+                    ResonatorScreen.renderResonator(holding, ResonatorItem.SHOVEL_MODE)
+                ),
+                new WheelWidget.RawSection(
                     Component.translatable("screen.anvilcraft.resonator.hoe"),
-                    renderResonator(holding, ResonatorItem.HOE_MODE)),
-                new Pair<>(
+                    ResonatorScreen.renderResonator(holding, ResonatorItem.HOE_MODE)
+                ),
+                new WheelWidget.RawSection(
                     Component.translatable("screen.anvilcraft.resonator.pickaxe"),
-                    renderResonator(holding, ResonatorItem.PICKAXE_MODE))
+                    ResonatorScreen.renderResonator(holding, ResonatorItem.PICKAXE_MODE)
+                )
             )
         ).setCurrentIndex(this.wheel != null ? this.wheel.getCurrentSectionIndex() : this.mode);
-        this.clearWidgets();
         this.wheel = this.addRenderableWidget(wheel);
     }
 
-    private static Consumer4<GuiGraphics, PoseStack, Integer, Integer> renderResonator(ItemStack holding, int mode) {
+    private static WheelWidget.SectionRenderer renderResonator(ItemStack holding, int mode) {
         return (graphics, pose, width, height) -> {
             ItemStack stack = holding.copy();
             stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(mode));

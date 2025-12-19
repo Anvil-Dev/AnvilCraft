@@ -22,11 +22,11 @@ import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModNetworks;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModResultModifierTypes;
+import dev.dubhe.anvilcraft.init.ModUuidProviders;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.command.ModCommands;
-import dev.dubhe.anvilcraft.init.command.ModSuggestionProviders;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffects;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
@@ -102,6 +102,7 @@ public class AnvilCraft {
         ModMobEffects.register(modEventBus);
         ModInspections.initialize();
         ModItemSubPredicates.initialize(modEventBus);
+        ModUuidProviders.register(modEventBus);
 
         ModCriterionTriggers.register(modEventBus);
         ModLootContextParamSets.registerAll();
@@ -154,7 +155,6 @@ public class AnvilCraft {
     }
 
     public static void registerCommand(@NotNull RegisterCommandsEvent event) {
-        ModSuggestionProviders.register();
         ModCommands.register(event.getDispatcher());
     }
 

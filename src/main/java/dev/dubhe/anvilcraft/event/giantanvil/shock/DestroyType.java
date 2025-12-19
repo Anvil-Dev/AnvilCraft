@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
@@ -209,7 +208,6 @@ enum DestroyType {
             Level level = context.level();
             for (BlockPos blockPos : list) {
                 BlockState blockState = level.getBlockState(blockPos);
-                AnvilCraft.LOGGER.debug("block: {}", blockState.getBlock());
                 if (blockState.isAir() || !(blockState.getBlock() instanceof AmethystClusterBlock)) {
                     continue;
                 }

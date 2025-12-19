@@ -20,6 +20,16 @@ public class ServerLevelMixin {
     boolean anvilcraft$shouldCheckDiscarded;
 
     @Inject(
+        method = "addFreshEntity",
+        at = @At(value = "HEAD")
+    )
+    public void poachItemEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (entity instanceof ItemEntity e1) {
+            e1.anvilcraft$poach();
+        }
+    }
+
+    @Inject(
         method = "addEntity",
         at = @At(
             value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;)V"

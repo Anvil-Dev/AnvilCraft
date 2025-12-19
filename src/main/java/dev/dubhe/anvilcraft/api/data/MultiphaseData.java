@@ -5,9 +5,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
-import dev.dubhe.anvilcraft.item.property.component.Multiphase;
+import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
+import dev.dubhe.anvilcraft.util.ListUtil;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,13 +19,14 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class MultiphaseData implements ICustomDataComponent<Multiphase> {
+public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseRef> {
     private final Object2BooleanMap<Pair<Integer, DataComponentType<?>>> required;
 
     private MultiphaseData(Object2BooleanMap<Pair<Integer, DataComponentType<?>>> required) {
@@ -51,7 +55,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
     }
 
     @Override
-    public DataComponentType<Multiphase> getDataComponentType() {
+    public DataComponentType<MultiphaseRef> getDataComponentType() {
         return ModComponents.MULTIPHASE;
     }
 
@@ -66,28 +70,35 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
     }
 
     @Override
-    public Multiphase merge(Multiphase oldData, Multiphase newData) {
-        LinkedList<Multiphase.Phase> oldPhases = oldData.phases();
-        LinkedList<Multiphase.Phase> newPhases = newData.phases();
+    public MultiphaseRef merge(MultiphaseRef oldData, MultiphaseRef newData) {
+        Multiphase old = oldData.toMultiphase();
+        if (old == null || old.isEmpty()) return newData;
+        oldData.discard(ServerLifecycleHooks.getCurrentServer().registryAccess());
+        LinkedList<Multiphase.Phase> oldPhases = old.phases();
+        LinkedList<Multiphase.Phase> newPhases = newData.toMultiphase().phases();
         if (oldPhases.isEmpty()) return newData;
-        LinkedList<Multiphase.Phase> result = new LinkedList<>();
-        int oldFirst = oldPhases.peekFirst().index();
-        int newIndex = -1;
-        for (Multiphase.Phase phase : newPhases) {
-            if (phase.index() == oldFirst) {
-                newIndex = phase.index();
+
+        int newFirst = newPhases.peekFirst().index();
+        int oldIndex = -1;
+        for (Multiphase.Phase phase : oldPhases) {
+            if (phase.index() == newFirst) {
+                oldIndex = phase.index();
                 break;
             }
         }
-        if (newIndex == -1) return oldData;
-        for (int i = 0, phasesSize = oldPhases.size(); i < phasesSize; i++) {
-            result.add(oldPhases.get(i).merge(newPhases.get(i)));
+        if (oldIndex == -1) return newData;
+
+        for (int i = 0, phasesSize = newPhases.size(), oldSize = oldPhases.size(); i < phasesSize; i++) {
+            int finalI = i;
+            ListUtil.safelyGet(oldPhases, i + oldIndex % oldSize)
+                .map(newPhases.get(i)::merge)
+                .ifPresent(phase -> newPhases.set(finalI, phase));
         }
-        return new Multiphase(result);
+        return newData;
     }
 
     @Override
-    public void applyToStack(ItemStack stack, @Nullable Multiphase value) {
+    public void applyToStack(ItemStack stack, @Nullable MultiphaseRef value) {
         ICustomDataComponent.super.applyToStack(stack, value);
         if (value == null) return;
         value.applyToStack(stack);
@@ -133,7 +144,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
         }
 
         @Override
-        public Multiphase make(List<Object> data) {
+        public MultiphaseRef make(List<Object> data) {
             LinkedList<Multiphase.Phase> phases = new LinkedList<>();
             for (int i = 0; i < 2; i++) {
                 int base = i * 4;
@@ -145,7 +156,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
                         .withStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 3)))
                 );
             }
-            return new Multiphase(phases);
+            return new MultiphaseRef(new Multiphase(phases));
         }
     }
 
@@ -176,7 +187,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
         }
 
         @Override
-        public Multiphase make(List<Object> data) {
+        public MultiphaseRef make(List<Object> data) {
             LinkedList<Multiphase.Phase> phases = new LinkedList<>();
             Component[] customNames = new Component[] {
                 MultiphaseData.processCustomName(data.getFirst()),
@@ -195,7 +206,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
                         .addStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 5)))
                 );
             }
-            return new Multiphase(phases);
+            return new MultiphaseRef(new Multiphase(phases));
         }
     }
 
@@ -226,7 +237,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
         }
 
         @Override
-        public Multiphase make(List<Object> data) {
+        public MultiphaseRef make(List<Object> data) {
             LinkedList<Multiphase.Phase> phases = new LinkedList<>();
             Component[] customNames = new Component[] {
                 data.getFirst() instanceof Component it ? it : null,
@@ -251,7 +262,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<Multiphase>
                         .addStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 11)))
                 );
             }
-            return new Multiphase(phases);
+            return new MultiphaseRef(new Multiphase(phases));
         }
     }
 

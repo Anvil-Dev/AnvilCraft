@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.neoforge.event.entity.EntityEvent;
 
 @Getter
@@ -44,7 +45,7 @@ public class AnvilEvent extends EntityEvent {
     }
 
     @Getter
-    public static class CollisionBlock extends AnvilEvent {
+    public static class CollisionBlock extends AnvilEvent implements ICancellableEvent {
         private final Level level;
         private final BlockPos pos;
         private final double speed;

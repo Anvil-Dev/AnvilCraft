@@ -21,8 +21,7 @@ public abstract class VillagerMixin extends AbstractVillager {
 
     @Inject(
         method = "updateSpecialPrices",
-        at =
-        @At(value = "TAIL")
+        at = @At(value = "RETURN")
     )
     private void updateAmuletSpecialPrices(Player player, CallbackInfo ci) {
         // 如果需要不叠加，就加上&& !player.hasEffect(MobEffects.HERO_OF_THE_VILLAGE)
@@ -34,6 +33,5 @@ public abstract class VillagerMixin extends AbstractVillager {
                 merchantOffer.addToSpecialPriceDiff(-Math.max(k, 1));
             }
         }
-
     }
 }

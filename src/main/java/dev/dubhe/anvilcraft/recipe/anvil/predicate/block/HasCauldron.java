@@ -76,11 +76,21 @@ public record HasCauldron(Vec3 offset, ResourceLocation fluid, int consume, Reso
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
         BlockState curState = cache.getBlockState(blockPos);
         if (!curState.is(BlockTags.CAULDRONS)) return false;
+        if (this.consume > 0) {
+            Optional<Tuple<IntegerProperty, Integer>> optionalCur = HasCauldron.getFluidLevel(curState);
+            if (optionalCur.isPresent()) {
+                Tuple<IntegerProperty, Integer> fluidLevel = optionalCur.get();
+                int currentLevel = fluidLevel.getB();
+                int maxLevel = fluidLevel.getA().max;
+                return currentLevel >= maxLevel;
+            }
+        }
         Block fluidCauldron = this.getFluidCauldron();
         if (curState.is(fluidCauldron)) return true;
         if (HasCauldron.isNotEmpty(this.fluid())) return false;
         if (!HasCauldron.isNotEmpty(this.transform())) return false;
         Block targetCauldron = this.getTransformCauldron();
+        if (!curState.is(Blocks.CAULDRON) && !curState.is(targetCauldron)) return false;
         BlockState targetState = targetCauldron.defaultBlockState();
         Optional<Tuple<IntegerProperty, Integer>> optionalTarget = HasCauldron.getFluidLevel(targetState);
         int max = optionalTarget.map(tuple -> tuple.getA().max).orElse(0);

@@ -237,7 +237,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     }
 
     @Override
-    protected BlockState placedState(Cube3x3PartHalf part, BlockState state) {
+    public BlockState placedState(Cube3x3PartHalf part, BlockState state) {
         return super.placedState(part, state)
             .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
     }

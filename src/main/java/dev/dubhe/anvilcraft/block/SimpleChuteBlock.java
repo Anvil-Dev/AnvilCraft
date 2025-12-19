@@ -304,4 +304,16 @@ public class SimpleChuteBlock
         }
         return result;
     }
+
+    // 防止流体流动时破坏溜槽
+    @Override
+    public boolean canBeReplaced(BlockState state, net.minecraft.world.level.material.Fluid fluid) {
+        return false;
+    }
+
+    // 防止玩家使用桶放置流体时直接替换掉溜槽
+    @Override
+    public boolean canBeReplaced(BlockState state, net.minecraft.world.item.context.BlockPlaceContext context) {
+        return false;
+    }
 }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
@@ -7,6 +8,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -45,11 +47,16 @@ public class BreakBlockUtil {
     public static List<ItemStack> dropWithTool(ServerLevel level, BlockPos pos, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
+        ServerPlayer fakePlayer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
+        AnvilCraftFakePlayers.anvilcraftDestroyer.enabledDestroy(fakePlayer, tool);
         LootParams.Builder builder = new LootParams.Builder(level)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
             .withParameter(LootContextParams.TOOL, tool)
+            .withOptionalParameter(LootContextParams.THIS_ENTITY, fakePlayer)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
-        return state.getDrops(builder);
+        List<ItemStack> itemStacks = state.getDrops(builder);
+        AnvilCraftFakePlayers.anvilcraftDestroyer.disable(fakePlayer);
+        return itemStacks;
     }
 
     public static List<ItemStack> drop(ServerLevel level, BlockPos pos) {

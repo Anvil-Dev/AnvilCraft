@@ -32,29 +32,33 @@ public class PillItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
-            PotionContents potionContents = itemStack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
-            Boolean weakening = itemStack.getOrDefault(ModComponents.WEAKENING, false);
-            potionContents.forEachEffect((effect) -> {
-                if (weakening) {
-                    effect = new MobEffectInstance(
-                        effect.getEffect(),
-                        effect.mapDuration((duration) -> duration / 4),
-                        effect.getAmplifier(),
-                        effect.isAmbient(),
-                        effect.isVisible()
-                    );
-                }
-                if (effect.getEffect().value().isInstantenous()) {
-                    effect.getEffect().value().applyInstantenousEffect(player, player, player, effect.getAmplifier(), 1);
-                } else {
-                    player.addEffect(effect);
-                }
-            });
+            use(itemStack, player);
             itemStack.consume(1, player);
             player.getCooldowns().addCooldown(itemStack.getItem(), 40);
             return InteractionResultHolder.success(itemStack);
         }
         return super.use(level, player, usedHand);
+    }
+
+    public static void use(ItemStack itemStack, Player player) {
+        PotionContents potionContents = itemStack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+        Boolean weakening = itemStack.getOrDefault(ModComponents.WEAKENING, false);
+        potionContents.forEachEffect((effect) -> {
+            if (weakening) {
+                effect = new MobEffectInstance(
+                    effect.getEffect(),
+                    effect.mapDuration((duration) -> duration / 4),
+                    effect.getAmplifier(),
+                    effect.isAmbient(),
+                    effect.isVisible()
+                );
+            }
+            if (effect.getEffect().value().isInstantenous()) {
+                effect.getEffect().value().applyInstantenousEffect(player, player, player, effect.getAmplifier(), 1);
+            } else {
+                player.addEffect(effect);
+            }
+        });
     }
 
     @Override

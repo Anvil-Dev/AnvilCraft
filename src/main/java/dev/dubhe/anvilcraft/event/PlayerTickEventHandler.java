@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
+import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -22,6 +24,8 @@ public class PlayerTickEventHandler {
             IonoCraftBackpackItem.playerTick(serverPlayer);
             Merciless.tick(serverPlayer);
             Eternal.tick(serverPlayer);
+        } else if (PlayerUtil.isClient(event.getEntity())) {
+            MultiphaseRef.tick(event.getEntity());
         }
     }
 

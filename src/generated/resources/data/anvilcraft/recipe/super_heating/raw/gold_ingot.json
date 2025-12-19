@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "count": 8,
+      "items": "#c:raw_materials/gold"
+    },
+    {
+      "items": "anvilcraft:earth_core_shard"
+    }
+  ],
+  "results": [
+    {
+      "count": 24,
+      "id": "minecraft:gold_ingot"
+    }
+  ]
+}

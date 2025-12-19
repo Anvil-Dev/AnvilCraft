@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftBlockPlacerFakePlayer;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftDestroyerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftKillerFakePlayer;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
@@ -23,6 +24,7 @@ public class LevelEventListener {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             AnvilCraftFakePlayers.anvilcraftBlockPlacer = new AnvilCraftBlockPlacerFakePlayer(serverLevel);
             AnvilCraftFakePlayers.anvilcraftKiller = new AnvilCraftKillerFakePlayer();
+            AnvilCraftFakePlayers.anvilcraftDestroyer = new AnvilCraftDestroyerFakePlayer();
         }
     }
 

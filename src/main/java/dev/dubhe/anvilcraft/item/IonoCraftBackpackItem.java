@@ -184,16 +184,16 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
         }
 
         if (powerComponent.getPowerGrid() == null) return;
-        
+
         PowerGrid powerGrid = powerComponent.getPowerGrid();
         if (powerGrid.isWorking()) {
             boolean hasConsumption = powerComponent.getPowerConsumptions().contains(CONSUMPTION_64)
                                   || powerComponent.getPowerConsumptions().contains(CONSUMPTION_128)
                                   || powerComponent.getPowerConsumptions().contains(CONSUMPTION_256)
                                   || powerComponent.getPowerConsumptions().contains(CONSUMPTION_512);
-            
+
             if (!hasConsumption) {
-                AtomicInteger playerCount = new AtomicInteger(1);
+                AtomicInteger playerCount = new AtomicInteger(0);
                 powerGrid.getDynamicComponents().forEach(component -> {
                     if (component.getOwner() instanceof ServerPlayer) {
                         playerCount.incrementAndGet();

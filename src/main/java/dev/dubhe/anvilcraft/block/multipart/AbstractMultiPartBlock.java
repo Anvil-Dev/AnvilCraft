@@ -32,7 +32,7 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
 
     public abstract Vec3i getOffset(BlockState state);
 
-    protected BlockState placedState(P part, BlockState state) {
+    public BlockState placedState(P part, BlockState state) {
         return state.setValue(this.getPart(), part);
     }
 

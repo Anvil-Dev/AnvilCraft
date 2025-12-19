@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.network.split;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.constant.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
@@ -11,6 +10,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -56,7 +56,7 @@ public class PacketSplitter {
             }
 
             UUID id = UUID.randomUUID();
-            sender.accept(new SplitPacketHeader(id, Math.ceilDiv(bufferSize, partSize), type));
+            sender.accept(new SplitPacketHeader(id, Math.ceilDiv(bufferSize, partSize), type.id()));
             int i = 0;
             for (int index = 0; index < bufferSize; index += partSize) {
                 int resolvedPartSize = Math.min(bufferSize - index, partSize);
@@ -100,14 +100,13 @@ public class PacketSplitter {
             }
 
             UUID id = UUID.randomUUID();
-            sender.accept(new SplitPacketHeader(id, Math.ceilDiv(bufferSize, partSize), type));
+            sender.accept(new SplitPacketHeader(id, Math.ceilDiv(bufferSize, partSize), type.id()));
             int i = 0;
             for (int index = 0; index < bufferSize; index += partSize) {
                 int resolvedPartSize = Math.min(bufferSize - index, partSize);
                 var buffer1 = buffer.retainedSlice(buffer.readerIndex(), resolvedPartSize);
                 buffer.skipBytes(resolvedPartSize);
-                var packet = new SplitPacketBody(id, i, buffer1.array());
-                sender.accept(packet);
+                sender.accept(new SplitPacketBody(id, i, buffer1.array()));
                 i++;
             }
             buffer.release();
@@ -127,21 +126,21 @@ public class PacketSplitter {
         );
     }
 
-    record SplitPacketHeader(UUID id, int total, Type<?> type) implements CustomPacketPayload {
+    record SplitPacketHeader(UUID id, int total, ResourceLocation typeId) implements CustomPacketPayload {
         public static final Type<SplitPacketHeader> TYPE = new Type<>(AnvilCraft.of("split_packet_header"));
         public static final StreamCodec<ByteBuf, SplitPacketHeader> STREAM_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC,
             SplitPacketHeader::id,
             ByteBufCodecs.VAR_INT,
             SplitPacketHeader::total,
-            Constants.PAYLOAD_TYPE_STREAM_CODEC,
-            SplitPacketHeader::type,
+            ResourceLocation.STREAM_CODEC,
+            SplitPacketHeader::typeId,
             SplitPacketHeader::new
         );
         public static final IPayloadHandler<SplitPacketHeader> HANDLER = PacketCollector::header;
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public Type<SplitPacketHeader> type() {
             return TYPE;
         }
     }
@@ -160,7 +159,7 @@ public class PacketSplitter {
         public static final IPayloadHandler<SplitPacketBody> HANDLER = PacketCollector::body;
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public Type<SplitPacketBody> type() {
             return TYPE;
         }
     }

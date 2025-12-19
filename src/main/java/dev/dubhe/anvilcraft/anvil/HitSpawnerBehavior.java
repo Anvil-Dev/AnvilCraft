@@ -38,7 +38,7 @@ public class HitSpawnerBehavior implements IAnvilBehavior {
         if (level instanceof ServerLevel serverLevel) {
             RandomSource randomSource = serverLevel.getRandom();
             float f = randomSource.nextFloat();
-            if (fallDistance < 1) {
+            if (fallDistance <= 1) {
                 fallDistance = 1.1f;
             }
             if (f <= (1 / fallDistance)) {

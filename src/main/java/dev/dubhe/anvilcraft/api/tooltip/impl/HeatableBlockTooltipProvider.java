@@ -26,7 +26,7 @@ public class HeatableBlockTooltipProvider extends ITooltipProvider.BlockEntityTo
         HeatRecorder.getTier(entity.getLevel(), entity.getBlockPos(), entity.getBlockState())
             .ifPresent(tier -> components.add(ITooltipProvider.withIndentAndMerge(Component.translatable(
                 "tooltip.anvilcraft.heat.tier",
-                tier.toComponent()
+                tier.getDisplayName()
             ).withStyle(ChatFormatting.GRAY))));
         Util.castSafely(entity, HeatableBlockEntity.class)
             .map(HeatableBlockEntity::getDuration)

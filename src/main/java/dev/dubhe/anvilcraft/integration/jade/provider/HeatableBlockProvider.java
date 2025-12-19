@@ -20,7 +20,7 @@ public enum HeatableBlockProvider implements IBlockComponentProvider, IServerDat
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         CompoundTag serverData = accessor.getServerData();
         HeatRecorder.getTier(accessor.getLevel(), accessor.getPosition(), accessor.getBlockState()).ifPresent(
-            tier -> tooltip.add(Component.translatable("tooltip.anvilcraft.heat.tier", tier.toComponent())));
+            tier -> tooltip.add(Component.translatable("tooltip.anvilcraft.heat.tier", tier.getDisplayName())));
         if (serverData.contains("duration")) {
             tooltip.add(Component.translatable(
                 "tooltip.anvilcraft.heat.duration",

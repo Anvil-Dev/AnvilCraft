@@ -10,6 +10,10 @@ public class Lazy<T> {
         this.supplier = supplier;
     }
 
+    public boolean isGotten() {
+        return this.instance != null;
+    }
+
     public T get() {
         synchronized (supplier) {
             if (instance == null) {

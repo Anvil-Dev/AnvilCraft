@@ -6,7 +6,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -17,29 +17,35 @@ import java.util.UUID;
 
 public class PacketCollector {
     private static final HashMap<UUID, PacketCollector> COLLECTORS = new HashMap<>();
-    private final CustomPacketPayload.Type<?> type;
+    private final ResourceLocation typeId;
     private final byte[][] received;
 
+    private final RegistryAccess registryAccess;
     private final ICommonPacketListener listener;
     private final ConnectionProtocol protocol;
     private final PacketFlow flow;
 
     public PacketCollector(
         int total,
-        CustomPacketPayload.Type<?> type,
+        ResourceLocation typeId,
+        RegistryAccess registryAccess,
         ICommonPacketListener listener,
         ConnectionProtocol protocol,
         PacketFlow flow
     ) {
-        this.type = type;
+        this.typeId = typeId;
         this.received = new byte[total][];
+        this.registryAccess = registryAccess;
         this.listener = listener;
         this.protocol = protocol;
         this.flow = flow;
     }
 
     static void header(PacketSplitter.SplitPacketHeader header, IPayloadContext ctx) {
-        COLLECTORS.put(header.id(), new PacketCollector(header.total(), header.type(), ctx.listener(), ctx.protocol(), ctx.flow()));
+        COLLECTORS.put(
+            header.id(),
+            new PacketCollector(header.total(), header.typeId(), ctx.player().registryAccess(), ctx.listener(), ctx.protocol(), ctx.flow())
+        );
     }
 
     static void body(PacketSplitter.SplitPacketBody body, IPayloadContext ignored) {
@@ -56,11 +62,11 @@ public class PacketCollector {
 
     @SuppressWarnings({"UnstableApiUsage", "DataFlowIssue"})
     private void constructAndLoadPacket() {
-        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
+        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), this.registryAccess, ConnectionType.NEOFORGE);
         for (byte[] bytes : this.received) {
             buf.writeBytes(bytes);
         }
-        var packet = NetworkRegistry.getCodec(this.type.id(), this.protocol, this.flow).decode(buf);
+        var packet = NetworkRegistry.getCodec(this.typeId, this.protocol, this.flow).decode(buf);
         if (this.flow.isServerbound()) {
             NetworkRegistry.handleModdedPayload(Util.cast(this.listener), packet.toVanillaServerbound());
         } else if (this.flow.isClientbound()) {

@@ -26,6 +26,12 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_LEFT_ALT
     );
+    public static final Lazy<KeyMapping> USE_PILL_BOX = register(
+        "use_pill_box",
+        KeyConflictContext.IN_GAME,
+        Type.KEYSYM,
+        GLFW.GLFW_KEY_V
+    );
 
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {
@@ -36,5 +42,6 @@ public class ModKeyMappings {
         event.register(SWITCH_PHASE.get());
         event.register(TOGGLE_GOGGLE.get());
         event.register(SWITCH_RESONATE_MODE.get());
+        event.register(USE_PILL_BOX.get());
     }
 }

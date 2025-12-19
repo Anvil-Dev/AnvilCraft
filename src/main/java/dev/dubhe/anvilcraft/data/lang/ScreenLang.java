@@ -250,6 +250,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.match_component", "Match Component");
         provider.add("screen.anvilcraft.filter.mismatch_component", "Mismatch Component");
 
+        provider.add("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit", "Scroll mouse wheel to change stack limit");
+
         provider.add("screen.anvilcraft.shulker_container.title", "Shulker Container");
         provider.add("screen.anvilcraft.shulker_container.waiting_sync", "Waiting for Server...");
 

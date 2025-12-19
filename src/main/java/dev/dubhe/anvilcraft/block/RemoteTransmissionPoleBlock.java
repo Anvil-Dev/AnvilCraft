@@ -104,7 +104,7 @@ public class RemoteTransmissionPoleBlock
     }
 
     @Override
-    protected BlockState placedState(Vertical4PartHalf part, BlockState state) {
+    public BlockState placedState(Vertical4PartHalf part, BlockState state) {
         return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
     }
 

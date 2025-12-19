@@ -34,6 +34,9 @@ public class AnvilCraftClientConfig {
     @CollapsibleObject
     public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();
 
+    @Comment("Add a tooltip line that shows multiphase stored ID")
+    public boolean showMultiphaseStoredId = false;
+
     public static class IonoCraftBackpackHud {
         @Comment("If true, will show Ionocraft Backpack current power in hud")
         public boolean enabled = true;

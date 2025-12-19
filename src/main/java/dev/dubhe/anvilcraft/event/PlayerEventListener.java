@@ -7,7 +7,9 @@ import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
@@ -28,12 +30,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
@@ -70,11 +72,11 @@ public class PlayerEventListener {
         if (
             item.is(ModItems.MAGNET)
             || (item.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(item) == MultitoolItem.MAGNET_MODE)
-            || item.is(Tags.Items.BUCKETS)
+            || item.is(ModItemTags.ANVIL_HAMMER)
         ) {
             return;
         }
-        if (player.isShiftKeyDown() || entities.isEmpty()) {
+        if (!player.isShiftKeyDown() || entities.isEmpty()) {
             return;
         }
         MagnetizedNodeEntity node = entities.getFirst();
@@ -88,6 +90,19 @@ public class PlayerEventListener {
         itemEntity.setPickUpDelay(60);
         level.addFreshEntity(itemEntity);
         event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void preventUseWhenRocketJump(UseItemOnBlockEvent event) {
+        var player = event.getPlayer();
+        if (
+            event.getUsePhase() == UseItemOnBlockEvent.UsePhase.ITEM_AFTER_BLOCK
+            && event.getHand() == InteractionHand.OFF_HAND
+            && player.getMainHandItem().is(ModItemTags.ANVIL_HAMMER)
+            && AnvilHammerItem.canRocketJump(player)
+        ) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
