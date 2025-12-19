@@ -39,7 +39,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private final Level level;
     public ContainerStorage storage;
 
-    private Int2BooleanMap slotsOrder;
+    public Int2BooleanMap slotsOrder;
 
     @SuppressWarnings("DataFlowIssue")
     public ShulkerContainerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
@@ -93,7 +93,8 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         }
     }
 
-    private void addContainerSlots() {
+    public void addContainerSlots() {
+        if (this.slots.size() > ShulkerContainerMenu.VANILLA_SLOT_COUNT) return;
         for (int i = 0; i < 6; ++i) {
             for (int j = 0; j < 9; ++j) {
                 this.addSlot(new ShulkerContainerSlot(this.storage, i, j, 114, 18, 18));
@@ -101,10 +102,24 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         }
     }
 
+    public void removeContainerSlots() {
+        this.slots.subList(ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX, this.slots.size()).clear();
+    }
+
     public boolean isWaitingServerSync() {
+        STORAGE_CHECK:
         if (this.storage == null) {
-            ContainerStorages.get().getStorage(this.blockEntity.getStorageId())
-                .ifPresent(storage -> this.storage = storage);
+            var storageOp = ContainerStorages.get().getStorage(this.blockEntity.getStorageId());
+            if (storageOp.isEmpty()) break STORAGE_CHECK;
+            var storage = storageOp.get();
+            this.storage = storage;
+            for (
+                int i = ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX;
+                i < ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX + ShulkerContainerMenu.TE_INVENTORY_SLOT_COUNT;
+                i++
+            ) {
+                Util.<ShulkerContainerSlot>cast(this.getSlot(i)).setStorage(storage);
+            }
         }
         return this.storage == null;
     }
@@ -129,14 +144,11 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         return Mth.clamp((float) rowIndex / (float) this.calculateRowCount(), 0.0F, 1.0F);
     }
 
-    public float subtractInputFromScroll(float scrollOffs, double input) {
-        return Mth.clamp(scrollOffs - (float) (input / (double) this.calculateRowCount()), 0.0F, 1.0F);
-    }
-
     /**
      * Updates the gui slot's ItemStacks based on scroll position.
      */
     public void scrollTo(float pos) {
+        if (this.isWaitingServerSync()) return;
         int row = this.getRowIndexForScroll(pos);
 
         for (int rowDiff = 0; rowDiff < 6; rowDiff++) {
@@ -196,7 +208,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (this.moveItemToActiveSlot(index)) return ItemStack.EMPTY; // EMPTY_ITEM
+            if (this.moveItemToStorage(index)) return ItemStack.EMPTY; // EMPTY_ITEM
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
             if (!this.moveItemToPlayer(index)) return ItemStack.EMPTY;
@@ -214,7 +226,8 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         return copyOfSourceStack;
     }
 
-    private boolean moveItemToActiveSlot(int sourceIndex) {
+    private boolean moveItemToStorage(int sourceIndex) {
+        if (this.isWaitingServerSync()) return false;
         Slot source = this.slots.get(sourceIndex);
         ItemStack stack = source.getItem();
         if (!this.storage.isMaxEntries()) {

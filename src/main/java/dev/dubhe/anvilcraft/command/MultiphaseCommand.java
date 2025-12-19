@@ -118,7 +118,7 @@ public class MultiphaseCommand {
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
                                 .withHoverEvent(new HoverEvent(
                                     HoverEvent.Action.SHOW_TEXT,
-                                    Component.translatable("command.anvilcraft.multiphase.remove.success.hovering")
+                                    CommandUtil.clickToRunCmdMsg()
                                 ))
                         )
                     );

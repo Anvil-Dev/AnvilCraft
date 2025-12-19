@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.container.category;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -17,8 +18,8 @@ public record DataComponentCategory(ItemStack icon, Component name, DataComponen
     }
 
     @Override
-    public boolean test(ItemStack stack) {
-        return this.predicate.test(stack);
+    public boolean test(UnlimitedItemStack stack) {
+        return this.predicate.test(stack.getStack());
     }
 
     @Override

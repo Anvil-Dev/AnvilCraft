@@ -12,8 +12,8 @@ import net.minecraft.world.item.ItemStack;
 @Setter
 public class ShulkerContainerSlot extends Slot {
     private static final Container EMPTY = new SimpleContainer(0);
-    private final ContainerStorage storage;
     private final int containerSlot;
+    private ContainerStorage storage;
     private int index;
     @Getter
     private boolean folded;
@@ -31,6 +31,7 @@ public class ShulkerContainerSlot extends Slot {
 
     @Override
     public ItemStack getItem() {
+        if (this.storage == null) return ItemStack.EMPTY;
         return this.storage.getItem(this.index).copy().toStack();
     }
 
@@ -91,6 +92,11 @@ public class ShulkerContainerSlot extends Slot {
     @Override
     public boolean isSameInventory(Slot other) {
         return false;
+    }
+
+    @Override
+    public boolean isActive() {
+        return super.isActive() && this.storage != null;
     }
 
     public boolean isFull() {

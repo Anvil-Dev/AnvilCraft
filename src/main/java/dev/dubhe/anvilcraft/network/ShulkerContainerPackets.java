@@ -3,9 +3,9 @@ package dev.dubhe.anvilcraft.network;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.ContainerStorages;
-import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
+import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import net.minecraft.core.BlockPos;
@@ -15,11 +15,17 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,7 +51,7 @@ public class ShulkerContainerPackets {
             StoragesSync.STREAM_CODEC,
             StoragesSync.HANDLER
         );
-        registrar.playToClient(
+        registrar.playBidirectional(
             IdSync.TYPE,
             IdSync.STREAM_CODEC,
             IdSync.HANDLER
@@ -118,10 +124,11 @@ public class ShulkerContainerPackets {
         }
 
         private void serverHandler(IPayloadContext ctx) {
+            Player player = ctx.player();
             ctx.enqueueWork(
-                () -> ctx.player().level()
+                () -> player.level()
                     .getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get())
-                    .ifPresent(ShulkerContainerBlockEntity::someoneClosedMenu)
+                    .ifPresent(entity -> entity.someoneClosedMenu(player))
             );
         }
     }
@@ -147,16 +154,35 @@ public class ShulkerContainerPackets {
         }
     }
 
-    public record IdSync(BlockPos pos, UUID id) implements CustomPacketPayload {
+    public record IdSync(BlockPos pos, Optional<UUID> id) implements CustomPacketPayload {
         public static final Type<IdSync> TYPE = ShulkerContainerPackets.of("id_sync");
         public static final StreamCodec<RegistryFriendlyByteBuf, IdSync> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC,
             IdSync::pos,
-            UUIDUtil.STREAM_CODEC,
+            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
             IdSync::id,
             IdSync::new
         );
-        public static final IPayloadHandler<IdSync> HANDLER = IdSync::clientHandler;
+        public static final IPayloadHandler<IdSync> HANDLER = new DirectionalPayloadHandler<>(IdSync::clientHandler, IdSync::serverHandler);
+
+        /**
+         * 客户端构造函数
+         *
+         * @param pos 方块实体位置
+         */
+        public IdSync(BlockPos pos) {
+            this(pos, Optional.empty());
+        }
+
+        /**
+         * 服务端构造函数
+         *
+         * @param pos 方块实体位置
+         * @param id 存储ID
+         */
+        public IdSync(BlockPos pos, UUID id) {
+            this(pos, Optional.of(id));
+        }
 
         @Override
         public Type<IdSync> type() {
@@ -164,10 +190,22 @@ public class ShulkerContainerPackets {
         }
 
         private void clientHandler(IPayloadContext ctx) {
+            ctx.enqueueWork(() -> Util.ifAllPresent(
+                this.id,
+                () -> ctx.player().level().getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get()),
+                (id, be) -> be.syncStorageId(id)
+            ));
+        }
+
+        private void serverHandler(IPayloadContext ctx) {
+            ServerLevel level = Util.cast(ctx.player().level());
             ctx.enqueueWork(
-                () -> ctx.player().level()
-                    .getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get())
-                    .ifPresent(scBE -> scBE.syncStorageId(this.id))
+                () -> level.getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get())
+                    .ifPresent(be -> PacketDistributor.sendToPlayersTrackingChunk(
+                        level,
+                        new ChunkPos(this.pos),
+                        new IdSync(this.pos, be.getStorageId())
+                    ))
             );
         }
     }

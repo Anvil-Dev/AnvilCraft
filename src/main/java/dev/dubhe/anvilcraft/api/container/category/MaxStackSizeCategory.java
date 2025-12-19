@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.util.CodecUtil;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -13,13 +14,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 public record MaxStackSizeCategory(ItemStack icon, Component name, MinMaxBounds.Ints maxSize) implements ICategory {
-    public MaxStackSizeCategory(ItemLike icon, String prefix, MinMaxBounds.Ints maxSize) {
-        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), maxSize);
+    public MaxStackSizeCategory(ItemLike icon, String suffix, MinMaxBounds.Ints maxSize) {
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(suffix), maxSize);
     }
 
     @Override
-    public boolean test(ItemStack stack) {
-        return this.maxSize.matches(stack.getMaxStackSize());
+    public boolean test(UnlimitedItemStack stack) {
+        return this.maxSize.matches(stack.getStack().getMaxStackSize());
     }
 
     @Override

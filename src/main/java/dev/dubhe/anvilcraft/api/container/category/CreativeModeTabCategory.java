@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.container.category;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -15,14 +16,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 public record CreativeModeTabCategory(ItemStack icon, Component name, ResourceKey<CreativeModeTab> tabKey) implements ICategory {
-    public CreativeModeTabCategory(ItemLike icon, String prefix, ResourceKey<CreativeModeTab> tabKey) {
-        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), tabKey);
+    public CreativeModeTabCategory(ItemLike icon, String suffix, ResourceKey<CreativeModeTab> tabKey) {
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(suffix), tabKey);
     }
 
     @Override
-    public boolean test(ItemStack stack) {
+    public boolean test(UnlimitedItemStack stack) {
         return BuiltInRegistries.CREATIVE_MODE_TAB.getOptional(this.tabKey)
-            .map(tab -> tab.contains(stack))
+            .map(tab -> tab.contains(stack.getStack()))
             .orElse(false);
     }
 

@@ -2,26 +2,30 @@ package dev.dubhe.anvilcraft.api.container;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.api.container.category.ICategory;
+import dev.dubhe.anvilcraft.api.container.category.store.Categories;
+import dev.dubhe.anvilcraft.api.container.category.store.ClientCategories;
 import dev.dubhe.anvilcraft.api.container.item.ItemEntries;
 import dev.dubhe.anvilcraft.api.container.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.DistExecutor;
+import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 @Getter
@@ -32,9 +36,7 @@ public class ContainerStorage {
             .forGetter(ContainerStorage::getId),
         ItemEntries.CODEC
             .forGetter(ContainerStorage::getEntries),
-        ICategory.CODEC
-            .listOf()
-            .fieldOf("categories")
+        Categories.CODEC
             .forGetter(ContainerStorage::getCategories),
         Upgrades.CODEC.codec()
             .fieldOf("upgrades")
@@ -45,7 +47,7 @@ public class ContainerStorage {
         ContainerStorage::getId,
         ItemEntries.STREAM_CODEC,
         ContainerStorage::getEntries,
-        ICategory.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        Categories.STREAM_CODEC,
         ContainerStorage::getCategories,
         Upgrades.STREAM_CODEC,
         ContainerStorage::getUpgrades,
@@ -54,19 +56,27 @@ public class ContainerStorage {
     private Component name = ModBlocks.SHULKER_CONTAINER.get().getName();
     private final UUID id;
     private final ItemEntries entries;
-    private final List<ICategory> categories = new ArrayList<>();
+    private final Categories categories;
     private final Upgrades upgrades = new Upgrades();
 
     public ContainerStorage(UUID id) {
         this.id = id;
         this.entries = new ItemEntries(this.upgrades);
+        AtomicReference<Categories> categories = new AtomicReference<>(Categories.create());
+        DistExecutor.run(Dist.CLIENT, () -> () -> categories.set(ClientCategories.create()));
+        this.categories = categories.get();
     }
 
-    private ContainerStorage(UUID id, ItemEntries entries, List<ICategory> categories, Upgrades upgrades) {
+    private ContainerStorage(UUID id, ItemEntries entries, Categories categories, Upgrades upgrades) {
         this(id);
         this.entries.sync(entries, upgrades);
-        this.categories.addAll(categories);
+        this.categories.sync(categories);
         this.upgrades.sync(upgrades);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ClientCategories getClientCategories() {
+        return Util.cast(this.getCategories());
     }
 
     public int addItem(ItemStack stack) {
@@ -110,21 +120,24 @@ public class ContainerStorage {
         Comparator<UnlimitedItemStack> sorter,
         boolean shouldFold
     ) {
-        return this.entries.getOrder(filter, sorter, shouldFold);
+        AtomicReference<Predicate<UnlimitedItemStack>> filterRef = new AtomicReference<>(filter);
+        // noinspection DataFlowIssue
+        DistExecutor.run(Dist.CLIENT, () -> () -> filterRef.set(
+            filter.and(this.getClientCategories().getEnabled(Minecraft.getInstance().level.registryAccess())::test)
+        ));
+        return this.entries.getOrder(filterRef.get(), sorter, shouldFold);
     }
 
     public void sync(ContainerStorage storage) {
         this.entries.clear();
         this.entries.sync(storage.entries, storage.upgrades);
-        this.categories.clear();
-        this.categories.addAll(storage.categories);
+        this.categories.sync(storage.categories);
         this.upgrades.sync(storage.upgrades);
         this.markDirty();
     }
 
     public void applyCategory(ContainerStorage source) {
-        this.categories.clear();
-        this.categories.addAll(source.categories);
+        this.categories.sync(source.categories);
         this.markDirty();
     }
 

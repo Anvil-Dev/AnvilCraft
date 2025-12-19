@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.util.ClassUtil;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.SneakyThrows;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -14,27 +16,73 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
-public record ItemClassCategory(ItemStack icon, Component name, String clazz) implements ICategory {
-    private static ClassLoader loader;
+import java.util.Objects;
 
-    private static ClassLoader getLoader() {
-        if (ItemClassCategory.loader != null) return ItemClassCategory.loader;
-        return ItemClassCategory.loader = ClassLoader.getSystemClassLoader();
+public final class ItemClassCategory implements ICategory {
+    private final ItemStack icon;
+    private final Component name;
+    private final String clazz;
+    private Class<?> loadedClass;
+
+    public ItemClassCategory(ItemStack icon, Component name, String clazz) {
+        this.icon = icon;
+        this.name = name;
+        this.clazz = clazz;
     }
 
-    public ItemClassCategory(ItemLike icon, String prefix, Class<? extends Item> clazz) {
-        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), clazz.getName());
+    public ItemClassCategory(ItemLike icon, String suffix, Class<? extends Item> clazz) {
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(suffix), clazz.getName());
     }
 
     @Override
     @SneakyThrows
-    public boolean test(ItemStack stack) {
-        return ItemClassCategory.getLoader().loadClass(this.clazz).isInstance(stack.getItem());
+    public boolean test(UnlimitedItemStack stack) {
+        if (this.loadedClass == null) {
+            this.loadedClass = ClassUtil.getLoadedClass(this.clazz);
+        }
+        return this.loadedClass != null && this.loadedClass.isAssignableFrom(stack.getItem().getClass());
     }
 
     @Override
     public Type getType() {
         return ModCategories.ITEM_CLASS.get();
+    }
+
+    @Override
+    public ItemStack icon() {
+        return icon;
+    }
+
+    @Override
+    public Component name() {
+        return name;
+    }
+
+    public String clazz() {
+        return clazz;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (ItemClassCategory) obj;
+        return Objects.equals(this.icon, that.icon)
+               && Objects.equals(this.name, that.name)
+               && Objects.equals(this.clazz, that.clazz);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.icon, this.name, this.clazz);
+    }
+
+    @Override
+    public String toString() {
+        return "ItemClassCategory["
+               + "icon=" + this.icon + ", "
+               + "name=" + this.name + ", "
+               + "clazz=" + this.clazz + ']';
     }
 
     public static class Type implements ICategory.Type<ItemClassCategory> {

@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.constant.ClientConstants;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
@@ -27,13 +28,13 @@ import java.util.List;
 import java.util.Optional;
 
 public record RecipeBookCategoryCategory(ItemStack icon, Component name, String categories) implements IClientCategory {
-    public RecipeBookCategoryCategory(ItemLike icon, String prefix, String categories) {
-        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), categories);
+    public RecipeBookCategoryCategory(ItemLike icon, String suffix, String categories) {
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(suffix), categories);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public boolean testClient(ItemStack stack) {
+    public boolean testClient(UnlimitedItemStack stack) {
         Optional<RecipeBookCategories> categories = ClientConstants.CATEGORIES_CODEC.decode(JavaOps.INSTANCE, this.categories)
             .result()
             .map(Pair::getFirst);
@@ -44,10 +45,7 @@ public record RecipeBookCategoryCategory(ItemStack icon, Component name, String 
             .orElse(List.of());
         for (RecipeCollection collection : collections) {
             for (RecipeHolder<?> recipe : collection.getRecipes()) {
-                if (ItemStack.isSameItemSameComponents(
-                    recipe.value().getResultItem(Minecraft.getInstance().player.registryAccess()),
-                    stack
-                )) {
+                if (stack.isSameItemSameComponents(recipe.value().getResultItem(Minecraft.getInstance().player.registryAccess()))) {
                     return true;
                 }
             }

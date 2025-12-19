@@ -167,7 +167,6 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
@@ -229,7 +228,6 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.function.Supplier;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRATE;
 import static dev.dubhe.anvilcraft.AnvilCraft.of;
@@ -1364,6 +1362,7 @@ public class ModBlocks {
             .requiresCorrectToolForDrops()
         )
         .item(ShulkerContainerBlockItem::new)
+        .properties(properties -> properties.stacksTo(16))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)

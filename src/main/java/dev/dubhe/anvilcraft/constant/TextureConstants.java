@@ -4,12 +4,20 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.resources.ResourceLocation;
 
 public class TextureConstants {
-    public static final ResourceLocation SHULKER_CONTAINER_BG = TextureConstants.texture("gui/container/shulker_container/background");
+    public static final ResourceLocation SHULKER_CONTAINER_BG = TextureConstants.texture(
+        "gui/container/shulker_container/background"
+    );
 
-    public static final ResourceLocation SHULKER_CONTAINER_CANCEL = TextureConstants.texture("gui/container/shulker_container/cancel");
-    public static final ResourceLocation SHULKER_CONTAINER_CONFIRM = TextureConstants.texture("gui/container/shulker_container/confirm");
+    public static final ResourceLocation SHULKER_CONTAINER_CANCEL = TextureConstants.texture(
+        "gui/container/shulker_container/cancel"
+    );
+    public static final ResourceLocation SHULKER_CONTAINER_CONFIRM = TextureConstants.texture(
+        "gui/container/shulker_container/confirm"
+    );
 
-    public static final ResourceLocation SHULKER_CONTAINER_CATEGORY = TextureConstants.texture("gui/container/shulker_container/category");
+    public static final ResourceLocation SHULKER_CONTAINER_CATEGORY = TextureConstants.texture(
+        "gui/container/shulker_container/category"
+    );
     public static final ResourceLocation SHULKER_CONTAINER_CATEGORY_ADD = TextureConstants.texture(
         "gui/container/shulker_container/category_add"
     );
@@ -20,13 +28,19 @@ public class TextureConstants {
         "gui/container/shulker_container/category_setting_background"
     );
 
-    public static final ResourceLocation SHULKER_CONTAINER_NBT_FOLD = TextureConstants.texture("gui/container/shulker_container/nbt_fold");
+    public static final ResourceLocation SHULKER_CONTAINER_NBT_FOLD = TextureConstants.texture(
+        "gui/container/shulker_container/nbt_fold"
+    );
     public static final ResourceLocation SHULKER_CONTAINER_NBT_UNFOLD = TextureConstants.texture(
         "gui/container/shulker_container/nbt_unfold"
     );
 
-    public static final ResourceLocation SHULKER_CONTAINER_PUT = TextureConstants.texture("gui/container/shulker_container/put");
-    public static final ResourceLocation SHULKER_CONTAINER_TAKE = TextureConstants.texture("gui/container/shulker_container/take");
+    public static final ResourceLocation SHULKER_CONTAINER_PUT = TextureConstants.texture(
+        "gui/container/shulker_container/put"
+    );
+    public static final ResourceLocation SHULKER_CONTAINER_TAKE = TextureConstants.texture(
+        "gui/container/shulker_container/take"
+    );
 
     public static final ResourceLocation SHULKER_CONTAINER_SEQUENTIAL_ORDER = TextureConstants.texture(
         "gui/container/shulker_container/sequential_order"
@@ -59,8 +73,20 @@ public class TextureConstants {
         "gui/container/shulker_container/slider_small"
     );
 
-    public static final ResourceLocation SHULKER_CONTAINER_SLIDER_UPGRADE = TextureConstants.texture(
+    public static final ResourceLocation SHULKER_CONTAINER_UPGRADE = TextureConstants.texture(
         "gui/container/shulker_container/upgrade"
+    );
+    public static final ResourceLocation SHULKER_CONTAINER_UPGRADE_BACK = TextureConstants.texture(
+        "gui/container/shulker_container/upgrade_back"
+    );
+    public static final ResourceLocation SHULKER_CONTAINER_UPGRADE_BG = TextureConstants.texture(
+        "gui/container/shulker_container/upgrade_background"
+    );
+    public static final ResourceLocation SHULKER_CONTAINER_UPGRADE_CONFIRM = TextureConstants.texture(
+        "gui/container/shulker_container/upgrade_confirm"
+    );
+    public static final ResourceLocation SHULKER_CONTAINER_UPGRADE_PROGRESS = TextureConstants.texture(
+        "gui/container/shulker_container/upgrade_progress"
     );
 
     private static ResourceLocation texture(String path) {

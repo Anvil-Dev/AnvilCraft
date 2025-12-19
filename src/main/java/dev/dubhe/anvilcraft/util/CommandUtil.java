@@ -36,6 +36,10 @@ public class CommandUtil {
         return ERROR_NOT_FOUND.create(contentId, id);
     }
 
+    public static Component clickToRunCmdMsg() {
+        return Component.translatable("command.anvilcraft.universe.click_to_run_cmd");
+    }
+
     public static int sendSuccess(CommandSourceStack source, String key, Object... args) {
         return CommandUtil.sendSuccess(source, key, true, args);
     }

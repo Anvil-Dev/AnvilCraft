@@ -3,6 +3,9 @@ package dev.dubhe.anvilcraft.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.command.SubCommand;
 import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.container.item.ItemEntries;
@@ -10,6 +13,7 @@ import dev.dubhe.anvilcraft.api.container.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.init.command.ModSuggestionProviders;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.CommandUtil;
+import dev.dubhe.anvilcraft.util.component.MultilineComponentHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.UuidArgument;
@@ -19,10 +23,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
-import java.util.stream.Stream;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -50,7 +51,7 @@ public class ContainerStorageCommand {
         );
     }
 
-    private static int showInfo(CommandContext<CommandSourceStack> ctx) {
+    private static int showInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
 
         return ContainerStorageCommand.execWithStorage(
@@ -58,32 +59,23 @@ public class ContainerStorageCommand {
             storage -> {
                 ItemEntries entries = storage.getEntries();
                 Upgrades upgrades = storage.getUpgrades();
-                var msg = Stream.of(
-                    Component.translatable("command.anvilcraft.storage.info.name", storage.getName()),
-                    Component.translatable("command.anvilcraft.storage.info.id", storage.getId().toString()),
-                    Component.translatable("command.anvilcraft.storage.info.fullness", entries.entrySize(), upgrades.getEntryLimit()),
-                    Component.translatable(
-                        "command.anvilcraft.storage.info.entry_level",
-                        upgrades.getEntryLevel(),
-                        upgrades.getEntryLimit()
-                    ),
-                    Component.translatable(
-                        "command.anvilcraft.storage.info.stack_level",
-                        upgrades.getStackLevel(),
-                        upgrades.getStackPower()
-                    ),
-                    Component.translatable(
+                var msg = MultilineComponentHelper.create()
+                    .addln("command.anvilcraft.storage.info.name", storage.getName())
+                    .addln("command.anvilcraft.storage.info.id", storage.getId())
+                    .addln("command.anvilcraft.storage.info.fullness", entries.entrySize(), upgrades.getEntryLimit())
+                    .addln("command.anvilcraft.storage.info.entry_level", upgrades.getEntryLevel(), upgrades.getEntryLimit())
+                    .addln("command.anvilcraft.storage.info.stack_level", upgrades.getStackLevel(), upgrades.getStackPower())
+                    .addln(
                         "command.anvilcraft.storage.info.transfer_level",
                         upgrades.getTransfer().ordinal(),
                         upgrades.getTransfer().getDesc()
-                    )
-                ).reduce((msg1, msg2) -> msg1.append(ContainerStorageCommand.LF).append(msg2));
-                return CommandUtil.sendSuccess(source, msg::get, true);
+                    );
+                return CommandUtil.sendSuccess(source, msg::build, true);
             }
         );
     }
 
-    private static int removeStorage(CommandContext<CommandSourceStack> ctx) {
+    private static int removeStorage(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
 
         return ContainerStorageCommand.execWithUUID(
@@ -102,19 +94,19 @@ public class ContainerStorageCommand {
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
                                     .withHoverEvent(new HoverEvent(
                                         HoverEvent.Action.SHOW_TEXT,
-                                        Component.translatable("command.anvilcraft.storage.remove.success.hovering")
+                                        CommandUtil.clickToRunCmdMsg()
                                     ))
                             )
                         ),
                         true
                     );
                 }
-                return CommandUtil.sendFailure(source, Component.translatable("command.anvilcraft.storage.not_found", id.toString()));
+                throw CommandUtil.notFound(AnvilCraft.of("storage"), id);
             }
         );
     }
 
-    private static int recoverStorage(CommandContext<CommandSourceStack> ctx) {
+    private static int recoverStorage(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
 
         return ContainerStorageCommand.execWithUUID(
@@ -127,7 +119,7 @@ public class ContainerStorageCommand {
                         true
                     );
                 }
-                return CommandUtil.sendFailure(source, Component.translatable("command.anvilcraft.storage.not_found", id.toString()));
+                throw CommandUtil.notFound(AnvilCraft.of("storage"), id);
             }
         );
     }
@@ -141,41 +133,38 @@ public class ContainerStorageCommand {
         );
     }
 
-    private static int execWithUUID(CommandContext<CommandSourceStack> ctx, ToIntFunction<UUID> runnable) {
+    private static int execWithUUID(CommandContext<CommandSourceStack> ctx, SubCommand<UUID> sub) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
 
         UUID id;
         try {
             id = UuidArgument.getUuid(ctx, "id");
         } catch (IllegalArgumentException e) {
-            if (!source.isPlayer()) return CommandUtil.sendFailure(source, "command.anvilcraft.storage.no_id");
+            if (!source.isPlayer()) throw CommandUtil.ERROR_NO_ID.create();
             var player = source.getPlayer();
-            if (player == null) return CommandUtil.sendFailure(source, "command.anvilcraft.storage.no_id");
+            if (player == null) throw CommandUtil.ERROR_NO_ID.create();
 
             var stack = player.getMainHandItem();
-            if (stack.isEmpty()) return CommandUtil.sendFailure(source, "command.anvilcraft.storage.no_id");
+            if (stack.isEmpty()) throw CommandUtil.ERROR_NO_ID.create();
 
             var storage = stack.get(ModComponents.CONTAINER_STORAGE);
-            if (storage == null || storage.id().isEmpty()) return CommandUtil.sendFailure(source, "command.anvilcraft.storage.no_id");
+            if (storage == null || storage.id().isEmpty()) throw CommandUtil.ERROR_NO_ID.create();
 
             id = storage.id().get();
         }
 
-        return runnable.applyAsInt(id);
+        return sub.run(id);
     }
 
-    private static int execWithStorage(CommandContext<CommandSourceStack> ctx, ToIntFunction<ContainerStorage> runnable) {
+    private static int execWithStorage(
+        CommandContext<CommandSourceStack> ctx,
+        SubCommand<ContainerStorage> sub
+    ) throws CommandSyntaxException {
         return ContainerStorageCommand.execWithUUID(
             ctx, id -> {
-                CommandSourceStack source = ctx.getSource();
-
-                AtomicInteger result = new AtomicInteger();
-                ContainerStorages.get().getStorage(id).ifPresentOrElse(
-                    storage -> result.set(runnable.applyAsInt(storage)),
-                    () -> result.set(CommandUtil.sendFailure(source, "command.anvilcraft.storage.not_found", id.toString()))
-                );
-
-                return result.get();
+                var contentOp = ContainerStorages.get().getStorage(id);
+                if (contentOp.isEmpty()) throw CommandUtil.notFound(AnvilCraft.of("storage"), id);
+                return sub.run(contentOp.get());
             }
         );
     }

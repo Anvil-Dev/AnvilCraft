@@ -18,6 +18,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
@@ -25,9 +26,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +42,28 @@ import java.util.UUID;
 
 public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskCloneable, MenuProvider {
     private UUID storageId;
-    private int openingPlayers = 0;
+    private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
+        @Override
+        protected void onOpen(Level level, BlockPos pos, BlockState state) {
+            ShulkerContainerBlockEntity.playSound(level, pos, state, SoundEvents.CHEST_OPEN);
+        }
+
+        @Override
+        protected void onClose(Level level, BlockPos pos, BlockState state) {
+            ShulkerContainerBlockEntity.playSound(level, pos, state, SoundEvents.CHEST_CLOSE);
+        }
+
+        @Override
+        protected void openerCountChanged(Level level, BlockPos pos, BlockState state, int count, int openCount) {
+            ShulkerContainerBlockEntity.this.signalOpenCount(level, pos, state, count, openCount);
+        }
+
+        @Override
+        protected boolean isOwnContainer(Player player) {
+            if (!(player.containerMenu instanceof ShulkerContainerMenu menu)) return false;
+            return menu.blockEntity == ShulkerContainerBlockEntity.this;
+        }
+    };
 
     public ShulkerContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -54,7 +78,9 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putUUID("storageId", this.getStorageId());
+        UUID id = this.getStorageId();
+        if (id == null) return;
+        tag.putUUID("storageId", id);
     }
 
     public @Nullable UUID getStorageIdRaw() {
@@ -139,30 +165,28 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
-        if (this.level != null && !this.level.isClientSide) this.openingPlayers++;
+        if (this.level != null && !this.level.isClientSide && !this.remove) {
+            this.openersCounter.incrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+
         return new ShulkerContainerMenu(ModMenuTypes.SHULKER_CONTAINER.get(), containerId, inventory, this);
     }
 
-    public void someoneClosedMenu() {
-        this.openingPlayers--;
-        if (this.openingPlayers <= 0) {
-            this.openingPlayers = 0;
-            if (this.level == null) return;
-            this.level.playSound(null, this.getBlockPos(), SoundEvents.SHULKER_BOX_CLOSE, SoundSource.BLOCKS);
-            ShulkerContainerBlock.updateState(
-                this.getBlockState().getBlock(),
-                this.level,
-                this.getBlockPos(),
-                ShulkerContainerBlock.OPENED,
-                false,
-                Block.UPDATE_ALL
-            );
+    public void someoneClosedMenu(Player player) {
+        if (!this.remove && !player.isSpectator()) {
+            this.openersCounter.decrementOpeners(player, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+    }
+
+    public void recheckOpen() {
+        if (!this.remove) {
+            this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
         }
     }
 
     public void setStorageId(UUID storageId) {
         this.storageId = storageId;
-        if (this.level == null || !(this.level instanceof ServerLevel serverLevel)) return;
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
             new ChunkPos(this.getBlockPos()),
@@ -177,6 +201,37 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
             this.getBlockPos(),
             pos -> this.level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
                 .ifPresent(entity -> entity.storageId = id)
+        );
+    }
+
+    @Override
+    public boolean triggerEvent(int id, int type) {
+        if (id == 1) {
+            ShulkerContainerBlock.updateState(
+                this.getBlockState().getBlock(),
+                this.level,
+                this.getBlockPos(),
+                ShulkerContainerBlock.OPENED,
+                type > 0,
+                Block.UPDATE_ALL
+            );
+            return true;
+        }
+        return super.triggerEvent(id, type);
+    }
+
+    protected void signalOpenCount(Level level, BlockPos pos, BlockState state, int eventId, int eventParam) {
+        level.blockEvent(pos, state.getBlock(), eventId, eventParam);
+    }
+
+    static void playSound(Level level, BlockPos pos, BlockState state, SoundEvent sound) {
+        level.playSound(
+            null,
+            state.getValue(ShulkerContainerBlock.HALF).toMain(pos),
+            sound,
+            SoundSource.BLOCKS,
+            0.5F,
+            level.random.nextFloat() * 0.1F + 0.9F
         );
     }
 }

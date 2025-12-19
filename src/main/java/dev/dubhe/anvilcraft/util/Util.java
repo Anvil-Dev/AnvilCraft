@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -165,25 +166,6 @@ public class Util {
         return op.isPresent();
     }
 
-    /**
-     * 一个用于解决以下情景的方法：
-     * <pre>{@code
-     *     public AClassConstructor(A value) {
-     *         // 这两个参数都需传入 value
-     *         this(value.voidMethod(), value.returnBMethod());
-     *     }
-     * }</pre>
-     *
-     * @param value 原参数
-     * @param consumer 需要在传入前调用的方法
-     * @param <T> 原参数的类型
-     * @return 原参数
-     */
-    public static <T> T run(T value, Consumer<T> consumer) {
-        consumer.accept(value);
-        return value;
-    }
-
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <T1, T2> void ifAllPresent(Optional<T1> op1, Supplier<Optional<T2>> op2Getter, BiConsumer<T1, T2> runnable) {
         if (op1.isEmpty()) return;
@@ -203,5 +185,11 @@ public class Util {
     public static <T> T run(T value, Consumer<T> consumer) {
         consumer.accept(value);
         return value;
+    }
+
+    /**
+     * 用于构建空的 {@link Button.OnPress} 或 {@link Consumer}
+     */
+    public static <T> void doNothing(T t) {
     }
 }

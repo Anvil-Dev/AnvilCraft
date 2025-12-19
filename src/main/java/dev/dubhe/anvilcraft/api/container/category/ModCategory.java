@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -27,7 +28,7 @@ public record ModCategory(ItemStack icon, Component name, String modId) implemen
     }
 
     @Override
-    public boolean test(ItemStack stack) {
+    public boolean test(UnlimitedItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(this.modId);
     }
 

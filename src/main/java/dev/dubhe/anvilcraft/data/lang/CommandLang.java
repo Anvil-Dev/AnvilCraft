@@ -26,12 +26,10 @@ public class CommandLang {
             "command.anvilcraft.multiphase.remove.success",
             "Successfully removed multiphase %1$s.\nYou can recover it by \"%2$s\""
         );
-        provider.add("command.anvilcraft.multiphase.remove.success.hovering", "Click to Run Command");
         provider.add("command.anvilcraft.multiphase.recover.success", "Successfully recovered multiphase %s");
         provider.add("command.anvilcraft.multiphase.recover.clear.success", "Successfully cleared recover station");
         provider.add("command.anvilcraft.multiphase.apply.not_player", "Command runner is not player");
 
-        provider.add("command.anvilcraft.storage.no_id", "No id provided");
         provider.add("command.anvilcraft.storage.not_found", "No storage using this id %s");
         provider.add("command.anvilcraft.storage.info.name", "Storage Name: %s");
         provider.add("command.anvilcraft.storage.info.id", "Storage ID: %s");
@@ -48,10 +46,10 @@ public class CommandLang {
             "command.anvilcraft.storage.remove.success",
             "Successfully removed storage %1$s.\nYou can recover it by \"%2$s\""
         );
-        provider.add("command.anvilcraft.storage.remove.success.hovering", "Click to Run Command");
         provider.add("command.anvilcraft.storage.recover.success", "Successfully recovered storage %s");
         provider.add("command.anvilcraft.storage.recover.clear.success", "Successfully cleared recover station");
 
         provider.add("command.anvilcraft.universe.no_id", "No ID provided and cannot find ID in items on hand");
+        provider.add("command.anvilcraft.universe.click_to_run_cmd", "Click to Run Command");
     }
 }

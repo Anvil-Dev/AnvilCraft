@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.container.category;
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.recipe.util.ISerializer;
 import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -13,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Predicate;
 
-public interface ICategory extends Predicate<ItemStack> {
+public interface ICategory extends Predicate<UnlimitedItemStack> {
     Codec<ICategory> DIRECT_CODEC = Codec.lazyInitialized(
         () -> ModRegistries.CATEGORY_TYPE_REGISTRY.byNameCodec().dispatch(ICategory::getType, Type::codec)
     );
@@ -30,6 +31,9 @@ public interface ICategory extends Predicate<ItemStack> {
     Component name();
 
     Type<? extends ICategory> getType();
+
+    @Override
+    boolean test(UnlimitedItemStack stack);
 
     static Component constructName(String suffix) {
         return Component.translatable("category.anvilcraft." + suffix);
@@ -55,7 +59,7 @@ public interface ICategory extends Predicate<ItemStack> {
         }
 
         @Override
-        public boolean test(ItemStack stack) {
+        public boolean test(UnlimitedItemStack stack) {
             return this.category.value().test(stack);
         }
     }

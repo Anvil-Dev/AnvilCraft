@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -45,8 +46,8 @@ public record FilterCategory(ItemStack icon, Component name, ItemStack filter) i
     }
 
     @Override
-    public boolean test(ItemStack stack) {
-        return FilterItem.filter(this.filter, stack);
+    public boolean test(UnlimitedItemStack stack) {
+        return FilterItem.filter(this.filter, stack.getStack());
     }
 
     @Override

@@ -8,6 +8,7 @@ public class ScreenLang {
      *
      * @param provider 提供器
      */
+    @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrateLangProvider provider) {
         provider.add("screen.anvilcraft.button.direction", "Output Direction: %s");
         provider.add("screen.anvilcraft.button.direction.down", "Down");
@@ -271,5 +272,16 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.shulker_container.nbt", "Fold Items with Diff. Nbt: Currently %s");
         provider.add("screen.anvilcraft.shulker_container.nbt.fold", "Yes");
         provider.add("screen.anvilcraft.shulker_container.nbt.unfold", "No");
+
+        provider.add("screen.anvilcraft.shulker_container.category", "Display Limit Mode: Currently %s");
+        provider.add("screen.anvilcraft.shulker_container.category.unlimited", "Unlimited");
+        provider.add("screen.anvilcraft.shulker_container.category.whitelist", "Whitelist");
+        provider.add("screen.anvilcraft.shulker_container.category.blacklist", "Blacklist");
+        provider.add("screen.anvilcraft.shulker_container.category.setting", "Add, Remove and Modify Categories");
+
+        provider.add("screen.anvilcraft.shulker_container.category.enabled", "Left Click to Remove, Right Click to Pin to Top");
+        provider.add("screen.anvilcraft.shulker_container.category.add", "Holding Filter Left Click to Add Custom Category");
+        provider.add("screen.anvilcraft.shulker_container.category.alternate.unremovable", "Left Click to Add");
+        provider.add("screen.anvilcraft.shulker_container.category.alternate.removable", "Left Click to Add, Right Click to Completely Remove");
     }
 }

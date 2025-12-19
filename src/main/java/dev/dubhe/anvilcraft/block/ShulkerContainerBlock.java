@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -13,9 +14,11 @@ import dev.dubhe.anvilcraft.util.ShapeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -202,6 +205,13 @@ public class ShulkerContainerBlock
     }
 
     @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        // 无脑抄的ChestBlock，不知道有没有用
+        BlockEntity entity = level.getBlockEntity(pos);
+        if (entity instanceof ShulkerContainerBlockEntity be) be.recheckOpen();
+    }
+
+    @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(HALF, state.getValue(HALF).rotate(rotation));
     }
@@ -237,7 +247,6 @@ public class ShulkerContainerBlock
     }
 
     // region VoxelShapes
-
     protected static final VoxelShape BOTTOM_NW = ShapeUtil.join(
         Block.box(2, 2, 2, 16, 16, 16),
         Block.box(0, 0, 0, 12, 8, 8),

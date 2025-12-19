@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
 import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -20,14 +21,14 @@ import java.util.List;
 import java.util.function.Function;
 
 public record HasDataComponentCategory(ItemStack icon, Component name, List<? extends DataComponentType<?>> types) implements ICategory {
-    public HasDataComponentCategory(ItemLike icon, String prefix, DataComponentType<?>... types) {
-        this(icon.asItem().getDefaultInstance(), ICategory.constructName(prefix), List.of(types));
+    public HasDataComponentCategory(ItemLike icon, String suffix, DataComponentType<?>... types) {
+        this(icon.asItem().getDefaultInstance(), ICategory.constructName(suffix), List.of(types));
     }
 
     @Override
-    public boolean test(ItemStack stack) {
+    public boolean test(UnlimitedItemStack stack) {
         for (DataComponentType<?> type : this.types) {
-            if (!stack.has(type)) return false;
+            if (!stack.getStack().has(type)) return false;
         }
         return true;
     }
