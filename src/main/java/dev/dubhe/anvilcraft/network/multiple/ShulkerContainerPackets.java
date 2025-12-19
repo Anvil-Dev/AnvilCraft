@@ -1,10 +1,12 @@
-package dev.dubhe.anvilcraft.network;
+package dev.dubhe.anvilcraft.network.multiple;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.ContainerStorages;
+import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
+import dev.dubhe.anvilcraft.util.NetworkUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
@@ -16,6 +18,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -60,6 +63,11 @@ public class ShulkerContainerPackets {
             RecoverClear.TYPE,
             RecoverClear.STREAM_CODEC,
             RecoverClear.HANDLER
+        );
+        registrar.playToServer(
+            CustomCategorySync.TYPE,
+            CustomCategorySync.STREAM_CODEC,
+            CustomCategorySync.HANDLER
         );
     }
 
@@ -222,6 +230,43 @@ public class ShulkerContainerPackets {
 
         private void clientHandler(IPayloadContext ctx) {
             ctx.enqueueWork(() -> ContainerStorages.get().clearRecover());
+        }
+    }
+
+    public record CustomCategorySync(UUID id, ICategory custom, boolean add) implements CustomPacketPayload {
+        public static final Type<CustomCategorySync> TYPE = ShulkerContainerPackets.of("custom_category_sync");
+        public static final StreamCodec<RegistryFriendlyByteBuf, CustomCategorySync> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC,
+            CustomCategorySync::id,
+            ICategory.STREAM_CODEC,
+            CustomCategorySync::custom,
+            ByteBufCodecs.BOOL,
+            CustomCategorySync::add,
+            CustomCategorySync::new
+        );
+        public static final IPayloadHandler<CustomCategorySync> HANDLER = CustomCategorySync::serverHandler;
+
+        @Override
+        public Type<CustomCategorySync> type() {
+            return TYPE;
+        }
+
+        private void serverHandler(IPayloadContext ctx) {
+            ServerPlayer player = Util.cast(ctx.player());
+            ctx.enqueueWork(
+                () -> {
+                    var storageOp = ContainerStorages.get().getStorage(this.id);
+                    if (storageOp.isEmpty()) return;
+                    var storage = storageOp.get();
+                    var categories = storage.getCategories();
+                    if (this.add) {
+                        categories.addCustom(this.custom);
+                    } else {
+                        categories.removeCustom(this.custom);
+                    }
+                    NetworkUtil.sendToAllPlayersExcluded(player.serverLevel(), player, new StorageSync(storage));
+                }
+            );
         }
     }
 }

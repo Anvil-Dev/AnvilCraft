@@ -1,20 +1,19 @@
-package dev.dubhe.anvilcraft.client.gui.component.shulkercontainer;
+package dev.dubhe.anvilcraft.client.gui.component.sc;
 
 import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.category.CategoryMode;
 import dev.dubhe.anvilcraft.api.container.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
 import dev.dubhe.anvilcraft.util.Scrollable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -60,12 +59,12 @@ public class CategoryList extends AbstractContainerWidget {
         }
     };
 
-    public CategoryList(int x, int y, ContainerStorage storage, Button.OnPress onPress) {
+    public CategoryList(int x, int y, @Nullable ContainerStorage storage, Button.OnPress categoryOnPress, Button.OnPress openSetting) {
         super(x, y, 92, 140, Component.empty());
 
         this.categoryButtons = new ArrayList<>();
-        this.categoryButtonOnPress = onPress;
-        this.sync(storage);
+        this.categoryButtonOnPress = categoryOnPress;
+        if (storage != null) this.sync(storage);
         this.settingButton = new TexturedButton(
             x,
             0,
@@ -75,9 +74,7 @@ public class CategoryList extends AbstractContainerWidget {
             20,
             86,
             40,
-            button -> {
-                // 打开设置界面
-            }
+            openSetting
         );
         this.enabledButtons = new Button[7];
         this.scrollable.scrollTo();
@@ -173,36 +170,15 @@ public class CategoryList extends AbstractContainerWidget {
         this.visible = true;
 
         Map<CategoryProvider, CategoryMode> categories = storage.getClientCategories().getCategories();
-        if (categories.isEmpty()) {
-            var categoriesUpper = storage.getCategories();
-            Collections.addAll(
-                this.categoryButtons,
-                new CategoryButton(
-                    this.getX(),
-                    storage,
-                    categoriesUpper.addCategory(new CategoryProvider(ModCategories.MINECRAFT)),
-                    this.categoryButtonOnPress
-                ),
-                new CategoryButton(
-                    this.getX(),
-                    storage,
-                    categoriesUpper.addCategory(new CategoryProvider(ModCategories.BLOCK)),
-                    this.categoryButtonOnPress
-                ),
-                new CategoryButton(
-                    this.getX(),
-                    storage,
-                    categoriesUpper.addCategory(new CategoryProvider(ModCategories.UNSTACKABLE)),
-                    this.categoryButtonOnPress
-                )
-            );
-        } else {
-            int i = 0;
-            for (CategoryProvider provider : categories.keySet()) {
-                this.categoryButtons.add(
-                    new CategoryButton(this.getX(), storage, i++, categories.get(provider), this.categoryButtonOnPress)
-                );
-            }
+        int i = 0;
+        for (CategoryProvider provider : categories.keySet()) {
+            this.categoryButtons.add(new CategoryButton(
+                this.getX(),
+                storage,
+                i++,
+                categories.getOrDefault(provider, CategoryMode.UNLIMITED),
+                this.categoryButtonOnPress
+            ));
         }
     }
 }

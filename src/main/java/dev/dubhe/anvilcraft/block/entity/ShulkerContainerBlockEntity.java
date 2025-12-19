@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
-import dev.dubhe.anvilcraft.network.ShulkerContainerPackets;
+import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

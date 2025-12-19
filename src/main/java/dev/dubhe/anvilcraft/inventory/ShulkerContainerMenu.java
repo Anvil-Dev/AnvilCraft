@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ShulkerContainerMenu extends AbstractContainerMenu {
@@ -106,6 +107,11 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         this.slots.subList(ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX, this.slots.size()).clear();
     }
 
+    @Override
+    public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
+        super.initializeContents(stateId, items.subList(0, this.slots.size()), carried);
+    }
+
     public boolean isWaitingServerSync() {
         STORAGE_CHECK:
         if (this.storage == null) {
@@ -172,10 +178,6 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
                 }
             }
         }
-    }
-
-    public boolean canScroll() {
-        return !this.isWaitingServerSync() && this.storage.getEntries().stackSize() > 54;
     }
 
     // 致谢： diesieben07 |https://github.com/diesieben07/SevenCommons

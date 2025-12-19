@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.api.container.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
-import dev.dubhe.anvilcraft.util.CollectionUtil;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 @Getter
 @OnlyIn(Dist.CLIENT)
@@ -31,26 +32,34 @@ public class ClientCategories extends Categories {
     public static final MapCodec<ClientCategories> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Codec.unboundedMap(CategoryProvider.CODEC, CategoryMode.CODEC)
             .fieldOf("categories")
-            .forGetter(ClientCategories::getCategories)
+            .forGetter(ClientCategories::getCategories),
+        CodecUtil.collection(Categories::newCustoms, ICategory.CODEC)
+            .fieldOf("customs")
+            .forGetter(Categories::getCustoms)
     ).apply(ins, ClientCategories::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientCategories> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.map(HashMap::new, CategoryProvider.STREAM_CODEC, CategoryMode.STREAM_CODEC),
         ClientCategories::getCategories,
+        ICategory.STREAM_CODEC.apply(ByteBufCodecs.collection(it -> Categories.newCustoms())),
+        Categories::getCustoms,
         ClientCategories::new
     );
     private final Map<CategoryProvider, CategoryMode> categories;
 
-    private ClientCategories(Map<CategoryProvider, CategoryMode> categories) {
-        super(new ArrayList<>());
+    private ClientCategories(Map<CategoryProvider, CategoryMode> categories, TreeSet<ICategory> customs) {
+        super(new ArrayList<>(), customs);
         this.categories = new LinkedHashMap<>(categories);
     }
 
     public static ClientCategories create() {
-        return new ClientCategories(Map.of(
-            new CategoryProvider(ModCategories.MINECRAFT), CategoryMode.UNLIMITED,
-            new CategoryProvider(ModCategories.BLOCK), CategoryMode.UNLIMITED,
-            new CategoryProvider(ModCategories.UNSTACKABLE), CategoryMode.UNLIMITED
-        ));
+        return new ClientCategories(
+            Map.of(
+                new CategoryProvider(ModCategories.MINECRAFT), CategoryMode.UNLIMITED,
+                new CategoryProvider(ModCategories.BLOCK), CategoryMode.UNLIMITED,
+                new CategoryProvider(ModCategories.UNSTACKABLE), CategoryMode.UNLIMITED
+            ),
+            Categories.newCustoms()
+        );
     }
 
     public Enabled getEnabled(HolderLookup.Provider registries) {
@@ -93,20 +102,6 @@ public class ClientCategories extends Categories {
 
     public void changeMode(CategoryProvider provider, CategoryMode mode) {
         this.categories.put(provider, mode);
-    }
-
-    @Override
-    public int addCategory(CategoryProvider provider) {
-        int index = this.categories.size();
-        this.categories.put(provider, CategoryMode.UNLIMITED);
-        return index;
-    }
-
-    @Override
-    public CategoryProvider removeCategory(int index) {
-        var provider = CollectionUtil.get(this.categories.keySet(), index);
-        this.categories.remove(provider);
-        return provider;
     }
 
     @Override

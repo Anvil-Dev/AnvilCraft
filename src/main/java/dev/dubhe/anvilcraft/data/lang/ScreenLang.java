@@ -279,9 +279,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.shulker_container.category.blacklist", "Blacklist");
         provider.add("screen.anvilcraft.shulker_container.category.setting", "Add, Remove and Modify Categories");
 
-        provider.add("screen.anvilcraft.shulker_container.category.enabled", "Left Click to Remove, Right Click to Pin to Top");
+        provider.add("screen.anvilcraft.shulker_container.category.name", "Name: %s");
+        provider.add("screen.anvilcraft.shulker_container.category.enabled", "Left Click to Remove\nRight Click to Pin to Top");
         provider.add("screen.anvilcraft.shulker_container.category.add", "Holding Filter Left Click to Add Custom Category");
         provider.add("screen.anvilcraft.shulker_container.category.alternate.unremovable", "Left Click to Add");
-        provider.add("screen.anvilcraft.shulker_container.category.alternate.removable", "Left Click to Add, Right Click to Completely Remove");
+        provider.add("screen.anvilcraft.shulker_container.category.alternate.removable", "Left Click to Add\nRight Click to Completely Remove");
     }
 }

@@ -13,6 +13,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -65,5 +66,16 @@ public class CategoryProvider implements Function<HolderLookup.RegistryLookup<IC
 
     public boolean isCustom() {
         return this.provider.right().isPresent();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof CategoryProvider that)) return false;
+        return Objects.equals(this.getProvider(), that.getProvider());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getProvider());
     }
 }

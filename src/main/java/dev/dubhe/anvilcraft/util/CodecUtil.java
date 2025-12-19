@@ -9,7 +9,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.SequencedCollection;
+import java.util.function.Supplier;
 
 public class CodecUtil {
     /**
@@ -56,6 +59,17 @@ public class CodecUtil {
                 }
                 return queue;
             }
+        );
+    }
+
+    public static <C extends SequencedCollection<T>, T> Codec<C> collection(Supplier<C> collectionBuilder, Codec<T> elementCodec) {
+        return elementCodec.listOf().xmap(
+            list -> {
+                C c = collectionBuilder.get();
+                c.addAll(list);
+                return c;
+            },
+            ArrayList::new
         );
     }
 }

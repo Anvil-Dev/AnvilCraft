@@ -28,7 +28,7 @@ import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.network.RemoveMutedSoundPacket;
 import dev.dubhe.anvilcraft.network.RemoveTeslaFilterPacket;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
-import dev.dubhe.anvilcraft.network.ShulkerContainerPackets;
+import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
 import dev.dubhe.anvilcraft.network.SilencerSyncPacket;
 import dev.dubhe.anvilcraft.network.SliderInitPacket;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
