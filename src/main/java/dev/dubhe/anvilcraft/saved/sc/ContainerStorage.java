@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.container;
+package dev.dubhe.anvilcraft.saved.sc;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

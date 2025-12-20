@@ -43,9 +43,8 @@ import dev.dubhe.anvilcraft.init.loot.ModLootItemFunctions;
 import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModStorageDataFixers;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModUpgradeTypes;
+import dev.dubhe.anvilcraft.init.sc.ModCategories;
+import dev.dubhe.anvilcraft.init.sc.ModUpgradeTypes;
 import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -115,7 +114,6 @@ public class AnvilCraft {
         ModAmuletTypes.register(modEventBus);
         ModCategories.register(modEventBus);
         ModUpgradeTypes.register(modEventBus);
-        ModStorageDataFixers.register(modEventBus);
         // datagen
         AnvilCraftDatagen.init();
 

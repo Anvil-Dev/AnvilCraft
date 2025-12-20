@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.block.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
@@ -11,6 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -112,14 +112,14 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
             }
             if (this.level instanceof ServerLevel serverLevel) {
                 this.setStorageId(storages.create());
-                storages.syncToClient(serverLevel, this.getBlockPos(), this.storageId);
+                storages.sync2C(serverLevel, this.getBlockPos(), this.storageId);
             }
             return this.storageId;
         }
         if (this.level == null) throw new IllegalStateException("Unexpected no level");
         this.level.getBlockEntity(half.toMain(this.getBlockPos()), ModBlockEntities.SHULKER_CONTAINER.get())
             .ifPresent(entity -> this.setStorageId(entity.getStorageId()));
-        if (this.level instanceof ServerLevel serverLevel) storages.syncToClient(serverLevel, this.getBlockPos(), this.storageId);
+        if (this.level instanceof ServerLevel serverLevel) storages.sync2C(serverLevel, this.getBlockPos(), this.storageId);
         return this.storageId;
     }
 
@@ -151,8 +151,8 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
     public void applyDiskData(CompoundTag data) {
         ContainerStorages storages = ContainerStorages.get();
         Util.ifAllPresent(
-            storages.getStorage(data.getUUID("CategorySource")),
-            () -> storages.getStorage(this.getStorageId()),
+            storages.get(data.getUUID("CategorySource")),
+            () -> storages.get(this.getStorageId()),
             (source, target) -> target.applyCategory(source)
         );
     }

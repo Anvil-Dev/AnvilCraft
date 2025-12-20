@@ -14,7 +14,7 @@ public class CommandLang {
         provider.add("command.anvilcraft.powergrid.info.not_found", "No power grid found at position %1$s, %2$s, %3$s");
 
         provider.add("command.anvilcraft.multiphase.not_found", "No multiphase using this id %s");
-        provider.add("command.anvilcraft.multiphase.info.multiphase_id", "Multiphase ID: ");
+        provider.add("command.anvilcraft.multiphase.info.multiphase_id", "Multiphase ID: %s");
         provider.add("command.anvilcraft.multiphase.info.phases", "Phases: ");
         provider.add("command.anvilcraft.multiphase.info.custom_name", "Custom Name: ");
         provider.add("command.anvilcraft.multiphase.info.item_name", "Item Name: ");

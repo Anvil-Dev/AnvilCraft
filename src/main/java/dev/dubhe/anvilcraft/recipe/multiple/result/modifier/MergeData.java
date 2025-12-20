@@ -63,11 +63,19 @@ public record MergeData(List<ICustomDataComponent<?>> types) implements IResultM
         var required = type.getRequiredOthers();
         List<Object> data = new ArrayList<>();
         for (var entry : required.keySet()) {
-            ItemStack source = cache.computeIfAbsent(entry.getFirst(), input -> IResultModifier.getInput(ctx, input));
-            Object value = source.get(entry.getSecond());
-            if (value == null && !required.getBoolean(entry)) throw new IllegalArgumentException(
-                "The value of type %s cannot be null in the No.%d input.".formatted(entry.getSecond(), entry.getFirst()));
-            data.add(value);
+            Integer index = entry.getFirst();
+            // noinspection SwitchStatementWithTooFewBranches
+            data.add(switch (index) {
+                case IResultModifier.RESULT_NAME -> ctx.getResult().getItem().getDescription();
+                default -> {
+                    ItemStack source = cache.computeIfAbsent(index, input -> IResultModifier.getInput(ctx, input));
+                    Object value = source.get(entry.getSecond());
+                    if (value == null && !required.getBoolean(entry)) throw new IllegalArgumentException(
+                        "The value of type %s cannot be null in the No.%d input.".formatted(entry.getSecond(), index)
+                    );
+                    yield value;
+                }
+            });
         }
         T newData = type.make(data);
         T oldData = ctx.getResult().get(type.getDataComponentType());

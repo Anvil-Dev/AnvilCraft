@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.container.upgrade;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.container.upgrade.level.EntryLimitLevel;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModUpgradeTypes;
+import dev.dubhe.anvilcraft.init.sc.ModUpgradeTypes;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

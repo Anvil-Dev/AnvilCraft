@@ -41,15 +41,16 @@ public record Multiphase(LinkedList<Phase> phases) {
         index = index % Math.min(DEFAULT_SUFFIXES.length(), MAX_PHASE_COUNT);
         return Component.translatableWithFallback(
             "tooltip.anvilcraft.property.multiphase.name." + index,
-            "" + DEFAULT_SUFFIXES.charAt(index));
+            "" + DEFAULT_SUFFIXES.charAt(index)
+        );
     }
 
     public static Component makeSuffix(int index) {
-        // noinspection DataFlowIssue
         index = index % Math.min(DEFAULT_SUFFIXES.length(), MAX_PHASE_COUNT);
         return Component.translatableWithFallback(
             "tooltip.anvilcraft.property.multiphase.suffix." + index,
-            "-" + DEFAULT_SUFFIXES.charAt(index));
+            "-" + DEFAULT_SUFFIXES.charAt(index)
+        );
     }
 
     public static final MapCodec<Multiphase> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(

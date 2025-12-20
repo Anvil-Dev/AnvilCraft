@@ -1,11 +1,8 @@
 package dev.dubhe.anvilcraft.api.container.setting;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.container.ContainerStorages;
-import dev.dubhe.anvilcraft.api.container.datafixer.StorageDataFixers;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.component.sc.overlay.widget;
 
-import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;

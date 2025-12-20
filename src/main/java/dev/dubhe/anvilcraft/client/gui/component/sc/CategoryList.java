@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.client.gui.component.sc;
 
-import dev.dubhe.anvilcraft.api.container.ContainerStorage;
 import dev.dubhe.anvilcraft.api.container.category.CategoryMode;
 import dev.dubhe.anvilcraft.api.container.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import dev.dubhe.anvilcraft.util.Scrollable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractContainerWidget;

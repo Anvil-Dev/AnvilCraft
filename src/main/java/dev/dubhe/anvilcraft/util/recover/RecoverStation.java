@@ -49,12 +49,16 @@ public class RecoverStation<T> {
         this.entries.offer(new RecoverEntry<>(id, storage));
     }
 
-    public void sync(boolean isClient, Set<UUID> recoverableIds) {
-        if (!isClient) return;
+    public void sync(Set<UUID> recoverableIds) {
         this.entries.clear();
         for (UUID recoverableId : recoverableIds) {
             this.entries.add(new RecoverEntry<>(recoverableId, null));
         }
+    }
+
+    public void sync(RecoverStation<T> that) {
+        this.entries.clear();
+        this.entries.addAll(that.entries);
     }
 
     public void clear() {

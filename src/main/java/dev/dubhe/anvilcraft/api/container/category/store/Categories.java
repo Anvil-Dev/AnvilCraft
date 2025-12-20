@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.api.container.category.provider.CategoryProvider;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.init.sc.ModCategories;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;

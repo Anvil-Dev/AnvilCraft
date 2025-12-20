@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -10,6 +9,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -146,7 +146,7 @@ public class ShulkerContainerBlock
                 }
                 if (player instanceof ServerPlayer serverPlayer) {
                     if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) result.set(InteractionResult.PASS);
-                    ContainerStorages.get().syncToClient(
+                    ContainerStorages.get().sync2C(
                         serverPlayer.serverLevel(),
                         pos,
                         entity.getStorageId()

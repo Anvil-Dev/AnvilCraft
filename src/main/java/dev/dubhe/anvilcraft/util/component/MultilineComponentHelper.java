@@ -129,9 +129,11 @@ public class MultilineComponentHelper {
             return this.append(this.listHead).append(this.listTail);
         } else {
             this.append(this.listHead);
+            this.in();
             for (var entry : enchantments.entrySet()) {
                 this.addln(Enchantment.getFullname(entry.getKey(), entry.getIntValue())).append(this.splitter);
             }
+            this.out();
             return this.addln(this.listTail);
         }
     }

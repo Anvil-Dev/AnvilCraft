@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.init.shulkercontainer;
+package dev.dubhe.anvilcraft.init.sc;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.container.category.AndCategory;

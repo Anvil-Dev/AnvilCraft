@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.api.container.category.CategoryMode;
 import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.api.container.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.init.sc.ModCategories;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Getter;

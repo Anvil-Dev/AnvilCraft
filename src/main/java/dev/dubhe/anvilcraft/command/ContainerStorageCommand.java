@@ -6,12 +6,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.command.SubCommand;
-import dev.dubhe.anvilcraft.api.container.ContainerStorage;
-import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.container.item.ItemEntries;
 import dev.dubhe.anvilcraft.api.container.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.init.command.ModSuggestionProviders;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.CommandUtil;
 import dev.dubhe.anvilcraft.util.component.MultilineComponentHelper;
 import net.minecraft.ChatFormatting;
@@ -162,7 +162,7 @@ public class ContainerStorageCommand {
     ) throws CommandSyntaxException {
         return ContainerStorageCommand.execWithUUID(
             ctx, id -> {
-                var contentOp = ContainerStorages.get().getStorage(id);
+                var contentOp = ContainerStorages.get().get(id);
                 if (contentOp.isEmpty()) throw CommandUtil.notFound(AnvilCraft.of("storage"), id);
                 return sub.run(contentOp.get());
             }

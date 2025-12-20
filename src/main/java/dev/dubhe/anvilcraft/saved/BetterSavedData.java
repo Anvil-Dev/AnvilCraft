@@ -63,7 +63,7 @@ public abstract class BetterSavedData extends SavedData {
         this.sync2C(this.createPacket(registryAccess), registryAccess);
     }
 
-    private <T extends CustomPacketPayload> void sync2C(Packet<T> packet, RegistryAccess registryAccess) {
+    protected <T extends CustomPacketPayload> void sync2C(Packet<T> packet, RegistryAccess registryAccess) {
         if (!Util.isServer()) return;
         PacketSplitter.INSTANCE.split(
             packet.type(),

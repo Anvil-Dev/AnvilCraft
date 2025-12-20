@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.network.multiple;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.container.ContainerStorage;
-import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.NetworkUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
@@ -90,7 +90,7 @@ public class ShulkerContainerPackets {
         }
 
         private void bidirectionalHandler(IPayloadContext ctx) {
-            ContainerStorage storage = ContainerStorages.get().getOrCreateStorage(this.storage.getId());
+            ContainerStorage storage = ContainerStorages.get().getOrCreate(this.storage.getId());
             ctx.enqueueWork(() -> storage.sync(this.storage));
         }
     }
@@ -255,7 +255,7 @@ public class ShulkerContainerPackets {
             ServerPlayer player = Util.cast(ctx.player());
             ctx.enqueueWork(
                 () -> {
-                    var storageOp = ContainerStorages.get().getStorage(this.id);
+                    var storageOp = ContainerStorages.get().get(this.id);
                     if (storageOp.isEmpty()) return;
                     var storage = storageOp.get();
                     var categories = storage.getCategories();

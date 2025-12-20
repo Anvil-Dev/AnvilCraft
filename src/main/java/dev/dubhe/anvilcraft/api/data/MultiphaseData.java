@@ -6,11 +6,12 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import dev.dubhe.anvilcraft.util.ListUtil;
+import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -135,6 +136,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 Two.REQUIRED.put(new Pair<>(i, DataComponents.ENCHANTMENTS), true);
                 Two.REQUIRED.put(new Pair<>(i, ModComponents.MERCILESS_ENCHANTMENTS), true);
             }
+            Two.REQUIRED.put(new Pair<>(IResultModifier.RESULT_NAME, null), true);
             return Two.REQUIRED;
         }
 
@@ -145,16 +147,21 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
 
         @Override
         public MultiphaseRef make(List<Object> data) {
+            Component resultName = null;
             LinkedList<Multiphase.Phase> phases = new LinkedList<>();
             for (int i = 0; i < 2; i++) {
                 int base = i * 4;
+                Component customName = MultiphaseData.processCustomName(data.get(base));
                 phases.add(
                     Multiphase.Phase.create(i)
-                        .withCustomName(MultiphaseData.processCustomName(data.get(base)))
+                        .withCustomName(customName)
                         .withRepairCost(MultiphaseData.processRepairCost(data.get(base + 1)))
                         .withEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 2)))
                         .withStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 3)))
                 );
+                if (customName != null) continue;
+                if (resultName == null) resultName = Util.cast(data.get(8));
+                phases.add(phases.pollLast().withItemName(resultName.copy().append(Multiphase.makeSuffix(i))));
             }
             return new MultiphaseRef(new Multiphase(phases));
         }
@@ -178,6 +185,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 Four.REQUIRED.put(new Pair<>(i, DataComponents.ENCHANTMENTS), true);
                 Four.REQUIRED.put(new Pair<>(i, ModComponents.MERCILESS_ENCHANTMENTS), true);
             }
+            Four.REQUIRED.put(new Pair<>(IResultModifier.RESULT_NAME, null), true);
             return Four.REQUIRED;
         }
 
@@ -193,11 +201,13 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 MultiphaseData.processCustomName(data.getFirst()),
                 MultiphaseData.processCustomName(data.get(1))
             };
+            Component resultName = null;
             for (int i = 0; i < 2; i++) {
                 int base = i * 6 + 2;
+                Component customName = customNames[(int) Math.floor(i / 2.0)];
                 phases.add(
                     Multiphase.Phase.create(i)
-                        .withCustomName(customNames[(int) Math.floor(i / 2.0)])
+                        .withCustomName(customName)
                         .withRepairCost(MultiphaseData.processRepairCost(data.get(base)))
                         .addRepairCost(MultiphaseData.processRepairCost(data.get(base + 3)))
                         .withEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 1)))
@@ -205,6 +215,9 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                         .withStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 2)))
                         .addStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 5)))
                 );
+                if (customName != null) continue;
+                if (resultName == null) resultName = Util.cast(data.get(8));
+                phases.add(phases.pollLast().withItemName(resultName.copy().append(Multiphase.makeSuffix(i))));
             }
             return new MultiphaseRef(new Multiphase(phases));
         }
@@ -228,6 +241,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 Eight.REQUIRED.put(new Pair<>(i, DataComponents.ENCHANTMENTS), true);
                 Eight.REQUIRED.put(new Pair<>(i, ModComponents.MERCILESS_ENCHANTMENTS), true);
             }
+            Eight.REQUIRED.put(new Pair<>(IResultModifier.RESULT_NAME, null), true);
             return Eight.REQUIRED;
         }
 
@@ -243,11 +257,13 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 data.getFirst() instanceof Component it ? it : null,
                 data.get(1) instanceof Component it ? it : null
             };
+            Component resultName = null;
             for (int i = 0; i < 2; i++) {
                 int base = i * 12 + 2;
+                Component customName = customNames[(int) Math.floor(i / 4.0)];
                 phases.add(
                     Multiphase.Phase.create(i)
-                        .withCustomName(customNames[(int) Math.floor(i / 4.0)])
+                        .withCustomName(customName)
                         .withRepairCost(MultiphaseData.processRepairCost(data.get(base)))
                         .addRepairCost(MultiphaseData.processRepairCost(data.get(base + 3)))
                         .addRepairCost(MultiphaseData.processRepairCost(data.get(base + 6)))
@@ -261,6 +277,9 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                         .addStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 8)))
                         .addStoredEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 11)))
                 );
+                if (customName != null) continue;
+                if (resultName == null) resultName = Util.cast(data.get(8));
+                phases.add(phases.pollLast().withItemName(resultName.copy().append(Multiphase.makeSuffix(i))));
             }
             return new MultiphaseRef(new Multiphase(phases));
         }

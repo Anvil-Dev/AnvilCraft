@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.container.recover;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.MapCodec;
-import dev.dubhe.anvilcraft.api.container.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import dev.dubhe.anvilcraft.util.CodecUtil;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;

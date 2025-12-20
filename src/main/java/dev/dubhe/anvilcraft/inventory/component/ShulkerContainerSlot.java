@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory.component;
 
-import dev.dubhe.anvilcraft.api.container.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Getter;
 import lombok.Setter;

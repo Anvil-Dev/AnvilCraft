@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import com.mojang.logging.LogUtils;
-import dev.dubhe.anvilcraft.api.container.ContainerStorage;
-import dev.dubhe.anvilcraft.api.container.ContainerStorages;
 import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
@@ -59,7 +59,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = (ShulkerContainerBlockEntity) blockEntity;
         this.level = inventory.player.level();
-        this.storage = ContainerStorages.get().getStorage(this.blockEntity.getStorageId()).orElse(null);
+        this.storage = ContainerStorages.get().get(this.blockEntity.getStorageId()).orElse(null);
 
         this.addPlayerInventory(inventory);
         this.addPlayerHotbar(inventory);
@@ -115,7 +115,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     public boolean isWaitingServerSync() {
         STORAGE_CHECK:
         if (this.storage == null) {
-            var storageOp = ContainerStorages.get().getStorage(this.blockEntity.getStorageId());
+            var storageOp = ContainerStorages.get().get(this.blockEntity.getStorageId());
             if (storageOp.isEmpty()) break STORAGE_CHECK;
             var storage = storageOp.get();
             this.storage = storage;

@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 public class CodecUtil {
     /**
-     * 基本等同于 {@link Codec#encodeStart(DynamicOps, Object)}。
+     * 基本等同于 {@link Codec#encode(Object, DynamicOps, Object)}。
      *
      * @param codec 编解码器
      * @param ops 操作集
@@ -25,8 +25,8 @@ public class CodecUtil {
      * @param <R> 编码后的类型
      * @return 编码结果
      */
-    public static <T, R> DataResult<R> encodeStart(MapCodec<T> codec, DynamicOps<R> ops, T input) {
-        return codec.encode(input, ops, codec.compressedBuilder(ops)).build(ops.emptyMap());
+    public static <T, R> DataResult<R> encode(MapCodec<T> codec, T input, DynamicOps<R> ops, R prefix) {
+        return codec.encode(input, ops, codec.compressedBuilder(ops)).build(prefix);
     }
 
     public static <T> MapCodec<EvictingQueue<T>> evictingQueueMapCodec(Codec<T> valueCodec) {

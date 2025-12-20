@@ -7,7 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.container.category.ICategory;
 import dev.dubhe.anvilcraft.constant.ClientConstants;
-import dev.dubhe.anvilcraft.init.shulkercontainer.ModCategories;
+import dev.dubhe.anvilcraft.init.sc.ModCategories;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;

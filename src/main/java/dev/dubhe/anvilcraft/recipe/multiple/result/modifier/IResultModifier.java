@@ -10,6 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
 public interface IResultModifier {
+    int RESULT_NAME = -3;
     int TEMPLATE = -2;
     int MATERIAL = -1;
     Codec<IResultModifier> CODEC = Codec.lazyInitialized(() -> ModRegistries.MODIFIER_TYPE_REGISTRY
