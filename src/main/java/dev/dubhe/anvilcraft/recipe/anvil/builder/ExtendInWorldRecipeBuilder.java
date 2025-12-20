@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -339,7 +338,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @param builder ProduceHeat构建器
      * @return 当前构建器实例
      */
-    public ExtendInWorldRecipeBuilder produceHeat(ProduceHeat.@NotNull Builder builder) {
+    public ExtendInWorldRecipeBuilder produceHeat(ProduceHeat.Builder builder) {
         this.out(builder.build());
         return this;
     }

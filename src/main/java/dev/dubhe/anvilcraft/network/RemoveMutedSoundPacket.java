@@ -9,7 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class RemoveMutedSoundPacket implements CustomPacketPayload {
     public static final Type<RemoveMutedSoundPacket> TYPE = new Type<>(AnvilCraft.of("muted_sound_remove"));
@@ -27,7 +26,7 @@ public class RemoveMutedSoundPacket implements CustomPacketPayload {
         this.soundId = buf.readResourceLocation();
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+    public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeResourceLocation(soundId);
     }
 

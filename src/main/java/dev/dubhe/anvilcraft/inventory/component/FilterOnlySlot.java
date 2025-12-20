@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class FilterOnlySlot extends Slot {
     public FilterOnlySlot(FilterOnlyContainer container, int slot, int x, int y) {
@@ -18,12 +17,12 @@ public class FilterOnlySlot extends Slot {
     }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) {
+    public boolean mayPlace(ItemStack stack) {
         return false;
     }
 
     @Override
-    public boolean mayPickup(@NotNull Player player) {
+    public boolean mayPickup(Player player) {
         return false;
     }
 }

@@ -10,7 +10,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SmithingTableBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHammerRemovable {
     private static final Component CONTAINER_TITLE = Component.translatable("container.upgrade");
@@ -20,7 +19,7 @@ public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHamm
     }
 
     @Override
-    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
             (i, inventory, player) -> new RoyalSmithingMenu(
                 i,

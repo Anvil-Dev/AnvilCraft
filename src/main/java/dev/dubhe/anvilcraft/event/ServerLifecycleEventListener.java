@@ -15,7 +15,6 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ServerLifecycleEventListener {
@@ -27,7 +26,7 @@ public class ServerLifecycleEventListener {
     }
 
     @SubscribeEvent
-    public static void onTick(@NotNull ServerTickEvent.Pre event) {
+    public static void onTick(ServerTickEvent.Pre event) {
         PowerGrid.tickGrid();
         HeaterManager.tickAll();
         HeatCollectorManager.tickAll();
@@ -35,7 +34,7 @@ public class ServerLifecycleEventListener {
     }
 
     @SubscribeEvent
-    public static void onServerStopped(@NotNull ServerStoppedEvent event) {
+    public static void onServerStopped(ServerStoppedEvent event) {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
         RecipeCaches.unload();

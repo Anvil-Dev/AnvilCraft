@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class GhostIngredientHandler<
     T extends AbstractContainerScreen<M> & IGhostIngredientScreen
     > implements IGhostIngredientHandler<T> {
     @Override
-    public <X> @NotNull List<Target<X>> getTargetsTyped(
+    public <X> List<Target<X>> getTargetsTyped(
         T screen,
         ITypedIngredient<X> ingredient,
         boolean doStart
@@ -52,7 +51,7 @@ public class GhostIngredientHandler<
         private final T screen;
         private final int slotIndex;
 
-        public GhostTarget(T screen, int slotIndex, IGhostIngredientScreen.@NotNull Vec2i size) {
+        public GhostTarget(T screen, int slotIndex, IGhostIngredientScreen.Vec2i size) {
             this.screen = screen;
             this.slotIndex = slotIndex;
             Slot slot = screen.getMenu().slots.get(slotIndex);

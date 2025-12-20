@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 
 public class MeltGemCauldron extends BetterAbstractCauldronBlock implements IHammerRemovable {
     public MeltGemCauldron(Properties properties) {
@@ -44,17 +43,17 @@ public class MeltGemCauldron extends BetterAbstractCauldronBlock implements IHam
     }
 
     @Override
-    protected double getContentHeight(@NotNull BlockState state) {
+    protected double getContentHeight(BlockState state) {
         return 0.9375;
     }
 
     @Override
-    public boolean isFull(@NotNull BlockState state) {
+    public boolean isFull(BlockState state) {
         return true;
     }
 
     @Override
-    public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         return 3;
     }
 }

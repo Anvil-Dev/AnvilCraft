@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * 储电
  */
@@ -37,7 +35,7 @@ public interface IPowerStorage extends IPowerProducer, IPowerConsumer {
     int getCapacity();
 
     @Override
-    default @NotNull PowerComponentType getComponentType() {
+    default PowerComponentType getComponentType() {
         return PowerComponentType.STORAGE;
     }
 }

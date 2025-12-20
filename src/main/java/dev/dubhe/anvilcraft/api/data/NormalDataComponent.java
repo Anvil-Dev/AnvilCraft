@@ -14,7 +14,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -72,12 +71,12 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
         );
 
         @Override
-        public @NotNull MapCodec<NormalDataComponent<?>> codec() {
+        public MapCodec<NormalDataComponent<?>> codec() {
             return CODEC;
         }
 
         @Override
-        public @NotNull StreamCodec<RegistryFriendlyByteBuf, NormalDataComponent<?>> streamCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, NormalDataComponent<?>> streamCodec() {
             return STREAM_CODEC;
         }
     }

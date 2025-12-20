@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
-import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.state.FragmentationDegree;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
@@ -22,8 +21,6 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public class SugarBlock extends Block {
     public static final EnumProperty<FragmentationDegree> FRAGMENTATION_DEGREE = EnumProperty.create(

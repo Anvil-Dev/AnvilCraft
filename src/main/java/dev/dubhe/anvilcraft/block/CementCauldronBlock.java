@@ -17,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class CementCauldronBlock extends BetterAbstractCauldronBlock implements IHammerRemovable {
@@ -56,12 +55,12 @@ public class CementCauldronBlock extends BetterAbstractCauldronBlock implements 
     }
 
     @Override
-    protected double getContentHeight(@NotNull BlockState state) {
+    protected double getContentHeight(BlockState state) {
         return 0.9375;
     }
 
     @Override
-    public boolean isFull(@NotNull BlockState state) {
+    public boolean isFull(BlockState state) {
         return true;
     }
 }

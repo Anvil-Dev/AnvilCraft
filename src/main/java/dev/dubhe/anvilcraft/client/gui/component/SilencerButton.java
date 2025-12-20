@@ -13,7 +13,6 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,7 @@ public class SilencerButton extends Button {
     }
 
     @Override
-    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         String searchText = parent.getFilterText();
         ResourceLocation soundId = parent.getSoundIdAt(index, variant);
         if (soundId == null) return;
@@ -110,8 +109,8 @@ public class SilencerButton extends Button {
     }
 
     public void renderTexture(
-        @NotNull GuiGraphics guiGraphics,
-        @NotNull ResourceLocation texture,
+        GuiGraphics guiGraphics,
+        ResourceLocation texture,
         int x,
         int y,
         int puOffset,

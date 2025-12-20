@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
@@ -50,7 +49,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     }
 
     @Contract(pure = true)
-    protected static @NotNull BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
+    protected static BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
         int x, int y, Direction... skip) {
         return (i, j) -> new OutputDirectionButton(
             i + x,
@@ -66,7 +65,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }

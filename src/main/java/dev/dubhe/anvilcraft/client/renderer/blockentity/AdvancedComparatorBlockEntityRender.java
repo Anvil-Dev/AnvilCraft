@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.NotNull;
 
 public class AdvancedComparatorBlockEntityRender implements BlockEntityRenderer<AdvancedComparatorBlockEntity> {
     private static final ModelResourceLocation INDICATOR = ModelResourceLocation.standalone(
@@ -26,10 +25,10 @@ public class AdvancedComparatorBlockEntityRender implements BlockEntityRenderer<
 
     @Override
     public void render(
-        @NotNull AdvancedComparatorBlockEntity blockEntity,
+        AdvancedComparatorBlockEntity blockEntity,
         float tickDelta,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource bufferSource,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
         int light,
         int overlay
     ) {

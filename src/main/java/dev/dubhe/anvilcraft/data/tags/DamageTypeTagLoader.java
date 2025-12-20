@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
-import org.jetbrains.annotations.NotNull;
 
 public class DamageTypeTagLoader {
     /**
@@ -15,7 +14,7 @@ public class DamageTypeTagLoader {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateTagsProvider<DamageType> provider) {
+    public static void init(RegistrateTagsProvider<DamageType> provider) {
         provider.addTag(ModDamageTypeTags.AMULET_VALID)
             .addOptionalTag(ModDamageTypeTags.TOPAZ_AMULET_VALID)
             .addOptionalTag(ModDamageTypeTags.RUBY_AMULET_VALID)

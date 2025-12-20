@@ -6,7 +6,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.TriPredicate;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 public abstract class HeatableBlockEntry implements Comparable<HeatableBlockEntry> {
@@ -21,7 +20,7 @@ public abstract class HeatableBlockEntry implements Comparable<HeatableBlockEntr
     public abstract boolean isValidBlock(Level level, BlockPos pos, BlockState state);
 
     @Override
-    public int compareTo(@NotNull HeatableBlockEntry o) {
+    public int compareTo(HeatableBlockEntry o) {
         return this.tier.compareTo(o.tier);
     }
 

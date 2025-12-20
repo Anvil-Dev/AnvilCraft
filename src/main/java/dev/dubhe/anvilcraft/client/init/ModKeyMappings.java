@@ -32,6 +32,12 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_V
     );
+    public static final Lazy<KeyMapping> THOUGHT = register(
+        "thought",
+        KeyConflictContext.GUI,
+        Type.KEYSYM,
+        GLFW.GLFW_KEY_W
+    );
 
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {

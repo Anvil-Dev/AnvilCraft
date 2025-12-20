@@ -14,7 +14,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class PowerGridSyncPacket implements CustomPacketPayload {
@@ -32,13 +31,13 @@ public class PowerGridSyncPacket implements CustomPacketPayload {
         this.grid = new SimplePowerGrid(grid);
     }
 
-    public PowerGridSyncPacket(@NotNull FriendlyByteBuf buf) {
+    public PowerGridSyncPacket(FriendlyByteBuf buf) {
         CompoundTag tag = buf.readNbt();
         Tag data = tag.get("data");
         this.grid = SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, data).getOrThrow().getFirst();
     }
 
-    public void encode(@NotNull FriendlyByteBuf buf) {
+    public void encode(FriendlyByteBuf buf) {
         this.grid.encode(buf);
     }
 

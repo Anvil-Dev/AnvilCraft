@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 public class FloatingBlockEntity extends FallingBlockEntity {
 
@@ -132,12 +131,12 @@ public class FloatingBlockEntity extends FallingBlockEntity {
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+    public EntityDimensions getDimensions(Pose pose) {
         return EntityDimensions.scalable(0.98f, 0.98f);
     }
 
     @Override
-    public void move(@NotNull MoverType type, @NotNull Vec3 pos) {
+    public void move(MoverType type, Vec3 pos) {
         super.move(type, pos);
         Vec3 vec3 = this.collide(pos);
         this.verticalCollision = pos.y != vec3.y;

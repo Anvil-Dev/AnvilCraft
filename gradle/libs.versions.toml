@@ -2,59 +2,30 @@
 minecraft = "1.21.1"
 neoForge = "21.1.152"
 registrate = "MC1.21-1.3.0+62"
-clothConfig = "15.0.140"
 jei = "19.21.0.247"
-rei = "16.0.762"
-emi = "1.1.13+1.21.1"
 jade = "15.3.4+neoforge"
-appleskin = "3.0.7+mc1.21"
-theoneprobe = "1.21_neo-12.0.3-5"
-kubejs = "2101.7.2-build.327"
-patchouli = "1.21-87-NEOFORGE"
 parchment = "2024.11.17"
 modDevGradle = "2.0.78"
-spotless = "7.0.0.BETA2"
 lombok = "8.7.1"
 machete = "1.+"
 anvillib = "1.4.0+build.172"
-curios = "9.0.15+1.21.1"
-create = "6.0.6-107"
-ponder = "1.0.56"
-flywheel = "1.0.4-30"
-ae2 = "19.2.10"
-cerbonsApi = "5wbxkBQ1"
-cerbonsBetterBeacons = "acPk7j8a"
-twilightForest = "4.7.3196"
+sodium = "mc1.21.1-0.6.13-neoforge"
+embeddium = "1.0.11+mc1.21.1"
+iris = "1.8.1+1.21.1-neoforge"
 
 [libraries]
 neoForge = { group = "net.neoforged", name = "neoforge", version.ref = "neoForge" }
 registrate = { group = "com.tterrag.registrate", name = "Registrate", version.ref = "registrate" }
-clothConfig = { group = "me.shedaniel.cloth", name = "cloth-config-neoforge", version.ref = "clothConfig" }
 jeiCommonApi = { group = "mezz.jei", name = "jei-1.21.1-common-api", version.ref = "jei" }
 jeiForgeApi = { group = "mezz.jei", name = "jei-1.21.1-neoforge-api", version.ref = "jei" }
 jeiForgeImpl = { group = "mezz.jei", name = "jei-1.21.1-neoforge", version.ref = "jei" }
-reiPlugin = { group = "me.shedaniel", name = "RoughlyEnoughItems-default-plugin-neoforge", version.ref = "rei" }
-reiApi = { group = "me.shedaniel", name = "RoughlyEnoughItems-api-neoforge", version.ref = "rei" }
-reiForge = { group = "me.shedaniel", name = "RoughlyEnoughItems-neoforge", version.ref = "rei" }
-emi = { group = "dev.emi", name = "emi-neoforge", version.ref = "emi" }
+sodium = {  group = "maven.modrinth", name = "sodium", version.ref = "sodium"}
+embeddium = {  group = "maven.modrinth", name = "embeddium", version.ref = "embeddium"}
+iris = {  group = "maven.modrinth", name = "iris", version.ref = "iris"}
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
-appleskin = { group = "maven.modrinth", name = "appleskin", version.ref = "appleskin" }
-theoneprobe = { group = "mcjty.theoneprobe", name = "theoneprobe", version.ref = "theoneprobe" }
-kubejs = { group = "dev.latvian.mods", name = "kubejs-neoforge", version.ref = "kubejs" }
-patchouli = { group = "vazkii.patchouli", name = "Patchouli", version.ref = "patchouli" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-1.21.1", version.ref = "anvillib" }
-curios = { group = "top.theillusivec4.curios", name = "curios-neoforge", version.ref = "curios" }
-create = { group = "com.simibubi.create", name = "create-1.21.1", version.ref = "create" }
-ponder = { group = "net.createmod.ponder", name = "Ponder-NeoForge-1.21.1", version.ref = "ponder" }
-flywheelApi = { group = "dev.engine-room.flywheel", name = "flywheel-neoforge-api-1.21.1", version.ref = "flywheel" }
-flywheel = { group = "dev.engine-room.flywheel", name = "flywheel-neoforge-1.21.1", version.ref = "flywheel" }
-ae2 = { group = "org.appliedenergistics", name = "appliedenergistics2", version.ref = "ae2" }
-cerbonsApi = { group = "maven.modrinth", name = "cerbons-api", version.ref = "cerbonsApi" }
-cerbonsBetterBeacons = { group = "maven.modrinth", name = "cerbons-better-beacons", version.ref = "cerbonsBetterBeacons" }
-twilightForest = { group = "team-twilight", name = "twilightforest", version.ref = "twilightForest"}
 
 [plugins]
 modDevGradle = { id = "net.neoforged.moddev", version.ref = "modDevGradle" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
 machete = { id = "io.github.p03w.machete", version.ref = "machete" }

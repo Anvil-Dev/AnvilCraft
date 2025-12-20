@@ -9,7 +9,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilHitPiezoelectricCrystalBlockEventListener {
@@ -20,7 +19,7 @@ public class AnvilHitPiezoelectricCrystalBlockEventListener {
      * @param event 铁砧落地事件
      */
     @SubscribeEvent
-    public static void onLand(@NotNull AnvilEvent.OnLand event) {
+    public static void onLand(AnvilEvent.OnLand event) {
         BlockPos anvilPos = event.getPos();
         Level level = event.getLevel();
         Block block = level.getBlockState(anvilPos.below()).getBlock();
@@ -37,7 +36,7 @@ public class AnvilHitPiezoelectricCrystalBlockEventListener {
      * @param event 大铁砧落地事件
      */
     @SubscribeEvent
-    public static void onLand(@NotNull AnvilEvent.GiantOnLand event) {
+    public static void onLand(AnvilEvent.GiantOnLand event) {
         Level level = event.getLevel();
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {

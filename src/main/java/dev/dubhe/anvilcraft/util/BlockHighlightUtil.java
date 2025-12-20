@@ -15,7 +15,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -75,7 +74,7 @@ public class BlockHighlightUtil {
      * @param camera    相机
      */
     public static void render(
-        Level level, @NotNull MultiBufferSource consumers, @NotNull PoseStack poseStack, @NotNull Camera camera) {
+        Level level, MultiBufferSource consumers, PoseStack poseStack, Camera camera) {
         VertexConsumer consumer = consumers.getBuffer(NO_DEPTH);
         Vec3 cameraPos = camera.getPosition();
         int color = 0xFF8932B8;

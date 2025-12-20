@@ -25,7 +25,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.attachment.AttachmentHolder;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class LootTableEventListener {
      * @param event 战利品表加载事件
      */
     @SubscribeEvent
-    public static void lootTable(@NotNull LootTableLoadEvent event) {
+    public static void lootTable(LootTableLoadEvent event) {
         ResourceLocation id = event.getName();
         LootTable table = event.getTable();
         if (Blocks.BUDDING_AMETHYST.getLootTable().location().equals(id)) {

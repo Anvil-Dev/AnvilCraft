@@ -9,7 +9,6 @@ import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import org.jetbrains.annotations.NotNull;
 
 public class FluidTagLoader {
 
@@ -22,7 +21,7 @@ public class FluidTagLoader {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateTagsProvider<Fluid> provider) {
+    public static void init(RegistrateTagsProvider<Fluid> provider) {
         provider.addTag(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)
             .add(findResourceKey(Fluids.WATER))
             .add(findResourceKey(Fluids.FLOWING_WATER))

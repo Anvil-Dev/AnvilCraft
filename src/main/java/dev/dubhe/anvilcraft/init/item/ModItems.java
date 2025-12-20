@@ -124,7 +124,6 @@ import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.NoSuchElementException;
 import java.util.function.Function;
@@ -925,7 +924,7 @@ public class ModItems {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static <T extends AmuletItem> @NotNull ItemEntry<T> createAmuletItem(
+    private static <T extends AmuletItem> ItemEntry<T> createAmuletItem(
         String type,
         Function<Item.Properties, T> factory,
         Supplier<DeferredHolder<AmuletType, ?>> typeGetter,

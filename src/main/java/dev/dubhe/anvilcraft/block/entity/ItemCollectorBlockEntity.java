@@ -35,7 +35,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -138,7 +137,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
         this.cooldown.fromIndex(tag.getInt("Cooldown"));
@@ -147,7 +146,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", this.cooldown.index());
@@ -169,7 +168,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.@NotNull Provider provider) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.put("Inventory", this.itemHandler.serializeNBT(provider));
         tag.putInt("Cooldown", this.cooldown.index());

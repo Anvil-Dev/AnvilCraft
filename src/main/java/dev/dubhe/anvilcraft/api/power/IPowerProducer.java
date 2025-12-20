@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.power;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -19,7 +18,7 @@ public interface IPowerProducer extends IPowerComponent {
     }
 
     @Override
-    default @NotNull PowerComponentType getComponentType() {
+    default PowerComponentType getComponentType() {
         return PowerComponentType.PRODUCER;
     }
 

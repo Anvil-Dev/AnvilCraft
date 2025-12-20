@@ -32,7 +32,6 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -69,8 +68,8 @@ public class DataGenUtil {
     }
 
     public static <T extends RegistrateBlockstateProvider> void horizontalFacingBlock(
-        @NotNull DataGenContext<Block, ?> context,
-        @NotNull T provider
+        DataGenContext<Block, ?> context,
+        T provider
     ) {
         ModelFile model = new ModelFile.ExistingModelFile(
             context.getId().withPrefix("block/"),

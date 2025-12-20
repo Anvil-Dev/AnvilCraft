@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class HasMobBlock extends BaseEntityBlock {
     protected HasMobBlock(Properties properties) {
@@ -11,7 +10,7 @@ public abstract class HasMobBlock extends BaseEntityBlock {
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 }

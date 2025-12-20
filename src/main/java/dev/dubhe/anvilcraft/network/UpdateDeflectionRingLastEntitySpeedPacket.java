@@ -9,7 +9,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class UpdateDeflectionRingLastEntitySpeedPacket implements CustomPacketPayload {
     public static final Type<UpdateDeflectionRingLastEntitySpeedPacket> TYPE = new Type<>(AnvilCraft.of(
@@ -28,12 +27,12 @@ public class UpdateDeflectionRingLastEntitySpeedPacket implements CustomPacketPa
         this.speed = speed;
     }
 
-    public UpdateDeflectionRingLastEntitySpeedPacket(@NotNull RegistryFriendlyByteBuf buf) {
+    public UpdateDeflectionRingLastEntitySpeedPacket(RegistryFriendlyByteBuf buf) {
         this.pos = buf.readBlockPos();
         this.speed = buf.readDouble();
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+    public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeDouble(speed);
     }

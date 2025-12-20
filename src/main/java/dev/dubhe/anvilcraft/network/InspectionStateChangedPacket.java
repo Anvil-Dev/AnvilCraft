@@ -22,7 +22,7 @@ public record InspectionStateChangedPacket(ResourceLocation id, boolean state) i
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

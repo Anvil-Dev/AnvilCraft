@@ -8,7 +8,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class AddTeslaFilterPacket implements CustomPacketPayload {
     public static final Type<AddTeslaFilterPacket> TYPE = new Type<>(AnvilCraft.of("tesla_filter_add"));
@@ -29,13 +28,13 @@ public class AddTeslaFilterPacket implements CustomPacketPayload {
         this.arg = buf.readUtf();
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+    public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeUtf(id);
         buf.writeUtf(arg);
     }
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

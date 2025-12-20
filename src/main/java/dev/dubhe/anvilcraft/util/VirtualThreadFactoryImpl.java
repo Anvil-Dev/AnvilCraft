@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,7 +12,7 @@ public class VirtualThreadFactoryImpl implements ThreadFactory {
     }
 
     @Override
-    public Thread newThread(@NotNull Runnable runnable) {
+    public Thread newThread(Runnable runnable) {
         return Thread.ofVirtual()
             .name(namePrefix)
             .unstarted(runnable);

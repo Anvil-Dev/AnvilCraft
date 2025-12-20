@@ -8,7 +8,6 @@ import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.tags.DamageTypeTags;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,7 +23,7 @@ public class ModDamageTypeTagProvider extends DamageTypeTagsProvider {
     }
 
     @Override
-    protected void addTags(@NotNull HolderLookup.Provider registries) {
+    protected void addTags(HolderLookup.Provider registries) {
         this.tag(DamageTypeTags.BYPASSES_ARMOR).addOptional(ModDamageTypes.LOST_IN_TIME.location());
         this.tag(DamageTypeTags.BYPASSES_RESISTANCE).addOptional(ModDamageTypes.LOST_IN_TIME.location());
         this.tag(DamageTypeTags.NO_KNOCKBACK).addOptional(ModDamageTypes.LOST_IN_TIME.location());

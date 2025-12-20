@@ -9,7 +9,6 @@ import net.minecraft.server.packs.repository.PackSource;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.UnaryOperator;
 
@@ -18,7 +17,7 @@ public class ModBuiltinPacks {
     public static final PackSource BUILT_IN = PackSource.create(decorateWithSource("pack.source.builtin"), false);
 
     @SubscribeEvent
-    public static void packSetup(@NotNull AddPackFindersEvent event) {
+    public static void packSetup(AddPackFindersEvent event) {
         event.addPackFinders(
             AnvilCraft.of("resourcepacks/transparent_cauldron"),
             PackType.CLIENT_RESOURCES,
@@ -38,7 +37,7 @@ public class ModBuiltinPacks {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static @NotNull UnaryOperator<Component> decorateWithSource(String translationKey) {
+    private static UnaryOperator<Component> decorateWithSource(String translationKey) {
         Component component = Component.translatable(translationKey);
         return component1 -> Component.translatable("pack.nameAndSource", component1, component).withStyle(ChatFormatting.GRAY);
     }

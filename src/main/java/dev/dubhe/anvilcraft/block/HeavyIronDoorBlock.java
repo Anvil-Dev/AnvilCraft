@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
@@ -109,7 +108,7 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
     }
 
     @Override
-    public boolean change(Player player, BlockPos pos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(pos).cycle(OPEN);
         level.setBlock(pos, state, 10);
         level.playSound(

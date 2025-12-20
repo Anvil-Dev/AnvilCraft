@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChangeable {
@@ -73,7 +72,7 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChan
     }
 
     @Override
-    public boolean change(Player player, BlockPos pos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(pos);
         this.toggle(state, level, pos, player);
         this.playSound(null, level, pos, !state.getValue(OPEN));

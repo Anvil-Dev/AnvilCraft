@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
@@ -25,12 +24,12 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Override
-    protected boolean shouldSkipDirection(@NotNull Direction direction) {
+    protected boolean shouldSkipDirection(Direction direction) {
         return Direction.UP == direction;
     }
 
     @Override
-    protected boolean validateBlockState(@NotNull BlockState state) {
+    protected boolean validateBlockState(BlockState state) {
         return state.is(ModBlocks.CHUTE.get());
     }
 
@@ -62,13 +61,13 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public Component getDisplayName() {
         return Component.translatable("block.anvilcraft.chute");
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new ChuteMenu(ModMenuTypes.CHUTE.get(), i, inventory, this);
     }

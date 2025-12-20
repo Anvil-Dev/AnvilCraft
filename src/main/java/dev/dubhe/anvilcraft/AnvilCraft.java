@@ -45,7 +45,6 @@ import dev.dubhe.anvilcraft.init.reicpe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.sc.ModCategories;
 import dev.dubhe.anvilcraft.init.sc.ModUpgradeTypes;
-import dev.dubhe.anvilcraft.integration.top.AnvilCraftTopPlugin;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import dev.dubhe.anvilcraft.util.Util;
@@ -64,7 +63,6 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,7 +132,7 @@ public class AnvilCraft {
         ModCustomDataComponents.register(modEventBus);
     }
 
-    private static void registerEvents(@NotNull IEventBus eventBus) {
+    private static void registerEvents(IEventBus eventBus) {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addItemTooltips);
@@ -144,28 +142,28 @@ public class AnvilCraft {
         eventBus.addListener(ModFluids::registerFluidInteractions);
     }
 
-    public static @NotNull ResourceLocation of(String path) {
+    public static ResourceLocation of(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
-    public static @NotNull ResourceLocation advancementOf(String path) {
+    public static ResourceLocation advancementOf(String path) {
         return of("anvilcraft/" + path);
     }
 
-    public static void registerCommand(@NotNull RegisterCommandsEvent event) {
+    public static void registerCommand(RegisterCommandsEvent event) {
         ModCommands.register(event.getDispatcher());
     }
 
-    public static void registerPayload(@NotNull RegisterPayloadHandlersEvent event) {
+    public static void registerPayload(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         ModNetworks.init(registrar);
     }
 
-    public static void addItemTooltips(@NotNull ItemTooltipEvent event) {
+    public static void addItemTooltips(ItemTooltipEvent event) {
         ItemTooltipManager.addTooltip(event.getItemStack(), event.getToolTip());
     }
 
-    public static void addReloadListeners(@NotNull AddReloadListenerEvent event) {
+    public static void addReloadListeners(AddReloadListenerEvent event) {
         RecipeManager recipeManager = event.getServerResources().getRecipeManager();
         event.addListener((
             prepBarrier,
@@ -178,14 +176,10 @@ public class AnvilCraft {
             .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor));
     }
 
-    public static void loadComplete(@NotNull FMLLoadCompleteEvent event) {
+    public static void loadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
             ModDispenserBehavior.register();
             ModInteractionMap.initInteractionMap();
-            if (Util.isLoaded("theoneprobe")) {
-                LOGGER.info("TheOneProbe found. Loading AnvilCraft TheOneProbe plugin...");
-                AnvilCraftTopPlugin.init();
-            }
             if (Util.isLoaded("apothic_enchanting")) {
                 LOGGER.info(
                     "Apothic Enchanting found. Set royalAnvilBeyondMaxLevel, "

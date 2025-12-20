@@ -28,7 +28,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
@@ -81,7 +80,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
         this.resultBook = new ResultContainer();
         this.access = access;
         this.addSlot(new Slot(this.tool, 0, 25, 24) {
-            public boolean mayPlace(@NotNull ItemStack stack) {
+            public boolean mayPlace(ItemStack stack) {
                 return stack.isDamageableItem() || stack.is(Items.ENCHANTED_BOOK) || stack.isEnchanted();
             }
 
@@ -91,12 +90,12 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
             }
         });
         this.addSlot(new Slot(this.book, 0, 25, 42) {
-            public boolean mayPlace(@NotNull ItemStack stack) {
+            public boolean mayPlace(ItemStack stack) {
                 return stack.is(Items.BOOK);
             }
         });
         this.addSlot(new Slot(this.resultBook, 0, 145, 34) {
-            public boolean mayPlace(@NotNull ItemStack stack) {
+            public boolean mayPlace(ItemStack stack) {
                 return false;
             }
 
@@ -105,7 +104,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                 return player.isCreative() || player.experienceLevel >= getCost();
             }
 
-            public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
+            public void onTake(Player player, ItemStack stack) {
                 if (!hasSelectedEnchantment()) return;
                 if (!player.level().isClientSide) player.giveExperienceLevels(-getCost());
 
@@ -182,7 +181,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void slotsChanged(@NotNull Container container) {
+    public void slotsChanged(Container container) {
         super.slotsChanged(container);
         if (this.getSlot(0).getItem().isEmpty()) this.setSelectedEnchantment(-1);
         this.getSlot(2).set(this.createResult());
@@ -207,7 +206,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
+    public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemStack;
         Slot slot = this.slots.get(index);
         if (slot.hasItem()) {
@@ -258,7 +257,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(@NotNull Player player) {
+    public boolean stillValid(Player player) {
         return stillValid(this.access, player, ModBlocks.EMBER_GRINDSTONE.get());
     }
 
@@ -267,7 +266,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
      *
      * @param player 玩家
      */
-    public void removed(@NotNull Player player) {
+    public void removed(Player player) {
         super.removed(player);
         this.access.execute((level, blockPos) -> {
             this.clearContainer(player, this.tool);
@@ -275,7 +274,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
         });
     }
 
-    protected void clearContainer(Player player, @NotNull Container container) {
+    protected void clearContainer(Player player, Container container) {
         int i;
         if (!player.isAlive() || player instanceof ServerPlayer && ((ServerPlayer) player).hasDisconnected()) {
             for (i = 0; i < container.getContainerSize(); ++i) {

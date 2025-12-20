@@ -13,7 +13,6 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +58,7 @@ public class TeslaTowerButton extends Button {
     }
 
     @Override
-    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         String searchText = parent.getFilterText();
         String id = parent.getFilterToolTipAt(index, variant);
         if (id == null) return;
@@ -108,8 +107,8 @@ public class TeslaTowerButton extends Button {
     }
 
     public void renderTexture(
-        @NotNull GuiGraphics guiGraphics,
-        @NotNull ResourceLocation texture,
+        GuiGraphics guiGraphics,
+        ResourceLocation texture,
         int x,
         int y,
         int puOffset,

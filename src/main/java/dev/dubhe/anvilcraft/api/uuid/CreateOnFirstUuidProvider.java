@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.ModUuidProviders;
 import dev.dubhe.anvilcraft.util.Lazy;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Objects;

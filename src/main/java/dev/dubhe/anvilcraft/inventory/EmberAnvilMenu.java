@@ -18,7 +18,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.common.CommonHooks;
-import org.jetbrains.annotations.NotNull;
 
 public class EmberAnvilMenu extends AnvilMenu {
 
@@ -31,7 +30,7 @@ public class EmberAnvilMenu extends AnvilMenu {
     }
 
     @Override
-    public @NotNull MenuType<?> getType() {
+    public MenuType<?> getType() {
         return ModMenuTypes.EMBER_ANVIL.get();
     }
 

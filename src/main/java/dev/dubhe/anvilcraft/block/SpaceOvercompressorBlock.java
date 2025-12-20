@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements IHammerRemovable, IMoveableEntityBlock {
@@ -36,7 +35,7 @@ public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements I
     }
 
     @Override
-    public @NotNull CompoundTag clearData(@NotNull Level level, @NotNull BlockPos pos) {
+    public CompoundTag clearData(Level level, BlockPos pos) {
         CompoundTag tag = new CompoundTag();
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof SpaceOvercompressorBlockEntity s) {
@@ -46,7 +45,7 @@ public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements I
     }
 
     @Override
-    public void setData(@NotNull Level level, @NotNull BlockPos pos, @NotNull CompoundTag nbt) {
+    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
         BlockEntity entity = level.getBlockEntity(pos);
         long mass = nbt.getLong("storedMass");
         if (entity instanceof SpaceOvercompressorBlockEntity s) {

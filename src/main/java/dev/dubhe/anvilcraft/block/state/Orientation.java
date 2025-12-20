@@ -4,7 +4,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.NotNull;
 
 public enum Orientation implements StringRepresentable {
     NORTH_UP("north_up"),
@@ -30,7 +29,7 @@ public enum Orientation implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 

@@ -16,7 +16,6 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SmithingTemplateItem;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -99,13 +98,13 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.baseIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
@@ -124,7 +123,7 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
 
     @Override
     public void slotChanged(
-        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
+        AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
         if (dataSlotIndex == 3) {
             this.updateArmorStandPreview(stack);
         }
@@ -149,7 +148,7 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
+    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
         if (this.hasRecipeError()) {
             guiGraphics.blit(ERROR, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
         }

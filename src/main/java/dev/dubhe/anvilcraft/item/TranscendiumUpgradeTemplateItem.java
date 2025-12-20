@@ -5,7 +5,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.SmithingTemplateItem;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class TranscendiumUpgradeTemplateItem extends SmithingTemplateItem {
     }
 
     @Override
-    public @NotNull String getDescriptionId() {
+    public String getDescriptionId() {
         return this.getOrCreateDescriptionId();
     }
 }

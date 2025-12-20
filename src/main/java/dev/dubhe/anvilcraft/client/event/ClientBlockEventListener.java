@@ -21,7 +21,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -50,7 +49,7 @@ public class ClientBlockEventListener {
     }
 
     private static boolean clientHandle(
-        PlayerInteractEvent.@NotNull RightClickBlock event,
+        PlayerInteractEvent.RightClickBlock event,
         BlockState targetBlockState,
         InteractionHand hand,
         BlockHitResult hitVec

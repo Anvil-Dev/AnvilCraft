@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadFactoryImpl implements java.util.concurrent.ThreadFactory {
@@ -20,7 +18,7 @@ public class ThreadFactoryImpl implements java.util.concurrent.ThreadFactory {
     }
 
     @Override
-    public Thread newThread(@NotNull Runnable r) {
+    public Thread newThread(Runnable r) {
         Thread t = new Thread(
             group,
             r,

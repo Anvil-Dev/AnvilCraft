@@ -36,7 +36,6 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -171,7 +170,7 @@ public class BlockStateUtil {
 
     public static class BlockHolderLookup implements HolderLookup<Block>, HolderOwner<Block> {
         @Override
-        public @NotNull Stream<Holder.Reference<Block>> listElements() {
+        public Stream<Holder.Reference<Block>> listElements() {
             return BuiltInRegistries.BLOCK.stream()
                 .map(BuiltInRegistries.BLOCK::getResourceKey)
                 .filter(Optional::isPresent)
@@ -179,17 +178,17 @@ public class BlockStateUtil {
         }
 
         @Override
-        public @NotNull Stream<HolderSet.Named<Block>> listTags() {
+        public Stream<HolderSet.Named<Block>> listTags() {
             return BuiltInRegistries.BLOCK.getTags().map(Pair::getSecond);
         }
 
         @Override
-        public @NotNull Optional<Holder.Reference<Block>> get(@NotNull ResourceKey<Block> resourceKey) {
+        public Optional<Holder.Reference<Block>> get(ResourceKey<Block> resourceKey) {
             return Optional.of(BuiltInRegistries.BLOCK.getHolderOrThrow(resourceKey));
         }
 
         @Override
-        public @NotNull Optional<HolderSet.Named<Block>> get(@NotNull TagKey<Block> tagKey) {
+        public Optional<HolderSet.Named<Block>> get(TagKey<Block> tagKey) {
             return BuiltInRegistries.BLOCK.getTag(tagKey);
         }
     }

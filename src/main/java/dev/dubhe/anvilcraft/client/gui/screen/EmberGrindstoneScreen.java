@@ -20,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
 public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindstoneMenu> {
     private static final ResourceLocation BACKGROUND =
@@ -63,13 +62,13 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
-    protected void renderTooltip(@NotNull GuiGraphics guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
             guiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
@@ -110,7 +109,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
     }
 
-    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
 
         int i = this.menu.getCost();
@@ -134,7 +133,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
     }
 
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         RenderSupport.renderItemWithTransparency(
             Items.BOOK.getDefaultInstance(),
@@ -157,7 +156,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     }
 
     @Override
-    public void resize(@NotNull Minecraft minecraft, int width, int height) {
+    public void resize(Minecraft minecraft, int width, int height) {
         this.scrollOffs = this.menu.getScrollForRowIndex(this.menu.getRowIndexForScroll(this.scrollOffs));
 
         this.init(minecraft, width, height);

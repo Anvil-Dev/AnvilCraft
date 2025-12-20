@@ -15,7 +15,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEntity> {
     private final BlockRenderDispatcher dispatcher;
@@ -34,8 +33,8 @@ public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEn
         FallingSpectralBlockEntity entity,
         float entityYaw,
         float partialTicks,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource buffer,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
         int packedLight) {
         BlockState blockState = entity.getBlockState();
         if (blockState.getRenderShape() == RenderShape.MODEL) {
@@ -65,7 +64,7 @@ public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEn
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull FallingSpectralBlockEntity entity) {
+    public ResourceLocation getTextureLocation(FallingSpectralBlockEntity entity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

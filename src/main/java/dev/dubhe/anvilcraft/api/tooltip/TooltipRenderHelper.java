@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2ic;
 
 import java.util.List;
@@ -28,8 +27,8 @@ public class TooltipRenderHelper {
         double camX,
         double camY,
         double camZ,
-        @NotNull BlockPos offsetPos,
-        @NotNull VoxelShape shape,
+        BlockPos offsetPos,
+        VoxelShape shape,
         int color
     ) {
         renderShape(
@@ -44,9 +43,9 @@ public class TooltipRenderHelper {
     }
 
     private static void renderShape(
-        @NotNull PoseStack poseStack,
+        PoseStack poseStack,
         VertexConsumer consumer,
-        @NotNull VoxelShape shape,
+        VoxelShape shape,
         double x,
         double y,
         double z,
@@ -81,7 +80,7 @@ public class TooltipRenderHelper {
         GuiGraphics thiz,
         Font font,
         ItemStack itemStack,
-        @NotNull List<Component> lines,
+        List<Component> lines,
         int x,
         int y,
         int backgroundColor,

@@ -17,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 public class TopazItem extends Item {
     public TopazItem(Properties properties) {
@@ -25,7 +24,7 @@ public class TopazItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
+    public InteractionResult useOn(UseOnContext context) {
         ItemStack itemInHand = context.getItemInHand();
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
@@ -46,7 +45,7 @@ public class TopazItem extends Item {
         return InteractionResult.FAIL;
     }
 
-    private void breakItem(Player player, @NotNull ItemStack stack) {
+    private void breakItem(Player player, ItemStack stack) {
         if (!stack.isEmpty()) {
             if (!player.isSilent()) {
                 player.level()

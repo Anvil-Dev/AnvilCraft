@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.state;
 
 import lombok.Getter;
 import net.minecraft.core.Direction;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 public enum DirectionCube3x3PartHalf
@@ -52,7 +51,7 @@ public enum DirectionCube3x3PartHalf
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 

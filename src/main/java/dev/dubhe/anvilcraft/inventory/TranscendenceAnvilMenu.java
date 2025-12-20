@@ -21,7 +21,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.common.CommonHooks;
-import org.jetbrains.annotations.NotNull;
 
 public class TranscendenceAnvilMenu extends AnvilMenu {
 
@@ -34,7 +33,7 @@ public class TranscendenceAnvilMenu extends AnvilMenu {
     }
 
     @Override
-    public @NotNull MenuType<?> getType() {
+    public MenuType<?> getType() {
         return ModMenuTypes.TRANSCENDENCE_ANVIL.get();
     }
 

@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         super(ModBlockEntities.VOID_ENERGY_COLLECTOR.get(), pos, blockState);
     }
 
-    public static @NotNull VoidEnergyCollectorBlockEntity createBlockEntity(
+    public static VoidEnergyCollectorBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
@@ -60,7 +59,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return this.getBlockPos();
     }
 
@@ -80,7 +79,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.cooldownCount = tag.getInt("cooldownCount");
         this.decayCooldownCount = tag.getInt("decayCooldownCount");
@@ -89,7 +88,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         tag.putInt("cooldownCount", this.cooldownCount);
         tag.putInt("decayCooldownCount", this.decayCooldownCount);

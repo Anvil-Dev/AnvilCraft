@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -100,12 +99,12 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     }
 
     @Contract("_ -> new")
-    public static @NotNull BlockPredicateWithState of(Block block) {
+    public static BlockPredicateWithState of(Block block) {
         return new BlockPredicateWithState(block);
     }
 
     @Contract("_ -> new")
-    public static @NotNull BlockPredicateWithState of(Holder<Block> block) {
+    public static BlockPredicateWithState of(Holder<Block> block) {
         return of(block.value());
     }
 

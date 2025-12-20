@@ -12,7 +12,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -22,13 +21,13 @@ public class PulseGeneratorMenu extends AbstractContainerMenu {
     private final PulseGeneratorBlockEntity blockEntity;
     private final Level level;
 
-    public PulseGeneratorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull BlockEntity machine) {
+    public PulseGeneratorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
         this.blockEntity = (PulseGeneratorBlockEntity) machine;
         this.level = inventory.player.level();
     }
 
-    public PulseGeneratorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+    public PulseGeneratorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(
             menuType, containerId, inventory,
             Objects.requireNonNull(

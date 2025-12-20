@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
-import org.jetbrains.annotations.NotNull;
 
 public class EntityTypeTagLoader {
     @SuppressWarnings("deprecation")
@@ -18,7 +17,7 @@ public class EntityTypeTagLoader {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateTagsProvider<EntityType<?>> provider) {
+    public static void init(RegistrateTagsProvider<EntityType<?>> provider) {
         provider.addTag(ModEntityTypeTags.AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.EMERALD_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.SAPPHIRE_AMULET_VALID)

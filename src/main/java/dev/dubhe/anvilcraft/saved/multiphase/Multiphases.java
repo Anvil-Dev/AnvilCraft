@@ -21,7 +21,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,21 +58,21 @@ public class Multiphases extends BetterSavedData {
         return Multiphases.get("multiphases", Multiphases::new, Multiphases.CLIENT_COPY);
     }
 
-    public Optional<Multiphase> get(@NotNull UUID id) {
+    public Optional<Multiphase> get(UUID id) {
         return Optional.ofNullable(this.multiphases.get(id));
     }
 
-    public Multiphase getOrCreate(@NotNull UUID id) {
+    public Multiphase getOrCreate(UUID id) {
         return this.multiphases.computeIfAbsent(id, id1 -> Multiphase.EMPTY);
     }
 
-    public void put(@NotNull UUID id, @NotNull Multiphase multiphase) {
+    public void put(UUID id, Multiphase multiphase) {
         this.multiphases.put(id, multiphase);
         this.sync2C();
         this.setDirty();
     }
 
-    public UUID put(@NotNull Multiphase multiphase) {
+    public UUID put(Multiphase multiphase) {
         var id = Multiphases.generate(this.multiphases::containsKey);
         this.multiphases.put(id, multiphase);
         this.sync2C();

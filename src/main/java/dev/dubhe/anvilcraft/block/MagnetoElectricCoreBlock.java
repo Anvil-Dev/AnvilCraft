@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 public class MagnetoElectricCoreBlock extends Block implements IHammerRemovable {
     public static final MapCodec<MagnetoElectricCoreBlock> CODEC = simpleCodec(MagnetoElectricCoreBlock::new);
@@ -20,15 +19,17 @@ public class MagnetoElectricCoreBlock extends Block implements IHammerRemovable 
     }
 
     @Override
-    protected @NotNull MapCodec<? extends Block> codec() {
+    protected MapCodec<? extends Block> codec() {
         return CODEC;
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state,
-                                           @NotNull BlockGetter level,
-                                           @NotNull BlockPos pos,
-                                           @NotNull CollisionContext context) {
+    protected VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context
+    ) {
         return SHAPE;
     }
 

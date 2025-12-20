@@ -7,7 +7,6 @@ import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.common.Tags;
-import org.jetbrains.annotations.NotNull;
 
 public class EnchantmentTagLoader {
     /**
@@ -15,7 +14,7 @@ public class EnchantmentTagLoader {
      *
      * @param provider 提供器
      */
-    public static void init(@NotNull RegistrateTagsProvider<Enchantment> provider) {
+    public static void init(RegistrateTagsProvider<Enchantment> provider) {
         provider.addTag(ModEnchantmentTags.MERCILESS_PASSED)
             .addTag(EnchantmentTags.CURSE)
             .add(Enchantments.LOYALTY)

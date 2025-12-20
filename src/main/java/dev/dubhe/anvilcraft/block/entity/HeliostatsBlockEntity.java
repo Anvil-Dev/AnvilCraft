@@ -22,7 +22,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -151,7 +150,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         if (irritatePos == null) return;
         tag.putInt("Ix", irritatePos.getX());
         tag.putInt("Iy", irritatePos.getY());
@@ -159,7 +158,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         if (!tag.contains("Ix")) return;
         int x = tag.getInt("Ix");
         int y = tag.getInt("Iy");

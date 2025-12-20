@@ -11,8 +11,6 @@ public class PatchouliLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrateLangProvider provider) {
-        provider.add("message.anvilcraft.need_patchouli_installed", "Patchouli needs to be installed");
-
         provider.add("gui.anvilcraft.category.anvil_collision_craft_speed", "Speed: %d m/tick");
 
         provider.add("patchouli.anvilcraft.landing_text", "Welcome to AnvilCraft.");

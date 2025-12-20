@@ -40,7 +40,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.TickPriority;
 import net.neoforged.neoforge.event.EventHooks;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -310,7 +309,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    public boolean change(Player player, BlockPos blockPos, @NotNull Level level, ItemStack anvilHammer) {
+    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         return level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).cycle(FACING));
     }
 
@@ -320,7 +319,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    public @NotNull CompoundTag clearData(@NotNull Level level, @NotNull BlockPos pos) {
+    public CompoundTag clearData(Level level, BlockPos pos) {
         CompoundTag[] data = new CompoundTag[1];
         level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
             .ifPresent(be -> data[0] = be.exportMoveData());
@@ -328,7 +327,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    public void setData(@NotNull Level level, @NotNull BlockPos pos, @NotNull CompoundTag tag) {
+    public void setData(Level level, BlockPos pos, CompoundTag tag) {
         level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
             .ifPresent(be -> be.applyMoveData(level, pos, level.getBlockState(pos), tag));
     }

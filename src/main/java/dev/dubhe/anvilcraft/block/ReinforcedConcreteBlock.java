@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import org.jetbrains.annotations.NotNull;
 
 public class ReinforcedConcreteBlock extends Block {
     public static final EnumProperty<ReinforcedConcreteHalf> HALF = EnumProperty.create("half", ReinforcedConcreteHalf.class);
@@ -21,7 +20,7 @@ public class ReinforcedConcreteBlock extends Block {
     }
 
     @Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF);
     }
 

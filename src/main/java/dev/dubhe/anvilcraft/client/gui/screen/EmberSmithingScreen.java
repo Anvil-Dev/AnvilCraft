@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -110,13 +109,13 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.materialIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
@@ -134,7 +133,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
+    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
         if (!this.menu.canCreateResult()) {
             guiGraphics.blit(ERROR, x + 123, y + 48, 0, 0, 16, 16, 16, 16);
         }

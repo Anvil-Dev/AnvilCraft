@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.state;
 
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 public enum ReinforcedConcreteHalf implements StringRepresentable {
     SINGLE("single"),
@@ -19,7 +18,7 @@ public enum ReinforcedConcreteHalf implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 }

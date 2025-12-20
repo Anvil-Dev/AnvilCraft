@@ -30,7 +30,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -211,7 +210,7 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.putInt("TimeLeft", timeLeft);
         tag.put("Depository", itemHandler.serializeNBT(provider));
@@ -219,7 +218,7 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         timeLeft = tag.getInt("TimeLeft");
         itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));

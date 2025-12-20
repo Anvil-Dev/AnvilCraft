@@ -15,7 +15,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAnvilMenu> {
     private static final ResourceLocation ANVIL_LOCATION =
@@ -68,7 +67,7 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
     }
 
     @Override
-    public void resize(@NotNull Minecraft minecraft, int width, int height) {
+    public void resize(Minecraft minecraft, int width, int height) {
         String string = this.name.getValue();
         this.init(minecraft, width, height);
         this.name.setValue(string);
@@ -101,7 +100,7 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
     }
 
     @Override
-    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         int i = this.menu.getCost();
         if (i > 0) {
@@ -124,19 +123,19 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         ResourceLocation location = this.menu.getSlot(0).getItem().isEmpty() ? TEXT_DISABLE_LOCATION : TEXT_LOCATION;
         guiGraphics.blit(location, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
     }
 
     @Override
-    public void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderFg(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.name.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderErrorIcon(@NotNull GuiGraphics guiGraphics, int x, int y) {
+    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
         if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()) {
             guiGraphics.blit(RoyalAnvilScreen.ERROR_SPRITE, x + 103, y + 47, 0, 0, 16, 16, 16, 16);
@@ -145,7 +144,7 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
 
     @Override
     public void slotChanged(
-        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
+        AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
         if (dataSlotIndex == 0) {
             this.name.setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
             this.name.setEditable(!stack.isEmpty());

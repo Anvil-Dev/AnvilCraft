@@ -25,7 +25,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.CommonHooks;
-import org.jetbrains.annotations.NotNull;
 
 public class RoyalAnvilMenu extends AnvilMenu {
 
@@ -38,7 +37,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
     }
 
     @Override
-    public @NotNull MenuType<?> getType() {
+    public MenuType<?> getType() {
         return ModMenuTypes.ROYAL_ANVIL.get();
     }
 
@@ -257,7 +256,7 @@ public class RoyalAnvilMenu extends AnvilMenu {
     }
 
     @Override
-    protected void onTake(@NotNull Player player, @NotNull ItemStack stack) {
+    protected void onTake(Player player, ItemStack stack) {
         super.onTake(player, stack);
         Level level = player.level();
         if (level.isClientSide()) return;

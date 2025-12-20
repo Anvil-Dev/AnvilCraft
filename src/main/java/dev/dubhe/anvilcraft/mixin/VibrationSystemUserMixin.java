@@ -6,7 +6,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +20,7 @@ interface VibrationSystemUserMixin {
     )
     private void addPlayerHasSilenceAmulet(
         Holder<GameEvent> gameEvent,
-        GameEvent.@NotNull Context context,
+        GameEvent.Context context,
         CallbackInfoReturnable<Boolean> cir
     ) {
         if (context.sourceEntity() instanceof Player player

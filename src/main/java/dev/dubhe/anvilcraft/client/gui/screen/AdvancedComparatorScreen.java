@@ -16,7 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -128,7 +127,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     }
 
     @Override
-    public void resize(@NotNull Minecraft minecraft, int width, int height) {
+    public void resize(Minecraft minecraft, int width, int height) {
         this.init(minecraft, width, height);
     }
 

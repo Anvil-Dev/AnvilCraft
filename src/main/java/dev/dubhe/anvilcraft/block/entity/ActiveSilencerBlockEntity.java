@@ -35,7 +35,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -63,14 +62,14 @@ public class ActiveSilencerBlockEntity
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
             .getOrThrow()
@@ -84,7 +83,7 @@ public class ActiveSilencerBlockEntity
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
         tag.put("MutedSound", t);
@@ -98,19 +97,19 @@ public class ActiveSilencerBlockEntity
     }
 
     @Override
-    public void setLevel(@NotNull Level level) {
+    public void setLevel(Level level) {
         super.setLevel(level);
         DistExecutor.run(Dist.CLIENT, () -> () -> SoundHelper.INSTANCE.register(this));
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public Component getDisplayName() {
         return Component.translatable("screen.anvilcraft.active_silencer.title");
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new ActiveSilencerMenu(ModMenuTypes.ACTIVE_SILENCER.get(), i, inventory, this);
     }

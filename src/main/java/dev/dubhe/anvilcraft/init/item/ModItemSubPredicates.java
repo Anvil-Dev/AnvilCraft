@@ -8,7 +8,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.jetbrains.annotations.NotNull;
 
 public class ModItemSubPredicates {
     private static final DeferredRegister<ItemSubPredicate.Type<?>> DF = DeferredRegister.create(
@@ -21,7 +20,7 @@ public class ModItemSubPredicates {
         ItemSavedEntityPredicate.CODEC
     );
 
-    public static <T extends ItemSubPredicate> @NotNull DeferredHolder<ItemSubPredicate.Type<?>, ItemSubPredicate.Type<T>> register(
+    public static <T extends ItemSubPredicate> DeferredHolder<ItemSubPredicate.Type<?>, ItemSubPredicate.Type<T>> register(
         String name,
         Codec<T> codec
     ) {

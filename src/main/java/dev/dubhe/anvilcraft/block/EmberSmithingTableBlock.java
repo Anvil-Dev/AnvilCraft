@@ -25,7 +25,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SmithingTableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -65,13 +64,13 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
     }
 
     @SuppressWarnings("UnreachableCode")
-    public @NotNull InteractionResult use(
-        @NotNull BlockState state,
-        @NotNull Level level,
-        @NotNull BlockPos pos,
-        @NotNull Player player,
-        @NotNull InteractionHand hand,
-        @NotNull BlockHitResult hit
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
     ) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, Objects.requireNonNull(state.getMenuProvider(level, pos)));
@@ -80,23 +79,23 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
     }
 
     @Override
-    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+    public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
             (i, inventory, player) -> new EmberSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
             CONTAINER_TITLE);
     }
 
     @Override
-    public boolean isRandomlyTicking(@NotNull BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return true;
     }
 
     @Override
     public void randomTick(
-        @NotNull BlockState state,
-        @NotNull ServerLevel level,
-        @NotNull BlockPos pos,
-        @NotNull RandomSource random) {
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random) {
         if (random.nextDouble() <= 0.5) {
             tryAbsorbWater(level, pos);
         }

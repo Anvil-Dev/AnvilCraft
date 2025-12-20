@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,8 +23,8 @@ public class SeedsPackItem extends Item {
     private Level level = null;
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(
-        @NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand
+    public InteractionResultHolder<ItemStack> use(
+        Level level, Player player, InteractionHand usedHand
     ) {
         ItemStack stack = player.getItemInHand(usedHand);
         if (items.isEmpty() || this.level == null || this.level != level) {

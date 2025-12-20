@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.event;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
+import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.screen.MultiphaseScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.MultitoolScreen;
@@ -31,8 +32,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
-import net.neoforged.neoforge.client.event.InputEvent.Key;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
@@ -72,7 +74,7 @@ public class ClientEventListener {
     private static int lastSwitchPhasePressAction = 0;
 
     @SubscribeEvent
-    public static void onKeyPress(Key event) {
+    public static void onKeyPress(InputEvent.Key event) {
         if (ModKeyMappings.TOGGLE_GOGGLE.get().isDown()) AnvilHammerItem.goggleEnabled = !AnvilHammerItem.goggleEnabled;
         if (Minecraft.getInstance().level == null) return;
 
@@ -86,11 +88,13 @@ public class ClientEventListener {
                 LocalPlayer player = Minecraft.getInstance().player;
                 if (player == null) return;
                 ItemStack stack = player.getMainHandItem();
+                // noinspection DataFlowIssue
                 if (stack.has(ModComponents.MULTIPHASE) && !stack.get(ModComponents.MULTIPHASE).isEmpty()) {
                     Minecraft.getInstance().setScreen(new MultiphaseScreen(InteractionHand.MAIN_HAND));
                     return;
                 }
                 stack = player.getOffhandItem();
+                // noinspection DataFlowIssue
                 if (stack.has(ModComponents.MULTIPHASE) && !stack.get(ModComponents.MULTIPHASE).isEmpty()) {
                     Minecraft.getInstance().setScreen(new MultiphaseScreen(InteractionHand.OFF_HAND));
                 }
@@ -155,6 +159,34 @@ public class ClientEventListener {
                     connection.send(new UsePillBoxPacket());
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onScreenKeyPressed(ScreenEvent.KeyPressed.Post event) {
+        if (event.getKeyCode() == ModKeyMappings.THOUGHT.get().getKey().getValue()) {
+            ThoughtManager.onThought();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onScreenKeyReleased(ScreenEvent.KeyReleased.Post event) {
+        if (event.getKeyCode() == ModKeyMappings.THOUGHT.get().getKey().getValue()) {
+            ThoughtManager.onEndThought();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        long lastThoughtTime = ThoughtManager.getLastThoughtTime();
+        if (lastThoughtTime < 0) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        long curTime = minecraft.gui.getGuiTicks();
+        long deltaTime = curTime - lastThoughtTime;
+        if (deltaTime > ThoughtManager.getMAX_SECONDS() * 20) {
+            ThoughtManager.onPostThought();
         }
     }
 

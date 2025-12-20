@@ -14,7 +14,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class SlotFilterMaxStackSizeChangePacket implements CustomPacketPayload {
     public static final Type<SlotFilterMaxStackSizeChangePacket> TYPE = new Type<>(AnvilCraft.of("slot_filter_max_stack_size_change"));
@@ -37,13 +36,13 @@ public class SlotFilterMaxStackSizeChangePacket implements CustomPacketPayload {
         this.maxStackSize = maxStackSize;
     }
 
-    public static SlotFilterMaxStackSizeChangePacket decode(@NotNull RegistryFriendlyByteBuf buf) {
+    public static SlotFilterMaxStackSizeChangePacket decode(RegistryFriendlyByteBuf buf) {
         int index = buf.readInt();
         int maxStackSize = buf.readInt();
         return new SlotFilterMaxStackSizeChangePacket(index, maxStackSize);
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+    public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeInt(this.index);
         buf.writeInt(this.maxStackSize);
     }
@@ -53,7 +52,7 @@ public class SlotFilterMaxStackSizeChangePacket implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void serverHandler(SlotFilterMaxStackSizeChangePacket data, @NotNull IPayloadContext context) {
+    public static void serverHandler(SlotFilterMaxStackSizeChangePacket data, IPayloadContext context) {
         ServerPlayer player = (ServerPlayer) context.player();
         context.enqueueWork(() -> {
             if (!player.hasContainerOpen()) return;
@@ -69,7 +68,7 @@ public class SlotFilterMaxStackSizeChangePacket implements CustomPacketPayload {
         });
     }
 
-    public static void clientHandler(SlotFilterMaxStackSizeChangePacket data, @NotNull IPayloadContext context) {
+    public static void clientHandler(SlotFilterMaxStackSizeChangePacket data, IPayloadContext context) {
         Minecraft client = Minecraft.getInstance();
         context.enqueueWork(() -> {
             if (!(client.screen instanceof IFilterScreen<?> screen)) return;

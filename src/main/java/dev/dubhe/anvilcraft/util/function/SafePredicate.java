@@ -1,27 +1,22 @@
 package dev.dubhe.anvilcraft.util.function;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 public interface SafePredicate<T> extends Predicate<T> {
     @Override
-    @NotNull
-    default SafePredicate<T> and(@NotNull Predicate<? super T> other) {
+    default SafePredicate<T> and(Predicate<? super T> other) {
         return new Multiple<>(this).and(other);
     }
 
     @Override
-    @NotNull
     default SafePredicate<T> negate() {
         return new Negate<>(this);
     }
 
     @Override
-    @NotNull
-    default SafePredicate<T> or(@NotNull Predicate<? super T> other) {
+    default SafePredicate<T> or(Predicate<? super T> other) {
         return new Multiple<>(this).or(other);
     }
 
@@ -39,7 +34,7 @@ public interface SafePredicate<T> extends Predicate<T> {
         }
 
         @Override
-        public @NotNull SafePredicate<T> negate() {
+        public SafePredicate<T> negate() {
             this.isNegate = !this.isNegate;
             return this;
         }
@@ -63,20 +58,20 @@ public interface SafePredicate<T> extends Predicate<T> {
         }
 
         @Override
-        public @NotNull SafePredicate<T> and(@NotNull Predicate<? super T> other) {
+        public SafePredicate<T> and(Predicate<? super T> other) {
             this.subs.add(new Multiple.And<>(other));
             return this;
         }
 
         @Override
-        public @NotNull SafePredicate<T> negate() {
+        public SafePredicate<T> negate() {
             this.first = this.first.negate();
             this.subs.getLast().negate();
             return this;
         }
 
         @Override
-        public @NotNull SafePredicate<T> or(@NotNull Predicate<? super T> other) {
+        public SafePredicate<T> or(Predicate<? super T> other) {
             this.subs.add(new Multiple.Or<>(other));
             return this;
         }

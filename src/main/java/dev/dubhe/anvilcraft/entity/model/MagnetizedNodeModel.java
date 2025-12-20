@@ -14,7 +14,6 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.RenderType;
-import org.jetbrains.annotations.NotNull;
 
 public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity> {
     public static final AnimationDefinition ROTATING = AnimationDefinition.Builder.withLength(6f).looping()
@@ -80,7 +79,7 @@ public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity>
 
     @Override
     public void setupAnim(
-        @NotNull MagnetizedNodeEntity entity,
+        MagnetizedNodeEntity entity,
         float limbSwing,
         float limbSwingAmount,
         float ageInTicks,
@@ -92,7 +91,7 @@ public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity>
     }
 
     @Override
-    public @NotNull ModelPart root() {
+    public ModelPart root() {
         return this.root;
     }
 }

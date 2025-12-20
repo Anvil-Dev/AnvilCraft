@@ -13,7 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer {
@@ -82,7 +81,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return getBlockPos();
     }
 

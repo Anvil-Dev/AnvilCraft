@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +26,7 @@ public class VillagerEventListener {
      * @param event 事件
      */
     @SubscribeEvent
-    public static void addCustomTrades(@NotNull VillagerTradesEvent event) {
+    public static void addCustomTrades(VillagerTradesEvent event) {
         if (event.getType() == ModVillagers.JEWELER.get()) {
             Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
             // level 1

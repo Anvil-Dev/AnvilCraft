@@ -31,7 +31,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Triple;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -167,7 +166,7 @@ public final class SlidingBlockSection {
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "Section[" + this.blocks + ']';
     }
 

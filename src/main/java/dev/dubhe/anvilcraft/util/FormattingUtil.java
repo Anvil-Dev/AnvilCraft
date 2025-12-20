@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -24,7 +23,7 @@ public class FormattingUtil {
      * @param string 任何带有 ASCII 字符的字符串。
      * @return 全小写的字符串，在单词/数字边界前插入下划线：“maragingSteel300” -> “maraging_steel_300”
      */
-    public static @NotNull String toLowerCaseUnderscore(@NotNull String string) {
+    public static String toLowerCaseUnderscore(String string) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
             if (
@@ -45,14 +44,14 @@ public class FormattingUtil {
      * @param string 任何带有 ASCII 字符的字符串。
      * @return 全小写的字符串，在单词/数字边界前插入下划线：“maragingSteel300” -> “maraging_steel_300”
      */
-    public static @NotNull String toLowerCaseUnder(String string) {
+    public static String toLowerCaseUnder(String string) {
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, string);
     }
 
     /**
      * apple_orange.juice => Apple Orange (Juice)
      */
-    public static String toEnglishName(@NotNull Object internalName) {
+    public static String toEnglishName(Object internalName) {
         return Arrays.stream(internalName.toString().toLowerCase(Locale.ROOT).split("_"))
             .map(StringUtils::capitalize)
             .collect(Collectors.joining(" "));

@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import org.jetbrains.annotations.NotNull;
 
 public class OverseerBlockEntity extends BlockEntity {
     private int waterLoggedBlockCount = 0;
@@ -29,7 +28,7 @@ public class OverseerBlockEntity extends BlockEntity {
         super(type, pos, blockState);
     }
 
-    public static @NotNull OverseerBlockEntity createBlockEntity(
+    public static OverseerBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
@@ -45,7 +44,7 @@ public class OverseerBlockEntity extends BlockEntity {
      * @param state 方块状态
      */
     @SuppressWarnings("unused")
-    public void tick(Level level, @NotNull BlockPos pos, BlockState state) {
+    public void tick(Level level, BlockPos pos, BlockState state) {
         if (level instanceof ServerLevel serverLevel) {
             // 如果底座上方不是监督者，直接破坏底座，结束方法
             if (!isBaseValid()) {

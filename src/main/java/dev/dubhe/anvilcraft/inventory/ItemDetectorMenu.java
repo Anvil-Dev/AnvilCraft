@@ -14,7 +14,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -25,7 +24,7 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
     private final ItemDetectorBlockEntity blockEntity;
 
     public ItemDetectorMenu(
-        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull BlockEntity machine) {
+        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
         ItemCollectorMenu.checkContainerSize(inventory, 9);
 

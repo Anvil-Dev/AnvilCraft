@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,30 +33,30 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     public static final ResourceLocation CONTENTS = ResourceLocation.withDefaultNamespace("contents");
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(ConfinementChamberBlock::new);
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos blockPos, @NotNull BlockState blockState) {
+    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new ConfinementChamberBlockEntity(blockPos, blockState);
     }
 
     @Override
-    protected @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
     // Unimplemented for current version
     /*@Override
-    protected @NotNull ItemInteractionResult useItemOn(
-            @NotNull ItemStack stack,
-            @NotNull BlockState state,
-            @NotNull Level level,
-            @NotNull BlockPos pos,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull BlockHitResult hitResult
+    protected ItemInteractionResult useItemOn(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hitResult
     ) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof ConfinementChamberBlockEntity confinementChamberBlockEntity))
@@ -71,7 +70,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     }*/
 
     @Override
-    public @NotNull BlockState playerWillDestroy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (blockentity instanceof ConfinementChamberBlockEntity confinementChamberBlockEntity) {
             if (!level.isClientSide && player.isCreative() && !confinementChamberBlockEntity.getItemHandler().getStackInSlot(0).isEmpty()) {
@@ -89,7 +88,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     }
 
     @Override
-    protected @NotNull List<ItemStack> getDrops(@NotNull BlockState state, LootParams.Builder params) {
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         BlockEntity blockentity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockentity instanceof ShulkerBoxBlockEntity shulkerboxblockentity) {
             params = params.withDynamicDrop(CONTENTS, it -> {

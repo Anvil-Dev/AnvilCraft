@@ -20,7 +20,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilHurtVillagerEventListener {
@@ -30,7 +29,7 @@ public class AnvilHurtVillagerEventListener {
      * @param event 铁砧伤害实体事件
      */
     @SubscribeEvent
-    public static void onAnvilHurtEntity(@NotNull AnvilEvent.HurtEntity event) {
+    public static void onAnvilHurtEntity(AnvilEvent.HurtEntity event) {
         Entity entity = event.getHurtedEntity();
         Level level = event.getLevel();
         if (level.isClientSide()) return;

@@ -13,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
@@ -28,7 +27,7 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
         super(type, pos, blockState);
     }
 
-    public static @NotNull RemoteTransmissionPoleBlockEntity createBlockEntity(
+    public static RemoteTransmissionPoleBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
@@ -37,12 +36,12 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return this.getBlockPos();
     }
 
     @Override
-    public @NotNull PowerComponentType getComponentType() {
+    public PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         if (!this.getBlockState().is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return PowerComponentType.INVALID;
         if (this.getBlockState().getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) {
@@ -56,7 +55,7 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
         return this.getLevel();
     }
 
-    public void tick(@NotNull Level level, @NotNull BlockPos pos) {
+    public void tick(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
         if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) return;

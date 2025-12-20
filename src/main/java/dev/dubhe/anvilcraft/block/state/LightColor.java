@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.state;
 
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 public enum LightColor implements StringRepresentable {
     PRIMARY("primary", 1),
@@ -18,7 +17,7 @@ public enum LightColor implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 }

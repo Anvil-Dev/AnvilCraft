@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block.state;
 import lombok.Getter;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -83,7 +82,7 @@ public enum Cube3x3PartHalf implements ISimpleMultiPartBlockState<Cube3x3PartHal
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 

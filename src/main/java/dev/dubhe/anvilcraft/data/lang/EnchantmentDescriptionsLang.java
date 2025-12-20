@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.data.lang;
 
 import com.tterrag.registrate.providers.RegistrateLangProvider;
-import org.jetbrains.annotations.NotNull;
 
 public class EnchantmentDescriptionsLang {
-    public static void init(@NotNull RegistrateLangProvider provider) {
+    public static void init(RegistrateLangProvider provider) {
         provider.add("enchantment.anvilcraft.felling.desc",
             "Vein mining of logs and their variants, higher level increases number limit.");
         provider.add("enchantment.anvilcraft.harvest.desc",

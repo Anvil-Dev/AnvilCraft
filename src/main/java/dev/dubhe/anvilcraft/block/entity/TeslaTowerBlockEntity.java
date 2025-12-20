@@ -42,7 +42,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -71,7 +70,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    public @NotNull PowerComponentType getComponentType() {
+    public PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         if (!this.getBlockState().is(ModBlocks.TESLA_TOWER.get())) return PowerComponentType.INVALID;
         if (this.getBlockState().getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM) return PowerComponentType.INVALID;
@@ -90,12 +89,12 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return this.getBlockPos();
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         int index = 0;
         for (Pair<TeslaFilter, String> entry : whiteList) {
             tag.putString(entry.first().getId() + "_-_" + index, entry.second());
@@ -104,7 +103,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         whiteList.clear();
         for (String key : tag.getAllKeys()) {
             if (key.split("_-_").length != 2) continue;
@@ -202,12 +201,12 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public Component getDisplayName() {
         return Component.translatable("block.anvilcraft.tesla_tower");
     }
 
     @Override
-    public @Nullable AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (level == null || player.isSpectator()) return null;
         BlockState blockState = level.getBlockState(getBlockPos());
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();

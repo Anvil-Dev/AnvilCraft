@@ -1,0 +1,357 @@
+{
+  "integration": {
+    "guide": [
+      {
+        "id": "ponder",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.guide.ponder"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "maven",
+              "url": "https://maven.createmod.net/net/createmod/ponder/ponder-neoforge"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/Creators-of-Create/Ponder"
+            }
+          ],
+          "extra": [
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-Ponder"
+            }
+          ]
+        }
+      },
+      {
+        "id": "guideme",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.guide.guideme"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/18414.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/guideme"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/guideme"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/AppliedEnergistics/GuideME"
+            }
+          ],
+          "extra": [
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-GuideME"
+            }
+          ]
+        }
+      },
+      {
+        "id": "patchouli",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.guide.patchouli"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/1388.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/patchouli"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/patchouli"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/VazkiiMods/Patchouli"
+            }
+          ],
+          "extra": [
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-Patchouli"
+            }
+          ]
+        }
+      }
+    ],
+    "recipe_query": [
+      {
+        "id": "jei",
+        "type": "builtin",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.recipe_query.jei"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/459.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/jei"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/jei"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/mezz/JustEnoughItems"
+            }
+          ]
+        }
+      }
+    ],
+    "info_hud": [
+      {
+        "id": "jade",
+        "type": "builtin",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.info_hud.jade"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/3482.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/jade"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/jade"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/Snownee/Jade"
+            }
+          ]
+        }
+      }
+    ],
+    "modify": [
+      {
+        "id": "kubejs",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.modify.kubejs"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/2021.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/create"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/create"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/Creators-of-Create/Create"
+            }
+          ],
+          "extra": [
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-Create-Addition"
+            }
+          ]
+        }
+      }
+    ],
+    "interaction": [
+      {
+        "id": "create",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.interaction.create"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/2021.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/create"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/create"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/Creators-of-Create/Create"
+            }
+          ],
+          "extra": [
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-Create-Addition"
+            }
+          ]
+        }
+      },
+      {
+        "id": "ae2",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.interaction.ae2"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/260.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/ae2"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/AppliedEnergistics/Applied-Energistics-2"
+            }
+          ],
+          "extra": [
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AppliedAnvilstics"
+            }
+          ]
+        }
+      }
+    ],
+    "compatible": [
+      {
+        "id": "better_beacons",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.compatible.better_beacons"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/13660.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/cerbons-better-beacons"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/cerbons-better-beacons"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/CERBON-MODS/CERBONs-Better-Beacons"
+            }
+          ],
+          "extra": [
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-Better-Beacons-Compatible"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "additional": [
+    {
+      "id": "skyland",
+      "name": [
+        {
+          "translate": "integration.anvilcraft.additional.skyland"
+        }
+      ],
+      "links": {
+        "target": [
+          {
+            "type": "maven",
+            "url": "https://server.cjsah.net:1002/maven/dev/anvilcraft/skyland/AnvilCraft-Skyland"
+          },
+          {
+            "type": "github",
+            "url": "https://github.com/Anvil-Dev/AnvilCraft-Skyland"
+          }
+        ]
+      }
+    },
+    {
+      "id": "anvilcraft_delta",
+      "name": [
+        {
+          "translate": "integration.anvilcraft.additional.anvilcraft_delta"
+        }
+      ],
+      "links": {
+        "target": [
+          {
+            "type": "curseforge",
+            "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-delta"
+          },
+          {
+            "type": "modrinth",
+            "url": "https://modrinth.com/mod/anvilcraft-delta"
+          },
+          {
+            "type": "github",
+            "url": "https://github.com/Anvil-Dev/AnvilCraft-Delta"
+          }
+        ]
+      }
+    }
+  ]
+}

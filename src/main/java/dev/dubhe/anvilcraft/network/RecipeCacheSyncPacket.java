@@ -32,7 +32,7 @@ public record RecipeCacheSyncPacket(
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

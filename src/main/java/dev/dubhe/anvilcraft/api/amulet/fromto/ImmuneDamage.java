@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.amulet.fromto;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public interface ImmuneDamage extends BiPredicate<ServerPlayer, DamageSource> {
         }
 
         @Override
-        public @NotNull ImmuneDamage negate() {
+        public ImmuneDamage negate() {
             this.isNegate = !this.isNegate;
             return this;
         }
@@ -71,20 +70,20 @@ public interface ImmuneDamage extends BiPredicate<ServerPlayer, DamageSource> {
         }
 
         @Override
-        public @NotNull ImmuneDamage and(@NotNull BiPredicate<? super ServerPlayer, ? super DamageSource> other) {
+        public ImmuneDamage and(BiPredicate<? super ServerPlayer, ? super DamageSource> other) {
             this.subs.add(new And(other));
             return this;
         }
 
         @Override
-        public @NotNull ImmuneDamage negate() {
+        public ImmuneDamage negate() {
             this.first = this.first.negate();
             this.subs.getLast().negate();
             return this;
         }
 
         @Override
-        public @NotNull ImmuneDamage or(@NotNull BiPredicate<? super ServerPlayer, ? super DamageSource> other) {
+        public ImmuneDamage or(BiPredicate<? super ServerPlayer, ? super DamageSource> other) {
             this.subs.add(new Or(other));
             return this;
         }

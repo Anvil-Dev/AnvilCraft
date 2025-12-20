@@ -2,16 +2,18 @@ package dev.dubhe.anvilcraft.util;
 
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
+import lombok.Getter;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensions {
+    @Getter
     public final ResourceLocation stillTexture;
+    @Getter
     public final ResourceLocation flowingTexture;
     public final boolean noFog;
     public final int fogColor;
@@ -43,14 +45,6 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
 
     public ModClientFluidTypeExtensionImpl(ResourceLocation texture) {
         this(texture, texture);
-    }
-
-    public @NotNull ResourceLocation getStillTexture() {
-        return stillTexture;
-    }
-
-    public @NotNull ResourceLocation getFlowingTexture() {
-        return flowingTexture;
     }
 
     @Override

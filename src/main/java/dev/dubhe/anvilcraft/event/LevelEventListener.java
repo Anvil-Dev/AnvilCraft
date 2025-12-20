@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
-import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LevelEventListener {
@@ -20,7 +19,7 @@ public class LevelEventListener {
      * 世界加载事件
      */
     @SubscribeEvent
-    public static void onLevelLoad(@NotNull LevelEvent.Load event) {
+    public static void onLevelLoad(LevelEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             AnvilCraftFakePlayers.anvilcraftBlockPlacer = new AnvilCraftBlockPlacerFakePlayer(serverLevel);
             AnvilCraftFakePlayers.anvilcraftKiller = new AnvilCraftKillerFakePlayer();
@@ -32,7 +31,7 @@ public class LevelEventListener {
      * 世界卸载事件
      */
     @SubscribeEvent
-    public static void onLevelUnload(@NotNull LevelEvent.Unload event) {
+    public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             LevelLoadManager.removeAll(serverLevel);
             DeflectionRingBlockEntity.clear();

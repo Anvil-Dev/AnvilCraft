@@ -9,7 +9,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -130,7 +129,7 @@ public class SwitchableButton extends Button {
         return button == 0 || button == 1;
     }
 
-    public interface OnPress extends Button.OnPress, Consumer<Button>, BiConsumer<Button, @NotNull Integer> {
+    public interface OnPress extends Button.OnPress, Consumer<Button>, BiConsumer<Button, Integer> {
         void onPress(Button button, int index);
 
         @Override

@@ -36,7 +36,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 
@@ -142,12 +141,12 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return getBlockPos();
     }
 
     @Override
-    public @NotNull PowerComponentType getComponentType() {
+    public PowerComponentType getComponentType() {
         if (level == null) return PowerComponentType.INVALID;
         if (!level.getBlockState(getBlockPos()).hasProperty(DeflectionRingBlock.HALF)) return PowerComponentType.INVALID;
         if (level.getBlockState(getBlockPos()).getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) {

@@ -12,7 +12,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class HeliostatsIrradiationPacket implements CustomPacketPayload {
     public static final Type<HeliostatsIrradiationPacket> TYPE =
@@ -41,7 +40,7 @@ public class HeliostatsIrradiationPacket implements CustomPacketPayload {
         this.irritatePos = buf.readNullable(RegistryFriendlyByteBuf::readBlockPos);
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+    public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeBlockPos(blockPos);
         buf.writeNullable(irritatePos, RegistryFriendlyByteBuf::writeBlockPos);
     }

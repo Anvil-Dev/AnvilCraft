@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import org.jetbrains.annotations.NotNull;
 
 public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntity> {
     @SuppressWarnings("unused")
@@ -18,10 +17,10 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
 
     @Override
     public void render(
-        @NotNull HasMobBlockEntity blockEntity,
+        HasMobBlockEntity blockEntity,
         float partialTick,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource buffer,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
         int packedLight,
         int packedOverlay
     ) {

@@ -25,7 +25,6 @@ import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.Tags;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class GiantAnvilLandingEventListener {
     }
 
     @SubscribeEvent
-    public static void handleMultiblock(@NotNull AnvilEvent.GiantOnLand event) {
+    public static void handleMultiblock(AnvilEvent.GiantOnLand event) {
         Level level = event.getLevel();
         BlockPos landPos = event.getPos().below(2);
 

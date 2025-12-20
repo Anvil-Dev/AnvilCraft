@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - releases/**
+      - dev/**
     paths:
       - src/**
       - common/**

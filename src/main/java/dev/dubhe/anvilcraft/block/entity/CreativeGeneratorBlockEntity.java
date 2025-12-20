@@ -21,7 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -35,7 +34,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     private int time = 0;
     private boolean previousSyncFailed = false;
 
-    public static @NotNull CreativeGeneratorBlockEntity createBlockEntity(
+    public static CreativeGeneratorBlockEntity createBlockEntity(
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         return new CreativeGeneratorBlockEntity(type, pos, blockState);
@@ -50,13 +49,13 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.putInt("power", power);
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         this.power = tag.getInt("power");
     }
@@ -72,12 +71,12 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     @Override
-    public @NotNull PowerComponentType getComponentType() {
+    public PowerComponentType getComponentType() {
         return this.power > 0 ? PowerComponentType.PRODUCER : PowerComponentType.CONSUMER;
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return this.getBlockPos();
     }
 
@@ -87,13 +86,13 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     @Override
-    public @NotNull Component getDisplayName() {
+    public Component getDisplayName() {
         return ModBlocks.CREATIVE_GENERATOR.get().getName();
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new SliderMenu(i, this::setPower);
     }

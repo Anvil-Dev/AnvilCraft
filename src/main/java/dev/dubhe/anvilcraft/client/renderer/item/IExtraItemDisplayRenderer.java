@@ -11,7 +11,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
@@ -56,7 +55,7 @@ public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         float pitch,
         InteractionHand hand,
         float swingProgress,
-        @NotNull ItemStack stack,
+        ItemStack stack,
         float equippedProgress,
         PoseStack poseStack,
         MultiBufferSource buffer,

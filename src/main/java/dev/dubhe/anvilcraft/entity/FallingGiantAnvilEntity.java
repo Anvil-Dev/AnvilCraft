@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 public class FallingGiantAnvilEntity extends FallingBlockEntity {
     private float fallDistance = 0;
@@ -174,7 +173,7 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
     }
 
     @Override
-    protected @NotNull AABB makeBoundingBox() {
+    protected AABB makeBoundingBox() {
         return EntityDimensions.scalable(3, 3).makeBoundingBox(this.position().add(0, -1, 0));
     }
 }

@@ -9,7 +9,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.util.thread.SidedThreadGroups;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -62,6 +61,35 @@ public class Util {
         };
     }
 
+    public static <E> Optional<List<E>> intoOptional(List<E> collection) {
+        if (collection.isEmpty()) return Optional.empty();
+        return Optional.of(collection);
+    }
+
+    public static String generateUniqueRecipeSuffix() {
+        return "_generated_" + generateRandomString(8, true, false);
+    }
+
+    public static String generateRandomString(int len) {
+        return generateRandomString(len, true, true);
+    }
+
+    public static String generateRandomString(int len, boolean hasInteger, boolean hasUpperLetter) {
+        String ch = "abcdefghijklmnopqrstuvwxyz" + (hasUpperLetter ? "ABCDEFGHIGKLMNOPQRSTUVWXYZ" : "")
+            + (hasInteger ? "0123456789" : "");
+        StringBuilder stringBuffer = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            Random random = new Random(System.nanoTime());
+            int num = random.nextInt(ch.length() - 1);
+            stringBuffer.append(ch.charAt(num));
+        }
+        return stringBuffer.toString();
+    }
+
+    public static int comparingIntReversed(int x, int y) {
+        return Integer.compare(y, x);
+    }
+
     public static boolean findCaller(String caller) {
         return STACK_WALKER.walk(it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
     }
@@ -111,7 +139,7 @@ public class Util {
      * @throws ClassCastException 当无法将传入的值强转时抛出
      */
     @SuppressWarnings("unchecked")
-    public static <T> T cast(@NotNull Object o) {
+    public static <T> T cast(Object o) {
         return (T) o;
     }
 

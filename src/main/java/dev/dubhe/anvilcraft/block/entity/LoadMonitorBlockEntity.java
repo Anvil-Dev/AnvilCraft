@@ -13,7 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
@@ -27,13 +26,13 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     }
 
     @Override
-    public void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         tag.putInt("Cooldown", cooldown);
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         cooldown = tag.getInt("Cooldown");
     }
@@ -44,7 +43,7 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     }
 
     @Override
-    public @NotNull BlockPos getPos() {
+    public BlockPos getPos() {
         return getBlockPos();
     }
 

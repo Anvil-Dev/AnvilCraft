@@ -11,7 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class PowerGridRemovePacket implements CustomPacketPayload {
@@ -25,7 +24,7 @@ public class PowerGridRemovePacket implements CustomPacketPayload {
     /**
      * 电网移除
      */
-    public PowerGridRemovePacket(@NotNull PowerGrid grid) {
+    public PowerGridRemovePacket(PowerGrid grid) {
         this(grid.hashCode());
     }
 

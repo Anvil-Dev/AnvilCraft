@@ -17,7 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,7 +69,7 @@ public class MultiphaseScreen extends Screen {
         this.wheel = this.addRenderableWidget(wheel);
     }
 
-    private static @NotNull List<WheelWidget.RawSection> createWheelSections(
+    private static List<WheelWidget.RawSection> createWheelSections(
         int size, List<Multiphase.Phase> phasesCopy, ItemStack holding, boolean hasMerciless
     ) {
         var raw = ListUtil.createWithValues(

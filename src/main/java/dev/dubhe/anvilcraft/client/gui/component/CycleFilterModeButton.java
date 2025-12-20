@@ -8,7 +8,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,7 @@ public class CycleFilterModeButton extends Button {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
             guiGraphics.renderTooltip(
@@ -50,14 +49,14 @@ public class CycleFilterModeButton extends Button {
     }
 
     @Override
-    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         ResourceLocation location = AnvilCraft.of(LOCATION_PREFIX + this.buttonPath() + LOCATION_SUFFIX);
         this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     public void renderTexture(
-        @NotNull GuiGraphics guiGraphics,
-        @NotNull ResourceLocation texture,
+        GuiGraphics guiGraphics,
+        ResourceLocation texture,
         int x,
         int y,
         int puOffset,

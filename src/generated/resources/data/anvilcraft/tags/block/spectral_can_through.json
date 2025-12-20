@@ -5,10 +5,6 @@
     "#minecraft:leaves",
     "minecraft:iron_bars",
     "minecraft:mangrove_roots",
-    "minecraft:copper_grate",
-    {
-      "id": "ae2:cable_bus",
-      "required": false
-    }
+    "minecraft:copper_grate"
   ]
 }

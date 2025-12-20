@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DummyCat extends Cat {
@@ -23,7 +22,7 @@ public class DummyCat extends Cat {
     }
 
     @Override
-    protected @NotNull AABB getAttackBoundingBox() {
+    protected AABB getAttackBoundingBox() {
         return new AABB(Vec3.ZERO, Vec3.ZERO);
     }
 

@@ -22,7 +22,6 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -34,7 +33,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     private final Slot resultSlot;
     private final Level level;
 
-    public BatchCrafterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, @NotNull FriendlyByteBuf extraData) {
+    public BatchCrafterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
 
@@ -107,7 +106,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
 
     @Override
-    public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
+    public ItemStack quickMoveStack(Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) {
@@ -176,7 +175,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     }
 
     @Override
-    public boolean stillValid(@NotNull Player player) {
+    public boolean stillValid(Player player) {
         return stillValid(
             ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.BATCH_CRAFTER.get());
     }
@@ -187,12 +186,12 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     }
 
     @Override
-    public int getFilterSlotIndex(@NotNull Slot slot) {
+    public int getFilterSlotIndex(Slot slot) {
         return slot.index - 36;
     }
 
     @Override
-    public void setItem(int slotId, int stateId, @NotNull ItemStack stack) {
+    public void setItem(int slotId, int stateId, ItemStack stack) {
         super.setItem(slotId, stateId, stack);
         this.onChanged();
     }
@@ -212,12 +211,12 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
 
     @Override
     public void slotChanged(
-        @NotNull AbstractContainerMenu containerToSend, int dataSlotIndex, @NotNull ItemStack stack) {
+        AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
         onChanged();
     }
 
     @Override
-    public void dataChanged(@NotNull AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
+    public void dataChanged(AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
     }
 
     @Override

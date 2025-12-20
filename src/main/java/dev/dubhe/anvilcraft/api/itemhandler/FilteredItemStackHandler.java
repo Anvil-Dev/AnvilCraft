@@ -14,7 +14,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -155,7 +154,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
      * @param slot  槽位
      * @param stack 过滤物品堆叠（不检查NBT）
      */
-    public boolean setFilter(int slot, @NotNull ItemStack stack) {
+    public boolean setFilter(int slot, ItemStack stack) {
         if (slot < 0 || slot >= this.filteredItems.size()) return false;
         if (stack.isEmpty()) return false;
         this.setSlotDisabled(slot, false);
@@ -209,7 +208,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     }
 
     @Override
-    public @NotNull CompoundTag serializeNBT(HolderLookup.Provider provider) {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.putBoolean("FilterEnabled", this.filterEnabled);
         ListTag inventory = new ListTag();
@@ -243,7 +242,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, @NotNull CompoundTag tag) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         if (!tag.contains("Inventory")) return;
         this.filterEnabled = tag.getBoolean("FilterEnabled");
         ListTag inventory = (ListTag) tag.get("Inventory");
@@ -274,7 +273,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
     }
 
-    public void deserializeFiltering(@NotNull CompoundTag tag) {
+    public void deserializeFiltering(CompoundTag tag) {
         FilteredItemStackHandler handler =
             CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
         if (this.getSlots() != handler.getSlots()) throw new IllegalArgumentException("Depository size mismatch");

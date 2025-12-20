@@ -31,7 +31,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -94,7 +93,7 @@ public record MobTransformWithItemRecipe(
     }
 
     @Override
-    public ItemStack assemble(Input input, HolderLookup.@NotNull Provider provider) {
+    public ItemStack assemble(Input input, HolderLookup.Provider provider) {
         return Items.AIR.getDefaultInstance();
     }
 
@@ -104,7 +103,7 @@ public record MobTransformWithItemRecipe(
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
         return Items.AIR.getDefaultInstance();
     }
 

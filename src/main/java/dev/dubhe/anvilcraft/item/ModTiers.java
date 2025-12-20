@@ -10,7 +10,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -69,7 +68,7 @@ public enum ModTiers implements Tier {
         float speed,
         float damage,
         int enchantmentValue,
-        @NotNull Supplier<Ingredient> supplier,
+        Supplier<Ingredient> supplier,
         TagKey<Block> incorrectBlockTags) {
         this.uses = uses;
         this.speed = speed;
@@ -96,7 +95,7 @@ public enum ModTiers implements Tier {
     }
 
     @Override
-    public @NotNull TagKey<Block> getIncorrectBlocksForDrops() {
+    public TagKey<Block> getIncorrectBlocksForDrops() {
         return incorrectBlockTags;
     }
 
@@ -106,7 +105,7 @@ public enum ModTiers implements Tier {
     }
 
     @Override
-    public @NotNull Ingredient getRepairIngredient() {
+    public Ingredient getRepairIngredient() {
         return this.repairIngredient.get();
     }
 }

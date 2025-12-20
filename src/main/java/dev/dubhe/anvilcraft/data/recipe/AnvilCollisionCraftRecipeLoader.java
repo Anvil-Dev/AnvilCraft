@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -129,7 +128,7 @@ public class AnvilCollisionCraftRecipeLoader {
             .save(provider);
     }
 
-    private static void forEachAnvil(Consumer<Block> block, Block @NotNull ... anvils) {
+    private static void forEachAnvil(Consumer<Block> block, Block... anvils) {
         for (Block anvil : anvils) {
             block.accept(anvil);
         }

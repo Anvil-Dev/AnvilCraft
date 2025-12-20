@@ -6,7 +6,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     private boolean enabled = false;
@@ -15,7 +14,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
         super(type, pos, blockState);
     }
 
-    public static @NotNull RubyPrismBlockEntity createBlockEntity(
+    public static RubyPrismBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
         BlockState blockState
@@ -23,7 +22,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
         return new RubyPrismBlockEntity(type, pos, blockState);
     }
 
-    public void tick(@NotNull Level level) {
+    public void tick(Level level) {
         if (enabled) {
             emitLaser(getFacing());
         }

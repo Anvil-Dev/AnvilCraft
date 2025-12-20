@@ -19,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
@@ -243,8 +242,8 @@ public record Multiphase(LinkedList<Phase> phases) {
         Optional<Component> customName,
         Optional<Component> itemName,
         int repairCost,
-        @NotNull ItemEnchantments enchantments,
-        @NotNull ItemEnchantments storedEnchantments
+        ItemEnchantments enchantments,
+        ItemEnchantments storedEnchantments
     ) {
         // TODO: 兼容性支持结束后移除此常量
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -334,8 +333,8 @@ public record Multiphase(LinkedList<Phase> phases) {
             @Nullable Component customName,
             @Nullable Component itemName,
             int repairCost,
-            @NotNull ItemEnchantments enchantments,
-            @NotNull ItemEnchantments storedEnchantments
+            ItemEnchantments enchantments,
+            ItemEnchantments storedEnchantments
         ) {
             this(
                 index,

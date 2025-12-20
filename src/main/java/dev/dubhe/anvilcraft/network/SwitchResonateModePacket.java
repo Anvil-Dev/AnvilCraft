@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import org.jetbrains.annotations.NotNull;
 
 public record SwitchResonateModePacket(InteractionHand hand, int mode) implements CustomPacketPayload {
     public static final Type<SwitchResonateModePacket> TYPE = new Type<>(AnvilCraft.of("switch_resonate_mode"));
@@ -22,12 +21,12 @@ public record SwitchResonateModePacket(InteractionHand hand, int mode) implement
         return TYPE;
     }
 
-    public void encode(@NotNull RegistryFriendlyByteBuf buf) {
+    public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeEnum(this.hand);
         buf.writeVarInt(this.mode);
     }
 
-    public static SwitchResonateModePacket decode(@NotNull RegistryFriendlyByteBuf buf) {
+    public static SwitchResonateModePacket decode(RegistryFriendlyByteBuf buf) {
         return new SwitchResonateModePacket(buf.readEnum(InteractionHand.class), buf.readVarInt());
     }
 

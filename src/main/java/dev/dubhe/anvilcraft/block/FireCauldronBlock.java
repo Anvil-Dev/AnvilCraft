@@ -15,7 +15,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
-import org.jetbrains.annotations.NotNull;
 
 public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHammerRemovable {
     public FireCauldronBlock(Properties properties) {
@@ -24,7 +23,7 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
 
     @Override
     public void entityInside(
-        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
+        BlockState state, Level level, BlockPos pos, Entity entity) {
         if (this.isEntityInsideContent(state, pos, entity)) {
             entity.lavaHurt();
         }

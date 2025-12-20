@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.state;
 
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 @Getter
 public enum Vertical3PartHalf implements ISimpleMultiPartBlockState<Vertical3PartHalf> {
@@ -26,7 +25,7 @@ public enum Vertical3PartHalf implements ISimpleMultiPartBlockState<Vertical3Par
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 }

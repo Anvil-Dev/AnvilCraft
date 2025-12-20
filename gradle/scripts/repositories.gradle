@@ -4,74 +4,29 @@ repositories {
     maven { // Anvil Lib
         name = "Cjsah Maven"
         url = "https://server.cjsah.net:1002/maven/"
+        content {
+            includeGroup "dev.anvilcraft.lib"
+        }
     }
-    maven { // Modrinth File, LazyDFU, Jade
+    maven { // Sodium, Embeddium, Iris, Jade
         name = "Modrinth Maven"
         url = "https://api.modrinth.com/maven"
         content {
             includeGroup "maven.modrinth"
         }
     }
-    maven { // Mod Menu, EMI
-        name = "TerraformersMC Maven"
-        url = "https://maven.terraformersmc.com/releases/"
-    }
-    maven { // Cloth Config, REI
-        name = "Shedaniel Maven"
-        url = "https://maven.shedaniel.me/"
-    }
-    maven { // CurseForge File
-        name = "CurseForge Maven"
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    maven { // Patchouli
+    maven { // JEI
         name = "Jared's maven"
         url = "https://maven.blamejared.com/"
+        content {
+            includeGroup "mezz.jei"
+        }
     }
     maven { // Registrate Fork
         name = "Ithundxr Maven"
         url = "https://maven.ithundxr.dev/snapshots"
-    }
-    maven { // KubeJS, Rhino
-        name = "Saps Maven"
-        url = "https://maven.latvian.dev/releases"
         content {
-            includeGroup "dev.latvian.mods"
-            includeGroup "dev.latvian.apps"
+            includeGroup "com.tterrag.registrate"
         }
-    }
-    maven {
-        url 'https://jitpack.io'
-        content {
-            includeGroup "com.github.rtyley"
-        }
-    }
-    maven { // TOP
-        name = "k-4u Maven"
-        url "https://maven.k-4u.nl"
-    }
-    maven { // Curios API
-        name = "OctoStudios Maven"
-        url = uri("https://maven.octo-studios.com/releases")
-    }
-    maven {
-        url "https://maven.su5ed.dev/releases"
-    }
-    maven { // Create Mod, Ponder
-        name = "Create Mod Maven"
-        url = "https://maven.createmod.net"
-    }
-    maven {
-        url "https://maven.latvian.dev/releases"
-        content {
-            includeGroup "dev.latvian.mods"
-            includeGroup "dev.latvian.apps"
-        }
-    }
-    maven { // Twilight Forest
-        url = "https://maven.tamaized.com/releases"
     }
 }

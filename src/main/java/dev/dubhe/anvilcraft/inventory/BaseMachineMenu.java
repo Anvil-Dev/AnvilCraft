@@ -6,14 +6,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
 public abstract class BaseMachineMenu extends AbstractContainerMenu {
     protected final BlockEntity machine;
 
-    protected BaseMachineMenu(@Nullable MenuType<?> menuType, int containerId, @NotNull BlockEntity machine) {
+    protected BaseMachineMenu(@Nullable MenuType<?> menuType, int containerId, BlockEntity machine) {
         super(menuType, containerId);
         this.machine = machine;
     }

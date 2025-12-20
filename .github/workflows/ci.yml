@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - releases/**
+      - dev/**
     paths:
       - src/**
       - common/**

@@ -1,68 +1,23 @@
 dependencies {
     // Registrate
-    api("com.tterrag.registrate:Registrate:${libs.versions.registrate.get()}")
-    jarJar("com.tterrag.registrate:Registrate:${libs.versions.registrate.get()}")
+    api(libs.registrate)
+    jarJar(libs.registrate)
 
     // AnvilLib
     implementation(libs.anvillib)
     interfaceInjectionData(libs.anvillib)
     jarJar(libs.anvillib)
 
-    // Cloth Config
-    runtimeOnly(libs.clothConfig)
-
-    // Curios API
-    implementation(libs.curios)
-
     // JEI
     compileOnlyApi(libs.jeiCommonApi) { transitive = false }
     compileOnlyApi(libs.jeiForgeApi) { transitive = false }
     implementation(libs.jeiForgeImpl) { transitive = false }
 
-    // REI
-    compileOnlyApi(libs.reiPlugin)
-    compileOnlyApi(libs.reiApi)
-    compileOnly(libs.reiForge)
-
-    // EMI
-    compileOnlyApi("dev.emi:emi-neoforge:${libs.versions.emi.get()}:api")
-    compileOnly(libs.emi)
-
-    // Patchouli
-    //compileOnlyApi("vazkii.patchouli:Patchouli:${libs.versions.patchouli.get()}:api")
-    //runtimeOnly(libs.patchouli)
-    implementation(libs.patchouli)
-
     // Sodium, Iris, Embeddium
-    compileOnly("maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge")
-    compileOnly("maven.modrinth:embeddium:1.0.11+mc1.21.1")
-    compileOnly("maven.modrinth:iris:1.8.1+1.21.1-neoforge")
+    compileOnly(libs.sodium)
+    compileOnly(libs.embeddium)
+    compileOnly(libs.iris)
 
-    // Jade, The One Probe, KubeJS
+    // Jade
     compileOnly(libs.jade)
-    compileOnly(libs.theoneprobe)
-    compileOnly(libs.kubejs)
-
-    // Flywheel
-    implementation(libs.flywheelApi)
-    implementation(libs.flywheel)
-
-    // Ponder
-    implementation(libs.ponder) { transitive = false }
-
-    // Create
-    implementation(libs.create) { transitive = false }
-
-    // AE2
-    compileOnly(libs.ae2)
-
-    // CERBON's Better Beacons
-    compileOnly(libs.cerbonsApi)
-    compileOnly(libs.cerbonsBetterBeacons)
-
-    // Apple Skin
-    implementation(libs.appleskin)
-
-    // Twilight Forest
-    implementation "team-twilight:twilightforest:${libs.versions.twilightForest.get()}:universal"
 }

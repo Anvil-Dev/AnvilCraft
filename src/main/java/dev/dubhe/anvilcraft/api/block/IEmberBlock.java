@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 余烬金属系方块
@@ -31,7 +30,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
     /**
      * 尝试吸水
      */
-    default void tryAbsorbWater(@NotNull Level level, @NotNull BlockPos pos) {
+    default void tryAbsorbWater(Level level, BlockPos pos) {
         if (this.removeFluidBreadthFirstSearch(level, pos)) {
             level.levelEvent(2001, pos, Block.getId(getCheckBlockState()));
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
