@@ -11,15 +11,11 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.util.thread.SidedThreadGroups;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
@@ -59,35 +55,6 @@ public class Util {
             case PASS -> ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             case FAIL -> ItemInteractionResult.FAIL;
         };
-    }
-
-    public static <E> Optional<List<E>> intoOptional(List<E> collection) {
-        if (collection.isEmpty()) return Optional.empty();
-        return Optional.of(collection);
-    }
-
-    public static String generateUniqueRecipeSuffix() {
-        return "_generated_" + generateRandomString(8, true, false);
-    }
-
-    public static String generateRandomString(int len) {
-        return generateRandomString(len, true, true);
-    }
-
-    public static String generateRandomString(int len, boolean hasInteger, boolean hasUpperLetter) {
-        String ch = "abcdefghijklmnopqrstuvwxyz" + (hasUpperLetter ? "ABCDEFGHIGKLMNOPQRSTUVWXYZ" : "")
-            + (hasInteger ? "0123456789" : "");
-        StringBuilder stringBuffer = new StringBuilder();
-        for (int i = 0; i < len; i++) {
-            Random random = new Random(System.nanoTime());
-            int num = random.nextInt(ch.length() - 1);
-            stringBuffer.append(ch.charAt(num));
-        }
-        return stringBuffer.toString();
-    }
-
-    public static int comparingIntReversed(int x, int y) {
-        return Integer.compare(y, x);
     }
 
     public static boolean findCaller(String caller) {
@@ -155,7 +122,7 @@ public class Util {
      * @throws E 当无法将传入的值强转时抛出
      */
     @SuppressWarnings("unchecked")
-    public static <T, E extends Exception> T cast(@NotNull Object o, Supplier<E> exceptionFactory) throws E {
+    public static <T, E extends Exception> T cast(Object o, Supplier<E> exceptionFactory) throws E {
         try {
             return (T) o;
         } catch (ClassCastException ignored) {
