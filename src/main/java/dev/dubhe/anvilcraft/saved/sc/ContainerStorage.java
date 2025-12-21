@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.saved.sc;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.api.container.category.store.Categories;
-import dev.dubhe.anvilcraft.api.container.category.store.ClientCategories;
-import dev.dubhe.anvilcraft.api.container.item.ItemEntries;
-import dev.dubhe.anvilcraft.api.container.upgrade.Upgrades;
+import dev.dubhe.anvilcraft.api.sc.category.store.Categories;
+import dev.dubhe.anvilcraft.api.sc.category.store.ClientCategories;
+import dev.dubhe.anvilcraft.api.sc.item.ItemEntries;
+import dev.dubhe.anvilcraft.api.sc.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.DistExecutor;
 import dev.dubhe.anvilcraft.util.Util;

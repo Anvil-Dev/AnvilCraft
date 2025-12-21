@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.component.sc;
 
-import dev.dubhe.anvilcraft.api.container.category.CategoryMode;
-import dev.dubhe.anvilcraft.api.container.category.provider.CategoryProvider;
+import dev.dubhe.anvilcraft.api.sc.category.CategoryMode;
+import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.client.util.RegistryUtil;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.init.ModRegistries;

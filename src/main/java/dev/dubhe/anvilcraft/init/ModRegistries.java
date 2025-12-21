@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
-import dev.dubhe.anvilcraft.api.container.category.ICategory;
-import dev.dubhe.anvilcraft.api.container.upgrade.IUpgrade;
 import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
+import dev.dubhe.anvilcraft.api.sc.category.ICategory;
+import dev.dubhe.anvilcraft.api.sc.upgrade.IUpgrade;
 import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
 import net.minecraft.core.Registry;

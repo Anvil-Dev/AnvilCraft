@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.network.multiple;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.container.category.ICategory;
+import dev.dubhe.anvilcraft.api.sc.category.ICategory;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;

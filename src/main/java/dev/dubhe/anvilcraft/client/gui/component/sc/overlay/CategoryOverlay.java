@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.client.gui.component.sc.overlay;
 
-import dev.dubhe.anvilcraft.api.container.category.FilterCategory;
-import dev.dubhe.anvilcraft.api.container.category.ICategory;
-import dev.dubhe.anvilcraft.api.container.category.provider.CategoryProvider;
-import dev.dubhe.anvilcraft.api.container.category.store.Categories;
+import dev.dubhe.anvilcraft.api.sc.category.FilterCategory;
+import dev.dubhe.anvilcraft.api.sc.category.ICategory;
+import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
+import dev.dubhe.anvilcraft.api.sc.category.store.Categories;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.client.util.RegistryUtil;

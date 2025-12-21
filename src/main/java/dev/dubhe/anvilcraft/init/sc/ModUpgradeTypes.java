@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.init.sc;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.container.upgrade.EntryLimitUpgrade;
-import dev.dubhe.anvilcraft.api.container.upgrade.IUpgrade;
-import dev.dubhe.anvilcraft.api.container.upgrade.StackPowerUpgrade;
-import dev.dubhe.anvilcraft.api.container.upgrade.TransferUpgrade;
+import dev.dubhe.anvilcraft.api.sc.upgrade.EntryLimitUpgrade;
+import dev.dubhe.anvilcraft.api.sc.upgrade.IUpgrade;
+import dev.dubhe.anvilcraft.api.sc.upgrade.StackPowerUpgrade;
+import dev.dubhe.anvilcraft.api.sc.upgrade.TransferUpgrade;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
