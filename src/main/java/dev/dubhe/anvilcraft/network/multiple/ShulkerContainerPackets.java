@@ -207,13 +207,19 @@ public class ShulkerContainerPackets {
 
         private void serverHandler(IPayloadContext ctx) {
             ServerLevel level = Util.cast(ctx.player().level());
+            if (!level.isLoaded(this.pos)) return;
             ctx.enqueueWork(
                 () -> level.getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get())
-                    .ifPresent(be -> PacketDistributor.sendToPlayersTrackingChunk(
-                        level,
-                        new ChunkPos(this.pos),
-                        new IdSync(this.pos, be.getStorageId())
-                    ))
+                    .ifPresent(be -> {
+                        PacketDistributor.sendToAllPlayers(
+                            new StorageSync(ContainerStorages.get().getOrCreate(be.getStorageId()))
+                        );
+                        PacketDistributor.sendToPlayersTrackingChunk(
+                            level,
+                            new ChunkPos(this.pos),
+                            new IdSync(this.pos, be.getStorageId())
+                        );
+                    })
             );
         }
     }

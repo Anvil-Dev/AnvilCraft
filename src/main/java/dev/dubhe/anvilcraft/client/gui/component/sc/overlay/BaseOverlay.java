@@ -5,9 +5,20 @@ import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseOverlay extends AbstractWidget {
     protected final ShulkerContainerScreen screen;
@@ -15,6 +26,10 @@ public abstract class BaseOverlay extends AbstractWidget {
     public BaseOverlay(ShulkerContainerScreen screen) {
         super(screen.getGuiLeft(), screen.getGuiTop(), 300, 222, Component.empty());
         this.screen = screen;
+    }
+
+    protected <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T widget) {
+        return this.screen.addRenderableWidget(widget);
     }
 
     public abstract BaseOverlay recreate();
@@ -39,8 +54,25 @@ public abstract class BaseOverlay extends AbstractWidget {
     public void refreshTooltip(int x, int y) {
     }
 
-    public void setTooltip(Component tooltip) {
+    protected void setTooltip(ItemStack stack) {
+        List<FormattedCharSequence> tooltips = new ArrayList<>();
+        for (Component component : Screen.getTooltipFromItem(this.minecraft(), stack)) {
+            tooltips.add(component.getVisualOrderText());
+        }
+        this.setTooltip(tooltips);
+    }
+
+    protected void setTooltip(List<FormattedCharSequence> tooltip) {
         this.screen.setTooltipForNextRenderPass(tooltip);
+    }
+
+    protected void setTooltip(Component tooltip) {
+        this.screen.setTooltipForNextRenderPass(tooltip);
+    }
+
+    @Override
+    public void setTooltip(@Nullable Tooltip tooltip) {
+        this.screen.setTooltipForNextRenderPass(tooltip.toCharSequence(this.minecraft()));
     }
 
     public int getGuiLeft() {
@@ -61,6 +93,9 @@ public abstract class BaseOverlay extends AbstractWidget {
         if (!this.clicked(mouseX, mouseY)) return false;
         if (this.whenClick(mouseX, mouseY, button)) this.playDownSound(Minecraft.getInstance().getSoundManager());
         return true;
+    }
+
+    public void onClose() {
     }
 
     public boolean whenClick(double mouseX, double mouseY, int button) {

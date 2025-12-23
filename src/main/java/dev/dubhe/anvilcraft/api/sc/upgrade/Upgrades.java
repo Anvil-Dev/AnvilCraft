@@ -1,61 +1,94 @@
 package dev.dubhe.anvilcraft.api.sc.upgrade;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.api.sc.upgrade.level.EntryLimitLevel;
+import dev.dubhe.anvilcraft.api.sc.upgrade.level.StackPowerLevel;
 import dev.dubhe.anvilcraft.api.sc.upgrade.level.TransferLevel;
 import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @Getter
 public class Upgrades {
     public static final MapCodec<Upgrades> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        EntryLimitUpgrade.Type.CODEC
+        Upgrade.codec(EntryLimitLevel.CODEC)
             .fieldOf("entryLimit")
             .forGetter(Upgrades::getEntryLimitUpgrade),
-        StackPowerUpgrade.Type.CODEC
+        Upgrade.codec(StackPowerLevel.CODEC)
             .fieldOf("stackPower")
             .forGetter(Upgrades::getStackPowerUpgrade),
-        TransferUpgrade.Type.CODEC
+        Upgrade.codec(TransferLevel.CODEC)
             .fieldOf("transfer")
-            .forGetter(Upgrades::getTransferUpgrade)
+            .forGetter(Upgrades::getTransferUpgrade),
+        UUIDUtil.CODEC
+            .optionalFieldOf("owner")
+            .forGetter(Upgrades::getOwnerOp),
+        Codec.BOOL
+            .optionalFieldOf("share", false)
+            .forGetter(Upgrades::isShare)
     ).apply(ins, Upgrades::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, Upgrades> STREAM_CODEC = StreamCodec.composite(
-        EntryLimitUpgrade.Type.STREAM_CODEC,
+        Upgrade.streamCodec(EntryLimitLevel.STREAM_CODEC),
         Upgrades::getEntryLimitUpgrade,
-        StackPowerUpgrade.Type.STREAM_CODEC,
+        Upgrade.streamCodec(StackPowerLevel.STREAM_CODEC),
         Upgrades::getStackPowerUpgrade,
-        TransferUpgrade.Type.STREAM_CODEC,
+        Upgrade.streamCodec(TransferLevel.STREAM_CODEC),
         Upgrades::getTransferUpgrade,
+        ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
+        Upgrades::getOwnerOp,
+        ByteBufCodecs.BOOL,
+        Upgrades::isShare,
         Upgrades::new
     );
-    private final EntryLimitUpgrade entryLimitUpgrade;
-    private final StackPowerUpgrade stackPowerUpgrade;
-    private final TransferUpgrade transferUpgrade;
+    private final Upgrade<EntryLimitLevel> entryLimitUpgrade;
+    private final Upgrade<StackPowerLevel> stackPowerUpgrade;
+    private final Upgrade<TransferLevel> transferUpgrade;
+    @Setter
+    private @Nullable UUID owner;
+    private boolean share;
 
     public Upgrades() {
-        this(new EntryLimitUpgrade(), new StackPowerUpgrade(), new TransferUpgrade());
+        this.entryLimitUpgrade = new Upgrade<>(EntryLimitLevel.MIN);
+        this.stackPowerUpgrade = new Upgrade<>(StackPowerLevel.MIN);
+        this.transferUpgrade = new Upgrade<>(TransferLevel.MIN);
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Upgrades(
-        EntryLimitUpgrade entryLimitUpgrade,
-        StackPowerUpgrade stackPowerUpgrade,
-        TransferUpgrade transferUpgrade
+        Upgrade<EntryLimitLevel> entryLimitUpgrade,
+        Upgrade<StackPowerLevel> stackPowerUpgrade,
+        Upgrade<TransferLevel> transferUpgrade,
+        Optional<UUID> owner,
+        boolean share
     ) {
         this.entryLimitUpgrade = entryLimitUpgrade;
         this.stackPowerUpgrade = stackPowerUpgrade;
         this.transferUpgrade = transferUpgrade;
+        this.owner = owner.orElse(null);
+        this.share = share;
+    }
+
+    private Optional<UUID> getOwnerOp() {
+        return Optional.ofNullable(this.owner);
     }
 
     public int getEntryLimit() {
-        return this.entryLimitUpgrade.getLevel().getLimit();
+        return this.entryLimitUpgrade.getNow().getLimit();
     }
 
-    public int getEntryLevel() {
-        return this.entryLimitUpgrade.getLevel().ordinal();
+    public EntryLimitLevel getEntryLevel() {
+        return this.entryLimitUpgrade.getNow();
     }
 
     public int getMaxStackSize(ItemStack stack) {
@@ -63,21 +96,22 @@ public class Upgrades {
     }
 
     public int getStackPower() {
-        return this.stackPowerUpgrade.getLevel().getPower();
+        return this.stackPowerUpgrade.getNow().getPower();
     }
 
-    public int getStackLevel() {
-        return this.stackPowerUpgrade.getLevel().ordinal();
+    public StackPowerLevel getStackLevel() {
+        return this.stackPowerUpgrade.getNow();
     }
 
     public TransferLevel getTransfer() {
-        return this.transferUpgrade.getLevel();
+        return this.transferUpgrade.getNow();
     }
 
     public void sync(Upgrades upgrades) {
         this.entryLimitUpgrade.sync(upgrades.entryLimitUpgrade);
         this.stackPowerUpgrade.sync(upgrades.stackPowerUpgrade);
         this.transferUpgrade.sync(upgrades.transferUpgrade);
+        Optional.ofNullable(upgrades.owner).ifPresent(id -> this.owner = id);
     }
 
     @Override

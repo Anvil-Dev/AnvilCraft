@@ -44,11 +44,11 @@ public class MainSlots extends OverlayWidget {
                 ShulkerContainerScreen.ITEM_SORTER,
                 ShulkerContainerScreen.nbtDisplayMode == ShulkerContainerScreen.NbtDisplayMode.FOLD
             );
-            MainSlots.this.screen.getMenu().applyOrder(order, this.getScrollOffs());
             PacketDistributor.sendToServer(new ShulkerContainerPackets.ScreenSync(
-                MainSlots.this.screen.getMenu().slotsOrder,
+                MainSlots.this.screen.getMenu().getSlotsOrder(),
                 this.getScrollOffs()
             ));
+            MainSlots.this.screen.getMenu().applyOrder(order, this.getScrollOffs());
         }
     };
 

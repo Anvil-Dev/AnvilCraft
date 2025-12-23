@@ -20,8 +20,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.slf4j.Logger;
 
@@ -148,6 +150,25 @@ public class UnlimitedItemStack implements INBTSerializable<CompoundTag> {
 
     public Item getItem() {
         return this.stack.getItem();
+    }
+
+    public boolean is(Item item) {
+        return this.stack.is(item);
+    }
+
+    public boolean is(ItemLike item) {
+        return this.stack.is(item.asItem());
+    }
+
+    public boolean is(TagKey<Item> item) {
+        return this.stack.is(item);
+    }
+
+    public boolean isAny(ItemLike... items) {
+        for (ItemLike item : items) {
+            if (this.is(item)) return true;
+        }
+        return false;
     }
 
     public Holder<Item> getItemHolder() {

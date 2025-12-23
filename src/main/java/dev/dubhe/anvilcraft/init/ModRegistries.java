@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.sc.category.ICategory;
-import dev.dubhe.anvilcraft.api.sc.upgrade.IUpgrade;
 import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
 import net.minecraft.core.Registry;
@@ -59,14 +58,6 @@ public class ModRegistries {
         .maxId(512)
         .create();
 
-    public static final ResourceKey<Registry<IUpgrade.Type<?>>> UPGRADE_TYPE_KEY = ResourceKey.createRegistryKey(
-        AnvilCraft.of("upgrade_type")
-    );
-    public static final Registry<IUpgrade.Type<?>> UPGRADE_TYPE_REGISTRY = new RegistryBuilder<>(UPGRADE_TYPE_KEY)
-        .sync(true)
-        .maxId(512)
-        .create();
-
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(AMULET_TYPE_REGISTRY);
@@ -74,7 +65,6 @@ public class ModRegistries {
         event.register(CUSTOM_DATA_TYPE_REGISTRY);
         event.register(UUID_PROVIDER_TYPE_REGISTRY);
         event.register(CATEGORY_TYPE_REGISTRY);
-        event.register(UPGRADE_TYPE_REGISTRY);
     }
 
     @SubscribeEvent

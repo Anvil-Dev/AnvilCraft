@@ -63,8 +63,16 @@ public class ContainerStorageCommand {
                     .addln("command.anvilcraft.storage.info.name", storage.getName())
                     .addln("command.anvilcraft.storage.info.id", storage.getId())
                     .addln("command.anvilcraft.storage.info.fullness", entries.entrySize(), upgrades.getEntryLimit())
-                    .addln("command.anvilcraft.storage.info.entry_level", upgrades.getEntryLevel(), upgrades.getEntryLimit())
-                    .addln("command.anvilcraft.storage.info.stack_level", upgrades.getStackLevel(), upgrades.getStackPower())
+                    .addln(
+                        "command.anvilcraft.storage.info.entry_level",
+                        upgrades.getEntryLevel().ordinal(),
+                        upgrades.getEntryLevel().getDesc()
+                    )
+                    .addln(
+                        "command.anvilcraft.storage.info.stack_level",
+                        upgrades.getStackLevel().ordinal(),
+                        upgrades.getStackLevel().getDesc()
+                    )
                     .addln(
                         "command.anvilcraft.storage.info.transfer_level",
                         upgrades.getTransfer().ordinal(),

@@ -11,6 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -74,6 +75,21 @@ public abstract class BetterSavedData extends SavedData {
         );
     }
 
+    public void sync2Player(ServerPlayer player) {
+        this.sync2Player(this.createPacket(player.server.registryAccess()), player);
+    }
+
+    protected <T extends CustomPacketPayload> void sync2Player(Packet<T> packet, ServerPlayer player) {
+        if (!Util.isServer()) return;
+        PacketSplitter.INSTANCE.split(
+            packet.type(),
+            packet.codec().cast(),
+            packet.packet(),
+            player.server.registryAccess(),
+            payload -> PacketDistributor.sendToPlayer(player, payload)
+        );
+    }
+
     protected abstract Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess);
 
     protected record Packet<T extends CustomPacketPayload>(
@@ -81,6 +97,7 @@ public abstract class BetterSavedData extends SavedData {
         StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
         T packet
     ) {
+        @SuppressWarnings({"RedundantRecordConstructor", "RedundantSuppression"})
         public Packet {
         }
     }

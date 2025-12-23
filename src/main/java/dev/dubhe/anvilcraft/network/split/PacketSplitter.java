@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.network.split;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.util.VirtualThreadFactoryImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
@@ -23,7 +24,7 @@ import java.util.function.Consumer;
 public class PacketSplitter {
     public static final PacketSplitter INSTANCE = new PacketSplitter();
     private static final int DEFAULT_PART_SIZE = 1640;
-    private final ExecutorService workThread = Executors.newFixedThreadPool(2);
+    private ExecutorService executor = null;
 
     public PacketSplitter() {
     }
@@ -44,7 +45,10 @@ public class PacketSplitter {
         int partSize,
         Consumer<CustomPacketPayload> sender
     ) {
-        this.workThread.submit(() -> {
+        if (this.executor == null || this.executor.isShutdown()) {
+            this.executor = Executors.newThreadPerTaskExecutor(new VirtualThreadFactoryImpl());
+        }
+        this.executor.submit(() -> {
             var buffer = new FriendlyByteBuf(Unpooled.buffer());
             codec.encode(buffer, payload);
             buffer.capacity(buffer.readableBytes());
@@ -88,7 +92,10 @@ public class PacketSplitter {
         RegistryAccess registryAccess,
         Consumer<CustomPacketPayload> sender
     ) {
-        this.workThread.submit(() -> {
+        if (this.executor == null || this.executor.isShutdown()) {
+            this.executor = Executors.newThreadPerTaskExecutor(new VirtualThreadFactoryImpl());
+        }
+        this.executor.submit(() -> {
             var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registryAccess, ConnectionType.NEOFORGE);
             codec.encode(buffer, payload);
             buffer.capacity(buffer.readableBytes());

@@ -77,4 +77,17 @@ public class ListUtil {
         if (collection.isEmpty()) return Optional.empty();
         return Optional.of(collection);
     }
+
+    public static <T> List<T> resize(List<T> list, int size, T defaultValue) {
+        if (size < list.size()) {
+            return list.subList(0, size);
+        } else if (size == list.size()) {
+            return list;
+        } else {
+            for (int i = 0; i < size - list.size(); i++) {
+                list.add(defaultValue);
+            }
+            return list;
+        }
+    }
 }

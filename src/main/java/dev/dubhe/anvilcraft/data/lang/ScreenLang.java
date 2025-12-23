@@ -284,5 +284,36 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.shulker_container.category.add", "Holding Filter Left Click to Add Custom Category");
         provider.add("screen.anvilcraft.shulker_container.category.alternate.unremovable", "Left Click to Add");
         provider.add("screen.anvilcraft.shulker_container.category.alternate.removable", "Left Click to Add\nRight Click to Completely Remove");
+
+        provider.add("screen.anvilcraft.shulker_container.upgrade.entry_limit.name", "Entry Limit");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.entry_limit.min", "54 Entries");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.entry_limit.one", "108 Entries");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.entry_limit.two", "216 Entries");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.entry_limit.three", "864 Entries");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.entry_limit.four", "∞ Entries");
+
+        provider.add("screen.anvilcraft.shulker_container.upgrade.stack_power.name", "Stack Power");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.stack_power.min", "4 Stacks");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.stack_power.one", "16 Stacks");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.stack_power.two", "64 Stacks");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.stack_power.three", "512 Stacks");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.stack_power.four", "∞ Stacks");
+
+        provider.add("screen.anvilcraft.shulker_container.upgrade.transfer.name", "Transfer");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.transfer.min", "No Ability");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.transfer.one", "Touch Transfer");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.transfer.two", "Faster Transfer");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.transfer.three", "Ender Access");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.transfer.four", "Ender Transfer");
+
+        provider.add("screen.anvilcraft.shulker_container.upgrade.now", "Now: %s");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.no_next", "Already Max Level");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.next", "Next: %s");
+
+        provider.add("screen.anvilcraft.shulker_container.upgrade.result.can_upgrade", "Click to Upgrade");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.result.no_material", "No Upgrade Materials");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.result.no_tool", "No Correct Tools in the Inventory");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.result.no_any", "No Upgrade Materials\nNo Correct Tools in the Inventory");
+        provider.add("screen.anvilcraft.shulker_container.upgrade.result.already_max", "Already at Max Level");
     }
 }

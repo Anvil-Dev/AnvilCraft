@@ -4,10 +4,14 @@ import com.mojang.logging.LogUtils;
 import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.inventory.component.sc.ShareResultSlot;
+import dev.dubhe.anvilcraft.inventory.component.sc.ShareSlot;
+import dev.dubhe.anvilcraft.inventory.component.sc.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.inventory.component.sc.UpgradeSlot;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.CollectionUtil;
+import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
@@ -42,6 +46,10 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
 
     public Int2BooleanMap slotsOrder;
 
+    private boolean hasContainerSlots;
+    private boolean hasUpgradeSlots;
+    public Slot share;
+
     @SuppressWarnings("DataFlowIssue")
     public ShulkerContainerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
@@ -65,11 +73,18 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         this.addPlayerHotbar(inventory);
 
         this.addContainerSlots();
+        this.addUpgradeSlots();
+        this.removeUpgradeSlots();
 
         if (this.storage != null) {
             this.slotsOrder = ShulkerContainerMenu.initOrder(this.storage);
             this.scrollTo(0.0F);
         }
+    }
+
+    public Int2BooleanMap getSlotsOrder() {
+        if (this.slotsOrder != null) return this.slotsOrder;
+        return this.slotsOrder = ShulkerContainerMenu.initOrder(this.storage);
     }
 
     private static Int2BooleanMap initOrder(ContainerStorage storage) {
@@ -95,21 +110,79 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     }
 
     public void addContainerSlots() {
+        this.hasContainerSlots = true;
         if (this.slots.size() > ShulkerContainerMenu.VANILLA_SLOT_COUNT) return;
         for (int i = 0; i < 6; ++i) {
             for (int j = 0; j < 9; ++j) {
-                this.addSlot(new ShulkerContainerSlot(this.storage, i, j, 114, 18, 18));
+                this.addSlot(new ShulkerContainerSlot(this.storage, i, j, 114, 18, 18) {
+                    @Override
+                    public boolean isActive() {
+                        return super.isActive() && ShulkerContainerMenu.this.hasContainerSlots;
+                    }
+                });
             }
         }
     }
 
+    public void addUpgradeSlots() {
+        if (this.isWaitingServerSync()) return;
+        this.hasUpgradeSlots = true;
+        if (this.slots.size() > ShulkerContainerMenu.VANILLA_SLOT_COUNT + ShulkerContainerMenu.TE_INVENTORY_SLOT_COUNT) return;
+        var upgrades = this.storage.getUpgrades();
+        this.addSlot(new UpgradeSlot(upgrades.getEntryLimitUpgrade(), 13, 18) {
+            @Override
+            public boolean isActive() {
+                return super.isActive() && ShulkerContainerMenu.this.hasUpgradeSlots;
+            }
+        });
+        this.addSlot(new UpgradeSlot(upgrades.getStackPowerUpgrade(), 13, 72) {
+            @Override
+            public boolean isActive() {
+                return super.isActive() && ShulkerContainerMenu.this.hasUpgradeSlots;
+            }
+        });
+        this.addSlot(new UpgradeSlot(upgrades.getTransferUpgrade(), 13, 126) {
+            @Override
+            public boolean isActive() {
+                return super.isActive() && ShulkerContainerMenu.this.hasUpgradeSlots;
+            }
+        });
+
+        var resultSlot = this.addSlot(new ShareResultSlot(53, 174) {
+            @Override
+            public boolean isActive() {
+                return super.isActive() && ShulkerContainerMenu.this.hasUpgradeSlots;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ShulkerContainerMenu.this.onResultChanged();
+            }
+        });
+        this.share = this.addSlot(new ShareSlot(this.storage, resultSlot, 13, 174) {
+            @Override
+            public boolean isActive() {
+                return super.isActive() && ShulkerContainerMenu.this.hasUpgradeSlots;
+            }
+        });
+    }
+
+    private void onResultChanged() {
+        this.share.setChanged();
+    }
+
     public void removeContainerSlots() {
-        this.slots.subList(ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX, this.slots.size()).clear();
+        this.hasContainerSlots = false;
+    }
+
+    public void removeUpgradeSlots() {
+        this.hasUpgradeSlots = false;
     }
 
     @Override
     public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
-        super.initializeContents(stateId, items.subList(0, this.slots.size()), carried);
+        super.initializeContents(stateId, ListUtil.resize(items, this.slots.size(), ItemStack.EMPTY), carried);
     }
 
     public boolean isWaitingServerSync() {
@@ -160,7 +233,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         for (int rowDiff = 0; rowDiff < 6; rowDiff++) {
             for (int column = 0; column < 9; column++) {
                 int index = column + (rowDiff + row) * 9;
-                int slotIndex = VANILLA_SLOT_COUNT + column + rowDiff * 9;
+                int slotIndex = TE_INVENTORY_FIRST_SLOT_INDEX + column + rowDiff * 9;
                 ShulkerContainerSlot slot = Util.cast(
                     this.getSlot(slotIndex),
                     () -> new IllegalStateException("Slot not ShulkerContainerSlot in index " + slotIndex)
@@ -186,7 +259,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     // 每次我们向容器添加 Slot 时，它都会自动增加 slotIndex，这意味着
     // 0 - 8 = 快捷栏插槽（将映射到 InventoryPlayer 插槽编号 0 - 8）
     // 9 - 35 = 玩家库存槽（映射到 InventoryPlayer 槽位编号 9 - 35）
-    // 36 - 89 = TileInventory 插槽（映射到我们的 TileEntity 插槽编号 0 - 53 （在行0的情况下    ））
+    // 36 - 89 = TileInventory 插槽（映射到我们的 TileEntity 插槽编号 0 - 53 （在行0的情况下））
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
@@ -231,6 +304,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private boolean moveItemToStorage(int sourceIndex) {
         if (this.isWaitingServerSync()) return false;
         Slot source = this.slots.get(sourceIndex);
+        if (!source.isActive()) return false;
         ItemStack stack = source.getItem();
         if (!this.storage.isMaxEntries()) {
             int result = this.storage.addItem(stack);
@@ -484,71 +558,71 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
             && (button >= 0 && button < 9 || button == 40)
             && slotId < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT // no swap to TE now
         ) {
-            ItemStack itemstack2 = inventory.getItem(button);
+            ItemStack stack2 = inventory.getItem(button);
             Slot slot5 = this.slots.get(slotId);
-            ItemStack itemstack7 = slot5.getItem();
-            if (!itemstack2.isEmpty() || !itemstack7.isEmpty()) {
-                if (itemstack2.isEmpty()) {
+            ItemStack stack7 = slot5.getItem();
+            if (!stack2.isEmpty() || !stack7.isEmpty()) {
+                if (stack2.isEmpty()) {
                     if (slot5.mayPickup(player)) {
-                        inventory.setItem(button, itemstack7);
+                        inventory.setItem(button, stack7);
                         slot5.setByPlayer(ItemStack.EMPTY);
-                        slot5.onTake(player, itemstack7);
+                        slot5.onTake(player, stack7);
                     }
-                } else if (itemstack7.isEmpty()) {
-                    if (slot5.mayPlace(itemstack2)) {
-                        int j2 = slot5.getMaxStackSize(itemstack2);
-                        if (itemstack2.getCount() > j2) {
-                            slot5.setByPlayer(itemstack2.split(j2));
+                } else if (stack7.isEmpty()) {
+                    if (slot5.mayPlace(stack2)) {
+                        int j2 = slot5.getMaxStackSize(stack2);
+                        if (stack2.getCount() > j2) {
+                            slot5.setByPlayer(stack2.split(j2));
                         } else {
                             inventory.setItem(button, ItemStack.EMPTY);
-                            slot5.setByPlayer(itemstack2);
+                            slot5.setByPlayer(stack2);
                         }
                     }
-                } else if (slot5.mayPickup(player) && slot5.mayPlace(itemstack2)) {
-                    int k2 = slot5.getMaxStackSize(itemstack2);
-                    if (itemstack2.getCount() > k2) {
-                        slot5.setByPlayer(itemstack2.split(k2));
-                        slot5.onTake(player, itemstack7);
-                        if (!inventory.add(itemstack7)) {
-                            player.drop(itemstack7, true);
+                } else if (slot5.mayPickup(player) && slot5.mayPlace(stack2)) {
+                    int k2 = slot5.getMaxStackSize(stack2);
+                    if (stack2.getCount() > k2) {
+                        slot5.setByPlayer(stack2.split(k2));
+                        slot5.onTake(player, stack7);
+                        if (!inventory.add(stack7)) {
+                            player.drop(stack7, true);
                         }
                     } else {
-                        inventory.setItem(button, itemstack7);
-                        slot5.setByPlayer(itemstack2);
-                        slot5.onTake(player, itemstack7);
+                        inventory.setItem(button, stack7);
+                        slot5.setByPlayer(stack2);
+                        slot5.onTake(player, stack7);
                     }
                 }
             }
         } else if (clickType == ClickType.CLONE && player.hasInfiniteMaterials() && this.getCarried().isEmpty() && slotId >= 0) {
             Slot slot4 = this.slots.get(slotId);
             if (slot4.hasItem()) {
-                ItemStack itemstack5 = slot4.getItem();
-                this.setCarried(itemstack5.copyWithCount(itemstack5.getMaxStackSize()));
+                ItemStack stack5 = slot4.getItem();
+                this.setCarried(stack5.copyWithCount(stack5.getMaxStackSize()));
             }
         } else if (clickType == ClickType.THROW && this.getCarried().isEmpty() && slotId >= 0) {
             Slot slot3 = this.slots.get(slotId);
             int j1 = button == 0 ? 1 : slot3.getItem().getCount();
-            ItemStack itemstack6 = slot3.safeTake(j1, Integer.MAX_VALUE, player);
-            player.drop(itemstack6, true);
+            ItemStack stack6 = slot3.safeTake(j1, Integer.MAX_VALUE, player);
+            player.drop(stack6, true);
         } else if (clickType == ClickType.PICKUP_ALL && slotId >= 0) {
             Slot slot2 = this.slots.get(slotId);
-            ItemStack itemstack4 = this.getCarried();
-            if (!itemstack4.isEmpty() && (!slot2.hasItem() || !slot2.mayPickup(player))) {
+            ItemStack stack4 = this.getCarried();
+            if (!stack4.isEmpty() && (!slot2.hasItem() || !slot2.mayPickup(player))) {
                 int l1 = button == 0 ? 0 : this.slots.size() - 1;
                 int i2 = button == 0 ? 1 : -1;
 
                 for (int l2 = 0; l2 < 2; l2++) {
-                    for (int l3 = l1; l3 >= 0 && l3 < this.slots.size() && itemstack4.getCount() < itemstack4.getMaxStackSize(); l3 += i2) {
+                    for (int l3 = l1; l3 >= 0 && l3 < this.slots.size() && stack4.getCount() < stack4.getMaxStackSize(); l3 += i2) {
                         Slot slot8 = this.slots.get(l3);
                         if (slot8.hasItem()
-                            && canItemQuickReplace(slot8, itemstack4, true)
+                            && canItemQuickReplace(slot8, stack4, true)
                             && slot8.mayPickup(player)
-                            && this.canTakeItemForPickAll(itemstack4, slot8)) {
-                            ItemStack itemstack11 = slot8.getItem();
-                            if (l2 != 0 || itemstack11.getCount() != itemstack11.getMaxStackSize()) {
-                                ItemStack itemstack12 = slot8.safeTake(
-                                    itemstack11.getCount(), itemstack4.getMaxStackSize() - itemstack4.getCount(), player);
-                                itemstack4.grow(itemstack12.getCount());
+                            && this.canTakeItemForPickAll(stack4, slot8)) {
+                            ItemStack stack11 = slot8.getItem();
+                            if (l2 != 0 || stack11.getCount() != stack11.getMaxStackSize()) {
+                                ItemStack stack12 = slot8.safeTake(
+                                    stack11.getCount(), stack4.getMaxStackSize() - stack4.getCount(), player);
+                                stack4.grow(stack12.getCount());
                             }
                         }
                     }

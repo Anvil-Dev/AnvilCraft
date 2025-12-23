@@ -72,6 +72,10 @@ public class InventoryUtil {
         return !getFirstItem(inventory, item).equals(ItemStack.EMPTY);
     }
 
+    public static boolean hasItem(Inventory inventory, Predicate<ItemStack> filter) {
+        return !getFirstItem(inventory, filter).equals(ItemStack.EMPTY);
+    }
+
     public static ItemStack getItemInCompat(LivingEntity entity, Predicate<ItemStack> filter) {
         for (ItemStack stack : getCompatItems(entity)) {
             if (filter.test(stack)) {

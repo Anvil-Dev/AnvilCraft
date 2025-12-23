@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
+import dev.dubhe.anvilcraft.item.property.component.ContainerStorageRef;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
 import net.minecraft.ChatFormatting;
@@ -188,7 +188,7 @@ public class ShulkerContainerBlock
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltips, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltips, flag);
         if (!flag.isAdvanced()) return;
-        Optional<UUID> uuid = Optional.ofNullable(stack.get(ModComponents.CONTAINER_STORAGE)).flatMap(ContainerStorageReference::id);
+        Optional<UUID> uuid = Optional.ofNullable(stack.get(ModComponents.CONTAINER_STORAGE)).flatMap(ContainerStorageRef::id);
         if (uuid.isEmpty()) return;
         tooltips.add(Component.translatable(
             "tooltip.anvilcraft.shulker_container.uuid",

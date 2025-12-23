@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.client.gui.component.sc.CategoryList;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +16,7 @@ import java.util.Objects;
 
 public class MainOverlay extends BaseOverlay {
     private final CategoryList categoryList;
+    private final TexturedButton upgrade;
 
     public MainOverlay(ShulkerContainerScreen screen) {
         super(screen);
@@ -41,8 +43,8 @@ public class MainOverlay extends BaseOverlay {
         ShulkerContainerScreen.searching.setBordered(false);
         ShulkerContainerScreen.searching.setTextShadow(false);
         ShulkerContainerScreen.searching.setCanLoseFocus(true);
-        this.screen.addRenderableWidget(ShulkerContainerScreen.searching);
-        this.screen.addRenderableWidget(new SwitchableButton(
+        this.addRenderableWidget(ShulkerContainerScreen.searching);
+        this.addRenderableWidget(new SwitchableButton(
             this.getGuiLeft() + 2,
             this.getGuiTop() + 23,
             24,
@@ -54,9 +56,9 @@ public class MainOverlay extends BaseOverlay {
             20,
             24,
             40,
-            (button, i) -> this.screen.setSearchMode(ShulkerContainerScreen.SearchMode.values()[i])
+            (button, i) -> screen.setSearchMode(ShulkerContainerScreen.SearchMode.values()[i])
         ).setCurrent(ShulkerContainerScreen.searchMode.ordinal()));
-        this.screen.addRenderableWidget(new SwitchableButton(
+        this.addRenderableWidget(new SwitchableButton(
             this.getGuiLeft() + 28,
             this.getGuiTop() + 23,
             24,
@@ -69,9 +71,9 @@ public class MainOverlay extends BaseOverlay {
             20,
             24,
             40,
-            (button, i) -> this.screen.setSortMode(ShulkerContainerScreen.SortMode.values()[i])
+            (button, i) -> screen.setSortMode(ShulkerContainerScreen.SortMode.values()[i])
         ).setCurrent(ShulkerContainerScreen.sortMode.ordinal()));
-        this.screen.addRenderableWidget(new SwitchableButton(
+        this.addRenderableWidget(new SwitchableButton(
             this.getGuiLeft() + 54,
             this.getGuiTop() + 23,
             24,
@@ -83,9 +85,9 @@ public class MainOverlay extends BaseOverlay {
             20,
             24,
             40,
-            (button, i) -> this.screen.setSortOrderMode(ShulkerContainerScreen.SortOrderMode.values()[i])
+            (button, i) -> screen.setSortOrderMode(ShulkerContainerScreen.SortOrderMode.values()[i])
         ).setCurrent(ShulkerContainerScreen.sortOrderMode.ordinal()));
-        this.screen.addRenderableWidget(new SwitchableButton(
+        this.addRenderableWidget(new SwitchableButton(
             this.getGuiLeft() + 80,
             this.getGuiTop() + 23,
             24,
@@ -97,16 +99,16 @@ public class MainOverlay extends BaseOverlay {
             20,
             24,
             40,
-            (button, i) -> this.screen.setNbtDisplayMode(ShulkerContainerScreen.NbtDisplayMode.values()[i])
+            (button, i) -> screen.setNbtDisplayMode(ShulkerContainerScreen.NbtDisplayMode.values()[i])
         ).setCurrent(ShulkerContainerScreen.nbtDisplayMode.ordinal()));
-        this.categoryList = this.screen.addRenderableWidget(new CategoryList(
+        this.categoryList = this.addRenderableWidget(new CategoryList(
             this.getGuiLeft() + 7,
             this.getGuiTop() + 49,
-            this.screen.getMenu().storage,
-            button -> this.screen.reorder(),
-            button -> this.screen.changeOverlay(new CategoryOverlay(screen))
+            screen.getMenu().storage,
+            button -> screen.reorder(),
+            button -> screen.changeOverlay(new CategoryOverlay(screen))
         ));
-        this.screen.addRenderableWidget(new TexturedButton(
+        this.upgrade = this.addRenderableWidget(new TexturedButton(
             this.getGuiLeft() + 2,
             this.getGuiTop() + 198,
             102,
@@ -115,14 +117,13 @@ public class MainOverlay extends BaseOverlay {
             20,
             102,
             40,
-            button -> {
-                // 打开升级界面
-            }
+            button -> screen.changeOverlay(new UpgradeOverlay(screen))
         ));
 
-        if (this.screen.isWaitingServerSync()) {
+        if (screen.isWaitingServerSync()) {
             this.categoryList.active = false;
             this.categoryList.visible = false;
+            this.upgrade.active = false;
         }
     }
 
@@ -137,9 +138,35 @@ public class MainOverlay extends BaseOverlay {
     }
 
     @Override
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+
+        if (this.screen.isWaitingServerSync()) {
+            final int mask = 0x44000000;
+            var pose = graphics.pose();
+            pose.pushPose();
+            pose.translate(this.getGuiLeft(), this.getGuiTop(), 200);
+
+            graphics.fill(113, 17, 293, 125, mask); // 槽位
+            graphics.fill(6, 48, 100, 190, mask); // 类别列表
+            graphics.fill(2, 198, 104, 218, mask); // 升级按钮
+
+            graphics.drawCenteredString(
+                this.minecraft().font,
+                Component.translatable("screen.anvilcraft.shulker_container.waiting_sync"),
+                83,
+                248,
+                0xEE2222
+            );
+            pose.popPose();
+        }
+    }
+
+    @Override
     public void whenSynced(ContainerStorage storage) {
         super.whenSynced(storage);
         this.categoryList.sync(storage);
+        this.upgrade.active = true;
     }
 
     @Override

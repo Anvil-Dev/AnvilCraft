@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.inventory.component.sc.ShulkerContainerSlot;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.client.Minecraft;

@@ -120,7 +120,7 @@ public class CategoryOverlay extends BaseOverlay {
                 return Categories.CUSTOM_COMPARATOR.compare(category1, category2);
             })));
 
-        screen.addRenderableWidget(new TexturedButton(
+        this.addRenderableWidget(new TexturedButton(
             this.getGuiLeft() + 278,
             this.getGuiTop() + 139,
             18,
@@ -134,7 +134,7 @@ public class CategoryOverlay extends BaseOverlay {
                 screen.changeOverlay(new MainOverlay(screen));
             }
         ));
-        screen.addRenderableWidget(new TexturedButton(
+        this.addRenderableWidget(new TexturedButton(
             this.getGuiLeft() + 278,
             this.getGuiTop() + 161,
             18,
@@ -146,7 +146,7 @@ public class CategoryOverlay extends BaseOverlay {
             button -> screen.changeOverlay(new MainOverlay(screen))
         ));
 
-        this.addCategory = screen.addRenderableWidget(new TexturedButton(
+        this.addCategory = this.addRenderableWidget(new TexturedButton(
             this.getGuiLeft() + 113,
             this.getGuiTop() + 7,
             86,

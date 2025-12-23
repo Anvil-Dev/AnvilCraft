@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.inventory.component;
+package dev.dubhe.anvilcraft.inventory.component.sc;
 
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 @Setter
 public class ShulkerContainerSlot extends Slot {
     private static final Container EMPTY = new SimpleContainer(0);
-    private final int containerSlot;
     private ContainerStorage storage;
     private int index;
     @Getter
@@ -21,7 +20,6 @@ public class ShulkerContainerSlot extends Slot {
     public ShulkerContainerSlot(ContainerStorage storage, int row, int column, int leftPos, int topPos, int slotSize) {
         super(ShulkerContainerSlot.EMPTY, 0, leftPos + column * slotSize, topPos + row * slotSize);
         this.storage = storage;
-        this.containerSlot = row * 9 + column;
         this.index = row * 9 + column;
     }
 
@@ -85,21 +83,12 @@ public class ShulkerContainerSlot extends Slot {
     }
 
     @Override
-    public int getContainerSlot() {
-        return this.containerSlot;
-    }
-
-    @Override
     public boolean isSameInventory(Slot other) {
         return false;
     }
 
     @Override
     public boolean isActive() {
-        return super.isActive() && this.storage != null;
-    }
-
-    public boolean isFull() {
-        return this.storage.isFull(this.storage.getItem(this.index));
+        return this.storage != null;
     }
 }

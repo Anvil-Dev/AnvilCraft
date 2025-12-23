@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.api.sc.category.ItemClassCategory;
 import dev.dubhe.anvilcraft.api.sc.category.MaxStackSizeCategory;
 import dev.dubhe.anvilcraft.api.sc.category.ModCategory;
 import dev.dubhe.anvilcraft.api.sc.category.client.RecipeBookCategoryCategory;
+import dev.dubhe.anvilcraft.api.sc.category.hidden.UpgradeCategory;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -65,6 +66,10 @@ public class ModCategories {
     public static final DeferredHolder<ICategory.Type<?>, RecipeBookCategoryCategory.Type> RECIPE_BOOK_CATEGORY = REGISTER.register(
         "recipe_book_category",
         RecipeBookCategoryCategory.Type::new
+    );
+    public static final DeferredHolder<ICategory.Type<?>, UpgradeCategory.Type> UPGRADE = REGISTER.register(
+        "upgrade",
+        UpgradeCategory.Type::new
     );
 
     public static final ResourceKey<ICategory> MINECRAFT = key("minecraft");

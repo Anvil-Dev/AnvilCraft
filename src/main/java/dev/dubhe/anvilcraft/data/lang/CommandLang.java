@@ -34,14 +34,9 @@ public class CommandLang {
         provider.add("command.anvilcraft.storage.info.name", "Storage Name: %s");
         provider.add("command.anvilcraft.storage.info.id", "Storage ID: %s");
         provider.add("command.anvilcraft.storage.info.fullness", "Storage Fullness: %1$d / %2$d entries");
-        provider.add("command.anvilcraft.storage.info.entry_level", "Entry Level: %1$d (Limit: %2$d entries)");
-        provider.add("command.anvilcraft.storage.info.stack_level", "Stack Level: %1$d (Max Size: %2$d stacks)");
+        provider.add("command.anvilcraft.storage.info.entry_level", "Entry Level: $d (Limit: %s)");
+        provider.add("command.anvilcraft.storage.info.stack_level", "Stack Level: $d (Max Size: %s)");
         provider.add("command.anvilcraft.storage.info.transfer_level", "Transfer Level: %d (%s)");
-        provider.add("command.anvilcraft.storage.info.transfer.desc.min", "No Ability");
-        provider.add("command.anvilcraft.storage.info.transfer.desc.one", "fTransfer");
-        provider.add("command.anvilcraft.storage.info.transfer.desc.two", "fTransfer Pro");
-        provider.add("command.anvilcraft.storage.info.transfer.desc.three", "eAccess");
-        provider.add("command.anvilcraft.storage.info.transfer.desc.four", "eTransfer");
         provider.add(
             "command.anvilcraft.storage.remove.success",
             "Successfully removed storage %1$s.\nYou can recover it by \"%2$s\""

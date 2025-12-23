@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.client.gui.component.sc.overlay.MainOverlay;
 import dev.dubhe.anvilcraft.client.gui.component.sc.overlay.widget.MainSlots;
 import dev.dubhe.anvilcraft.client.util.RenderUtil;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
-import dev.dubhe.anvilcraft.inventory.component.ShulkerContainerSlot;
+import dev.dubhe.anvilcraft.inventory.component.sc.ShulkerContainerSlot;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
 import dev.dubhe.anvilcraft.network.split.PacketSplitter;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
@@ -96,26 +96,6 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if (this.overlay != null) this.overlay.renderWidget(graphics, mouseX, mouseY, partialTick);
-
-        if (this.isWaitingServerSync()) {
-            int minX = this.leftPos + 6;
-            int minY = this.topPos + 48;
-            int maxX = minX + 94;
-            int maxY = minY + 142;
-            graphics.fill(minX, minY, maxX, maxY, 0x44000000); // 类别列表
-            minX = this.leftPos + 113;
-            minY = this.topPos + 17;
-            maxX = minX + 162;
-            maxY = minY + 108;
-            graphics.fill(minX, minY, maxX, maxY, 0x44000000); // 槽位
-            graphics.drawCenteredString(
-                this.font,
-                Component.translatable("screen.anvilcraft.shulker_container.waiting_sync"),
-                minX + 81,
-                minY + 50,
-                0xEE2222
-            );
-        }
     }
 
     @Override
@@ -187,6 +167,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     @Override
     public void onClose() {
         super.onClose();
+        if (this.overlay != null) this.overlay.onClose();
         if (this.isWaitingServerSync()) return;
         // noinspection DataFlowIssue - For Minecraft.getInstance().getConnection().registryAccess() - 此时已有Connection
         PacketSplitter.INSTANCE.split(
@@ -200,6 +181,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     }
 
     public void changeOverlay(BaseOverlay overlay) {
+        this.overlay.onClose();
         this.overlay = overlay;
         this.init();
     }

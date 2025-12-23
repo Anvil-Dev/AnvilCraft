@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
-import dev.dubhe.anvilcraft.item.property.component.ContainerStorageReference;
+import dev.dubhe.anvilcraft.item.property.component.ContainerStorageRef;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.Util;
@@ -45,12 +45,20 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override
         protected void onOpen(Level level, BlockPos pos, BlockState state) {
-            ShulkerContainerBlockEntity.playSound(level, pos, state, SoundEvents.CHEST_OPEN);
+            ShulkerContainerBlockEntity.playSound(level, pos, state, SoundEvents.SHULKER_BOX_OPEN);
         }
 
         @Override
         protected void onClose(Level level, BlockPos pos, BlockState state) {
-            ShulkerContainerBlockEntity.playSound(level, pos, state, SoundEvents.CHEST_CLOSE);
+            ShulkerContainerBlockEntity.playSound(level, pos, state, SoundEvents.SHULKER_BOX_CLOSE);
+            ShulkerContainerBlock.updateState(
+                state.getBlock(),
+                level,
+                pos,
+                ShulkerContainerBlock.OPENED,
+                false,
+                Block.UPDATE_ALL
+            );
         }
 
         @Override
@@ -127,19 +135,22 @@ public class ShulkerContainerBlockEntity extends BlockEntity implements IDiskClo
     protected void applyImplicitComponents(DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
         Optional.ofNullable(componentInput.get(ModComponents.CONTAINER_STORAGE))
-            .flatMap(ContainerStorageReference::id)
+            .flatMap(ContainerStorageRef::id)
             .ifPresentOrElse(
                 this::setStorageId,
                 () -> {
                     if (this.level != null && !this.level.isClientSide) this.setStorageId(ContainerStorages.get().create());
                 }
         );
+        if (this.getStorageId() != null) {
+            ContainerStorages.get().getOrCreate(this.getStorageId());
+        }
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
-        components.set(ModComponents.CONTAINER_STORAGE, new ContainerStorageReference(Optional.ofNullable(this.getStorageId())));
+        components.set(ModComponents.CONTAINER_STORAGE, new ContainerStorageRef(Optional.ofNullable(this.getStorageId())));
     }
 
     @Override
