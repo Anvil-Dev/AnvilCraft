@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.saved.sc;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.api.SyncListener;
 import dev.dubhe.anvilcraft.api.sc.category.store.Categories;
 import dev.dubhe.anvilcraft.api.sc.category.store.ClientCategories;
 import dev.dubhe.anvilcraft.api.sc.item.ItemEntries;
@@ -11,6 +12,10 @@ import dev.dubhe.anvilcraft.util.DistExecutor;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
@@ -22,7 +27,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,6 +65,7 @@ public class ContainerStorage {
     private final ItemEntries entries;
     private final Categories categories;
     private final Upgrades upgrades = new Upgrades();
+    private final Int2ObjectSortedMap<SyncListener<ContainerStorage>> syncListeners = new Int2ObjectLinkedOpenHashMap<>();
 
     public ContainerStorage(UUID id) {
         this.id = id;
@@ -130,9 +138,12 @@ public class ContainerStorage {
 
     public void sync(ContainerStorage storage) {
         this.entries.clear();
-        this.entries.sync(storage.entries, storage.upgrades);
-        this.categories.sync(storage.categories);
         this.upgrades.sync(storage.upgrades);
+        this.entries.sync(storage.entries, this.upgrades);
+        this.categories.sync(storage.categories);
+        for (SyncListener<ContainerStorage> listener : this.syncListeners.values()) {
+            listener.whenSynced(this);
+        }
         this.markDirty();
     }
 
@@ -143,6 +154,16 @@ public class ContainerStorage {
 
     private void markDirty() {
         ContainerStorages.get().setDirty();
+    }
+
+    public int addSyncListener(SyncListener<ContainerStorage> listener) {
+        int key = this.syncListeners.isEmpty() ? 0 : this.syncListeners.lastIntKey() + 1;
+        this.syncListeners.put(key, listener);
+        return key;
+    }
+
+    public void removeSyncListener(int index) {
+        this.syncListeners.remove(index);
     }
 
     @Override

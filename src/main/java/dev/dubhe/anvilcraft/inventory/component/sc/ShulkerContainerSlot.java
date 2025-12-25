@@ -91,4 +91,9 @@ public class ShulkerContainerSlot extends Slot {
     public boolean isActive() {
         return this.storage != null;
     }
+
+    @Override
+    public boolean mayPlace(ItemStack stack) {
+        return super.mayPlace(stack);
+    }
 }

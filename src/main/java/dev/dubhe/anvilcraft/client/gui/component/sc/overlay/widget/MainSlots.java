@@ -85,5 +85,9 @@ public class MainSlots extends OverlayWidget {
             0x404040,
             false
         );
+
+        if (this.screen.isWaitingServerSync()) {
+            graphics.fill(113, 17, 293, 125, 0x44000000); // 槽位
+        }
     }
 }

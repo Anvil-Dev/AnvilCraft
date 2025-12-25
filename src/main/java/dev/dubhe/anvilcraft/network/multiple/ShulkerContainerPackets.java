@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
 import dev.dubhe.anvilcraft.util.NetworkUtil;
 import dev.dubhe.anvilcraft.util.Util;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import net.minecraft.core.BlockPos;
@@ -68,6 +69,16 @@ public class ShulkerContainerPackets {
             CustomCategorySync.TYPE,
             CustomCategorySync.STREAM_CODEC,
             CustomCategorySync.HANDLER
+        );
+        registrar.playBidirectional(
+            TransferSync.TYPE,
+            TransferSync.STREAM_CODEC,
+            TransferSync.HANDLER
+        );
+        registrar.playToServer(
+            ClickUpgrade.TYPE,
+            ClickUpgrade.STREAM_CODEC,
+            ClickUpgrade.HANDLER
         );
     }
 
@@ -272,6 +283,85 @@ public class ShulkerContainerPackets {
                     }
                     NetworkUtil.sendToAllPlayersExcluded(player.serverLevel(), player, new StorageSync(storage));
                 }
+            );
+        }
+    }
+
+    public record TransferSync(UUID storageId, Optional<UUID> owner, boolean share) implements CustomPacketPayload {
+        public static final Type<TransferSync> TYPE = ShulkerContainerPackets.of("transfer_sync");
+        public static final StreamCodec<ByteBuf, TransferSync> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC,
+            TransferSync::storageId,
+            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
+            TransferSync::owner,
+            ByteBufCodecs.BOOL,
+            TransferSync::share,
+            TransferSync::new
+        );
+        public static final IPayloadHandler<TransferSync> HANDLER = new DirectionalPayloadHandler<>(
+            TransferSync::clientHandler,
+            TransferSync::serverHandler
+        );
+
+        public TransferSync(UUID storageId, boolean share) {
+            this(storageId, Optional.empty(), share);
+        }
+
+        public TransferSync(UUID storageId, UUID owner, boolean share) {
+            this(storageId, Optional.of(owner), share);
+        }
+
+        @Override
+        public Type<TransferSync> type() {
+            return TYPE;
+        }
+
+        private void clientHandler(IPayloadContext ctx) {
+            ctx.enqueueWork(() -> {
+                var upgrades = ContainerStorages.get().getOrCreate(this.storageId).getUpgrades();
+                upgrades.setOwner(this.owner.orElseThrow());
+                upgrades.setShare(this.share);
+            });
+        }
+
+        private void serverHandler(IPayloadContext ctx) {
+            UUID id = ctx.player().getGameProfile().getId();
+            ctx.enqueueWork(() -> {
+                var storageOp = ContainerStorages.get().get(this.storageId);
+                if (storageOp.isEmpty()) return;
+                var upgrade = storageOp.get().getUpgrades();
+
+                if (upgrade.getOwner() == null) {
+                    upgrade.setOwner(id);
+                    PacketDistributor.sendToAllPlayers(new TransferSync(this.storageId, id, false));
+                    return;
+                }
+                if (upgrade.getOwner().equals(id)) {
+                    upgrade.setShare(this.share);
+                    PacketDistributor.sendToAllPlayers(new TransferSync(this.storageId, id, this.share));
+                }
+            });
+        }
+    }
+
+    public record ClickUpgrade(int index) implements CustomPacketPayload {
+        public static final Type<ClickUpgrade> TYPE = ShulkerContainerPackets.of("click_upgrade");
+        public static final StreamCodec<ByteBuf, ClickUpgrade> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT,
+            ClickUpgrade::index,
+            ClickUpgrade::new
+        );
+        public static final IPayloadHandler<ClickUpgrade> HANDLER = ClickUpgrade::serverHandler;
+
+        @Override
+        public Type<ClickUpgrade> type() {
+            return TYPE;
+        }
+
+        private void serverHandler(IPayloadContext ctx) {
+            ctx.enqueueWork(
+                () -> Util.castSafely(ctx.player().containerMenu, ShulkerContainerMenu.class)
+                    .ifPresent(menu -> menu.upgrade(this.index))
             );
         }
     }

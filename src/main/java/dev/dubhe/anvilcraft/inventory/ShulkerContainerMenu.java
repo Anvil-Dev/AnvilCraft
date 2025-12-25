@@ -42,6 +42,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private static final Logger LOGGER = LogUtils.getLogger();
     public final ShulkerContainerBlockEntity blockEntity;
     private final Level level;
+    private final Player player;
     public ContainerStorage storage;
 
     public Int2BooleanMap slotsOrder;
@@ -67,6 +68,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = (ShulkerContainerBlockEntity) blockEntity;
         this.level = inventory.player.level();
+        this.player = inventory.player;
         this.storage = ContainerStorages.get().get(this.blockEntity.getStorageId()).orElse(null);
 
         this.addPlayerInventory(inventory);
@@ -148,7 +150,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
             }
         });
 
-        var resultSlot = this.addSlot(new ShareResultSlot(53, 174) {
+        var resultSlot = this.addSlot(new ShareResultSlot(this.storage, 53, 174) {
             @Override
             public boolean isActive() {
                 return super.isActive() && ShulkerContainerMenu.this.hasUpgradeSlots;
@@ -185,6 +187,16 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         super.initializeContents(stateId, ListUtil.resize(items, this.slots.size(), ItemStack.EMPTY), carried);
     }
 
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (this.slots.size() <= 90) return;
+        var inventory = player.getInventory();
+        for (int i = 90; i < 95; i++) {
+            inventory.add(this.slots.get(i).getItem());
+        }
+    }
+
     public boolean isWaitingServerSync() {
         STORAGE_CHECK:
         if (this.storage == null) {
@@ -201,6 +213,14 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
             }
         }
         return this.storage == null;
+    }
+
+    public void upgrade(int index) {
+        var upgrades = this.storage.getUpgrades();
+        Slot slot = this.getSlot(90 + index);
+        ItemStack material = slot.getItem().copy();
+        ItemStack remain = upgrades.getUpgrade(index).upgrade(this.player, material);
+        if (remain.getCount() != material.getCount()) slot.remove(material.getCount() - remain.getCount());
     }
 
     public float applyOrder(Int2BooleanMap order, float scrollOffs) {

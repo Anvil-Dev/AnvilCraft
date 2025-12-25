@@ -73,6 +73,14 @@ public class TextureConstants {
         "gui/container/shulker_container/slider_small"
     );
 
+    public static final ResourceLocation SHULKER_CONTAINER_SHARE_OFF = TextureConstants.texture(
+        "gui/container/shulker_container/share_off"
+    );
+
+    public static final ResourceLocation SHULKER_CONTAINER_SHARE_ON = TextureConstants.texture(
+        "gui/container/shulker_container/share_on"
+    );
+
     public static final ResourceLocation SHULKER_CONTAINER_UPGRADE = TextureConstants.texture(
         "gui/container/shulker_container/upgrade"
     );

@@ -13,6 +13,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -56,6 +57,7 @@ public class Upgrades {
     private final Upgrade<TransferLevel> transferUpgrade;
     @Setter
     private @Nullable UUID owner;
+    @Setter
     private boolean share;
 
     public Upgrades() {
@@ -81,6 +83,15 @@ public class Upgrades {
 
     private Optional<UUID> getOwnerOp() {
         return Optional.ofNullable(this.owner);
+    }
+
+    public Upgrade<?> getUpgrade(int index) {
+        return switch (index) {
+            case 0 -> this.getEntryLimitUpgrade();
+            case 1 -> this.getStackPowerUpgrade();
+            case 2 -> this.getTransferUpgrade();
+            default -> throw new IllegalStateException("Unexpected value: " + index);
+        };
     }
 
     public int getEntryLimit() {

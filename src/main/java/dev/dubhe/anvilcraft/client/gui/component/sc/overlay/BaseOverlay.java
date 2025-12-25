@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.component.sc.overlay;
 
+import dev.dubhe.anvilcraft.api.SyncListener;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import net.minecraft.client.Minecraft;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseOverlay extends AbstractWidget {
+public abstract class BaseOverlay extends AbstractWidget implements SyncListener<ContainerStorage> {
     protected final ShulkerContainerScreen screen;
 
     public BaseOverlay(ShulkerContainerScreen screen) {
@@ -83,6 +84,7 @@ public abstract class BaseOverlay extends AbstractWidget {
         return this.screen.getGuiTop();
     }
 
+    @Override
     public void whenSynced(ContainerStorage storage) {
     }
 

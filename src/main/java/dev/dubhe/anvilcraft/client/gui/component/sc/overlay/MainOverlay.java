@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.client.gui.component.sc.CategoryList;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -147,7 +148,6 @@ public class MainOverlay extends BaseOverlay {
             pose.pushPose();
             pose.translate(this.getGuiLeft(), this.getGuiTop(), 200);
 
-            graphics.fill(113, 17, 293, 125, mask); // 槽位
             graphics.fill(6, 48, 100, 190, mask); // 类别列表
             graphics.fill(2, 198, 104, 218, mask); // 升级按钮
 
@@ -197,22 +197,22 @@ public class MainOverlay extends BaseOverlay {
         if (this.insideSearchModeButton(x, y)) {
             this.setTooltip(Component.translatable(
                 "screen.anvilcraft.shulker_container.search",
-                ShulkerContainerScreen.searchMode.getTooltip()
+                ShulkerContainerScreen.searchMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
             ));
         } else if (this.insideSortModeButton(x, y)) {
             this.setTooltip(Component.translatable(
                 "screen.anvilcraft.shulker_container.sort",
-                ShulkerContainerScreen.sortMode.getTooltip()
+                ShulkerContainerScreen.sortMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
             ));
         } else if (this.insideSortOrderModeButton(x, y)) {
             this.setTooltip(Component.translatable(
                 "screen.anvilcraft.shulker_container.sort_order",
-                ShulkerContainerScreen.sortMode.getTooltip()
+                ShulkerContainerScreen.sortMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
             ));
         } else if (this.insideNbtDisplayModeButton(x, y)) {
             this.setTooltip(Component.translatable(
                 "screen.anvilcraft.shulker_container.nbt",
-                ShulkerContainerScreen.nbtDisplayMode.getTooltip()
+                ShulkerContainerScreen.nbtDisplayMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
             ));
         }
     }

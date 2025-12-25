@@ -43,6 +43,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     public static NbtDisplayMode nbtDisplayMode = NbtDisplayMode.UNFOLD;
 
     private BaseOverlay overlay;
+    private int listenerIndex = -1;
     public MainSlots slots;
 
     private int lastClickStorageHash;
@@ -66,7 +67,10 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     protected void init() {
         super.init();
         this.clearWidgets();
+        if (!this.isWaitingServerSync() && this.listenerIndex != -1) this.menu.storage.removeSyncListener(this.listenerIndex);
+
         this.overlay = this.addWidget(this.overlay == null ? new MainOverlay(this) : this.overlay.recreate());
+        if (!this.isWaitingServerSync()) this.listenerIndex = this.menu.storage.addSyncListener(this.overlay);
         if (this.overlay.hasSlots()) {
             this.slots = this.addRenderableWidget(new MainSlots(this));
         } else {
@@ -169,6 +173,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         super.onClose();
         if (this.overlay != null) this.overlay.onClose();
         if (this.isWaitingServerSync()) return;
+        this.menu.storage.removeSyncListener(this.listenerIndex);
         // noinspection DataFlowIssue - For Minecraft.getInstance().getConnection().registryAccess() - 此时已有Connection
         PacketSplitter.INSTANCE.split(
             ShulkerContainerPackets.StorageSync.TYPE,
@@ -181,6 +186,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     }
 
     public void changeOverlay(BaseOverlay overlay) {
+        this.menu.storage.removeSyncListener(this.listenerIndex);
         this.overlay.onClose();
         this.overlay = overlay;
         this.init();
@@ -215,7 +221,10 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         if (!this.isWaitingServerSync) return false;
         var result = this.menu.isWaitingServerSync();
         if (!result && this.isWaitingServerSync) {
-            if (this.overlay != null) this.overlay.whenSynced(this.menu.storage);
+            if (this.overlay != null && this.listenerIndex == -1) {
+                this.overlay.whenSynced(this.menu.storage);
+                this.menu.storage.addSyncListener(this.overlay);
+            }
         }
         return this.isWaitingServerSync = result;
     }

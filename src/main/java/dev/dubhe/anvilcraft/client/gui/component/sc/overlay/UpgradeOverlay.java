@@ -8,18 +8,22 @@ import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.api.sc.upgrade.Upgrade;
 import dev.dubhe.anvilcraft.api.sc.upgrade.UpgradeResult;
 import dev.dubhe.anvilcraft.api.sc.upgrade.Upgrades;
+import dev.dubhe.anvilcraft.api.sc.upgrade.level.TransferLevel;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
+import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -29,6 +33,7 @@ import java.util.Objects;
 public class UpgradeOverlay extends BaseOverlay {
     private Map<CategoryProvider, CategoryMode> prev;
     private final Upgrade<?>[] upgrades = new Upgrade[3];
+    private final Button share;
 
     public UpgradeOverlay(ShulkerContainerScreen screen) {
         super(screen);
@@ -63,6 +68,44 @@ public class UpgradeOverlay extends BaseOverlay {
             40,
             button -> screen.changeOverlay(new MainOverlay(screen))
         ));
+
+        this.share = this.addRenderableWidget(new Button(
+            Button.builder(
+                Component.empty(),
+                button -> PacketDistributor.sendToServer(new ShulkerContainerPackets.TransferSync(
+                    this.storage().getId(),
+                    !upgrades.isShare()
+                ))
+            ).bounds(
+                this.getGuiLeft() + 74,
+                this.getGuiTop() + 170,
+                22,
+                26
+            )
+        ) {
+            @Override
+            public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+                this.isHovered = this.isMouseOver(mouseX, mouseY);
+                int offsetV = 0;
+                if (this.isHovered) {
+                    offsetV = 26;
+                }
+                graphics.blit(
+                    upgrades.isShare() ? TextureConstants.SHULKER_CONTAINER_SHARE_ON : TextureConstants.SHULKER_CONTAINER_SHARE_OFF,
+                    this.getX(),
+                    this.getY(),
+                    0,
+                    offsetV,
+                    22,
+                    26,
+                    22,
+                    52
+                );
+            }
+        });
+        this.share.active = upgrades.getOwner() == null
+                            || upgrades.getOwner().equals(this.minecraft().getGameProfile().getId())
+                            || upgrades.isShare();
     }
 
     @Override
@@ -190,6 +233,34 @@ public class UpgradeOverlay extends BaseOverlay {
         ItemStack share = Items.BARRIER.getDefaultInstance();
         if (this.screen.getMenu().share.mayPlace(ModBlocks.SINGULARITY_CRYSTAL.asStack())) share = ModBlocks.SINGULARITY_CRYSTAL.asStack();
         this.renderTransparentItem(graphics, pose, share, this.getGuiLeft() + 13, this.getGuiTop() + 174);
+
+        var upgrades = this.storage().getUpgrades();
+        if (upgrades.getTransfer().ordinal() < TransferLevel.THREE.ordinal()) {
+            this.share.active = false;
+            graphics.fill(
+                this.getGuiLeft() + 9,
+                this.getGuiTop() + 170,
+                this.getGuiLeft() + 96,
+                this.getGuiTop() + 196,
+                200,
+                0x44000000
+            ); // 升级区域
+        } else if (
+            upgrades.getOwner() != null
+            && !upgrades.getOwner().equals(this.minecraft().getGameProfile().getId())
+        ) {
+            this.share.active = false;
+            graphics.fill(
+                this.getGuiLeft() + (upgrades.isShare() ? 74 : 9),
+                this.getGuiTop() + 170,
+                this.getGuiLeft() + 96,
+                this.getGuiTop() + 196,
+                200,
+                0x44000000
+            ); // 升级区域
+        } else {
+            this.share.active = true;
+        }
     }
 
     @Override
@@ -198,17 +269,21 @@ public class UpgradeOverlay extends BaseOverlay {
             final int top = this.getGuiTop() + 14 + i * 54;
             final var upgrade = this.upgrades[i];
 
-            Slot slot = this.screen.getMenu().getSlot(90 + i);
-            ItemStack material = slot.getItem().copy();
-            if (this.insideConfirmButton(top, mouseX, mouseY)) {
-                ItemStack remain = upgrade.upgrade(this.minecraft().player, material);
-                if (remain.getCount() != material.getCount()) {
-                    slot.remove(material.getCount() - remain.getCount());
-                }
-                return remain.getCount() != material.getCount();
-            }
+            if (!this.insideConfirmButton(top, mouseX, mouseY)) continue;
+            ItemStack material = this.screen.getMenu().getSlot(90 + i).getItem().copy();
+            if (upgrade.canUpgrade(this.minecraft().player, material) != UpgradeResult.CAN_UPGRADE) continue;
+            PacketDistributor.sendToServer(new ShulkerContainerPackets.ClickUpgrade(i));
+            return true;
         }
         return false;
+    }
+
+    @Override
+    public void whenSynced(ContainerStorage storage) {
+        super.whenSynced(storage);
+
+        this.storage().getClientCategories().getCategories().clear();
+        this.storage().getClientCategories().getCategories().put(new CategoryProvider(new UpgradeCategory()), CategoryMode.WHITELIST);
     }
 
     @Override
