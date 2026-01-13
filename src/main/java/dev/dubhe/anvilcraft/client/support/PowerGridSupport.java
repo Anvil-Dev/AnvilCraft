@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.Line;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
-import dev.dubhe.anvilcraft.constant.Constants;
+import dev.dubhe.anvilcraft.constant.Constant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -56,7 +56,7 @@ public class PowerGridSupport {
         for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
             if (!grid.shouldRender(camera)) continue;
             if (!grid.getLevel().equals(level)) continue;
-            grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer1, camera, Constants.TRANSMITTER_LINE_COLOR));
+            grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer1, camera, Constant.TRANSMITTER_LINE_COLOR));
         }
         bufferSource.endBatch();
     }
@@ -70,7 +70,7 @@ public class PowerGridSupport {
         for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
             if (!grid.shouldRender(camera)) continue;
             if (!grid.getLevel().equals(level)) continue;
-            grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer, camera, Constants.TRANSMITTER_LINE_COLOR));
+            grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer, camera, Constant.TRANSMITTER_LINE_COLOR));
         }
     }
 

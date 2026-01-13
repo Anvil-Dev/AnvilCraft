@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.api.sc.category.store.ClientCategories;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.client.util.RegistryUtil;
-import dev.dubhe.anvilcraft.constant.TextureConstants;
+import dev.dubhe.anvilcraft.constant.TexturesConstant;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
@@ -126,7 +126,7 @@ public class CategoryOverlay extends BaseOverlay {
             this.getGuiTop() + 139,
             18,
             20,
-            TextureConstants.SHULKER_CONTAINER_CONFIRM,
+            TexturesConstant.SHULKER_CONTAINER_CONFIRM,
             20,
             18,
             40,
@@ -142,7 +142,7 @@ public class CategoryOverlay extends BaseOverlay {
             this.getGuiTop() + 161,
             18,
             20,
-            TextureConstants.SHULKER_CONTAINER_CANCEL,
+            TexturesConstant.SHULKER_CONTAINER_CANCEL,
             20,
             18,
             40,
@@ -154,7 +154,7 @@ public class CategoryOverlay extends BaseOverlay {
             this.getGuiTop() + 7,
             86,
             20,
-            TextureConstants.SHULKER_CONTAINER_CATEGORY_ADD,
+            TexturesConstant.SHULKER_CONTAINER_CATEGORY_ADD,
             20,
             86,
             40,
@@ -176,7 +176,7 @@ public class CategoryOverlay extends BaseOverlay {
 
     @Override
     public ResourceLocation bg() {
-        return TextureConstants.SHULKER_CONTAINER_CATEGORY_SETTING_BG;
+        return TexturesConstant.SHULKER_CONTAINER_CATEGORY_SETTING_BG;
     }
 
     @Override
@@ -191,7 +191,7 @@ public class CategoryOverlay extends BaseOverlay {
             var top = this.getGuiTop() + 7 + (i - this.enabledHead) * 20;
 
             graphics.blit(
-                TextureConstants.SHULKER_CONTAINER_CATEGORY,
+                TexturesConstant.SHULKER_CONTAINER_CATEGORY,
                 left,
                 top,
                 0,
@@ -247,7 +247,7 @@ public class CategoryOverlay extends BaseOverlay {
             int top = this.getGuiTop() + 7;
             int bottom = top + 200;
             graphics.blit(
-                TextureConstants.SHULKER_CONTAINER_SLIDER_SMALL,
+                TexturesConstant.SHULKER_CONTAINER_SLIDER_SMALL,
                 this.getX() + 95,
                 top + (int) ((float) (bottom - top - 10) * this.enabledScroll.getScrollOffs()),
                 0,
@@ -272,7 +272,7 @@ public class CategoryOverlay extends BaseOverlay {
             var top = this.getGuiTop() + 7 + (i - this.alternateHead) / 2 * 20;
 
             graphics.blit(
-                TextureConstants.SHULKER_CONTAINER_CATEGORY,
+                TexturesConstant.SHULKER_CONTAINER_CATEGORY,
                 left,
                 top,
                 0,
@@ -328,7 +328,7 @@ public class CategoryOverlay extends BaseOverlay {
             int top = this.getGuiTop() + 7;
             int bottom = top + 120;
             graphics.blit(
-                TextureConstants.SHULKER_CONTAINER_SLIDER_SMALL,
+                TexturesConstant.SHULKER_CONTAINER_SLIDER_SMALL,
                 this.getGuiLeft() + 289,
                 top + (int) ((float) (bottom - top - 10) * this.alternateScroll.getScrollOffs()),
                 0,

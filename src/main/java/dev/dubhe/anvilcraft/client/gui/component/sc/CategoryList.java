@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.component.sc;
 import dev.dubhe.anvilcraft.api.sc.category.CategoryMode;
 import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
-import dev.dubhe.anvilcraft.constant.TextureConstants;
+import dev.dubhe.anvilcraft.constant.TexturesConstant;
 import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import dev.dubhe.anvilcraft.util.Scrollable;
 import net.minecraft.client.gui.GuiGraphics;
@@ -70,7 +70,7 @@ public class CategoryList extends AbstractContainerWidget {
             0,
             86,
             20,
-            TextureConstants.SHULKER_CONTAINER_CATEGORY_SETTING,
+            TexturesConstant.SHULKER_CONTAINER_CATEGORY_SETTING,
             20,
             86,
             40,
@@ -129,7 +129,7 @@ public class CategoryList extends AbstractContainerWidget {
             int top = this.getY();
             int bottom = top + this.getHeight();
             graphics.blitSprite(
-                TextureConstants.SHULKER_CONTAINER_SLIDER_SMALL,
+                TexturesConstant.SHULKER_CONTAINER_SLIDER_SMALL,
                 this.getX() + 88,
                 top + (int) ((float) (bottom - top - 10) * this.scrollable.getScrollOffs()),
                 4,

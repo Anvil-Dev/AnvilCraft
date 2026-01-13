@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.sc.upgrade.level;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.util.CodecUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;

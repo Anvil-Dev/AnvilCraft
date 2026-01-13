@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
-import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.Util;
@@ -135,7 +134,6 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 Two.REQUIRED.add(new RequiredEntry(i, DataComponents.ENCHANTMENTS, true));
                 Two.REQUIRED.add(new RequiredEntry(i, ModComponents.MERCILESS_ENCHANTMENTS, true));
             }
-            Two.REQUIRED.put(new Pair<>(IResultModifier.RESULT_NAME, null), true);
             return Two.REQUIRED;
         }
 
@@ -184,7 +182,6 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 Four.REQUIRED.add(new RequiredEntry(i, DataComponents.ENCHANTMENTS, true));
                 Four.REQUIRED.add(new RequiredEntry(i, ModComponents.MERCILESS_ENCHANTMENTS, true));
             }
-            Four.REQUIRED.put(new Pair<>(IResultModifier.RESULT_NAME, null), true);
             return Four.REQUIRED;
         }
 
@@ -240,7 +237,6 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 Eight.REQUIRED.add(new RequiredEntry(i, DataComponents.ENCHANTMENTS, true));
                 Eight.REQUIRED.add(new RequiredEntry(i, ModComponents.MERCILESS_ENCHANTMENTS, true));
             }
-            Eight.REQUIRED.put(new Pair<>(IResultModifier.RESULT_NAME, null), true);
             return Eight.REQUIRED;
         }
 

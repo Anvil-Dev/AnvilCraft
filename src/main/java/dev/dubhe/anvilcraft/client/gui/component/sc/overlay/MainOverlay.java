@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.sc.CategoryList;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
-import dev.dubhe.anvilcraft.constant.TextureConstants;
+import dev.dubhe.anvilcraft.constant.TexturesConstant;
 import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
@@ -50,8 +50,8 @@ public class MainOverlay extends BaseOverlay {
             24,
             20,
             List.of(
-                TextureConstants.SHULKER_CONTAINER_SEARCH_CLEAR,
-                TextureConstants.SHULKER_CONTAINER_SEARCH_RETENTION
+                TexturesConstant.SHULKER_CONTAINER_SEARCH_CLEAR,
+                TexturesConstant.SHULKER_CONTAINER_SEARCH_RETENTION
             ),
             20,
             24,
@@ -64,9 +64,9 @@ public class MainOverlay extends BaseOverlay {
             24,
             20,
             List.of(
-                TextureConstants.SHULKER_CONTAINER_SORT_BY_NUMBER,
-                TextureConstants.SHULKER_CONTAINER_SORT_BY_MOD,
-                TextureConstants.SHULKER_CONTAINER_SORT_BY_NAME
+                TexturesConstant.SHULKER_CONTAINER_SORT_BY_NUMBER,
+                TexturesConstant.SHULKER_CONTAINER_SORT_BY_MOD,
+                TexturesConstant.SHULKER_CONTAINER_SORT_BY_NAME
             ),
             20,
             24,
@@ -79,8 +79,8 @@ public class MainOverlay extends BaseOverlay {
             24,
             20,
             List.of(
-                TextureConstants.SHULKER_CONTAINER_SEQUENTIAL_ORDER,
-                TextureConstants.SHULKER_CONTAINER_REVERSE_ORDER
+                TexturesConstant.SHULKER_CONTAINER_SEQUENTIAL_ORDER,
+                TexturesConstant.SHULKER_CONTAINER_REVERSE_ORDER
             ),
             20,
             24,
@@ -93,8 +93,8 @@ public class MainOverlay extends BaseOverlay {
             24,
             20,
             List.of(
-                TextureConstants.SHULKER_CONTAINER_NBT_UNFOLD,
-                TextureConstants.SHULKER_CONTAINER_NBT_FOLD
+                TexturesConstant.SHULKER_CONTAINER_NBT_UNFOLD,
+                TexturesConstant.SHULKER_CONTAINER_NBT_FOLD
             ),
             20,
             24,
@@ -113,7 +113,7 @@ public class MainOverlay extends BaseOverlay {
             this.getGuiTop() + 198,
             102,
             20,
-            TextureConstants.SHULKER_CONTAINER_UPGRADE,
+            TexturesConstant.SHULKER_CONTAINER_UPGRADE,
             20,
             102,
             40,
@@ -128,7 +128,7 @@ public class MainOverlay extends BaseOverlay {
 
     @Override
     public ResourceLocation bg() {
-        return TextureConstants.SHULKER_CONTAINER_BG;
+        return TexturesConstant.SHULKER_CONTAINER_BG;
     }
 
     @Override

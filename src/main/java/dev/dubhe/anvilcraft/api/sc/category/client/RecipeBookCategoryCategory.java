@@ -6,7 +6,7 @@ import com.mojang.serialization.JavaOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.sc.category.ICategory;
-import dev.dubhe.anvilcraft.constant.ClientConstants;
+import dev.dubhe.anvilcraft.client.constant.ClientConstant;
 import dev.dubhe.anvilcraft.init.sc.ModCategories;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.client.Minecraft;
@@ -35,7 +35,7 @@ public record RecipeBookCategoryCategory(ItemStack icon, Component name, String 
     @Override
     @OnlyIn(Dist.CLIENT)
     public boolean testClient(UnlimitedItemStack stack) {
-        Optional<RecipeBookCategories> categories = ClientConstants.CATEGORIES_CODEC.decode(JavaOps.INSTANCE, this.categories)
+        Optional<RecipeBookCategories> categories = ClientConstant.CATEGORIES_CODEC.decode(JavaOps.INSTANCE, this.categories)
             .result()
             .map(Pair::getFirst);
         if (categories.isEmpty()) return false;

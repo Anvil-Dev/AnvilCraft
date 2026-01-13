@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.component.sc.overlay.widget;
 
 import dev.dubhe.anvilcraft.api.sc.item.OrderPos;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
-import dev.dubhe.anvilcraft.constant.TextureConstants;
+import dev.dubhe.anvilcraft.constant.TexturesConstant;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.inventory.component.sc.ShulkerContainerSlot;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
@@ -96,7 +96,7 @@ public class MainSlots extends OverlayWidget {
         int itemSliderTop = this.getGuiTop() + 18;
         int itemSliderBottom = itemSliderTop + 112;
         if (this.scrollable.canScroll()) {
-            ResourceLocation sliderTex = TextureConstants.SHULKER_CONTAINER_SLIDER_BIG;
+            ResourceLocation sliderTex = TexturesConstant.SHULKER_CONTAINER_SLIDER_BIG;
             graphics.blitSprite(
                 sliderTex,
                 itemSliderLeft,

@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.component.sc;
 import dev.dubhe.anvilcraft.api.sc.category.CategoryMode;
 import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.client.util.RegistryUtil;
-import dev.dubhe.anvilcraft.constant.TextureConstants;
+import dev.dubhe.anvilcraft.constant.TexturesConstant;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import dev.dubhe.anvilcraft.util.component.MultilineComponentHelper;
@@ -60,7 +60,7 @@ public class CategoryButton extends Button {
             offsetV = 20; // Hovered part
         }
         graphics.blit(
-            TextureConstants.SHULKER_CONTAINER_CATEGORY,
+            TexturesConstant.SHULKER_CONTAINER_CATEGORY,
             this.getX(),
             this.getY(),
             0,

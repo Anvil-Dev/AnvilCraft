@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.api.sc.upgrade.level.TransferLevel;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
-import dev.dubhe.anvilcraft.constant.TextureConstants;
+import dev.dubhe.anvilcraft.constant.TexturesConstant;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
 import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
@@ -62,7 +62,7 @@ public class UpgradeOverlay extends BaseOverlay {
             this.getGuiTop() + 198,
             102,
             20,
-            TextureConstants.SHULKER_CONTAINER_UPGRADE_BACK,
+            TexturesConstant.SHULKER_CONTAINER_UPGRADE_BACK,
             20,
             102,
             40,
@@ -91,7 +91,7 @@ public class UpgradeOverlay extends BaseOverlay {
                     offsetV = 26;
                 }
                 graphics.blit(
-                    upgrades.isShare() ? TextureConstants.SHULKER_CONTAINER_SHARE_ON : TextureConstants.SHULKER_CONTAINER_SHARE_OFF,
+                    upgrades.isShare() ? TexturesConstant.SHULKER_CONTAINER_SHARE_ON : TexturesConstant.SHULKER_CONTAINER_SHARE_OFF,
                     this.getX(),
                     this.getY(),
                     0,
@@ -117,7 +117,7 @@ public class UpgradeOverlay extends BaseOverlay {
 
     @Override
     public ResourceLocation bg() {
-        return TextureConstants.SHULKER_CONTAINER_UPGRADE_BG;
+        return TexturesConstant.SHULKER_CONTAINER_UPGRADE_BG;
     }
 
     @Override
@@ -155,7 +155,7 @@ public class UpgradeOverlay extends BaseOverlay {
                 progress = 64;
             }
             graphics.blit(
-                TextureConstants.SHULKER_CONTAINER_UPGRADE_PROGRESS,
+                TexturesConstant.SHULKER_CONTAINER_UPGRADE_PROGRESS,
                 24,
                 2,
                 0,
@@ -175,7 +175,7 @@ public class UpgradeOverlay extends BaseOverlay {
             int offsetV = 0;
             if (result == UpgradeResult.CAN_UPGRADE && this.insideConfirmButton(top, mouseX, mouseY)) offsetV = 20;
             graphics.blit(
-                TextureConstants.SHULKER_CONTAINER_UPGRADE_CONFIRM,
+                TexturesConstant.SHULKER_CONTAINER_UPGRADE_CONFIRM,
                 0,
                 27,
                 0,
