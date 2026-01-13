@@ -7,7 +7,9 @@ import dev.anvilcraft.lib.recipe.component.ChanceItemStack;
 import dev.anvilcraft.lib.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
@@ -43,23 +45,36 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         List<ChanceItemStack> results,
         HasCauldronSimple hasCauldron
     ) {
-        super(
-            new Property()
-                .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
-                .setItemInputRange(new Vec3(0.75, 0.75, 0.75))
-                .setInputItems(itemIngredients)
-                .setItemOutputOffset(new Vec3(0.0, -0.75, 0.0))
-                .setResultItems(results)
-                .setCauldronOffset(new Vec3i(0, -1, 0))
-                .setHasCauldron(hasCauldron)
-                .setBlockInputOffset(new Vec3i(0, -2, 0))
-                .setInputBlocks(
-                    BlockStatePredicate.builder()
-                        .of(ModBlocks.HEATER.get())
-                        .with(HeaterBlock.OVERLOAD, false)
-                        .build()
-                )
-        );
+        super(createProperty(itemIngredients, results, hasCauldron));
+    }
+
+    private static Property createProperty(
+        List<ItemIngredientPredicate> itemIngredients,
+        List<ChanceItemStack> results,
+        HasCauldronSimple hasCauldron
+    ) {
+        Property property = new Property()
+            .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
+            .setItemInputRange(new Vec3(0.75, 0.75, 0.75))
+            .setInputItems(itemIngredients)
+            .setItemOutputOffset(new Vec3(0.0, -0.75, 0.0))
+            .setResultItems(results)
+            .setCauldronOffset(new Vec3i(0, -1, 0))
+            .setHasCauldron(hasCauldron)
+            .setBlockInputOffset(new Vec3i(0, -2, 0))
+            .setInputBlocks(
+                BlockStatePredicate.builder()
+                    .of(ModBlocks.HEATER.get())
+                    .with(HeaterBlock.OVERLOAD, false)
+                    .build()
+            );
+
+        for (ChanceItemStack result : results) {
+            if (result.stack().is(ModItems.ROYAL_STEEL_INGOT.get()) || result.stack().is(ModBlocks.ROYAL_STEEL_BLOCK.get().asItem())) {
+                property.addOutcome(new RoyalPreferenceOutcome(result));
+            }
+        }
+        return property;
     }
 
     @Override

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -44,6 +45,8 @@ public class ClientBlockEventListener {
         }
         if (event.getLevel().isClientSide() && clientHandle(event, state, hand, event.getHitVec())) {
             event.setCancellationResult(InteractionResult.SUCCESS);
+            event.setCanceled(true);
+        } else if (!state.is(BlockTags.CAULDRONS)) {
             event.setCanceled(true);
         }
     }

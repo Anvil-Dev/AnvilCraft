@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.util.CodecUtil;
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.anvilcraft.lib.recipe.util.CodecUtil;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.util.RecipeUtil;

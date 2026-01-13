@@ -2,10 +2,11 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
-import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
+import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
+import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
+import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.api.sc.category.ICategory;
 import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
-import dev.dubhe.anvilcraft.recipe.multiple.result.modifier.IResultModifier;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -58,12 +59,21 @@ public class ModRegistries {
         .maxId(512)
         .create();
 
+    public static final ResourceKey<Registry<INumberProvider.Type<?>>> NUMBER_PROVIDER_TYPE_KEY = ResourceKey.createRegistryKey(
+        AnvilCraft.of("number_provider")
+    );
+    public static final Registry<INumberProvider.Type<?>> NUMBER_PROVIDER_TYPE_REGISTRY = new RegistryBuilder<>(NUMBER_PROVIDER_TYPE_KEY)
+        .sync(true)
+        .maxId(512)
+        .create();
+
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(AMULET_TYPE_REGISTRY);
         event.register(MODIFIER_TYPE_REGISTRY);
         event.register(CUSTOM_DATA_TYPE_REGISTRY);
         event.register(UUID_PROVIDER_TYPE_REGISTRY);
+        event.register(NUMBER_PROVIDER_TYPE_REGISTRY);
         event.register(CATEGORY_TYPE_REGISTRY);
     }
 

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.multiple;
 
+import dev.dubhe.anvilcraft.util.ListUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 
@@ -26,11 +27,8 @@ public record MultipleToOneSmithingRecipeInput(ItemStack template, ItemStack mat
     }
 
     public ItemStack getInputItem(int id) {
-        if (id < this.inputs.size()) {
-            return this.inputs.get(id);
-        } else {
-            throw new IllegalArgumentException("Recipe inputs does not contain index " + id);
-        }
+        return ListUtil.safelyGet(this.inputs, id)
+            .orElseThrow(() -> new IllegalArgumentException("Recipe inputs does not contain index " + id));
     }
 
     @Override

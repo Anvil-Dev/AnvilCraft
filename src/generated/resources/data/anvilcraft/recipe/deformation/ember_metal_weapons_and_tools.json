@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    "anvilcraft:ember_metal_sword",
+    "anvilcraft:ember_metal_axe",
+    "anvilcraft:ember_metal_pickaxe",
+    "anvilcraft:ember_metal_shovel",
+    "anvilcraft:ember_metal_hoe"
+  ]
+}

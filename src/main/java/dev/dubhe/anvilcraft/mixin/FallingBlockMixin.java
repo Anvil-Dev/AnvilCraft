@@ -30,6 +30,8 @@ public abstract class FallingBlockMixin extends Block {
         throw new AssertionError();
     }
 
+    @Shadow public abstract void falling(FallingBlockEntity entity);
+
     @Inject(
         method = "tick", at = @At("HEAD"), cancellable = true
     )
@@ -95,7 +97,8 @@ public abstract class FallingBlockMixin extends Block {
             if (state.is(ModBlocks.LEVITATION_POWDER_BLOCK.get())) {
                 LevitatingBlockEntity.levitate(level, pos, state);
             } else {
-                FallingBlockEntity.fall(level, pos, state);
+                FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
+                this.falling(entity);
             }
             ci.cancel();
         } else {

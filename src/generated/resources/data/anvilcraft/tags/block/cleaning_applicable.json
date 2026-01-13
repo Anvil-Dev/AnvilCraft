@@ -20,6 +20,12 @@
     "minecraft:vine",
     "minecraft:snow",
     "minecraft:moss_carpet",
-    "minecraft:lily_pad"
+    "minecraft:lily_pad",
+    "minecraft:seagrass",
+    "minecraft:tall_seagrass",
+    "minecraft:sea_pickle",
+    "minecraft:kelp_plant",
+    "#minecraft:wall_corals",
+    "#minecraft:coral_plants"
   ]
 }

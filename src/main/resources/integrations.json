@@ -22,6 +22,14 @@
           ],
           "extra": [
             {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-ponder"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/project/anvilcraft-ponder"
+            },
+            {
               "type": "github",
               "url": "https://github.com/Anvil-Dev/AnvilCraft-Ponder"
             }
@@ -57,6 +65,14 @@
           ],
           "extra": [
             {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-guideme"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/anvilcraft-guideme"
+            },
+            {
               "type": "github",
               "url": "https://github.com/Anvil-Dev/AnvilCraft-GuideME"
             }
@@ -91,6 +107,14 @@
             }
           ],
           "extra": [
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-patchouli"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/project/anvilcraft-patchouli"
+            },
             {
               "type": "github",
               "url": "https://github.com/Anvil-Dev/AnvilCraft-Patchouli"
@@ -174,25 +198,33 @@
           "target": [
             {
               "type": "mcmod",
-              "url": "https://www.mcmod.cn/class/2021.html"
+              "url": "https://www.mcmod.cn/class/2450.html"
             },
             {
               "type": "curseforge",
-              "url": "https://www.curseforge.com/minecraft/mc-mods/create"
+              "url": "https://www.curseforge.com/minecraft/mc-mods/kubejs"
             },
             {
               "type": "modrinth",
-              "url": "https://modrinth.com/mod/create"
+              "url": "https://modrinth.com/mod/kubejs"
             },
             {
               "type": "github",
-              "url": "https://github.com/Creators-of-Create/Create"
+              "url": "https://github.com/KubeJS-Mods/KubeJS"
             }
           ],
           "extra": [
             {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraf-kubejs"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/project/anvilcraf-kubejs"
+            },
+            {
               "type": "github",
-              "url": "https://github.com/Anvil-Dev/AnvilCraft-Create-Addition"
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-KubeJS"
             }
           ]
         }
@@ -230,6 +262,49 @@
             {
               "type": "github",
               "url": "https://github.com/Anvil-Dev/AnvilCraft-Create-Addition"
+            }
+          ]
+        }
+      },
+      {
+        "id": "curios",
+        "type": "extra",
+        "name": [
+          {
+            "translate": "integration.anvilcraft.interaction.curios"
+          }
+        ],
+        "links": {
+          "target": [
+            {
+              "type": "mcmod",
+              "url": "https://www.mcmod.cn/class/2029.html"
+            },
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/curios"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/curios"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/TheIllusiveC4/Curios"
+            }
+          ],
+          "extra": [
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-curios"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/mod/anvilcraft-curios"
+            },
+            {
+              "type": "github",
+              "url": "https://github.com/Anvil-Dev/AnvilCraft-Curios"
             }
           ]
         }
@@ -299,6 +374,14 @@
             }
           ],
           "extra": [
+            {
+              "type": "curseforge",
+              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-better-beacons-compatible"
+            },
+            {
+              "type": "modrinth",
+              "url": "https://modrinth.com/project/anvilcraft-better-beacons-compatible"
+            },
             {
               "type": "github",
               "url": "https://github.com/Anvil-Dev/AnvilCraft-Better-Beacons-Compatible"

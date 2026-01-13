@@ -9,6 +9,9 @@ import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.FrostAnvilScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.FrostGrindstoneScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.FrostSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
@@ -30,6 +33,9 @@ import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.FilterMenu;
+import dev.dubhe.anvilcraft.inventory.FrostAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.FrostGrindstoneMenu;
+import dev.dubhe.anvilcraft.inventory.FrostSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
@@ -136,6 +142,22 @@ public class ModMenuTypes {
 
     public static final MenuEntry<TranscendenceAnvilMenu> TRANSCENDENCE_ANVIL = REGISTRATE
         .menu("transcendence_anvil", (type, id, inv) -> new TranscendenceAnvilMenu(id, inv), () -> TranscendenceAnvilScreen::new)
+        .register();
+
+    public static final MenuEntry<FrostAnvilMenu> FROST_ANVIL = REGISTRATE
+        .menu("frost_anvil", (type, id, inv) -> new FrostAnvilMenu(id, inv), () -> FrostAnvilScreen::new)
+        .register();
+    public static final MenuEntry<FrostGrindstoneMenu> FROST_GRINDSTONE = REGISTRATE
+        .menu(
+            "frost_grindstone",
+            (type, id, inv) -> new FrostGrindstoneMenu(type, id, inv),
+            () -> FrostGrindstoneScreen::new)
+        .register();
+    public static final MenuEntry<FrostSmithingMenu> FROST_SMITHING = REGISTRATE
+        .menu(
+            "frost_smithing_table",
+            (type, id, inv) -> new FrostSmithingMenu(type, id, inv),
+            () -> FrostSmithingScreen::new)
         .register();
 
     public static final MenuEntry<ShulkerContainerMenu> SHULKER_CONTAINER = REGISTRATE

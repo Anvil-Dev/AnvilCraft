@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:permutation",
+  "inputs": [
+    "anvilcraft:emerald_amulet",
+    "anvilcraft:topaz_amulet",
+    "anvilcraft:ruby_amulet",
+    "anvilcraft:sapphire_amulet"
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_matter"
+  }
+}

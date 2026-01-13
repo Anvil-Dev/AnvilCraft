@@ -30,6 +30,7 @@ import dev.dubhe.anvilcraft.item.EmberAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.EmberMetalAxeItem;
 import dev.dubhe.anvilcraft.item.EmberMetalHeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.EmberMetalHoeItem;
+import dev.dubhe.anvilcraft.item.EmberMetalIngotItem;
 import dev.dubhe.anvilcraft.item.EmberMetalPickaxeItem;
 import dev.dubhe.anvilcraft.item.EmberMetalResonatorItem;
 import dev.dubhe.anvilcraft.item.EmberMetalShovelItem;
@@ -61,6 +62,7 @@ import dev.dubhe.anvilcraft.item.RoyalAxeItem;
 import dev.dubhe.anvilcraft.item.RoyalHoeItem;
 import dev.dubhe.anvilcraft.item.RoyalPickaxeItem;
 import dev.dubhe.anvilcraft.item.RoyalShovelItem;
+import dev.dubhe.anvilcraft.item.RoyalSteelIngotItem;
 import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
@@ -70,7 +72,6 @@ import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.TranscendenceAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.TranscendenceHeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.TranscendenceResonatorItem;
-import dev.dubhe.anvilcraft.item.TranscendiumUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
@@ -81,12 +82,15 @@ import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
-import dev.dubhe.anvilcraft.item.template.EightToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
-import dev.dubhe.anvilcraft.item.template.FourToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
-import dev.dubhe.anvilcraft.item.template.RoyalUpgradeTemplateItem;
-import dev.dubhe.anvilcraft.item.template.TwoToOneTemplateItem;
+import dev.dubhe.anvilcraft.item.template.RoyalSteelUpgradeTemplateItem;
+import dev.dubhe.anvilcraft.item.template.TranscendiumUpgradeTemplateItem;
+import dev.dubhe.anvilcraft.item.template.frost.DeformationTemplateItem;
+import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
+import dev.dubhe.anvilcraft.item.template.mto.EightToOneTemplateItem;
+import dev.dubhe.anvilcraft.item.template.mto.FourToOneTemplateItem;
+import dev.dubhe.anvilcraft.item.template.mto.TwoToOneTemplateItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -794,9 +798,9 @@ public class ModItems {
             .save(provider);
     }).register();
     // 升级锻造模板
-    public static final ItemEntry<RoyalUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE.item(
+    public static final ItemEntry<RoyalSteelUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE.item(
         "royal_steel_upgrade_smithing_template",
-        RoyalUpgradeTemplateItem::new
+        RoyalSteelUpgradeTemplateItem::new
     ).lang("Smithing Template").tag(ModItemTags.TEMPLATES).register();
     public static final ItemEntry<FrostMetalUpgradeTemplateItem> FROST_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRATE.item(
         "frost_metal_upgrade_smithing_template",
@@ -810,6 +814,59 @@ public class ModItems {
         "transcendium_upgrade_smithing_template",
         TranscendiumUpgradeTemplateItem::new
     ).lang("Smithing Template").tag(ModItemTags.TEMPLATES).register();
+
+    public static final ItemEntry<PermutationTemplateItem> PERMUTATION_TEMPLATE_ITEM = REGISTRATE.item(
+        "permutation_smithing_template",
+        PermutationTemplateItem::new
+    ).recipe((ctx, provider) -> {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("EEE")
+            .pattern("ETV")
+            .pattern("VVV")
+            .define('E', ModItems.EARTH_CORE_SHARD)
+            .define('T', ModItemTags.TEMPLATES)
+            .define('V', ModItems.VOID_MATTER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FROST_SMITHING_TABLE),
+                RegistrateRecipeProvider.has(ModBlocks.FROST_SMITHING_TABLE)
+            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EARTH_CORE_SHARD), RegistrateRecipeProvider.has(ModItems.EARTH_CORE_SHARD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.VOID_MATTER), RegistrateRecipeProvider.has(ModItems.VOID_MATTER))
+            .save(provider);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModItems.DEFORMATION_TEMPLATE_ITEM)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.DEFORMATION_TEMPLATE_ITEM),
+                RegistrateRecipeProvider.has(ModItems.DEFORMATION_TEMPLATE_ITEM)
+            )
+            .save(provider, AnvilCraft.of("shapeless/deform_to_permut"));
+    }).initialProperties(() -> new Item.Properties().fireResistant()).tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF).register();
+    public static final ItemEntry<DeformationTemplateItem> DEFORMATION_TEMPLATE_ITEM = REGISTRATE.item(
+        "deformation_smithing_template",
+        DeformationTemplateItem::new
+    ).recipe((ctx, provider) -> {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("VVV")
+            .pattern("VTE")
+            .pattern("EEE")
+            .define('E', ModItems.EARTH_CORE_SHARD)
+            .define('T', ModItemTags.TEMPLATES)
+            .define('V', ModItems.VOID_MATTER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FROST_SMITHING_TABLE),
+                RegistrateRecipeProvider.has(ModBlocks.FROST_SMITHING_TABLE)
+            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EARTH_CORE_SHARD), RegistrateRecipeProvider.has(ModItems.EARTH_CORE_SHARD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.VOID_MATTER), RegistrateRecipeProvider.has(ModItems.VOID_MATTER))
+            .save(provider);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModItems.PERMUTATION_TEMPLATE_ITEM)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.PERMUTATION_TEMPLATE_ITEM),
+                RegistrateRecipeProvider.has(ModItems.PERMUTATION_TEMPLATE_ITEM)
+            )
+            .save(provider, AnvilCraft.of("shapeless/permut_to_deform"));
+    }).initialProperties(() -> new Item.Properties().fireResistant()).tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF).register();
 
     public static final ItemEntry<TwoToOneTemplateItem> TWO_TO_ONE_SMITHING_TEMPLATE = REGISTRATE.item(
         "two_to_one_smithing_template",
@@ -1106,7 +1163,8 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> SPONGE_GEMMULE = REGISTRATE.item("sponge_gemmule", Item::new).register();
     // 皇家钢系
-    public static final ItemEntry<Item> ROYAL_STEEL_INGOT = REGISTRATE.item("royal_steel_ingot", Item::new)
+    public static final ItemEntry<RoyalSteelIngotItem> ROYAL_STEEL_INGOT = REGISTRATE
+        .item("royal_steel_ingot", RoyalSteelIngotItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.INGOTS)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
@@ -1175,7 +1233,8 @@ public class ModItems {
         })
         .register();
 
-    public static final ItemEntry<? extends Item> EMBER_METAL_INGOT = REGISTRATE.item("ember_metal_ingot", Item::new)
+    public static final ItemEntry<EmberMetalIngotItem> EMBER_METAL_INGOT = REGISTRATE
+        .item("ember_metal_ingot", EmberMetalIngotItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .recipe((ctx, provider) -> {

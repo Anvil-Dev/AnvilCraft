@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.SpectralAnvilConversionUtil;
 import dev.dubhe.anvilcraft.util.Util;
@@ -315,5 +316,10 @@ public abstract class EntityMixin implements IEntityExtension {
         if (finalForce.x != 0 || finalForce.z != 0) {
             entity.setDeltaMovement(entity.getDeltaMovement().add(finalForce.x, 0, finalForce.z));
         }
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void anvilcraft$handleAcceleration(CallbackInfo ci) {
+        AccelerateManager.handleAcceleration((Entity) (Object) this);
     }
 }

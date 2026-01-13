@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IFallingBlockEntityExtension;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
@@ -85,6 +86,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
      * 拦截原版的 onGround() 检查，接管方块是否应该变成实体的逻辑。
      * 主逻辑 ↓
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @WrapOperation(
         method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;onGround()Z")
     )
@@ -133,10 +135,12 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             VoxelShape shape = supportState.getCollisionShape(level, supportPos);
             boolean isFullHeight;
             // 根据重力方向判断检查最大值还是最小值
-            if (gravityDir.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-                isFullHeight = shape.max(gravityDir.getAxis()) == 1;
-            } else isFullHeight = shape.min(gravityDir.getAxis()) == 0;
-            if (!isFullHeight) this.anvilcraft$breakEntity(instance);
+            if (gravityDir.getAxisDirection() == Direction.AxisDirection.NEGATIVE) isFullHeight = shape.max(gravityDir.getAxis()) == 1;
+            else isFullHeight = shape.min(gravityDir.getAxis()) == 0;
+            if (!isFullHeight) {
+                this.anvilcraft$breakEntity(instance);
+                return false;
+            }
         }
         return true;
     }
@@ -350,5 +354,10 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         // 应用引力向量的水平分量
         Vec3 gravityVector = GravityManager.getGravityVector(this);
         this.setDeltaMovement(this.getDeltaMovement().add(gravityVector.x, 0, gravityVector.z));
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void anvilcraft$handleAcceleration(CallbackInfo ci) {
+        AccelerateManager.handleAcceleration(this);
     }
 }

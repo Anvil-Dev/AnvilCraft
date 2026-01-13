@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:permutation",
+  "inputs": [
+    "anvilcraft:frost_grindstone",
+    "anvilcraft:ember_grindstone"
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_matter_block"
+  }
+}

@@ -103,7 +103,7 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         int i = this.menu.getCost();
-        if (i > 0) {
+        if (this.menu.result.noCostInRenaming && this.menu.result.onlyRenaming || i > 0) {
             Component component;
             int j = 8453920;
             if (!this.menu.getSlot(2).hasItem()) {

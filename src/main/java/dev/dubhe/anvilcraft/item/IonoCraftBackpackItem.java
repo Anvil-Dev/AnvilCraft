@@ -126,8 +126,6 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
             Component.literal(String.format("%.1f", energy)).withStyle(ChatFormatting.GOLD),
             Component.literal(String.valueOf(flightTime / 20)).withStyle(ChatFormatting.GOLD)
         ));
-        tooltipComponents.add(Component.translatable("item.anvilcraft.ionocraft_backpack.reallocate_power")
-            .withStyle(ChatFormatting.GRAY));
     }
 
     public static int getFlightTime(ItemStack stack) {

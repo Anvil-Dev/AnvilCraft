@@ -2,8 +2,9 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
+import dev.dubhe.anvilcraft.constant.TexturesConstant;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
-import dev.dubhe.anvilcraft.item.template.BaseMultipleToOneTemplateItem;
+import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
@@ -19,8 +20,6 @@ import java.util.Optional;
 public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     private static final ResourceLocation BACKGROUND =
         AnvilCraft.of("textures/gui/container/smithing/background/ember_smithing_table.png");
-    private static final ResourceLocation DISABLED_SLOT = AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
-    private static final ResourceLocation ERROR = AnvilCraft.of("textures/gui/container/smithing/error.png");
 
     // 空槽位纹理 - 模板
     private static final ResourceLocation EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE =
@@ -32,7 +31,8 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
 
     // tooltips
     private static final Component MISSING_TEMPLATE_TOOLTIP = Component.translatable(
-        "screen.anvilcraft.ember_smithing.tooltip.missing_template");
+        "screen.anvilcraft.ember_smithing.tooltip.missing_template"
+    );
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
 
     public static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
@@ -74,14 +74,14 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     @Override
     public void containerTick() {
         super.containerTick();
-        Optional<BaseMultipleToOneTemplateItem> templateOptional = this.getTemplateItem();
-        Optional<ItemStack> materialOptional = this.getMaterialItem();
-        if (templateOptional.isPresent()) {
-            this.materialIcon.tick(templateOptional.get().getEmptySlotTextures());
-            if (materialOptional.isPresent() && materialOptional.get().getItem() instanceof IMultipleMaterial material) {
-                this.inputIcons.forEach(
-                    icon -> icon.tick(material.getEmptySlotTextures(
-                        this.menu.getSlot(0).getItem(), icon.slotIndex - 2, this.menu.getInputStacks())));
+        Optional<BaseMultipleToOneTemplateItem> templateOp = this.getTemplateItem();
+        if (templateOp.isPresent()) {
+            Optional<ItemStack> materialOp = this.getMaterialItem();
+            this.materialIcon.tick(templateOp.get().getEmptySlotTextures());
+            if (materialOp.isPresent() && materialOp.get().getItem() instanceof IMultipleMaterial material) {
+                this.inputIcons.forEach(icon -> icon.tick(material.getEmptySlotTextures(
+                    this.menu.getSlot(0).getItem(), icon.slotIndex - 2, this.menu.getInputStacks()
+                )));
             } else {
                 this.inputIcons.forEach(icon -> icon.tick(List.of()));
             }
@@ -124,7 +124,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
         for (int i = 2; i < 10; i++) {
             if (this.isSlotEnabled(i)) continue;
             Slot slot = this.menu.getSlot(i);
-            guiGraphics.blit(DISABLED_SLOT, this.leftPos + slot.x, this.topPos + slot.y, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(TexturesConstant.DISABLED_SLOT, this.leftPos + slot.x, this.topPos + slot.y, 0, 0, 16, 16, 16, 16);
         }
     }
 
@@ -135,7 +135,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     @Override
     protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
         if (!this.menu.canCreateResult()) {
-            guiGraphics.blit(ERROR, x + 123, y + 48, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(TexturesConstant.ERROR_SPRITE, x + 123, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 

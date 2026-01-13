@@ -152,14 +152,11 @@ public class AmuletBoxItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         BoxContents contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
         if (Screen.hasShiftDown()) {
-            tooltipComponents.add(Component.translatable(
-                "tooltip.anvilcraft.press_key",
-                Component.literal("Shift").withStyle(ChatFormatting.WHITE)
-            ).withStyle(ChatFormatting.GRAY));
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.desc").withStyle(ChatFormatting.GRAY));
             tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.line_1").withStyle(ChatFormatting.GRAY));
             tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.line_2").withStyle(ChatFormatting.GRAY));
         } else {
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.press_key", Component.literal("Shift")));
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
         }
         tooltipComponents.add(Component.empty());
         tooltipComponents.add(Component.translatable(

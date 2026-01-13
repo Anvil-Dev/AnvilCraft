@@ -20,7 +20,7 @@ public class VoidEnergyCollectorRenderer extends PowerProducerRenderer<VoidEnerg
 
     @Override
     protected float rotation(VoidEnergyCollectorBlockEntity blockEntity, float partialTick) {
-        return blockEntity.getRotation() + blockEntity.getServerPower() * 0.03f * partialTick;
+        return blockEntity.getRotation() + (float) (Math.log(blockEntity.getServerPower() + 1) * 2.5f * partialTick);
     }
 
     @Override

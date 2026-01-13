@@ -220,6 +220,6 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     public void clientTick() {
-        rotation += (float) (getServerPower() * 0.03);
+        rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
     }
 }

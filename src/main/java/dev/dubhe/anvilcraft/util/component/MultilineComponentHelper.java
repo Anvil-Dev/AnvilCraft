@@ -63,6 +63,10 @@ public class MultilineComponentHelper {
         return this;
     }
 
+    public MultilineComponentHelper addln(String transKey, Object arg) {
+        return this.addln(Component.translatable(transKey, ComponentUtil.argValidate(arg)));
+    }
+
     public MultilineComponentHelper addln(String transKey, Object... args) {
         return this.addln(Component.translatable(transKey, ComponentUtil.argValidate(args)));
     }

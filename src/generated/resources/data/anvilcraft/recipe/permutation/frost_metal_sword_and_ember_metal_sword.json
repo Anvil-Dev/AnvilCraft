@@ -1,0 +1,46 @@
+{
+  "type": "anvilcraft:permutation",
+  "inputs": [
+    {
+      "modifiers": [
+        {
+          "type": "anvilcraft:remove_data",
+          "types": [
+            "anvilcraft:reforging"
+          ]
+        }
+      ],
+      "result": "anvilcraft:frost_metal_sword"
+    },
+    {
+      "modifiers": [
+        {
+          "type": "anvilcraft:remove_data",
+          "types": [
+            "anvilcraft:merciless"
+          ]
+        },
+        {
+          "type": "anvilcraft:change_data_type",
+          "dest": {
+            "type": "anvilcraft:item_enchantments",
+            "component": "minecraft:enchantments",
+            "input": 0
+          },
+          "input": "input.0",
+          "orig": "anvilcraft:merciless_enchantments"
+        },
+        {
+          "type": "anvilcraft:remove_attribute",
+          "attrs": [
+            "anvilcraft:merciless"
+          ]
+        }
+      ],
+      "result": "anvilcraft:ember_metal_sword"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_matter"
+  }
+}

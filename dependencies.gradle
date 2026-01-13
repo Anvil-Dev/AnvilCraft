@@ -4,8 +4,13 @@ dependencies {
     jarJar(libs.registrate)
 
     // AnvilLib
-    implementation(libs.anvillib)
-    interfaceInjectionData(libs.anvillib)
+    runtimeOnly(libs.anvillib)
+    compileOnly(libs.anvillibConfig)
+    compileOnly(libs.anvillibRecipe)
+    interfaceInjectionData(libs.anvillibRecipe)
+    compileOnly(libs.anvillibMoveableEntityBlock)
+    interfaceInjectionData(libs.anvillibMoveableEntityBlock)
+    compileOnly(libs.anvillibIntegration)
     jarJar(libs.anvillib)
 
     // JEI

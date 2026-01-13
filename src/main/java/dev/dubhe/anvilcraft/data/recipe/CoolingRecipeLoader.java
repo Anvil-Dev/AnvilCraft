@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import dev.anvilcraft.lib.init.reicpe.LibRecipeTriggers;
+import dev.anvilcraft.lib.recipe.init.reicpe.LibRecipeTriggers;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.item.ModItems;

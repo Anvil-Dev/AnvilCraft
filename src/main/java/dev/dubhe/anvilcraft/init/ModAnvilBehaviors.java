@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.anvil.HitCrabTrapBehavior;
 import dev.dubhe.anvilcraft.anvil.HitSpawnerBehavior;
 import dev.dubhe.anvilcraft.anvil.ImpactPileBehavior;
 import dev.dubhe.anvilcraft.anvil.ItemStampingBehavior;
+import dev.dubhe.anvilcraft.anvil.MagnetBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.MassInjectBehavior;
 import dev.dubhe.anvilcraft.anvil.RedstoneEMPBehavior;
 import dev.dubhe.anvilcraft.anvil.ResetVaultBehavior;
@@ -56,5 +57,9 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpPlayerBehavior());
         event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());
         event.registerBehavior(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get(), new TranscendiumBehavior());
+        event.registerBehavior(
+            state -> state.is(ModBlocks.MAGNET_BLOCK.get()) || state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get()),
+            new MagnetBlockBehavior()
+        );
     }
 }

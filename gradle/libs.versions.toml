@@ -8,7 +8,7 @@ parchment = "2024.11.17"
 modDevGradle = "2.0.78"
 lombok = "8.7.1"
 machete = "1.+"
-anvillib = "1.4.0+build.172"
+anvillib = "2.0.0+build.186"
 sodium = "mc1.21.1-0.6.13-neoforge"
 embeddium = "1.0.11+mc1.21.1"
 iris = "1.8.1+1.21.1-neoforge"
@@ -23,6 +23,10 @@ sodium = {  group = "maven.modrinth", name = "sodium", version.ref = "sodium"}
 embeddium = {  group = "maven.modrinth", name = "embeddium", version.ref = "embeddium"}
 iris = {  group = "maven.modrinth", name = "iris", version.ref = "iris"}
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
+anvillibConfig = { group = "dev.anvilcraft.lib", name = "anvillib-config-neoforge-1.21.1", version.ref = "anvillib" }
+anvillibRecipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-1.21.1", version.ref = "anvillib" }
+anvillibMoveableEntityBlock = { group = "dev.anvilcraft.lib", name = "anvillib-moveable-entity-block-neoforge-1.21.1", version.ref = "anvillib" }
+anvillibIntegration = { group = "dev.anvilcraft.lib", name = "anvillib-integration-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-1.21.1", version.ref = "anvillib" }
 
 [plugins]

@@ -45,45 +45,20 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
         provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
-        provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
-        provider.add(
-            "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description",
-            "Put the Royal Steel Ingot or Royal Steel Block"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to",
-            "Anvil, Smithing Table, Grindstone, Anvil Hammer, Amethyst Tools, Golden Tools, Iron Tools, Diamond Tools"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description",
-            "Put upgradable item"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.upgrade_ingredients",
-            "Royal Steel Ingot or Royal Steel Block"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.upgrade_ingredients",
-            "Ember Metal Ingot or Ember Metal Block"
-        );
+        provider.add("screen.anvilcraft.frost_grindstone.title", "Disenchant");
+        provider.add("screen.anvilcraft.ember_grindstone.earn", "Exp. Earn: %d");
 
-        provider.add(
-            "screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.upgrade_ingredients",
-            "Transcendium Ingot or Transcendium Block"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.applies_to",
-            "Ember Metal Anvil, Ember Anvil Hammer, Ember Dragon Rod"
-        );
+        provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
+        provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description", "Put the Royal Steel Ingot or Royal Steel Block");
+        provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to", "Anvil, Smithing Table, Grindstone, Anvil Hammer, Amethyst Tools, Golden Tools, Iron Tools, Diamond Tools");
+        provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description", "Put upgradable item");
+        provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.upgrade_ingredients", "Royal Steel Ingot or Royal Steel Block");
+
         provider.add("screen.anvilcraft.transcendium_upgrade_smithing_template", "Transcendium Upgrade");
-        provider.add(
-            "screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.base_slot_description",
-            "Put upgradable item"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.additions_slot_description",
-            "Put the Transcendium Ingot or Transcendium Block"
-        );
+        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.upgrade_ingredients", "Transcendium Ingot or Transcendium Block");
+        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.applies_to", "Ember Metal Anvil, Ember Anvil Hammer, Ember Dragon Rod");
+        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.base_slot_description", "Put upgradable item");
+        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.additions_slot_description", "Put the Transcendium Ingot or Transcendium Block");
 
         provider.add("screen.anvilcraft.item_collector.title", "Item Collector");
         provider.add("screen.anvilcraft.item_collector.range", "Range");
@@ -147,18 +122,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.space_overcompressor.stored_mass", "Stored Mass: %s");
 
         provider.add("screen.anvilcraft.ember_metal_upgrade_smithing_template", "Ember Metal Upgrade");
-        provider.add(
-            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description",
-            "Put the Ember Metal Ingot or Ember Metal Block"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to",
-            "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations"
-        );
-        provider.add(
-            "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.base_slot_description",
-            "Put upgradable item"
-        );
+        provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description", "Put the Ember Metal Ingot or Ember Metal Block");
+        provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to", "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations");
+        provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.base_slot_description", "Put upgradable item");
+        provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.upgrade_ingredients", "Ember Metal Ingot or Ember Metal Block");
 
         provider.add("screen.anvilcraft.structure_tool.size", "Size:");
         provider.add("screen.anvilcraft.structure_tool.count", "Count: %d");
@@ -166,10 +133,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_tool.to_kubejs", "To KubeJS");
         provider.add("screen.anvilcraft.structure_tool.to_json", "To JSON");
         provider.add("screen.anvilcraft.structure_tool.regular_recipe", "Put any normal item to generate multiblock crafting recipe");
-        provider.add(
-            "screen.anvilcraft.structure_tool.conversion_recipe",
-            "Put another structure tool to generate multiblock conversion recipe"
-        );
+        provider.add("screen.anvilcraft.structure_tool.conversion_recipe", "Put another structure tool to generate multiblock conversion recipe");
         provider.add("screen.anvilcraft.structure_tool.conversion_output", "The area selected by it will be the output of recipe");
 
         provider.add("screen.anvilcraft.anvil_hammer.title", "Modifying Block");
@@ -189,46 +153,22 @@ public class ScreenLang {
         provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power: %d%%");
 
         provider.add("screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
-        provider.add(
-            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description",
-            "Put the Frost Metal Ingot"
-        );
+        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description", "Put the Frost Metal Ingot");
         provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to", "Royal Steel Tools");
-        provider.add(
-            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description",
-            "Put upgradable item"
-        );
+        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description", "Put upgradable item");
         provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.upgrade_ingredients", "Frost Metal Ingot");
 
         provider.add("screen.anvilcraft.ember_smithing.tooltip.missing_template", "Add Multiple to One Template");
         provider.add("screen.anvilcraft.ember_smithing.two.missing", "Add Multiphase Transcendium");
-        provider.add(
-            "screen.anvilcraft.ember_smithing.four.missing",
-            "Add Resonator Core, Heavy Halberd Core, Multiphase Transcendium or Frost Metal Block"
-        );
+        provider.add("screen.anvilcraft.ember_smithing.four.missing", "Add Resonator Core, Heavy Halberd Core, Multiphase Transcendium or Frost Metal Block");
         provider.add("screen.anvilcraft.ember_smithing.eight.missing", "Add Multiphase Matter");
-        provider.add(
-            "screen.anvilcraft.ember_smithing.multiphase_matter.missing_tools",
-            "Add a Shear, a Flint and Steel, a Brush, a Spyglass, a Magnet, "
-            + "a Fishing Rod, a Carrot on a Stick and a Warped Fungus on a Stick"
-        );
-        provider.add(
-            "screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools",
-            "Add a sword and an axe of the same type, a Trident and a Mace"
-        );
+        provider.add("screen.anvilcraft.ember_smithing.multiphase_matter.missing_tools", "Add a Shear, a Flint and Steel, a Brush, a Spyglass, a Magnet, a Fishing Rod, a Carrot on a Stick and a Warped Fungus on a Stick");
+        provider.add("screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools", "Add a sword and an axe of the same type, a Trident and a Mace");
         provider.add("screen.anvilcraft.ember_smithing.resonator_core.missing_tools", "Add same Ember or Frost metal tools");
-        provider.add(
-            "screen.anvilcraft.ember_smithing.multiphase_transcendium.missing_tools",
-            "Add a Ember Metal Resonator or Heavy Halberd and a Frost Metal Resonator or Heavy Halberd"
-        );
-        provider.add(
-            "screen.anvilcraft.ember_smithing.multiphase_transcendium.resonator_missing_tools",
-            "Add a Ember Metal Resonator and a Frost Metal Resonator"
-        );
-        provider.add(
-            "screen.anvilcraft.ember_smithing.multiphase_transcendium.heavy_halberd_missing_tools",
-            "Add a Ember Metal Heavy Halberd and a Frost Metal Heavy Halberd"
-        );
+        provider.add("screen.anvilcraft.ember_smithing.frost_metal_block.missing_tools", "Add Amulets in same category");
+        provider.add("screen.anvilcraft.ember_smithing.multiphase_transcendium.missing_tools", "Add a Ember Metal Resonator or Heavy Halberd and a Frost Metal Resonator or Heavy Halberd");
+        provider.add("screen.anvilcraft.ember_smithing.multiphase_transcendium.resonator_missing_tools", "Add a Ember Metal Resonator and a Frost Metal Resonator");
+        provider.add("screen.anvilcraft.ember_smithing.multiphase_transcendium.heavy_halberd_missing_tools", "Add a Ember Metal Heavy Halberd and a Frost Metal Heavy Halberd");
 
         provider.add("screen.anvilcraft.resonator.title", "Switch resonate mode");
         provider.add("screen.anvilcraft.resonator.auto", "Auto");
@@ -252,6 +192,14 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.mismatch_component", "Mismatch Component");
 
         provider.add("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit", "Scroll mouse wheel to change stack limit");
+
+        provider.add("screen.anvilcraft.frost_smithing.tooltip.missing_template", "Add Permutation Template or Deformation Template");
+        provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Royal Steel Ingot, Ember Metal Ingot, Multiphase Matter or Multiphase Matter Block");
+        provider.add("screen.anvilcraft.frost_smithing.deformation.missing_tools", "Add any type of Swords, tools, armors or bow-likes");
+        provider.add("screen.anvilcraft.frost_smithing.royal_steel_ingot.missing_tools", "Add Diamond weapons or tools or Royal Steel weapons or tools");
+        provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
+        provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
+        provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
 
         provider.add("screen.anvilcraft.shulker_container.title", "Shulker Container");
         provider.add("screen.anvilcraft.shulker_container.waiting_sync", "Waiting for Server...");

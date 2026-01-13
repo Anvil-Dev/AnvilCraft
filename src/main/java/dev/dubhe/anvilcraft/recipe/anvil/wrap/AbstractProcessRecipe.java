@@ -11,7 +11,7 @@ import dev.anvilcraft.lib.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.recipe.predicate.block.HasBlock;
 import dev.anvilcraft.lib.recipe.predicate.block.HasBlockIngredient;
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTriggers;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
@@ -500,6 +500,22 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         private Integer priority = null;
 
         /**
+         * 额外结果列表
+         */
+        private final List<IRecipeOutcome<?>> extraOutcomes = new ArrayList<>();
+
+        /**
+         * 添加额外结果
+         *
+         * @param outcome 额外结果
+         * @return 属性实例
+         */
+        public Property addOutcome(IRecipeOutcome<?> outcome) {
+            this.extraOutcomes.add(outcome);
+            return this;
+        }
+
+        /**
          * 设置物品输入偏移量
          *
          * @param itemInputOffset 物品输入偏移量
@@ -786,6 +802,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
             if (this.produceHeat != null) {
                 outcomes.add(this.produceHeat);
             }
+            outcomes.addAll(this.extraOutcomes);
             return outcomes;
         }
 

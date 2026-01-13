@@ -31,7 +31,8 @@ public class TexturedButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        if (!this.visible) return;
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         int offsetV = 0;
         if (this.isHovered) {

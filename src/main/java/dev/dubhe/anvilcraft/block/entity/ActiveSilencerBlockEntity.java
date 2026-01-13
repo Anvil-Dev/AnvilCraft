@@ -158,6 +158,10 @@ public class ActiveSilencerBlockEntity
         mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
             .getOrThrow()
             .getFirst());
+        this.setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 
     @Override

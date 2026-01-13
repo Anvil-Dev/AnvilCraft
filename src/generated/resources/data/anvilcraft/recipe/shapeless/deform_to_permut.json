@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "anvilcraft:deformation_smithing_template"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:permutation_smithing_template"
+  }
+}

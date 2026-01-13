@@ -7,10 +7,9 @@ on:
       - dev/**
     paths:
       - src/**
-      - common/**
-      - fabric/**
-      - forge/**
+      - gradle/**
       - build.gradle
+      - dependencies.gradle
       - gradle.properties
       - settings.gradle
 
@@ -18,8 +17,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      CI_BUILD: true
-      PR_BUILD: true
+      BUILD_TYPE: pr
     steps:
       - name: checkout
         uses: actions/checkout@v4

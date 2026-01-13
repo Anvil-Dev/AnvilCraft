@@ -1,0 +1,7 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    "minecraft:bow",
+    "minecraft:crossbow"
+  ]
+}

@@ -343,6 +343,10 @@ public class BatchCrafterBlockEntity extends BaseMachineBlockEntity
     @Override
     public void applyDiskData(CompoundTag data) {
         itemHandler.deserializeFiltering(data.getCompound("Filtering"));
+        this.setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 
     @Override

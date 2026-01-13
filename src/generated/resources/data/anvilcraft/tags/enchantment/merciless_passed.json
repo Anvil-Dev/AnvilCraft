@@ -2,6 +2,10 @@
   "values": [
     "#minecraft:curse",
     "minecraft:loyalty",
-    "minecraft:riptide"
+    "minecraft:riptide",
+    {
+      "id": "anvilcraft:disintegration",
+      "required": false
+    }
   ]
 }

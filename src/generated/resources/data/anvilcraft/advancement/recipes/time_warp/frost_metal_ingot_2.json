@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_royal_steel_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:royal_steel_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_silver_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:silver_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:time_warp/frost_metal_ingot_2"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_royal_steel_ingot",
+      "has_silver_ingot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:time_warp/frost_metal_ingot_2"
+    ]
+  }
+}

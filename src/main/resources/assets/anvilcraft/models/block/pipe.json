@@ -1,0 +1,60 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"particle": "anvilcraft:block/pipe",
+		"body": "anvilcraft:block/pipe",
+		"end": "anvilcraft:block/pipe_end"
+	},
+	"elements": [
+		{
+			"from": [4, 4, 2],
+			"to": [12, 12, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"east": {"uv": [2, 0, 8, 8], "rotation": 180, "texture": "#body"},
+				"west": {"uv": [2, 0, 8, 8], "texture": "#body"},
+				"up": {"uv": [2, 0, 8, 8], "rotation": 90, "texture": "#body"},
+				"down": {"uv": [2, 0, 8, 8], "rotation": 270, "texture": "#body"}
+			}
+		},
+		{
+			"from": [3, 3, 0],
+			"to": [13, 13, 2],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 10, 10], "texture": "#end"},
+				"east": {"uv": [10, 0, 12, 10], "rotation": 180, "texture": "#end"},
+				"south": {"uv": [0, 0, 10, 10], "texture": "#end"},
+				"west": {"uv": [10, 0, 12, 10], "texture": "#end"},
+				"up": {"uv": [10, 0, 12, 10], "rotation": 90, "texture": "#end"},
+				"down": {"uv": [10, 0, 12, 10], "rotation": 270, "texture": "#end"}
+			}
+		},
+		{
+			"from": [4, 4, 8],
+			"to": [12, 12, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"east": {"uv": [2, 0, 8, 8], "texture": "#body"},
+				"west": {"uv": [2, 0, 8, 8], "rotation": 180, "texture": "#body"},
+				"up": {"uv": [2, 0, 8, 8], "rotation": 270, "texture": "#body"},
+				"down": {"uv": [2, 0, 8, 8], "rotation": 90, "texture": "#body"}
+			}
+		},
+		{
+			"from": [3, 3, 14],
+			"to": [13, 13, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 10, 10], "texture": "#end"},
+				"east": {"uv": [10, 0, 12, 10], "texture": "#end"},
+				"south": {"uv": [0, 0, 10, 10], "texture": "#end"},
+				"west": {"uv": [10, 0, 12, 10], "rotation": 180, "texture": "#end"},
+				"up": {"uv": [10, 0, 12, 10], "rotation": 270, "texture": "#end"},
+				"down": {"uv": [10, 0, 12, 10], "rotation": 90, "texture": "#end"}
+			}
+		}
+	]
+}

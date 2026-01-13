@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:permutation",
+  "inputs": [
+    "minecraft:diamond_sword",
+    "anvilcraft:royal_steel_sword"
+  ],
+  "material": {
+    "items": "anvilcraft:royal_steel_ingot"
+  }
+}

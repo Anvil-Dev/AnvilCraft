@@ -1,0 +1,62 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/template_cauldron_full",
+	"textures": {
+		"0": "anvilcraft:block/fish_tank_bottom",
+		"1": "anvilcraft:block/fish_tank_inner",
+		"2": "anvilcraft:block/fish_tank_inner_side",
+		"3": "anvilcraft:block/fish_tank_side",
+		"4": "anvilcraft:block/fish_tank_top",
+		"particle": "anvilcraft:block/fish_tank_inner_side"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#3", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#4"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "down"}
+			}
+		},
+		{
+			"from": [0, 14, 0],
+			"to": [16, 14, 16],
+			"faces": {
+				"down": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "down"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15, 16, 15],
+			"to": [1, 1, 1],
+			"faces": {
+				"north": {"uv": [1, 15, 15, 0], "texture": "#2", "cullface": "south"},
+				"east": {"uv": [1, 15, 15, 0], "texture": "#2", "cullface": "west"},
+				"south": {"uv": [1, 15, 15, 0], "texture": "#2", "cullface": "north"},
+				"west": {"uv": [1, 15, 15, 0], "texture": "#2", "cullface": "east"},
+				"up": {"uv": [1, 1, 15, 15], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"from": [1, 13, 1],
+			"to": [15, 16, 15],
+			"faces": {
+				"north": {"uv": [1, 0, 15, 3], "texture": "#3", "cullface": "north"},
+				"east": {"uv": [1, 0, 15, 3], "texture": "#3", "cullface": "east"},
+				"south": {"uv": [1, 0, 15, 3], "texture": "#3", "cullface": "south"},
+				"west": {"uv": [1, 0, 15, 3], "texture": "#3", "cullface": "west"}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"rotation": [-180, 0, 0],
+			"scale": [1.125, 1.125, 1.125]
+		}
+	}
+}

@@ -48,7 +48,7 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
     }
 
     protected float rotation(T blockEntity, float partialTick) {
-        return ((float) blockEntity.getTime() + partialTick) * blockEntity.getServerPower() * magic();
+        return ((float) blockEntity.getTime() + partialTick) * (float) Math.log(blockEntity.getServerPower() + 1) * magic() * 50.0f;
     }
 
     protected float elevation() {

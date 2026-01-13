@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import dev.dubhe.anvilcraft.api.data.MultiphaseData;
-import dev.dubhe.anvilcraft.api.data.NormalDataComponent;
+import dev.dubhe.anvilcraft.api.recipe.data.MultiphaseData;
+import dev.dubhe.anvilcraft.api.recipe.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;

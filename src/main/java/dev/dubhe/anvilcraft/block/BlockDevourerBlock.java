@@ -15,10 +15,13 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -263,38 +266,57 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (devourBlockState.isAir()) return;
         if (devourBlockState.getBlock().defaultDestroyTime() < 0) return;
-        if (devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-            && level.random.nextDouble() > 0.05) {
+        if (
+            !(anvil instanceof FrostAnvilBlock)
+            && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+            && level.random.nextDouble() > 0.05
+        ) {
             level.destroyBlock(devourBlockPos, false);
             return;
         }
         devourBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
         devourBlockState = level.getBlockState(devourBlockPos);
-        List<ItemStack> dropList = switch (anvil) {
-            case RoyalAnvilBlock ignore -> BreakBlockUtil.dropSilkTouch(level, devourBlockPos);
-            case EmberAnvilBlock ignore -> BreakBlockUtil.dropSmelt(level, devourBlockPos);
-            case TranscendenceAnvilBlock ignore -> BreakBlockUtil.dropFortune5(level, devourBlockPos);
-            case null, default -> BreakBlockUtil.drop(level, devourBlockPos);
-        };
-        IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
-        boolean skipContentTransfer = source == null;
-        for (ItemStack itemStack : dropList) {
-            skipContentTransfer |= ItemHandlerUtil.isEmptyContainer(itemStack);
-            if (insertEnabled) {
-                for (IItemHandler target : itemHandlerList) {
-                    itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
+        if (anvil instanceof FrostAnvilBlock) {
+            ServerPlayer destroyer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
+            ItemStack dummyTool = BreakBlockUtil.getDummyDisintegrationTool(level);
+            AnvilCraftFakePlayers.anvilcraftDestroyer.enabledDestroy(destroyer, dummyTool);
+            ExperienceOrb.award(
+                level,
+                center,
+                EnchantmentHelper.processBlockExperience(
+                    level,
+                    dummyTool,
+                    devourBlockState.getExpDrop(level, devourBlockPos, level.getBlockEntity(devourBlockPos), destroyer, dummyTool)
+                )
+            );
+            AnvilCraftFakePlayers.anvilcraftDestroyer.disable(destroyer);
+        } else {
+            List<ItemStack> dropList = switch (anvil) {
+                case RoyalAnvilBlock ignore -> BreakBlockUtil.dropSilkTouch(level, devourBlockPos);
+                case EmberAnvilBlock ignore -> BreakBlockUtil.dropSmelt(level, devourBlockPos);
+                case TranscendenceAnvilBlock ignore -> BreakBlockUtil.dropFortune5(level, devourBlockPos);
+                case null, default -> BreakBlockUtil.drop(level, devourBlockPos);
+            };
+            IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
+            boolean skipContentTransfer = source == null;
+            for (ItemStack itemStack : dropList) {
+                skipContentTransfer |= ItemHandlerUtil.isEmptyContainer(itemStack);
+                if (insertEnabled) {
+                    for (IItemHandler target : itemHandlerList) {
+                        itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
+                    }
+                }
+                if (itemStack.isEmpty() && ItemHandlerUtil.isEmptyContainer(source)) continue;
+                if (dropOriginalPlace) {
+                    Block.popResource(level, devourBlockPos, itemStack);
+                } else {
+                    AnvilUtil.dropItems(List.of(itemStack), level, center);
                 }
             }
-            if (itemStack.isEmpty() && ItemHandlerUtil.isEmptyContainer(source)) continue;
-            if (dropOriginalPlace) {
-                Block.popResource(level, devourBlockPos, itemStack);
-            } else {
-                AnvilUtil.dropItems(List.of(itemStack), level, center);
+            if (!skipContentTransfer) {
+                if (insertEnabled) ItemHandlerUtil.exportContentsToItemHandlers(source, itemHandlerList);
+                if (!dropOriginalPlace) ItemHandlerUtil.dropAllToPos(source, level, center);
             }
-        }
-        if (!skipContentTransfer) {
-            if (insertEnabled) ItemHandlerUtil.exportContentsToItemHandlers(source, itemHandlerList);
-            if (!dropOriginalPlace) ItemHandlerUtil.dropAllToPos(source, level, center);
         }
         if (level.getBlockEntity(devourBlockPos) instanceof LecternBlockEntity lectern) {
             transferLecternContents(level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace);

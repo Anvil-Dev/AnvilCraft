@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    "minecraft:stone_sword",
+    "minecraft:stone_axe",
+    "minecraft:stone_pickaxe",
+    "minecraft:stone_shovel",
+    "minecraft:stone_hoe"
+  ]
+}

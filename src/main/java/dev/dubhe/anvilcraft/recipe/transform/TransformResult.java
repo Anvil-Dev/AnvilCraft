@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.recipe.transform;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.util.CodecUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

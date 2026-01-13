@@ -34,5 +34,7 @@ public class RecipeHandler {
         MultipleToOneSmithingRecipeLoader.init(provider);
         CoolingRecipeLoader.init(provider);
         PillRecipeLoader.init(provider);
+        PermutationRecipeLoader.init(provider);
+        DeformationRecipeLoader.init(provider);
     }
 }

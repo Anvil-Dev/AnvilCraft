@@ -43,6 +43,7 @@ import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
@@ -224,6 +225,11 @@ public class ModBlockEntities {
         "black_hole",
         BlackHoleBlockEntity::createBlockEntity
     ).validBlocks(ModBlocks.BLACK_HOLE).register();
+
+    public static final BlockEntityEntry<WhiteHoleBlockEntity> WHITE_HOLE = REGISTRATE.blockEntity(
+        "white_hole",
+        WhiteHoleBlockEntity::createBlockEntity
+    ).validBlocks(ModBlocks.WHITE_HOLE).register();
 
     public static final BlockEntityEntry<TimeCountedPressurePlateBlockEntity> TIME_COUNTED_PRESSURE_PLATE = REGISTRATE
         .blockEntity("time_counted_pressure_plate", TimeCountedPressurePlateBlockEntity::createBlockEntity)

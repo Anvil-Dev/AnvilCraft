@@ -7,6 +7,10 @@
       "required": false
     },
     "minecraft:thorns",
-    "minecraft:luck_of_the_sea"
+    "minecraft:luck_of_the_sea",
+    {
+      "id": "anvilcraft:disintegration",
+      "required": false
+    }
   ]
 }

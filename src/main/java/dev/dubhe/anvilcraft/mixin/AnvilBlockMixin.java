@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
@@ -37,13 +36,14 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockPos pos,
         RandomSource random
     ) {
-        if (anvilcraft$isAttracts(level.getBlockState(pos.above()))
+        if (
+            anvilcraft$isAttracts(level.getBlockState(pos.above()))
             || !FallingBlock.isFree(level.getBlockState(pos.below()))
-            || pos.getY() < level.getMinBuildHeight()) {
+            || pos.getY() < level.getMinBuildHeight()
+        ) {
             return;
         }
-        FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(level, pos, state);
-        this.falling(fallingBlockEntity);
+        super.tick(state, level, pos, random);
     }
 
     @Override
@@ -77,7 +77,6 @@ abstract class AnvilBlockMixin extends FallingBlock {
         if (!this.anvilcraft$isAttracts(state1)) this.anvilcraft$wasAttracted(state, level, pos);
     }
 
-    // -1 -56 7, -1 -57 7
     @Unique
     private void anvilcraft$wasAttracted(BlockState state, Level level, BlockPos anvil) {
         BlockPos magnet = anvil;

@@ -20,8 +20,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.Iterator;
 
 public record Merciless(boolean enabled) {
     public static final Merciless DEFAULT = new Merciless(true);
@@ -29,77 +28,108 @@ public record Merciless(boolean enabled) {
     public static final ResourceLocation MERCILESS_ID = AnvilCraft.of("merciless");
     public static final Codec<Merciless> CODEC = Codec.BOOL.xmap(Merciless::new, Merciless::enabled);
     public static final StreamCodec<ByteBuf, Merciless> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.BOOL, Merciless::enabled,
+        ByteBufCodecs.BOOL,
+        Merciless::enabled,
         Merciless::new
     );
 
     public static void tick(ServerPlayer player) {
-        List<ItemStack> mercilessItems = InventoryUtil.getItems(
-            player.getInventory(), stack -> stack.has(ModComponents.MERCILESS));
-
-        for (ItemStack stack : mercilessItems) {
-            boolean isEnabled = Objects.requireNonNull(
-                stack.get(ModComponents.MERCILESS),
-                "InventoryUtil.getItems(Inventory, Predicate<ItemStack>) method has some problem. The predicate didn't work."
-            ).enabled();
-            int levelSum = 0;
-            final float attackDamage;
-            float miningEfficiency = 0;
-
-            ItemEnchantments.Mutable enchantmentsMutable = new ItemEnchantments.Mutable(
-                stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY));
-            // TODO: 兼容性后删除STORED
-            ItemEnchantments enchantments = stack.get(ModComponents.MERCILESS_ENCHANTMENTS);
-            if (enchantments == null) {
-                enchantments = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
-                stack.set(DataComponents.STORED_ENCHANTMENTS, null);
-            }
-            ItemEnchantments.Mutable storedEnchantmentsMutable = new ItemEnchantments.Mutable(enchantments);
-            if (isEnabled) {
-                for (Holder<Enchantment> enchantment : enchantmentsMutable.keySet()) {
-                    if (!enchantment.is(ModEnchantmentTags.MERCILESS_PASSED)) {
-                        storedEnchantmentsMutable.set(enchantment, enchantmentsMutable.getLevel(enchantment));
-                        enchantmentsMutable.removeIf(enchantment1 -> enchantment1.equals(enchantment));
-                    }
-                }
-            }
-            for (Holder<Enchantment> enchantment : storedEnchantmentsMutable.keySet()) {
-                if (isEnabled) {
-                    int level = storedEnchantmentsMutable.getLevel(enchantment);
-                    levelSum += level;
-                    miningEfficiency += level;
-                } else {
-                    enchantmentsMutable.set(enchantment, storedEnchantmentsMutable.getLevel(enchantment));
-                    storedEnchantmentsMutable.removeIf(enchantment1 -> enchantment1.equals(enchantment));
-                }
-            }
-            attackDamage = Math.round(Math.sqrt(levelSum) * 2 + (double) levelSum / 3);
-            stack.set(DataComponents.ENCHANTMENTS, enchantmentsMutable.toImmutable());
-            stack.set(ModComponents.MERCILESS_ENCHANTMENTS, storedEnchantmentsMutable.toImmutable());
-
-            if ((attackDamage != 0 || miningEfficiency != 0) && isEnabled) {
-                ItemAttributeModifiers attributeModifiers = stack.getAttributeModifiers()
-                    .withModifierAdded(
-                        Attributes.ATTACK_DAMAGE,
-                        new AttributeModifier(MERCILESS_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
-                        EquipmentSlotGroup.MAINHAND
-                    )
-                    .withModifierAdded(
-                        Attributes.MINING_EFFICIENCY,
-                        new AttributeModifier(MERCILESS_ID, miningEfficiency, AttributeModifier.Operation.ADD_VALUE),
-                        EquipmentSlotGroup.MAINHAND
-                    );
-                stack.set(DataComponents.ATTRIBUTE_MODIFIERS, attributeModifiers);
+        for (ItemStack stack : InventoryUtil.getItems(player.getInventory(), stack -> stack.has(ModComponents.MERCILESS))) {
+            if (stack.getOrDefault(ModComponents.MERCILESS, Merciless.DISABLED).enabled()) {
+                Merciless.tickEnabled(stack);
             } else {
-                ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
-                for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
-                    if (!entry.matches(Attributes.ATTACK_DAMAGE, MERCILESS_ID)
-                        && !entry.matches(Attributes.MINING_EFFICIENCY, MERCILESS_ID)) {
-                        builder.add(entry.attribute(), entry.modifier(), entry.slot());
-                    }
-                }
-                stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+                Merciless.tickDisabled(stack);
             }
         }
+    }
+
+    private static void tickEnabled(ItemStack stack) {
+        int levels = 0;
+
+        // 将已无情的魔咒的等级添至总等级
+        ItemEnchantments mercilessEnchs = stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY);
+        for (Holder<Enchantment> enchantment : mercilessEnchs.keySet()) {
+            levels += mercilessEnchs.getLevel(enchantment);
+        }
+        ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+        if (!enchantments.isEmpty()) {
+            ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchantments);
+            ItemEnchantments.Mutable mercilessEnchsMut = new ItemEnchantments.Mutable(mercilessEnchs);
+            for (Iterator<Holder<Enchantment>> it = enchsMut.keySet().iterator(); it.hasNext(); ) {
+                Holder<Enchantment> enchantment = it.next();
+
+                // 若魔咒在无情可忽略的标签中，则跳过后续处理
+                if (enchantment.is(ModEnchantmentTags.MERCILESS_PASSED)) continue;
+
+                // 将魔咒的等级添至总等级
+                int level = enchsMut.getLevel(enchantment);
+                levels += level;
+
+                // 将魔咒添至无情魔咒中并从源魔咒中删除
+                mercilessEnchsMut.set(enchantment, level);
+                it.remove();
+            }
+            stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
+            stack.set(ModComponents.MERCILESS_ENCHANTMENTS, mercilessEnchsMut.toImmutable());
+        }
+
+        // 初始化
+        float attackDamage = Math.round(Math.sqrt(levels) * 2 + (double) levels / 3);
+        float miningEfficiency = levels;
+
+        // 修改属性修饰符
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+        if (attackDamage != 0) {
+            builder.add(
+                Attributes.ATTACK_DAMAGE,
+                new AttributeModifier(MERCILESS_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
+                EquipmentSlotGroup.MAINHAND
+            );
+        }
+        if (miningEfficiency != 0) {
+            builder.add(
+                Attributes.MINING_EFFICIENCY,
+                new AttributeModifier(MERCILESS_ID, miningEfficiency, AttributeModifier.Operation.ADD_VALUE),
+                EquipmentSlotGroup.MAINHAND
+            );
+        }
+        for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
+            if (
+                !entry.matches(Attributes.ATTACK_DAMAGE, MERCILESS_ID)
+                && !entry.matches(Attributes.MINING_EFFICIENCY, MERCILESS_ID)
+            ) {
+                builder.add(entry.attribute(), entry.modifier(), entry.slot());
+            }
+        }
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+    }
+
+    private static void tickDisabled(ItemStack stack) {
+        ItemEnchantments mercilessEnchs = stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY);
+        // 若无情魔咒为空，则说明已进行或无需进行禁用处理
+        if (mercilessEnchs.isEmpty()) return;
+
+        // 魔咒处理
+        ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(
+            stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY)
+        );
+        ItemEnchantments.Mutable mercilessEnchsMut = new ItemEnchantments.Mutable(mercilessEnchs);
+        for (Holder<Enchantment> enchantment : mercilessEnchsMut.keySet()) {
+            enchsMut.set(enchantment, mercilessEnchsMut.getLevel(enchantment));
+        }
+        stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
+        stack.set(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY);
+
+        // 移除属性修饰符
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+        for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
+            if (
+                !entry.matches(Attributes.ATTACK_DAMAGE, MERCILESS_ID)
+                && !entry.matches(Attributes.MINING_EFFICIENCY, MERCILESS_ID)
+            ) {
+                builder.add(entry.attribute(), entry.modifier(), entry.slot());
+            }
+        }
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
     }
 }

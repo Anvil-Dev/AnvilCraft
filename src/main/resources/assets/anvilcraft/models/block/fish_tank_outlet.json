@@ -1,0 +1,30 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/template_cauldron_full",
+	"textures": {
+		"5": "anvilcraft:block/fish_tank_outlet",
+		"particle": "anvilcraft:block/fish_tank_outlet"
+	},
+	"elements": [
+		{
+			"from": [4, 3, -1],
+			"to": [12, 11, 2],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 3, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 8, 8], "texture": "#5"},
+				"east": {"uv": [8, 3, 16, 0], "rotation": 90, "texture": "#5"},
+				"south": {"uv": [0, 0, 8, 8], "texture": "#5"},
+				"west": {"uv": [8, 0, 16, 3], "rotation": 90, "texture": "#5"},
+				"up": {"uv": [8, 0, 16, 3], "rotation": 180, "texture": "#5"},
+				"down": {"uv": [16, 0, 8, 3], "texture": "#5"}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"rotation": [-180, 0, 0],
+			"scale": [1.125, 1.125, 1.125]
+		}
+	}
+}

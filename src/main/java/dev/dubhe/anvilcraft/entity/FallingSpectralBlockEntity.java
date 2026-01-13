@@ -269,19 +269,17 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
 
     protected static boolean shouldIgnoreBlockInMovement(BlockState state) {
         // noinspection deprecation
-        return (
-                   state.isAir()
-                   || state.is(BlockTags.FIRE)
-                   || state.liquid()
-                   || state.is(ModBlockTags.SPECTRAL_CAN_THROUGH)
-                   || state.getBlock() instanceof TransparentBlock
-                   || state.canBeReplaced()
-                   || (
-                       !state.getBlock().properties().hasCollision
-                       && !state.is(Blocks.SCAFFOLDING)
-                   )
+        return state.isAir()
+               || state.is(BlockTags.FIRE)
+               || state.liquid()
+               || state.is(ModBlockTags.SPECTRAL_CAN_THROUGH)
+               || state.getBlock() instanceof TransparentBlock
+               || state.canBeReplaced()
+               || (
+                   !state.getBlock().properties().hasCollision
+                   && !state.is(Blocks.SCAFFOLDING)
                )
-               && !(state.getBlock() instanceof SpectralAnvilBlock);
+               || state.getBlock() instanceof SpectralAnvilBlock;
     }
 
     /**

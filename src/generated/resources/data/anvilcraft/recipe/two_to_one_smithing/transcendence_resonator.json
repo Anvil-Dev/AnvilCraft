@@ -11,23 +11,18 @@
   "material": {
     "items": "anvilcraft:multiphase_transcendium"
   },
-  "result": {
-    "item": {
-      "count": 1,
-      "id": "anvilcraft:transcendence_resonator"
-    },
-    "modifiers": [
-      {
-        "type": "anvilcraft:copy_data",
-        "types": [
-          {
-            "type": "anvilcraft:multiphase",
-            "input_type": "two"
-          }
-        ]
-      }
-    ]
-  },
+  "modifiers": [
+    {
+      "type": "anvilcraft:copy_data",
+      "types": [
+        {
+          "type": "anvilcraft:multiphase",
+          "input_type": "two"
+        }
+      ]
+    }
+  ],
+  "result": "anvilcraft:transcendence_resonator",
   "template": {
     "items": "anvilcraft:two_to_one_smithing_template"
   }

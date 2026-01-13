@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.init.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.data.ICustomDataComponent;
-import dev.dubhe.anvilcraft.api.data.ItemEnchantmentsData;
-import dev.dubhe.anvilcraft.api.data.MultiphaseData;
-import dev.dubhe.anvilcraft.api.data.NormalDataComponent;
+import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
+import dev.dubhe.anvilcraft.api.recipe.data.ItemEnchantmentsData;
+import dev.dubhe.anvilcraft.api.recipe.data.MultiphaseData;
+import dev.dubhe.anvilcraft.api.recipe.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;

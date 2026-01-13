@@ -1,14 +1,20 @@
 package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
+import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -19,48 +25,49 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-enum DestroyMode {
-    NORMAL {
+public abstract class DestroyMode {
+    public static final DestroyMode NORMAL = new DestroyMode() {
         public static final ItemStack TOOL = Items.NETHERITE_PICKAXE.getDefaultInstance();
 
         @Override
-        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
-            return blockState.getDrops(
-                new LootParams.Builder((ServerLevel) shockContext.level())
-                    .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
+            return state.getDrops(
+                new LootParams.Builder((ServerLevel) ctx.level())
+                    .withParameter(LootContextParams.ORIGIN, pos.getCenter())
                     .withParameter(LootContextParams.TOOL, TOOL)
-                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
-                    .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()))
+                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
+                    .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) ctx.level()))
             );
         }
-    },
-    SILK_TOUCH {
+    };
+
+    public static final DestroyMode SILK_TOUCH = new DestroyMode() {
         public static ItemStack TOOL;
         public static ItemStack FOR_SNOW_TOOL;
 
         @Override
-        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext, ItemStack tool) {
-            LootParams.Builder builder = new LootParams.Builder((ServerLevel) shockContext.level())
-                .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
-                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()))
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx, ItemStack tool) {
+            LootParams.Builder builder = new LootParams.Builder((ServerLevel) ctx.level())
+                .withParameter(LootContextParams.ORIGIN, pos.getCenter())
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
+                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) ctx.level()))
                 .withParameter(LootContextParams.TOOL, tool);
-            return blockState.getDrops(builder);
+            return state.getDrops(builder);
         }
 
         @Override
-        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
-            createTool((ServerLevel) shockContext.level());
-            LootParams.Builder builder = new LootParams.Builder((ServerLevel) shockContext.level())
-                .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
-                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()));
-            if (blockState.is(Blocks.SNOW)) {
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
+            createTool((ServerLevel) ctx.level());
+            LootParams.Builder builder = new LootParams.Builder((ServerLevel) ctx.level())
+                .withParameter(LootContextParams.ORIGIN, pos.getCenter())
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
+                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) ctx.level()));
+            if (state.is(Blocks.SNOW)) {
                 builder.withParameter(LootContextParams.TOOL, FOR_SNOW_TOOL);
             } else {
                 builder.withParameter(LootContextParams.TOOL, TOOL);
             }
-            return blockState.getDrops(builder);
+            return state.getDrops(builder);
         }
 
         private void createTool(ServerLevel serverLevel) {
@@ -75,27 +82,28 @@ enum DestroyMode {
                 FOR_SNOW_TOOL = itemStack;
             }
         }
-    },
-    AUTO_SMELTING {
+    };
+
+    public static final DestroyMode AUTO_SMELTING = new DestroyMode() {
         public static final ItemStack TOOL = Items.NETHERITE_PICKAXE.getDefaultInstance();
 
         @Override
-        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
             RecipeManager recipeManager = Objects.requireNonNull(ServerLifecycleHooks.getCurrentServer()).getRecipeManager();
             List<ItemStack> itemStacks = new ArrayList<>();
-            for (ItemStack it : blockState.getDrops(
-                new LootParams.Builder((ServerLevel) shockContext.level())
-                    .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
+            for (ItemStack it : state.getDrops(
+                new LootParams.Builder((ServerLevel) ctx.level())
+                    .withParameter(LootContextParams.ORIGIN, pos.getCenter())
                     .withParameter(LootContextParams.TOOL, TOOL)
-                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
-                    .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()))
+                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
+                    .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) ctx.level()))
             )) {
                 SingleRecipeInput input = new SingleRecipeInput(it);
                 ItemStack itemStack = recipeManager.getRecipeFor(
                         RecipeType.SMELTING,
                         input,
-                        shockContext.level()
-                    ).map(it1 -> it1.value().assemble(input, shockContext.level().registryAccess()))
+                        ctx.level()
+                    ).map(it1 -> it1.value().assemble(input, ctx.level().registryAccess()))
                     .orElse(it);
                 // if (itemStack.getItem() != Items.AIR && itemStack.getCount() == 0) {
                 //     itemStack.setCount(1);
@@ -104,34 +112,35 @@ enum DestroyMode {
             }
             return itemStacks;
         }
-    },
-    FORTUNE {
+    };
+
+    public static final DestroyMode FORTUNE = new DestroyMode() {
         public static ItemStack TOOL;
         public static ItemStack FOR_SNOW_TOOL;
 
         @Override
-        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext, ItemStack tool) {
-            LootParams.Builder builder = new LootParams.Builder((ServerLevel) shockContext.level())
-                .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
-                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()))
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx, ItemStack tool) {
+            LootParams.Builder builder = new LootParams.Builder((ServerLevel) ctx.level())
+                .withParameter(LootContextParams.ORIGIN, pos.getCenter())
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
+                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) ctx.level()))
                 .withParameter(LootContextParams.TOOL, tool);
-            return blockState.getDrops(builder);
+            return state.getDrops(builder);
         }
 
         @Override
-        public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext) {
-            createTool((ServerLevel) shockContext.level());
-            LootParams.Builder builder = new LootParams.Builder((ServerLevel) shockContext.level())
-                .withParameter(LootContextParams.ORIGIN, blockPos.getCenter())
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, shockContext.level().getBlockEntity(blockPos))
-                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) shockContext.level()));
-            if (blockState.is(Blocks.SNOW)) {
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
+            createTool((ServerLevel) ctx.level());
+            LootParams.Builder builder = new LootParams.Builder((ServerLevel) ctx.level())
+                .withParameter(LootContextParams.ORIGIN, pos.getCenter())
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
+                .withOptionalParameter(LootContextParams.THIS_ENTITY, FakePlayerSupport.get((ServerLevel) ctx.level()));
+            if (state.is(Blocks.SNOW)) {
                 builder.withParameter(LootContextParams.TOOL, FOR_SNOW_TOOL);
             } else {
                 builder.withParameter(LootContextParams.TOOL, TOOL);
             }
-            return blockState.getDrops(builder);
+            return state.getDrops(builder);
         }
 
         private void createTool(ServerLevel serverLevel) {
@@ -146,13 +155,47 @@ enum DestroyMode {
                 FOR_SNOW_TOOL = itemStack;
             }
         }
-    },
-    ;
+    };
 
-    public abstract List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext);
+    public static final DestroyMode DISINTEGRATION = new DestroyMode() {
+        @Override
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx, ItemStack tool) {
+            this.dropExp(ctx.level(), pos, state);
+            return List.of();
+        }
 
-    public List<ItemStack> apply(BlockState blockState, BlockPos blockPos, ShockContext shockContext, ItemStack tool) {
-        return apply(blockState, blockPos, shockContext);
+        @Override
+        public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
+            this.dropExp(ctx.level(), pos, state);
+            return List.of();
+        }
+
+        private void dropExp(Level level, BlockPos pos, BlockState state) {
+            if (!(level instanceof ServerLevel serverLevel)) return;
+            ServerPlayer destroyer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(serverLevel);
+            ItemStack dummyTool = BreakBlockUtil.getDummyDisintegrationTool(serverLevel);
+            AnvilCraftFakePlayers.anvilcraftDestroyer.enabledDestroy(destroyer, dummyTool);
+            ExperienceOrb.award(
+                serverLevel,
+                pos.getCenter(),
+                EnchantmentHelper.processBlockExperience(
+                    serverLevel,
+                    dummyTool,
+                    state.getExpDrop(level, pos, level.getBlockEntity(pos), destroyer, dummyTool)
+                )
+            );
+            AnvilCraftFakePlayers.anvilcraftDestroyer.disable(destroyer);
+        }
+    };
+
+    public DestroyMode() {
+
+    }
+
+    public abstract List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx);
+
+    public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx, ItemStack tool) {
+        return apply(state, pos, ctx);
     }
 }
 

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.cache;
 
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.network.RecipeCacheSyncPacket;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import net.minecraft.Util;

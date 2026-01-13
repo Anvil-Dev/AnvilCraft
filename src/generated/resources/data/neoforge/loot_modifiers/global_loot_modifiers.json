@@ -1,6 +1,7 @@
 {
   "entries": [
-    "anvilcraft:smelting_loot_modifier"
+    "anvilcraft:smelting_loot_modifier",
+    "anvilcraft:disintegration_loot_modifier"
   ],
   "replace": false
 }

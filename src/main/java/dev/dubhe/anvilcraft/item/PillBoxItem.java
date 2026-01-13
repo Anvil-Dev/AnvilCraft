@@ -118,7 +118,10 @@ public class PillBoxItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         if (tooltipFlag.hasShiftDown()) {
-            tooltipComponents.add(Component.literal("储存药片，右键时会把储存的药片各吃一片，在物品栏时也可以按 [V] 使用").withStyle(ChatFormatting.GRAY));
+            tooltipComponents.add(
+                Component.translatable("tooltip.anvilcraft.pill_box", Component.keybind("key.anvilcraft.use_pill_box"))
+                    .withStyle(ChatFormatting.GRAY)
+            );
         } else {
             tooltipComponents.add(Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
         }

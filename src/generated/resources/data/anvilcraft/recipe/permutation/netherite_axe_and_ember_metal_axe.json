@@ -1,0 +1,20 @@
+{
+  "type": "anvilcraft:permutation",
+  "inputs": [
+    {
+      "modifiers": [
+        {
+          "type": "anvilcraft:remove_data",
+          "types": [
+            "anvilcraft:reforging"
+          ]
+        }
+      ],
+      "result": "minecraft:netherite_axe"
+    },
+    "anvilcraft:ember_metal_axe"
+  ],
+  "material": {
+    "items": "anvilcraft:ember_metal_ingot"
+  }
+}

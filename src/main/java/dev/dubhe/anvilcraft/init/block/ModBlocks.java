@@ -45,6 +45,10 @@ import dev.dubhe.anvilcraft.block.EndDustBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.FlintBlock;
+import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
+import dev.dubhe.anvilcraft.block.FrostGrindstoneBlock;
+import dev.dubhe.anvilcraft.block.FrostMetalBlock;
+import dev.dubhe.anvilcraft.block.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.HeatCollectorBlock;
@@ -92,7 +96,7 @@ import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RottenFleshBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
-import dev.dubhe.anvilcraft.block.RoyalGrindstone;
+import dev.dubhe.anvilcraft.block.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
@@ -113,6 +117,7 @@ import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
+import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -123,11 +128,13 @@ import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
 import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
+import dev.dubhe.anvilcraft.block.item.MultiphaseMatterBlockItem;
 import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.RadiationBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
@@ -439,7 +446,7 @@ public class ModBlocks {
         .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .register();
 
-    public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRATE.block("royal_grindstone", RoyalGrindstone::new)
+    public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRATE.block("royal_grindstone", RoyalGrindstoneBlock::new)
         .recipe((ctx, provider) -> {
             SmithingTransformRecipeBuilder.smithing(
                     Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
@@ -480,6 +487,81 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .register();
 
+    public static final BlockEntry<FrostAnvilBlock> FROST_ANVIL = REGISTRATE
+        .block("frost_anvil", FrostAnvilBlock::new)
+        .recipe((ctx, provider) -> {
+            SmithingTransformRecipeBuilder.smithing(
+                    Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
+                    Ingredient.of(ModBlocks.ROYAL_ANVIL),
+                    Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
+                    RecipeCategory.MISC,
+                    ctx.get().asItem()
+                )
+                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
+                .save(provider, AnvilCraft.of("smithing/frost_anvil"));
+        })
+        .initialProperties(() -> Blocks.ANVIL)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.ANVIL,
+            ModBlockTags.CANT_BROKEN_ANVIL,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL
+        )
+        .properties(properties -> properties
+            .isValidSpawn(Blocks::never)
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0f, 1200f)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .tag(ItemTags.ANVIL)
+        .build()
+        .register();
+
+    public static final BlockEntry<FrostGrindstoneBlock> FROST_GRINDSTONE = REGISTRATE
+        .block("frost_grindstone", FrostGrindstoneBlock::new)
+        .recipe((ctx, provider) -> {
+            SmithingTransformRecipeBuilder.smithing(
+                    Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
+                    Ingredient.of(ModBlocks.ROYAL_GRINDSTONE),
+                    Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
+                    RecipeCategory.MISC,
+                    ctx.get().asItem()
+                )
+                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
+                .save(provider, AnvilCraft.of("smithing/frost_grindstone"));
+        })
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<FrostSmithingTableBlock> FROST_SMITHING_TABLE = REGISTRATE
+        .block("frost_smithing_table", FrostSmithingTableBlock::new)
+        .recipe((ctx, provider) -> {
+            SmithingTransformRecipeBuilder.smithing(
+                    Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
+                    Ingredient.of(ModBlocks.ROYAL_SMITHING_TABLE),
+                    Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
+                    RecipeCategory.MISC,
+                    ctx.get().asItem()
+                )
+                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
+                .save(provider, AnvilCraft.of("smithing/frost_smithing_table"));
+        })
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<EmberAnvilBlock> EMBER_ANVIL = REGISTRATE.block("ember_anvil", EmberAnvilBlock::new)
         .recipe((ctx, provider) -> {
             SmithingTransformRecipeBuilder.smithing(
@@ -499,7 +581,13 @@ public class ModBlocks {
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_DIAMOND_TOOL
         )
-        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> 9).noOcclusion().strength(50.0f, 1200f))
+        .properties(properties -> properties
+            .isValidSpawn(Blocks::never)
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0f, 1200f)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -521,7 +609,7 @@ public class ModBlocks {
         })
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion())
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -545,7 +633,7 @@ public class ModBlocks {
         })
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion())
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -577,7 +665,13 @@ public class ModBlocks {
             BlockTags.NEEDS_DIAMOND_TOOL,
             ModBlockTags.COLLISION_IMMUNE
         )
-        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> 9).noOcclusion().strength(50.0f, 1200f))
+        .properties(properties -> properties
+            .isValidSpawn(Blocks::never)
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0f, 1200f)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -1941,8 +2035,10 @@ public class ModBlocks {
         })
         .register();
 
-    public static final BlockEntry<Block> FROST_METAL_BLOCK = REGISTRATE.block("frost_metal_block", Block::new)
+    public static final BlockEntry<FrostMetalBlock> FROST_METAL_BLOCK = REGISTRATE
+        .block("frost_metal_block", FrostMetalBlock::new)
         .lang("Block of Frost Metal")
+        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -1953,8 +2049,11 @@ public class ModBlocks {
             ModBlockTags.HAMMER_REMOVABLE,
             ModBlockTags.STORAGE_BLOCKS_FROST_METAL
         )
-        .blockstate((context, provider) -> provider.simpleBlock(context.get()))
-        .item()
+        .blockstate((context, provider) -> provider.simpleBlock(
+            context.get(),
+            DangerUtil.genConfiguredModel("block/frost_metal_block").get()
+        ))
+        .item(FrostMetalBlockItem::new)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL)
         .build()
         .recipe((ctx, provider) -> {
@@ -3733,14 +3832,15 @@ public class ModBlocks {
         )
         .register();
 
-    public static final BlockEntry<? extends Block> MULTIPHASE_MATTER_BLOCK = REGISTRATE.block("multiphase_matter_block", Block::new)
+    public static final BlockEntry<? extends Block> MULTIPHASE_MATTER_BLOCK = REGISTRATE
+        .block("multiphase_matter_block", Block::new)
         .lang("Block of Multiphase Matter")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .blockstate((ctx, provider) -> provider.simpleBlock(
             ctx.get(),
             DangerUtil.genConfiguredModel("block/multiphase_matter_block").get()
         ))
-        .item()
+        .item(MultiphaseMatterBlockItem::new)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
         .build()
         .tag(
@@ -4781,6 +4881,14 @@ public class ModBlocks {
     );
 
     public static final BlockEntry<BlackHoleBlock> BLACK_HOLE = REGISTRATE.block("black_hole", BlackHoleBlock::new)
+        .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<WhiteHoleBlock> WHITE_HOLE = REGISTRATE.block("white_hole", WhiteHoleBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate((ctx, provider) -> {

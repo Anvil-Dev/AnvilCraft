@@ -1,0 +1,23 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"particle": "anvilcraft:block/pipe",
+		"body": "anvilcraft:block/pipe"
+	},
+	"elements": [
+		{
+			"from": [4, 4, 0],
+			"to": [12, 12, 4],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 8, 8, 16], "texture": "#body", "cullface": "north"},
+				"east": {"uv": [16, 0, 12, 8], "rotation": 180, "texture": "#body"},
+				"west": {"uv": [16, 0, 12, 8], "texture": "#body"},
+				"up": {"uv": [16, 0, 12, 8], "rotation": 90, "texture": "#body"},
+				"down": {"uv": [16, 0, 12, 8], "rotation": 270, "texture": "#body"}
+			}
+		}
+	]
+}

@@ -39,6 +39,7 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.felling", "Felling");
         provider.add("enchantment.anvilcraft.harvest", "Harvest");
         provider.add("enchantment.anvilcraft.smelting", "Smelting");
+        provider.add("enchantment.anvilcraft.disintegration", "Disintegration");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
 

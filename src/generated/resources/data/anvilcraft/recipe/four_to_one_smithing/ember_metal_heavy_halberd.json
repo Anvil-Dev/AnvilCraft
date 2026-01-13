@@ -17,44 +17,39 @@
   "material": {
     "items": "anvilcraft:heavy_halberd_core"
   },
-  "result": {
-    "item": {
-      "count": 1,
-      "id": "anvilcraft:ember_metal_heavy_halberd"
-    },
-    "modifiers": [
-      {
-        "type": "anvilcraft:merge_data",
-        "types": [
-          {
-            "type": "anvilcraft:normal_data_component",
-            "component": "minecraft:custom_name",
-            "input": 0
-          },
-          {
-            "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:enchantments",
-            "input": 0
-          },
-          {
-            "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:enchantments",
-            "input": 1
-          },
-          {
-            "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:enchantments",
-            "input": 2
-          },
-          {
-            "type": "anvilcraft:item_enchantments",
-            "component": "minecraft:enchantments",
-            "input": 3
-          }
-        ]
-      }
-    ]
-  },
+  "modifiers": [
+    {
+      "type": "anvilcraft:merge_data",
+      "types": [
+        {
+          "type": "anvilcraft:normal_data_component",
+          "component": "minecraft:custom_name",
+          "input": 0
+        },
+        {
+          "type": "anvilcraft:item_enchantments",
+          "component": "minecraft:enchantments",
+          "input": 0
+        },
+        {
+          "type": "anvilcraft:item_enchantments",
+          "component": "minecraft:enchantments",
+          "input": 1
+        },
+        {
+          "type": "anvilcraft:item_enchantments",
+          "component": "minecraft:enchantments",
+          "input": 2
+        },
+        {
+          "type": "anvilcraft:item_enchantments",
+          "component": "minecraft:enchantments",
+          "input": 3
+        }
+      ]
+    }
+  ],
+  "result": "anvilcraft:ember_metal_heavy_halberd",
   "template": {
     "items": "anvilcraft:four_to_one_smithing_template"
   }

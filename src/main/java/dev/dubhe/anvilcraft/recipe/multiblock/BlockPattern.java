@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.heat;
 
 import com.mojang.serialization.Codec;
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.util.CodecUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;

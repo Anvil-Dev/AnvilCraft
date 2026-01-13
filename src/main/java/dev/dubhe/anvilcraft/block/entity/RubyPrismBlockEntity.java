@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -48,6 +49,20 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
         enabled = true;
         super.onIrradiated(baseLaserBlockEntity);
+    }
+
+    @Override
+    public int getLaserLevel() {
+        if (enabled) {
+            return super.getLaserLevel();
+        }
+        return 0;
+    }
+
+    @Override
+    public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
+        enabled = laserLevel > 0;
+        super.clientUpdate(irradiateBlockPos, laserLevel);
     }
 
     @Override

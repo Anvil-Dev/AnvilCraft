@@ -37,7 +37,7 @@ public class BlackHoleBlock extends Block implements EntityBlock {
     }
 
     public BlackHoleBlock(Properties properties) {
-        super(properties);
+        super(properties.forceSolidOn());
     }
 
     @Nullable

@@ -126,6 +126,9 @@ public class AnvilCraftServerConfig {
     @Comment("Combining items with Enchanted Books beyond max level in Royal Anvil")
     public boolean royalAnvilBeyondMaxLevel = false;
 
+    @Comment("Combining items with Enchanted Books beyond max level in Frost Anvil")
+    public boolean frostAnvilBeyondMaxLevel = false;
+
     @Comment("Combining items with Enchanted Books beyond max level in Ember Anvil")
     public boolean emberAnvilBeyondMaxLevel = false;
 

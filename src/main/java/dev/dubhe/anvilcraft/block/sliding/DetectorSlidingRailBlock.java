@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.sliding;
 
-import dev.anvilcraft.lib.block.IMoveableEntityBlock;
+import dev.anvilcraft.lib.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;

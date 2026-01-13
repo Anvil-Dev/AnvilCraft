@@ -1,0 +1,24 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "count": 2,
+      "items": "minecraft:iron_ingot"
+    },
+    {
+      "items": "minecraft:diamond"
+    },
+    {
+      "items": "#anvilcraft:gems"
+    },
+    {
+      "items": "minecraft:amethyst_shard"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "anvilcraft:royal_steel_ingot"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
 import com.mojang.authlib.GameProfile;
+import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import lombok.Data;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -28,6 +29,7 @@ public class AnvilCraftKillerFakePlayer {
     private static final List<Killer> ENABLED_KILLERS = Collections.synchronizedList(new ArrayList<>());
 
     private static ItemStack DUMMY_LOOTING_5_WEAPON = null;
+    private static ItemStack DUMMY_DISINTEGRATION_WEAPON = null;
 
     public AnvilCraftKillerFakePlayer() {
     }
@@ -51,6 +53,18 @@ public class AnvilCraftKillerFakePlayer {
             DUMMY_LOOTING_5_WEAPON = weapon;
         }
         player.setItemInHand(InteractionHand.MAIN_HAND, DUMMY_LOOTING_5_WEAPON.copy());
+    }
+
+    public void enableDisintegration(ServerLevel level, ServerPlayer player) {
+        if (DUMMY_DISINTEGRATION_WEAPON == null) {
+            ItemStack weapon = Items.QUARTZ.getDefaultInstance();
+            weapon.set(DataComponents.CUSTOM_NAME, Component.literal("Disintegration Quartz!!!"));
+            level.holderLookup(Registries.ENCHANTMENT)
+                .get(ModEnchantments.DISINTEGRATION_KEY)
+                .ifPresent(e -> weapon.enchant(e, 1));
+            DUMMY_DISINTEGRATION_WEAPON = weapon;
+        }
+        player.setItemInHand(InteractionHand.MAIN_HAND, DUMMY_DISINTEGRATION_WEAPON.copy());
     }
 
     public void disable(ServerPlayer player) {

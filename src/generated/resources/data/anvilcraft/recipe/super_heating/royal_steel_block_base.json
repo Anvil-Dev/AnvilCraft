@@ -1,0 +1,20 @@
+{
+  "type": "anvilcraft:super_heating",
+  "ingredients": [
+    {
+      "count": 2,
+      "items": "minecraft:iron_block"
+    },
+    {
+      "items": "minecraft:diamond_block"
+    },
+    {
+      "items": "#anvilcraft:gem_blocks"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:royal_steel_block"
+    }
+  ]
+}

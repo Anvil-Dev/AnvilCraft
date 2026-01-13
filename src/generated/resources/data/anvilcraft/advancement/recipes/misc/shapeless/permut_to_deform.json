@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_permutation_smithing_template": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:permutation_smithing_template"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:shapeless/permut_to_deform"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_permutation_smithing_template"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:shapeless/permut_to_deform"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
-import dev.anvilcraft.lib.block.IMoveableEntityBlock;
+import dev.anvilcraft.lib.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;

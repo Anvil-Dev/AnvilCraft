@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.util.CodecUtil;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import lombok.Getter;
@@ -30,7 +30,8 @@ public class FilteredItemStackHandler extends ItemStackHandler {
                 .forGetter(o -> o.filteredItems.stream()
                     .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
                     .toList()),
-            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled))
+            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled),
+            Codec.INT.listOf().fieldOf("slotLimits").forGetter(o -> o.slotLimits))
         .apply(ins, FilteredItemStackHandler::new));
 
     private boolean filterEnabled = false;
@@ -43,7 +44,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     }
 
     public FilteredItemStackHandler(
-        boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled) {
+        boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled, List<Integer> slotLimits) {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
         this.filteredItems.addAll(filteredItems.stream()
@@ -51,7 +52,8 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         );
         this.disabled = NonNullList.create();
         this.disabled.addAll(disabled);
-        this.slotLimits = NonNullList.withSize(filteredItems.size(), IFilterBlockEntity.DEFAULT_SLOT_LIMIT);
+        this.slotLimits = NonNullList.create();
+        this.slotLimits.addAll(slotLimits);
     }
 
     /**
@@ -281,5 +283,6 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         int size = handler.filteredItems.size();
         this.filteredItems = NonNullList.of(ItemStack.EMPTY, handler.filteredItems.toArray(new ItemStack[size]));
         this.disabled = handler.disabled;
+        this.slotLimits = handler.slotLimits;
     }
 }

@@ -30,20 +30,54 @@ public class SuperHeatingRecipeLoader {
             .requires(ModItems.LIME_POWDER)
             .save(provider, AnvilCraft.of("super_heating/lava_from_stone"));
 
+        // Royal Steel Ingot Recipes
         SuperHeatingRecipe.builder()
-            .requires(Items.IRON_INGOT, 3)
+            .requires(Items.IRON_INGOT, 2)
             .requires(Items.DIAMOND)
-            .requires(Items.AMETHYST_SHARD)
             .requires(ModItemTags.GEMS)
-            .result(ModItems.ROYAL_STEEL_INGOT)
-            .save(provider);
+            .result(ModItems.ROYAL_STEEL_INGOT, 1)
+            .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_base"));
+
         SuperHeatingRecipe.builder()
-            .requires(Blocks.IRON_BLOCK, 3)
+            .requires(Items.IRON_INGOT, 2)
+            .requires(Items.DIAMOND)
+            .requires(ModItemTags.GEMS)
+            .requires(Items.AMETHYST_SHARD)
+            .result(ModItems.ROYAL_STEEL_INGOT, 2)
+            .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_bonus_1"));
+
+        SuperHeatingRecipe.builder()
+            .requires(Items.IRON_INGOT, 2)
+            .requires(Items.DIAMOND)
+            .requires(ModItemTags.GEMS)
+            .requires(Items.AMETHYST_SHARD, 2)
+            .result(ModItems.ROYAL_STEEL_INGOT, 3)
+            .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_bonus_2"));
+
+        // Royal Steel Block Recipes
+        SuperHeatingRecipe.builder()
+            .requires(Blocks.IRON_BLOCK, 2)
             .requires(Blocks.DIAMOND_BLOCK)
-            .requires(Blocks.AMETHYST_BLOCK, 2)
             .requires(ModItemTags.GEM_BLOCKS)
-            .result(ModBlocks.ROYAL_STEEL_BLOCK)
-            .save(provider);
+            .result(ModBlocks.ROYAL_STEEL_BLOCK, 1)
+            .save(provider, AnvilCraft.of("super_heating/royal_steel_block_base"));
+
+        SuperHeatingRecipe.builder()
+            .requires(Blocks.IRON_BLOCK, 2)
+            .requires(Blocks.DIAMOND_BLOCK)
+            .requires(ModItemTags.GEM_BLOCKS)
+            .requires(Blocks.AMETHYST_BLOCK)
+            .result(ModBlocks.ROYAL_STEEL_BLOCK, 2)
+            .save(provider, AnvilCraft.of("super_heating/royal_steel_block_bonus_1"));
+
+        SuperHeatingRecipe.builder()
+            .requires(Blocks.IRON_BLOCK, 2)
+            .requires(Blocks.DIAMOND_BLOCK)
+            .requires(ModItemTags.GEM_BLOCKS)
+            .requires(Blocks.AMETHYST_BLOCK, 2)
+            .result(ModBlocks.ROYAL_STEEL_BLOCK, 3)
+            .save(provider, AnvilCraft.of("super_heating/royal_steel_block_bonus_2"));
+
         SuperHeatingRecipe.builder()
             .requires(ModBlocks.QUARTZ_SAND, 8)
             .requires(ModItems.ROYAL_STEEL_INGOT)

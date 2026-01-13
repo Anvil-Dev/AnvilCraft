@@ -4,6 +4,8 @@
     "anvilcraft:frost_metal_upgrade_smithing_template",
     "anvilcraft:ember_metal_upgrade_smithing_template",
     "anvilcraft:transcendium_upgrade_smithing_template",
+    "anvilcraft:permutation_smithing_template",
+    "anvilcraft:deformation_smithing_template",
     "#minecraft:trim_templates",
     "#anvilcraft:multiple_to_one_smithing_templates",
     "minecraft:netherite_upgrade_smithing_template"

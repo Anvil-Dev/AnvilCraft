@@ -14,7 +14,6 @@ import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.DistanceComparator;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,10 +22,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -35,15 +30,18 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 public class AccelerationRingBlockEntity extends BlockEntity implements IPowerConsumer {
+    private static final HashMap<Level, HashSet<BlockPos>> LEVEL_ACCELERATION_BLOCK_MAP = new HashMap<>();
+    private static final HashMap<BlockPos, AABB> ACCELERATION_AABB_MAP = new HashMap<>();
     @Getter
     @Setter
     private PowerGrid grid;
@@ -58,6 +56,42 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
 
     public static AccelerationRingBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         return new AccelerationRingBlockEntity(type, pos, blockState);
+    }
+
+    public static Iterable<BlockPos> getAllBlocks(Level level) {
+        if (LEVEL_ACCELERATION_BLOCK_MAP.containsKey(level)) {
+            return LEVEL_ACCELERATION_BLOCK_MAP.get(level);
+        } else {
+            return List.of();
+        }
+    }
+
+    public static AABB getAABB(BlockPos pos) {
+        return ACCELERATION_AABB_MAP.get(pos);
+    }
+
+    public static void clear() {
+        LEVEL_ACCELERATION_BLOCK_MAP.clear();
+        ACCELERATION_AABB_MAP.clear();
+    }
+
+    private void addSelfToMap() {
+        if (level == null) return;
+        if (LEVEL_ACCELERATION_BLOCK_MAP.containsKey(level)) {
+            LEVEL_ACCELERATION_BLOCK_MAP.get(level).add(getBlockPos());
+        } else {
+            HashSet<BlockPos> set = new HashSet<>();
+            set.add(getBlockPos());
+            LEVEL_ACCELERATION_BLOCK_MAP.put(level, set);
+        }
+    }
+
+    private void removeSelfFromMap() {
+        if (level == null) return;
+        if (LEVEL_ACCELERATION_BLOCK_MAP.containsKey(level)) {
+            LEVEL_ACCELERATION_BLOCK_MAP.get(level).remove(getBlockPos());
+        }
+        ACCELERATION_AABB_MAP.remove(getBlockPos());
     }
 
     @Override
@@ -99,8 +133,9 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         if (this.level.isClientSide()) {
             if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
             if (isWork()) {
+                addSelfToMap();
                 accelerate();
-            }
+            } else removeSelfFromMap();
         }
         if (this.grid == null) return;
         if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
@@ -110,7 +145,11 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         } else if (!this.grid.isWorking() && !state.getValue(AccelerationRingBlock.OVERLOAD)) {
             block.updateState(this.level, getBlockPos(), AccelerationRingBlock.OVERLOAD, true, 3);
         }
-        if (!isWork()) return;
+        if (!isWork()) {
+            removeSelfFromMap();
+            return;
+        }
+        addSelfToMap();
         if (state.getValue(AccelerationRingBlock.FACING).equals(Direction.UP)) {
             attractGianAnvil();
         }
@@ -121,6 +160,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         assert this.level != null;
         Direction direction = getBlockState().getValue(AccelerationRingBlock.FACING);
         BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
+        BlockPos endRingPos = null;
         ArrayList<BlockPos> blockPoses = new ArrayList<>();
         checkPos.set(getBlockPos());
         boolean found = false;
@@ -139,21 +179,30 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
                 && checkState.getValue(AccelerationRingBlock.FACING) == direction
             ) {
                 found = true;
+                endRingPos = checkPos.immutable();
                 break;
             }
         }
-        BlockPos end = getBlockPos().relative(direction.getOpposite(), 1);
-        BlockState checkState = this.level.getBlockState(getBlockPos().relative(direction.getOpposite(), 3));
-        if (
-            checkState.hasProperty(DeflectionRingBlock.HALF)
-            && checkState.getValue(DeflectionRingBlock.HALF) == DirectionCube3x3PartHalf.MID_CENTER
-            && checkState.getValue(DeflectionRingBlock.SWITCH) == IPowerComponent.Switch.ON
-            && !checkState.getValue(DeflectionRingBlock.OVERLOAD)
-        ) {
-            end = getBlockPos().relative(direction.getOpposite(), 2);
-            found = true;
+        if (!found) {
+            ACCELERATION_AABB_MAP.remove(getBlockPos());
+            return;
         }
-        if (!found) return;
+        BlockPos aabbStart = getBlockPos().relative(direction.getOpposite(), 1);
+        BlockState deflectionCheck = level.getBlockState(getBlockPos().relative(direction.getOpposite(), 3));
+        if (
+            deflectionCheck.hasProperty(DeflectionRingBlock.HALF)
+            && deflectionCheck.getValue(DeflectionRingBlock.HALF) == DirectionCube3x3PartHalf.MID_CENTER
+            && deflectionCheck.getValue(DeflectionRingBlock.SWITCH) == IPowerComponent.Switch.ON
+            && !deflectionCheck.getValue(DeflectionRingBlock.OVERLOAD)
+        ) {
+            aabbStart = getBlockPos().relative(direction.getOpposite(), 2);
+        }
+        AABB aabb = AABB.encapsulatingFullBlocks(endRingPos.relative(direction), aabbStart);
+        Direction.Axis axis = direction.getAxis();
+        double inflationX = axis == Direction.Axis.X ? 0 : 1;
+        double inflationY = axis == Direction.Axis.Y ? 0 : 1;
+        double inflationZ = axis == Direction.Axis.Z ? 0 : 1;
+        ACCELERATION_AABB_MAP.put(getBlockPos(), aabb.inflate(inflationX, inflationY, inflationZ));
         for (BlockPos pos : blockPoses) {
             BlockState fallState = this.level.getBlockState(pos);
             this.level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
@@ -161,50 +210,6 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             if (fallState.getBlock() instanceof FallingBlock fallingBlock) {
                 fallingBlock.falling(fallingEntity);
             }
-        }
-        checkPos.move(direction, 2);
-        AABB aabb = new AABB(
-            checkPos.getX() + 1,
-            checkPos.getY() + 1,
-            checkPos.getZ() + 1,
-            end.getX(),
-            end.getY(),
-            end.getZ()
-        );
-        List<Entity> entities = this.level.getEntitiesOfClass(Entity.class, aabb, AccelerationRingBlockEntity::canBeAccelerated);
-        for (Entity entity : entities) {
-            if (entity instanceof Player && Math.abs(entity.getDeltaMovement().get(direction.getAxis())) > 20) {
-                entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
-                continue;
-            }
-            Vec3 fixMovement = getBlockPos()
-                .getCenter()
-                .subtract(
-                    entity instanceof FallingBlockEntity || entity instanceof Player
-                    ? entity.position().add(0, 0.5, 0)
-                    : entity.position()
-                );
-            Vec3 deltaMovement = entity.getDeltaMovement();
-            fixMovement = switch (direction.getAxis()) {
-                case X -> fixMovement.multiply(0, 1, 1);
-                case Y -> fixMovement.multiply(1, 0, 1);
-                case Z -> fixMovement.multiply(1, 1, 0);
-            };
-            deltaMovement = switch (direction.getAxis()) {
-                case X -> deltaMovement.multiply(1, 0, 0);
-                case Y -> deltaMovement.multiply(0, 1, 0);
-                case Z -> deltaMovement.multiply(0, 0, 1);
-            };
-            fixMovement = fixMovement.multiply(0.2, 0.2, 0.2);
-            if (Math.abs(entity.getDeltaMovement().get(direction.getAxis())) <= 5) {
-                deltaMovement = deltaMovement.add(fixMovement);
-            } else {
-                entity.setPos(entity.position().add(fixMovement.multiply(5, 5, 5)));
-            }
-            deltaMovement = deltaMovement.scale(1.0204081632653061)
-                .add(new Vec3(0.16f, 0.16f, 0.16f).multiply(Vec3.atLowerCornerOf(direction.getNormal())));
-            entity.setDeltaMovement(deltaMovement);
-            entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
         }
     }
 
@@ -298,26 +303,9 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         return getBlockState().getValue(AccelerationRingBlock.SWITCH) == Switch.ON ? 256 : 0;
     }
 
-    public static boolean canBeAccelerated(Entity entity) {
-        return entity instanceof FallingBlockEntity fallingBlockEntity
-               && fallingBlockEntity.getBlockState().is(BlockTags.ANVIL)
-               && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
-               || entity instanceof Projectile
-               || (entity instanceof Player player && isPlayerCanBeAccelerated(player));
-    }
-
-    static boolean isPlayerCanBeAccelerated(Player player) {
-        Iterable<ItemStack> armorSlots = player.getArmorSlots();
-        boolean hasHammer = false;
-        int count = 0;
-        for (ItemStack stack : armorSlots) {
-            if (stack.getItem() instanceof AnvilHammerItem) {
-                hasHammer = true;
-            }
-            if (stack.getItem() instanceof ArmorItem) {
-                count++;
-            }
-        }
-        return count >= 2 && hasHammer;
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        removeSelfFromMap();
     }
 }

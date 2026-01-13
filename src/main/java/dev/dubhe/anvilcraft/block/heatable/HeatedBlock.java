@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.heatable;
 
-import dev.anvilcraft.lib.block.IMoveableEntityBlock;
+import dev.anvilcraft.lib.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;

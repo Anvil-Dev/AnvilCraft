@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.recipe.util.InWorldRecipeData;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeOutcomeTypes;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 

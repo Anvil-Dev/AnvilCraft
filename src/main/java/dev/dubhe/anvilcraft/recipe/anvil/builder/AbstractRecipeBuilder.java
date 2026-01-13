@@ -57,7 +57,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      * 保存配方到指定位置
      *
      * @param output 配方输出
-     * @param id           配方ID
+     * @param id 配方ID
      */
     @Override
     public void save(RecipeOutput output, ResourceLocation id) {
@@ -73,16 +73,24 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
     }
 
     /**
+     * 保存配方到指定位置
+     *
+     * @param output 配方输出
+     * @param id 配方ID的字符串形式
+     */
+    @Override
+    public void save(RecipeOutput output, String id) {
+        save(output, AnvilCraft.of(id).withPrefix(getType() + "/"));
+    }
+
+    /**
      * 保存配方
      *
      * @param recipeOutput 配方输出
      */
     @Override
     public void save(RecipeOutput recipeOutput) {
-        save(
-            recipeOutput,
-            AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
-                .withPrefix(getType() + "/"));
+        save(recipeOutput, BuiltInRegistries.ITEM.getKey(getResult()).getPath());
     }
 
     /**

@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    "anvilcraft:royal_steel_sword",
+    "anvilcraft:royal_steel_axe",
+    "anvilcraft:royal_steel_pickaxe",
+    "anvilcraft:royal_steel_shovel",
+    "anvilcraft:royal_steel_hoe"
+  ]
+}

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.network;
 
-import dev.anvilcraft.lib.util.CodecUtil;
+import dev.anvilcraft.lib.recipe.util.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import net.minecraft.core.BlockPos;

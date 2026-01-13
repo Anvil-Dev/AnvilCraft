@@ -1,0 +1,76 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"top": "anvilcraft:block/fluid_tank_top",
+		"particle": "anvilcraft:block/fluid_tank_side",
+		"side": "anvilcraft:block/fluid_tank_side"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#top"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15, 15, 15],
+			"to": [1, 1, 1],
+			"faces": {
+				"north": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"east": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"south": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"west": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"up": {"uv": [15, 1, 1, 15], "texture": "#top"},
+				"down": {"uv": [15, 1, 1, 15], "texture": "#top"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, -135, 0],
+			"translation": [3.75, 0, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, -135, 0],
+			"translation": [3.75, 0, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"ground": {
+			"translation": [0, 4, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"gui": {
+			"rotation": [30, -135, 0],
+			"translation": [0, -0.25, 0],
+			"scale": [0.24, 0.24, 0.24]
+		},
+		"head": {
+			"translation": [0, 1, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"fixed": {
+			"scale": [0.66, 0.66, 0.66]
+		}
+	}
+}

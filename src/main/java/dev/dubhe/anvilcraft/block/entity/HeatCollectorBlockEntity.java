@@ -96,7 +96,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        rotation += (float) (getServerPower() * 0.03);
+        rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
     }
 
     public boolean isWorking() {

@@ -1,0 +1,78 @@
+{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.anvilcraft.disintegration"
+  },
+  "effects": {
+    "minecraft:block_experience": [
+      {
+        "effect": {
+          "type": "minecraft:all_of",
+          "effects": [
+            {
+              "type": "anvilcraft:in_range_modify",
+              "min": 1.0,
+              "modifier": {
+                "type": "minecraft:multiply",
+                "factor": 4.0
+              }
+            },
+            {
+              "type": "anvilcraft:in_range_modify",
+              "max": 0.0,
+              "modifier": {
+                "type": "minecraft:set",
+                "value": 1.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "minecraft:mob_experience": [
+      {
+        "effect": {
+          "type": "minecraft:all_of",
+          "effects": [
+            {
+              "type": "anvilcraft:in_range_modify",
+              "min": 1.0,
+              "modifier": {
+                "type": "minecraft:multiply",
+                "factor": 4.0
+              }
+            },
+            {
+              "type": "anvilcraft:in_range_modify",
+              "max": 0.0,
+              "modifier": {
+                "type": "minecraft:set",
+                "value": 1.0
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "max_cost": {
+    "base": 15,
+    "per_level_above_first": 0
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 0
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": {
+    "type": "neoforge:or",
+    "values": [
+      "#minecraft:enchantable/mining_loot",
+      "#minecraft:enchantable/weapon"
+    ]
+  },
+  "weight": 5
+}

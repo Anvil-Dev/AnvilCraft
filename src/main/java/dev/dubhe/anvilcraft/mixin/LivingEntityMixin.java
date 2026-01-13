@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.totem.TotemManager;
 import dev.dubhe.anvilcraft.api.totem.handler.TotemHandler;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -32,6 +33,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -80,24 +82,31 @@ public abstract class LivingEntityMixin extends Entity {
 
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
     private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        if (value.getEntity() instanceof FallingBlockEntity falling
-            && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
-            && !this.level().isClientSide
-        ) {
-            ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
-            this.lastHurtByPlayer = killer;
-            this.lastHurtByPlayerTime = 1;
-            killerRef.set(killer);
-            DamageSource source = new DamageSource(
-                this.level().damageSources().playerAttack(killer).typeHolder(),
-                falling, killer, value.getSourcePosition()
-            );
-            if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
-                AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+        switch (value.getEntity()) {
+            case FallingBlockEntity falling when !this.level().isClientSide -> {
+                Block anvil = falling.getBlockState().getBlock();
+                if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return value;
+                ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
+                this.lastHurtByPlayer = killer;
+                this.lastHurtByPlayerTime = 1;
+                killerRef.set(killer);
+                DamageSource source = new DamageSource(
+                    this.level().damageSources().playerAttack(killer).typeHolder(),
+                    falling,
+                    killer,
+                    value.getSourcePosition()
+                );
+                if (anvil instanceof TranscendenceAnvilBlock) {
+                    AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+                } else if (anvil instanceof FrostAnvilBlock) {
+                    AnvilCraftFakePlayers.anvilcraftKiller.enableDisintegration((ServerLevel) this.level(), killer);
+                }
+                return source;
             }
-            return source;
+            case null, default -> {
+                return value;
+            }
         }
-        return value;
     }
 
     @Inject(method = "die", at = @At("RETURN"))

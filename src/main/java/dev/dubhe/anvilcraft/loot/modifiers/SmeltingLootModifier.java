@@ -30,9 +30,8 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 import java.util.Optional;
 
 public class SmeltingLootModifier extends LootModifier {
-
-    public static final MapCodec<SmeltingLootModifier> CODEC = RecordCodecBuilder.mapCodec(inst ->
-        LootModifier.codecStart(inst).apply(inst, SmeltingLootModifier::new)
+    public static final MapCodec<SmeltingLootModifier> CODEC = RecordCodecBuilder.mapCodec(
+        inst -> LootModifier.codecStart(inst).apply(inst, SmeltingLootModifier::new)
     );
 
     public SmeltingLootModifier(LootItemCondition[] conditions) {
@@ -40,30 +39,30 @@ public class SmeltingLootModifier extends LootModifier {
     }
 
     @Override
-    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> objectArrayList, LootContext lootContext) {
-        if (!lootContext.hasParam(LootContextParams.BLOCK_STATE)) return objectArrayList;
-        if (!lootContext.hasParam(LootContextParams.ORIGIN)) return objectArrayList;
-        ServerLevel level = lootContext.getLevel();
-        ItemStack tool = lootContext.getParamOrNull(LootContextParams.TOOL);
-        if (tool == null) return objectArrayList;
+    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext ctx) {
+        if (!ctx.hasParam(LootContextParams.BLOCK_STATE)) return generatedLoot;
+        if (!ctx.hasParam(LootContextParams.ORIGIN)) return generatedLoot;
+        ServerLevel level = ctx.getLevel();
+        ItemStack tool = ctx.getParamOrNull(LootContextParams.TOOL);
+        if (tool == null) return generatedLoot;
         HolderLookup<Enchantment> lookup = level.holderLookup(Registries.ENCHANTMENT);
         int lvl = tool.getEnchantmentLevel(lookup.getOrThrow(ModEnchantments.SMELTING_KEY));
-        if (lvl <= 0) return objectArrayList;
+        if (lvl <= 0) return generatedLoot;
         if (
-            objectArrayList.size() == 1
-            && objectArrayList.getFirst().is(ModItemTags.HEATABLE_BLOCKS)
-            && Util.castSafely(objectArrayList.getFirst().getItem(), BlockItem.class).isPresent()
+            generatedLoot.size() == 1
+            && generatedLoot.getFirst().is(ModItemTags.HEATABLE_BLOCKS)
+            && Util.castSafely(generatedLoot.getFirst().getItem(), BlockItem.class).isPresent()
         ) {
             Optional<HeatTier> tier = HeatRecorder.getTier(
                 level,
-                BlockPos.containing(lootContext.getParam(LootContextParams.ORIGIN)),
-                Block.byItem(objectArrayList.getFirst().getItem()).defaultBlockState()
+                BlockPos.containing(ctx.getParam(LootContextParams.ORIGIN)),
+                Block.byItem(generatedLoot.getFirst().getItem()).defaultBlockState()
             );
             return tier.map(heatTier -> ObjectArrayList.of(
                 HeatRecorder.getHeatableBlock(
                         level,
-                        BlockPos.containing(lootContext.getParam(LootContextParams.ORIGIN)),
-                        Block.byItem(objectArrayList.getFirst().getItem()).defaultBlockState(),
+                        BlockPos.containing(ctx.getParam(LootContextParams.ORIGIN)),
+                        Block.byItem(generatedLoot.getFirst().getItem()).defaultBlockState(),
                         heatTier
                     )
                     .map(block -> block.asItem().getDefaultInstance())
@@ -71,7 +70,7 @@ public class SmeltingLootModifier extends LootModifier {
             )).orElseGet(ObjectArrayList::of);
         }
         ObjectArrayList<ItemStack> smeltList = new ObjectArrayList<>();
-        for (ItemStack item : objectArrayList) {
+        for (ItemStack item : generatedLoot) {
             boolean needDouble = false;
             SingleRecipeInput cont = new SingleRecipeInput(item);
             RecipeHolder<SmeltingRecipe> h = level.getRecipeManager()
@@ -84,7 +83,7 @@ public class SmeltingLootModifier extends LootModifier {
             if (item.is(Tags.Items.RAW_MATERIALS) || item.is(Tags.Items.ORES)) {
                 float chance = lvl == 1 ? 0 : (lvl - 1) * 0.25f;
                 if (lvl >= 5) chance = 1;
-                if (lootContext.getRandom().nextFloat() < chance) {
+                if (ctx.getRandom().nextFloat() < chance) {
                     needDouble = true;
                 }
             }

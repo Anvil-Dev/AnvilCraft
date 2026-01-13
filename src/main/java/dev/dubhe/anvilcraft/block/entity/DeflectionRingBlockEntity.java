@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.network.UpdateDeflectionRingLastEntitySpeedPacket;
+import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.DistanceComparator;
 import lombok.Getter;
 import lombok.Setter;
@@ -214,7 +215,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         List<Entity> entities2 = this.level.getEntitiesOfClass(
             Entity.class,
             new AABB(getBlockPos()),
-            AccelerationRingBlockEntity::canBeAccelerated
+            AccelerateManager::canBeAccelerated
         );
         for (Entity entity : entities2) {
             if (entity.getDeltaMovement().length() > Integer.MAX_VALUE * 0.99f) {
@@ -223,53 +224,54 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                 if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
                 block.updateState(this.level, getBlockPos(), DeflectionRingBlock.OVERLOAD, state.getValue(DeflectionRingBlock.OVERLOAD), 3);
             }
-            Vec3 deltaMovement = entity.getDeltaMovement();
+            Vec3 v = entity.getDeltaMovement();
             Direction facing = getBlockState().getValue(DeflectionRingBlock.FACING);
+            boolean applyOffset = entity instanceof FallingBlockEntity || entity instanceof Player;
             final Vec3 fixedPos = switch (facing) {
                 case UP -> new Vec3(
-                    fixPos(deltaMovement.z, deltaMovement.z, deltaMovement.x),
-                    entity instanceof FallingBlockEntity || entity instanceof Player ? -0.5 : 0,
-                    -fixPos(deltaMovement.x, deltaMovement.z, deltaMovement.x)
+                    fixPos(v.z, v.z, v.x),
+                    applyOffset ? -0.5 : 0,
+                    -fixPos(v.x, v.z, v.x)
                 );
                 case DOWN -> new Vec3(
-                    -fixPos(deltaMovement.z, deltaMovement.z, deltaMovement.x),
-                    entity instanceof FallingBlockEntity || entity instanceof Player ? -0.5 : 0,
-                    fixPos(deltaMovement.x, deltaMovement.z, deltaMovement.x)
+                    -fixPos(v.z, v.z, v.x),
+                    applyOffset ? -0.5 : 0,
+                    fixPos(v.x, v.z, v.x)
                 );
                 case NORTH -> new Vec3(
-                    fixPos(deltaMovement.y, deltaMovement.y, deltaMovement.x),
-                    -fixPos(deltaMovement.x, deltaMovement.y, deltaMovement.x),
+                    fixPos(v.y, v.y, v.x),
+                    -fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
                     0
                 );
                 case SOUTH -> new Vec3(
-                    -fixPos(deltaMovement.y, deltaMovement.y, deltaMovement.x),
-                    fixPos(deltaMovement.x, deltaMovement.y, deltaMovement.x),
+                    -fixPos(v.y, v.y, v.x),
+                    fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
                     0
                 );
                 case WEST -> new Vec3(
                     0,
-                    fixPos(deltaMovement.z, deltaMovement.z, deltaMovement.y),
-                    -fixPos(deltaMovement.y, deltaMovement.z, deltaMovement.y)
+                    fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
+                    -fixPos(v.y, v.z, v.y)
                 );
                 case EAST -> new Vec3(
                     0,
-                    -fixPos(deltaMovement.z, deltaMovement.z, deltaMovement.y),
-                    fixPos(deltaMovement.y, deltaMovement.z, deltaMovement.y)
+                    -fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
+                    fixPos(v.y, v.z, v.y)
                 );
             };
-            deltaMovement = switch (facing) {
-                case UP -> new Vec3(deltaMovement.z, 0, -deltaMovement.x);
-                case DOWN -> new Vec3(-deltaMovement.z, 0, deltaMovement.x);
-                case NORTH -> new Vec3(deltaMovement.y, -deltaMovement.x, 0);
-                case SOUTH -> new Vec3(-deltaMovement.y, deltaMovement.x, 0);
-                case WEST -> new Vec3(0, deltaMovement.z, -deltaMovement.y);
-                case EAST -> new Vec3(0, -deltaMovement.z, deltaMovement.y);
+            v = switch (facing) {
+                case UP -> new Vec3(v.z, 0, -v.x);
+                case DOWN -> new Vec3(-v.z, 0, v.x);
+                case NORTH -> new Vec3(v.y, -v.x, 0);
+                case SOUTH -> new Vec3(-v.y, v.x, 0);
+                case WEST -> new Vec3(0, v.z, -v.y);
+                case EAST -> new Vec3(0, -v.z, v.y);
             };
-            entity.setDeltaMovement(deltaMovement);
+            entity.setDeltaMovement(v);
             if (entity instanceof Player) {
-                double d0 = deltaMovement.x;
-                double d1 = deltaMovement.y;
-                double d2 = deltaMovement.z;
+                double d0 = v.x;
+                double d1 = v.y;
+                double d2 = v.z;
                 double d3 = Math.sqrt(d0 * d0 + d2 * d2);
                 entity.setXRot(Mth.wrapDegrees((float) (-(Mth.atan2(d1, d3) * 180.0F / (float) Math.PI))));
                 entity.setYRot(Mth.wrapDegrees((float) (Mth.atan2(d2, d0) * 180.0F / (float) Math.PI) - 90.0F));
@@ -281,7 +283,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         List<Entity> entities = level.getEntitiesOfClass(
             Entity.class,
             AABB.encapsulatingFullBlocks(getBlockPos().east().north(), getBlockPos().west().south()),
-            AccelerationRingBlockEntity::canBeAccelerated
+            AccelerateManager::canBeAccelerated
         );
         for (Entity entity : entities) {
             if (

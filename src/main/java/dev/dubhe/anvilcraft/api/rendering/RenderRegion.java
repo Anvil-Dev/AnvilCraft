@@ -21,6 +21,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class RenderRegion {
+    public static final RenderType[] FORCED_ORDER = {
+        RenderType.SOLID,
+        ModRenderTypes.LASER,
+        RenderType.TRANSLUCENT,
+    };
     public static final List<RenderType> BLOOM_RENDERTYPES = List.of(
         ModRenderTypes.LASER
     );
@@ -101,7 +107,15 @@ public class RenderRegion {
         if (cameraPosition.distanceTo(new Vec3(chunkPos.x * 16, cameraPosition.y, chunkPos.z * 16)) > renderDistance) {
             return;
         }
-        for (RenderType renderType : renderTypes) {
+        List<RenderType> allRenderTypes = new ArrayList<>(renderTypes);
+        for (int i = FORCED_ORDER.length - 1; i >= 0; i--) {
+            RenderType type = FORCED_ORDER[i];
+            if (allRenderTypes.contains(type)) {
+                allRenderTypes.remove(type);
+                allRenderTypes.addFirst(type);
+            }
+        }
+        for (RenderType renderType : allRenderTypes) {
             VertexBuffer vb = buffers.get(renderType);
             if (vb == null) continue;
             stateSwitcher.run();

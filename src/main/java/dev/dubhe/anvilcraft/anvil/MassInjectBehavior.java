@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.anvil;
 
-import dev.anvilcraft.lib.AnvilLib;
+import dev.anvilcraft.lib.recipe.AnvilLibRecipe;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -30,7 +30,7 @@ public class MassInjectBehavior implements IAnvilBehavior {
     ) {
         BlockEntity blockEntity = level.getBlockEntity(hitBlockPos);
         if (!(blockEntity instanceof SpaceOvercompressorBlockEntity compressor)) return false;
-        int remainingProcessCount = AnvilLib.CONFIG.inWorldRecipeMaxEfficiency;
+        int remainingProcessCount = AnvilLibRecipe.CONFIG.inWorldRecipeMaxEfficiency;
         long totalMassConsumed = 0L;
         RecipeManager manager = level.getRecipeManager();
         List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class,

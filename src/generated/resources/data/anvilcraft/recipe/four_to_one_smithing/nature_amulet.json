@@ -17,12 +17,7 @@
   "material": {
     "items": "anvilcraft:frost_metal_block"
   },
-  "result": {
-    "item": {
-      "count": 1,
-      "id": "anvilcraft:nature_amulet"
-    }
-  },
+  "result": "anvilcraft:nature_amulet",
   "template": {
     "items": "anvilcraft:four_to_one_smithing_template"
   }

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "anvilcraft:earth_core_shard"
+    },
+    "T": {
+      "tag": "anvilcraft:templates"
+    },
+    "V": {
+      "item": "anvilcraft:void_matter"
+    }
+  },
+  "pattern": [
+    "EEE",
+    "ETV",
+    "VVV"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:permutation_smithing_template"
+  }
+}

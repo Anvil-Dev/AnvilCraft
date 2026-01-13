@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    "anvilcraft:amethyst_sword",
+    "anvilcraft:amethyst_axe",
+    "anvilcraft:amethyst_pickaxe",
+    "anvilcraft:amethyst_shovel",
+    "anvilcraft:amethyst_hoe"
+  ]
+}

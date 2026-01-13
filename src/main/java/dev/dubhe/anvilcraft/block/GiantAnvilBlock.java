@@ -310,14 +310,18 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         RandomSource random
     ) {
         BlockState ringState = level.getBlockState(pos.subtract(state.getValue(HALF).getOffset()).above(3));
-        if (
-            ringState.hasProperty(AccelerationRingBlock.HALF)
-            && ringState.getValue(AccelerationRingBlock.HALF) == DirectionCube3x3PartHalf.BOTTOM_CENTER
-            && ringState.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.ON
-            && !ringState.getValue(AccelerationRingBlock.OVERLOAD)
-            && (ringState.getValue(AccelerationRingBlock.FACING) == Direction.UP
-                || ringState.getValue(DeflectionRingBlock.FACING).getAxis() == Direction.Axis.Y)
-        ) {
+
+        boolean isHeldByAcceleration = ringState.getBlock() instanceof AccelerationRingBlock
+                                       && ringState.getValue(AccelerationRingBlock.HALF) == DirectionCube3x3PartHalf.BOTTOM_CENTER
+                                       && ringState.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.ON
+                                       && !ringState.getValue(AccelerationRingBlock.OVERLOAD)
+                                       && ringState.getValue(AccelerationRingBlock.FACING) == Direction.UP;
+        boolean isHeldByDeflection = ringState.getBlock() instanceof DeflectionRingBlock
+                                     && ringState.getValue(DeflectionRingBlock.HALF) == DirectionCube3x3PartHalf.BOTTOM_CENTER
+                                     && ringState.getValue(DeflectionRingBlock.SWITCH) == IPowerComponent.Switch.ON
+                                     && !ringState.getValue(DeflectionRingBlock.OVERLOAD)
+                                     && ringState.getValue(DeflectionRingBlock.FACING).getAxis() == Direction.Axis.Y;
+        if (isHeldByAcceleration || isHeldByDeflection) {
             return;
         }
         if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;

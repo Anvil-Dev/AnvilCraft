@@ -85,11 +85,15 @@ public abstract class ResonatorItem extends TieredItem {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
 
         if (isTranscendence(stack)) {
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.resonator.mining_desc")
-                .withStyle(ChatFormatting.GRAY));
+            tooltipComponents.add(
+                Component.translatable("tooltip.anvilcraft.resonator.mining_desc", Component.keybind("key.anvilcraft.switch_resonate_mode"))
+                    .withStyle(ChatFormatting.GRAY)
+            );
         } else {
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.resonator.desc")
-                .withStyle(net.minecraft.ChatFormatting.GRAY));
+            tooltipComponents.add(
+                Component.translatable("tooltip.anvilcraft.resonator.desc", Component.keybind("key.anvilcraft.switch_resonate_mode"))
+                    .withStyle(net.minecraft.ChatFormatting.GRAY)
+            );
         }
     }
 

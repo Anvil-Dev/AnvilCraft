@@ -174,6 +174,6 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     }
 
     public void clientTick() {
-        this.rotation += (float) (this.getServerPower() * 0.03);
+        this.rotation += (float) (Math.log(this.getServerPower() + 1) * 2.5);
     }
 }

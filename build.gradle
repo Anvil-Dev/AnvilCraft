@@ -8,16 +8,24 @@ plugins {
     alias libs.plugins.machete
 }
 
-String buildNumber
-String buildType = 'build'
-if (System.getenv("CI_BUILD") == 'false') buildNumber = null
-else {
-    if (System.getenv("PR_BUILD") != 'false') buildType = 'pr'
-    buildNumber = System.getenv("GITHUB_RUN_NUMBER")
+String buildType
+String buildNumber = System.getenv("GITHUB_RUN_NUMBER")
+String buildTypeEnv = System.getenv("BUILD_TYPE")
+if (buildTypeEnv == "pr") {
+    buildType = 'pr'
+} else if (buildTypeEnv == "hotfix") {
+    buildType = 'hotfix'
+} else if (buildTypeEnv == "snapshot") {
+    buildType = 'snapshot'
+} else if (buildTypeEnv == "release") {
+    buildType = null
+    buildNumber = null
+} else {
+    buildType = 'build'
 }
-def envVersion = System.getenv("GITHUB_REF")
-if (envVersion != null && envVersion.startsWith("refs/tags/")) {
-    version = envVersion.substring(envVersion.lastIndexOf('/') + 1)
+def githubRef = System.getenv("GITHUB_REF")
+if (githubRef != null && githubRef.startsWith("refs/tags/")) {
+    version = githubRef.substring(githubRef.lastIndexOf('/') + 1)
 } else {
     version = "${mod_version}" + (buildNumber != null ? "+${buildType}.${buildNumber}" : "")
 }

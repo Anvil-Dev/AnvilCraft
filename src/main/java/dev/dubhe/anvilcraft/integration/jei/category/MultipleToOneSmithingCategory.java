@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -91,7 +91,7 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
                 .addIngredients(Ingredient.of(smithingRecipe.getInputs().get(i).getItems()));
         }
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
-            .addItemStack(smithingRecipe.getResult().getResult());
+            .addItemStack(smithingRecipe.getResult().result().getDefaultInstance());
     }
 
     @Override
