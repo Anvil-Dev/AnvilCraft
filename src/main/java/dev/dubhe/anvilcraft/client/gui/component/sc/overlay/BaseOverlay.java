@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.component.sc.overlay;
 
 import dev.dubhe.anvilcraft.api.SyncListener;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseOverlay extends AbstractWidget implements SyncListener<ContainerStorage> {
+public abstract class BaseOverlay extends AbstractWidget implements SyncListener<ClientSCStorage> {
     protected final ShulkerContainerScreen screen;
 
     public BaseOverlay(ShulkerContainerScreen screen) {
@@ -85,7 +85,7 @@ public abstract class BaseOverlay extends AbstractWidget implements SyncListener
     }
 
     @Override
-    public void whenSynced(ContainerStorage storage) {
+    public void whenSynced(ClientSCStorage storage) {
     }
 
     @Override
@@ -109,8 +109,8 @@ public abstract class BaseOverlay extends AbstractWidget implements SyncListener
         return this.screen.getMinecraft();
     }
 
-    public ContainerStorage storage() {
-        return this.screen.getMenu().storage;
+    public ClientSCStorage storage() {
+        return this.screen.storage;
     }
 
     public boolean hasSlots() {

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.sc.category.FilterCategory;
 import dev.dubhe.anvilcraft.api.sc.category.ICategory;
 import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.api.sc.category.store.Categories;
+import dev.dubhe.anvilcraft.api.sc.category.store.ClientCategories;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.client.util.RegistryUtil;
@@ -109,8 +110,8 @@ public class CategoryOverlay extends BaseOverlay {
             .orElseThrow()
             .listElementIds()
             .parallel()
-            .map(CategoryProvider::new);
-        var fromCustoms = this.storage().getCategories().getCustoms().parallelStream().map(CategoryProvider::new);
+            .map(CategoryProvider::create);
+        var fromCustoms = this.storage().getCategories().getCustoms().parallelStream().map(CategoryProvider::create);
         this.alternateCategories = Stream.concat(fromRegistry, fromCustoms)
             .filter(Predicate.not(this.enabledCategories::contains))
             .collect(Collectors.toCollection(() -> new TreeSet<>((o1, o2) -> {
@@ -130,7 +131,9 @@ public class CategoryOverlay extends BaseOverlay {
             18,
             40,
             button -> {
-                this.storage().getClientCategories().applyProviders(this.enabledCategories);
+                ClientCategories categories = this.storage().getCategories();
+                categories.applyProviders(this.enabledCategories);
+                PacketDistributor.sendToServer(new ShulkerContainerPackets.CategoriesSync(this.storage().getId(), categories));
                 screen.changeOverlay(new MainOverlay(screen));
             }
         ));
@@ -159,8 +162,8 @@ public class CategoryOverlay extends BaseOverlay {
                 var stack = this.screen.getMenu().getCarried();
                 if (!stack.has(ModComponents.FILTER_CONTENT)) return;
                 var category = new FilterCategory(stack);
-                this.alternateCategories.add(new CategoryProvider(category));
-                this.storage().getClientCategories().addCustom(category);
+                this.alternateCategories.add(CategoryProvider.create(category));
+                this.storage().getCategories().addCustom(category);
                 PacketDistributor.sendToServer(new ShulkerContainerPackets.CustomCategorySync(this.storage().getId(), category, true));
             }
         ));
@@ -372,7 +375,7 @@ public class CategoryOverlay extends BaseOverlay {
             } else if (button == 1 && provider.isCustom()) {
                 this.alternateCategories.remove(provider);
                 ICategory category = provider.get().orElseThrow();
-                this.storage().getClientCategories().removeCustom(category);
+                this.storage().getCategories().removeCustom(category);
                 PacketDistributor.sendToServer(new ShulkerContainerPackets.CustomCategorySync(this.storage().getId(), category, false));
                 return true;
             }

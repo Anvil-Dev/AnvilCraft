@@ -18,7 +18,9 @@ import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorages;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
+import dev.dubhe.anvilcraft.util.sc.SCBESyncers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -69,6 +71,8 @@ public class ClientEventListener {
     @SubscribeEvent
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
+        ClientSCStorages.clear();
+        SCBESyncers.clear();
     }
 
     private static int lastSwitchPhasePressAction = 0;

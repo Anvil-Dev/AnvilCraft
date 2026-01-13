@@ -4,22 +4,22 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.sc.upgrade.level.IUpgradeLevel;
-import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
+import dev.dubhe.anvilcraft.saved.sc.SCStorage;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
-import dev.dubhe.anvilcraft.util.Util;
 import io.netty.buffer.ByteBuf;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
+@EqualsAndHashCode
 public class Upgrade<T extends Enum<T> & IUpgradeLevel<T>> {
     private T now;
     private int progress;
@@ -55,20 +55,19 @@ public class Upgrade<T extends Enum<T> & IUpgradeLevel<T>> {
         }
     }
 
-    public ItemStack upgrade(Player player, ItemStack material) {
+    public ItemStack upgrade(Player player, ItemStack material, SCStorage storage) {
         if (PlayerUtil.isClient(player)) return material;
-        if (!(player.containerMenu instanceof ShulkerContainerMenu scMenu)) return material;
         if (player.hasInfiniteMaterials() && this.getNext() != null) {
             this.progress = 0;
             this.now = this.getNext();
-            PacketDistributor.sendToAllPlayers(new ShulkerContainerPackets.StorageSync(scMenu.storage));
+            PacketDistributor.sendToAllPlayers(new ShulkerContainerPackets.UpgradesSync(storage.getId(), storage.getUpgrades()));
             return ItemStack.EMPTY;
         }
         if (this.canUpgrade(player, material) != UpgradeResult.CAN_UPGRADE) return material;
         int progress = material.getCount() + this.progress;
         if (progress < this.getNext().getConsumedCount()) {
             this.progress += material.getCount();
-            PacketDistributor.sendToAllPlayers(Util.cast(player), new ShulkerContainerPackets.StorageSync(scMenu.storage));
+            PacketDistributor.sendToAllPlayers(new ShulkerContainerPackets.UpgradesSync(storage.getId(), storage.getUpgrades()));
             return ItemStack.EMPTY;
         } else {
             this.progress = 0;
@@ -77,7 +76,7 @@ public class Upgrade<T extends Enum<T> & IUpgradeLevel<T>> {
                 result = material.copyWithCount(material.getCount() - (progress - this.getNext().getConsumedCount()));
             }
             this.now = this.getNext();
-            PacketDistributor.sendToAllPlayers(Util.cast(player), new ShulkerContainerPackets.StorageSync(scMenu.storage));
+            PacketDistributor.sendToAllPlayers(new ShulkerContainerPackets.UpgradesSync(storage.getId(), storage.getUpgrades()));
             return result;
         }
     }
@@ -87,26 +86,15 @@ public class Upgrade<T extends Enum<T> & IUpgradeLevel<T>> {
         this.progress = progress.progress;
     }
 
-    public static <T extends Enum<T> & IUpgradeLevel<T>> MapCodec<Upgrade<T>> codec(Codec<T> codec) {
-        return RecordCodecBuilder.mapCodec(ins -> ins.group(
+    public static <T extends Enum<T> & IUpgradeLevel<T>> MapCodec<Upgrade<T>> codec(Codec<T> codec, String name, T min) {
+        return RecordCodecBuilder.<Upgrade<T>>mapCodec(ins -> ins.group(
             codec
-                .fieldOf("level")
+                .optionalFieldOf("level", min)
                 .forGetter(Upgrade::getNow),
             Codec.INT
-                .fieldOf("progress")
+                .optionalFieldOf("progress", 0)
                 .forGetter(Upgrade::getProgress)
-        ).apply(ins, Upgrade::new));
-    }
-
-    public static <T extends Enum<T> & IUpgradeLevel<T>> MapCodec<Upgrade<T>> codec(MapCodec<T> codec) {
-        return RecordCodecBuilder.mapCodec(ins -> ins.group(
-            codec
-                .fieldOf("level")
-                .forGetter(Upgrade::getNow),
-            Codec.INT
-                .fieldOf("progress")
-                .forGetter(Upgrade::getProgress)
-        ).apply(ins, Upgrade::new));
+        ).apply(ins, Upgrade::new)).codec().optionalFieldOf(name, new Upgrade<>(min));
     }
 
     public static <B extends ByteBuf, T extends Enum<T> & IUpgradeLevel<T>> StreamCodec<B, Upgrade<T>> streamCodec(

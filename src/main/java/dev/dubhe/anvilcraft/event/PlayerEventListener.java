@@ -15,7 +15,7 @@ import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
+import dev.dubhe.anvilcraft.saved.sc.server.ServerSCStorages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -139,7 +139,7 @@ public class PlayerEventListener {
     public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             RecipeCaches.sync(serverPlayer);
-            ContainerStorages.get().sync2Player(serverPlayer);
+            ServerSCStorages.get().sync2C(serverPlayer);
         }
     }
 

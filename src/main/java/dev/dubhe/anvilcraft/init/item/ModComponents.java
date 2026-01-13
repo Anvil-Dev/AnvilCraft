@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
-import dev.dubhe.anvilcraft.item.property.component.ContainerStorageRef;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
@@ -14,6 +13,7 @@ import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.item.property.component.PillBocContents;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
+import dev.dubhe.anvilcraft.item.property.component.SCStorageRef;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
@@ -135,9 +135,9 @@ public class ModComponents {
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
     );
 
-    public static final DataComponentType<ContainerStorageRef> CONTAINER_STORAGE = register(
+    public static final DataComponentType<SCStorageRef> SC_STORAGE = register(
         "container_storage",
-        b -> b.persistent(ContainerStorageRef.CODEC.codec()).networkSynchronized(ContainerStorageRef.STREAM_CODEC)
+        b -> b.persistent(SCStorageRef.CODEC.codec()).networkSynchronized(SCStorageRef.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {

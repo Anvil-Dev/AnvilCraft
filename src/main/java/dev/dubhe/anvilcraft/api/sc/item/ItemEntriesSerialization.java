@@ -29,7 +29,7 @@ class ItemEntriesSerialization {
     public static final MapCodec<ItemEntriesSerialization> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         ItemEntry.CODEC.codec()
             .listOf()
-            .fieldOf("entries")
+            .optionalFieldOf("entries", List.of())
             .forGetter(ItemEntriesSerialization::getEntries)
     ).apply(ins, ItemEntriesSerialization::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemEntriesSerialization> STREAM_CODEC = StreamCodec.composite(

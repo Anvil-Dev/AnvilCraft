@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.saved.multiphase;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
@@ -30,16 +30,15 @@ import java.util.UUID;
 
 @Getter(AccessLevel.PRIVATE)
 public class Multiphases extends BetterSavedData {
-    public static final MapCodec<Multiphases> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        Codec.unboundedMap(UUIDUtil.STRING_CODEC, Multiphase.CODEC.codec())
+    public static final Codec<Multiphases> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+        Codec.unboundedMap(UUIDUtil.CODEC, Multiphase.CODEC.codec())
             .fieldOf("multiphases")
             .forGetter(Multiphases::getMultiphases),
         RecoverStation.codec(Multiphase.CODEC)
-            .fieldOf("recovers")
             .forGetter(Multiphases::getRecover)
     ).apply(ins, Multiphases::new));
     private static final Multiphases CLIENT_COPY = new Multiphases();
-    private static final ResourceLocation FIXERS_ID = AnvilCraft.of("multiphases_fixers");
+    private static final ResourceLocation FIXER_ID = AnvilCraft.of("multiphases_fixers");
     private static final double CURRENT_VERSION = 0.1;
     private final Map<UUID, Multiphase> multiphases;
     private final RecoverStation<Multiphase> recover;
@@ -102,29 +101,55 @@ public class Multiphases extends BetterSavedData {
 
     @Override
     protected void registerDataFixers() {
-        DataFixers.registerFixer(
-            FIXERS_ID,
-            new V0_1()
-        );
+        DataFixers.registerFixer(FIXER_ID, new V0_1());
     }
 
     @Override
     public void read(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt = DataFixers.fixData(FIXERS_ID, CURRENT_VERSION, nbt, registries);
-        Multiphases.CODEC.compressedDecode(registries.createSerializationContext(NbtOps.INSTANCE), nbt)
-            .result()
-            .ifPresent(multiphases -> {
-                this.multiphases.clear();
-                this.multiphases.putAll(multiphases.multiphases);
-                this.recover.sync(multiphases.recover);
-            });
+        nbt = DataFixers.fixData(FIXER_ID, CURRENT_VERSION, nbt.getDouble("version"), nbt, registries);
+        this.multiphases.clear();
+        CompoundTag multiphases = nbt.getCompound("multiphases");
+        for (String rawId : multiphases.getAllKeys()) {
+            Multiphase.CODEC.decoder()
+                .decode(registries.createSerializationContext(NbtOps.INSTANCE), multiphases.get(rawId))
+                .map(Pair::getFirst)
+                .ifSuccess(multiphase -> this.recover.getEntries().add(new RecoverEntry<>(UUID.fromString(rawId), multiphase)));
+        }
+        CompoundTag recover = nbt.getCompound("recover");
+        for (String rawId : recover.getAllKeys()) {
+            Multiphase.CODEC.decoder()
+                .decode(registries.createSerializationContext(NbtOps.INSTANCE), recover.get(rawId))
+                .map(Pair::getFirst)
+                .ifSuccess(multiphase -> this.recover.getEntries().add(new RecoverEntry<>(UUID.fromString(rawId), multiphase)));
+        }
     }
 
     @Override
     public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
-        var result = CodecUtil.encode(Multiphases.CODEC, this, registries.createSerializationContext(NbtOps.INSTANCE), nbt);
-        nbt = Util.cast(result.getOrThrow());
         nbt.putDouble("version", CURRENT_VERSION);
+
+        CompoundTag multiphases = new CompoundTag();
+        for (UUID id : this.multiphases.keySet()) {
+            CodecUtil.encode(
+                Multiphase.CODEC.fieldOf(id.toString()),
+                this.multiphases.get(id),
+                registries.createSerializationContext(NbtOps.INSTANCE),
+                multiphases
+            ).map(Util::<CompoundTag>cast).ifSuccess(multiphases::merge);
+        }
+        nbt.put("multiphases", multiphases);
+
+        CompoundTag recover = new CompoundTag();
+        for (var entry : this.recover.getEntries()) {
+            CodecUtil.encode(
+                Multiphase.CODEC.fieldOf(entry.id().toString()),
+                entry.value(),
+                registries.createSerializationContext(NbtOps.INSTANCE),
+                recover
+            ).map(Util::<CompoundTag>cast).ifSuccess(recover::merge);
+        }
+        nbt.put("recover", recover);
+
         return nbt;
     }
 

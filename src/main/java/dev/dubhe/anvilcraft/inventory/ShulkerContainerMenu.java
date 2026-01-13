@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import com.mojang.logging.LogUtils;
+import dev.dubhe.anvilcraft.api.sc.item.OrderPos;
 import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -8,19 +9,16 @@ import dev.dubhe.anvilcraft.inventory.component.sc.ShareResultSlot;
 import dev.dubhe.anvilcraft.inventory.component.sc.ShareSlot;
 import dev.dubhe.anvilcraft.inventory.component.sc.ShulkerContainerSlot;
 import dev.dubhe.anvilcraft.inventory.component.sc.UpgradeSlot;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
-import dev.dubhe.anvilcraft.util.CollectionUtil;
+import dev.dubhe.anvilcraft.saved.sc.SCStorage;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorages;
+import dev.dubhe.anvilcraft.saved.sc.server.ServerSCStorages;
 import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
-import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -33,27 +31,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class ShulkerContainerMenu extends AbstractContainerMenu {
     private static final Logger LOGGER = LogUtils.getLogger();
     public final ShulkerContainerBlockEntity blockEntity;
     private final Level level;
     private final Player player;
-    public ContainerStorage storage;
+    public final SCStorage storage;
 
-    public Int2BooleanMap slotsOrder;
-
-    private boolean hasContainerSlots;
-    private boolean hasUpgradeSlots;
+    public boolean hasContainerSlots;
+    public boolean hasUpgradeSlots;
     public Slot share;
 
     @SuppressWarnings("DataFlowIssue")
     public ShulkerContainerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(menuType, containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(menuType, containerId, inventory, extraData.readUUID(), inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     /**
@@ -64,12 +62,14 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
      * @param inventory   背包
      * @param blockEntity 方块实体
      */
-    public ShulkerContainerMenu(MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
+    public ShulkerContainerMenu(MenuType<?> menuType, int containerId, Inventory inventory, UUID storageId, BlockEntity blockEntity) {
         super(menuType, containerId);
         this.blockEntity = (ShulkerContainerBlockEntity) blockEntity;
         this.level = inventory.player.level();
         this.player = inventory.player;
-        this.storage = ContainerStorages.get().get(this.blockEntity.getStorageId()).orElse(null);
+        this.storage = this.level.isClientSide
+                       ? ClientSCStorages.get(storageId).orElseThrow()
+                       : ServerSCStorages.get().getOrCreate(storageId);
 
         this.addPlayerInventory(inventory);
         this.addPlayerHotbar(inventory);
@@ -77,24 +77,6 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         this.addContainerSlots();
         this.addUpgradeSlots();
         this.removeUpgradeSlots();
-
-        if (this.storage != null) {
-            this.slotsOrder = ShulkerContainerMenu.initOrder(this.storage);
-            this.scrollTo(0.0F);
-        }
-    }
-
-    public Int2BooleanMap getSlotsOrder() {
-        if (this.slotsOrder != null) return this.slotsOrder;
-        return this.slotsOrder = ShulkerContainerMenu.initOrder(this.storage);
-    }
-
-    private static Int2BooleanMap initOrder(ContainerStorage storage) {
-        Int2BooleanMap order = new Int2BooleanArrayMap();
-        for (int i = 0; i < storage.getEntries().stackSize(); i++) {
-            order.put(i, false);
-        }
-        return order;
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -111,9 +93,8 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         }
     }
 
-    public void addContainerSlots() {
+    private void addContainerSlots() {
         this.hasContainerSlots = true;
-        if (this.slots.size() > ShulkerContainerMenu.VANILLA_SLOT_COUNT) return;
         for (int i = 0; i < 6; ++i) {
             for (int j = 0; j < 9; ++j) {
                 this.addSlot(new ShulkerContainerSlot(this.storage, i, j, 114, 18, 18) {
@@ -126,10 +107,8 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         }
     }
 
-    public void addUpgradeSlots() {
-        if (this.isWaitingServerSync()) return;
+    private void addUpgradeSlots() {
         this.hasUpgradeSlots = true;
-        if (this.slots.size() > ShulkerContainerMenu.VANILLA_SLOT_COUNT + ShulkerContainerMenu.TE_INVENTORY_SLOT_COUNT) return;
         var upgrades = this.storage.getUpgrades();
         this.addSlot(new UpgradeSlot(upgrades.getEntryLimitUpgrade(), 13, 18) {
             @Override
@@ -197,79 +176,38 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         }
     }
 
-    public boolean isWaitingServerSync() {
-        STORAGE_CHECK:
-        if (this.storage == null) {
-            var storageOp = ContainerStorages.get().get(this.blockEntity.getStorageId());
-            if (storageOp.isEmpty()) break STORAGE_CHECK;
-            var storage = storageOp.get();
-            this.storage = storage;
-            for (
-                int i = ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX;
-                i < ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX + ShulkerContainerMenu.TE_INVENTORY_SLOT_COUNT;
-                i++
-            ) {
-                Util.<ShulkerContainerSlot>cast(this.getSlot(i)).setStorage(storage);
-            }
-        }
-        return this.storage == null;
-    }
-
     public void upgrade(int index) {
         var upgrades = this.storage.getUpgrades();
         Slot slot = this.getSlot(90 + index);
         ItemStack material = slot.getItem().copy();
-        ItemStack remain = upgrades.getUpgrade(index).upgrade(this.player, material);
+        ItemStack remain = upgrades.getUpgrade(index).upgrade(this.player, material, this.storage);
         if (remain.getCount() != material.getCount()) slot.remove(material.getCount() - remain.getCount());
     }
 
-    public float applyOrder(Int2BooleanMap order, float scrollOffs) {
-        int i = this.getRowIndexForScroll(scrollOffs);
-        this.slotsOrder = order;
-
-        this.scrollTo(scrollOffs);
-        return this.getScrollForRowIndex(i);
-    }
-
-    protected int calculateRowCount() {
-        return Mth.positiveCeilDiv(this.storage.getEntries().stackSize(), 9) - 6;
-    }
-
-    protected int getRowIndexForScroll(float scrollOffs) {
-        return Math.max((int) ((double) (scrollOffs * (float) this.calculateRowCount()) + 0.5), 0);
-    }
-
-    protected float getScrollForRowIndex(int rowIndex) {
-        return Mth.clamp((float) rowIndex / (float) this.calculateRowCount(), 0.0F, 1.0F);
-    }
-
-    /**
-     * Updates the gui slot's ItemStacks based on scroll position.
-     */
-    public void scrollTo(float pos) {
-        if (this.isWaitingServerSync()) return;
-        int row = this.getRowIndexForScroll(pos);
-
-        for (int rowDiff = 0; rowDiff < 6; rowDiff++) {
-            for (int column = 0; column < 9; column++) {
-                int index = column + (rowDiff + row) * 9;
-                int slotIndex = TE_INVENTORY_FIRST_SLOT_INDEX + column + rowDiff * 9;
+    public void applyOrder(@Unmodifiable List<OrderPos> order) {
+        int index = 0;
+        for (OrderPos pos : order) {
+            int slotIndex = ShulkerContainerMenu.TE_INVENTORY_FIRST_SLOT_INDEX + index;
+            ShulkerContainerSlot slot = Util.cast(
+                this.getSlot(slotIndex),
+                () -> new IllegalStateException("Slot not ShulkerContainerSlot in index " + slotIndex)
+            );
+            slot.setIndex(pos.position());
+            slot.setFolded(pos.folded());
+            index++;
+        }
+        int row = Math.floorDiv(index, 9);
+        int column = index % 9;
+        for (; row < 6; row++) {
+            for (; column < 9; column++) {
+                int slotIndex = TE_INVENTORY_FIRST_SLOT_INDEX + column + row * 9;
                 ShulkerContainerSlot slot = Util.cast(
                     this.getSlot(slotIndex),
                     () -> new IllegalStateException("Slot not ShulkerContainerSlot in index " + slotIndex)
                 );
-                if (index >= 0 && index < this.storage.getEntries().stackSize()) {
-                    if (index < this.slotsOrder.size()) {
-                        var entry = CollectionUtil.get(this.slotsOrder.int2BooleanEntrySet(), index);
-                        slot.setIndex(entry.getIntKey());
-                        slot.setFolded(entry.getBooleanValue());
-                    } else {
-                        slot.setIndex(-1);
-                    }
-                } else {
-                    slot.setIndex(-1);
-                }
+                slot.setIndex(-1);
             }
+            column = 0;
         }
     }
 
@@ -286,7 +224,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    public static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 54; // must be the number of slots you have!
@@ -294,7 +232,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     @SuppressWarnings("DuplicatedCode")
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
-        Slot sourceSlot = slots.get(index);
+        Slot sourceSlot = this.slots.get(index);
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY; // EMPTY_ITEM
         ItemStack sourceStack = sourceSlot.getItem();
@@ -322,12 +260,11 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
     }
 
     private boolean moveItemToStorage(int sourceIndex) {
-        if (this.isWaitingServerSync()) return false;
         Slot source = this.slots.get(sourceIndex);
         if (!source.isActive()) return false;
         ItemStack stack = source.getItem();
         if (!this.storage.isMaxEntries()) {
-            int result = this.storage.addItem(stack);
+            int result = this.storage.getEntries().addItem(stack);
             if (result != stack.getCount()) {
                 stack.setCount(result);
                 result = -1;
@@ -359,13 +296,12 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
         boolean result = false;
         Slot source = this.slots.get(sourceIndex);
         if (!(source instanceof ShulkerContainerSlot scSlot)) return false;
-        ItemStack stack = scSlot.getItem();
-        int originCount = stack.getCount();
-        if (stack.isStackable()) {
+        UnlimitedItemStack stack = scSlot.getUnlimitedItem();
+        if (stack.getStack().isStackable()) {
             for (int i = 0; i < 36; i++) {
                 Slot target = this.slots.get(i);
                 ItemStack already = target.getItem();
-                if (!already.isEmpty() && ItemStack.isSameItemSameComponents(stack, already)) {
+                if (!already.isEmpty() && stack.isSameItemSameComponents(already)) {
                     int totalCount = already.getCount() + stack.getCount();
                     int maxSize = target.getMaxStackSize(already);
                     if (totalCount <= maxSize) {
@@ -374,7 +310,7 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
                         target.setChanged();
                         return true;
                     } else if (already.getCount() < maxSize) {
-                        stack.shrink(maxSize - already.getCount());
+                        scSlot.remove(maxSize - already.getCount());
                         already.setCount(maxSize);
                         target.setChanged();
                         result = true;
@@ -386,16 +322,14 @@ public class ShulkerContainerMenu extends AbstractContainerMenu {
             for (int i = 0; i < 36; i++) {
                 Slot target = this.slots.get(i);
                 ItemStack already = target.getItem();
-                if (already.isEmpty() && target.mayPlace(stack)) {
-                    int maxSize = target.getMaxStackSize(stack);
-                    target.setByPlayer(stack.split(Math.min(stack.getCount(), maxSize)));
+                if (already.isEmpty() && target.mayPlace(stack.getStack())) {
+                    int maxSize = target.getMaxStackSize(stack.getStack());
+                    target.setByPlayer(scSlot.remove(Math.min(stack.getCount(), maxSize)));
                     target.setChanged();
-                    scSlot.remove(maxSize);
                     return true;
                 }
             }
         }
-        scSlot.remove(originCount - stack.getCount());
         return result;
     }
 

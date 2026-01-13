@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.inventory.component.sc.ShulkerContainerSlot;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
@@ -30,12 +31,18 @@ public class RenderUtil {
 
         if (slot.isFolded()) {
             pose.pushPose();
-            pose.translate(x, y, -10);
-            graphics.fill(-1, -1, 17, 17, 0xff555555);
-            graphics.fill(-1, -1, 16, 16, 0xff444444);
-            graphics.fill(0, 0, 17, 17, 0xff666666);
-            graphics.fill(0, 0, 16, 14, 0xff888888);
-            graphics.fill(0, 14, 16, 16, 0xff999999);
+            pose.translate(x - 1, y - 1, -10);
+            graphics.blit(
+                TextureConstants.SHULKER_CONTAINER_FOLDED_SLOT,
+                0,
+                0,
+                0,
+                0,
+                18,
+                18,
+                18,
+                18
+            );
             pose.popPose();
         }
 

@@ -18,7 +18,7 @@ public record TranslatableInfo(String key, Object... args) implements IComponent
             return;
         }
 
-        List<Component> args = new ArrayList<>();
+        List<Object> args = new ArrayList<>();
         for (int i = 0, objectsLength = this.args.length; i < objectsLength; i++) {
             Object arg = this.args[i];
             switch (arg) {
@@ -28,9 +28,6 @@ public record TranslatableInfo(String key, Object... args) implements IComponent
             }
         }
         if (args.isEmpty()) return;
-        helper.addln(head);
-        for (Component arg : args) {
-            helper.append(arg);
-        }
+        helper.addln(this.key, args.toArray());
     }
 }

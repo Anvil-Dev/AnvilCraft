@@ -15,7 +15,7 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -38,19 +38,19 @@ public class UpgradeOverlay extends BaseOverlay {
     public UpgradeOverlay(ShulkerContainerScreen screen) {
         super(screen);
 
-        screen.getMenu().addUpgradeSlots();
+        screen.getMenu().hasUpgradeSlots = true;
 
         var builder = ImmutableMap.<CategoryProvider, CategoryMode>builder();
         for (
             Map.Entry<CategoryProvider, CategoryMode> entry
-            : this.storage().getClientCategories().getCategories().entrySet()
+            : this.storage().getCategories().getCategories().entrySet()
         ) {
             builder.put(entry.getKey(), entry.getValue());
         }
         this.prev = builder.build();
 
-        this.storage().getClientCategories().getCategories().clear();
-        this.storage().getClientCategories().getCategories().put(new CategoryProvider(new UpgradeCategory()), CategoryMode.WHITELIST);
+        this.storage().getCategories().getCategories().clear();
+        this.storage().getCategories().getCategories().put(CategoryProvider.create(new UpgradeCategory()), CategoryMode.WHITELIST);
 
         Upgrades upgrades = this.storage().getUpgrades();
         this.upgrades[0] = upgrades.getEntryLimitUpgrade();
@@ -272,24 +272,24 @@ public class UpgradeOverlay extends BaseOverlay {
             if (!this.insideConfirmButton(top, mouseX, mouseY)) continue;
             ItemStack material = this.screen.getMenu().getSlot(90 + i).getItem().copy();
             if (upgrade.canUpgrade(this.minecraft().player, material) != UpgradeResult.CAN_UPGRADE) continue;
-            PacketDistributor.sendToServer(new ShulkerContainerPackets.ClickUpgrade(i));
+            PacketDistributor.sendToServer(new ShulkerContainerPackets.UpgradeRequest(i));
             return true;
         }
         return false;
     }
 
     @Override
-    public void whenSynced(ContainerStorage storage) {
+    public void whenSynced(ClientSCStorage storage) {
         super.whenSynced(storage);
 
-        this.storage().getClientCategories().getCategories().clear();
-        this.storage().getClientCategories().getCategories().put(new CategoryProvider(new UpgradeCategory()), CategoryMode.WHITELIST);
+        storage.getCategories().getCategories().clear();
+        storage.getCategories().getCategories().put(CategoryProvider.create(new UpgradeCategory()), CategoryMode.WHITELIST);
     }
 
     @Override
     public void onClose() {
-        this.storage().getClientCategories().getCategories().clear();
-        this.storage().getClientCategories().getCategories().putAll(this.prev);
+        this.storage().getCategories().getCategories().clear();
+        this.storage().getCategories().getCategories().putAll(this.prev);
 
         this.screen.getMenu().removeUpgradeSlots();
     }

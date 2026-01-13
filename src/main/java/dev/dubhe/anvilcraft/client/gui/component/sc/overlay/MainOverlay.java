@@ -5,9 +5,8 @@ import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.sc.CategoryList;
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -105,7 +104,7 @@ public class MainOverlay extends BaseOverlay {
         this.categoryList = this.addRenderableWidget(new CategoryList(
             this.getGuiLeft() + 7,
             this.getGuiTop() + 49,
-            screen.getMenu().storage,
+            screen.getMenu().storage.intoClient(),
             button -> screen.reorder(),
             button -> screen.changeOverlay(new CategoryOverlay(screen))
         ));
@@ -120,12 +119,6 @@ public class MainOverlay extends BaseOverlay {
             40,
             button -> screen.changeOverlay(new UpgradeOverlay(screen))
         ));
-
-        if (screen.isWaitingServerSync()) {
-            this.categoryList.active = false;
-            this.categoryList.visible = false;
-            this.upgrade.active = false;
-        }
     }
 
     @Override
@@ -139,34 +132,11 @@ public class MainOverlay extends BaseOverlay {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
-
-        if (this.screen.isWaitingServerSync()) {
-            final int mask = 0x44000000;
-            var pose = graphics.pose();
-            pose.pushPose();
-            pose.translate(this.getGuiLeft(), this.getGuiTop(), 200);
-
-            graphics.fill(6, 48, 100, 190, mask); // 类别列表
-            graphics.fill(2, 198, 104, 218, mask); // 升级按钮
-
-            graphics.drawCenteredString(
-                this.minecraft().font,
-                Component.translatable("screen.anvilcraft.shulker_container.waiting_sync"),
-                83,
-                248,
-                0xEE2222
-            );
-            pose.popPose();
-        }
-    }
-
-    @Override
-    public void whenSynced(ContainerStorage storage) {
+    public void whenSynced(ClientSCStorage storage) {
         super.whenSynced(storage);
         this.categoryList.sync(storage);
         this.upgrade.active = true;
+        this.screen.reorder();
     }
 
     @Override
@@ -193,11 +163,27 @@ public class MainOverlay extends BaseOverlay {
     }
 
     @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        String oldSearching = ShulkerContainerScreen.searching.getValue();
+        if (ShulkerContainerScreen.searching.charTyped(codePoint, modifiers)) {
+            if (!Objects.equals(oldSearching, ShulkerContainerScreen.searching.getValue())) {
+                this.screen.slots.scrollable.reset();
+                this.screen.reorder();
+            }
+
+            return true;
+        }
+        return ShulkerContainerScreen.searching.isFocused()
+               && ShulkerContainerScreen.searching.isVisible()
+               || super.charTyped(codePoint, modifiers);
+    }
+
+    @Override
     public void refreshTooltip(int x, int y) {
         if (this.insideSearchModeButton(x, y)) {
             this.setTooltip(Component.translatable(
                 "screen.anvilcraft.shulker_container.search",
-                ShulkerContainerScreen.searchMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
+                ShulkerContainerScreen.searchMode.getTooltip().copy()
             ));
         } else if (this.insideSortModeButton(x, y)) {
             this.setTooltip(Component.translatable(
@@ -207,12 +193,12 @@ public class MainOverlay extends BaseOverlay {
         } else if (this.insideSortOrderModeButton(x, y)) {
             this.setTooltip(Component.translatable(
                 "screen.anvilcraft.shulker_container.sort_order",
-                ShulkerContainerScreen.sortMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
+                ShulkerContainerScreen.sortOrderMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
             ));
         } else if (this.insideNbtDisplayModeButton(x, y)) {
             this.setTooltip(Component.translatable(
                 "screen.anvilcraft.shulker_container.nbt",
-                ShulkerContainerScreen.nbtDisplayMode.getTooltip().copy().withStyle(ChatFormatting.GRAY)
+                ShulkerContainerScreen.nbtDisplayMode.getTooltip().copy()
             ));
         }
     }
@@ -270,5 +256,13 @@ public class MainOverlay extends BaseOverlay {
                && mouseY >= (double) top
                && mouseX < (double) right
                && mouseY < (double) bottom;
+    }
+
+    @Override
+    protected boolean clicked(double mouseX, double mouseY) {
+        return mouseX >= this.getGuiLeft()
+               && mouseX < this.getGuiLeft() + 106
+               && mouseY >= this.getGuiTop()
+               && mouseY < this.getGuiTop() + 222;
     }
 }

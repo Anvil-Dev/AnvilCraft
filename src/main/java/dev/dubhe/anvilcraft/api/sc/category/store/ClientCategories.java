@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SequencedMap;
 import java.util.TreeSet;
 
 @Getter
@@ -44,7 +45,7 @@ public class ClientCategories extends Categories {
         Categories::getCustoms,
         ClientCategories::new
     );
-    private final Map<CategoryProvider, CategoryMode> categories;
+    private final SequencedMap<CategoryProvider, CategoryMode> categories;
 
     private ClientCategories(Map<CategoryProvider, CategoryMode> categories, TreeSet<ICategory> customs) {
         super(new ArrayList<>(), customs);
@@ -54,9 +55,12 @@ public class ClientCategories extends Categories {
     public static ClientCategories create() {
         return new ClientCategories(
             Map.of(
-                new CategoryProvider(ModCategories.MINECRAFT), CategoryMode.UNLIMITED,
-                new CategoryProvider(ModCategories.BLOCK), CategoryMode.UNLIMITED,
-                new CategoryProvider(ModCategories.UNSTACKABLE), CategoryMode.UNLIMITED
+                CategoryProvider.create(ModCategories.MINECRAFT),
+                CategoryMode.UNLIMITED,
+                CategoryProvider.create(ModCategories.BLOCK),
+                CategoryMode.UNLIMITED,
+                CategoryProvider.create(ModCategories.UNSTACKABLE),
+                CategoryMode.UNLIMITED
             ),
             Categories.newCustoms()
         );
@@ -70,8 +74,8 @@ public class ClientCategories extends Categories {
         for (CategoryProvider provider : this.categories.keySet()) {
             var mode = this.categories.get(provider);
             switch (mode) {
-                case WHITELIST -> whitelist.add(provider.apply(lookup));
-                case BLACKLIST -> blacklist.add(provider.apply(lookup));
+                case WHITELIST -> whitelist.add(provider.get(lookup));
+                case BLACKLIST -> blacklist.add(provider.get(lookup));
                 case null, default -> {
                 }
             }
@@ -106,7 +110,7 @@ public class ClientCategories extends Categories {
 
     @Override
     public List<CategoryProvider> getProviders() {
-        return new ArrayList<>(this.categories.keySet());
+        return new ArrayList<>(this.categories.sequencedKeySet());
     }
 
     public void applyProviders(List<CategoryProvider> providers) {

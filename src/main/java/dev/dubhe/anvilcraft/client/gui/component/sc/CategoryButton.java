@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.client.util.RegistryUtil;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import dev.dubhe.anvilcraft.util.component.MultilineComponentHelper;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,11 +24,11 @@ import net.minecraft.world.item.ItemStack;
 @Setter
 public class CategoryButton extends Button {
     private final Font font = Minecraft.getInstance().font;
-    private final ContainerStorage storage;
+    private final ClientSCStorage storage;
     private final int providerId;
     private CategoryMode mode;
 
-    protected CategoryButton(int x, ContainerStorage storage, int providerId, CategoryMode mode, OnPress onPress) {
+    protected CategoryButton(int x, ClientSCStorage storage, int providerId, CategoryMode mode, OnPress onPress) {
         super(
             x,
             0,
@@ -37,7 +37,7 @@ public class CategoryButton extends Button {
             Component.empty(),
             button -> {
                 if (!(button instanceof CategoryButton category)) return;
-                category.mode = category.storage.getClientCategories().changeMode(category.provider());
+                category.mode = category.storage.getCategories().changeMode(category.provider());
                 onPress.onPress(button);
             },
             DEFAULT_NARRATION

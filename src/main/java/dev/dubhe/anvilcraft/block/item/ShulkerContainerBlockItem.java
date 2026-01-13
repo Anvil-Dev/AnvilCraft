@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.ContainerStorageRef;
+import dev.dubhe.anvilcraft.item.property.component.SCStorageRef;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +36,7 @@ public class ShulkerContainerBlockItem extends FlexibleMultiPartBlockItem<Opened
     }
 
     private static Optional<UUID> getStorageId(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.CONTAINER_STORAGE, ContainerStorageRef.EMPTY).id();
+        return stack.getOrDefault(ModComponents.SC_STORAGE, SCStorageRef.EMPTY).id();
     }
 
     public static void setStorageId(UUID storageId, ShulkerContainerBlockEntity entity) {

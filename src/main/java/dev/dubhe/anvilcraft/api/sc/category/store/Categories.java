@@ -59,10 +59,17 @@ public class Categories {
     public static final MapCodec<Categories> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         CategoryProvider.CODEC
             .listOf()
-            .fieldOf("categories")
+            .optionalFieldOf(
+                "categories",
+                List.of(
+                    CategoryProvider.create(ModCategories.MINECRAFT),
+                    CategoryProvider.create(ModCategories.BLOCK),
+                    CategoryProvider.create(ModCategories.UNSTACKABLE)
+                )
+            )
             .forGetter(Categories::getProviders),
         CodecUtil.collection(Categories::newCustoms, ICategory.CODEC)
-            .fieldOf("customs")
+            .optionalFieldOf("customs", Categories.newCustoms())
             .forGetter(Categories::getCustoms)
     ).apply(ins, Categories::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, Categories> STREAM_CODEC = StreamCodec.composite(
@@ -83,9 +90,9 @@ public class Categories {
     public static Categories create() {
         return new Categories(
             Lists.newArrayList(
-                new CategoryProvider(ModCategories.MINECRAFT),
-                new CategoryProvider(ModCategories.BLOCK),
-                new CategoryProvider(ModCategories.UNSTACKABLE)
+                CategoryProvider.create(ModCategories.MINECRAFT),
+                CategoryProvider.create(ModCategories.BLOCK),
+                CategoryProvider.create(ModCategories.UNSTACKABLE)
             ),
             Categories.newCustoms()
         );

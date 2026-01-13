@@ -96,6 +96,9 @@ public class TextureConstants {
     public static final ResourceLocation SHULKER_CONTAINER_UPGRADE_PROGRESS = TextureConstants.texture(
         "gui/container/shulker_container/upgrade_progress"
     );
+    public static final ResourceLocation SHULKER_CONTAINER_FOLDED_SLOT = TextureConstants.texture(
+        "gui/container/shulker_container/folded_slot"
+    );
 
     private static ResourceLocation texture(String path) {
         return AnvilCraft.of("textures/" + path + ".png");

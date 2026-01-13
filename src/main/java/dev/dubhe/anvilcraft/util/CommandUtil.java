@@ -15,6 +15,9 @@ import java.util.function.Supplier;
 import static net.minecraft.commands.Commands.literal;
 
 public class CommandUtil {
+    public static final SimpleCommandExceptionType ERROR_SENDER_NOT_PLAYER = new SimpleCommandExceptionType(
+        Component.translatable("command.anvilcraft.universe.sender_not_player")
+    );
     public static final SimpleCommandExceptionType ERROR_NO_ID = new SimpleCommandExceptionType(
         Component.translatable("command.anvilcraft.universe.no_id")
     );

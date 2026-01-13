@@ -4,14 +4,17 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.command.SubCommand;
 import dev.dubhe.anvilcraft.api.sc.item.ItemEntries;
 import dev.dubhe.anvilcraft.api.sc.upgrade.Upgrades;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.command.ModSuggestionProviders;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
+import dev.dubhe.anvilcraft.item.property.component.SCStorageRef;
+import dev.dubhe.anvilcraft.saved.sc.server.ServerSCStorage;
+import dev.dubhe.anvilcraft.saved.sc.server.ServerSCStorages;
 import dev.dubhe.anvilcraft.util.CommandUtil;
 import dev.dubhe.anvilcraft.util.component.MultilineComponentHelper;
 import net.minecraft.ChatFormatting;
@@ -30,10 +33,13 @@ import static net.minecraft.commands.Commands.literal;
 
 public class ContainerStorageCommand {
     public static final Component LF = Component.literal("\n");
+    public static final SimpleCommandExceptionType ERROR_NO_SC_IN_HAND = new SimpleCommandExceptionType(
+        Component.translatable("command.anvilcraft.storage.apply.no_sc_in_hand")
+    );
 
     public static void registerCommand(LiteralArgumentBuilder<CommandSourceStack> parent) {
         Supplier<RequiredArgumentBuilder<CommandSourceStack, UUID>> idPoint = () -> argument("id", UuidArgument.uuid())
-            .suggests(ModSuggestionProviders.ALL_SHULKER_CONTAINERS_ID);
+            .suggests(ModSuggestionProviders.ALL_SC_STORAGES_ID);
 
         parent.then(
             CommandUtil.simplePoint(literal("storage"), argument("id", UuidArgument.uuid()), ContainerStorageCommand::showInfo)
@@ -43,11 +49,12 @@ public class ContainerStorageCommand {
                     literal("recover")
                         .then(
                             argument("id", UuidArgument.uuid())
-                                .suggests(ModSuggestionProviders.ALL_RECOVERABLE_SHULKER_CONTAINERS_ID)
+                                .suggests(ModSuggestionProviders.ALL_RECOVERABLE_SC_STORAGES_ID)
                                 .executes(ContainerStorageCommand::recoverStorage)
                         )
                         .then(literal("clear").executes(ContainerStorageCommand::clearRecover))
                 )
+                .then(literal("apply").then(idPoint.get().executes(ContainerStorageCommand::applyId2SC)))
         );
     }
 
@@ -89,7 +96,7 @@ public class ContainerStorageCommand {
         return ContainerStorageCommand.execWithUUID(
             ctx,
             id -> {
-                if (ContainerStorages.get().removeStorage(id, source.registryAccess())) {
+                if (ServerSCStorages.get().removeStorage(id, source.registryAccess())) {
                     var command = "/anvilcraft storage recover " + id;
                     return CommandUtil.sendSuccess(
                         source,
@@ -120,7 +127,7 @@ public class ContainerStorageCommand {
         return ContainerStorageCommand.execWithUUID(
             ctx,
             id -> {
-                if (ContainerStorages.get().recover(id, source.registryAccess())) {
+                if (ServerSCStorages.get().recover(id, source.registryAccess())) {
                     return CommandUtil.sendSuccess(
                         source,
                         () -> Component.translatable("command.anvilcraft.storage.recover.success", id.toString()),
@@ -132,8 +139,23 @@ public class ContainerStorageCommand {
         );
     }
 
+    private static int applyId2SC(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSourceStack source = ctx.getSource();
+
+        if (!source.isPlayer()) throw CommandUtil.ERROR_SENDER_NOT_PLAYER.create();
+        var player = source.getPlayer();
+        if (player == null) throw CommandUtil.ERROR_SENDER_NOT_PLAYER.create();
+
+        var stack = player.getMainHandItem();
+        if (stack.isEmpty() || !stack.is(ModBlocks.SHULKER_CONTAINER.asItem())) throw ContainerStorageCommand.ERROR_NO_SC_IN_HAND.create();
+
+        UUID id = UuidArgument.getUuid(ctx, "id");
+        stack.set(ModComponents.SC_STORAGE, new SCStorageRef(id));
+        return CommandUtil.sendSuccess(source, "command.anvilcraft.storage.apply.success", id);
+    }
+
     private static int clearRecover(CommandContext<CommandSourceStack> ctx) {
-        ContainerStorages.get().clearRecoverFromCommand();
+        ServerSCStorages.get().clearRecover();
         return CommandUtil.sendSuccess(
             ctx.getSource(),
             () -> Component.translatable("command.anvilcraft.storage.recover.clear.success"),
@@ -155,7 +177,7 @@ public class ContainerStorageCommand {
             var stack = player.getMainHandItem();
             if (stack.isEmpty()) throw CommandUtil.ERROR_NO_ID.create();
 
-            var storage = stack.get(ModComponents.CONTAINER_STORAGE);
+            var storage = stack.get(ModComponents.SC_STORAGE);
             if (storage == null || storage.id().isEmpty()) throw CommandUtil.ERROR_NO_ID.create();
 
             id = storage.id().get();
@@ -166,11 +188,11 @@ public class ContainerStorageCommand {
 
     private static int execWithStorage(
         CommandContext<CommandSourceStack> ctx,
-        SubCommand<ContainerStorage> sub
+        SubCommand<ServerSCStorage> sub
     ) throws CommandSyntaxException {
         return ContainerStorageCommand.execWithUUID(
             ctx, id -> {
-                var contentOp = ContainerStorages.get().get(id);
+                var contentOp = ServerSCStorages.get().get(id);
                 if (contentOp.isEmpty()) throw CommandUtil.notFound(AnvilCraft.of("storage"), id);
                 return sub.run(contentOp.get());
             }

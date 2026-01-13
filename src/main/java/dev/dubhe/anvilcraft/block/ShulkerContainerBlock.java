@@ -6,19 +6,17 @@ import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.property.component.ContainerStorageRef;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
+import dev.dubhe.anvilcraft.item.property.component.SCStorageRef;
+import dev.dubhe.anvilcraft.saved.sc.server.ServerSCStorages;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -134,23 +132,14 @@ public class ShulkerContainerBlock
         BlockHitResult hit
     ) {
         if (level.isClientSide) return InteractionResult.SUCCESS_NO_ITEM_USED;
-        if (!state.getValue(OPENED)) {
-            level.playSound(null, pos, SoundEvents.SHULKER_BOX_OPEN, SoundSource.BLOCKS);
-            this.updateState(level, pos, OPENED, true, 3);
-        }
         AtomicReference<InteractionResult> result = new AtomicReference<>(InteractionResult.SUCCESS_NO_ITEM_USED);
         level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
             .ifPresent(entity -> {
                 if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
                     result.set(entity.useDisk(level, player, hand, player.getItemInHand(hand), hit));
-                }
-                if (player instanceof ServerPlayer serverPlayer) {
+                } else if (player instanceof ServerPlayer serverPlayer) {
                     if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) result.set(InteractionResult.PASS);
-                    ContainerStorages.get().sync2C(
-                        serverPlayer.serverLevel(),
-                        pos,
-                        entity.getStorageId()
-                    );
+                    ServerSCStorages.get().sync2C(serverPlayer, entity.getStorageId());
                     ModMenuTypes.open(serverPlayer, entity, pos);
                 }
             });
@@ -165,10 +154,10 @@ public class ShulkerContainerBlock
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
-            .ifPresent(container -> {
+            .ifPresent(be -> {
                 if (!level.isClientSide && player.isCreative()) {
                     ItemStack stack = this.asItem().getDefaultInstance();
-                    stack.applyComponents(container.collectComponents());
+                    stack.applyComponents(be.collectComponents());
                     ItemEntity itemEntity = new ItemEntity(
                         level,
                         pos.getX() + 0.5,
@@ -188,7 +177,7 @@ public class ShulkerContainerBlock
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltips, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltips, flag);
         if (!flag.isAdvanced()) return;
-        Optional<UUID> uuid = Optional.ofNullable(stack.get(ModComponents.CONTAINER_STORAGE)).flatMap(ContainerStorageRef::id);
+        Optional<UUID> uuid = Optional.ofNullable(stack.get(ModComponents.SC_STORAGE)).flatMap(SCStorageRef::id);
         if (uuid.isEmpty()) return;
         tooltips.add(Component.translatable(
             "tooltip.anvilcraft.shulker_container.uuid",
@@ -202,13 +191,6 @@ public class ShulkerContainerBlock
         level.getBlockEntity(pos, ModBlockEntities.SHULKER_CONTAINER.get())
             .ifPresent(be -> be.saveToItem(stack, level.registryAccess()));
         return stack;
-    }
-
-    @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        // 无脑抄的ChestBlock，不知道有没有用
-        BlockEntity entity = level.getBlockEntity(pos);
-        if (entity instanceof ShulkerContainerBlockEntity be) be.recheckOpen();
     }
 
     @Override

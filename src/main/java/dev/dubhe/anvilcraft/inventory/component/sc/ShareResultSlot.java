@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.inventory.component.sc;
 
 import dev.dubhe.anvilcraft.api.sc.upgrade.level.TransferLevel;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.SCStorage;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -10,9 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 
 public class ShareResultSlot extends Slot {
-    private final ContainerStorage storage;
+    private final SCStorage storage;
 
-    public ShareResultSlot(ContainerStorage storage, int x, int y) {
+    public ShareResultSlot(SCStorage storage, int x, int y) {
         super(new SimpleContainer(1), 0, x, y);
         this.storage = storage;
     }

@@ -23,9 +23,8 @@ public abstract class DataFixer {
      *
      * @param nbt 需要修复的数据
      * @param registries 注册表提供器
-     * @return 修复后的单个数据
-     * @implNote 建议单次修复整体数据结构。<br>
-     *           为了代码复杂度和可维护性，也建议不修改数据范围。
+     * @return 修复后的数据
+     * @implNote 建议修复整体数据结构。
      * @verNote 建议将格式版本范围限定到“进行了单次数据格式的修改”。<br>
      *          如v2版本后，v2.1和v2.2都修改了数据格式，那么应有两个修复器分别负责v2->v2.1和v2.1->v2.2
      */

@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.api.sc.category.CategoryMode;
 import dev.dubhe.anvilcraft.api.sc.category.provider.CategoryProvider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.TextureConstants;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import dev.dubhe.anvilcraft.util.Scrollable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractContainerWidget;
@@ -59,7 +59,7 @@ public class CategoryList extends AbstractContainerWidget {
         }
     };
 
-    public CategoryList(int x, int y, @Nullable ContainerStorage storage, Button.OnPress categoryOnPress, Button.OnPress openSetting) {
+    public CategoryList(int x, int y, @Nullable ClientSCStorage storage, Button.OnPress categoryOnPress, Button.OnPress openSetting) {
         super(x, y, 92, 140, Component.empty());
 
         this.categoryButtons = new ArrayList<>();
@@ -165,17 +165,19 @@ public class CategoryList extends AbstractContainerWidget {
                && mouseY < (double) bottom;
     }
 
-    public void sync(ContainerStorage storage) {
+    public void sync(ClientSCStorage storage) {
         this.active = true;
         this.visible = true;
+        this.categoryButtons.clear();
 
-        Map<CategoryProvider, CategoryMode> categories = storage.getClientCategories().getCategories();
-        int i = 0;
-        for (CategoryProvider provider : categories.keySet()) {
+        List<CategoryProvider> providers = storage.getCategories().getProviders();
+        Map<CategoryProvider, CategoryMode> categories = storage.getCategories().getCategories();
+        for (int i = 0; i < providers.size(); i++) {
+            CategoryProvider provider = providers.get(i);
             this.categoryButtons.add(new CategoryButton(
                 this.getX(),
                 storage,
-                i++,
+                i,
                 categories.getOrDefault(provider, CategoryMode.UNLIMITED),
                 this.categoryButtonOnPress
             ));

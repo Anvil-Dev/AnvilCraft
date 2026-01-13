@@ -25,12 +25,12 @@ public class ComponentUtil {
         return args;
     }
 
-    public static Component argValidate(Object arg) {
+    public static Object argValidate(Object arg) {
         return switch (arg) {
             case Component arg1 -> arg1;
-            case String arg1 -> Component.literal(arg1);
-            case Number arg1 -> Component.literal(arg1.toString());
-            case Boolean arg1 -> Component.literal(arg1.toString());
+            case String arg1 -> arg1;
+            case Number arg1 -> arg1;
+            case Boolean arg1 -> arg1;
             case Date date -> Component.translationArg(date);
             case Message msg -> Component.translationArg(msg);
             case UUID id -> Component.translationArg(id);

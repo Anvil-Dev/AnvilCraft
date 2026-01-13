@@ -4,8 +4,8 @@ import dev.dubhe.anvilcraft.api.sc.upgrade.level.TransferLevel;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
-import dev.dubhe.anvilcraft.item.property.component.ContainerStorageRef;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.item.property.component.SCStorageRef;
+import dev.dubhe.anvilcraft.saved.sc.SCStorage;
 import dev.dubhe.anvilcraft.util.DistExecutor;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.client.Minecraft;
@@ -21,10 +21,10 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ShareSlot extends Slot {
-    private final ContainerStorage storage;
+    private final SCStorage storage;
     private final Slot result;
 
-    public ShareSlot(ContainerStorage storage, Slot result, int x, int y) {
+    public ShareSlot(SCStorage storage, Slot result, int x, int y) {
         super(new SimpleContainer(1), 0, x, y);
         this.storage = storage;
         this.result = result;
@@ -55,7 +55,7 @@ public class ShareSlot extends Slot {
     public void setChanged() {
         super.setChanged();
         ItemStack stack = this.getItem().copy();
-        stack.set(ModComponents.CONTAINER_STORAGE, new ContainerStorageRef(this.storage.getId()));
+        stack.set(ModComponents.SC_STORAGE, new SCStorageRef(this.storage.getId()));
         ItemStack remain = this.result.safeInsert(stack);
         if (remain.getCount() == stack.getCount()) return;
         this.remove(this.getItem().getCount() - remain.getCount());

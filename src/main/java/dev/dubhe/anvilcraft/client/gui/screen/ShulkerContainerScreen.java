@@ -7,10 +7,9 @@ import dev.dubhe.anvilcraft.client.util.RenderUtil;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
 import dev.dubhe.anvilcraft.inventory.component.sc.ShulkerContainerSlot;
 import dev.dubhe.anvilcraft.network.multiple.ShulkerContainerPackets;
-import dev.dubhe.anvilcraft.network.split.PacketSplitter;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -42,12 +41,12 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     public static SortOrderMode sortOrderMode = SortOrderMode.SEQUENTIAL;
     public static NbtDisplayMode nbtDisplayMode = NbtDisplayMode.UNFOLD;
 
+    public final ClientSCStorage storage;
     private BaseOverlay overlay;
     private int listenerIndex = -1;
     public MainSlots slots;
 
     private int lastClickStorageHash;
-    private boolean isWaitingServerSync = true;
 
     public ShulkerContainerScreen(ShulkerContainerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -57,20 +56,17 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         this.titleLabelY = 7;
         this.inventoryLabelX = 111;
         this.inventoryLabelY = 128;
-
-        if (this.menu.isWaitingServerSync()) {
-            PacketDistributor.sendToServer(new ShulkerContainerPackets.IdSync(menu.blockEntity.getBlockPos()));
-        }
+        this.storage = menu.storage.intoClient();
     }
 
     @Override
     protected void init() {
         super.init();
         this.clearWidgets();
-        if (!this.isWaitingServerSync() && this.listenerIndex != -1) this.menu.storage.removeSyncListener(this.listenerIndex);
+        if (this.listenerIndex != -1) this.storage.removeSyncListener(this.listenerIndex);
 
         this.overlay = this.addWidget(this.overlay == null ? new MainOverlay(this) : this.overlay.recreate());
-        if (!this.isWaitingServerSync()) this.listenerIndex = this.menu.storage.addSyncListener(this.overlay);
+        this.listenerIndex = this.storage.addSyncListener(this.overlay);
         if (this.overlay.hasSlots()) {
             this.slots = this.addRenderableWidget(new MainSlots(this));
         } else {
@@ -78,10 +74,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
             this.menu.removeContainerSlots();
         }
 
-        if (!this.isWaitingServerSync()) {
-            this.lastClickStorageHash = this.menu.storage.hashCode();
-        }
-
+        this.lastClickStorageHash = this.storage.hashCode();
         this.reorder();
     }
 
@@ -130,8 +123,7 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
         super.slotClicked(slot, slotId, mouseButton, type);
 
-        if (this.isWaitingServerSync()) return;
-        int storageHash = this.menu.storage.hashCode();
+        int storageHash = this.storage.hashCode();
         if (this.lastClickStorageHash != storageHash) {
             this.reorder();
             this.lastClickStorageHash = storageHash;
@@ -156,6 +148,16 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return this.overlay.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        return this.overlay.charTyped(codePoint, modifiers) || super.charTyped(codePoint, modifiers);
+    }
+
     protected boolean insideScrollbar(double mouseX, double mouseY) {
         if (this.slots == null) return false;
         int left = this.leftPos + 280;
@@ -172,21 +174,12 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     public void onClose() {
         super.onClose();
         if (this.overlay != null) this.overlay.onClose();
-        if (this.isWaitingServerSync()) return;
-        this.menu.storage.removeSyncListener(this.listenerIndex);
-        // noinspection DataFlowIssue - For Minecraft.getInstance().getConnection().registryAccess() - 此时已有Connection
-        PacketSplitter.INSTANCE.split(
-            ShulkerContainerPackets.StorageSync.TYPE,
-            ShulkerContainerPackets.StorageSync.STREAM_CODEC,
-            new ShulkerContainerPackets.StorageSync(this.menu.storage),
-            Minecraft.getInstance().getConnection().registryAccess(),
-            PacketDistributor::sendToServer
-        );
+        this.storage.removeSyncListener(this.listenerIndex);
         PacketDistributor.sendToServer(new ShulkerContainerPackets.ScreenClose(this.menu.blockEntity.getBlockPos()));
     }
 
     public void changeOverlay(BaseOverlay overlay) {
-        this.menu.storage.removeSyncListener(this.listenerIndex);
+        this.storage.removeSyncListener(this.listenerIndex);
         this.overlay.onClose();
         this.overlay = overlay;
         this.init();
@@ -215,18 +208,6 @@ public class ShulkerContainerScreen extends AbstractContainerScreen<ShulkerConta
     public void setNbtDisplayMode(NbtDisplayMode mode) {
         ShulkerContainerScreen.nbtDisplayMode = mode;
         this.reorder();
-    }
-    
-    public boolean isWaitingServerSync() {
-        if (!this.isWaitingServerSync) return false;
-        var result = this.menu.isWaitingServerSync();
-        if (!result && this.isWaitingServerSync) {
-            if (this.overlay != null && this.listenerIndex == -1) {
-                this.overlay.whenSynced(this.menu.storage);
-                this.menu.storage.addSyncListener(this.overlay);
-            }
-        }
-        return this.isWaitingServerSync = result;
     }
 
     public enum SearchMode {

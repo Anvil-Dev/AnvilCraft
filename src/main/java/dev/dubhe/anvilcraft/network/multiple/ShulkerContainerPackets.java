@@ -2,15 +2,17 @@ package dev.dubhe.anvilcraft.network.multiple;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sc.category.ICategory;
+import dev.dubhe.anvilcraft.api.sc.category.store.Categories;
+import dev.dubhe.anvilcraft.api.sc.item.ItemEntries;
+import dev.dubhe.anvilcraft.api.sc.item.OrderPos;
+import dev.dubhe.anvilcraft.api.sc.upgrade.Upgrades;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.inventory.ShulkerContainerMenu;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorages;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorages;
+import dev.dubhe.anvilcraft.saved.sc.server.ServerSCStorages;
 import dev.dubhe.anvilcraft.util.NetworkUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,10 +20,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -29,21 +29,32 @@ import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 public class ShulkerContainerPackets {
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToClient(
+            EntriesSync.TYPE,
+            EntriesSync.STREAM_CODEC,
+            EntriesSync.HANDLER
+        );
         registrar.playBidirectional(
-            StorageSync.TYPE,
-            StorageSync.STREAM_CODEC,
-            StorageSync.HANDLER
+            CategoriesSync.TYPE,
+            CategoriesSync.STREAM_CODEC,
+            CategoriesSync.HANDLER
+        );
+        registrar.playToClient(
+            UpgradesSync.TYPE,
+            UpgradesSync.STREAM_CODEC,
+            UpgradesSync.HANDLER
         );
         registrar.playToServer(
-            ScreenSync.TYPE,
-            ScreenSync.STREAM_CODEC,
-            ScreenSync.HANDLER
+            OrderSync.TYPE,
+            OrderSync.STREAM_CODEC,
+            OrderSync.HANDLER
         );
         registrar.playToServer(
             ScreenClose.TYPE,
@@ -51,11 +62,11 @@ public class ShulkerContainerPackets {
             ScreenClose.HANDLER
         );
         registrar.playToClient(
-            StoragesSync.TYPE,
-            StoragesSync.STREAM_CODEC,
-            StoragesSync.HANDLER
+            StoragesIdSync.TYPE,
+            StoragesIdSync.STREAM_CODEC,
+            StoragesIdSync.HANDLER
         );
-        registrar.playBidirectional(
+        registrar.playToClient(
             IdSync.TYPE,
             IdSync.STREAM_CODEC,
             IdSync.HANDLER
@@ -76,9 +87,9 @@ public class ShulkerContainerPackets {
             TransferSync.HANDLER
         );
         registrar.playToServer(
-            ClickUpgrade.TYPE,
-            ClickUpgrade.STREAM_CODEC,
-            ClickUpgrade.HANDLER
+            UpgradeRequest.TYPE,
+            UpgradeRequest.STREAM_CODEC,
+            UpgradeRequest.HANDLER
         );
     }
 
@@ -86,45 +97,94 @@ public class ShulkerContainerPackets {
         return new CustomPacketPayload.Type<>(AnvilCraft.of("sc_" + path));
     }
 
-    public record StorageSync(ContainerStorage storage) implements CustomPacketPayload {
-        public static final Type<StorageSync> TYPE = ShulkerContainerPackets.of("storage_sync");
-        public static final StreamCodec<RegistryFriendlyByteBuf, StorageSync> STREAM_CODEC = StreamCodec.composite(
-            ContainerStorage.STREAM_CODEC,
-            StorageSync::storage,
-            StorageSync::new
+    public record EntriesSync(UUID storageId, ItemEntries entries) implements CustomPacketPayload {
+        public static final Type<EntriesSync> TYPE = ShulkerContainerPackets.of("entries_sync");
+        public static final StreamCodec<RegistryFriendlyByteBuf, EntriesSync> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC,
+            EntriesSync::storageId,
+            ItemEntries.STREAM_CODEC,
+            EntriesSync::entries,
+            EntriesSync::new
         );
-        public static final IPayloadHandler<StorageSync> HANDLER = StorageSync::bidirectionalHandler;
+        public static final IPayloadHandler<EntriesSync> HANDLER = EntriesSync::clientHandler;
 
         @Override
-        public Type<StorageSync> type() {
+        public Type<EntriesSync> type() {
             return TYPE;
         }
 
-        private void bidirectionalHandler(IPayloadContext ctx) {
-            ContainerStorage storage = ContainerStorages.get().getOrCreate(this.storage.getId());
-            ctx.enqueueWork(() -> storage.sync(this.storage));
+        private void clientHandler(IPayloadContext ctx) {
+            ctx.enqueueWork(() -> ClientSCStorages.getOrCreate(this.storageId).sync(this.entries));
         }
     }
 
-    public record ScreenSync(Int2BooleanMap order, float scrollOffs) implements CustomPacketPayload {
-        public static final Type<ScreenSync> TYPE = ShulkerContainerPackets.of("screen_sync");
-        public static final StreamCodec<FriendlyByteBuf, ScreenSync> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.map(Int2BooleanArrayMap::new, ByteBufCodecs.VAR_INT, ByteBufCodecs.BOOL),
-            ScreenSync::order,
-            ByteBufCodecs.FLOAT,
-            ScreenSync::scrollOffs,
-            ScreenSync::new
+    public record CategoriesSync(UUID storageId, Categories categories) implements CustomPacketPayload {
+        public static final Type<CategoriesSync> TYPE = ShulkerContainerPackets.of("categories_sync");
+        public static final StreamCodec<RegistryFriendlyByteBuf, CategoriesSync> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC,
+            CategoriesSync::storageId,
+            Categories.STREAM_CODEC,
+            CategoriesSync::categories,
+            CategoriesSync::new
         );
-        public static final IPayloadHandler<ScreenSync> HANDLER = ScreenSync::serverHandler;
+        public static final IPayloadHandler<CategoriesSync> HANDLER = new DirectionalPayloadHandler<>(
+            CategoriesSync::clientHandler,
+            CategoriesSync::serverHandler
+        );
 
         @Override
-        public Type<ScreenSync> type() {
+        public Type<CategoriesSync> type() {
+            return TYPE;
+        }
+
+        private void clientHandler(IPayloadContext ctx) {
+            ctx.enqueueWork(() -> ClientSCStorages.getOrCreate(this.storageId).sync(this.categories));
+        }
+
+        private void serverHandler(IPayloadContext ctx) {
+            ServerSCStorages.get().setDirty();
+            ctx.enqueueWork(() -> ServerSCStorages.get().getOrCreate(this.storageId).getCategories().sync(this.categories));
+        }
+    }
+
+    public record UpgradesSync(UUID storageId, Upgrades upgrades) implements CustomPacketPayload {
+        public static final Type<UpgradesSync> TYPE = ShulkerContainerPackets.of("upgrades_sync");
+        public static final StreamCodec<RegistryFriendlyByteBuf, UpgradesSync> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC,
+            UpgradesSync::storageId,
+            Upgrades.STREAM_CODEC,
+            UpgradesSync::upgrades,
+            UpgradesSync::new
+        );
+        public static final IPayloadHandler<UpgradesSync> HANDLER = UpgradesSync::clientHandler;
+
+        @Override
+        public Type<UpgradesSync> type() {
+            return TYPE;
+        }
+
+        private void clientHandler(IPayloadContext ctx) {
+            ctx.enqueueWork(() -> ClientSCStorages.getOrCreate(this.storageId).sync(this.upgrades));
+        }
+    }
+
+    public record OrderSync(List<OrderPos> order) implements CustomPacketPayload {
+        public static final Type<OrderSync> TYPE = ShulkerContainerPackets.of("order_sync");
+        public static final StreamCodec<FriendlyByteBuf, OrderSync> STREAM_CODEC = StreamCodec.composite(
+            OrderPos.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            OrderSync::order,
+            OrderSync::new
+        );
+        public static final IPayloadHandler<OrderSync> HANDLER = OrderSync::serverHandler;
+
+        @Override
+        public Type<OrderSync> type() {
             return TYPE;
         }
 
         private void serverHandler(IPayloadContext ctx) {
             if (!(ctx.player().containerMenu instanceof ShulkerContainerMenu menu)) return;
-            ctx.enqueueWork(() -> menu.applyOrder(this.order, this.scrollOffs));
+            ctx.enqueueWork(() -> menu.applyOrder(this.order));
         }
     }
 
@@ -147,51 +207,42 @@ public class ShulkerContainerPackets {
             ctx.enqueueWork(
                 () -> player.level()
                     .getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get())
-                    .ifPresent(entity -> entity.someoneClosedMenu(player))
+                    .ifPresent(entity -> entity.someoneClosed(player))
             );
         }
     }
 
-    public record StoragesSync(Set<UUID> ids, Set<UUID> recoverableIds) implements CustomPacketPayload {
-        public static final Type<StoragesSync> TYPE = ShulkerContainerPackets.of("storages_sync");
-        public static final StreamCodec<RegistryFriendlyByteBuf, StoragesSync> STREAM_CODEC = StreamCodec.composite(
+    public record StoragesIdSync(Set<UUID> storageIds, Set<UUID> recoverableIds) implements CustomPacketPayload {
+        public static final Type<StoragesIdSync> TYPE = ShulkerContainerPackets.of("storages_id_sync");
+        public static final StreamCodec<RegistryFriendlyByteBuf, StoragesIdSync> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.collection(HashSet::new, UUIDUtil.STREAM_CODEC),
-            StoragesSync::ids,
+            StoragesIdSync::storageIds,
             ByteBufCodecs.collection(HashSet::new, UUIDUtil.STREAM_CODEC),
-            StoragesSync::recoverableIds,
-            StoragesSync::new
+            StoragesIdSync::recoverableIds,
+            StoragesIdSync::new
         );
-        public static final IPayloadHandler<StoragesSync> HANDLER = StoragesSync::clientHandler;
+        public static final IPayloadHandler<StoragesIdSync> HANDLER = StoragesIdSync::clientHandler;
 
         @Override
-        public Type<StoragesSync> type() {
+        public Type<StoragesIdSync> type() {
             return TYPE;
         }
 
         private void clientHandler(IPayloadContext ctx) {
-            ctx.enqueueWork(() -> ContainerStorages.get().syncFromServer(this.ids, this.recoverableIds));
+            ctx.enqueueWork(() -> ClientSCStorages.sync(this.storageIds, this.recoverableIds));
         }
     }
 
-    public record IdSync(BlockPos pos, Optional<UUID> id) implements CustomPacketPayload {
+    public record IdSync(BlockPos pos, Optional<UUID> storageId) implements CustomPacketPayload {
         public static final Type<IdSync> TYPE = ShulkerContainerPackets.of("id_sync");
         public static final StreamCodec<RegistryFriendlyByteBuf, IdSync> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC,
             IdSync::pos,
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
-            IdSync::id,
+            IdSync::storageId,
             IdSync::new
         );
-        public static final IPayloadHandler<IdSync> HANDLER = new DirectionalPayloadHandler<>(IdSync::clientHandler, IdSync::serverHandler);
-
-        /**
-         * 客户端构造函数
-         *
-         * @param pos 方块实体位置
-         */
-        public IdSync(BlockPos pos) {
-            this(pos, Optional.empty());
-        }
+        public static final IPayloadHandler<IdSync> HANDLER = IdSync::clientHandler;
 
         /**
          * 服务端构造函数
@@ -210,28 +261,10 @@ public class ShulkerContainerPackets {
 
         private void clientHandler(IPayloadContext ctx) {
             ctx.enqueueWork(() -> Util.ifAllPresent(
-                this.id,
+                this.storageId,
                 () -> ctx.player().level().getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get()),
-                (id, be) -> be.syncStorageId(id)
+                (id, be) -> be.setStorageId(id)
             ));
-        }
-
-        private void serverHandler(IPayloadContext ctx) {
-            ServerLevel level = Util.cast(ctx.player().level());
-            if (!level.isLoaded(this.pos)) return;
-            ctx.enqueueWork(
-                () -> level.getBlockEntity(this.pos, ModBlockEntities.SHULKER_CONTAINER.get())
-                    .ifPresent(be -> {
-                        PacketDistributor.sendToAllPlayers(
-                            new StorageSync(ContainerStorages.get().getOrCreate(be.getStorageId()))
-                        );
-                        PacketDistributor.sendToPlayersTrackingChunk(
-                            level,
-                            new ChunkPos(this.pos),
-                            new IdSync(this.pos, be.getStorageId())
-                        );
-                    })
-            );
         }
     }
 
@@ -246,15 +279,15 @@ public class ShulkerContainerPackets {
         }
 
         private void clientHandler(IPayloadContext ctx) {
-            ctx.enqueueWork(() -> ContainerStorages.get().clearRecover());
+            ctx.enqueueWork(ClientSCStorages::clearRecover);
         }
     }
 
-    public record CustomCategorySync(UUID id, ICategory custom, boolean add) implements CustomPacketPayload {
+    public record CustomCategorySync(UUID storageId, ICategory custom, boolean add) implements CustomPacketPayload {
         public static final Type<CustomCategorySync> TYPE = ShulkerContainerPackets.of("custom_category_sync");
         public static final StreamCodec<RegistryFriendlyByteBuf, CustomCategorySync> STREAM_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC,
-            CustomCategorySync::id,
+            CustomCategorySync::storageId,
             ICategory.STREAM_CODEC,
             CustomCategorySync::custom,
             ByteBufCodecs.BOOL,
@@ -272,7 +305,7 @@ public class ShulkerContainerPackets {
             ServerPlayer player = Util.cast(ctx.player());
             ctx.enqueueWork(
                 () -> {
-                    var storageOp = ContainerStorages.get().get(this.id);
+                    var storageOp = ServerSCStorages.get().get(this.storageId);
                     if (storageOp.isEmpty()) return;
                     var storage = storageOp.get();
                     var categories = storage.getCategories();
@@ -281,7 +314,8 @@ public class ShulkerContainerPackets {
                     } else {
                         categories.removeCustom(this.custom);
                     }
-                    NetworkUtil.sendToAllPlayersExcluded(player.serverLevel(), player, new StorageSync(storage));
+                    NetworkUtil.sendToAllPlayersExcluded(player.serverLevel(), player, new CategoriesSync(this.storageId, categories));
+                    ServerSCStorages.get().setDirty();
                 }
             );
         }
@@ -318,7 +352,7 @@ public class ShulkerContainerPackets {
 
         private void clientHandler(IPayloadContext ctx) {
             ctx.enqueueWork(() -> {
-                var upgrades = ContainerStorages.get().getOrCreate(this.storageId).getUpgrades();
+                var upgrades = ClientSCStorages.getOrCreate(this.storageId).getUpgrades();
                 upgrades.setOwner(this.owner.orElseThrow());
                 upgrades.setShare(this.share);
             });
@@ -327,34 +361,34 @@ public class ShulkerContainerPackets {
         private void serverHandler(IPayloadContext ctx) {
             UUID id = ctx.player().getGameProfile().getId();
             ctx.enqueueWork(() -> {
-                var storageOp = ContainerStorages.get().get(this.storageId);
+                var storageOp = ServerSCStorages.get().get(this.storageId);
                 if (storageOp.isEmpty()) return;
                 var upgrade = storageOp.get().getUpgrades();
 
                 if (upgrade.getOwner() == null) {
                     upgrade.setOwner(id);
                     PacketDistributor.sendToAllPlayers(new TransferSync(this.storageId, id, false));
-                    return;
-                }
-                if (upgrade.getOwner().equals(id)) {
+                    ServerSCStorages.get().setDirty();
+                } else if (upgrade.getOwner().equals(id)) {
                     upgrade.setShare(this.share);
                     PacketDistributor.sendToAllPlayers(new TransferSync(this.storageId, id, this.share));
+                    ServerSCStorages.get().setDirty();
                 }
             });
         }
     }
 
-    public record ClickUpgrade(int index) implements CustomPacketPayload {
-        public static final Type<ClickUpgrade> TYPE = ShulkerContainerPackets.of("click_upgrade");
-        public static final StreamCodec<ByteBuf, ClickUpgrade> STREAM_CODEC = StreamCodec.composite(
+    public record UpgradeRequest(int index) implements CustomPacketPayload {
+        public static final Type<UpgradeRequest> TYPE = ShulkerContainerPackets.of("upgrade_request");
+        public static final StreamCodec<ByteBuf, UpgradeRequest> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT,
-            ClickUpgrade::index,
-            ClickUpgrade::new
+            UpgradeRequest::index,
+            UpgradeRequest::new
         );
-        public static final IPayloadHandler<ClickUpgrade> HANDLER = ClickUpgrade::serverHandler;
+        public static final IPayloadHandler<UpgradeRequest> HANDLER = UpgradeRequest::serverHandler;
 
         @Override
-        public Type<ClickUpgrade> type() {
+        public Type<UpgradeRequest> type() {
             return TYPE;
         }
 

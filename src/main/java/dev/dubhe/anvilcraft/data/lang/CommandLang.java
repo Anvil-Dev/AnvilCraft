@@ -43,8 +43,11 @@ public class CommandLang {
         );
         provider.add("command.anvilcraft.storage.recover.success", "Successfully recovered storage %s");
         provider.add("command.anvilcraft.storage.recover.clear.success", "Successfully cleared recover station");
+        provider.add("command.anvilcraft.storage.apply.no_sc_in_hand", "No Shulker Container found on main hand");
+        provider.add("command.anvilcraft.storage.apply.success", "Successfully applied id %s into the item on main hand");
 
-        provider.add("command.anvilcraft.universe.no_id", "No ID provided and cannot find ID in items on hand");
+        provider.add("command.anvilcraft.universe.no_id", "No ID provided and cannot find ID in the item on main hand");
         provider.add("command.anvilcraft.universe.click_to_run_cmd", "Click to Run Command");
+        provider.add("command.anvilcraft.universe.sender_not_player", "This command must be sent by a player");
     }
 }

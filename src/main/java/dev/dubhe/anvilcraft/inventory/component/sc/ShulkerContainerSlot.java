@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory.component.sc;
 
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.SCStorage;
 import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,12 +12,12 @@ import net.minecraft.world.item.ItemStack;
 @Setter
 public class ShulkerContainerSlot extends Slot {
     private static final Container EMPTY = new SimpleContainer(0);
-    private ContainerStorage storage;
+    private SCStorage storage;
     private int index;
     @Getter
     private boolean folded;
 
-    public ShulkerContainerSlot(ContainerStorage storage, int row, int column, int leftPos, int topPos, int slotSize) {
+    public ShulkerContainerSlot(SCStorage storage, int row, int column, int leftPos, int topPos, int slotSize) {
         super(ShulkerContainerSlot.EMPTY, 0, leftPos + column * slotSize, topPos + row * slotSize);
         this.storage = storage;
         this.index = row * 9 + column;
@@ -44,7 +44,7 @@ public class ShulkerContainerSlot extends Slot {
     @Override
     public void setByPlayer(ItemStack stack) {
         if (stack.isEmpty()) return;
-        int result = this.storage.addItem(stack);
+        int result = this.storage.getEntries().addItem(stack);
         if (result != stack.getCount()) stack.setCount(result);
     }
 
@@ -52,7 +52,7 @@ public class ShulkerContainerSlot extends Slot {
     public ItemStack safeInsert(ItemStack stack, int increment) {
         if (stack.isEmpty() || !this.mayPlace(stack)) return stack;
 
-        int result = this.storage.addItem(stack);
+        int result = this.storage.getEntries().addItem(stack);
         if (result != stack.getCount()) stack.setCount(result);
 
         return stack;

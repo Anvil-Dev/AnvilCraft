@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.component.sc.overlay.widget;
 
 import dev.dubhe.anvilcraft.client.gui.screen.ShulkerContainerScreen;
-import dev.dubhe.anvilcraft.saved.sc.ContainerStorage;
+import dev.dubhe.anvilcraft.saved.sc.client.ClientSCStorage;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -26,8 +26,8 @@ public abstract class OverlayWidget extends AbstractWidget {
         return this.screen.getGuiTop();
     }
 
-    public ContainerStorage storage() {
-        return this.screen.getMenu().storage;
+    public ClientSCStorage storage() {
+        return this.screen.storage;
     }
 
     @Override

@@ -2,10 +2,11 @@ package dev.dubhe.anvilcraft.api.sc.category.provider;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.sc.category.ICategory;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import lombok.AccessLevel;
+import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -15,67 +16,132 @@ import net.minecraft.resources.ResourceKey;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-@Getter(AccessLevel.PROTECTED)
-public class CategoryProvider implements Function<HolderLookup.RegistryLookup<ICategory>, ICategory> {
-    public static final Codec<CategoryProvider> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        Codec.xor(ResourceKey.codec(ModRegistries.CATEGORY_KEY), ICategory.CODEC)
-            .fieldOf("value")
-            .forGetter(CategoryProvider::getProvider)
-    ).apply(ins, CategoryProvider::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, CategoryProvider> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.either(ResourceKey.streamCodec(ModRegistries.CATEGORY_KEY), ICategory.STREAM_CODEC),
-        CategoryProvider::getProvider,
-        CategoryProvider::new
+public abstract class CategoryProvider {
+    public static final Codec<CategoryProvider> CODEC = Codec.lazyInitialized(() -> Codec.mapEither(Key.CODEC, Custom.CODEC).xmap(
+        Either::unwrap,
+        cp -> cp instanceof Key key ? Either.left(key) : Either.right(Util.cast(cp))
+    ).codec());
+    public static final StreamCodec<RegistryFriendlyByteBuf, CategoryProvider> STREAM_CODEC = StreamCodec.recursive(
+        it -> ByteBufCodecs.either(Key.STREAM_CODEC, Custom.STREAM_CODEC)
+            .map(Either::unwrap, cp -> cp instanceof Key key ? Either.left(key) : Either.right(Util.cast(cp)))
     );
-    private final Either<ResourceKey<ICategory>, ICategory> provider;
-    private ICategory value;
 
-    public CategoryProvider(ResourceKey<ICategory> key) {
-        this(Either.left(key));
+    public static CategoryProvider create(ResourceKey<ICategory> key) {
+        return new Key(key);
     }
 
-    public CategoryProvider(ICategory category) {
-        this(Either.right(category));
-
-        this.value = category;
+    public static CategoryProvider create(ICategory value) {
+        return new Custom(value);
     }
 
-    private CategoryProvider(Either<ResourceKey<ICategory>, ICategory> provider) {
-        this.provider = provider;
-        if (this.isCustom()) this.value = this.provider.right().orElseThrow();
-    }
+    public abstract Optional<ICategory> get();
 
-    public Optional<ICategory> get() {
-        return Optional.ofNullable(this.value);
-    }
+    public abstract ICategory get(Supplier<HolderLookup.RegistryLookup<ICategory>> lookupGetter);
 
-    public ICategory get(Supplier<HolderLookup.RegistryLookup<ICategory>> lookupGetter) {
-        return this.value == null ? this.apply(lookupGetter.get()) : this.value;
-    }
+    public abstract ICategory get(HolderLookup.RegistryLookup<ICategory> lookup);
 
-    @Override
-    public ICategory apply(HolderLookup.RegistryLookup<ICategory> lookup) {
-        return this.value = this.provider.map(
-            key -> lookup.getOrThrow(key).value(),
-            Function.identity()
+    public abstract boolean isCustom();
+
+    @Getter
+    static class Key extends CategoryProvider {
+        public static final MapCodec<Key> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            ResourceKey.codec(ModRegistries.CATEGORY_KEY)
+                .fieldOf("key")
+                .forGetter(Key::getKey)
+        ).apply(inst, Key::new));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Key> STREAM_CODEC = StreamCodec.composite(
+            ResourceKey.streamCodec(ModRegistries.CATEGORY_KEY),
+            Key::getKey,
+            Key::new
         );
+        private final ResourceKey<ICategory> key;
+        private ICategory value;
+
+        public Key(ResourceKey<ICategory> key) {
+            this.key = key;
+        }
+
+        @Override
+        public Optional<ICategory> get() {
+            return Optional.ofNullable(this.value);
+        }
+
+        @Override
+        public ICategory get(Supplier<HolderLookup.RegistryLookup<ICategory>> lookupGetter) {
+            return this.value == null ? this.get(lookupGetter.get()) : this.value;
+        }
+
+        @Override
+        public ICategory get(HolderLookup.RegistryLookup<ICategory> lookup) {
+            return this.value == null ? this.value = lookup.getOrThrow(this.key).value() : this.value;
+        }
+
+        @Override
+        public boolean isCustom() {
+            return false;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Key key1)) return false;
+            return Objects.equals(this.key, key1.key);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.key);
+        }
     }
 
-    public boolean isCustom() {
-        return this.provider.right().isPresent();
-    }
+    @Getter
+    static class Custom extends CategoryProvider {
+        public static final MapCodec<Custom> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+            ICategory.CODEC
+                .fieldOf("value")
+                .forGetter(Custom::getValue)
+        ).apply(inst, Custom::new));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Custom> STREAM_CODEC = StreamCodec.composite(
+            ICategory.STREAM_CODEC,
+            Custom::getValue,
+            Custom::new
+        );
+        private final ICategory value;
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof CategoryProvider that)) return false;
-        return Objects.equals(this.getProvider(), that.getProvider());
-    }
+        public Custom(ICategory value) {
+            this.value = value;
+        }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.getProvider());
+        @Override
+        public Optional<ICategory> get() {
+            return Optional.of(this.value);
+        }
+
+        @Override
+        public ICategory get(Supplier<HolderLookup.RegistryLookup<ICategory>> lookupGetter) {
+            return this.value;
+        }
+
+        @Override
+        public ICategory get(HolderLookup.RegistryLookup<ICategory> lookup) {
+            return this.value;
+        }
+
+        @Override
+        public boolean isCustom() {
+            return true;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Custom custom)) return false;
+            return Objects.equals(this.value, custom.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.value);
+        }
     }
 }
