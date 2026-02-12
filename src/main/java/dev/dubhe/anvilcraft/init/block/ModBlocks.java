@@ -48,6 +48,7 @@ import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.block.FlintBlock;
+import dev.dubhe.anvilcraft.block.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
 import dev.dubhe.anvilcraft.block.FrostGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.FrostMetalBlock;
@@ -379,6 +380,21 @@ public class ModBlocks {
                 .define('A', Items.IRON_INGOT)
                 .define('B', Tags.Items.GLASS_PANES)
                 .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+                .save(provider);
+        })
+        .register();
+
+    public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRATE.block("fluid_tank", FluidTankBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe((ctx, provider) -> {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 2)
+                .requires(ModItemTags.BRASS_PLATES)
+                .requires(ModBlocks.FISH_TANK)
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FISH_TANK.asItem()), AnvilCraftDatagen.has(ModBlocks.FISH_TANK))
                 .save(provider);
         })
         .register();

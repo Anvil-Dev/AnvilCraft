@@ -15,7 +15,8 @@ import java.util.List;
 public class CapabilitiesEventListener {
     @SubscribeEvent
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
-        List.of(ModBlockEntities.BATCH_CRAFTER.get(),
+        List.of(
+            ModBlockEntities.BATCH_CRAFTER.get(),
             ModBlockEntities.CHARGER.get(),
             ModBlockEntities.CHUTE.get(),
             ModBlockEntities.SIMPLE_CHUTE.get(),
@@ -23,15 +24,22 @@ public class CapabilitiesEventListener {
             ModBlockEntities.MAGNETIC_CHUTE.get(),
             ModBlockEntities.CONFINEMENT_CHAMBER.get()
         ).forEach(type -> event.registerBlockEntity(
-            Capabilities.ItemHandler.BLOCK,
-            type,
-            (be, side) -> be.getItemHandler())
+                Capabilities.ItemHandler.BLOCK,
+                type,
+                (be, side) -> be.getItemHandler()
+            )
         );
 
         event.registerBlock(
             Capabilities.ItemHandler.BLOCK,
             ((level, pos, state, blockEntity, side) -> new HoneyCauldronWrapper(level, pos)),
             ModBlocks.HONEY_CAULDRON.get()
+        );
+
+        event.registerBlockEntity(
+            Capabilities.FluidHandler.BLOCK,
+            ModBlockEntities.FLUID_TANK.get(),
+            (be, side) -> be.getFluidHandler()
         );
     }
 }
