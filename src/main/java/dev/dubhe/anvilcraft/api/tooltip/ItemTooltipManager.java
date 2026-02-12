@@ -63,6 +63,11 @@ public class ItemTooltipManager {
             "Attracting the anvil below, when pushed and pulled by the piston, causes adjacent copper blocks to generate charges");
         map.put(ModBlocks.BATCH_CRAFTER.asItem(),
             "Received a redstone signal and synthesized all internal items at once, with a power consumption of 4 kW");
+        map.put(ModBlocks.FISH_TANK.asItem(),"""
+            It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis. 
+            Wearing it on your head provides a temporary underwater breathing effect. 
+            Right-click the top with an item in hand to place the item inside. 
+            Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish.""");
         map.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
         map.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
         map.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");

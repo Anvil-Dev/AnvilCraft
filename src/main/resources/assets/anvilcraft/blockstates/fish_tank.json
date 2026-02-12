@@ -1,0 +1,60 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "tropical": "false"
+      },
+      "apply": {
+        "model": "anvilcraft:block/fish_tank"
+      }
+    },
+    {
+      "when": {
+        "tropical": "true"
+      },
+      "apply": {
+        "model": "anvilcraft:block/tropical_fish_tank"
+      }
+    },
+    {
+      "when": {
+        "outlet": "true",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "anvilcraft:block/fish_tank_outlet",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "outlet": "true",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "anvilcraft:block/fish_tank_outlet",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "outlet": "true",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "anvilcraft:block/fish_tank_outlet",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "outlet": "true",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "anvilcraft:block/fish_tank_outlet",
+        "y": 270
+      }
+    }
+  ]
+}

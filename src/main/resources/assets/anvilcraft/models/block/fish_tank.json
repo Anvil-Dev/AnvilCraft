@@ -54,6 +54,17 @@
 		}
 	],
 	"display": {
+		"thirdperson_righthand": {
+			"rotation": [30, 45, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"ground": {
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"gui": {
+			"rotation": [30, 45, 0],
+			"scale": [0.6, 0.6, 0.6]
+		},
 		"head": {
 			"rotation": [-180, 0, 0],
 			"scale": [1.125, 1.125, 1.125]
