@@ -80,9 +80,6 @@ public class RenderSupport {
     public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
 
-    private static final Set<EntityType<?>> IGNORED_ENTITIES = new HashSet<>();
-    private static final Map<EntityType<?>, Entity> ENTITY_MAP = new HashMap<>();
-
     private static final ModelResourceLocation TRIDENT_MODEL = ModelResourceLocation.inventory(
         ResourceLocation.withDefaultNamespace("trident")
     );
@@ -620,15 +617,13 @@ public class RenderSupport {
 
         Level level = Minecraft.getInstance().level;
 
-        if (level != null && !IGNORED_ENTITIES.contains(entityType)) {
+        if (level != null) {
             Entity entity;
 
             if (entityType == EntityType.PLAYER){
                 entity = Minecraft.getInstance().player;
             } else {
-                entity = ENTITY_MAP.computeIfAbsent(
-                    entityType, type -> type.create(level)
-                );
+                entity = entityType.create(level);
             }
 
             if (entity instanceof LivingEntity livingEntity) {
@@ -662,9 +657,6 @@ public class RenderSupport {
                     (float) mouseY,
                     livingEntity
                 );
-            } else {
-                IGNORED_ENTITIES.add(entityType);
-                ENTITY_MAP.remove(entityType);
             }
         }
     }
