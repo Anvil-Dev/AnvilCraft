@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Axis;
 import com.mojang.math.MatrixUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import lombok.AccessLevel;
@@ -18,6 +19,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,6 +40,8 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -59,9 +63,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @SuppressWarnings("deprecation")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -71,6 +79,9 @@ public class RenderSupport {
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
     public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
+
+    private static final Set<EntityType<?>> IGNORED_ENTITIES = new HashSet<>();
+    private static final Map<EntityType<?>, Entity> ENTITY_MAP = new HashMap<>();
 
     private static final ModelResourceLocation TRIDENT_MODEL = ModelResourceLocation.inventory(
         ResourceLocation.withDefaultNamespace("trident")
@@ -588,6 +599,73 @@ public class RenderSupport {
             float f3 = (float) FastColor.ARGB32.blue(i) / 255.0F;
             // Neo: pass readExistingColor=true
             buffer.putBulkData(pose, bakedquad, f1, f2, f3, alpha, combinedLight, combinedOverlay, true);
+        }
+    }
+
+    public static void renderEntityFollowsMouse(
+        @Nullable EntityType<?> entityType,
+        GuiGraphics guiGraphics,
+        int x,
+        int y,
+        int width,
+        int height,
+        int size,
+        double mouseX,
+        double mouseY
+    ) {
+        if (entityType == null) {
+            AnvilCraft.LOGGER.error("EntityType is null");
+            return;
+        }
+
+        Level level = Minecraft.getInstance().level;
+
+        if (level != null && !IGNORED_ENTITIES.contains(entityType)) {
+            Entity entity;
+
+            if (entityType == EntityType.PLAYER){
+                entity = Minecraft.getInstance().player;
+            } else {
+                entity = ENTITY_MAP.computeIfAbsent(
+                    entityType, type -> type.create(level)
+                );
+            }
+
+            if (entity instanceof LivingEntity livingEntity) {
+                int scale = size / 2;
+                float h = entity.getBbHeight();
+                float w = entity.getBbWidth();
+                if (h > 2 || w > 2) {
+                    scale = (int) (size / Math.max(h, w));
+                }
+
+                int i = (guiGraphics.guiWidth() - width) / 2;
+                int j = (guiGraphics.guiHeight() - height) / 2;
+
+                // 乱填比较大的数字(唐笑.png)
+                int magic = 100000;
+
+                int x1 = -(i + magic) + x;
+                int y1 = -(j + magic) + y;
+                int x2 = i + magic;
+                int y2 = j + magic;
+
+                InventoryScreen.renderEntityInInventoryFollowsMouse(
+                    guiGraphics,
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    scale,
+                    1f,
+                    (float) mouseX,
+                    (float) mouseY,
+                    livingEntity
+                );
+            } else {
+                IGNORED_ENTITIES.add(entityType);
+                ENTITY_MAP.remove(entityType);
+            }
         }
     }
 
