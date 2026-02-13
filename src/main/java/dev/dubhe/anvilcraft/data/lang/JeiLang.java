@@ -91,7 +91,7 @@ public class JeiLang {
 
         provider.add("gui.anvilcraft.category.mob_transform", "Mob Transform in Corrupted Beacon Beam");
         provider.add("gui.anvilcraft.category.mob_transform_with_item", "Mob Transform with Held Item");
-        provider.add("gui.anvilcraft.category.mob_transform_with_item.chance_per_item", "Chance Per Item: %s%%");
+        provider.add("gui.anvilcraft.category.mob_transform_with_item.chance_per_item", "Increased Chance Per Input Item: %s%%");
 
         provider.add("jei.anvilcraft.tooltip.not_consumed", "Not Consumed");
 

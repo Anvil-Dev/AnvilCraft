@@ -40,6 +40,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -63,13 +64,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @SuppressWarnings("deprecation")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -627,38 +624,91 @@ public class RenderSupport {
             }
 
             if (entity instanceof LivingEntity livingEntity) {
-                int scale = size / 2;
-                float h = entity.getBbHeight();
-                float w = entity.getBbWidth();
-                if (h > 2 || w > 2) {
-                    scale = (int) (size / Math.max(h, w));
-                }
-
-                int i = (guiGraphics.guiWidth() - width) / 2;
-                int j = (guiGraphics.guiHeight() - height) / 2;
-
-                // 乱填比较大的数字(唐笑.png)
-                int magic = 100000;
-
-                int x1 = -(i + magic) + x;
-                int y1 = -(j + magic) + y;
-                int x2 = i + magic;
-                int y2 = j + magic;
-
-                InventoryScreen.renderEntityInInventoryFollowsMouse(
-                    guiGraphics,
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    scale,
-                    1f,
-                    (float) mouseX,
-                    (float) mouseY,
-                    livingEntity
-                );
+                renderEntityFollowsMouse(livingEntity, guiGraphics,x, y, size, width, height, (float) mouseX, (float) mouseY);
             }
         }
+    }
+
+    public static void renderEntityWithItemFollowsMouse(
+        @Nullable EntityType<?> entityType,
+        ItemStack itemStack,
+        GuiGraphics guiGraphics,
+        int x,
+        int y,
+        int width,
+        int height,
+        int size,
+        double mouseX,
+        double mouseY
+    ) {
+        if (entityType == null) {
+            AnvilCraft.LOGGER.error("EntityType is null");
+            return;
+        }
+
+        if (itemStack.isEmpty()) {
+            renderEntityFollowsMouse(entityType, guiGraphics, x, y, width, height, size, mouseX, mouseY);
+        }
+
+        Level level = Minecraft.getInstance().level;
+
+        if (level != null) {
+            Entity entity;
+
+            if (entityType == EntityType.PLAYER){
+                entity = Minecraft.getInstance().player;
+            } else {
+                entity = entityType.create(level);
+            }
+
+            if (entity instanceof LivingEntity livingEntity) {
+                livingEntity.setItemInHand(InteractionHand.MAIN_HAND, itemStack);
+                renderEntityFollowsMouse(livingEntity, guiGraphics,x, y, size, width, height, (float) mouseX, (float) mouseY);
+            }
+        }
+    }
+
+    private static void renderEntityFollowsMouse(
+        LivingEntity entity,
+        GuiGraphics guiGraphics,
+        int x,
+        int y,
+        int size,
+        int width,
+        int height,
+        float mX,
+        float mY
+    ) {
+        int scale = size / 2;
+        float h = entity.getBbHeight();
+        float w = entity.getBbWidth();
+        if (h > 2 || w > 2) {
+            scale = (int) (size / Math.max(h, w));
+        }
+
+        int i = (guiGraphics.guiWidth() - width) / 2;
+        int j = (guiGraphics.guiHeight() - height) / 2;
+
+        // 乱填比较大的数字(唐笑.png)
+        int magic = 100000;
+
+        int x1 = -(i + magic) + x;
+        int y1 = -(j + magic) + y;
+        int x2 = i + magic;
+        int y2 = j + magic;
+
+        InventoryScreen.renderEntityInInventoryFollowsMouse(
+            guiGraphics,
+            x1,
+            y1,
+            x2,
+            y2,
+            scale,
+            1f,
+            mX,
+            mY,
+            entity
+        );
     }
 
     private static boolean hasAnimatedTexture(ItemStack stack) {

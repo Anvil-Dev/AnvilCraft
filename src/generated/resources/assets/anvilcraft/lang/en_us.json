@@ -635,7 +635,7 @@
   "gui.anvilcraft.category.min_output": "Min: %s",
   "gui.anvilcraft.category.mob_transform": "Mob Transform in Corrupted Beacon Beam",
   "gui.anvilcraft.category.mob_transform_with_item": "Mob Transform with Held Item",
-  "gui.anvilcraft.category.mob_transform_with_item.chance_per_item": "Chance Per Item: %s%%",
+  "gui.anvilcraft.category.mob_transform_with_item.chance_per_item": "Increased Chance Per Input Item: %s%%",
   "gui.anvilcraft.category.multiblock": "Multiblock Crafting",
   "gui.anvilcraft.category.multiblock.all_layers": "All Layers Visible",
   "gui.anvilcraft.category.multiblock.single_layer": "Visible Layer: %1$d of %2$d",
