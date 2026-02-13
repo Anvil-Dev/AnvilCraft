@@ -1,0 +1,85 @@
+{
+  "variants": {
+    "half=mid_center": {
+      "model": "anvilcraft:block/large_fluid_tank"
+    },
+    "half=bottom_center": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_w": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_e": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_n": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_s": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_wn": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_ws": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_en": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=bottom_es": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_w": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_e": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_n": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_s": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_wn": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_ws": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_en": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=mid_es": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_center": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_w": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_e": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_n": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_s": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_wn": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_ws": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_en": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    },
+    "half=top_es": {
+      "model": "anvilcraft:block/large_fluid_tank_part"
+    }
+  }
+}

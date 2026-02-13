@@ -36,10 +36,15 @@ public class CapabilitiesEventListener {
             ModBlocks.HONEY_CAULDRON.get()
         );
 
-        event.registerBlockEntity(
-            Capabilities.FluidHandler.BLOCK,
+        List.of(
             ModBlockEntities.FLUID_TANK.get(),
+            ModBlockEntities.LARGE_FLUID_TANK.get()
+        ).forEach(type -> event.registerBlockEntity(
+            Capabilities.FluidHandler.BLOCK,
+            type,
             (be, side) -> be.getFluidHandler()
-        );
+        ));
+
+
     }
 }

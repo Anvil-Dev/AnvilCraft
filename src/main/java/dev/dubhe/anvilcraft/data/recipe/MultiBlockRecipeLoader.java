@@ -69,6 +69,20 @@ public class MultiBlockRecipeLoader {
             .symbol('C', ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             .save(provider, AnvilCraft.of("multiblock/giant_anvil_2"));
 
+        MultiblockRecipe.builder(ModBlocks.LARGE_FLUID_TANK)
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', ModBlocks.FLUID_TANK)
+            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank_1"));
+
+        MultiblockRecipe.builder(ModBlocks.LARGE_FLUID_TANK)
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "A A", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', ModBlocks.FLUID_TANK)
+            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank_2"));
+
         MultiblockRecipe.builder(ModBlocks.MENGER_SPONGE)
             .layer("AAA", "A A", "AAA")
             .layer("A A", " B ", "A A")

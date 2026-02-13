@@ -1,0 +1,210 @@
+{
+  "type": "anvilcraft:multiblock_conversion",
+  "inputPattern": {
+    "layers": [
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ],
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ],
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:fluid_tank"
+      }
+    }
+  },
+  "outputPattern": {
+    "layers": [
+      [
+        "ABC",
+        "DEF",
+        "GHI"
+      ],
+      [
+        "JKL",
+        "MNO",
+        "PQR"
+      ],
+      [
+        "STU",
+        "VWX",
+        "YZ["
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_wn"
+        }
+      },
+      "B": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_n"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_en"
+        }
+      },
+      "D": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_w"
+        }
+      },
+      "E": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_center"
+        }
+      },
+      "F": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_e"
+        }
+      },
+      "G": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_ws"
+        }
+      },
+      "H": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_s"
+        }
+      },
+      "I": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "bottom_es"
+        }
+      },
+      "J": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_wn"
+        }
+      },
+      "K": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_n"
+        }
+      },
+      "L": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_en"
+        }
+      },
+      "M": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_w"
+        }
+      },
+      "N": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_center"
+        }
+      },
+      "O": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_e"
+        }
+      },
+      "P": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_ws"
+        }
+      },
+      "Q": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_s"
+        }
+      },
+      "R": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "mid_es"
+        }
+      },
+      "S": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_wn"
+        }
+      },
+      "T": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_n"
+        }
+      },
+      "U": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_en"
+        }
+      },
+      "V": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_w"
+        }
+      },
+      "W": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_center"
+        }
+      },
+      "X": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_e"
+        }
+      },
+      "Y": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_ws"
+        }
+      },
+      "Z": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_s"
+        }
+      },
+      "[": {
+        "block": "anvilcraft:large_fluid_tank",
+        "properties": {
+          "half": "top_es"
+        }
+      }
+    }
+  }
+}

@@ -422,6 +422,244 @@ public class MultiBlockConversionRecipeLoader {
             )
             .save(provider, AnvilCraft.of("multiblock_conversion/giant_anvil_2"));
 
+
+        MultiblockConversionRecipe.builder()
+            .inputLayer("AAA", "AAA", "AAA")
+            .inputLayer("AAA", "AAA", "AAA")
+            .inputLayer("AAA", "AAA", "AAA")
+            .inputSymbol('A', ModBlocks.FLUID_TANK)
+            .outputLayer("ABC", "DEF", "GHI")
+            .outputLayer("JKL", "MNO", "PQR")
+            .outputLayer("STU", "VWX", "YZ[")
+            .outputSymbol(
+                'A', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_WN)
+            )
+            .outputSymbol(
+                'B', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_N)
+            )
+            .outputSymbol(
+                'C', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_EN)
+            )
+            .outputSymbol(
+                'D', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_W)
+            )
+            .outputSymbol(
+                'E', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER)
+            )
+            .outputSymbol(
+                'F', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_E)
+            )
+            .outputSymbol(
+                'G', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_WS)
+            )
+            .outputSymbol(
+                'H', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_S)
+            )
+            .outputSymbol(
+                'I', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_ES)
+            )
+            .outputSymbol(
+                'J', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_WN)
+            )
+            .outputSymbol(
+                'K', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_N)
+            )
+            .outputSymbol(
+                'L', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_EN)
+            )
+            .outputSymbol(
+                'M', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_W)
+            )
+            .outputSymbol(
+                'N', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
+            )
+            .outputSymbol(
+                'O', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_E)
+            )
+            .outputSymbol(
+                'P', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_WS)
+            )
+            .outputSymbol(
+                'Q', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_S)
+            )
+            .outputSymbol(
+                'R', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_ES)
+            )
+            .outputSymbol(
+                'S', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_WN)
+            )
+            .outputSymbol(
+                'T', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_N)
+            )
+            .outputSymbol(
+                'U', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_EN)
+            )
+            .outputSymbol(
+                'V', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_W)
+            )
+            .outputSymbol(
+                'W', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_CENTER)
+            )
+            .outputSymbol(
+                'X', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_E)
+            )
+            .outputSymbol(
+                'Y', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_WS)
+            )
+            .outputSymbol(
+                'Z', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_S)
+            )
+            .outputSymbol(
+                '[', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_ES)
+            )
+            .save(provider, AnvilCraft.of("multiblock_conversion/large_fluid_tank_1"));
+
+        MultiblockConversionRecipe.builder()
+            .inputLayer("AAA", "AAA", "AAA")
+            .inputLayer("AAA", "A A", "AAA")
+            .inputLayer("AAA", "AAA", "AAA")
+            .inputSymbol('A', ModBlocks.FLUID_TANK)
+            .outputLayer("ABC", "DEF", "GHI")
+            .outputLayer("JKL", "MNO", "PQR")
+            .outputLayer("STU", "VWX", "YZ[")
+            .outputSymbol(
+                'A', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_WN)
+            )
+            .outputSymbol(
+                'B', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_N)
+            )
+            .outputSymbol(
+                'C', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_EN)
+            )
+            .outputSymbol(
+                'D', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_W)
+            )
+            .outputSymbol(
+                'E', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER)
+            )
+            .outputSymbol(
+                'F', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_E)
+            )
+            .outputSymbol(
+                'G', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_WS)
+            )
+            .outputSymbol(
+                'H', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_S)
+            )
+            .outputSymbol(
+                'I', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_ES)
+            )
+            .outputSymbol(
+                'J', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_WN)
+            )
+            .outputSymbol(
+                'K', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_N)
+            )
+            .outputSymbol(
+                'L', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_EN)
+            )
+            .outputSymbol(
+                'M', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_W)
+            )
+            .outputSymbol(
+                'N', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
+            )
+            .outputSymbol(
+                'O', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_E)
+            )
+            .outputSymbol(
+                'P', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_WS)
+            )
+            .outputSymbol(
+                'Q', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_S)
+            )
+            .outputSymbol(
+                'R', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_ES)
+            )
+            .outputSymbol(
+                'S', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_WN)
+            )
+            .outputSymbol(
+                'T', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_N)
+            )
+            .outputSymbol(
+                'U', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_EN)
+            )
+            .outputSymbol(
+                'V', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_W)
+            )
+            .outputSymbol(
+                'W', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_CENTER)
+            )
+            .outputSymbol(
+                'X', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_E)
+            )
+            .outputSymbol(
+                'Y', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_WS)
+            )
+            .outputSymbol(
+                'Z', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_S)
+            )
+            .outputSymbol(
+                '[', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
+                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_ES)
+            )
+            .save(provider, AnvilCraft.of("multiblock_conversion/large_fluid_tank_2"));
+
+
         MultiblockConversionRecipe.builder()
             .inputLayer("ABA", "B B", "ABA")
             .inputLayer("CDC", "D D", "CDC")
