@@ -94,33 +94,26 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
             builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemLike(spawnEggItemInput);
         }
 
-        recipe.itemIngredients()
+        recipe
+            .itemIngredients()
             .forEach(
-                ingredientPredicate -> builder.addInputSlot(30, 5)
-                .addItemStacks(
-                    Arrays.stream(ingredientPredicate.getItems()).toList()
-                )
-                    .addRichTooltipCallback(
-                    (recipeSlotView, tooltip) -> tooltip.add(Component.translatable(""))
-                        )
+                ingredientPredicate -> builder
+                    .addInputSlot(30, 5)
+                    .addItemStacks(Arrays.stream(ingredientPredicate.getItems()).toList())
             );
-
         SpawnEggItem spawnEggItemOutput = SpawnEggItem.byId(recipe.specialResult().resultEntityType());
         if (spawnEggItemOutput != null) {
             builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemLike(spawnEggItemOutput);
         }
 
-        builder
-            .addOutputSlot(130, 20)
+        builder.addOutputSlot(130, 20)
             .addItemStack(recipe.itemResult())
             .addRichTooltipCallback(
-                (view, tooltip) -> tooltip.add(
-                    Component
-                        .translatable(
-                        "gui.anvilcraft.category.mob_transform_with_item.chance_per_item", recipe.chancePercentPerItem()
-                        )
-                        .withStyle(ChatFormatting.GRAY)
-                )
+                (view, tooltip) ->
+                    tooltip.add(
+                        Component.translatable("gui.anvilcraft.category.mob_transform_with_item.chance_per_item", recipe.chancePercentPerItem())
+                            .withStyle(ChatFormatting.GRAY)
+                    )
             );
     }
 

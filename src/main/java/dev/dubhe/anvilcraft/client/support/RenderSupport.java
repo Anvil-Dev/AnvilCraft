@@ -596,6 +596,49 @@ public class RenderSupport {
         }
     }
 
+    private static void renderEntityFollowsMouse(
+        LivingEntity entity,
+        GuiGraphics guiGraphics,
+        int x,
+        int y,
+        int size,
+        int width,
+        int height,
+        float mouseX,
+        float mouseY
+    ) {
+        int scale = size / 2;
+        float h = entity.getBbHeight();
+        float w = entity.getBbWidth();
+        if (h > 2 || w > 2) {
+            scale = (int) (size / Math.max(h, w));
+        }
+
+        int i = (guiGraphics.guiWidth() - width) / 2;
+        int j = (guiGraphics.guiHeight() - height) / 2;
+
+        // 乱填比较大的数字(唐笑.png)
+        int magic = 100000;
+
+        int x1 = -(i + magic) + x;
+        int y1 = -(j + magic) + y;
+        int x2 = i + magic;
+        int y2 = j + magic;
+
+        InventoryScreen.renderEntityInInventoryFollowsMouse(
+            guiGraphics,
+            x1,
+            y1,
+            x2,
+            y2,
+            scale,
+            1f,
+            mouseX,
+            mouseY,
+            entity
+        );
+    }
+
     public static void renderEntityFollowsMouse(
         @Nullable EntityType<?> entityType,
         GuiGraphics guiGraphics,
@@ -617,14 +660,14 @@ public class RenderSupport {
         if (level != null) {
             Entity entity;
 
-            if (entityType == EntityType.PLAYER){
+            if (entityType == EntityType.PLAYER) {
                 entity = Minecraft.getInstance().player;
             } else {
                 entity = entityType.create(level);
             }
 
             if (entity instanceof LivingEntity livingEntity) {
-                renderEntityFollowsMouse(livingEntity, guiGraphics,x, y, size, width, height, (float) mouseX, (float) mouseY);
+                renderEntityFollowsMouse(livingEntity, guiGraphics, x, y, size, width, height, (float) mouseX, (float) mouseY);
             }
         }
     }
@@ -655,7 +698,7 @@ public class RenderSupport {
         if (level != null) {
             Entity entity;
 
-            if (entityType == EntityType.PLAYER){
+            if (entityType == EntityType.PLAYER) {
                 entity = Minecraft.getInstance().player;
             } else {
                 entity = entityType.create(level);
@@ -663,52 +706,9 @@ public class RenderSupport {
 
             if (entity instanceof LivingEntity livingEntity) {
                 livingEntity.setItemInHand(InteractionHand.MAIN_HAND, itemStack);
-                renderEntityFollowsMouse(livingEntity, guiGraphics,x, y, size, width, height, (float) mouseX, (float) mouseY);
+                renderEntityFollowsMouse(livingEntity, guiGraphics, x, y, size, width, height, (float) mouseX, (float) mouseY);
             }
         }
-    }
-
-    private static void renderEntityFollowsMouse(
-        LivingEntity entity,
-        GuiGraphics guiGraphics,
-        int x,
-        int y,
-        int size,
-        int width,
-        int height,
-        float mX,
-        float mY
-    ) {
-        int scale = size / 2;
-        float h = entity.getBbHeight();
-        float w = entity.getBbWidth();
-        if (h > 2 || w > 2) {
-            scale = (int) (size / Math.max(h, w));
-        }
-
-        int i = (guiGraphics.guiWidth() - width) / 2;
-        int j = (guiGraphics.guiHeight() - height) / 2;
-
-        // 乱填比较大的数字(唐笑.png)
-        int magic = 100000;
-
-        int x1 = -(i + magic) + x;
-        int y1 = -(j + magic) + y;
-        int x2 = i + magic;
-        int y2 = j + magic;
-
-        InventoryScreen.renderEntityInInventoryFollowsMouse(
-            guiGraphics,
-            x1,
-            y1,
-            x2,
-            y2,
-            scale,
-            1f,
-            mX,
-            mY,
-            entity
-        );
     }
 
     private static boolean hasAnimatedTexture(ItemStack stack) {

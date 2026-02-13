@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforgespi.language.IModInfo;
-import org.checkerframework.checker.units.qual.C;
 import org.codehaus.plexus.util.StringUtils;
 
 import java.util.ArrayList;
@@ -64,7 +63,11 @@ public final class TooltipUtil {
             EntityType<?> entityType = result.resultEntityType();
             ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(entityType);
             tooltip.add(entityType.getDescription());
-            tooltip.add(Component.translatable("gui.anvilcraft.category.chance", result.probability() * 100).withStyle(ChatFormatting.GRAY));
+            tooltip.add(
+                Component
+                    .translatable("gui.anvilcraft.category.chance", result.probability() * 100)
+                    .withStyle(ChatFormatting.GRAY)
+            );
             tooltip.add(Component.literal(key.toString()).withStyle(ChatFormatting.DARK_GRAY));
             tooltip.add(
                 Component.literal(getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true))
