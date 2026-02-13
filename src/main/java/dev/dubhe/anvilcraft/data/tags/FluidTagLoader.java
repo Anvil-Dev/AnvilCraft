@@ -31,6 +31,7 @@ public class FluidTagLoader {
             .add(ModFluids.FLOWING_OIL.getKey())
             .add(ModFluids.MELT_GEM.getKey())
             .add(ModFluids.FLOWING_MELT_GEM.getKey())
+            .add(ModFluids.EXP_FLUID.getKey())
             .addTag(ModFluidTags.CEMENT);
         provider.addTag(ModFluidTags.OIL)
             .add(findResourceKey(ModFluids.OIL.get()))
