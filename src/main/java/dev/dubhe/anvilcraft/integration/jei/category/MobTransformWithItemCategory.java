@@ -81,6 +81,7 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
         return icon;
     }
 
+    @SuppressWarnings("checkstyle:Indentation")
     @Override
     public void setRecipe(
         IRecipeLayoutBuilder builder,
@@ -109,11 +110,13 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
         builder.addOutputSlot(130, 20)
             .addItemStack(recipe.itemResult())
             .addRichTooltipCallback(
-                (view, tooltip) ->
-                    tooltip.add(
-                        Component.translatable("gui.anvilcraft.category.mob_transform_with_item.chance_per_item", recipe.chancePercentPerItem())
-                            .withStyle(ChatFormatting.GRAY)
-                    )
+                (view, tooltip) -> tooltip.add(
+                    Component.translatable(
+                        "gui.anvilcraft.category.mob_transform_with_item.chance_per_item",
+                        recipe.chancePercentPerItem()
+                        )
+                        .withStyle(ChatFormatting.GRAY)
+                )
             );
     }
 
