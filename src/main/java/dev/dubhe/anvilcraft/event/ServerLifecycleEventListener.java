@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
@@ -38,6 +39,7 @@ public class ServerLifecycleEventListener {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
         RecipeCaches.unload();
+        SoundHelper.INSTANCE.clear();
     }
 
     @SubscribeEvent
