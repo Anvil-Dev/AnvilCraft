@@ -721,7 +721,8 @@ public class ModItems {
         ItemTags.MINING_ENCHANTABLE,
         ItemTags.FISHING_ENCHANTABLE,
         ItemTags.STRIDER_TEMPT_ITEMS
-    ).properties((properties) -> properties.durability(2031)).model(DataGenUtil::noExtraModelOrState).register();
+    ).properties((properties) -> properties.durability(2031).fireResistant())
+        .model(DataGenUtil::noExtraModelOrState).register();
 
     public static final ItemEntry<? extends SpectralSlingshotItem> SPECTRAL_SLINGSHOT = REGISTRATE
         .item("spectral_slingshot", SpectralSlingshotItem::new)

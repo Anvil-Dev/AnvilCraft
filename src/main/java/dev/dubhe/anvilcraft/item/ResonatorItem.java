@@ -70,9 +70,7 @@ public abstract class ResonatorItem extends TieredItem {
     public ResonatorItem(Tier tier, Properties properties) {
         super(
             tier,
-            properties
-                .component(DataComponents.TOOL, createToolProperties(tier))
-                .fireResistant()
+            properties.component(DataComponents.TOOL, createToolProperties(tier))
         );
     }
 
