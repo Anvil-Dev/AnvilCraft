@@ -245,6 +245,11 @@ public class CauldronOutletEntity extends Entity {
     }
 
     @Override
+    public boolean fireImmune() {
+        return true;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_CAULDRON_POS, BlockPos.ZERO)
             .define(DATA_ATTACHED_DIRECTION, Direction.UP)
