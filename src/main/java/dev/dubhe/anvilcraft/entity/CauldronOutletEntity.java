@@ -259,19 +259,19 @@ public class CauldronOutletEntity extends Entity {
         this.entityData.set(DATA_CAULDRON_POS, pos);
     }
 
-    public Direction getAttachedDirection(){
+    public Direction getAttachedDirection() {
         return this.entityData.get(DATA_ATTACHED_DIRECTION);
     }
 
-    public void setAttachedDirection(Direction direction){
+    public void setAttachedDirection(Direction direction) {
         this.entityData.set(DATA_ATTACHED_DIRECTION, direction);
     }
 
-    public BlockState getCauldronState(){
+    public BlockState getCauldronState() {
         return this.entityData.get(DATA_CAULDRON_STATE);
     }
 
-    public void setCauldronState(BlockState state){
+    public void setCauldronState(BlockState state) {
         this.entityData.set(DATA_CAULDRON_STATE, state);
     }
 
@@ -279,7 +279,8 @@ public class CauldronOutletEntity extends Entity {
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
         this.setCauldronPos(NbtUtils.readBlockPos(compoundTag, "CauldronPos").orElse(BlockPos.ZERO));
         this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getInt("AttachedDirection")));
-        this.setCauldronState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), compoundTag.getCompound("CauldronState")));
+        this.setCauldronState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK),
+            compoundTag.getCompound("CauldronState")));
     }
 
     @Override
