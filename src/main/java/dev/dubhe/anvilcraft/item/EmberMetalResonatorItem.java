@@ -7,7 +7,7 @@ public class EmberMetalResonatorItem extends ResonatorItem {
     public EmberMetalResonatorItem(Properties properties) {
         super(
             ModTiers.EMBER_METAL,
-            properties
+            properties.fireResistant()
                 .attributes(ResonatorItem.createAttributes(ModTiers.EMBER_METAL, 10, -3f))
                 .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
         );

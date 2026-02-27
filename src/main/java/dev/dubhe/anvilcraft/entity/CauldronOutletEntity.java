@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -40,10 +39,6 @@ public class CauldronOutletEntity extends Entity {
         EntityDataSerializers.BLOCK_STATE
     );
 
-    @Getter
-    private BlockPos cauldronPos = BlockPos.ZERO;
-    private Direction attachedDirection = Direction.UP;
-    private BlockState cauldronState;
 
     // 标记是否处于活塞推动状态
     private boolean wasMoving = false;
@@ -64,10 +59,9 @@ public class CauldronOutletEntity extends Entity {
         this.zo = pos.z;
         this.noPhysics = true;
         this.setInvulnerable(true);
-        this.cauldronPos = cauldronPos;
-        this.attachedDirection = attachedDirection;
-        this.cauldronState = level.getBlockState(cauldronPos);
-        this.entityData.set(DATA_ATTACHED_DIRECTION, attachedDirection);
+        this.setCauldronPos(cauldronPos);
+        this.setAttachedDirection(attachedDirection);
+        this.setCauldronState(level.getBlockState(cauldronPos));
     }
 
     @Override
@@ -75,7 +69,7 @@ public class CauldronOutletEntity extends Entity {
         super.tick();
 
         if (!this.level().isClientSide) {
-            BlockState currentState = this.level().getBlockState(this.cauldronPos);
+            BlockState currentState = this.level().getBlockState(this.getCauldronPos());
 
             // 0. 防止滑步
             // 如果有目标位置，在到达之前不要进行新的检测，防止连环推时输出口滑过好几格
@@ -97,18 +91,18 @@ public class CauldronOutletEntity extends Entity {
             // 1. 主动移动检测
             // 检查脚下的方块是不是变成了b36
             if (currentState.is(Blocks.MOVING_PISTON)) {
-                BlockEntity be = this.level().getBlockEntity(this.cauldronPos);
+                BlockEntity be = this.level().getBlockEntity(this.getCauldronPos());
                 if (be instanceof PistonMovingBlockEntity pistonBe) {
                     Direction moveDir = getMovementDirection(pistonBe);
 
                     if (pistonBe.isSourcePiston()) {
                         // A：我是源头。炼药锅正在离我而去 -> 立即追过去
-                        BlockPos destPos = this.cauldronPos.relative(moveDir);
+                        BlockPos destPos = this.getCauldronPos().relative(moveDir);
                         manualMove(destPos);
                         return;
                     } else {
                         // B：我是目的地。说明有方块正在推入这里 -> 检查是不是连环推
-                        BlockPos nextPos = this.cauldronPos.relative(moveDir);
+                        BlockPos nextPos = this.getCauldronPos().relative(moveDir);
                         BlockState nextState = this.level().getBlockState(nextPos);
 
                         boolean isChainPush = false;
@@ -141,7 +135,7 @@ public class CauldronOutletEntity extends Entity {
             if (this.targetPos == null) {
                 boolean foundPullingPiston = false;
                 for (Direction dir : Direction.values()) {
-                    BlockPos neighborPos = this.cauldronPos.relative(dir);
+                    BlockPos neighborPos = this.getCauldronPos().relative(dir);
                     BlockState neighborState = this.level().getBlockState(neighborPos);
 
                     if (neighborState.is(Blocks.MOVING_PISTON)) {
@@ -150,7 +144,7 @@ public class CauldronOutletEntity extends Entity {
                             Direction moveDir = getMovementDirection(pistonBe);
                             BlockPos originPos = neighborPos.relative(moveDir.getOpposite());
 
-                            if (originPos.equals(this.cauldronPos)) {
+                            if (originPos.equals(this.getCauldronPos())) {
                                 // 发现拉取 -> 锁定目标到邻居
                                 manualMove(neighborPos);
                                 foundPullingPiston = true;
@@ -168,8 +162,8 @@ public class CauldronOutletEntity extends Entity {
                 this.wasMoving = false;
                 this.targetPos = null;
 
-                if (currentState != this.cauldronState) {
-                    this.cauldronState = currentState;
+                if (currentState != this.getCauldronState()) {
+                    this.setCauldronState(currentState);
                 }
                 // 继续执行物品逻辑
             } else {
@@ -182,6 +176,7 @@ public class CauldronOutletEntity extends Entity {
         }
 
         // 物品输出逻辑
+        BlockPos cauldronPos = this.getCauldronPos();
         AABB aabb = new AABB(
             cauldronPos.getX() - 0.01,
             cauldronPos.getY() - 0.01,
@@ -190,6 +185,7 @@ public class CauldronOutletEntity extends Entity {
             cauldronPos.getY() + 1.01,
             cauldronPos.getZ() + 1.01
         );
+        Direction attachedDirection = this.getAttachedDirection();
         level().getEntities(EntityType.ITEM, aabb, entity -> !entity.anvilcraft$isAdsorbable()).forEach(entity -> {
             Vec3 ejectPos = this.position()
                 .add(attachedDirection.getStepX() * 0.25, attachedDirection.getStepY() * 0.25, attachedDirection.getStepZ() * 0.25);
@@ -229,11 +225,10 @@ public class CauldronOutletEntity extends Entity {
 
     private void moveToBlock(BlockPos pos, BlockState state) {
         // 计算偏移量，保持实体相对于方块的位置不变
-        Vec3 offset = this.position().subtract(Vec3.atLowerCornerOf(this.cauldronPos));
-        this.cauldronPos = pos;
-        this.cauldronState = state;
+        Vec3 offset = this.position().subtract(Vec3.atLowerCornerOf(this.getCauldronPos()));
+        this.setCauldronPos(pos);
+        this.setCauldronState(state);
         this.setPos(Vec3.atLowerCornerOf(pos).add(offset));
-        this.entityData.set(DATA_CAULDRON_POS, pos);
         // 重置状态
         this.wasMoving = false;
         this.targetPos = null;
@@ -245,25 +240,54 @@ public class CauldronOutletEntity extends Entity {
     }
 
     @Override
+    public boolean fireImmune() {
+        return true;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_CAULDRON_POS, BlockPos.ZERO)
             .define(DATA_ATTACHED_DIRECTION, Direction.UP)
             .define(DATA_CAULDRON_STATE, Blocks.AIR.defaultBlockState());
     }
 
+    public BlockPos getCauldronPos() {
+        return this.entityData.get(DATA_CAULDRON_POS);
+    }
+
+    public void setCauldronPos(BlockPos pos) {
+        this.entityData.set(DATA_CAULDRON_POS, pos);
+    }
+
+    public Direction getAttachedDirection() {
+        return this.entityData.get(DATA_ATTACHED_DIRECTION);
+    }
+
+    public void setAttachedDirection(Direction direction) {
+        this.entityData.set(DATA_ATTACHED_DIRECTION, direction);
+    }
+
+    public BlockState getCauldronState() {
+        return this.entityData.get(DATA_CAULDRON_STATE);
+    }
+
+    public void setCauldronState(BlockState state) {
+        this.entityData.set(DATA_CAULDRON_STATE, state);
+    }
+
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        this.cauldronPos = NbtUtils.readBlockPos(compoundTag, "CauldronPos").orElse(BlockPos.ZERO);
-        this.attachedDirection = Direction.from3DDataValue(compoundTag.getInt("AttachedDirection"));
-        this.cauldronState = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), compoundTag.getCompound("CauldronState"));
-        this.entityData.set(DATA_ATTACHED_DIRECTION, this.attachedDirection);
+        this.setCauldronPos(NbtUtils.readBlockPos(compoundTag, "CauldronPos").orElse(BlockPos.ZERO));
+        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getInt("AttachedDirection")));
+        this.setCauldronState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK),
+            compoundTag.getCompound("CauldronState")));
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        compoundTag.put("CauldronState", NbtUtils.writeBlockState(this.cauldronState));
-        compoundTag.put("CauldronPos", NbtUtils.writeBlockPos(this.cauldronPos));
-        compoundTag.putInt("AttachedDirection", this.attachedDirection.get3DDataValue());
+        compoundTag.put("CauldronState", NbtUtils.writeBlockState(this.getCauldronState()));
+        compoundTag.put("CauldronPos", NbtUtils.writeBlockPos(this.getCauldronPos()));
+        compoundTag.putInt("AttachedDirection", this.getAttachedDirection().get3DDataValue());
     }
 
     @Override
@@ -276,7 +300,4 @@ public class CauldronOutletEntity extends Entity {
         return PushReaction.IGNORE;
     }
 
-    public Direction getAttachedDirection() {
-        return this.entityData.get(DATA_ATTACHED_DIRECTION);
-    }
 }

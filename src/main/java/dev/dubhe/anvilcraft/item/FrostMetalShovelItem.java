@@ -8,8 +8,7 @@ public class FrostMetalShovelItem extends ShovelItem {
     public FrostMetalShovelItem(Properties properties) {
         super(
             ModTiers.FROST_METAL,
-            properties.fireResistant()
-                .attributes(ShovelItem.createAttributes(ModTiers.FROST_METAL, 5, -3f))
+            properties.attributes(ShovelItem.createAttributes(ModTiers.FROST_METAL, 5, -3f))
                 .component(ModComponents.MERCILESS, Merciless.DEFAULT)
         );
     }

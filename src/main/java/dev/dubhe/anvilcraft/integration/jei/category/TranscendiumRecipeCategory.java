@@ -218,7 +218,6 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.CURSED_GOLD_BLOCK.asStack(), AnvilCraftJeiPlugin.TRANSCENDIUM_RECIPE);
         registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.TRANSCENDIUM_RECIPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.TRANSCENDIUM_RECIPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.TRANSCENDIUM_RECIPE);

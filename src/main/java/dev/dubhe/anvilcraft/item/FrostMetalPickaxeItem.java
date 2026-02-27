@@ -8,8 +8,7 @@ public class FrostMetalPickaxeItem extends PickaxeItem {
     public FrostMetalPickaxeItem(Properties properties) {
         super(
             ModTiers.FROST_METAL,
-            properties.fireResistant()
-                .attributes(PickaxeItem.createAttributes(ModTiers.FROST_METAL, 4, -2.8f))
+            properties.attributes(PickaxeItem.createAttributes(ModTiers.FROST_METAL, 4, -2.8f))
                 .component(ModComponents.MERCILESS, Merciless.DEFAULT)
         );
     }

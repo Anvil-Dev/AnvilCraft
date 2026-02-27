@@ -16,7 +16,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     public TranscendenceResonatorItem(Properties properties) {
         super(
             ModTiers.TRANSCENDIUM,
-            properties
+            properties.fireResistant()
                 .attributes(ResonatorItem.createAttributes(ModTiers.TRANSCENDIUM, 17, -3f))
                 .component(ModComponents.MULTIPHASE, new MultiphaseRef())
                 .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(NAME))

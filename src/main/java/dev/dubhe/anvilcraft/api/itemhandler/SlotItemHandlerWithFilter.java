@@ -47,4 +47,9 @@ public class SlotItemHandlerWithFilter extends SlotItemHandler {
         }
         return false;
     }
+
+    @Override
+    public int getMaxStackSize(ItemStack stack) {
+        return Math.min(this.getMaxStackSize(), stack.getMaxStackSize());
+    }
 }
