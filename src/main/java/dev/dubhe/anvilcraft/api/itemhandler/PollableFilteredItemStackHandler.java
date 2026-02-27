@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -12,12 +11,7 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        // 临时解决方案
-        if (Util.findCaller("doClick")) {
-            return super.isItemValid(slot, stack);
-        } else {
-            return getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
-        }
+        return getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
     }
 
     @Override
