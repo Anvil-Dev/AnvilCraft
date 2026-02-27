@@ -18,7 +18,9 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 
@@ -34,8 +36,8 @@ public class InspectionSupport {
 
     public static void initializeClient() {
         INSTANCE.registerActionClient(AnvilCraft.of("silencer"), (p, r, c, d) -> {
-            Map<ClientLevel, List<ISoundEventListener>> map = SoundHelper.INSTANCE.getEventListeners();
-            List<ISoundEventListener> listeners = map.get(Minecraft.getInstance().level);
+            Map<ResourceKey<Level>, List<ISoundEventListener>> map = SoundHelper.INSTANCE.getEventListeners();
+            List<ISoundEventListener> listeners = map.get(Minecraft.getInstance().level.dimension());
             MultiBufferSource.BufferSource buf = r.renderBuffers.bufferSource();
             VertexConsumer vertex = buf.getBuffer(RenderType.LINES);
             if (listeners == null || listeners.isEmpty()) return;
