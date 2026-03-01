@@ -22,7 +22,7 @@ public class SoundHelper {
         if (level == null) return false;
         return this.eventListeners.computeIfAbsent(level.dimension(), k -> new CopyOnWriteArrayList<>())
             .stream()
-            .allMatch(it -> it.shouldMute(sound, pos));
+            .anyMatch(it -> it.shouldMute(sound, pos));
     }
 
     public void register(Level level, ISoundEventListener eventListener) {
