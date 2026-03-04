@@ -1344,5 +1344,5 @@
   "tooltip.anvilcraft.item.spectral_anvil": "当上方的磁体消磁时，会生成一道幻影并向下坠落。它能穿透透明方块，且无论实际高度如何，坠落的冲击始终按 2 格高度计算处理",
   "tooltip.anvilcraft.item.white_hole": "具有强大斥力的开发者方块",
   "integration.anvilcraft.interaction.curios": "Curios",
-  "screen.anvilcraft.integration_screen.note": "如需查阅手册，请先先挑选一个第三方手册模组下载，再下载本模组对其的兼容附属，共计 %d 个额外模组。下载链接已提供，点击按钮即可跳转。"
+  "screen.anvilcraft.integration_screen.note": "要访问手册，需先选择并下载第三方手册模组，再下载对应的附加兼容模组。总共需要 %d 个额外的模组。已提供下载链接，点击按钮即可访问。"
 }
