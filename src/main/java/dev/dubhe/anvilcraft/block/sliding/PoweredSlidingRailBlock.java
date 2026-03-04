@@ -212,7 +212,8 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!level.getEntitiesOfClass(MagnetizedNodeEntity.class, new AABB(pos)).isEmpty()) return;
+        boolean magnetizedNodeExist = !level.getEntitiesOfClass(MagnetizedNodeEntity.class, new AABB(pos)).isEmpty();
+        if (entity.getType() == EntityType.ITEM && magnetizedNodeExist) return;
         if (entity.getType() != EntityType.ITEM && !(entity instanceof LivingEntity)) return;
         boolean isSneakPlayer = entity instanceof Player player && player.isShiftKeyDown();
         if (!state.getValue(POWERED)) {

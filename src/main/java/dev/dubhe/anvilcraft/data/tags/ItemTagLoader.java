@@ -207,6 +207,7 @@ public class ItemTagLoader {
         provider.addTag(ModItemTags.COMPRESS_ITEM)
             .add(findResourceKey(Items.SNOW_BLOCK))
             .add(findResourceKey(Items.WHITE_WOOL))
+            .add(findResourceKey(ModBlocks.HEAVY_IRON_BLOCK.asItem()))
             .addTag(Tags.Items.INGOTS)
             .addTag(Tags.Items.STORAGE_BLOCKS);
 
