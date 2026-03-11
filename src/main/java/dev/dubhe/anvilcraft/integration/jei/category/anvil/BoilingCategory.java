@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
-import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
@@ -23,13 +21,20 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 
+import java.util.List;
+
 public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
     public BoilingCategory(IGuiHelper helper) {
         super(
             helper,
             new DrawableBlockStateIcon(CauldronUtil.fullState(Blocks.WATER_CAULDRON),
                 Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true)),
-            Component.translatable("gui.anvilcraft.category.boiling")
+            Component.translatable("gui.anvilcraft.category.boiling"),
+            List.of(
+                Blocks.ANVIL.defaultBlockState(),
+                CauldronUtil.fullState(Blocks.WATER_CAULDRON),
+                Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true)
+            )
         );
     }
 
@@ -45,32 +50,9 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY) {
+        renderWorkingBlocks(guiGraphics);
+
         final BoilingRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            CauldronUtil.fullState(Blocks.WATER_CAULDRON),
-            81,
-            30,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true),
-            81,
-            40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 20);
         arrowOut.draw(guiGraphics, 92, 19);

@@ -64,8 +64,10 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings("deprecation")
@@ -85,6 +87,8 @@ public class RenderSupport {
     );
     private static ClientLevel currentClientLevel = null;
     private static LevelLike.AirLevelLike airLevelLike = null;
+
+    private static final Map<EntityType<?>, Entity> ENTITY_MAP = new HashMap<>();
 
     public static final BlockRenderFunction SINGLE_BLOCK = (blockState, poseStack, buffers) -> {
         BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
@@ -663,7 +667,7 @@ public class RenderSupport {
             if (entityType == EntityType.PLAYER) {
                 entity = Minecraft.getInstance().player;
             } else {
-                entity = entityType.create(level);
+                entity = ENTITY_MAP.computeIfAbsent(entityType, t -> t.create(level));
             }
 
             if (entity instanceof LivingEntity livingEntity) {
@@ -701,7 +705,7 @@ public class RenderSupport {
             if (entityType == EntityType.PLAYER) {
                 entity = Minecraft.getInstance().player;
             } else {
-                entity = entityType.create(level);
+                entity = ENTITY_MAP.computeIfAbsent(entityType, t -> t.create(level));
             }
 
             if (entity instanceof LivingEntity livingEntity) {

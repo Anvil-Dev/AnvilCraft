@@ -12,15 +12,12 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
-import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
@@ -32,60 +29,25 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingRecipe>> {
-    public static final int WIDTH = 162;
-    public static final int HEIGHT = 64;
-
-    private final IDrawable icon;
-    private final IDrawable slotDefault;
-    private final IDrawable slotProbability;
-    private final Component title;
-    private final ITickTimer timer;
-
-    private final IDrawable arrowIn;
-    private final IDrawable arrowOut;
+public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
 
     public BulgingCategory(IGuiHelper helper) {
-        icon = new DrawableBlockStateIcon(
-            Blocks.ANVIL.defaultBlockState(),
-            CauldronUtil.fullState(Blocks.WATER_CAULDRON)
+        super(
+            helper,
+            new DrawableBlockStateIcon(
+                Blocks.ANVIL.defaultBlockState(),
+                CauldronUtil.fullState(Blocks.WATER_CAULDRON)
+            ),
+            Component.translatable("gui.anvilcraft.category.bulging")
         );
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        title = Component.translatable("gui.anvilcraft.category.bulging");
-        timer = helper.createTickTimer(30, 60, true);
-
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
     public RecipeType<RecipeHolder<BulgingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.BULGING;
-    }
-
-    @Override
-    public Component getTitle() {
-        return title;
-    }
-
-    @Override
-    public int getWidth() {
-        return WIDTH;
-    }
-
-    @Override
-    public int getHeight() {
-        return HEIGHT;
-    }
-
-    @Override
-    public @Nullable IDrawable getIcon() {
-        return icon;
     }
 
     @Override
