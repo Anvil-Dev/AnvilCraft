@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.anvilcraft.lib.recipe.component.BlockStatePredicate;
+import dev.anvilcraft.lib.recipe.component.ChanceBlockState;
 import dev.anvilcraft.lib.recipe.component.ChanceItemStack;
 import dev.anvilcraft.lib.recipe.component.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -14,12 +15,15 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Getter;
 import lombok.Setter;
 import mezz.jei.api.gui.ITickTimer;
+import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -28,6 +32,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -92,20 +97,67 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<T> recipeHolder, IFocusGroup focuses) {
         T recipe = recipeHolder.value();
+
+        // Item
         if (!recipe.getInputItems().isEmpty()) JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
         if (!recipe.getResultItems().isEmpty()) JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
 
-        // noway
-        if (!recipe.getInputBlocks().isEmpty() && recipe.getHasCauldron() != null) {
-            List<BlockStatePredicate> list = new ArrayList<>();
-            list.add(BlockStatePredicate.builder().of(Blocks.ANVIL).build());
-            list.add(BlockStatePredicate.builder().of(recipe.getHasCauldron().getFluidCauldron()).build());
-            list.addAll(recipe.getInputBlocks());
+        IIngredientAcceptor<?> inputAcceptor = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
+        IIngredientAcceptor<?> outputAcceptor = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
 
-            ResourceLocation recipeID = recipeHolder.id();
-            Map<ResourceLocation, List<BlockStatePredicate>> map = new HashMap<>();
-            map.put(recipeID, list);
-            this.testBlockMap = map;
+        // Block 我觉得这个括号很神圣
+        List<BlockStatePredicate> inputBlocks = recipe.getInputBlocks();
+        if (!inputBlocks.isEmpty()) {
+            inputBlocks.forEach(
+                blockStatePredicate -> {
+                    blockStatePredicate.getBlocks().forEach(
+                        blockHolder -> {
+                            inputAcceptor
+                                .addItemLike(blockHolder.value().asItem());
+                        }
+                    );
+                }
+            );
+        }
+        List<ChanceBlockState> outputBlocks = recipe.getResultBlocks();
+        if (!outputBlocks.isEmpty()) {
+            outputBlocks.forEach(
+                chanceBlockState -> outputAcceptor
+                    .addItemLike(chanceBlockState.state().getBlock().asItem())
+            );
+        }
+
+        // Fluid idea会对这个null产生unhappy.png
+        HasCauldronSimple cauldronSimple = recipe.getHasCauldron();
+        if (cauldronSimple != null) {
+            input: {
+                ResourceLocation rl = cauldronSimple.fluid();
+                getObjectFormCauldronSimple(inputAcceptor, rl);
+            }
+
+            output: {
+                ResourceLocation rl = cauldronSimple.transform();
+                getObjectFormCauldronSimple(outputAcceptor, rl);
+            }
+        }
+    }
+
+    // 如果从rl找不到对应的流体，就尝试寻找方块和物品
+    // 但是仍对细雪桶/蜂蜜瓶等物品(方块)无效，特判也懒得搞了
+    private void getObjectFormCauldronSimple(IIngredientAcceptor<?> inputAcceptor, ResourceLocation rl) {
+        Fluid fluid = BuiltInRegistries.FLUID.get(rl);
+        if (fluid != null) {
+            inputAcceptor.addFluidStack(fluid);
+        } else {
+            Block block = BuiltInRegistries.BLOCK.get(rl);
+            if (block != null) {
+                inputAcceptor.addItemLike(block.asItem());
+            } else {
+                Item item = BuiltInRegistries.ITEM.get(rl);
+                if (item != null) {
+                    inputAcceptor.addItemLike(item);
+                }
+            }
         }
     }
 

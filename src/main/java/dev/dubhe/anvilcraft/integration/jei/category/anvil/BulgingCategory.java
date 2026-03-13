@@ -11,11 +11,9 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -47,15 +45,6 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
     @Override
     public RecipeType<RecipeHolder<BulgingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.BULGING;
-    }
-
-    @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BulgingRecipe> recipeHolder, IFocusGroup focuses) {
-        BulgingRecipe recipe = recipeHolder.value();
-        JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
-        if (!recipe.getResultItems().isEmpty()) {
-            JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
-        }
     }
 
     @Override
