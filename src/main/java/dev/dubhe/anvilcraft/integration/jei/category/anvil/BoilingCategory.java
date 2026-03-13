@@ -47,7 +47,7 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
         double mouseY
     ) {
         BoilingRecipe recipe = recipeHolder.value();
-        renderWorkingBlocks(guiGraphics, createCommonWorkingList(recipe));
+        renderWorkingBlocks(guiGraphics, getWorkingBlocks(recipe));
         renderArrow(guiGraphics, RenderArrowType.IO_PUT);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());

@@ -56,7 +56,7 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
         double mouseY) {
         BulgingRecipe recipe = recipeHolder.value();
 
-        renderWorkingBlocks(guiGraphics, createCommonWorkingList(recipe));
+        renderWorkingBlocks(guiGraphics, getWorkingBlocks(recipe));
         renderArrow(guiGraphics, RenderArrowType.IO_PUT);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());

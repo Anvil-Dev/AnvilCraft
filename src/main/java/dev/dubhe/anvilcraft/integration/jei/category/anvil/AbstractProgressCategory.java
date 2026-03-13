@@ -12,8 +12,6 @@ import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import lombok.Getter;
-import lombok.Setter;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -36,10 +34,13 @@ import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * 一个抽象类，用来"方便"地写JEI兼容(悲)
+ *
+ * @apiNote 传入的配方必须继承 {@link AbstractProcessRecipe} 才能继承这个类
+ */
 public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?>> implements IRecipeCategory<RecipeHolder<T>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -54,12 +55,6 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     protected final IDrawable arrowOut;
     protected final IDrawable arrowDefault;
     protected final IDrawable arrowOutputFromBelow;
-    @Getter
-    @Setter
-    protected List<BlockState> workingBlocks = new ArrayList<>();
-    @Setter
-    @Getter
-    protected Map<ResourceLocation, List<BlockStatePredicate>> testBlockMap = new HashMap<>();
 
     public AbstractProgressCategory(IGuiHelper helper, IDrawable icon, Component title) {
         this.icon = icon;
@@ -95,7 +90,11 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<T> recipeHolder, IFocusGroup focuses) {
+    public void setRecipe(
+        IRecipeLayoutBuilder builder,
+        RecipeHolder<T> recipeHolder,
+        IFocusGroup focuses
+    ) {
         T recipe = recipeHolder.value();
 
         // Item
@@ -108,43 +107,38 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
         // Block 我觉得这个括号很神圣
         List<BlockStatePredicate> inputBlocks = recipe.getInputBlocks();
         if (!inputBlocks.isEmpty()) {
-            inputBlocks.forEach(
-                blockStatePredicate -> {
-                    blockStatePredicate.getBlocks().forEach(
-                        blockHolder -> {
-                            inputAcceptor
-                                .addItemLike(blockHolder.value().asItem());
-                        }
-                    );
-                }
-            );
+            inputBlocks.forEach(blockStatePredicate -> {
+                blockStatePredicate.getBlocks().forEach(blockHolder -> {
+                    inputAcceptor.addItemLike(blockHolder.value().asItem());
+                });
+            });
         }
         List<ChanceBlockState> outputBlocks = recipe.getResultBlocks();
         if (!outputBlocks.isEmpty()) {
-            outputBlocks.forEach(
-                chanceBlockState -> outputAcceptor
-                    .addItemLike(chanceBlockState.state().getBlock().asItem())
-            );
+            outputBlocks.forEach(chanceBlockState -> outputAcceptor.addItemLike(chanceBlockState.state().getBlock().asItem()));
         }
 
         // Fluid idea会对这个null产生unhappy.png
         HasCauldronSimple cauldronSimple = recipe.getHasCauldron();
         if (cauldronSimple != null) {
-            input: {
+            {
                 ResourceLocation rl = cauldronSimple.fluid();
-                getObjectFormCauldronSimple(inputAcceptor, rl);
+                addAcceptorFromRL(inputAcceptor, rl);
             }
 
-            output: {
+            {
                 ResourceLocation rl = cauldronSimple.transform();
-                getObjectFormCauldronSimple(outputAcceptor, rl);
+                addAcceptorFromRL(outputAcceptor, rl);
             }
         }
     }
 
     // 如果从rl找不到对应的流体，就尝试寻找方块和物品
     // 但是仍对细雪桶/蜂蜜瓶等物品(方块)无效，特判也懒得搞了
-    private void getObjectFormCauldronSimple(IIngredientAcceptor<?> inputAcceptor, ResourceLocation rl) {
+    private void addAcceptorFromRL(
+        IIngredientAcceptor<?> inputAcceptor,
+        ResourceLocation rl
+    ) {
         Fluid fluid = BuiltInRegistries.FLUID.get(rl);
         if (fluid != null) {
             inputAcceptor.addFluidStack(fluid);
@@ -172,18 +166,25 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
                 }
             }
         }
-        remains.object2IntEntrySet().forEach(entry ->
-            results.add(ChanceItemStack.of(new ItemStack(entry.getKey(), entry.getIntValue()), 1))
-        );
+        remains.object2IntEntrySet()
+            .forEach(entry -> results.add(ChanceItemStack.of(new ItemStack(entry.getKey(), entry.getIntValue()), 1)));
         return results;
     }
 
-    protected List<BlockStatePredicate> createCommonWorkingList(
+    /**
+     * 创建配方所需的工作方块列表
+     * 一般顺序: 铁砧，输入的炼药锅(如果有)，输入的方块(如果有)
+     *
+     * @param recipe 要处理的配方对象
+     * @return 包含所有工作方块的 BlockStatePredicate 列表，包含铁砧
+     */
+    protected List<BlockStatePredicate> getWorkingBlocks(
         T recipe
     ) {
         List<BlockStatePredicate> list = new ArrayList<>();
         list.add(BlockStatePredicate.builder().of(Blocks.ANVIL).build());
 
+        // 如果配方包含炼药锅，添加对应的装满的炼药锅状态
         HasCauldronSimple cauldronSimple = recipe.getHasCauldron();
         if (cauldronSimple != null) {
             Block cauldron = cauldronSimple.getFluidCauldron();
@@ -195,6 +196,7 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
             }
         }
 
+        // 添加配方的其他输入方块到工作列表
         List<BlockStatePredicate> inputBlocks = recipe.getInputBlocks();
         if (!inputBlocks.isEmpty()) {
             list.addAll(inputBlocks);
@@ -203,6 +205,13 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
         return list;
     }
 
+    /**
+     * 渲染配方中的工作方块，可配合{@link AbstractProgressCategory#getWorkingBlocks(AbstractProcessRecipe)}使用
+     *
+     * @param guiGraphics 指定的GuiGraphics
+     * @param list        指定的工作方块列表
+     * @apiNote 如果传入的工作方块列表的首位是铁砧，会在渲染时给这个铁砧{@code anvilYOffset}，让其上下移动
+     */
     protected void renderWorkingBlocks(
         GuiGraphics guiGraphics,
         List<BlockStatePredicate> list
@@ -216,9 +225,10 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
 
             float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
 
-            boolean isFirstAnvil = list.getFirst().getBlocks().stream().anyMatch(
-                blockHolder -> blockHolder.is(Blocks.ANVIL.defaultBlockState().getBlockHolder())
-            );
+            boolean isFirstAnvil = list.getFirst()
+                .getBlocks()
+                .stream()
+                .anyMatch(blockHolder -> blockHolder.is(Blocks.ANVIL.defaultBlockState().getBlockHolder()));
 
             for (int i = 0; i < size; i++) {
                 float addYOffset;
@@ -262,6 +272,13 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     }
 
     // 渲染一般配方页面中输入输出箭头
+
+    /**
+     * 渲染自带的几套箭头
+     *
+     * @param guiGraphics 指定的GuiGraphics
+     * @param arrowType 指定的{@link RenderArrowType}
+     */
     public void renderArrow(
         GuiGraphics guiGraphics,
         RenderArrowType arrowType
@@ -292,9 +309,6 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     }
 
     public enum RenderArrowType {
-        ALL_DEFAULT,
-        IO_PUT,
-        IDEFAULT_OBELOW,
-        IPUT_OBELOW
+        ALL_DEFAULT, IO_PUT, IDEFAULT_OBELOW, IPUT_OBELOW
     }
 }
