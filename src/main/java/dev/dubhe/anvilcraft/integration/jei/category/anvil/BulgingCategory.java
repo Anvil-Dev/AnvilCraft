@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
-import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
@@ -67,27 +66,9 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
         double mouseX,
         double mouseY) {
         BulgingRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
-        BlockState state;
-        if (recipe.isFromWater()) {
-            state = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
-        } else if (recipe.isProduceFluid()) {
-            state = Blocks.CAULDRON.defaultBlockState();
-        } else {
-            state = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
-        }
-        RenderSupport.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOut.draw(guiGraphics, 92, 29);
+        renderWorkingBlocks(guiGraphics, createCommonWorkingList(recipe));
+        renderArrow(guiGraphics, RenderArrowType.IO_PUT);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         if (!recipe.getResultItems().isEmpty()) {
@@ -134,6 +115,7 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
             }
         } else {
             Block result = recipe.getHasCauldron().getTransformCauldron();
+            BlockState state;
             if (recipe.isConsumeFluid()) {
                 state = CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
             } else if (recipe.isProduceFluid()) {

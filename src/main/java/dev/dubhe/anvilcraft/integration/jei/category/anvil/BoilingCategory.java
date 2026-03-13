@@ -21,21 +21,16 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 
-import java.util.List;
-
 public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
     public BoilingCategory(IGuiHelper helper) {
         super(
             helper,
             new DrawableBlockStateIcon(CauldronUtil.fullState(Blocks.WATER_CAULDRON),
                 Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true)),
-            Component.translatable("gui.anvilcraft.category.boiling"),
-            List.of(
-                Blocks.ANVIL.defaultBlockState(),
-                CauldronUtil.fullState(Blocks.WATER_CAULDRON),
-                Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true)
-            )
+            Component.translatable("gui.anvilcraft.category.boiling")
         );
+
+
     }
 
     @Override
@@ -49,13 +44,11 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
-        double mouseY) {
-        renderWorkingBlocks(guiGraphics);
-
-        final BoilingRecipe recipe = recipeHolder.value();
-
-        arrowIn.draw(guiGraphics, 54, 20);
-        arrowOut.draw(guiGraphics, 92, 19);
+        double mouseY
+    ) {
+        BoilingRecipe recipe = recipeHolder.value();
+        renderWorkingBlocks(guiGraphics, createCommonWorkingList(recipe));
+        renderArrow(guiGraphics, RenderArrowType.IO_PUT);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
@@ -68,7 +61,8 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.BOILING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BOILING_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BOILING_TYPE.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
