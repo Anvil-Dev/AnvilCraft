@@ -15,11 +15,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -39,7 +42,7 @@ import java.util.List;
 /**
  * 一个抽象类，用来"方便"地写JEI兼容(悲)
  *
- * @apiNote 传入的配方必须继承 {@link AbstractProcessRecipe} 才能继承这个类
+ * @apiNote 传入的配方必须继承 {@link AbstractProcessRecipe}
  */
 public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?>> implements IRecipeCategory<RecipeHolder<T>> {
     public static final int WIDTH = 162;
@@ -210,7 +213,7 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
      *
      * @param guiGraphics 指定的GuiGraphics
      * @param list        指定的工作方块列表
-     * @apiNote 如果传入的工作方块列表的首位是铁砧，会在渲染时给这个铁砧{@code anvilYOffset}，让其上下移动
+     * @apiNote 如果传入的工作方块列表的首位是铁砧，会在渲染时给铁砧{@code anvilYOffset}，让其上下移动
      */
     protected void renderWorkingBlocks(
         GuiGraphics guiGraphics,
@@ -271,7 +274,95 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
         }
     }
 
-    // 渲染一般配方页面中输入输出箭头
+    @Override
+    public void getTooltip(
+        ITooltipBuilder tooltip,
+        RecipeHolder<T> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        double mouseX,
+        double mouseY
+    ) {
+        T recipe = recipeHolder.value();
+
+        HasCauldronSimple cauldronSimple = recipe.getHasCauldron();
+        if (cauldronSimple != null) {
+            if (mouseX >= 72 && mouseX <= 90) {
+                if (mouseY >= 15 && mouseY <= 55) {
+                    tooltip.add(cauldronSimple.getFluidCauldron().getName());
+                    Component component = this.getInputCauldronToolTips(cauldronSimple);
+                    tooltip.add(component);
+                }
+            }
+
+            if (mouseX >= 124 && mouseX <= 140) {
+                if (mouseY >= 24 && mouseY <= 42) {
+                    Component component = this.addOutputCauldronToolTips(cauldronSimple);
+                    if (component != null) {
+                        tooltip.add(component);
+                    }
+                }
+            }
+        }
+    }
+
+    protected Component getInputCauldronToolTips(
+        HasCauldronSimple cauldronSimple
+    ) {
+        Component consumeText;
+
+        Block cauldron = cauldronSimple.getFluidCauldron();
+        int consume = cauldronSimple.consume();
+
+        if (consume < 0) {
+            consumeText = Component.translatable(
+                "gui.anvilcraft.category.abstract.produce_fluid",
+                -consume,
+                cauldronSimple.getTransformCauldron().getName()
+            ).withStyle(ChatFormatting.DARK_GRAY);
+        } else if (consume > 0) {
+            consumeText = Component.translatable(
+                "gui.anvilcraft.category.abstract.consume_fluid",
+                consume,
+                cauldron.getName()
+            ).withStyle(ChatFormatting.DARK_GRAY);
+        } else if (!cauldronSimple.transform().toString().equals("minecraft:null")) {
+            consumeText = Component.translatable(
+                "gui.anvilcraft.category.abstract.transform",
+                cauldron.getName()
+            ).withStyle(ChatFormatting.DARK_GRAY);
+        } else {
+            consumeText = Component.translatable(
+                "gui.anvilcraft.category.abstract.no_fluid"
+            ).withStyle(ChatFormatting.DARK_GRAY);
+        }
+
+        return consumeText;
+    }
+
+    @Nullable
+    public Component addOutputCauldronToolTips(
+        HasCauldronSimple cauldronSimple
+    ) {
+        Component consumeText;
+        Block cauldron = cauldronSimple.getTransformCauldron();
+        int consume = cauldronSimple.consume();
+
+        if (cauldronSimple.transform().toString().equals("minecraft:null")) {
+            return null;
+        }
+
+        if (consume > 0) {
+            if (CauldronUtil.maxLevel(cauldron) > 1) {
+                consumeText = cauldron.getName();
+            } else {
+                consumeText = Blocks.CAULDRON.getName();
+            }
+        } else {
+            consumeText = cauldron.getName();
+        }
+
+        return consumeText;
+    }
 
     /**
      * 渲染自带的几套箭头

@@ -29,8 +29,6 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
                 Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true)),
             Component.translatable("gui.anvilcraft.category.boiling")
         );
-
-
     }
 
     @Override

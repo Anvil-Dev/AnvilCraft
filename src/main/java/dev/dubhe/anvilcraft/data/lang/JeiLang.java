@@ -45,8 +45,6 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.concrete", "Concrete");
 
         provider.add("gui.anvilcraft.category.bulging", "Bulging");
-        provider.add("gui.anvilcraft.category.bulging.consume_fluid", "Consume: %1$d mB of %2$s");
-        provider.add("gui.anvilcraft.category.bulging.produce_fluid", "Produce: %1$d mB of %2$s");
 
         provider.add("gui.anvilcraft.category.time_warp", "Time Warp");
         provider.add("gui.anvilcraft.category.time_warp.consume_fluid", "Consume: %1$d mB of %2$s");
@@ -125,5 +123,10 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.transcendium_recipe.amount_is_3", "Amount is amount of enchantments x 3");
         provider.add("gui.anvilcraft.category.transcendium_recipe.amount_is_1", "Amount is amount of enchantments x 1");
         provider.add("gui.anvilcraft.category.transcendium_recipe.probability", "probability: (10 x (amount of enchantments)) / 100");
+
+        provider.add("gui.anvilcraft.category.abstract.consume_fluid", "Consume: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.abstract.produce_fluid", "Produce: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.abstract.no_fluid", "No Fluid Consumed or Produced");
+        provider.add("gui.anvilcraft.category.abstract.transform", "Consume: All %s");
     }
 }
