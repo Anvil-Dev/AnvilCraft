@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.CakeBaseBlock;
 import dev.dubhe.anvilcraft.block.CakeBlock;
+import dev.dubhe.anvilcraft.block.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
@@ -1829,6 +1830,23 @@ public class ModBlocks {
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CelestialForgingAnvilBlock> CELESTIAL_FORGING_ANVIL = REGISTRUM
+        .block("celestial_forging_anvil", CelestialForgingAnvilBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties((properties) -> properties
+            .isSuffocating(ModBlocks::never)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .explosionResistance(1200)
+            .emissiveRendering(ModBlocks::always))
+        .item()
+        .properties((properties) -> properties.stacksTo(16))
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
 
     public static final BlockEntry<VoidEnergyCollectorBlock> VOID_ENERGY_COLLECTOR = REGISTRUM.block(
@@ -4829,8 +4847,8 @@ public class ModBlocks {
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
                 .pattern("AAA")
-                .define('A', POLISHED_FLINT_BLOCK)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(POLISHED_FLINT_BLOCK))
+                .define('A', CUT_FLINT_BLOCK)
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(CUT_FLINT_BLOCK))
                 .save(provider, of("shaped/cut_flint_slab"));
 
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)

@@ -5,7 +5,7 @@
     }
   },
   "display": {
-    "background": "anvilcraft:textures/gui/advancements/background.png",
+    "background": "anvilcraft:textures/gui/misc/background/advancement.png",
     "description": {
       "translate": "advancements.anvilcraft.root.description"
     },
