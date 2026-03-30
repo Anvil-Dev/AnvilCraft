@@ -92,7 +92,7 @@ public class RenderHighlightEventListener {
                         int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
                         pos = pos.relative(direction, distance - 1);
                     }
-                    if (blockItem instanceof FlexibleMultiPartBlockItem<?,?,?> flexibleMultiPartBlockItem) {
+                    if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
                         int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(state, direction);
                         pos = pos.relative(direction, distance - 1);
                     }
@@ -113,7 +113,12 @@ public class RenderHighlightEventListener {
         }
     }
 
-    private static Pair<VoxelShape, List<BlockPos>> getShapeAndErrorPosList(Level level, AbstractMultiPartBlock<?> block, BlockPos pos, BlockState state) {
+    private static Pair<VoxelShape, List<BlockPos>> getShapeAndErrorPosList(
+        Level level,
+        AbstractMultiPartBlock<?> block,
+        BlockPos pos,
+        BlockState state
+    ) {
         VoxelShape combinedShape = Shapes.empty();
         List<BlockPos> errorBlockPosList = new ObjectArrayList<>();
         for (Enum<?> part : block.getParts()) {
