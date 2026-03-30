@@ -28,13 +28,14 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 
 import java.util.List;
 
-@EventBusSubscriber
+@EventBusSubscriber(Dist.CLIENT)
 public class RenderHighlightEventListener {
     private static int failBoundCooldown = 0;
     private static int failBoundErrorCooldown = 0;
