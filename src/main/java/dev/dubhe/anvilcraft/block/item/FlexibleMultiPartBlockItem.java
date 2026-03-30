@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
+import dev.dubhe.anvilcraft.client.event.RenderHighlightEventListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -40,7 +41,7 @@ public class FlexibleMultiPartBlockItem<
         return super.placeBlock(context, state);
     }
 
-    private int getMaxOffsetDistance(BlockState state, Direction clickedFace) {
+    public int getMaxOffsetDistance(BlockState state, Direction clickedFace) {
         Vec3i normal = clickedFace.getOpposite().getNormal();
         int i = 0;
         for (P part : this.block.getParts()) {
@@ -59,7 +60,7 @@ public class FlexibleMultiPartBlockItem<
         BlockState state = this.block.getPlacementState(new BlockPlaceContext(context));
         if (state == null) return InteractionResult.FAIL;
         if (result == InteractionResult.FAIL) {
-            return super.useOn(new UseOnContext(
+            InteractionResult interactionResult = super.useOn(new UseOnContext(
                 context.getLevel(),
                 context.getPlayer(),
                 context.getHand(),
@@ -69,6 +70,11 @@ public class FlexibleMultiPartBlockItem<
                     clickedFace,
                     context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(state, clickedFace)),
                     false)));
+            if (interactionResult == InteractionResult.FAIL) {
+                RenderHighlightEventListener.startFailBoundCooldown();
+                RenderHighlightEventListener.startFailBoundErrorCooldown();
+            }
+            return interactionResult;
         }
         return result;
     }
