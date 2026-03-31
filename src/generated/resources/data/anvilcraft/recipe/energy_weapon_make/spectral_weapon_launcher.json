@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:energy_weapon_make",
+  "ingredients": [
+    {
+      "items": "anvilcraft:spectral_slingshot"
+    },
+    {
+      "count": 8,
+      "items": "anvilcraft:spectral_anvil"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:spectral_weapon_launcher"
+  }
+}

@@ -14,8 +14,10 @@ import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -56,6 +58,11 @@ public class AnvilCraftClient {
         IntegrationHook.setModEventBus(modEventBus);
         IntegrationHook.setModContainer(modContainer);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
+
+        ItemProperties.registerGeneric(
+            AnvilCraft.of("stored_energy"),
+            (stack, level, entity, seed) -> stack.getOrDefault(ModComponents.STORED_ENERGY, 0)
+        );
     }
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {

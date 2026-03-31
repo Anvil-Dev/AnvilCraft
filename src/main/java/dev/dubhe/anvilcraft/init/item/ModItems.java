@@ -68,6 +68,7 @@ import dev.dubhe.anvilcraft.item.RoyalSteelIngotItem;
 import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
+import dev.dubhe.anvilcraft.item.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.StructureToolItem;
 import dev.dubhe.anvilcraft.item.SuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
@@ -783,9 +784,21 @@ public class ModItems {
         })
         .register();
 
+    public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
+        .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.CROSSBOW_ENCHANTABLE
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 

@@ -19,6 +19,8 @@ public class WrappingItemCustomRenderedModels {
     public static void onModelBake(ModelEvent.ModifyBakingResult event) {
         Map<ModelResourceLocation, BakedModel> modelRegistry = event.getModels();
         swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("spectral_slingshot")));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("spectral_weapon_launcher")));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("spectral_weapon_launcher_exhausted")));
     }
 
     public static void swapModels(Map<ModelResourceLocation, BakedModel> modelRegistry, ModelResourceLocation modelLocation) {

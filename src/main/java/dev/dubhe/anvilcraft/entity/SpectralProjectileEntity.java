@@ -46,7 +46,13 @@ public class SpectralProjectileEntity extends AbstractArrow {
         this.entityData.set(AS_ITEM_STACK, ItemStack.EMPTY);
     }
 
-    public static SpectralProjectileEntity of(Level level, LivingEntity owner, ItemStack asStack, @Nullable ItemStack firedFromWeapon) {
+    public static SpectralProjectileEntity of(
+        Level level,
+        LivingEntity owner,
+        ItemStack asStack,
+        @Nullable ItemStack firedFromWeapon,
+        double damageAmplification
+    ) {
         SpectralProjectileEntity sp = new SpectralProjectileEntity(
             level,
             owner,
@@ -67,7 +73,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
                     }
                 }
             }
-            if (dmg > 0) sp.setBaseDamage(dmg * 0.5);
+            if (dmg > 0) sp.setBaseDamage(dmg * damageAmplification);
         }
         return sp;
     }

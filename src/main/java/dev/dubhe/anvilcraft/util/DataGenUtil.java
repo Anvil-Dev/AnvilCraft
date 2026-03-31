@@ -4,7 +4,9 @@ import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumBlockstateProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
+import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
@@ -17,6 +19,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
@@ -97,6 +101,13 @@ public class DataGenUtil {
             .partialState()
             .with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, true)
             .addModels(new ConfiguredModel(diodeOn, 0, 270, false));
+    }
+
+    public static <T extends Item> void energy(DataGenContext<Item, T> ctx, CreativeModeTabModifier modifier) {
+        ItemStack stack = ctx.get().getDefaultInstance();
+        modifier.accept(stack.copy());
+        stack.set(ModComponents.STORED_ENERGY, 320000);
+        modifier.accept(stack.copy());
     }
 
     @SuppressWarnings("unused")

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ListUtil;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -241,6 +242,14 @@ public class ItemTooltipManager {
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
+        if (stack.has(ModComponents.STORED_ENERGY)) {
+            propertyTooltip(
+                "stored_energy",
+                tooltip,
+                ChatFormatting.GRAY,
+                UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
+            );
+        }
         if (stack.has(ModComponents.MULTIPHASE)) {
             if (AnvilCraftClient.CONFIG.showMultiphaseStoredId) {
                 propertyTooltip(
@@ -314,7 +323,7 @@ public class ItemTooltipManager {
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
 
-    private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color) {
+    private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color, Object... args) {
         int i = 0;
         for (int j = 0; j < tooltip.size(); j++) {
             if (tooltip.get(j).getContents() instanceof TranslatableContents t && t.getKey().contains("enchantment")
@@ -330,7 +339,7 @@ public class ItemTooltipManager {
         }
         tooltip.add(
             1 + i,
-            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName)).withStyle(color)
+            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName), args).withStyle(color)
         );
     }
 

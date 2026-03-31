@@ -1,0 +1,94 @@
+package dev.dubhe.anvilcraft.item;
+
+import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.ColorUtil;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
+
+public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
+    private static final int FULL_BAR_COLOR = 0xFF5454FF;
+    private static final int BAR_COLOR = 0x7087FFFF;
+
+    public SpectralWeaponLauncherItem(Properties properties) {
+        super(properties.component(ModComponents.STORED_ENERGY, 0));
+    }
+
+    // 第一人称的手持动画、装填弹药的额外渲染等特殊代码在SpectralWeaponLauncherRenderer等类中
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(SpectralWeaponLauncherRenderer.SpectralWeaponLauncherExtensions.of(SpectralWeaponLauncherRenderer.getInstance()));
+    }
+
+    @Override
+    public boolean checkLoadable(ItemStack weapon, ItemStack stack) {
+        return weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) >= 800 && super.checkLoadable(weapon, stack);
+    }
+
+    @Override
+    public void performShooting(
+        Level level,
+        LivingEntity shooter,
+        InteractionHand hand,
+        ItemStack weapon,
+        float velocity,
+        float inaccuracy,
+        @Nullable LivingEntity target
+    ) {
+        super.performShooting(level, shooter, hand, weapon, velocity, inaccuracy, target);
+        if (shooter.hasInfiniteMaterials()) return;
+        weapon.set(ModComponents.STORED_ENERGY, weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - 800);
+    }
+
+    public static void playerTick(ServerPlayer player) {
+        ItemStack launcher = player.getMainHandItem();
+        if (launcher.isEmpty() || !launcher.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) launcher = player.getOffhandItem();
+        if (launcher.isEmpty() || !launcher.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) return;
+
+        int energy = launcher.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        while (energy <= 240000) { // 240MJ
+            Inventory inventory = player.getInventory();
+            int slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
+            if (slot < 0) break;
+
+            inventory.removeItem(slot, 1);
+            inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
+            energy += 80000; // 80MJ
+        }
+        launcher.set(ModComponents.STORED_ENERGY, energy);
+    }
+
+    @Override
+    protected double getDamageAmplification() {
+        return 1.0;
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        return (int) (Math.clamp(energy / 320000F, 0F, 1F) * 13);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        return ColorUtil.lerpColor(energy / 320000F, BAR_COLOR, FULL_BAR_COLOR);
+    }
+}

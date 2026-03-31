@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
@@ -23,6 +24,7 @@ public class PlayerTickEventHandler {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             applyPowerGrid(serverPlayer);
             IonoCraftBackpackItem.playerTick(serverPlayer);
+            SpectralWeaponLauncherItem.playerTick(serverPlayer);
             Merciless.tick(serverPlayer);
             Ferocious.tick(serverPlayer);
             Eternal.tick(serverPlayer);
