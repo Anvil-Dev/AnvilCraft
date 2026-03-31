@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.DevouringLevelReader;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import it.unimi.dsi.fastutil.ints.IntIterators;
@@ -34,6 +35,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -122,22 +124,23 @@ public class DragonRodItem extends Item {
             );
             default -> devouringPoses = List.of(centerPos);
         }
-        devouringPoses = Streams.stream(devouringPoses).map(BlockPos::immutable).toList();
+        List<BlockPos> devouringPosList = Streams.stream(devouringPoses).map(BlockPos::immutable).toList();
+        DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devouringPosList);
 
-        for (BlockPos devouringPos : devouringPoses) {
+        List<BlockPos> secondaryDevouringPosList = new ArrayList<>(devouringPosList.size());
+        for (BlockPos devouringPos : devouringPosList) {
             BlockState devouringState = level.getBlockState(devouringPos);
+
+            //devouringState
             if (devouringState.isAir()) continue;
             if (!BlockDevourerBlock.canDevour(devouringState)) continue;
-            if (devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-                && level.random.nextDouble() > 0.05) {
-                level.destroyBlock(devouringPos, false);
-                continue;
-            }
 
             devouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devouringPos);
             devouringState = level.getBlockState(devouringPos);
+            boolean shouldDrop = !devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+                                 || level.random.nextDouble() <= 0.05;
 
-            if (!player.getAbilities().instabuild) {
+            if (!player.getAbilities().instabuild && shouldDrop) {
                 List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devouringPos, dragonRod);
                 Inventory inventory = player.getInventory();
                 for (ItemStack drop : dropList) {
@@ -175,6 +178,16 @@ public class DragonRodItem extends Item {
             if (!(devouringState.getBlock() instanceof DoublePlantBlock)) {
                 devouringState.getBlock().playerWillDestroy(level, devouringPos, devouringState, player);
             }
+
+            // 通过假世界判断需要先被破坏的方块
+            if (!devouringState.canSurvive(devouringLevelReader, devouringPos)) {
+                level.destroyBlock(devouringPos, false);
+            } else {
+                secondaryDevouringPosList.add(devouringPos);
+            }
+        }
+
+        for (BlockPos devouringPos : secondaryDevouringPosList) {
             level.destroyBlock(devouringPos, false);
         }
 
@@ -187,16 +200,18 @@ public class DragonRodItem extends Item {
             player.getCooldowns().addCooldown(dragonRod.getItem(), cooldown);
         }
 
-        dragonRod.hurtAndBreak(calculateDamage(dragonRod), level, player, item -> {
-            player.onEquippedItemBroken(item, LivingEntity.getSlotForHand(hand));
-            EventHooks.onPlayerDestroyItem(player, dragonRod, hand);
-        });
+        dragonRod.hurtAndBreak(
+            calculateDamage(dragonRod), level, player, item -> {
+                player.onEquippedItemBroken(item, LivingEntity.getSlotForHand(hand));
+                EventHooks.onPlayerDestroyItem(player, dragonRod, hand);
+            }
+        );
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean canDevour(Player player, ItemStack dragonRod) {
         return dragonRod.getDamageValue() < dragonRod.getMaxDamage() - 1
-            && !player.getCooldowns().isOnCooldown(dragonRod.getItem());
+               && !player.getCooldowns().isOnCooldown(dragonRod.getItem());
     }
 
     public static int calculateDamage(ItemStack dragonRod) {

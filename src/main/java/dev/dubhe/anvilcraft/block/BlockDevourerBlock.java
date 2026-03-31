@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.DevouringLevelReader;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -186,7 +188,12 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
      * @param range             破坏半径(正方形)
      * @param anvil             砸到方块吞噬器的铁砧
      */
-    @SuppressWarnings({"unreachable", "unused"})
+    @SuppressWarnings(
+        {
+            "unreachable",
+            "unused"
+        }
+    )
     public void devourBlock(
         ServerLevel level,
         BlockPos devourerPos,
@@ -202,39 +209,42 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             level
         );
         Vec3 center = outputPos.getCenter();
-        Iterable<BlockPos> devourBlockPosList;
+        Iterable<BlockPos> devourBlockPoses;
         int maxY;
         switch (devourerDirection) {
             case DOWN, UP -> {
-                devourBlockPosList = BlockPos.betweenClosed(
+                devourBlockPoses = BlockPos.betweenClosed(
                     devourCenterPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
                     devourCenterPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range)
                 );
                 maxY = devourCenterPos.getY();
             }
             case NORTH, SOUTH -> {
-                devourBlockPosList = BlockPos.betweenClosed(
+                devourBlockPoses = BlockPos.betweenClosed(
                     devourCenterPos.relative(Direction.UP, range).relative(Direction.WEST, range),
                     devourCenterPos.relative(Direction.DOWN, range).relative(Direction.EAST, range)
                 );
                 maxY = devourCenterPos.relative(Direction.UP, range).getY();
             }
             case WEST, EAST -> {
-                devourBlockPosList = BlockPos.betweenClosed(
+                devourBlockPoses = BlockPos.betweenClosed(
                     devourCenterPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
                     devourCenterPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range)
                 );
                 maxY = devourCenterPos.relative(Direction.UP, range).getY();
             }
             default -> {
-                devourBlockPosList = List.of(devourCenterPos);
+                devourBlockPoses = List.of(devourCenterPos);
                 maxY = devourCenterPos.getY();
             }
         }
-        devourBlockPosList = Streams.stream(devourBlockPosList).map(BlockPos::immutable).toList();
+        List<BlockPos> devourBlockPosList = Streams.stream(devourBlockPoses).map(BlockPos::immutable).toList();
+        DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devourBlockPosList);
 
         final List<BlockPos> chainDevourBlockPosList = new ArrayList<>();
         final List<BlockPos> filteredBlockPosList = new ArrayList<>();
+
+        final List<BlockPos> secondaryBlockPosList = new ArrayList<>();
         for (BlockPos devourBlockPos : devourBlockPosList) {
             if (
                 AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring && devourBlockPos.getY() == maxY
@@ -246,10 +256,21 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                     chainDevourBlockPosList.add(chainDevourBlockPos.immutable());
                 }
             }
-
-            devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
+            if (level.getBlockState(devourBlockPos).canSurvive(devouringLevelReader, devourBlockPos)) {
+                devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
+            } else {
+                secondaryBlockPosList.add(devourBlockPos);
+            }
         }
+        DevouringLevelReader chainDevouringLevelReader = new DevouringLevelReader(level, chainDevourBlockPosList);
         for (BlockPos devourBlockPos : chainDevourBlockPosList) {
+            if (level.getBlockState(devourBlockPos).canSurvive(chainDevouringLevelReader, devourBlockPos)) {
+                devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
+            } else {
+                secondaryBlockPosList.add(devourBlockPos);
+            }
+        }
+        for (BlockPos devourBlockPos : secondaryBlockPosList) {
             devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
         }
     }
@@ -257,8 +278,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     /**
      * 检查目标位置是否可以破坏
      *
-     * @param devourBlockState       目标方块
-     * */
+     * @param devourBlockState 目标方块
+     *
+     */
     public static boolean canDevour(BlockState devourBlockState) {
         return !devourBlockState.is(ModBlockTags.DEVOUR_BLACKLIST) && devourBlockState.getBlock().defaultDestroyTime() >= 0;
     }
