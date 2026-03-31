@@ -27,8 +27,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * <p>用来执行吞噬判断的假世界，修改了 {@link LevelReader#getBlockState(BlockPos) LevelReade.getBlockState} 的逻辑.</p>
- * <p>原则上来说应该重写所有方法以规避意料之外的问题(</p>
+ * 用来执行吞噬判断的假世界，仅修改了 {@link LevelReader#getBlockState(BlockPos) LevelReade.getBlockState} 的逻辑.
+ * 原则上来说应该重写所有方法以规避意料之外的问题(
  */
 public class DevouringLevelReader implements LevelReader {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
@@ -124,7 +124,9 @@ public class DevouringLevelReader implements LevelReader {
 
 
     /**
-     * @param blockPos 方块位置，当处于吞噬范围且可以破坏时返回空气
+     * 当方块处于吞噬范围且可以破坏时返回空气
+     *
+     * @param blockPos 方块位置
      * @return 对应的BlockState
      */
     @Override
@@ -135,6 +137,7 @@ public class DevouringLevelReader implements LevelReader {
         }
         return blockState;
     }
+
     @Override
     public FluidState getFluidState(BlockPos blockPos) {
         return parentLevel.getFluidState(blockPos);
