@@ -2,7 +2,9 @@ package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
-import dev.dubhe.anvilcraft.client.event.RenderHighlightEventListener;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -70,9 +72,18 @@ public class FlexibleMultiPartBlockItem<
                     clickedFace,
                     context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(state, clickedFace)),
                     false)));
-            if (interactionResult == InteractionResult.FAIL) {
-                RenderHighlightEventListener.startFailBoundCooldown();
-                RenderHighlightEventListener.startFailBoundErrorCooldown();
+            if (interactionResult == InteractionResult.FAIL && context.getLevel().isClientSide()) {
+                Level level = context.getLevel();
+                BlockPos pos = context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(state, clickedFace));
+                List<BlockPos> errorPosList = new ObjectArrayList<>();
+                for (P part : this.block.getParts()) {
+                    BlockPos offset = pos.offset(part.getOffset(state.getValue(block.getAdditionalProperty())));
+                    if (!level.getBlockState(offset).canBeReplaced() || level.isOutsideBuildHeight(offset)) {
+                        errorPosList.add(offset);
+                    }
+                }
+                LargeBlockPlacePreviewEventListener.startFailBoundCooldown();
+                LargeBlockPlacePreviewEventListener.startFailBoundErrorCooldown(errorPosList);
             }
             return interactionResult;
         }

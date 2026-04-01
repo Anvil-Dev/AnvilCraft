@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -21,6 +22,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -36,7 +38,7 @@ import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import java.util.List;
 
 @EventBusSubscriber(Dist.CLIENT)
-public class RenderHighlightEventListener {
+public class LargeBlockPlacePreviewEventListener {
     private static int failBoundCooldown = 0;
     private static int failBoundErrorCooldown = 0;
 
@@ -47,6 +49,8 @@ public class RenderHighlightEventListener {
 
     private static ItemStack currentItem = ItemStack.EMPTY;
     private static BlockPos currentPos = null;
+
+    private static List<BlockPos> cachedErrorPosList = new ObjectArrayList<>();
 
     private static final SegmentedActuator animationActuator = new SegmentedActuator(
         new SegmentedActuator.Task(20, changeBoundColorRed),
@@ -86,7 +90,14 @@ public class RenderHighlightEventListener {
         if (item.getItem() instanceof BlockItem blockItem) {
             if (blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block) {
                 validateCanRender(item, blockItem, pos);
-                BlockState state = block.defaultBlockState();
+                // Build the actual placement state from the hit result
+                BlockPlaceContext context = new BlockPlaceContext(player, player.getUsedItemHand(), item, new BlockHitResult(
+                    event.getTarget().getLocation(),
+                    direction,
+                    target.getBlockPos(),
+                    target.isInside()
+                ));
+                BlockState state = getPlacementState(block, blockItem, context);
                 Pair<VoxelShape, List<BlockPos>> pair = getShapeAndErrorPosList(level, block, pos, state);
                 if (!pair.second().isEmpty()) {
                     if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
@@ -125,7 +136,7 @@ public class RenderHighlightEventListener {
         for (Enum<?> part : block.getParts()) {
             BlockPos offset = pos.offset(block.offsetFrom(state, cast(part)));
             BlockState blockState = level.getBlockState(offset);
-            if (!blockState.canBeReplaced()) {
+            if (!blockState.canBeReplaced() || level.isOutsideBuildHeight(offset)) {
                 errorBlockPosList.add(offset);
             }
             VoxelShape partShape = Shapes.block().move(
@@ -147,23 +158,22 @@ public class RenderHighlightEventListener {
         } else if (!currentItem.is(blockItem)) {
             currentItem = ItemStack.EMPTY;
             failBoundCooldown = 0;
-            failBoundErrorCooldown = 0;
         }
         if (currentPos == null) {
             currentPos = pos;
         } else if (!currentPos.equals(pos)) {
             currentPos = null;
             failBoundCooldown = 0;
-            failBoundErrorCooldown = 0;
         }
     }
 
     private static void renderErrorBound(PoseStack poseStack, VertexConsumer vertexConsumer, Camera camera, List<BlockPos> posList) {
         Vec3 position = camera.getPosition();
         if (failBoundErrorCooldown > 0) {
-            for (BlockPos blockPos : posList) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.depthMask(false);
+            RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(false);
+            List<BlockPos> toRender = failBoundErrorCooldown > 0 ? cachedErrorPosList : posList;
+            for (BlockPos blockPos : toRender) {
                 TooltipRenderHelper.renderOutline(
                     poseStack,
                     vertexConsumer,
@@ -174,9 +184,9 @@ public class RenderHighlightEventListener {
                     Shapes.block(),
                     0xffff0000
                 );
-                RenderSystem.depthMask(true);
-                RenderSystem.enableDepthTest();
             }
+            RenderSystem.depthMask(true);
+            RenderSystem.enableDepthTest();
         }
     }
 
@@ -185,12 +195,24 @@ public class RenderHighlightEventListener {
         return (P) e;
     }
 
+    private static BlockState getPlacementState(AbstractMultiPartBlock<?> block, BlockItem blockItem, BlockPlaceContext context) {
+        if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?>) {
+            FlexibleMultiPartBlock<?, ?, ?> flexBlock = (FlexibleMultiPartBlock<?, ?, ?>) blockItem.getBlock();
+            BlockState state = flexBlock.getPlacementState(context);
+            return state != null ? state : block.defaultBlockState();
+        }
+        // For SimpleMultiPartBlockItem, use getStateForPlacement
+        BlockState state = block.getStateForPlacement(context);
+        return state != null ? state : block.defaultBlockState();
+    }
+
     public static void startFailBoundCooldown() {
         failBoundCooldown = 80;
         animationActuator.reset();
     }
 
-    public static void startFailBoundErrorCooldown() {
-        failBoundErrorCooldown = 140;
+    public static void startFailBoundErrorCooldown(List<BlockPos> errorPosList) {
+        failBoundErrorCooldown = 60;
+        cachedErrorPosList = new ObjectArrayList<>(errorPosList);
     }
 }

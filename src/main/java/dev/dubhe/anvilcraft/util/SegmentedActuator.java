@@ -19,11 +19,11 @@ public class SegmentedActuator {
         }
 
         public Result execute() {
-            if (count >= tick) {
-                return Result.NEXT;
-            }
             this.runnable.run();
             this.count++;
+            if (this.count >= this.tick) {
+                return Result.NEXT;
+            }
             return Result.CURRENT;
         }
 
