@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.AmberBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
-import dev.dubhe.anvilcraft.block.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
@@ -127,6 +126,9 @@ import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
+import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
+import dev.dubhe.anvilcraft.block.batch.BatchCrafterBlock;
+import dev.dubhe.anvilcraft.block.batch.BatchCutterBlock;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -1141,7 +1143,6 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
@@ -1161,6 +1162,35 @@ public class ModBlocks {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
                 .save(provider);
         })
+        .simpleItem()
+        .onRegister(block -> BaseBatchCraftingBlock.registerBatchCrafting(() -> block))
+        .register();
+
+    public static final BlockEntry<? extends Block> BATCH_CUTTER = REGISTRUM.block("batch_cutter", BatchCutterBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe((ctx, provider) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+                .pattern("ABA")
+                .pattern("ADA")
+                .pattern("AEA")
+                .define('A', Items.GLASS)
+                .define('B', Items.STONECUTTER)
+                .define('D', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+                .define('E', ModItems.CIRCUIT_BOARD)
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.GLASS), AnvilCraftDatagen.has(Items.GLASS))
+                .unlockedBy(AnvilCraftDatagen.hasItem(Items.STONECUTTER), AnvilCraftDatagen.has(Items.STONECUTTER))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+                )
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
+                .save(provider);
+        })
+        .simpleItem()
+        .onRegister(block -> BaseBatchCraftingBlock.registerBatchCrafting(() -> block))
         .register();
 
     public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRUM.block("item_collector", ItemCollectorBlock::new)

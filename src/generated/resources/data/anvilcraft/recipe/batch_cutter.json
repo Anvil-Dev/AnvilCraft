@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "A": {
+      "item": "minecraft:glass"
+    },
+    "B": {
+      "item": "minecraft:stonecutter"
+    },
+    "D": {
+      "item": "anvilcraft:magnetoelectric_core"
+    },
+    "E": {
+      "item": "anvilcraft:circuit_board"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "ADA",
+    "AEA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:batch_cutter"
+  }
+}

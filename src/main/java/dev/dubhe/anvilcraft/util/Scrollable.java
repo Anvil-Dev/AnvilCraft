@@ -25,18 +25,7 @@ public abstract class Scrollable {
     }
 
     public void scrollTo() {
-        int rowIndex = this.getRowIndex();
-
-        for (int row = 0; row < this.row(); row++) {
-            for (int column = 0; column < this.column(); column++) {
-                int index = column + (row + rowIndex) * this.column();
-                if (index >= 0 && index < this.size()) {
-                    this.set(column + row * this.column(), index);
-                } else {
-                    this.setEmpty(column + row * this.column());
-                }
-            }
-        }
+        this.setHead(this.getRowIndex() * this.column());
     }
 
     public void scrollOnDrag(float barHeight, double mouseY, int top, int bottom) {
@@ -60,6 +49,7 @@ public abstract class Scrollable {
 
     public void reset() {
         this.scrollOffs = 0.0f;
+        this.scrollTo();
     }
 
     public abstract int row();
@@ -72,7 +62,5 @@ public abstract class Scrollable {
         return this.size() > this.row() * this.column();
     }
 
-    public abstract void set(int targetIndex, int contentIndex);
-
-    public abstract void setEmpty(int targetIndex);
+    public abstract void setHead(int head);
 }

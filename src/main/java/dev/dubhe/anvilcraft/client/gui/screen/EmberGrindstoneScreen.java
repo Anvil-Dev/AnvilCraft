@@ -43,16 +43,8 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
 
         @Override
-        public void set(int targetIndex, int contentIndex) {
-        }
-
-        @Override
-        public void setEmpty(int targetIndex) {
-        }
-
-        @Override
-        public void scrollTo() {
-            EmberGrindstoneScreen.this.head = this.calculateRowCount() * this.column();
+        public void setHead(int head) {
+            EmberGrindstoneScreen.this.head = head;
         }
     };
     private int head = 0;
