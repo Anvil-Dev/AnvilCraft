@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 public class ItemTooltipLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
-        ItemTooltipManager.NEED_TOOLTIP_ITEM.forEach(
+        ItemTooltipManager.NEED_TOOLTIP_ITEMS.forEach(
             (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
