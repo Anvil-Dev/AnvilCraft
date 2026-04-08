@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -57,6 +58,7 @@ import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxB
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCrafterRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
@@ -343,6 +345,12 @@ public class ModBlockEntities {
         .blockEntity("large_fluid_tank", LargeFluidTankBlockEntity::new)
         .validBlocks(ModBlocks.LARGE_FLUID_TANK)
         .renderer(() -> LargeFluidTankBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CelestialForgingAnvilBlockEntity> CELESTIAL_FORGING_ANVIL = REGISTRUM
+        .blockEntity("celestial_forging_anvil", CelestialForgingAnvilBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL)
+        .renderer(() -> (ctx) -> new CelestialForgingAnvilBlockEntityRenderer())
         .register();
 
     public static void register() {
