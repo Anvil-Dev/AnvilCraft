@@ -25,6 +25,7 @@ neoForge {
             // "REGISTRIES": For firing of registry events.
             // "REGISTRYDUMP": For getting the contents of all registries.
             systemProperty 'forge.logging.markers', 'REGISTRIES'
+            systemProperty 'terminal.jline', 'true'
 
             if (isJbr) {
                 jvmArgument "-XX:+AllowEnhancedClassRedefinition"
