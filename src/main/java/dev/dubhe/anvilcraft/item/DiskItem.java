@@ -79,7 +79,7 @@ public class DiskItem extends Item {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
             ResourceLocation storedFrom = ResourceLocation.parse(getData(stack).getString("StoredFrom"));
-            String name = Component.translatable("block.anvilcraft." + storedFrom.getPath())
+            String name = Component.translatable("block." + storedFrom.toLanguageKey())
                 .getString();
             tooltipComponents.add(Component.translatable("item.anvilcraft.disk.stored_from", name)
                 .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
