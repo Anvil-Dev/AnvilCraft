@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -53,6 +54,11 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
                 BatchCrafterBlockEntity.this.onContentsChanged();
             }
         };
+    }
+
+    @Override
+    protected int getCooldownDuration() {
+        return AnvilCraft.CONFIG.batchCrafterCooldown;
     }
 
     private void onContentsChanged() {

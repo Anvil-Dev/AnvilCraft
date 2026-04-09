@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
 import com.google.common.collect.Lists;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -55,6 +56,11 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
                 BatchCutterBlockEntity.this.onContentsChanged();
             }
         };
+    }
+
+    @Override
+    protected int getCooldownDuration() {
+        return AnvilCraft.CONFIG.batchCutterCooldown;
     }
 
     private void onContentsChanged() {
@@ -177,7 +183,6 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         if (recipes.isEmpty()) {
             this.updateDisplayItem(ItemStack.EMPTY);
         } else if (this.selecting >= recipes.size()) {
-            this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
             this.selecting = 0;
             if (!this.level.isClientSide) {
                 PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
@@ -185,6 +190,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
                     this.getPos()
                 ));
             }
+            this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
             return;
         } else {
             this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));

@@ -77,7 +77,7 @@ public class BlockEventListener {
             onAnvilFixed(level, stack, pos, targetState);
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
-        } else if (targetState.getBlock() instanceof BaseBatchCraftingBlock target && player.isShiftKeyDown()) {
+        } else if (targetState.getBlock() instanceof BaseBatchCraftingBlock target && player.isShiftKeyDown() && !level.isClientSide) {
             for (Supplier<BaseBatchCraftingBlock> getter : BaseBatchCraftingBlock.getBatchCraftingBlockGetters()) {
                 BaseBatchCraftingBlock block = getter.get();
                 if (!stack.is(block.getToastSymbol())) continue;

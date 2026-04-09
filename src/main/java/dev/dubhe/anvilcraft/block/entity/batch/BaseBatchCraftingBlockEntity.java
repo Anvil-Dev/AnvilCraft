@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
@@ -9,7 +8,6 @@ import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
-import dev.dubhe.anvilcraft.block.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -72,13 +70,15 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
         this.flushState(level, pos);
         BlockState state = level.getBlockState(pos);
         level.updateNeighbourForOutputSignal(pos, state.getBlock());
-        boolean powered = state.getValue(BatchCrafterBlock.POWERED);
+        boolean powered = state.getValue(BaseBatchCraftingBlock.POWERED);
         this.cooldown = Math.max(0, this.cooldown - 1);
         if (powered && !this.poweredBefore && !level.isClientSide && this.cooldown == 0) {
-            if (this.craft(level)) this.cooldown = AnvilCraft.CONFIG.batchCrafterCooldown;
+            if (this.craft(level)) this.cooldown = this.getCooldownDuration();
         }
         this.poweredBefore = powered;
     }
+
+    protected abstract int getCooldownDuration();
 
     protected boolean canCraft() {
         if (this.grid == null || !this.grid.isWorking()) return false;

@@ -76,7 +76,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
 
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
-        this.scrollable.calculateScroll(this.head / 3);
+        this.scrollable.calculateScroll(this.head / this.scrollable.column());
 
         this.init(minecraft, width, height);
     }
