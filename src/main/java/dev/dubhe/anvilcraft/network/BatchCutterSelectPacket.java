@@ -3,15 +3,16 @@ package dev.dubhe.anvilcraft.network;
 import dev.anvilcraft.lib.v2.network.packet.IInsensitiveBiPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.Optional;
 
 public record BatchCutterSelectPacket(int selecting, BlockPos pos) implements IInsensitiveBiPacket {
     public static final Type<BatchCutterSelectPacket> TYPE = IPacket.type(AnvilCraft.of("batch_cutter_select"));
@@ -31,10 +32,8 @@ public record BatchCutterSelectPacket(int selecting, BlockPos pos) implements II
     @Override
     public void handleOnBothSide(Player player) {
         Level level = player.level();
-        level.getBlockEntity(this.pos, ModBlockEntities.BATCH_CUTTER.get())
-            .ifPresent(entity -> entity.setSelecting(this.selecting));
-        if (player instanceof ServerPlayer) {
-            PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(this.selecting, this.pos));
-        }
+        Optional<BatchCutterBlockEntity> be = level.getBlockEntity(this.pos, ModBlockEntities.BATCH_CUTTER.get());
+        if (be.isEmpty()) return;
+        be.get().setSelecting(this.selecting);
     }
 }

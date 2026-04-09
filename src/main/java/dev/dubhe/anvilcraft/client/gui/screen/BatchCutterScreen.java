@@ -295,7 +295,10 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
                 return true;
             }
         }
-        if (this.scrollable.canScroll()) this.scrollable.scrollOnScroll(scrollY / 1.2);
+        if (this.scrollable.canScroll()) {
+            this.scrollable.scrollOnScroll(scrollY / 1.2);
+            return true;
+        }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 

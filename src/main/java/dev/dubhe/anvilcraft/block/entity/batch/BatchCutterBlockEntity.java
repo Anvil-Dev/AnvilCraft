@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
-import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -31,6 +30,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
@@ -126,9 +126,9 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             .orElse(0);
         if (times < 1) return false;
         result.setCount(result.getCount() * times);
-        List<ItemStack> craftRemaining = cache.getRemaining();
-        if (!craftRemaining.isEmpty()) {
-            craftRemaining = Lists.transform(craftRemaining, stack -> stack.copyWithCount(stack.getCount() * times)); 
+        List<ItemStack> craftRemaining = new ArrayList<>(cache.getRemaining().size());
+        for (ItemStack stack : cache.getRemaining()) {
+            craftRemaining.add(stack.copyWithCount(stack.getCount() * times));
         }
         if (this.ejectItems(result, craftRemaining, this.getDirection())) return false;
         for (int i = 0; i < this.handler.getSlots(); i++) {
