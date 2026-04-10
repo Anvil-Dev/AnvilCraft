@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ShapeUtil;
 import dev.dubhe.anvilcraft.util.VirtualThreadFactoryImpl;
-import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -16,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.phys.AABB;
@@ -48,20 +46,9 @@ public class SimplePowerGrid {
         Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
         Codec.INT.fieldOf("consume").forGetter(o -> o.consume)
     ).apply(ins, SimplePowerGrid::new));
-    public static final StreamCodec<ByteBuf, SimplePowerGrid> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.VAR_INT,
-        SimplePowerGrid::getId,
-        ByteBufCodecs.STRING_UTF8,
-        SimplePowerGrid::getLevel,
-        BlockPos.STREAM_CODEC,
-        SimplePowerGrid::getPos,
-        PowerComponentInfo.STREAM_CODEC.apply(ByteBufCodecs.list()),
-        SimplePowerGrid::getPowerComponentInfoList,
-        ByteBufCodecs.VAR_INT,
-        SimplePowerGrid::getGenerate,
-        ByteBufCodecs.VAR_INT,
-        SimplePowerGrid::getConsume,
-        SimplePowerGrid::new
+    public static final StreamCodec<FriendlyByteBuf, SimplePowerGrid> STREAM_CODEC = StreamCodec.of(
+        SimplePowerGrid::encode,
+        SimplePowerGrid::decode
     );
 
     static {
@@ -197,8 +184,12 @@ public class SimplePowerGrid {
         EXECUTOR = Executors.newThreadPerTaskExecutor(new VirtualThreadFactoryImpl());
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
+    public static SimplePowerGrid decode(FriendlyByteBuf buf) {
+        return CODEC.decode(NbtOps.INSTANCE, buf.readNbt().get("data")).getOrThrow().getFirst();
+    }
+
+    public static void encode(FriendlyByteBuf buf, SimplePowerGrid grid) {
+        Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, grid).getOrThrow();
         CompoundTag data = new CompoundTag();
         data.put("data", tag);
         buf.writeNbt(data);
