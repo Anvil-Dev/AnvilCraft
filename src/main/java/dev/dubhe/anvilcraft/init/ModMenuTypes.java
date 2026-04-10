@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
@@ -28,6 +29,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
@@ -55,18 +57,17 @@ import net.minecraft.world.MenuProvider;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings("DataFlowIssue")
 public class ModMenuTypes {
-    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRUM
         .menu("batch_crafter", BatchCrafterMenu::new, () -> BatchCrafterScreen::new)
         .register();
+    public static final MenuEntry<BatchCutterMenu> BATCH_CUTTER = REGISTRUM
+        .menu("batch_cutter", BatchCutterMenu::new, () -> BatchCutterScreen::new)
+        .register();
 
-    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<ChuteMenu> CHUTE =
         REGISTRUM.menu("chute", ChuteMenu::new, () -> ChuteScreen::new).register();
 
-    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<MagneticChuteMenu> MAGNETIC_CHUTE = REGISTRUM
         .menu("magnetic_chute", MagneticChuteMenu::new, () -> MagneticChuteScreen::new)
         .register();

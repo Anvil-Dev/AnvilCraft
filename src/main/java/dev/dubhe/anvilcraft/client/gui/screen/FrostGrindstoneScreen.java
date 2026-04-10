@@ -38,16 +38,8 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
         }
 
         @Override
-        public void set(int targetIndex, int contentIndex) {
-        }
-
-        @Override
-        public void setEmpty(int targetIndex) {
-        }
-
-        @Override
-        public void scrollTo() {
-            FrostGrindstoneScreen.this.head = this.calculateRowCount() * this.column();
+        public void setHead(int head) {
+            FrostGrindstoneScreen.this.head = head;
         }
     };
     private int head = 0;

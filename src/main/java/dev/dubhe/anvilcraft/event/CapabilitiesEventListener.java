@@ -17,6 +17,7 @@ public class CapabilitiesEventListener {
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
         List.of(
             ModBlockEntities.BATCH_CRAFTER.get(),
+            ModBlockEntities.BATCH_CUTTER.get(),
             ModBlockEntities.CHARGER.get(),
             ModBlockEntities.CHUTE.get(),
             ModBlockEntities.SIMPLE_CHUTE.get(),

@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
@@ -153,7 +152,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         final boolean renderAllLayers = level.isAllLayersVisible();
         final int visibleLayer = level.getCurrentVisibleLayer();
         RenderSupport.renderLevelLike(level, guiGraphics, 45, 50, SCALE_FAC, 2.0f);
-        Minecraft minecraft = Minecraft.getInstance();
+        final Minecraft minecraft = Minecraft.getInstance();
         PoseStack pose = guiGraphics.pose();
         int sizeY = level.verticalSize();
         Component component;

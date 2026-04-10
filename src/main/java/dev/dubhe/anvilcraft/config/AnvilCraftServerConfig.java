@@ -47,6 +47,10 @@ public class AnvilCraftServerConfig {
     @BoundedDiscrete(max = 80, min = 1)
     public int batchCrafterCooldown = 8;
 
+    @Comment("Maximum cooldown time of batch cutter (in ticks)")
+    @BoundedDiscrete(max = 80, min = 1)
+    public int batchCutterCooldown = 8;
+
     @Comment("The maximum search radius of the geode")
     @SerializedName("Geode Maximum Search Radius")
     @BoundedDiscrete(max = 512, min = 64)

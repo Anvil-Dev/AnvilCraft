@@ -316,7 +316,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
 
     @SuppressWarnings("unchecked")
     @Nullable
-    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
+    public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
         BlockEntityType<A> serverType, BlockEntityType<E> clientType, BlockEntityTicker<? super E> ticker
     ) {
         return clientType == serverType ? (BlockEntityTicker<A>) ticker : null;

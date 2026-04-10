@@ -40,9 +40,17 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
         this.player = inventory.player;
     }
 
-    @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    /**
+     * 基本机器 GUI
+     *
+     * @param menu      菜单
+     * @param inventory 玩家背包
+     * @param title     标题
+     */
+    public BaseMachineScreen(T menu, Inventory inventory, Component title, int outputDirBtnX, int outputDirBtnY) {
+        super(menu, inventory, title);
+        this.directionButtonSupplier = BaseMachineScreen.getDirectionButtonSupplier(outputDirBtnX, outputDirBtnY);
+        this.player = inventory.player;
     }
 
     @Override
@@ -73,6 +81,15 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBeforeTooltip(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    protected void renderBeforeTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 }

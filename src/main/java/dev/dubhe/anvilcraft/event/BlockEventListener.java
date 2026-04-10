@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,12 +20,15 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.AnvilBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+
+import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
@@ -52,26 +56,39 @@ public class BlockEventListener {
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
         InteractionHand hand = event.getHand();
-        ItemStack itemStack = player.getItemInHand(hand);
+        ItemStack stack = player.getItemInHand(hand);
         Level level = event.getLevel();
-        BlockPos blockPos = event.getPos();
-        BlockState targetBlockState = level.getBlockState(blockPos);
+        BlockPos pos = event.getPos();
+        BlockState targetState = level.getBlockState(pos);
         if (
-            itemStack.getItem() instanceof AnvilHammerItem && targetBlockState.getBlock() instanceof IHammerChangeable
+            stack.getItem() instanceof AnvilHammerItem
+            && targetState.getBlock() instanceof IHammerChangeable
         ) {
             if (player.level().isClientSide()) return;
-            if (AnvilHammerItem.ableToUseAnvilHammer(level, blockPos, player)) {
+            if (AnvilHammerItem.ableToUseAnvilHammer(level, pos, player)) {
                 event.setCancellationResult(InteractionResult.SUCCESS);
                 event.setCanceled(true);
             }
         } else if (
-            itemStack.is(Items.IRON_BLOCK)
-                && targetBlockState.is(BlockTags.ANVIL)
-                && player.isShiftKeyDown()
+            stack.is(Items.IRON_BLOCK)
+            && targetState.is(BlockTags.ANVIL)
+            && player.isShiftKeyDown()
         ) {
-            onAnvilFixed(level, itemStack, blockPos, targetBlockState);
+            onAnvilFixed(level, stack, pos, targetState);
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
+        } else if (targetState.getBlock() instanceof BaseBatchCraftingBlock target && player.isShiftKeyDown() && !level.isClientSide) {
+            for (Supplier<BaseBatchCraftingBlock> getter : BaseBatchCraftingBlock.getBatchCraftingBlockGetters()) {
+                BaseBatchCraftingBlock block = getter.get();
+                if (!stack.is(block.getToastSymbol())) continue;
+                level.removeBlock(pos, false);
+                level.removeBlockEntity(pos);
+                level.setBlockAndUpdate(pos, BaseBatchCraftingBlock.copy(targetState, block.defaultBlockState()));
+                Block.popResourceFromFace(level, pos, Direction.UP, target.getToastSymbol().getDefaultInstance().copyWithCount(1));
+                stack.shrink(1);
+                event.setCancellationResult(InteractionResult.CONSUME);
+                event.setCanceled(true);
+            }
         }
     }
 

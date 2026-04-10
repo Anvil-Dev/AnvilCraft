@@ -20,5 +20,6 @@ public class LangHandler {
         KeyMappingLang.init(provider);
         FluidLang.init(provider);
         IntegrationScreenLang.init(provider);
+        ScreenTooltipLang.init(provider);
     }
 }

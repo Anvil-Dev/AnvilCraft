@@ -1,0 +1,46 @@
+{
+  "variants": {
+    "facing=down,overload=false": {
+      "model": "anvilcraft:block/batch_cutter_down"
+    },
+    "facing=east,overload=false": {
+      "model": "anvilcraft:block/batch_cutter",
+      "y": 90
+    },
+    "facing=north,overload=false": {
+      "model": "anvilcraft:block/batch_cutter"
+    },
+    "facing=south,overload=false": {
+      "model": "anvilcraft:block/batch_cutter",
+      "y": 180
+    },
+    "facing=up,overload=false": {
+      "model": "anvilcraft:block/batch_cutter_top"
+    },
+    "facing=west,overload=false": {
+      "model": "anvilcraft:block/batch_cutter",
+      "y": 270
+    },
+    "facing=down,overload=true": {
+      "model": "anvilcraft:block/batch_cutter_down_overload"
+    },
+    "facing=east,overload=true": {
+      "model": "anvilcraft:block/batch_cutter_overload",
+      "y": 90
+    },
+    "facing=north,overload=true": {
+      "model": "anvilcraft:block/batch_cutter_overload"
+    },
+    "facing=south,overload=true": {
+      "model": "anvilcraft:block/batch_cutter_overload",
+      "y": 180
+    },
+    "facing=up,overload=true": {
+      "model": "anvilcraft:block/batch_cutter_top_overload"
+    },
+    "facing=west,overload=true": {
+      "model": "anvilcraft:block/batch_cutter_overload",
+      "y": 270
+    }
+  }
+}
