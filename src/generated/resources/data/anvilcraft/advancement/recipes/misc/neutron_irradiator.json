@@ -1,11 +1,21 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_negative_matter": {
+    "has_charged_neutronium_ingot": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:negative_matter"
+            "items": "anvilcraft:charged_neutronium_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ember_metal_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:ember_metal_ingot"
           }
         ]
       },
@@ -31,6 +41,16 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
+    "has_stable_neutronium_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:stable_neutronium_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "anvilcraft:neutron_irradiator"
@@ -42,8 +62,10 @@
     [
       "has_the_recipe",
       "has_neutronium_ingot",
-      "has_negative_matter",
-      "has_negative_matter_block"
+      "has_charged_neutronium_ingot",
+      "has_stable_neutronium_ingot",
+      "has_negative_matter_block",
+      "has_ember_metal_ingot"
     ]
   ],
   "rewards": {

@@ -436,19 +436,20 @@ public class ModBlocks {
         .properties(p -> p.strength(50.0f, 1200f).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("NIN")
-                .pattern("NVN")
+                .pattern(" A ")
+                .pattern("BCB")
                 .pattern("BBB")
-                .define('I', ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
-                .define('N', ModItems.NEGATIVE_MATTER)
-                .define('B', ModBlocks.NEGATIVE_MATTER_BLOCK)
-                .define('V', ModItems.VOID_MATTER)
+                .define('A', Ingredient.of(ModItems.NEUTRONIUM_INGOT, ModItems.CHARGED_NEUTRONIUM_INGOT, ModItems.STABLE_NEUTRONIUM_INGOT))
+                .define('B', ModItems.EMBER_METAL_INGOT)
+                .define('C', ModBlocks.NEGATIVE_MATTER_BLOCK)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEUTRONIUM_INGOT), AnvilCraftDatagen.has(ModItems.NEUTRONIUM_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEGATIVE_MATTER), AnvilCraftDatagen.has(ModItems.NEGATIVE_MATTER))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK)
-                )
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CHARGED_NEUTRONIUM_INGOT),
+                    AnvilCraftDatagen.has(ModItems.CHARGED_NEUTRONIUM_INGOT))
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.STABLE_NEUTRONIUM_INGOT),
+                    AnvilCraftDatagen.has(ModItems.STABLE_NEUTRONIUM_INGOT))
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
+                    AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK))
+                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
                 .save(provider);
         })
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
