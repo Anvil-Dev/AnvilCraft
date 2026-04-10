@@ -254,6 +254,15 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         }
     }
 
+    /**
+     * 检查目标位置是否可以破坏
+     *
+     * @param devourBlockState       目标方块
+     * */
+    public static boolean canDevour(BlockState devourBlockState) {
+        return !devourBlockState.is(ModBlockTags.DEVOUR_BLACKLIST) && devourBlockState.getBlock().defaultDestroyTime() >= 0;
+    }
+
     private static void devourSingleBlockInternalLogic(
         ServerLevel level, @Nullable Block anvil, BlockPos devourBlockPos, List<BlockPos> filteredBlockPosList,
         @Nullable List<IItemHandler> itemHandlerList, Vec3 center
@@ -265,7 +274,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (devourBlockState.isAir()) return;
-        if (devourBlockState.getBlock().defaultDestroyTime() < 0) return;
+        if (!BlockDevourerBlock.canDevour(devourBlockState)) return;
         if (
             !(anvil instanceof FrostAnvilBlock)
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)

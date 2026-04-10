@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import com.google.common.collect.Streams;
+import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -98,7 +99,8 @@ public class DragonRodItem extends Item {
         ServerLevel level, Player player, InteractionHand hand,
         BlockPos centerPos, BlockState centerState, Direction clickedSide
     ) {
-        if (centerState.getDestroySpeed(level, centerPos) == 0.0F) return;
+        if (centerState.is(ModBlockTags.DEVOUR_BLACKLIST)) return;
+        if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
         ItemStack dragonRod = player.getItemInHand(hand);
         if (!canDevour(player, dragonRod)) return;
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, -1);
@@ -125,7 +127,7 @@ public class DragonRodItem extends Item {
         for (BlockPos devouringPos : devouringPoses) {
             BlockState devouringState = level.getBlockState(devouringPos);
             if (devouringState.isAir()) continue;
-            if (devouringState.getBlock().defaultDestroyTime() < 0) continue;
+            if (!BlockDevourerBlock.canDevour(devouringState)) continue;
             if (devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                 && level.random.nextDouble() > 0.05) {
                 level.destroyBlock(devouringPos, false);

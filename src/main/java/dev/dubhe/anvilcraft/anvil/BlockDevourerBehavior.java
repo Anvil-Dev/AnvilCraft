@@ -33,7 +33,7 @@ public class BlockDevourerBehavior implements IAnvilBehavior {
         );
         if (
             hitBlockState.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
-            && level.getBlockState(hitBlockPos.below()).getBlock().defaultDestroyTime() >= 0
+            && BlockDevourerBlock.canDevour(level.getBlockState(hitBlockPos.below()))
         ) {
             level.setBlockAndUpdate(hitBlockPos, Blocks.AIR.defaultBlockState());
             level.setBlockAndUpdate(hitBlockPos.below(), hitBlockState.setValue(BlockDevourerBlock.TRIGGERED, true));

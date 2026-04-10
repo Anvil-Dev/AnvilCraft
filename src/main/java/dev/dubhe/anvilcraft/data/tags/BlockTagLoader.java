@@ -221,6 +221,10 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_ENDER)
             .addTag(Tags.Blocks.CHESTS_TRAPPED)
             .addTag(Tags.Blocks.CHESTS_WOODEN);
+        provider.addTag(ModBlockTags.DEVOUR_BLACKLIST)
+            .addTag(Tags.Blocks.CHESTS_TRAPPED)
+            .addTag(Tags.Blocks.CHESTS_WOODEN);
+
         provider.addTag(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS)
             .addTag(BlockTags.WART_BLOCKS)
