@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -15,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -28,7 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
-public class LargeFluidTankBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements EntityBlock, IHammerRemovable {
+public class LargeFluidTankBlock
+    extends SimpleMultiPartBlock<Cube3x3PartHalf>
+    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeFluidTankBlock>, IHammerRemovable {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
     public LargeFluidTankBlock(Properties properties) {
@@ -58,10 +60,14 @@ public class LargeFluidTankBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> i
         return Cube3x3PartHalf.values();
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return ModBlockEntities.LARGE_FLUID_TANK.create(blockPos, blockState);
+    public LargeFluidTankBlock getMultiBlock() {
+        return this;
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.LARGE_FLUID_TANK.create(pos, state);
     }
 
     @Nullable
@@ -86,7 +92,9 @@ public class LargeFluidTankBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> i
     ) {
         InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult).result();
         if (result == InteractionResult.PASS) {
-            if (level.getBlockEntity(pos) instanceof LargeFluidTankBlockEntity tank) {
+            BlockPos mainPartPos = getMainPartPos(pos, state);
+            BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
+            if (blockEntity instanceof LargeFluidTankBlockEntity tank) {
                 if (tank.onPlayerUse(player, hand)) {
                     return ItemInteractionResult.sidedSuccess(level.isClientSide());
                 }

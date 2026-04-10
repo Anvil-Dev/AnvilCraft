@@ -196,8 +196,8 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     private static BlockState getPlacementState(AbstractMultiPartBlock<?> block, BlockItem blockItem, BlockPlaceContext context) {
-        if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?>) {
-            FlexibleMultiPartBlock<?, ?, ?> flexBlock = (FlexibleMultiPartBlock<?, ?, ?>) blockItem.getBlock();
+        if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
+            FlexibleMultiPartBlock<?, ?, ?> flexBlock = flexibleMultiPartBlockItem.getBlock();
             BlockState state = flexBlock.getPlacementState(context);
             return state != null ? state : block.defaultBlockState();
         }

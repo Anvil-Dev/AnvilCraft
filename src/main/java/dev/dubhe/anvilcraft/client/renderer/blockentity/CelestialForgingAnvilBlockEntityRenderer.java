@@ -4,9 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -16,18 +14,56 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity> {
-    private static final ModelResourceLocation RING1 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1"));
-    private static final ModelResourceLocation RING2 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
+    private static final ModelResourceLocation RING1 =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1"));
+    private static final ModelResourceLocation RING2 =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
+    private static final ModelResourceLocation RING3 =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
 
     @SuppressWarnings("deprecation")
     @Override
-    public void render(CelestialForgingAnvilBlockEntity blockEntity, float v, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int i1) {
-        ModelBlockRenderer modelRenderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
+    public void render(
+        CelestialForgingAnvilBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack,
+        MultiBufferSource multiBufferSource,
+        int packedLight,
+        int packedOverlay
+    ) {
+        final ModelBlockRenderer modelRenderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
+        float rotation = blockEntity.getRotation() + (blockEntity.getRotation() - blockEntity.getPreRotation()) * partialTick;
         poseStack.pushPose();
         final VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout());
-        poseStack.translate(0.5, 1.5, 0.5);
-        poseStack.mulPose(Axis.XP.rotationDegrees(blockEntity.getRotation()));
-        if (blockEntity.getBlockState().getValue(CelestialForgingAnvilBlock.HALF) == Cube3x3PartHalf.TOP_CENTER) {
+        if (blockEntity.isAmplify()) {
+            poseStack.translate(0.5, 3.5, 0.5);
+        } else {
+            poseStack.translate(0.5, 2.5, 0.5);
+        }
+        poseStack.mulPose(Axis.XP.rotationDegrees(rotation));
+        if (blockEntity.isAmplify()) {
+            poseStack.scale(4, 4, 4);
+            modelRenderer.renderModel(
+                poseStack.last(),
+                vertexConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(RING3),
+                0, 0, 0,
+                LightTexture.FULL_BLOCK,
+                packedOverlay
+            );
+
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
+            modelRenderer.renderModel(
+                poseStack.last(),
+                vertexConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(RING2),
+                0, 0, 0,
+                LightTexture.FULL_BLOCK,
+                packedOverlay
+            );
+        } else {
             poseStack.scale(4, 4, 4);
             modelRenderer.renderModel(
                 poseStack.last(),
@@ -36,10 +72,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 Minecraft.getInstance().getModelManager().getModel(RING2),
                 0, 0, 0,
                 LightTexture.FULL_BLOCK,
-                i1
+                packedOverlay
             );
 
-            poseStack.mulPose(Axis.ZP.rotationDegrees(blockEntity.getRotation()));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
             modelRenderer.renderModel(
                 poseStack.last(),
                 vertexConsumer,
@@ -47,7 +83,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 Minecraft.getInstance().getModelManager().getModel(RING1),
                 0, 0, 0,
                 LightTexture.FULL_BLOCK,
-                i1
+                packedOverlay
             );
         }
         poseStack.popPose();

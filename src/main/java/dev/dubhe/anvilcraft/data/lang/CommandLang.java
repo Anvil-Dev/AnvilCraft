@@ -32,5 +32,8 @@ public class CommandLang {
         provider.add("command.anvilcraft.multiphase.apply.not_player", "Command runner is not player");
 
         provider.add("command.anvilcraft.universe.no_id", "No ID provided and cannot find ID in items on hand");
+
+        provider.add("command.anvilcraft.multiBlock.not_multi_block", "This block is not a multi-block");
+        provider.add("command.anvilcraft.multiBlock.multi_block_pos", "Main part pos is ");
     }
 }

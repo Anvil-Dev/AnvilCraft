@@ -1,6 +1,8 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cfa;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -9,7 +11,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,23 +21,17 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class CelestialForgingAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements EntityBlock, IHammerRemovable {
+public class CelestialForgingAnvilBlock
+    extends SimpleMultiPartBlock<Cube3x3PartHalf>
+    implements MultiPartBlockEntity<Cube3x3PartHalf, CelestialForgingAnvilBlock>, IHammerRemovable {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
     public CelestialForgingAnvilBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any()
             .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
-    }
-
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.block();
     }
 
     @Override
@@ -85,19 +80,24 @@ public class CelestialForgingAnvilBlock extends SimpleMultiPartBlock<Cube3x3Part
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return ModBlockEntities.CELESTIAL_FORGING_ANVIL.create(blockPos, blockState);
-    }
-
-    @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) {
             return PropelPiston.createTickerHelper(
                 type,
                 ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.clientTick()
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1)
             );
         }
         return null;
+    }
+
+    @Override
+    public CelestialForgingAnvilBlock getMultiBlock() {
+        return this;
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.CELESTIAL_FORGING_ANVIL.create(pos, state);
     }
 }
