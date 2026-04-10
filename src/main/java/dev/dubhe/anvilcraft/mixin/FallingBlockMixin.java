@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.GravityManager;
+import dev.dubhe.anvilcraft.util.GravityType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -37,7 +38,7 @@ public abstract class FallingBlockMixin extends Block {
     )
     private void anvilcraft$fall(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, CallbackInfo ci) {
         // 1. 计算净重力
-        GravityManager.GravityType gravityType = GravityManager.getFallingBlockGravityType(state.getBlock());
+        GravityType gravityType = GravityManager.getFallingBlockGravityType(state.getBlock());
         Vec3 netGravity = GravityManager.getNetGravityVectorForFallingBlock(level, Vec3.atCenterOf(pos), gravityType);
         double gravitySq = netGravity.lengthSqr();
 

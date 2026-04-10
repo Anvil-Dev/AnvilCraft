@@ -38,6 +38,7 @@
     "LevelChunkMixin",
     "LightningBoltMixin",
     "LivingEntityMixin",
+    "ModelBakeryMixin",
     "NearestAttackableTargetGoalMixin",
     "PhantomGoalMixin",
     "PigMixin",

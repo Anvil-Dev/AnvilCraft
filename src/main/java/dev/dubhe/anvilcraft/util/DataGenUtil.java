@@ -21,6 +21,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
@@ -107,6 +108,7 @@ public class DataGenUtil {
         ItemStack stack = ctx.get().getDefaultInstance();
         modifier.accept(stack.copy());
         stack.set(ModComponents.STORED_ENERGY, 320000);
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
         modifier.accept(stack.copy());
     }
 

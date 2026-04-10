@@ -645,7 +645,7 @@
 	"overrides": [
 		{
 			"predicate": {
-				"anvilcraft:stored_energy": 800
+				"custom_model_data": 1
 			},
 			"model": "anvilcraft:item/spectral_weapon_launcher_exhausted"
 		}

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.SpectralWeaponLauncherItem;
+import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -59,22 +59,33 @@ public class SpectralWeaponLauncherRenderer extends BlockEntityWithoutLevelRende
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         if (stack.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) {
             BakedModel normalModel = itemRenderer.getItemModelShaper().getItemModel(stack);
-            renderItemAtCurrentPoseStack(itemRenderer,
+            renderItemAtCurrentPoseStack(
+                itemRenderer,
                 stack,
                 displayContext,
                 poseStack,
                 buffer,
                 packedLight,
                 packedOverlay,
-                normalModel
+                normalModel.getOverrides().resolve(
+                    normalModel,
+                    stack,
+                    null,
+                    null,
+                    42
+                )
             );
             ChargedProjectiles cp = stack.get(DataComponents.CHARGED_PROJECTILES);
             if (cp != null && !cp.isEmpty()) {
                 ItemStack ammo = cp.getItems().getFirst();
                 poseStack.pushPose();
-                poseStack.translate(0f, 5f, 0.50F);
+                // poseStack.translate(38f / 256f, 5f / 64f, 7f / 8f);
+                // poseStack.mulPose(Axis.YP.rotationDegrees(90));
+                // poseStack.mulPose(Axis.XN.rotationDegrees(45));
+                // poseStack.mulPose(Axis.ZN.rotationDegrees(45));
+                poseStack.translate(0f, 7f / 16f, 7f / 8f);
                 poseStack.mulPose(Axis.YP.rotationDegrees(90));
-                poseStack.mulPose(Axis.ZP.rotationDegrees(- 45));
+                poseStack.mulPose(Axis.ZN.rotationDegrees(45));
                 // poseStack.pushPose();
                 BakedModel bakedModel = itemRenderer.getItemModelShaper().getItemModel(ammo);
                 renderItemAtCurrentPoseStack(

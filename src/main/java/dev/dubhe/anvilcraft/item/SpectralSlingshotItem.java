@@ -96,6 +96,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
      */
     public boolean checkLoadable(ItemStack weapon, ItemStack stack) {
         // 装载箭矢的设定取消了：if (stack.is(ItemTags.ARROWS)) return true;
+        if (this.unableToUse(weapon)) return false;
         ItemAttributeModifiers modifiers = stack.getAttributeModifiers();
         double dmg = 0;
         for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
@@ -131,6 +132,10 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         stack.set(ModComponents.CAN_TAKE_OUT_AMMO, can);
     }
 
+    public boolean unableToUse(ItemStack stack) {
+        return false;
+    }
+
     // 以下的代码大量从原版（neoforge融合后的）的弩物品的代码复制过来的
 
     @Override
@@ -139,6 +144,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         ChargedProjectiles chargedprojectiles = itemstack.get(DataComponents.CHARGED_PROJECTILES);
         if (chargedprojectiles != null && !chargedprojectiles.isEmpty()) {
             if (!player.isCrouching() && !player.getCooldowns().isOnCooldown(this)) {
+                if (this.unableToUse(itemstack)) return InteractionResultHolder.fail(itemstack);
                 this.performShooting(level, player, hand, itemstack, SpectralSlingshotItem.getShootingPower(), 1.0F, null);
                 int quickCharge = itemstack.getEnchantmentLevel(
                     player.level()

@@ -278,17 +278,7 @@ public abstract class EntityMixin implements IEntityExtension {
         Level level = entity.level();
 
         // 获取基础重力
-        double baseGravity = cir.getReturnValue();
-
-        // 应用物质特殊属性
-        GravityManager.GravityType type = GravityManager.getGravityType(entity);
-        switch (type) {
-            case ANTI_GRAVITY -> baseGravity *= -1;
-            case MICRO_ANTI_GRAVITY -> baseGravity *= -0.005;
-            case LOW_GRAVITY -> baseGravity *= 0.5;
-            default -> {
-            }
-        }
+        double baseGravity = cir.getReturnValue() * GravityManager.getGravityType(entity).getScalar();
 
         // 维度重力 = 基础重力 * 维度系数
         double dimensionGravity = baseGravity * GravityManager.getDimensionGravity(level);
