@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "anvilcraft:celestial_forging_anvil_amplifier",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "bottom_part"
+              }
+            }
+          ],
+          "name": "anvilcraft:celestial_forging_anvil_amplifier"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "anvilcraft:blocks/celestial_forging_anvil_amplifier"
+}

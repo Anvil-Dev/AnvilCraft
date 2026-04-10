@@ -26,5 +26,8 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/laser")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/axis")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/advanced_comparator_indicator")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3")));
     }
 }

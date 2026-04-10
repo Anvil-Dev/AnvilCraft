@@ -1,0 +1,6 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "anvilcraft:block/celestial_forging_anvil_base"
+	}
+}

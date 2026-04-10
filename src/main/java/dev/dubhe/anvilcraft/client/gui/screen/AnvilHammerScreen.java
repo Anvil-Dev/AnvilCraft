@@ -633,11 +633,19 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 0
             );
             if (this.currentBlockState.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
-                PacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
-                    this.targetBlockPos,
-                    this.currentBlockState,
-                    this.currentBlockState.getValue(BlockStateProperties.FACING)
-                ));
+                if (this.currentBlockState.hasProperty(BlockStateProperties.FACING)) {
+                    PacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
+                        this.targetBlockPos,
+                        this.currentBlockState,
+                        this.currentBlockState.getValue(BlockStateProperties.FACING)
+                    ));
+                } else if (this.currentBlockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+                    PacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
+                        this.targetBlockPos,
+                        this.currentBlockState,
+                        this.currentBlockState.getValue(BlockStateProperties.HORIZONTAL_FACING)
+                    ));
+                }
             } else {
                 PacketDistributor.sendToServer(new HammerChangeBlockPacket(
                     this.targetBlockPos,

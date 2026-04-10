@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface"
+    },
+    "facing=east": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface",
+      "y": 270
+    }
+  }
+}

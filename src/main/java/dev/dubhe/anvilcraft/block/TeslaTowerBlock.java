@@ -4,9 +4,11 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
@@ -23,7 +25,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -44,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class TeslaTowerBlock
     extends SimpleMultiPartBlock<Vertical4PartHalf>
-    implements IHammerRemovable, IHasMultiBlock, EntityBlock {
+    implements IHammerRemovable, IHasMultiBlock, MultiPartBlockEntity<Vertical4PartHalf, TeslaTowerBlock> {
     public static final EnumProperty<Vertical4PartHalf> HALF = EnumProperty.create("half", Vertical4PartHalf.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
@@ -128,10 +129,14 @@ public class TeslaTowerBlock
         return state;
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TeslaTowerBlockEntity(pos, state);
+    public TeslaTowerBlock getMultiBlock() {
+        return this;
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.TESLA_TOWER.create(pos, state);
     }
 
     @Nullable
@@ -194,12 +199,15 @@ public class TeslaTowerBlock
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
-            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-            ModMenuTypes.open(sp, teslaTowerBlockEntity, pos);
-            PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getWhiteList()));
-            return InteractionResult.SUCCESS;
+        if (state.is(this)) {
+            BlockPos mainPartPos = getMainPartPos(pos, state);
+            BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
+            if (blockEntity instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
+                if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+                ModMenuTypes.open(sp, teslaTowerBlockEntity, mainPartPos);
+                PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getWhiteList()));
+                return InteractionResult.SUCCESS;
+            }
         }
         return InteractionResult.FAIL;
     }
