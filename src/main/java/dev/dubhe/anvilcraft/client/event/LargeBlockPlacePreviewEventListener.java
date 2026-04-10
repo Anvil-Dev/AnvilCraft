@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -87,6 +88,9 @@ public class LargeBlockPlacePreviewEventListener {
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
         Inventory inventory = player.getInventory();
         ItemStack item = inventory.getItem(inventory.selected);
+        if (!(item.getItem() instanceof BlockItem)) {
+            item = player.getItemInHand(InteractionHand.OFF_HAND);
+        }
         if (item.getItem() instanceof BlockItem blockItem) {
             if (blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block) {
                 validateCanRender(item, blockItem, pos);
@@ -120,7 +124,7 @@ public class LargeBlockPlacePreviewEventListener {
                     pair.first(),
                     boundColor
                 );
-                renderErrorBound(poseStack, vertexConsumer, event.getCamera(), pair.second());
+                renderErrorBound(poseStack, vertexConsumer, event.getCamera());
             }
         }
     }
@@ -167,13 +171,12 @@ public class LargeBlockPlacePreviewEventListener {
         }
     }
 
-    private static void renderErrorBound(PoseStack poseStack, VertexConsumer vertexConsumer, Camera camera, List<BlockPos> posList) {
+    private static void renderErrorBound(PoseStack poseStack, VertexConsumer vertexConsumer, Camera camera) {
         Vec3 position = camera.getPosition();
         if (failBoundErrorCooldown > 0) {
             RenderSystem.disableDepthTest();
             RenderSystem.depthMask(false);
-            List<BlockPos> toRender = failBoundErrorCooldown > 0 ? cachedErrorPosList : posList;
-            for (BlockPos blockPos : toRender) {
+            for (BlockPos blockPos : cachedErrorPosList) {
                 TooltipRenderHelper.renderOutline(
                     poseStack,
                     vertexConsumer,
