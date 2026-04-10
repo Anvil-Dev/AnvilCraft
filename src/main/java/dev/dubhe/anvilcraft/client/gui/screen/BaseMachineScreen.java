@@ -57,6 +57,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = 2;
         this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(directionButton);
     }
@@ -85,5 +86,10 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     }
 
     protected void renderBeforeTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 }
