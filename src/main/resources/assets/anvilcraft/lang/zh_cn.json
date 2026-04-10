@@ -1389,5 +1389,6 @@
   "item.anvilcraft.anvil_railgun": "铁砧轨道炮",
   "item.anvilcraft.energy_weapon_platform": "能量武器平台",
   "tooltip.anvilcraft.item.energy_weapon_platform": "已存储320MJ，但只会继承至能量武器制作产物中",
-  "tooltip.anvilcraft.property.ferocious": "残暴：根据已有魔咒的等级提升攻击伤害和挖掘效率"
+  "tooltip.anvilcraft.property.ferocious": "残暴：根据已有魔咒的等级提升攻击伤害和挖掘效率",
+  "block.anvilcraft.celestial_forging_anvil": "锻星砧"
 }
