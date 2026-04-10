@@ -77,15 +77,17 @@ public class BlockEventListener {
             onAnvilFixed(level, stack, pos, targetState);
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
-        } else if (targetState.getBlock() instanceof BaseBatchCraftingBlock target && player.isShiftKeyDown() && !level.isClientSide) {
+        } else if (targetState.getBlock() instanceof BaseBatchCraftingBlock target && player.isShiftKeyDown()) {
             for (Supplier<BaseBatchCraftingBlock> getter : BaseBatchCraftingBlock.getBatchCraftingBlockGetters()) {
                 BaseBatchCraftingBlock block = getter.get();
                 if (!stack.is(block.getToastSymbol())) continue;
-                level.removeBlock(pos, false);
-                level.removeBlockEntity(pos);
-                level.setBlockAndUpdate(pos, BaseBatchCraftingBlock.copy(targetState, block.defaultBlockState()));
-                Block.popResourceFromFace(level, pos, Direction.UP, target.getToastSymbol().getDefaultInstance().copyWithCount(1));
-                stack.shrink(1);
+                if (!level.isClientSide) {
+                    level.removeBlock(pos, false);
+                    level.removeBlockEntity(pos);
+                    level.setBlockAndUpdate(pos, BaseBatchCraftingBlock.copy(targetState, block.defaultBlockState()));
+                    Block.popResourceFromFace(level, pos, Direction.UP, target.getToastSymbol().getDefaultInstance().copyWithCount(1));
+                    stack.shrink(1);
+                }
                 event.setCancellationResult(InteractionResult.CONSUME);
                 event.setCanceled(true);
             }
