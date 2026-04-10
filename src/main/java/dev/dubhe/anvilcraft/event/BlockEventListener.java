@@ -82,8 +82,6 @@ public class BlockEventListener {
                 BaseBatchCraftingBlock block = getter.get();
                 if (!stack.is(block.getToastSymbol())) continue;
                 if (!level.isClientSide) {
-                    level.removeBlock(pos, false);
-                    level.removeBlockEntity(pos);
                     level.setBlockAndUpdate(pos, BaseBatchCraftingBlock.copy(targetState, block.defaultBlockState()));
                     Block.popResourceFromFace(level, pos, Direction.UP, target.getToastSymbol().getDefaultInstance().copyWithCount(1));
                     stack.shrink(1);
