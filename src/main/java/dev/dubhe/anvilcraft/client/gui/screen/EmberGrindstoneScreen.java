@@ -75,6 +75,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = 3;
     }
 
     @Override
@@ -132,7 +133,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderLabels(guiGraphics, mouseX, mouseY);
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
 
         int cost = this.menu.getCost();
         if (cost <= 0) return;

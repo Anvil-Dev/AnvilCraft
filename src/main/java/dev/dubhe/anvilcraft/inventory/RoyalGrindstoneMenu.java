@@ -99,17 +99,17 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             }
         };
         this.access = access;
-        this.addSlot(new Slot(this.repairToolSlots, 0, 25, 34) {
+        this.addSlot(new Slot(this.repairToolSlots, 0, 15, 33) {
             public boolean mayPlace(ItemStack stack) {
                 return stack.isDamageableItem() || stack.is(Items.ENCHANTED_BOOK) || stack.isEnchanted();
             }
         });
-        this.addSlot(new Slot(this.repairMaterialSlots, 0, 89, 22) {
+        this.addSlot(new Slot(this.repairMaterialSlots, 0, 35, 21) {
             public boolean mayPlace(ItemStack stack) {
                 return isRepairMaterial(stack);
             }
         });
-        this.addSlot(new Slot(this.resultToolSlots, 2, 145, 34) {
+        this.addSlot(new Slot(this.resultToolSlots, 2, 152, 51) {
             public boolean mayPlace(ItemStack stack) {
                 return false;
             }

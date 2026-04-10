@@ -47,8 +47,14 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    }
+
+    @Override
     protected void init() {
         super.init();
+        this.titleLabelY = 3;
         this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
         if (this.minecraft == null) return;

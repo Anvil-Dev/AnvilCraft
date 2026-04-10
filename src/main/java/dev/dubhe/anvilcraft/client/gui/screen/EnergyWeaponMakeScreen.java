@@ -70,11 +70,16 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    }
+
+    @Override
     protected void init() {
         super.init();
         this.imageHeight = 175;
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.inventoryLabelY = 72;
+        this.titleLabelY = 3;
 
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 152,
