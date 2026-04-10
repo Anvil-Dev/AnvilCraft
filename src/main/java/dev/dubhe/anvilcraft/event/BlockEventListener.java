@@ -88,6 +88,7 @@ public class BlockEventListener {
                 }
                 event.setCancellationResult(InteractionResult.CONSUME);
                 event.setCanceled(true);
+                return;
             }
         }
     }
