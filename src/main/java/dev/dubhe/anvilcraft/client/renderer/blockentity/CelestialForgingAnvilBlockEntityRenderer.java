@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity> {
@@ -20,6 +21,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
     private static final ModelResourceLocation RING3 =
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
+
+    public CelestialForgingAnvilBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    }
 
     @SuppressWarnings("deprecation")
     @Override

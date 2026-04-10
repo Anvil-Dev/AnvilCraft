@@ -350,7 +350,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilBlockEntity> CELESTIAL_FORGING_ANVIL = REGISTRUM
         .blockEntity("celestial_forging_anvil", CelestialForgingAnvilBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL)
-        .renderer(() -> (ctx) -> new CelestialForgingAnvilBlockEntityRenderer())
+        .renderer(() -> CelestialForgingAnvilBlockEntityRenderer::new)
         .register();
 
     public static void register() {
