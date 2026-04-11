@@ -49,6 +49,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class BlockDevourerBlock extends DirectionalBlock implements HammerRotateBehavior, IHammerRemovable {
@@ -256,7 +257,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                     chainDevourBlockPosList.add(chainDevourBlockPos.immutable());
                 }
             }
-            if (level.getBlockState(devourBlockPos).canSurvive(devouringLevelReader, devourBlockPos)) {
+            if (!level.getBlockState(devourBlockPos).canSurvive(devouringLevelReader, devourBlockPos)) {
                 devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
             } else {
                 secondaryBlockPosList.add(devourBlockPos);
@@ -264,7 +265,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         }
         DevouringLevelReader chainDevouringLevelReader = new DevouringLevelReader(level, chainDevourBlockPosList);
         for (BlockPos devourBlockPos : chainDevourBlockPosList) {
-            if (level.getBlockState(devourBlockPos).canSurvive(chainDevouringLevelReader, devourBlockPos)) {
+            if (!level.getBlockState(devourBlockPos).canSurvive(chainDevouringLevelReader, devourBlockPos)) {
                 devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
             } else {
                 secondaryBlockPosList.add(devourBlockPos);
