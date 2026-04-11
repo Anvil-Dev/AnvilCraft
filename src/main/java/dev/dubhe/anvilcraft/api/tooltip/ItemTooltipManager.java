@@ -182,6 +182,11 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.FROST_ANVIL.asItem(), "Wither proof");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Wither proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Wither proof");
 
         SHIFT.put(ModBlocks.SPECTRAL_ANVIL.asItem(),
             "When the upper magnet is demagnetized, a phantom shadow is created and falls downward. "

@@ -2207,21 +2207,29 @@ public class ModBlocks {
         )
         .lang("Block of Frost Metal")
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .tag(
             BlockTags.BEACON_BASE_BLOCKS,
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
             ModBlockTags.OVERSEER_BASE,
             Tags.Blocks.STORAGE_BLOCKS,
-            ModBlockTags.STORAGE_BLOCKS_FROST_METAL
+            ModBlockTags.STORAGE_BLOCKS_FROST_METAL,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE
         )
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/frost_metal_block").get()
         ))
         .item(FrostMetalBlockItem::new)
-        .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL)
+        .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL, ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
@@ -2242,15 +2250,25 @@ public class ModBlocks {
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
-            ModBlockTags.OVERSEER_BASE
+            ModBlockTags.OVERSEER_BASE,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/cut_frost_metal_block").get()
         ))
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
                 .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
@@ -2266,12 +2284,22 @@ public class ModBlocks {
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
-            ModBlockTags.OVERSEER_BASE
+            ModBlockTags.OVERSEER_BASE,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
                 .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
@@ -2291,13 +2319,21 @@ public class ModBlocks {
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
             BlockTags.SLABS,
-            ModBlockTags.OVERSEER_BASE
+            ModBlockTags.OVERSEER_BASE,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .tag(ItemTags.SLABS)
+        .tag(ItemTags.SLABS, ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
@@ -2323,13 +2359,21 @@ public class ModBlocks {
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
             BlockTags.STAIRS,
-            ModBlockTags.OVERSEER_BASE
+            ModBlockTags.OVERSEER_BASE,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .tag(ItemTags.STAIRS)
+        .tag(ItemTags.STAIRS, ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
