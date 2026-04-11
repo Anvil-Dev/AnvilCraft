@@ -138,46 +138,28 @@ public class ShapeUtil {
     }
 
     /**
-     * 旋转指定的形状
+     * 按逆时针旋转指定的形状
      *
-     * @param baseDir 碰撞箱朝向
-     * @param destDir 旋转目标朝向
-     * @param shape   形状
+     * @param axis  旋转轴
+     * @param angle 旋转角度
+     * @param shape 形状
      *
      * @return 旋转后的形状
      * @apiNote 仅应用于方块形状初始化！
      */
-    public static VoxelShape rotate(Direction baseDir, Direction destDir, VoxelShape shape) {
+    public static VoxelShape rotate(Direction.Axis axis, float angle, VoxelShape shape) {
         List<AABB> shapes = shape.toAabbs();
         AABB[] result = new AABB[shapes.size()];
         for (int i = 0; i < shapes.size(); i++) {
             AABB unrotated = shapes.get(i);
             unrotated = new AABB(unrotated.getMinPosition().scale(16), unrotated.getMaxPosition().scale(16));
-            result[i] = ShapeUtil.rotate(baseDir, destDir, unrotated);
+            result[i] = ShapeUtil.rotate(axis, angle, unrotated);
         }
         return ShapeUtil.merge(result);
     }
 
     /**
-     * 旋转指定的若干碰撞箱
-     *
-     * @param baseDir 碰撞箱朝向
-     * @param destDir 旋转目标朝向
-     * @param shapes  16x长度的碰撞箱
-     *
-     * @return 旋转后的16x长度碰撞箱
-     * @apiNote 仅应用于方块形状初始化！
-     */
-    public static AABB[] rotate(Direction baseDir, Direction destDir, AABB... shapes) {
-        AABB[] result = new AABB[shapes.length];
-        for (int i = 0; i < shapes.length; i++) {
-            result[i] = ShapeUtil.rotate(baseDir, destDir, shapes[i]);
-        }
-        return result;
-    }
-
-    /**
-     * 旋转指定的若干碰撞箱
+     * 按逆时针旋转指定的若干碰撞箱
      *
      * @param axis   旋转轴
      * @param angle  旋转角度
@@ -195,56 +177,7 @@ public class ShapeUtil {
     }
 
     /**
-     * 旋转指定的碰撞箱
-     *
-     * @param baseDir 碰撞箱朝向
-     * @param destDir 旋转目标朝向
-     * @param shape   16x长度的碰撞箱
-     *
-     * @return 旋转后的16x长度碰撞箱
-     * @apiNote 仅应用于方块形状初始化！
-     */
-    public static AABB rotate(Direction baseDir, Direction destDir, AABB shape) {
-        if (baseDir == destDir) return shape;
-
-        Vec3 min = shape.getMinPosition().subtract(8, 8, 8);
-        Vec3 max = shape.getMaxPosition().subtract(8, 8, 8);
-        Direction.Axis baseAxis = baseDir.getAxis();
-        Direction.Axis destAxis = destDir.getAxis();
-        Direction.AxisDirection baseAxisDir = baseDir.getAxisDirection();
-        Direction.AxisDirection destAxisDir = destDir.getAxisDirection();
-        boolean sameAxisDir = baseAxisDir == destAxisDir;
-
-        Direction.Axis rotAxis;
-        int value = sameAxisDir ? 270 : 90;
-        if (baseAxis != destAxis) {
-            rotAxis = Direction.Axis.values()[Direction.Axis.values().length - baseAxis.ordinal() - destAxis.ordinal()];
-        } else {
-            rotAxis = Direction.Axis.values()[(baseAxis.ordinal() + 1) % Direction.Axis.values().length];
-            value = 180;
-        }
-
-        switch (rotAxis) {
-            case X -> {
-                min = min.xRot((float) Math.toRadians(value));
-                max = max.xRot((float) Math.toRadians(value));
-            }
-            case Y -> {
-                min = min.yRot((float) Math.toRadians(value));
-                max = max.yRot((float) Math.toRadians(value));
-            }
-            case Z -> {
-                min = min.zRot((float) Math.toRadians(value));
-                max = max.zRot((float) Math.toRadians(value));
-            }
-            default -> {
-            }
-        }
-        return new AABB(min.add(8, 8, 8), max.add(8, 8, 8));
-    }
-
-    /**
-     * 旋转指定的碰撞箱
+     * 按逆时针旋转指定的碰撞箱
      *
      * @param axis  旋转轴
      * @param angle 旋转角度
@@ -276,5 +209,61 @@ public class ShapeUtil {
             }
         }
         return new AABB(min.add(8, 8, 8), max.add(8, 8, 8));
+    }
+
+    /**
+     * 镜像指定的形状
+     *
+     * @param axis  轴
+     * @param shape 形状
+     *
+     * @return 镜像后的形状
+     * @apiNote 仅应用于方块形状初始化！
+     */
+    public static VoxelShape mirror(Direction.Axis axis, VoxelShape shape) {
+        List<AABB> shapes = shape.toAabbs();
+        AABB[] result = new AABB[shapes.size()];
+        for (int i = 0; i < shapes.size(); i++) {
+            AABB unmirrored = shapes.get(i);
+            unmirrored = new AABB(unmirrored.getMinPosition().scale(16), unmirrored.getMaxPosition().scale(16));
+            result[i] = ShapeUtil.mirror(axis, unmirrored);
+        }
+        return ShapeUtil.merge(result);
+    }
+
+    /**
+     * 镜像指定的若干碰撞箱
+     *
+     * @param axis   轴
+     * @param shapes 16x长度的碰撞箱
+     *
+     * @return 镜像后的16x长度碰撞箱
+     * @apiNote 仅应用于方块形状初始化！
+     */
+    public static AABB[] mirror(Direction.Axis axis, AABB... shapes) {
+        AABB[] result = new AABB[shapes.length];
+        for (int i = 0; i < shapes.length; i++) {
+            result[i] = ShapeUtil.mirror(axis, shapes[i]);
+        }
+        return result;
+    }
+
+    /**
+     * 镜像指定的碰撞箱
+     *
+     * @param axis  轴
+     * @param shape 16x长度的碰撞箱
+     *
+     * @return 镜像后的16x长度碰撞箱
+     * @apiNote 仅应用于方块形状初始化！
+     */
+    public static AABB mirror(Direction.Axis axis, AABB shape) {
+        double min = 16 - shape.max(axis);
+        double max = 16 - shape.min(axis);
+        return switch (axis) {
+            case X -> new AABB(min, shape.minY, shape.minZ, max, shape.maxY, shape.maxZ);
+            case Y -> new AABB(shape.minX, min, shape.minZ, shape.maxX, max, shape.maxZ);
+            case Z -> new AABB(shape.minX, shape.minY, min, shape.maxX, shape.maxY, max);
+        };
     }
 }

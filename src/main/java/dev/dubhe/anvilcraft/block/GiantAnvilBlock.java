@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.ShapeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -45,16 +46,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.stream.Stream;
 
 public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements Fallable, IHammerRemovable {
     public static final SoundType SOUND_TYPE = new DeferredSoundType(
@@ -68,62 +67,40 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     private static final Component CONTAINER_TITLE = Component.translatable("container.repair");
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
     public static final EnumProperty<GiantAnvilCube> CUBE = EnumProperty.create("cube", GiantAnvilCube.class);
-    protected static final VoxelShape BASE_ANGLE_NW = Stream.of(
-            Block.box(9, 8, 9, 16, 13, 16), Block.box(12, 13, 12, 16, 16, 16), Block.box(4, 0, 4, 16, 8, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape BASE_ANGLE_SW = Stream.of(
-            Block.box(9, 8, 0, 16, 13, 7), Block.box(12, 13, 0, 16, 16, 4), Block.box(4, 0, 0, 16, 8, 12))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape BASE_ANGLE_NE = Stream.of(
-            Block.box(0, 8, 9, 7, 13, 16), Block.box(0, 13, 12, 4, 16, 16), Block.box(0, 0, 4, 12, 8, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape BASE_ANGLE_SE = Stream.of(
-            Block.box(0, 8, 0, 7, 13, 7), Block.box(0, 13, 0, 4, 16, 4), Block.box(0, 0, 0, 12, 8, 12))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape BASE_N = Stream.of(
-            Block.box(0, 13, 12, 16, 16, 16), Block.box(0, 8, 9, 16, 13, 16), Block.box(0, 0, 4, 16, 8, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape BASE_S = Stream.of(
-            Block.box(0, 13, 0, 16, 16, 4), Block.box(0, 8, 0, 16, 13, 7), Block.box(0, 0, 0, 16, 8, 12))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape BASE_E = Stream.of(
-            Block.box(0, 13, 0, 4, 16, 16), Block.box(0, 8, 0, 7, 13, 16), Block.box(0, 0, 0, 12, 8, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape BASE_W = Stream.of(
-            Block.box(12, 13, 0, 16, 16, 16), Block.box(9, 8, 0, 16, 13, 16), Block.box(4, 0, 0, 16, 8, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape MID_ANGLE_NW =
-        Shapes.join(Block.box(12, 0, 12, 16, 10, 16), Block.box(8, 10, 8, 16, 16, 16), BooleanOp.OR);
-    protected static final VoxelShape MID_ANGLE_SW =
-        Shapes.join(Block.box(12, 0, 0, 16, 10, 4), Block.box(8, 10, 0, 16, 16, 8), BooleanOp.OR);
-    protected static final VoxelShape MID_ANGLE_NE =
-        Shapes.join(Block.box(0, 0, 12, 4, 10, 16), Block.box(0, 10, 8, 8, 16, 16), BooleanOp.OR);
-    protected static final VoxelShape MID_ANGLE_SE =
-        Shapes.join(Block.box(0, 0, 0, 4, 10, 4), Block.box(0, 10, 0, 8, 16, 8), BooleanOp.OR);
-    protected static final VoxelShape MID_EDGE_N = Stream.of(
-            Block.box(0, 0, 12, 16, 9, 16), Block.box(0, 9, 6, 16, 16, 16), Block.box(0, 12, 0, 16, 16, 6))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape MID_EDGE_S = Stream.of(
-            Block.box(0, 0, 0, 16, 9, 4), Block.box(0, 9, 0, 16, 16, 10), Block.box(0, 12, 10, 16, 16, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape MID_EDGE_E = Stream.of(
-            Block.box(0, 0, 0, 4, 9, 16), Block.box(0, 9, 0, 10, 16, 16), Block.box(10, 12, 0, 16, 16, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
-    protected static final VoxelShape MID_EDGE_W = Stream.of(
-            Block.box(12, 0, 0, 16, 9, 16), Block.box(6, 9, 0, 16, 16, 16), Block.box(0, 12, 0, 6, 16, 16))
-        .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
-        .get();
+    protected static final VoxelShape BASE_NW = ShapeUtil.merge(
+        new AABB(9, 8, 9, 16, 13, 16),
+        new AABB(12, 13, 12, 16, 16, 16),
+        new AABB(4, 0, 4, 16, 8, 16)
+    );
+    protected static final VoxelShape BASE_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, BASE_NW);
+    protected static final VoxelShape BASE_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, BASE_NW);
+    protected static final VoxelShape BASE_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, BASE_NW);
+
+    protected static final VoxelShape BASE_N = ShapeUtil.merge(
+        Block.box(0, 13, 12, 16, 16, 16),
+        Block.box(0, 8, 9, 16, 13, 16),
+        Block.box(0, 0, 4, 16, 8, 16)
+    );
+    protected static final VoxelShape BASE_W = ShapeUtil.rotate(Direction.Axis.Y, 90, BASE_N);
+    protected static final VoxelShape BASE_S = ShapeUtil.rotate(Direction.Axis.Y, 180, BASE_N);
+    protected static final VoxelShape BASE_E = ShapeUtil.rotate(Direction.Axis.Y, 270, BASE_N);
+
+    protected static final VoxelShape MID_NW = ShapeUtil.merge(
+        new AABB(12, 0, 12, 16, 10, 16),
+        new AABB(8, 10, 8, 16, 16, 16)
+    );
+    protected static final VoxelShape MID_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_NW);
+    protected static final VoxelShape MID_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_NW);
+    protected static final VoxelShape MID_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_NW);
+
+    protected static final VoxelShape MID_N = ShapeUtil.merge(
+        Block.box(0, 0, 12, 16, 9, 16),
+        Block.box(0, 9, 6, 16, 16, 16),
+        Block.box(0, 12, 0, 16, 16, 6)
+    );
+    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_N);
+    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_N);
+    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_N);
 
     private static final ImmutableMap<Direction, ImmutableList<Vec3i>> UPDATE_OFFSET = ImmutableMap.of(
         Direction.DOWN,
@@ -216,23 +193,23 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         CollisionContext context
     ) {
         return switch (state.getValue(HALF)) {
-            case MID_E -> MID_EDGE_E;
-            case MID_W -> MID_EDGE_W;
-            case MID_N -> MID_EDGE_N;
-            case MID_S -> MID_EDGE_S;
-            case MID_EN -> MID_ANGLE_NE;
-            case MID_ES -> MID_ANGLE_SE;
-            case MID_WN -> MID_ANGLE_NW;
-            case MID_WS -> MID_ANGLE_SW;
+            case MID_E -> MID_E;
+            case MID_W -> MID_W;
+            case MID_N -> MID_N;
+            case MID_S -> MID_S;
+            case MID_EN -> MID_NE;
+            case MID_ES -> MID_SE;
+            case MID_WN -> MID_NW;
+            case MID_WS -> MID_SW;
             case BOTTOM_E -> BASE_E;
             case BOTTOM_W -> BASE_W;
             case BOTTOM_N -> BASE_N;
             case BOTTOM_S -> BASE_S;
-            case BOTTOM_EN -> BASE_ANGLE_NE;
-            case BOTTOM_ES -> BASE_ANGLE_SE;
-            case BOTTOM_WN -> BASE_ANGLE_NW;
-            case BOTTOM_WS -> BASE_ANGLE_SW;
-            default -> Block.box(0, 1, 0, 16, 16, 16);
+            case BOTTOM_EN -> BASE_NE;
+            case BOTTOM_ES -> BASE_SE;
+            case BOTTOM_WN -> BASE_NW;
+            case BOTTOM_WS -> BASE_SW;
+            default -> Shapes.block();
         };
     }
 
@@ -259,6 +236,16 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     @Override
     public Cube3x3PartHalf[] getParts() {
         return Cube3x3PartHalf.values();
+    }
+
+    @Override
+    protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
+        return 1.0F;
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+        return true;
     }
 
     /**

@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -26,10 +25,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         this.positions = new BlockPos[] {
-            getBlockPos().offset(2, -1, 2),
-            getBlockPos().offset(-2, -1, 2),
-            getBlockPos().offset(-2, -1, -2),
-            getBlockPos().offset(2, -1, -2)
+            getBlockPos().offset(2, 0, 2),
+            getBlockPos().offset(-2, 0, 2),
+            getBlockPos().offset(-2, 0, -2),
+            getBlockPos().offset(2, 0, -2)
         };
     }
 
@@ -53,10 +52,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
                 if (blockState.is(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER)) {
                     DirectionCube232PartHalf half = blockState.getValue(CelestialForgingAnvilAmplifierBlock.HALF);
                     switch (blockState.getValue(CelestialForgingAnvilAmplifierBlock.FACING)) {
-                        case Direction dir when dir == Direction.SOUTH && half == DirectionCube232PartHalf.BOTTOM_WS -> isES = true;
-                        case Direction dir when dir == Direction.WEST && half == DirectionCube232PartHalf.BOTTOM_S -> isWS = true;
-                        case Direction dir when dir == Direction.NORTH && half == DirectionCube232PartHalf.BOTTOM_PART -> isWN = true;
-                        case Direction dir when dir == Direction.EAST && half == DirectionCube232PartHalf.BOTTOM_W -> isEN = true;
+                        case SOUTH -> isES = half == DirectionCube232PartHalf.BOTTOM_WS;
+                        case WEST -> isWS = half == DirectionCube232PartHalf.BOTTOM_S;
+                        case NORTH -> isWN = half == DirectionCube232PartHalf.BOTTOM_PART;
+                        case EAST -> isEN = half == DirectionCube232PartHalf.BOTTOM_W;
                         default -> {}
                     }
                 }

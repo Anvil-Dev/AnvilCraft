@@ -419,7 +419,8 @@ public class ModBlocks {
 
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRUM.block("giant_anvil", GiantAnvilBlock::new)
         .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.noOcclusion()
+        .properties(p -> p
+            .noOcclusion()
             .isValidSpawn(Blocks::never)
             .strength(4.0F)
             .sound(GiantAnvilBlock.SOUND_TYPE)

@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.cfa.item;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.ChatFormatting;
@@ -40,7 +40,7 @@ public class CelestialForgingAnvilAmplifierBlockItem
                 BlockState blockState = level.getBlockState(offset);
                 if (
                     blockState.is(ModBlocks.CELESTIAL_FORGING_ANVIL)
-                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube3x3PartHalf.BOTTOM_WS
+                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_SW
                 ) {
                     yield true;
                 }
@@ -57,7 +57,7 @@ public class CelestialForgingAnvilAmplifierBlockItem
                 BlockState blockState = level.getBlockState(offset);
                 if (
                     blockState.is(ModBlocks.CELESTIAL_FORGING_ANVIL)
-                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube3x3PartHalf.BOTTOM_WN
+                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_NW
                 ) {
                     yield true;
                 }
@@ -74,7 +74,7 @@ public class CelestialForgingAnvilAmplifierBlockItem
                 BlockState blockState = level.getBlockState(offset);
                 if (
                     blockState.is(ModBlocks.CELESTIAL_FORGING_ANVIL)
-                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube3x3PartHalf.BOTTOM_EN
+                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_NE
                 ) {
                     yield true;
                 }
@@ -91,7 +91,7 @@ public class CelestialForgingAnvilAmplifierBlockItem
                 BlockState blockState = level.getBlockState(offset);
                 if (
                     blockState.is(ModBlocks.CELESTIAL_FORGING_ANVIL)
-                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube3x3PartHalf.BOTTOM_ES
+                        && blockState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_SE
                 ) {
                     yield true;
                 }
