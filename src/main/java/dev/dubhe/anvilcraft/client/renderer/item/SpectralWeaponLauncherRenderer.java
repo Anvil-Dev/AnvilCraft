@@ -96,7 +96,13 @@ public class SpectralWeaponLauncherRenderer extends BlockEntityWithoutLevelRende
                     buffer,
                     packedLight,
                     packedOverlay,
-                    bakedModel
+                    bakedModel.getOverrides().resolve(
+                        bakedModel,
+                        ammo,
+                        null,
+                        null,
+                        42
+                    )
                 );
                 // poseStack.popPose();
                 poseStack.popPose();
