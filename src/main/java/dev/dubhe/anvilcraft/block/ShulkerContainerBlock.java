@@ -222,12 +222,12 @@ public class ShulkerContainerBlock
         AABB bottomCenterAabb = new AABB(0, 2, 0, 16, 16, 16);
         BOTTOM_CENTER = ShapeUtil.merge(ShapeUtil.rotate(Direction.DOWN, Direction.DOWN, bottomCenterAabb));
         TOP_CENTER = ShapeUtil.merge(ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomCenterAabb));
-        AABB midSideAabb = ShapeUtil.rotate(Direction.DOWN, Direction.WEST, bottomCenterAabb);
+        AABB midSideAabb = ShapeUtil.rotate(Direction.DOWN, Direction.EAST, bottomCenterAabb);
         MID_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, midSideAabb));
         MID_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, midSideAabb));
         MID_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, midSideAabb));
         MID_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, midSideAabb));
-        AABB[] bottomSideAabbs = new AABB[] {
+        AABB[] bottomSideAabbs = new AABB[]{
             new AABB(2, 2, 0, 16, 16, 16),
             new AABB(0, 0, 0, 5, 5, 16),
             new AABB(0, 0, 0, 8, 8, 4),
@@ -237,7 +237,7 @@ public class ShulkerContainerBlock
         BOTTOM_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, bottomSideAabbs));
         BOTTOM_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, bottomSideAabbs));
         BOTTOM_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, bottomSideAabbs));
-        AABB[] bottomCornerAabbs = new AABB[] {
+        AABB[] bottomCornerAabbs = new AABB[]{
             new AABB(2, 2, 2, 16, 16, 16),
             new AABB(0, 0, 0, 12, 8, 8),
             new AABB(0, 8, 0, 8, 12, 8),
@@ -247,17 +247,19 @@ public class ShulkerContainerBlock
         BOTTOM_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, bottomCornerAabbs));
         BOTTOM_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, bottomCornerAabbs));
         BOTTOM_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, bottomCornerAabbs));
-        AABB[] midCornerAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.WEST, bottomSideAabbs);
+        AABB[] midCornerAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.NORTH, bottomSideAabbs);
         MID_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, midCornerAabbs));
         MID_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, midCornerAabbs));
         MID_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, midCornerAabbs));
         MID_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, midCornerAabbs));
         AABB[] topSideAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomSideAabbs);
+        topSideAabbs = ShapeUtil.rotate(Direction.Axis.Y, 180, topSideAabbs);
         TOP_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, topSideAabbs));
         TOP_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, topSideAabbs));
         TOP_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, topSideAabbs));
         TOP_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, topSideAabbs));
         AABB[] topCornerAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomCornerAabbs);
+        topCornerAabbs = ShapeUtil.rotate(Direction.Axis.Y, 90, topCornerAabbs);
         TOP_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, topCornerAabbs));
         TOP_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, topCornerAabbs));
         TOP_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, topCornerAabbs));

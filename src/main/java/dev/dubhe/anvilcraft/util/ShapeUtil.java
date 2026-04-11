@@ -166,7 +166,7 @@ public class ShapeUtil {
         Direction.AxisDirection baseAxisDir = baseDir.getAxisDirection();
         Direction.AxisDirection destAxisDir = destDir.getAxisDirection();
         boolean sameAxisDir = baseAxisDir == destAxisDir;
-        
+
         Direction.Axis rotAxis;
         int value = sameAxisDir ? 270 : 90;
         if (baseAxis != destAxis) {
@@ -178,20 +178,53 @@ public class ShapeUtil {
 
         switch (rotAxis) {
             case X -> {
-                min = min.xRot(value);
-                max = max.xRot(value);
+                min = min.xRot((float) Math.toRadians(value));
+                max = max.xRot((float) Math.toRadians(value));
             }
             case Y -> {
-                min = min.yRot(value);
-                max = max.yRot(value);
+                min = min.yRot((float) Math.toRadians(value));
+                max = max.yRot((float) Math.toRadians(value));
             }
             case Z -> {
-                min = min.zRot(value);
-                max = max.zRot(value);
+                min = min.zRot((float) Math.toRadians(value));
+                max = max.zRot((float) Math.toRadians(value));
             }
             default -> {
             }
         }
         return new AABB(min.add(8, 8, 8), max.add(8, 8, 8));
+    }
+
+    public static AABB rotate(Direction.Axis axis, float angle, AABB shape) {
+        if (angle == 0) return shape;
+
+        Vec3 min = shape.getMinPosition().subtract(8, 8, 8);
+        Vec3 max = shape.getMaxPosition().subtract(8, 8, 8);
+
+        switch (axis) {
+            case X -> {
+                min = min.xRot((float) Math.toRadians(angle));
+                max = max.xRot((float) Math.toRadians(angle));
+            }
+            case Y -> {
+                min = min.yRot((float) Math.toRadians(angle));
+                max = max.yRot((float) Math.toRadians(angle));
+            }
+            case Z -> {
+                min = min.zRot((float) Math.toRadians(angle));
+                max = max.zRot((float) Math.toRadians(angle));
+            }
+            default -> {
+            }
+        }
+        return new AABB(min.add(8, 8, 8), max.add(8, 8, 8));
+    }
+
+    public static AABB[] rotate(Direction.Axis axis, float angle, AABB... shapes) {
+        AABB[] result = new AABB[shapes.length];
+        for (int i = 0; i < shapes.length; i++) {
+            result[i] = ShapeUtil.rotate(axis, angle, shapes[i]);
+        }
+        return result;
     }
 }
