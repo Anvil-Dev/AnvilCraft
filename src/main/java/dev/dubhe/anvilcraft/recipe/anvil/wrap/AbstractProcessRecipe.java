@@ -14,6 +14,7 @@ import dev.anvilcraft.lib.recipe.predicate.block.HasBlockIngredient;
 import dev.dubhe.anvilcraft.init.reicpe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
@@ -738,7 +739,17 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                    + (this.resultItems == null ? 0 : this.resultItems.size())
                    + (this.inputBlocks == null ? 0 : this.inputBlocks.size() * 100)
                    + (this.resultBlocks == null ? 0 : this.resultBlocks.size())
-                   + (this.hasCauldron != null ? 1 : 0);
+                   + (
+                       this.hasCauldron != null
+                       ? HasCauldron.isNotEmpty(this.hasCauldron.fluid())
+                         ? HasCauldron.isNotEmpty(this.hasCauldron.transform())
+                           ? 3
+                           : 2
+                         : HasCauldron.isNotEmpty(this.hasCauldron.transform())
+                           ? 2
+                           : 1
+                       : 0
+                   );
         }
 
         /**
