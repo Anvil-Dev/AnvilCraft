@@ -133,7 +133,11 @@ public class DragonRodItem extends Item {
             if (devouringState.isAir()) continue;
             if (!BlockDevourerBlock.canDevour(devouringState)) continue;
 
-            devouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devouringPos);
+            BlockPos normalizedDevouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devouringPos);
+            if (normalizedDevouringPos != devouringPos) {
+                devouringPos = normalizedDevouringPos;
+                devouringLevelReader.add(normalizedDevouringPos);
+            }
             devouringState = level.getBlockState(devouringPos);
             boolean shouldDrop = !devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                                  || level.random.nextDouble() <= 0.05;

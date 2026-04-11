@@ -47,6 +47,10 @@ public class DevouringLevelReader implements LevelReader {
             .collect(() -> new LongOpenHashSet(devouringList.size()), LongOpenHashSet::add, LongOpenHashSet::addAll);
     }
 
+    public void add(BlockPos pos) {
+        devouringList.add(pos.asLong());
+    }
+
     @Override
     public @Nullable ChunkAccess getChunk(int i, int i1, ChunkStatus chunkStatus, boolean b) {
         return parentLevel.getChunk(i, i1, chunkStatus, b);
@@ -153,7 +157,7 @@ public class DevouringLevelReader implements LevelReader {
     // Methods with default implementations
     @Override
     @Nullable
-    public BlockGetter getChunkForCollisions(int chunkX, int chunkZ){
+    public BlockGetter getChunkForCollisions(int chunkX, int chunkZ) {
         return parentLevel.getChunkForCollisions(chunkX, chunkZ);
     }
 

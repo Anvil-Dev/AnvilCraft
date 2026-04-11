@@ -242,6 +242,11 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
 
         final List<BlockPos> secondaryBlockPosList = new ArrayList<>();
         for (BlockPos devourBlockPos : devourBlockPosList) {
+            BlockPos normalizedDevouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
+            if (normalizedDevouringPos != devourBlockPos) {
+                devourBlockPos = normalizedDevouringPos;
+                devouringLevelReader.add(normalizedDevouringPos);
+            }
             if (
                 AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring && devourBlockPos.getY() == maxY
             ) {
@@ -260,6 +265,11 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         }
         DevouringLevelReader chainDevouringLevelReader = new DevouringLevelReader(level, chainDevourBlockPosList);
         for (BlockPos devourBlockPos : chainDevourBlockPosList) {
+            BlockPos normalizedDevouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
+            if (normalizedDevouringPos != devourBlockPos) {
+                devourBlockPos = normalizedDevouringPos;
+                chainDevouringLevelReader.add(normalizedDevouringPos);
+            }
             if (!level.getBlockState(devourBlockPos).canSurvive(chainDevouringLevelReader, devourBlockPos)) {
                 devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
             } else {
@@ -301,8 +311,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             level.destroyBlock(devourBlockPos, false);
             return;
         }
-        devourBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
-        devourBlockState = level.getBlockState(devourBlockPos);
+
         if (anvil instanceof FrostAnvilBlock) {
             ServerPlayer destroyer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
             ItemStack dummyTool = BreakBlockUtil.getDummyDisintegrationTool(level);
