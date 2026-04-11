@@ -9,7 +9,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
@@ -29,8 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * <p>用来执行吞噬判断的假世界，修改了 {@link LevelReader#getBlockState(BlockPos) LevelReader.getBlockState} 的逻辑.</p>
- * <p>原则上来说应该重写所有方法以规避意料之外的问题(</p>
+ * 用来执行吞噬判断的假世界，修改了 {@link LevelReader#getBlockState(BlockPos) LevelReader.getBlockState} 的逻辑.
+ * 原则上来说应该重写所有方法以规避意料之外的问题(
  */
 public class DevouringLevelReader implements LevelReader {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
@@ -129,7 +131,9 @@ public class DevouringLevelReader implements LevelReader {
 
 
     /**
-     * @param blockPos 方块位置，当处于吞噬范围且可以破坏时返回空气
+     * 当处于吞噬范围且可以破坏时返回空气
+     *
+     * @param blockPos 方块位置
      * @return 对应的BlockState
      */
     @Override
@@ -140,11 +144,26 @@ public class DevouringLevelReader implements LevelReader {
         }
         return blockState;
     }
+
     @Override
     public FluidState getFluidState(BlockPos blockPos) {
         return parentLevel.getFluidState(blockPos);
     }
 
     // Methods with default implementations
+    @Override
+    @Nullable
+    public BlockGetter getChunkForCollisions(int chunkX, int chunkZ){
+        return parentLevel.getChunkForCollisions(chunkX, chunkZ);
+    }
 
+    @Override
+    public int getRawBrightness(BlockPos blockPos, int amount) {
+        return parentLevel.getRawBrightness(blockPos, amount);
+    }
+
+    @Override
+    public int getBrightness(LightLayer lightType, BlockPos blockPos) {
+        return parentLevel.getBrightness(lightType, blockPos);
+    }
 }
