@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -27,22 +29,25 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * <p>用来执行吞噬判断的假世界，修改了 {@link LevelReader#getBlockState(BlockPos) LevelReade.getBlockState} 的逻辑.</p>
+ * <p>用来执行吞噬判断的假世界，修改了 {@link LevelReader#getBlockState(BlockPos) LevelReader.getBlockState} 的逻辑.</p>
  * <p>原则上来说应该重写所有方法以规避意料之外的问题(</p>
  */
 public class DevouringLevelReader implements LevelReader {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
     private final LevelReader parentLevel;
-    private final List<BlockPos> devouringList;
+    private final LongSet devouringList;
 
     public DevouringLevelReader(LevelReader parentLevel, List<BlockPos> devouringList) {
         this.parentLevel = parentLevel;
-        this.devouringList = devouringList;
+        this.devouringList = devouringList
+            .stream()
+            .mapToLong(BlockPos::asLong)
+            .collect(() -> new LongOpenHashSet(devouringList.size()), LongOpenHashSet::add, LongOpenHashSet::addAll);
     }
 
     @Override
     public @Nullable ChunkAccess getChunk(int i, int i1, ChunkStatus chunkStatus, boolean b) {
-        return null;
+        return parentLevel.getChunk(i, i1, chunkStatus, b);
     }
 
     @Override
@@ -130,7 +135,7 @@ public class DevouringLevelReader implements LevelReader {
     @Override
     public BlockState getBlockState(BlockPos blockPos) {
         BlockState blockState = parentLevel.getBlockState(blockPos);
-        if (devouringList.contains(blockPos) && BlockDevourerBlock.canDevour(blockState)) {
+        if (devouringList.contains(blockPos.asLong()) && BlockDevourerBlock.canDevour(blockState)) {
             return AIR_STATE;
         }
         return blockState;
@@ -141,4 +146,5 @@ public class DevouringLevelReader implements LevelReader {
     }
 
     // Methods with default implementations
+
 }
