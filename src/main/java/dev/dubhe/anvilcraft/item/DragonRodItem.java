@@ -130,8 +130,6 @@ public class DragonRodItem extends Item {
         List<BlockPos> secondaryDevouringPosList = new ArrayList<>(devouringPosList.size());
         for (BlockPos devouringPos : devouringPosList) {
             BlockState devouringState = level.getBlockState(devouringPos);
-
-            //devouringState
             if (devouringState.isAir()) continue;
             if (!BlockDevourerBlock.canDevour(devouringState)) continue;
 

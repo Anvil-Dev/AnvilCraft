@@ -189,12 +189,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
      * @param range             破坏半径(正方形)
      * @param anvil             砸到方块吞噬器的铁砧
      */
-    @SuppressWarnings(
-        {
-            "unreachable",
-            "unused"
-        }
-    )
+    @SuppressWarnings({"unreachable", "unused"})
     public void devourBlock(
         ServerLevel level,
         BlockPos devourerPos,
