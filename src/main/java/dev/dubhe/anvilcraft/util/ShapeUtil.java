@@ -3,6 +3,10 @@ package dev.dubhe.anvilcraft.util;
 import com.mojang.datafixers.util.Pair;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -97,14 +101,97 @@ public class ShapeUtil {
     }
 
     /**
-     * 合并指定的若干碰撞箱
+     * 合并指定的若干形状
      *
-     * @param shapes 子碰撞箱
-     * @return 总碰撞箱
-     * @apiNote 仅应用于方块碰撞箱初始化！
+     * @param shapes 子形状
+     * @return 总形状
+     * @apiNote 仅应用于方块形状初始化！
      */
     public static VoxelShape merge(VoxelShape... shapes) {
         if (shapes.length == 0) return Shapes.empty();
         return Stream.of(shapes).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+    }
+
+    /**
+     * 合并指定的若干碰撞箱
+     *
+     * @param shapes 子碰撞箱
+     * @return 总形状
+     * @apiNote 仅应用于方块形状初始化！
+     */
+    public static VoxelShape merge(AABB... shapes) {
+        if (shapes.length == 0) return Shapes.empty();
+        return Stream.of(shapes).map(ShapeUtil::box).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+    }
+
+    /**
+     * 等同于 {@link Block#box(double, double, double, double, double, double) Block.box()}
+     *
+     * @param shape 16x长度的碰撞箱
+     * @return 1x长度的碰撞箱
+     */
+    public static VoxelShape box(AABB shape) {
+        return Block.box(shape.minX, shape.minY, shape.minZ, shape.maxX, shape.maxY, shape.maxZ);
+    }
+
+    /**
+     * 旋转指定的若干碰撞箱
+     *
+     * @param shapes 16x长度的碰撞箱
+     * @return 旋转后的16x长度碰撞箱
+     * @apiNote 仅应用于方块形状初始化！
+     */
+    public static AABB[] rotate(Direction baseDir, Direction destDir, AABB... shapes) {
+        AABB[] result = new AABB[shapes.length];
+        for (int i = 0; i < shapes.length; i++) {
+            result[i] = ShapeUtil.rotate(baseDir, destDir, shapes[i]);
+        }
+        return result;
+    }
+
+    /**
+     * 旋转指定的碰撞箱
+     *
+     * @param shape 16x长度的碰撞箱
+     * @return 旋转后的16x长度碰撞箱
+     * @apiNote 仅应用于方块形状初始化！
+     */
+    public static AABB rotate(Direction baseDir, Direction destDir, AABB shape) {
+        if (baseDir == destDir) return shape;
+
+        Vec3 min = shape.getMinPosition().subtract(8, 8, 8);
+        Vec3 max = shape.getMaxPosition().subtract(8, 8, 8);
+        Direction.Axis baseAxis = baseDir.getAxis();
+        Direction.Axis destAxis = destDir.getAxis();
+        Direction.AxisDirection baseAxisDir = baseDir.getAxisDirection();
+        Direction.AxisDirection destAxisDir = destDir.getAxisDirection();
+        boolean sameAxisDir = baseAxisDir == destAxisDir;
+        
+        Direction.Axis rotAxis;
+        int value = sameAxisDir ? 270 : 90;
+        if (baseAxis != destAxis) {
+            rotAxis = Direction.Axis.values()[Direction.Axis.values().length - baseAxis.ordinal() - destAxis.ordinal()];
+        } else {
+            rotAxis = Direction.Axis.values()[(baseAxis.ordinal() + 1) % Direction.Axis.values().length];
+            value = 180;
+        }
+
+        switch (rotAxis) {
+            case X -> {
+                min = min.xRot(value);
+                max = max.xRot(value);
+            }
+            case Y -> {
+                min = min.yRot(value);
+                max = max.yRot(value);
+            }
+            case Z -> {
+                min = min.zRot(value);
+                max = max.zRot(value);
+            }
+            default -> {
+            }
+        }
+        return new AABB(min.add(8, 8, 8), max.add(8, 8, 8));
     }
 }

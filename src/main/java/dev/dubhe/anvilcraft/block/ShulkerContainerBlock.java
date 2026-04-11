@@ -13,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,6 +21,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -124,28 +124,28 @@ public class ShulkerContainerBlock
             case BOTTOM_E -> BOTTOM_E;
             case BOTTOM_N -> BOTTOM_N;
             case BOTTOM_S -> BOTTOM_S;
-            case BOTTOM_WN -> BOTTOM_NW;
-            case BOTTOM_WS -> BOTTOM_SW;
-            case BOTTOM_EN -> BOTTOM_NE;
-            case BOTTOM_ES -> BOTTOM_SE;
+            case BOTTOM_NW -> BOTTOM_NW;
+            case BOTTOM_SW -> BOTTOM_SW;
+            case BOTTOM_NE -> BOTTOM_NE;
+            case BOTTOM_SE -> BOTTOM_SE;
             case MID_CENTER -> MID_CENTER;
             case MID_W -> MID_W;
             case MID_E -> MID_E;
             case MID_N -> MID_N;
             case MID_S -> MID_S;
-            case MID_WN -> MID_NW;
-            case MID_WS -> MID_SW;
-            case MID_EN -> MID_NE;
-            case MID_ES -> MID_SE;
+            case MID_NW -> MID_NW;
+            case MID_SW -> MID_SW;
+            case MID_NE -> MID_NE;
+            case MID_SE -> MID_SE;
             case TOP_CENTER -> TOP_CENTER;
             case TOP_W -> TOP_W;
             case TOP_E -> TOP_E;
             case TOP_N -> TOP_N;
             case TOP_S -> TOP_S;
-            case TOP_WN -> TOP_NW;
-            case TOP_WS -> TOP_SW;
-            case TOP_EN -> TOP_NE;
-            case TOP_ES -> TOP_SE;
+            case TOP_NW -> TOP_NW;
+            case TOP_SW -> TOP_SW;
+            case TOP_NE -> TOP_NE;
+            case TOP_SE -> TOP_SE;
         };
     }
 
@@ -218,132 +218,78 @@ public class ShulkerContainerBlock
     }
 
     // region VoxelShapes
-    protected static final VoxelShape BOTTOM_NW = ShapeUtil.merge(
-        Block.box(2, 2, 2, 16, 16, 16),
-        Block.box(0, 0, 0, 12, 8, 8),
-        Block.box(0, 8, 0, 8, 12, 8),
-        Block.box(0, 0, 8, 8, 8, 12)
-    );
-    protected static final VoxelShape BOTTOM_W = ShapeUtil.merge(
-        Block.box(2, 2, 0, 16, 16, 16),
-        Block.box(0, 0, 0, 5, 5, 16),
-        Block.box(0, 0, 0, 8, 8, 4),
-        Block.box(0, 0, 12, 8, 8, 16)
-    );
-    protected static final VoxelShape BOTTOM_SW = ShapeUtil.merge(
-        Block.box(2, 2, 0, 16, 16, 14),
-        Block.box(0, 0, 4, 8, 8, 16),
-        Block.box(0, 8, 8, 8, 12, 16),
-        Block.box(0, 0, 8, 12, 8, 16)
-    );
-    protected static final VoxelShape BOTTOM_N = ShapeUtil.merge(
-        Block.box(0, 2, 2, 16, 16, 16),
-        Block.box(0, 0, 0, 16, 5, 5),
-        Block.box(0, 0, 0, 4, 8, 8),
-        Block.box(12, 0, 0, 16, 8, 8)
-    );
-    protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);
-    protected static final VoxelShape BOTTOM_S = ShapeUtil.merge(
-        Block.box(0, 2, 0, 16, 16, 14),
-        Block.box(0, 0, 11, 16, 5, 16),
-        Block.box(0, 0, 8, 4, 8, 16),
-        Block.box(12, 0, 8, 16, 8, 16)
-    );
-    protected static final VoxelShape BOTTOM_NE = ShapeUtil.merge(
-        Block.box(0, 2, 2, 14, 16, 16),
-        Block.box(4, 0, 0, 16, 8, 8),
-        Block.box(8, 8, 0, 16, 12, 8),
-        Block.box(8, 0, 0, 16, 8, 12)
-    );
-    protected static final VoxelShape BOTTOM_E = ShapeUtil.merge(
-        Block.box(0, 2, 0, 14, 16, 16),
-        Block.box(11, 0, 0, 16, 5, 16),
-        Block.box(8, 0, 0, 16, 8, 4),
-        Block.box(8, 0, 12, 16, 8, 16)
-    );
-    protected static final VoxelShape BOTTOM_SE = ShapeUtil.merge(
-        Block.box(0, 2, 0, 14, 16, 14),
-        Block.box(4, 0, 8, 16, 8, 16),
-        Block.box(8, 8, 8, 16, 12, 16),
-        Block.box(8, 0, 4, 16, 8, 12)
-    );
-    protected static final VoxelShape MID_NW = ShapeUtil.merge(
-        Block.box(2, 0, 2, 16, 16, 16),
-        Block.box(0, 0, 0, 5, 16, 5),
-        Block.box(0, 0, 0, 8, 4, 8),
-        Block.box(0, 12, 0, 8, 16, 8)
-    );
-    protected static final VoxelShape MID_W = Block.box(2, 0, 0, 16, 16, 16);
-    protected static final VoxelShape MID_SW = ShapeUtil.merge(
-        Block.box(2, 0, 0, 16, 16, 14),
-        Block.box(0, 0, 11, 5, 16, 16),
-        Block.box(0, 0, 8, 8, 4, 16),
-        Block.box(0, 12, 8, 8, 16, 16)
-    );
-    protected static final VoxelShape MID_N = Block.box(0, 0, 2, 16, 16, 16);
+    static {
+        AABB bottomCenterAabb = new AABB(0, 2, 0, 16, 16, 16);
+        BOTTOM_CENTER = ShapeUtil.merge(ShapeUtil.rotate(Direction.DOWN, Direction.DOWN, bottomCenterAabb));
+        TOP_CENTER = ShapeUtil.merge(ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomCenterAabb));
+        AABB midSideAabb = ShapeUtil.rotate(Direction.DOWN, Direction.WEST, bottomCenterAabb);
+        MID_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, midSideAabb));
+        MID_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, midSideAabb));
+        MID_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, midSideAabb));
+        MID_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, midSideAabb));
+        AABB[] bottomSideAabbs = new AABB[] {
+            new AABB(2, 2, 0, 16, 16, 16),
+            new AABB(0, 0, 0, 5, 5, 16),
+            new AABB(0, 0, 0, 8, 8, 4),
+            new AABB(0, 0, 12, 8, 8, 16)
+        };
+        BOTTOM_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, bottomSideAabbs));
+        BOTTOM_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, bottomSideAabbs));
+        BOTTOM_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, bottomSideAabbs));
+        BOTTOM_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, bottomSideAabbs));
+        AABB[] bottomCornerAabbs = new AABB[] {
+            new AABB(2, 2, 2, 16, 16, 16),
+            new AABB(0, 0, 0, 12, 8, 8),
+            new AABB(0, 8, 0, 8, 12, 8),
+            new AABB(0, 0, 8, 8, 8, 12)
+        };
+        BOTTOM_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, bottomCornerAabbs));
+        BOTTOM_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, bottomCornerAabbs));
+        BOTTOM_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, bottomCornerAabbs));
+        BOTTOM_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, bottomCornerAabbs));
+        AABB[] midCornerAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.WEST, bottomSideAabbs);
+        MID_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, midCornerAabbs));
+        MID_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, midCornerAabbs));
+        MID_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, midCornerAabbs));
+        MID_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, midCornerAabbs));
+        AABB[] topSideAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomSideAabbs);
+        TOP_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, topSideAabbs));
+        TOP_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, topSideAabbs));
+        TOP_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, topSideAabbs));
+        TOP_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, topSideAabbs));
+        AABB[] topCornerAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomCornerAabbs);
+        TOP_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, topCornerAabbs));
+        TOP_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, topCornerAabbs));
+        TOP_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, topCornerAabbs));
+        TOP_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, topCornerAabbs));
+    }
+
     protected static final VoxelShape MID_CENTER = Shapes.block();
-    protected static final VoxelShape MID_S = Block.box(0, 0, 0, 16, 16, 14);
-    protected static final VoxelShape MID_NE = ShapeUtil.merge(
-        Block.box(0, 0, 2, 14, 16, 16),
-        Block.box(11, 0, 0, 16, 16, 5),
-        Block.box(8, 0, 0, 16, 4, 8),
-        Block.box(8, 12, 0, 16, 16, 8)
-    );
-    protected static final VoxelShape MID_E = Block.box(0, 0, 0, 14, 16, 16);
-    protected static final VoxelShape MID_SE = ShapeUtil.merge(
-        Block.box(0, 0, 0, 14, 16, 14),
-        Block.box(11, 0, 11, 16, 16, 16),
-        Block.box(8, 0, 8, 16, 4, 16),
-        Block.box(8, 12, 8, 16, 16, 16)
-    );
-    protected static final VoxelShape TOP_NW = ShapeUtil.merge(
-        Block.box(2, 0, 2, 16, 14, 16),
-        Block.box(0, 4, 0, 8, 16, 8),
-        Block.box(0, 8, 0, 12, 16, 8),
-        Block.box(0, 8, 0, 8, 16, 12)
-    );
-    protected static final VoxelShape TOP_W = ShapeUtil.merge(
-        Block.box(2, 0, 0, 16, 14, 16),
-        Block.box(0, 11, 0, 5, 16, 16),
-        Block.box(0, 8, 0, 8, 16, 4),
-        Block.box(0, 8, 12, 8, 16, 16)
-    );
-    protected static final VoxelShape TOP_SW = ShapeUtil.merge(
-        Block.box(2, 0, 0, 16, 14, 14),
-        Block.box(0, 4, 8, 8, 16, 16),
-        Block.box(0, 8, 8, 12, 16, 16),
-        Block.box(0, 8, 4, 8, 16, 16)
-    );
-    protected static final VoxelShape TOP_N = ShapeUtil.merge(
-        Block.box(0, 0, 2, 16, 14, 16),
-        Block.box(0, 11, 0, 16, 16, 5),
-        Block.box(0, 8, 0, 4, 16, 8),
-        Block.box(12, 8, 0, 16, 16, 8)
-    );
-    protected static final VoxelShape TOP_CENTER = Block.box(0, 0, 0, 16, 14, 16);
-    protected static final VoxelShape TOP_S = ShapeUtil.merge(
-        Block.box(0, 0, 0, 16, 14, 14),
-        Block.box(0, 11, 11, 16, 16, 16),
-        Block.box(0, 8, 8, 4, 16, 16),
-        Block.box(12, 8, 8, 16, 16, 16)
-    );
-    protected static final VoxelShape TOP_NE = ShapeUtil.merge(
-        Block.box(0, 0, 2, 14, 14, 16),
-        Block.box(8, 4, 0, 16, 16, 8),
-        Block.box(4, 8, 0, 16, 16, 8),
-        Block.box(8, 8, 0, 16, 16, 12)
-    );
-    protected static final VoxelShape TOP_E = ShapeUtil.merge(
-        Block.box(0, 0, 0, 14, 14, 16),
-        Block.box(11, 11, 0, 16, 16, 16),
-        Block.box(8, 8, 0, 16, 16, 4),
-        Block.box(8, 8, 12, 16, 16, 16)
-    );
-    protected static final VoxelShape TOP_SE = ShapeUtil.merge(
-        Block.box(0, 0, 0, 14, 14, 14),
-        Block.box(8, 4, 8, 16, 16, 16),
-        Block.box(4, 8, 8, 16, 16, 16),
-        Block.box(8, 8, 4, 16, 16, 16)
-    );
+    protected static final VoxelShape BOTTOM_CENTER;
+    protected static final VoxelShape TOP_CENTER;
+    protected static final VoxelShape BOTTOM_W;
+    protected static final VoxelShape BOTTOM_N;
+    protected static final VoxelShape BOTTOM_S;
+    protected static final VoxelShape BOTTOM_E;
+    protected static final VoxelShape BOTTOM_NW;
+    protected static final VoxelShape BOTTOM_SW;
+    protected static final VoxelShape BOTTOM_NE;
+    protected static final VoxelShape BOTTOM_SE;
+    protected static final VoxelShape MID_NW;
+    protected static final VoxelShape MID_SW;
+    protected static final VoxelShape MID_NE;
+    protected static final VoxelShape MID_SE;
+    protected static final VoxelShape TOP_W;
+    protected static final VoxelShape TOP_N;
+    protected static final VoxelShape TOP_S;
+    protected static final VoxelShape TOP_E;
+    protected static final VoxelShape MID_W;
+    protected static final VoxelShape MID_N;
+    protected static final VoxelShape MID_S;
+    protected static final VoxelShape MID_E;
+    protected static final VoxelShape TOP_NW;
+    protected static final VoxelShape TOP_SW;
+    protected static final VoxelShape TOP_NE;
+    protected static final VoxelShape TOP_SE;
     // endregion
 }
