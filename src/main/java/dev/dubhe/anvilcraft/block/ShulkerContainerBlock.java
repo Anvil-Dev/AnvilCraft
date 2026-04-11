@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -218,80 +219,42 @@ public class ShulkerContainerBlock
     }
 
     // region VoxelShapes
-    static {
-        AABB bottomCenterAabb = new AABB(0, 2, 0, 16, 16, 16);
-        BOTTOM_CENTER = ShapeUtil.merge(ShapeUtil.rotate(Direction.DOWN, Direction.DOWN, bottomCenterAabb));
-        TOP_CENTER = ShapeUtil.merge(ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomCenterAabb));
-        AABB midSideAabb = ShapeUtil.rotate(Direction.DOWN, Direction.EAST, bottomCenterAabb);
-        MID_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, midSideAabb));
-        MID_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, midSideAabb));
-        MID_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, midSideAabb));
-        MID_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, midSideAabb));
-        AABB[] bottomSideAabbs = new AABB[]{
-            new AABB(2, 2, 0, 16, 16, 16),
-            new AABB(0, 0, 0, 5, 5, 16),
-            new AABB(0, 0, 0, 8, 8, 4),
-            new AABB(0, 0, 12, 8, 8, 16)
-        };
-        BOTTOM_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, bottomSideAabbs));
-        BOTTOM_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, bottomSideAabbs));
-        BOTTOM_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, bottomSideAabbs));
-        BOTTOM_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, bottomSideAabbs));
-        AABB[] bottomCornerAabbs = new AABB[]{
-            new AABB(2, 2, 2, 16, 16, 16),
-            new AABB(0, 0, 0, 12, 8, 8),
-            new AABB(0, 8, 0, 8, 12, 8),
-            new AABB(0, 0, 8, 8, 8, 12)
-        };
-        BOTTOM_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, bottomCornerAabbs));
-        BOTTOM_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, bottomCornerAabbs));
-        BOTTOM_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, bottomCornerAabbs));
-        BOTTOM_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, bottomCornerAabbs));
-        AABB[] midCornerAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.NORTH, bottomSideAabbs);
-        MID_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, midCornerAabbs));
-        MID_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, midCornerAabbs));
-        MID_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, midCornerAabbs));
-        MID_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, midCornerAabbs));
-        AABB[] topSideAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomSideAabbs);
-        topSideAabbs = ShapeUtil.rotate(Direction.Axis.Y, 180, topSideAabbs);
-        TOP_W = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, topSideAabbs));
-        TOP_N = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, topSideAabbs));
-        TOP_S = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, topSideAabbs));
-        TOP_E = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, topSideAabbs));
-        AABB[] topCornerAabbs = ShapeUtil.rotate(Direction.DOWN, Direction.UP, bottomCornerAabbs);
-        topCornerAabbs = ShapeUtil.rotate(Direction.Axis.Y, 90, topCornerAabbs);
-        TOP_NW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.WEST, topCornerAabbs));
-        TOP_SW = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, topCornerAabbs));
-        TOP_NE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.NORTH, topCornerAabbs));
-        TOP_SE = ShapeUtil.merge(ShapeUtil.rotate(Direction.WEST, Direction.EAST, topCornerAabbs));
-    }
-
     protected static final VoxelShape MID_CENTER = Shapes.block();
-    protected static final VoxelShape BOTTOM_CENTER;
-    protected static final VoxelShape TOP_CENTER;
-    protected static final VoxelShape BOTTOM_W;
-    protected static final VoxelShape BOTTOM_N;
-    protected static final VoxelShape BOTTOM_S;
-    protected static final VoxelShape BOTTOM_E;
-    protected static final VoxelShape BOTTOM_NW;
-    protected static final VoxelShape BOTTOM_SW;
-    protected static final VoxelShape BOTTOM_NE;
-    protected static final VoxelShape BOTTOM_SE;
-    protected static final VoxelShape MID_NW;
-    protected static final VoxelShape MID_SW;
-    protected static final VoxelShape MID_NE;
-    protected static final VoxelShape MID_SE;
-    protected static final VoxelShape TOP_W;
-    protected static final VoxelShape TOP_N;
-    protected static final VoxelShape TOP_S;
-    protected static final VoxelShape TOP_E;
-    protected static final VoxelShape MID_W;
-    protected static final VoxelShape MID_N;
-    protected static final VoxelShape MID_S;
-    protected static final VoxelShape MID_E;
-    protected static final VoxelShape TOP_NW;
-    protected static final VoxelShape TOP_SW;
-    protected static final VoxelShape TOP_NE;
-    protected static final VoxelShape TOP_SE;
+    protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);
+    protected static final VoxelShape TOP_CENTER = ShapeUtil.rotate(Direction.DOWN, Direction.UP, BOTTOM_CENTER);
+    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.DOWN, Direction.WEST, BOTTOM_CENTER);
+    protected static final VoxelShape MID_N = ShapeUtil.rotate(Direction.DOWN, Direction.NORTH, BOTTOM_CENTER);
+    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.DOWN, Direction.SOUTH, BOTTOM_CENTER);
+    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.DOWN, Direction.EAST, BOTTOM_CENTER);
+    protected static final VoxelShape BOTTOM_W = ShapeUtil.merge(
+        new AABB(2, 2, 0, 16, 16, 16),
+        new AABB(0, 0, 0, 5, 5, 16),
+        new AABB(0, 0, 0, 8, 8, 4),
+        new AABB(0, 0, 12, 8, 8, 16)
+    );
+    protected static final VoxelShape BOTTOM_N = ShapeUtil.rotate(Direction.WEST, Direction.NORTH, BOTTOM_W);
+    protected static final VoxelShape BOTTOM_S = ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, BOTTOM_W);
+    protected static final VoxelShape BOTTOM_E = ShapeUtil.rotate(Direction.WEST, Direction.EAST, BOTTOM_W);
+    protected static final VoxelShape BOTTOM_NW = ShapeUtil.merge(
+        new AABB(2, 2, 2, 16, 16, 16),
+        new AABB(0, 0, 0, 12, 8, 8),
+        new AABB(0, 8, 0, 8, 12, 8),
+        new AABB(0, 0, 8, 8, 8, 12)
+    );
+    protected static final VoxelShape BOTTOM_SW = ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, BOTTOM_NW);
+    protected static final VoxelShape BOTTOM_NE = ShapeUtil.rotate(Direction.WEST, Direction.NORTH, BOTTOM_NW);
+    protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.WEST, Direction.EAST, BOTTOM_NW);
+    protected static final VoxelShape MID_NW = ShapeUtil.rotate(Direction.DOWN, Direction.NORTH, BOTTOM_W);
+    protected static final VoxelShape MID_SW = ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, MID_NW);
+    protected static final VoxelShape MID_NE = ShapeUtil.rotate(Direction.WEST, Direction.NORTH, MID_NW);
+    protected static final VoxelShape MID_SE = ShapeUtil.rotate(Direction.WEST, Direction.EAST, MID_NW);
+    protected static final VoxelShape TOP_E = ShapeUtil.rotate(Direction.DOWN, Direction.UP, BOTTOM_W);
+    protected static final VoxelShape TOP_W = ShapeUtil.rotate(Direction.EAST, Direction.WEST, TOP_E);
+    protected static final VoxelShape TOP_N = ShapeUtil.rotate(Direction.EAST, Direction.NORTH, TOP_E);
+    protected static final VoxelShape TOP_S = ShapeUtil.rotate(Direction.EAST, Direction.SOUTH, TOP_E);
+    protected static final VoxelShape TOP_NE = ShapeUtil.rotate(Direction.DOWN, Direction.UP, BOTTOM_W);
+    protected static final VoxelShape TOP_NW = ShapeUtil.rotate(Direction.WEST, Direction.WEST, TOP_NE);
+    protected static final VoxelShape TOP_SW = ShapeUtil.rotate(Direction.WEST, Direction.SOUTH, TOP_NE);
+    protected static final VoxelShape TOP_SE = ShapeUtil.rotate(Direction.WEST, Direction.EAST, TOP_NE);
     // endregion
 }
