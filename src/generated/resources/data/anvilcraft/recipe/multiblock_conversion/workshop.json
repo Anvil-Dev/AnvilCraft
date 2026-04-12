@@ -1,0 +1,306 @@
+{
+  "type": "anvilcraft:multiblock_conversion",
+  "inputPattern": {
+    "layers": [
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ],
+      [
+        "B  ",
+        "C  ",
+        "DEF"
+      ],
+      [
+        "G  ",
+        "G  ",
+        "HHH"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "minecraft:smooth_stone"
+      },
+      "B": {
+        "block": "minecraft:stonecutter",
+        "properties": {
+          "facing": "east"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:jewelcrafting_table",
+        "properties": {
+          "facing": "east"
+        }
+      },
+      "D": {
+        "block": "minecraft:cartography_table"
+      },
+      "E": {
+        "block": "minecraft:crafting_table"
+      },
+      "F": {
+        "block": "minecraft:loom",
+        "properties": {
+          "facing": "north"
+        }
+      },
+      "G": {
+        "block": "minecraft:spruce_trapdoor",
+        "properties": {
+          "facing": "east",
+          "half": "bottom",
+          "open": "true",
+          "waterlogged": "false"
+        }
+      },
+      "H": {
+        "block": "minecraft:spruce_trapdoor",
+        "properties": {
+          "facing": "north",
+          "half": "bottom",
+          "open": "true",
+          "waterlogged": "false"
+        }
+      }
+    }
+  },
+  "outputPattern": {
+    "layers": [
+      [
+        "ABC",
+        "DEF",
+        "GHI"
+      ],
+      [
+        "JKL",
+        "MNO",
+        "PQR"
+      ],
+      [
+        "STU",
+        "VWX",
+        "YZ["
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_wn"
+        }
+      },
+      "B": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_n"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_en"
+        }
+      },
+      "D": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_w"
+        }
+      },
+      "E": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_center"
+        }
+      },
+      "F": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_e"
+        }
+      },
+      "G": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_ws"
+        }
+      },
+      "H": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_s"
+        }
+      },
+      "I": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "bottom_es"
+        }
+      },
+      "J": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_wn"
+        }
+      },
+      "K": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_n"
+        }
+      },
+      "L": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_en"
+        }
+      },
+      "M": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_w"
+        }
+      },
+      "N": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "center",
+          "facing": "north",
+          "part": "mid_center"
+        }
+      },
+      "O": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_e"
+        }
+      },
+      "P": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_ws"
+        }
+      },
+      "Q": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_s"
+        }
+      },
+      "R": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "mid_es"
+        }
+      },
+      "S": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_wn"
+        }
+      },
+      "T": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_n"
+        }
+      },
+      "U": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_en"
+        }
+      },
+      "V": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_w"
+        }
+      },
+      "W": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_center"
+        }
+      },
+      "X": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_e"
+        }
+      },
+      "Y": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_ws"
+        }
+      },
+      "Z": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_s"
+        }
+      },
+      "[": {
+        "block": "anvilcraft:workshop",
+        "properties": {
+          "cube": "corner",
+          "facing": "north",
+          "part": "top_es"
+        }
+      }
+    }
+  }
+}

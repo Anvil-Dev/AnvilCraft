@@ -1,0 +1,73 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ],
+      [
+        "B  ",
+        "C  ",
+        "DEF"
+      ],
+      [
+        "G  ",
+        "G  ",
+        "HHH"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "minecraft:smooth_stone"
+      },
+      "B": {
+        "block": "minecraft:stonecutter",
+        "properties": {
+          "facing": "east"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:jewelcrafting_table",
+        "properties": {
+          "facing": "east"
+        }
+      },
+      "D": {
+        "block": "minecraft:cartography_table"
+      },
+      "E": {
+        "block": "minecraft:crafting_table"
+      },
+      "F": {
+        "block": "minecraft:loom",
+        "properties": {
+          "facing": "north"
+        }
+      },
+      "G": {
+        "block": "minecraft:spruce_trapdoor",
+        "properties": {
+          "facing": "east",
+          "half": "bottom",
+          "open": "true",
+          "waterlogged": "false"
+        }
+      },
+      "H": {
+        "block": "minecraft:spruce_trapdoor",
+        "properties": {
+          "facing": "north",
+          "half": "bottom",
+          "open": "true",
+          "waterlogged": "false"
+        }
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:workshop"
+  }
+}

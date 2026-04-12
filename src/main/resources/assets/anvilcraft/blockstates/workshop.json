@@ -1,0 +1,36 @@
+{
+  "multipart": [
+    {
+      "when": { "facing": "north", "cube": "center" },
+      "apply": { "model": "anvilcraft:block/workshop" }
+    },
+    {
+      "when": { "facing": "east", "cube": "center" },
+      "apply": { "model": "anvilcraft:block/workshop", "y": 90 }
+    },
+    {
+      "when": { "facing": "south", "cube": "center" },
+      "apply": { "model": "anvilcraft:block/workshop", "y": 180 }
+    },
+    {
+      "when": { "facing": "west", "cube": "center" },
+      "apply": { "model": "anvilcraft:block/workshop", "y": 270 }
+    },
+    {
+      "when": { "facing": "north", "cube": "corner" },
+      "apply": { "model": "anvilcraft:block/workshop_part" }
+    },
+    {
+      "when": { "facing": "east", "cube": "corner" },
+      "apply": { "model": "anvilcraft:block/workshop_part", "y": 90 }
+    },
+    {
+      "when": { "facing": "south", "cube": "corner" },
+      "apply": { "model": "anvilcraft:block/workshop_part", "y": 180 }
+    },
+    {
+      "when": { "facing": "west", "cube": "corner" },
+      "apply": { "model": "anvilcraft:block/workshop_part", "y": 270 }
+    }
+  ]
+}

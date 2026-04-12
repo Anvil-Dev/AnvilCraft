@@ -126,6 +126,7 @@ import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
+import dev.dubhe.anvilcraft.block.WorkshopBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCutterBlock;
@@ -5221,6 +5222,19 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<WorkshopBlock> WORKSHOP = REGISTRUM.block("workshop", WorkshopBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .strength(4.0F))
+        .loot(SimpleMultiPartBlock::loot)
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties((properties) -> properties.stacksTo(16))
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static void register() {
