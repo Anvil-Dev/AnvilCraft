@@ -84,6 +84,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
             }
             energy += 80000; // 80MJ
         }
+        if (energy == launcher.getOrDefault(ModComponents.STORED_ENERGY, 0)) return;
         launcher.set(ModComponents.STORED_ENERGY, energy);
         launcher.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
     }
