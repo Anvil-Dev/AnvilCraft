@@ -14,6 +14,7 @@ public class ModLootContextParamSets {
             .required(LootContextParams.ORIGIN)
             .required(LootContextParams.BLOCK_STATE)
             .required(LootContextParams.TOOL)
+            .required(LootContextParams.ENCHANTMENT_LEVEL)
     );
 
     public static final LootContextParamSet POST_BREAK_BLOCK = register(
