@@ -13,6 +13,7 @@ import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 public class UseOnBlockEventListener {
     @SubscribeEvent
     public static void onUseOnBlock(UseItemOnBlockEvent e) {
+        if (e.getUsePhase() != UseItemOnBlockEvent.UsePhase.BLOCK) return;
         UseOnContext context = e.getUseOnContext();
         if (!context.getItemInHand().is(ItemTags.HOES)) return;
         if (context.getLevel().isClientSide) return;
