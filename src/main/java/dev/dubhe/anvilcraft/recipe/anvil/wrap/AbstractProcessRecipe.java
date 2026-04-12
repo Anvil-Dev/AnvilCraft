@@ -743,8 +743,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         }
 
         private int getHasCauldronPriority() {
-            int priority = 0;
-            if (this.hasCauldron != null) priority++;
+            if (this.hasCauldron == null) return 0;
+            int priority = 1;
             if (HasCauldron.isNotEmpty(this.hasCauldron.fluid())) priority++;
             if (HasCauldron.isNotEmpty(this.hasCauldron.transform())) priority++;
             return priority;
