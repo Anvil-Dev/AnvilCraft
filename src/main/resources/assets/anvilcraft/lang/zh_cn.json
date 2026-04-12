@@ -1399,5 +1399,8 @@
   "anvilcraft.configuration.batch_cutter_cooldown.tooltip": "批量切割机切割物品的时间间隔（单位：ticks）",
   "block.anvilcraft.batch_cutter": "批量切割机",
   "command.anvilcraft.multiBlock.not_multi_block": "此方块不是多方块",
-  "screen.anvilcraft.tooltip.cfa_amplifier": "必须放置在锻星砧的斜角"
+  "screen.anvilcraft.tooltip.cfa_amplifier": "必须放置在锻星砧的斜角",
+  "screen.anvilcraft.tooltip.cfa_interface": "必须紧贴锻星砧底部放置",
+  "tooltip.anvilcraft.item.batch_cutter": "收到红石信号一次切割所有内部的物品，耗电功率为 4 kW",
+  "command.anvilcraft.multiBlock.multi_block_pos": "主部件位于 "
 }
