@@ -60,7 +60,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
         if (shooter.hasInfiniteMaterials()) return;
         int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - SpectralWeaponLauncherItem.SHOOT_CONSUME;
         weapon.set(ModComponents.STORED_ENERGY, newEnergy);
-        if (newEnergy < 800) {
+        if (newEnergy < SpectralWeaponLauncherItem.SHOOT_CONSUME) {
             weapon.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(SpectralWeaponLauncherItem.EXHAUSTED_MODEL));
         } else {
             weapon.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
@@ -78,11 +78,14 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
             int slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
             if (slot < 0) break;
 
-            inventory.removeItem(slot, 1);
-            inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
+            if (!player.hasInfiniteMaterials()) {
+                inventory.removeItem(slot, 1);
+                inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
+            }
             energy += 80000; // 80MJ
         }
         launcher.set(ModComponents.STORED_ENERGY, energy);
+        launcher.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(SpectralWeaponLauncherItem.EXHAUSTED_MODEL));
     }
 
     @Override

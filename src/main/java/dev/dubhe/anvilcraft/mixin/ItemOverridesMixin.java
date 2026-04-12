@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.function.Function;
 
 @Mixin(ItemOverrides.class)
-abstract class ModelBakeryMixin {
+abstract class ItemOverridesMixin {
     @WrapOperation(
         method = "bakeModel",
         at = @At(
