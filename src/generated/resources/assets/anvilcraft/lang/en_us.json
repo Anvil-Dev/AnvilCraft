@@ -1141,7 +1141,7 @@
   "tooltip.anvilcraft.heat.title": "Heat Stats:",
   "tooltip.anvilcraft.heat_collector.not_work": "Heat Collector is not working",
   "tooltip.anvilcraft.heliostats.adjacent_heliostats": "Adjacent heliostats detected.",
-  "tooltip.anvilcraft.heliostats.no_rotation_angle": "  No possible rotation angle to irradiate target",
+  "tooltip.anvilcraft.heliostats.no_rotation_angle": "  No possible rotation angle to irradiate the target",
   "tooltip.anvilcraft.heliostats.no_sun": "  No sunlight",
   "tooltip.anvilcraft.heliostats.not_work": "Heliostats are not working",
   "tooltip.anvilcraft.heliostats.obscured": "  The illumination path is obscured",
