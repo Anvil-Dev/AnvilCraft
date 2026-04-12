@@ -765,18 +765,16 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                    + (this.resultItems == null ? 0 : this.resultItems.size())
                    + (this.inputBlocks == null ? 0 : this.inputBlocks.size() * 100)
                    + (this.resultBlocks == null ? 0 : this.resultBlocks.size())
-                   + (
-                       this.hasCauldron != null
-                       ? HasCauldron.isNotEmpty(this.hasCauldron.fluid())
-                         ? HasCauldron.isNotEmpty(this.hasCauldron.transform())
-                           ? 3
-                           : 2
-                         : HasCauldron.isNotEmpty(this.hasCauldron.transform())
-                           ? 2
-                           : 1
-                       : 0
-                   )
+                   + this.getHasCauldronPriority()
                    + (this.hasAnvil != null ? 1 : 0);
+        }
+
+        private int getHasCauldronPriority() {
+            int priority = 0;
+            if (this.hasCauldron != null) priority++;
+            if (HasCauldron.isNotEmpty(this.hasCauldron.fluid())) priority++;
+            if (HasCauldron.isNotEmpty(this.hasCauldron.transform())) priority++;
+            return priority;
         }
 
         /**
