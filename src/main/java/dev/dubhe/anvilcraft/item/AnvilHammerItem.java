@@ -144,19 +144,17 @@ public class AnvilHammerItem extends Item implements Equipable {
 
     public static boolean dropAnvil(@Nullable Player player, Level level, BlockPos blockPos) {
         if (player == null || level.isClientSide) return false;
-        ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
+        ItemStack itemStack = player.getMainHandItem();
         Item item = itemStack.getItem();
         if (!(item instanceof AnvilHammerItem anvilHammerItem)) return false;
-        if (player.getCooldowns().isOnCooldown(anvilHammerItem)) {
-            return false;
-        }
+        if (player.getCooldowns().isOnCooldown(anvilHammerItem)) return false;
         player.getCooldowns().addCooldown(itemStack.getItem(), 5);
         FallingBlockEntity dummyAnvilEntity = new FallingBlockEntity(EntityType.FALLING_BLOCK, level);
         dummyAnvilEntity.blockState = anvilHammerItem.getAnvil().defaultBlockState();
         AnvilEvent.OnLand event = new AnvilEvent.OnLand(level, blockPos.above(), dummyAnvilEntity, player.fallDistance);
         NeoForge.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1f, 1f);
-        itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
+        itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(InteractionHand.MAIN_HAND));
         TriggerUtil.anvilHammerClickBlock(level, blockPos, "left_click");
         return true;
     }
