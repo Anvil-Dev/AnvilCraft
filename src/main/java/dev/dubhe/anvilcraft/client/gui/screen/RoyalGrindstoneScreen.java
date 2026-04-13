@@ -28,9 +28,15 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    }
+
+    @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = 3;
     }
 
     @Override
@@ -79,8 +85,8 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
             displayRepair = repair.getDefaultInstance();
         }
 
-        if (!displayRepair.isEmpty()) renderMaskedItem(g, displayRepair, i + 89, j + 22);
-        if (!displayResult.isEmpty()) renderMaskedItem(g, displayResult, i + 89, j + 47);
+        if (!displayRepair.isEmpty()) renderMaskedItem(g, displayRepair, i + 35, j + 21);
+        if (!displayResult.isEmpty()) renderMaskedItem(g, displayResult, i + 35, j + 45);
     }
 
     private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
@@ -111,28 +117,46 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
 
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {
-            Component usedGoldText = Component.literal("" + this.menu.usedGold);
+            Component usedGoldText = Component.translatable(
+                "screen.anvilcraft.royal_grindstone.gold_cost",
+                this.menu.usedGold
+            );
+            Component removedText = Component.translatable(
+                "screen.anvilcraft.royal_grindstone.will_remove",
+                this.menu.removedCurseCount, this.menu.totalCurseCount
+            );
             Component removedCurseCountText = Component.translatable(
-                "screen.anvilcraft.royal_grindstone.remove_curse_count",
-                this.menu.removedCurseCount, this.menu.totalCurseCount);
+                "screen.anvilcraft.royal_grindstone.curse_count",
+                this.menu.removedCurseCount, this.menu.totalCurseCount
+            );
             Component removedRepairCostText = Component.translatable(
-                "screen.anvilcraft.royal_grindstone.remove_repair_cost",
-                this.menu.removedRepairCost, this.menu.totalRepairCost);
+                "screen.anvilcraft.royal_grindstone.repair_cost",
+                this.menu.removedRepairCost, this.menu.totalRepairCost
+            );
             drawLabel(
-                (int) (92 + 4.5 - (this.font.width(usedGoldText) / 2f)),
-                38,
-                usedGoldText,
-                guiGraphics);
+                63,
+                11,
+                removedText,
+                guiGraphics
+            );
             drawLabel(
-                170 - this.font.width(removedCurseCountText),
-                13,
-                removedCurseCountText,
-                guiGraphics);
-            drawLabel(
-                170 - this.font.width(removedRepairCostText),
-                58,
+                63,
+                22,
                 removedRepairCostText,
-                guiGraphics);
+                guiGraphics
+            );
+            drawLabel(
+                63,
+                33,
+                removedCurseCountText,
+                guiGraphics
+            );
+            drawLabel(
+                63,
+                44,
+                usedGoldText,
+                guiGraphics
+            );
         }
     }
 
