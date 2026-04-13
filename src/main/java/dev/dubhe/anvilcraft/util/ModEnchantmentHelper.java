@@ -59,6 +59,7 @@ public class ModEnchantmentHelper {
                 .withParameter(LootContextParams.ORIGIN, pos)
                 .withParameter(LootContextParams.BLOCK_STATE, state)
                 .withParameter(LootContextParams.TOOL, stack)
+                .withParameter(LootContextParams.ENCHANTMENT_LEVEL, enchantmentLevel)
                 .create(paramSet);
 
             Enchantment.applyEffects(

@@ -605,7 +605,7 @@ public class ModItems {
             properties -> new DragonRodItem(properties, 9)
         )
         .properties(properties -> properties.durability(2031).fireResistant().component(ModComponents.FIRE_REFORGING, Unit.INSTANCE))
-        .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
+        .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD, ModItemTags.EXPLOSION_PROOF)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())
