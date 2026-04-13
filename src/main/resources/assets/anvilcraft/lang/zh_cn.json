@@ -1402,5 +1402,11 @@
   "screen.anvilcraft.tooltip.cfa_amplifier": "必须放置在锻星砧的斜角",
   "screen.anvilcraft.tooltip.cfa_interface": "必须紧贴锻星砧底部放置",
   "tooltip.anvilcraft.item.batch_cutter": "收到红石信号一次切割所有内部的物品，耗电功率为 4 kW",
-  "command.anvilcraft.multiBlock.multi_block_pos": "主部件位于 "
+  "command.anvilcraft.multiBlock.multi_block_pos": "主部件位于 ",
+  "tooltip.anvilcraft.heliostats.no_rotation_angle": "  无有效旋转角度以照射目标",
+  "tooltip.anvilcraft.item.cut_frost_metal_block": "防凋灵",
+  "tooltip.anvilcraft.item.cut_frost_metal_pillar": "防凋灵",
+  "tooltip.anvilcraft.item.cut_frost_metal_slab": "防凋灵",
+  "tooltip.anvilcraft.item.cut_frost_metal_stairs": "防凋灵",
+  "tooltip.anvilcraft.item.frost_metal_block": "防凋灵"
 }
