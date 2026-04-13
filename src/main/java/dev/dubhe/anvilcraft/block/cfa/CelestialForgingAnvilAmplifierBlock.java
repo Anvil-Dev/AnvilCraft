@@ -99,7 +99,7 @@ public class CelestialForgingAnvilAmplifierBlock
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case NORTH -> switch (state.getValue(HALF)) {
-                case BOTTOM_WS  -> NORTH_TIP;
+                case BOTTOM_WS -> NORTH_TIP;
                 case BOTTOM_S -> NORTH_LEFT_WING;
                 case BOTTOM_W -> NORTH_RIGHT_WING;
                 case BOTTOM_PART -> NORTH_BASE;
