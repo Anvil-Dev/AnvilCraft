@@ -87,8 +87,8 @@ public class CelestialForgingAnvilBlock
     public static final VoxelShape TOP_N = ShapeUtil.merge(
         new AABB(0, 0, 9, 16, 6, 16),
         new AABB(0, 6, 14, 16, 10, 16),
-        new AABB(3, 0, 16, 13, 8, 4),
-        new AABB(3, 8, 12, 13, 16, 2)
+        new AABB(3, 0, 4, 13, 8, 16),
+        new AABB(3, 8, 2, 13, 16, 12)
     );
     public static final VoxelShape TOP_W = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_N);
     public static final VoxelShape TOP_S = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_N);
