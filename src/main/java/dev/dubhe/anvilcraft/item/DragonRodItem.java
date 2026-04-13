@@ -1,20 +1,19 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.google.common.collect.Streams;
-import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import dev.dubhe.anvilcraft.util.DevouringLevelReader;
+import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.InventoryUtil;
-import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffects;
@@ -35,7 +34,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,7 +94,7 @@ public class DragonRodItem extends Item {
         return false;
     }
 
-    @SuppressWarnings("DataFlowIssue")
+
     public static void devourBlock(
         ServerLevel level, Player player, InteractionHand hand,
         BlockPos centerPos, BlockState centerState, Direction clickedSide
@@ -108,89 +106,17 @@ public class DragonRodItem extends Item {
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, -1);
         if (range == -1) return;
         range = (range - 1) / 2;
-        Iterable<BlockPos> devouringPoses;
-        switch (clickedSide) {
-            case DOWN, UP -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
-                centerPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range)
-            );
-            case NORTH, SOUTH -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.UP, range).relative(Direction.WEST, range),
-                centerPos.relative(Direction.DOWN, range).relative(Direction.EAST, range)
-            );
-            case WEST, EAST -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
-                centerPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range)
-            );
-            default -> devouringPoses = List.of(centerPos);
-        }
-        List<BlockPos> devouringPosList = Streams.stream(devouringPoses).map(BlockPos::immutable).toList();
-        DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devouringPosList);
 
-        List<BlockPos> secondaryDevouringPosList = new ArrayList<>(devouringPosList.size());
-        for (BlockPos devouringPos : devouringPosList) {
-            BlockState devouringState = level.getBlockState(devouringPos);
-            if (devouringState.isAir()) continue;
-            if (!BlockDevourerBlock.canDevour(devouringState)) continue;
+        List<BlockPos> devourPosList = DevourUtil.getDevourPosList(
+            level,
+            centerPos,
+            clickedSide,
+            range,
+            AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : -1
+        );
 
-            BlockPos normalizedDevouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devouringPos);
-            if (normalizedDevouringPos != devouringPos) {
-                devouringPos = normalizedDevouringPos;
-                devouringLevelReader.add(normalizedDevouringPos);
-            }
-            devouringState = level.getBlockState(devouringPos);
-            boolean shouldDrop = !devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-                                 || level.random.nextDouble() <= 0.05;
-
-            if (!player.getAbilities().instabuild && shouldDrop) {
-                List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devouringPos, dragonRod);
-                Inventory inventory = player.getInventory();
-                for (ItemStack drop : dropList) {
-                    if (drop.isEmpty()) continue;
-                    ItemStack remaining = InventoryUtil.insertItem(inventory, drop);
-                    if (!remaining.isEmpty()) {
-                        Block.popResource(level, devouringPos, remaining);
-                    }
-                }
-                // 特判雕纹书架一类
-                IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devouringPos, null);
-                if (source != null && dropList.isEmpty()) {
-                    for (IntListIterator it = IntIterators.fromTo(0, source.getSlots()); it.hasNext(); ) {
-                        int slot = it.nextInt();
-                        ItemStack stack = source.getStackInSlot(slot);
-                        if (stack.isEmpty()) continue;
-                        stack = InventoryUtil.insertItem(inventory, stack);
-                        if (!stack.isEmpty()) {
-                            Block.popResource(level, devouringPos, stack);
-                        }
-                    }
-                }
-                // 特判讲台
-                BlockEntity devouringBlockEntity = level.getBlockEntity(devouringPos);
-                if (devouringBlockEntity instanceof LecternBlockEntity lectern) {
-                    ItemStack bookStack = lectern.getBook();
-                    bookStack = InventoryUtil.insertItem(inventory, bookStack);
-                    lectern.setBook(bookStack);
-                    if (!bookStack.isEmpty()) {
-                        Block.popResource(level, devouringPos, bookStack);
-                        lectern.setBook(ItemStack.EMPTY);
-                    }
-                }
-            }
-            if (!(devouringState.getBlock() instanceof DoublePlantBlock)) {
-                devouringState.getBlock().playerWillDestroy(level, devouringPos, devouringState, player);
-            }
-
-            // 通过假世界判断需要先被破坏的方块
-            if (!devouringState.canSurvive(devouringLevelReader, devouringPos)) {
-                level.destroyBlock(devouringPos, false);
-            } else {
-                secondaryDevouringPosList.add(devouringPos);
-            }
-        }
-
-        for (BlockPos devouringPos : secondaryDevouringPosList) {
-            level.destroyBlock(devouringPos, false);
+        for (BlockPos devouringPos : devourPosList) {
+            devourSingleBlockInternalLogic(level, player, dragonRod, devouringPos);
         }
 
         int cooldown = calculateCooldown(player);
@@ -210,6 +136,58 @@ public class DragonRodItem extends Item {
         );
     }
 
+    @SuppressWarnings("DataFlowIssue")
+    private static void devourSingleBlockInternalLogic(
+        ServerLevel level,
+        Player player,
+        ItemStack dragonRod,
+        BlockPos devourBlockPos) {
+        BlockState devouringState = level.getBlockState(devourBlockPos);
+
+        boolean shouldDrop = !devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+                             || level.random.nextDouble() <= 0.05;
+
+        if (!player.getAbilities().instabuild && shouldDrop) {
+            List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devourBlockPos, dragonRod);
+            Inventory inventory = player.getInventory();
+            for (ItemStack drop : dropList) {
+                if (drop.isEmpty()) continue;
+                ItemStack remaining = InventoryUtil.insertItem(inventory, drop);
+                if (!remaining.isEmpty()) {
+                    Block.popResource(level, devourBlockPos, remaining);
+                }
+            }
+            // 特判雕纹书架一类
+            IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
+            if (source != null && dropList.isEmpty()) {
+                for (IntListIterator it = IntIterators.fromTo(0, source.getSlots()); it.hasNext(); ) {
+                    int slot = it.nextInt();
+                    ItemStack stack = source.getStackInSlot(slot);
+                    if (stack.isEmpty()) continue;
+                    stack = InventoryUtil.insertItem(inventory, stack);
+                    if (!stack.isEmpty()) {
+                        Block.popResource(level, devourBlockPos, stack);
+                    }
+                }
+            }
+            // 特判讲台
+            BlockEntity devouringBlockEntity = level.getBlockEntity(devourBlockPos);
+            if (devouringBlockEntity instanceof LecternBlockEntity lectern) {
+                ItemStack bookStack = lectern.getBook();
+                bookStack = InventoryUtil.insertItem(inventory, bookStack);
+                lectern.setBook(bookStack);
+                if (!bookStack.isEmpty()) {
+                    Block.popResource(level, devourBlockPos, bookStack);
+                    lectern.setBook(ItemStack.EMPTY);
+                }
+            }
+        }
+        if (!(devouringState.getBlock() instanceof DoublePlantBlock)) {
+            devouringState.getBlock().playerWillDestroy(level, devourBlockPos, devouringState, player);
+        }
+        level.destroyBlock(devourBlockPos, false);
+    }
+
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean canDevour(Player player, ItemStack dragonRod) {
         return dragonRod.getDamageValue() < dragonRod.getMaxDamage() - 1
@@ -224,7 +202,7 @@ public class DragonRodItem extends Item {
             case 9 -> 4;
             default -> 0;
         };
-        return Math.min(damage, Math.max(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1));
+        return Mth.clamp(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1, damage);
     }
 
     public static int calculateCooldown(Player player) {

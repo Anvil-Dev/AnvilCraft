@@ -1,8 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -29,26 +26,19 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 用来执行吞噬判断的假世界，修改了 {@link LevelReader#getBlockState(BlockPos) LevelReader.getBlockState} 的逻辑.
- * 原则上来说应该重写所有方法以规避意料之外的问题(
  */
 public class DevouringLevelReader implements LevelReader {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
     private final LevelReader parentLevel;
-    private final LongSet devouringList;
+    private final Set<BlockPos> devouringPoses;
 
-    public DevouringLevelReader(LevelReader parentLevel, List<BlockPos> devouringList) {
+    public DevouringLevelReader(LevelReader parentLevel, Set<BlockPos> devouringPoses) {
         this.parentLevel = parentLevel;
-        this.devouringList = devouringList
-            .stream()
-            .mapToLong(BlockPos::asLong)
-            .collect(() -> new LongOpenHashSet(devouringList.size()), LongOpenHashSet::add, LongOpenHashSet::addAll);
-    }
-
-    public void add(BlockPos pos) {
-        devouringList.add(pos.asLong());
+        this.devouringPoses = devouringPoses;
     }
 
     @Override
@@ -143,7 +133,7 @@ public class DevouringLevelReader implements LevelReader {
     @Override
     public BlockState getBlockState(BlockPos blockPos) {
         BlockState blockState = parentLevel.getBlockState(blockPos);
-        if (devouringList.contains(blockPos.asLong()) && BlockDevourerBlock.canDevour(blockState)) {
+        if (devouringPoses.contains(blockPos)) {
             return AIR_STATE;
         }
         return blockState;
@@ -169,5 +159,15 @@ public class DevouringLevelReader implements LevelReader {
     @Override
     public int getBrightness(LightLayer lightType, BlockPos blockPos) {
         return parentLevel.getBrightness(lightType, blockPos);
+    }
+
+    @Override
+    public int getHeight() {
+        return parentLevel.getHeight();
+    }
+
+    @Override
+    public int getMinBuildHeight() {
+        return parentLevel.getMinBuildHeight();
     }
 }

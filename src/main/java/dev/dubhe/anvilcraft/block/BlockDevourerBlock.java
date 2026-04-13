@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.google.common.collect.Streams;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
@@ -10,8 +9,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import dev.dubhe.anvilcraft.util.DevouringLevelReader;
-import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
+import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +24,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -49,7 +46,6 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class BlockDevourerBlock extends DirectionalBlock implements HammerRotateBehavior, IHammerRemovable {
@@ -199,96 +195,23 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     ) {
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
+        List<BlockPos> filteredBlockPosList = new ArrayList<>();
+        Vec3 center = outputPos.getCenter();
         final List<IItemHandler> itemHandlerList = ItemHandlerUtil.getTargetItemHandlerList(
             outputPos,
             devourerDirection,
             level
         );
-        Vec3 center = outputPos.getCenter();
-        Iterable<BlockPos> devourBlockPoses;
-        int maxY;
-        switch (devourerDirection) {
-            case DOWN, UP -> {
-                devourBlockPoses = BlockPos.betweenClosed(
-                    devourCenterPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
-                    devourCenterPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range)
-                );
-                maxY = devourCenterPos.getY();
-            }
-            case NORTH, SOUTH -> {
-                devourBlockPoses = BlockPos.betweenClosed(
-                    devourCenterPos.relative(Direction.UP, range).relative(Direction.WEST, range),
-                    devourCenterPos.relative(Direction.DOWN, range).relative(Direction.EAST, range)
-                );
-                maxY = devourCenterPos.relative(Direction.UP, range).getY();
-            }
-            case WEST, EAST -> {
-                devourBlockPoses = BlockPos.betweenClosed(
-                    devourCenterPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
-                    devourCenterPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range)
-                );
-                maxY = devourCenterPos.relative(Direction.UP, range).getY();
-            }
-            default -> {
-                devourBlockPoses = List.of(devourCenterPos);
-                maxY = devourCenterPos.getY();
-            }
-        }
-        List<BlockPos> devourBlockPosList = Streams.stream(devourBlockPoses).map(BlockPos::immutable).toList();
-        DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devourBlockPosList);
-
-        final List<BlockPos> chainDevourBlockPosList = new ArrayList<>();
-        final List<BlockPos> filteredBlockPosList = new ArrayList<>();
-
-        final List<BlockPos> secondaryBlockPosList = new ArrayList<>();
-        for (BlockPos devourBlockPos : devourBlockPosList) {
-            BlockPos normalizedDevouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
-            if (normalizedDevouringPos != devourBlockPos) {
-                devourBlockPos = normalizedDevouringPos;
-                devouringLevelReader.add(normalizedDevouringPos);
-            }
-            if (
-                AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring && devourBlockPos.getY() == maxY
-            ) {
-                for (BlockPos chainDevourBlockPos : BlockPos.betweenClosed(
-                    devourBlockPos.above(), devourBlockPos.above(AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance)
-                )) {
-                    if (!level.getBlockState(chainDevourBlockPos).is(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)) break;
-                    chainDevourBlockPosList.add(chainDevourBlockPos.immutable());
-                }
-            }
-            if (!level.getBlockState(devourBlockPos).canSurvive(devouringLevelReader, devourBlockPos)) {
-                devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
-            } else {
-                secondaryBlockPosList.add(devourBlockPos);
-            }
-        }
-        DevouringLevelReader chainDevouringLevelReader = new DevouringLevelReader(level, chainDevourBlockPosList);
-        for (BlockPos devourBlockPos : chainDevourBlockPosList) {
-            BlockPos normalizedDevouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
-            if (normalizedDevouringPos != devourBlockPos) {
-                devourBlockPos = normalizedDevouringPos;
-                chainDevouringLevelReader.add(normalizedDevouringPos);
-            }
-            if (!level.getBlockState(devourBlockPos).canSurvive(chainDevouringLevelReader, devourBlockPos)) {
-                devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
-            } else {
-                secondaryBlockPosList.add(devourBlockPos);
-            }
-        }
-        for (BlockPos devourBlockPos : secondaryBlockPosList) {
+        List<BlockPos> devourPosList = DevourUtil.getDevourPosList(
+            level,
+            devourCenterPos,
+            devourerDirection,
+            range,
+            AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : -1
+        );
+        for (BlockPos devourBlockPos : devourPosList) {
             devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
         }
-    }
-
-    /**
-     * 检查目标位置是否可以破坏
-     *
-     * @param devourBlockState 目标方块
-     *
-     */
-    public static boolean canDevour(BlockState devourBlockState) {
-        return !devourBlockState.is(ModBlockTags.DEVOUR_BLACKLIST) && devourBlockState.getBlock().defaultDestroyTime() >= 0;
     }
 
     private static void devourSingleBlockInternalLogic(
@@ -302,7 +225,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (devourBlockState.isAir()) return;
-        if (!BlockDevourerBlock.canDevour(devourBlockState)) return;
+        if (!DevourUtil.canDevour(devourBlockState)) return;
         if (
             !(anvil instanceof FrostAnvilBlock)
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
