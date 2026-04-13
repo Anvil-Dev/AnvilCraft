@@ -117,21 +117,21 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
 
     protected void renderLabels(GuiGraphics guiGraphics) {
         if (this.menu.getSlot(2).hasItem()) {
-            Component usedGoldText = Component.translatable(
-                "screen.anvilcraft.royal_grindstone.gold_cost",
-                this.menu.usedGold
-            );
             Component removedText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.will_remove",
-                this.menu.removedCurseCount, this.menu.totalCurseCount
-            );
-            Component removedCurseCountText = Component.translatable(
-                "screen.anvilcraft.royal_grindstone.curse_count",
                 this.menu.removedCurseCount, this.menu.totalCurseCount
             );
             Component removedRepairCostText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.repair_cost",
                 this.menu.removedRepairCost, this.menu.totalRepairCost
+            );
+            Component removedCurseCountText = Component.translatable(
+                "screen.anvilcraft.royal_grindstone.curse_count",
+                this.menu.removedCurseCount, this.menu.totalCurseCount
+            );
+            Component usedGoldText = Component.translatable(
+                "screen.anvilcraft.royal_grindstone.gold_cost",
+                this.menu.usedGold
             );
             drawLabel(
                 63,
