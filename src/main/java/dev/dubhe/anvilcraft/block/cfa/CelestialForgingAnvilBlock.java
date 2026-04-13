@@ -37,6 +37,10 @@ public class CelestialForgingAnvilBlock
         new AABB(4, 4, 4, 16, 10, 16),
         new AABB(0, 10, 0, 10, 14, 10),
 
+        new AABB(4, 14, 4, 8, 16, 8),
+        new AABB(6, 14, 6, 10, 16, 10),
+        new AABB(8, 14, 8, 12, 16, 12),
+
         new AABB(7, 10, 7, 16, 12.65, 16),
         new AABB(8, 12.65, 8, 16, 15.25, 16),
 
@@ -69,7 +73,12 @@ public class CelestialForgingAnvilBlock
 
     public static final VoxelShape TOP_NW = ShapeUtil.merge(
         new AABB(9, 0, 9, 16, 6, 16),
-        new AABB(14, 6, 14, 16, 10, 16)
+        new AABB(14, 6, 14, 16, 10, 16),
+
+        new AABB(4, 0, 4, 8, 13, 8),
+        new AABB(6, 0, 6, 10, 13, 10),
+        new AABB(8, 0, 8, 12, 13, 12),
+        new AABB(10, 0, 10, 14, 13, 14)
     );
     public static final VoxelShape TOP_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_NW);
     public static final VoxelShape TOP_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_NW);
@@ -77,7 +86,9 @@ public class CelestialForgingAnvilBlock
 
     public static final VoxelShape TOP_N = ShapeUtil.merge(
         new AABB(0, 0, 9, 16, 6, 16),
-        new AABB(0, 6, 14, 16, 10, 16)
+        new AABB(0, 6, 14, 16, 10, 16),
+        new AABB(3, 0, 4, 13, 8, 16),
+        new AABB(3, 8, 2, 13, 16, 12)
     );
     public static final VoxelShape TOP_W = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_N);
     public static final VoxelShape TOP_S = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_N);

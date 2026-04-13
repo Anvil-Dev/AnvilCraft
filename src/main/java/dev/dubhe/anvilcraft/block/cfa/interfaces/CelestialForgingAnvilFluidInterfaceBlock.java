@@ -16,7 +16,8 @@ public class CelestialForgingAnvilFluidInterfaceBlock extends CelestialForgingAn
     public static final VoxelShape NORTH = ShapeUtil.merge(
         CelestialForgingAnvilInterfaceBlock.BASE_NORTH,
         Block.box(4, 4, 0, 12, 12, 8),
-        Block.box(4, 9, 6, 12, 22, 14)
+        Block.box(4, 9, 6, 12, 22, 14),
+        Block.box(5, 12, 1, 11, 18, 7)
     );
     public static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH);
     public static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH);

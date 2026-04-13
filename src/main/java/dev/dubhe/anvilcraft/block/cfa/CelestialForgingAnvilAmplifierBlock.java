@@ -33,39 +33,15 @@ public class CelestialForgingAnvilAmplifierBlock
     public static final EnumProperty<DirectionCube232PartHalf> HALF = EnumProperty.create("half", DirectionCube232PartHalf.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final VoxelShape NORTH_TIP = ShapeUtil.merge(
-        new AABB(0, 0, 0, 11, 1.85, 11),
-        new AABB(1, 0, 1, 12, 1.85, 12),
-        new AABB(2, 0, 2, 13, 1.85, 13),
-        new AABB(3, 0, 3, 14, 1.85, 14),
-        new AABB(4, 0, 4, 15, 1.85, 15),
-        new AABB(5, 0, 5, 16, 1.85, 16),
-
-        new AABB(3, 2, 3, 11, 3.85, 11),
-        new AABB(4, 2, 4, 12, 3.85, 12),
-        new AABB(5, 2, 5, 13, 3.85, 13),
-        new AABB(6, 2, 6, 14, 3.85, 14),
-        new AABB(7, 2, 7, 15, 3.85, 15),
-        new AABB(8, 2, 8, 16, 3.85, 16),
-
-        new AABB(11, 4, 11, 16, 12, 16)
+        new AABB(0, 0, 0, 16, 4, 16),
+        new AABB(5, 5, 5, 10, 10, 10)
     );
     public static final VoxelShape WEST_TIP = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_TIP);
     public static final VoxelShape SOUTH_TIP = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_TIP);
     public static final VoxelShape EAST_TIP = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_TIP);
 
     public static final VoxelShape NORTH_LEFT_WING = ShapeUtil.merge(
-        new AABB(3, 0, 9, 4, 1.85, 16),
-        new AABB(2, 0, 8, 3, 1.85, 16),
-        new AABB(1, 0, 7, 2, 1.85, 16),
-        new AABB(0, 0, 6, 1, 1.85, 16),
-
-        new AABB(3, 2, 15, 4, 3.85, 16),
-        new AABB(2, 2, 14, 3, 3.85, 16),
-        new AABB(1, 2, 13, 2, 3.85, 16),
-        new AABB(0, 2, 12, 1, 3.85, 16),
-
-        new AABB(4, 0, 6, 11, 4, 16),
-        new AABB(0, 4, 11, 2, 12, 16)
+        new AABB(0, 0, 5, 11, 4, 16)
     );
     public static final VoxelShape WEST_LEFT_WING = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_LEFT_WING);
     public static final VoxelShape SOUTH_LEFT_WING = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_LEFT_WING);
@@ -81,12 +57,11 @@ public class CelestialForgingAnvilAmplifierBlock
     public static final VoxelShape EAST_RIGHT_WING = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_RIGHT_WING);
 
     public static final VoxelShape NORTH_BASE = ShapeUtil.merge(
-        new AABB(2, 0, 2, 16, 4, 16),
+        new AABB(0, 0, 2, 16, 4, 16),
         new AABB(6, 4, 6, 16, 12, 16),
         new AABB(2, 12, 2, 16, 16, 16),
 
-        new AABB(0, 0, 0, 10, 13, 10),
-        new AABB(1, 12, 1, 10, 15.85, 10),
+        new AABB(0, 0, 0, 10, 16, 10),
 
         new AABB(0, 0, 0, 2, 16, 2)
     );
@@ -94,12 +69,19 @@ public class CelestialForgingAnvilAmplifierBlock
     public static final VoxelShape SOUTH_BASE = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_BASE);
     public static final VoxelShape EAST_BASE = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_BASE);
 
-    public static final VoxelShape NORTH_ADDITION = Block.box(1, 12, 1, 2, 16, 2);
+    public static final VoxelShape NORTH_ADDITION = ShapeUtil.merge(
+        new AABB(0, 0, 0, 4, 16, 4),
+        new AABB(0, 0, 0, 13, 13, 13),
+        new AABB(5, 13, 5, 13, 16, 13)
+    );
     public static final VoxelShape WEST_ADDITION = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_ADDITION);
     public static final VoxelShape SOUTH_ADDITION = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_ADDITION);
     public static final VoxelShape EAST_ADDITION = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_ADDITION);
 
-    public static final VoxelShape NORTH_EXTRA = Block.box(1, 0, 1, 2, 6.85, 2);
+    public static final VoxelShape NORTH_EXTRA = ShapeUtil.merge(
+        new AABB(0, 0, 0, 4, 13, 4),
+        new AABB(5, 0, 5, 13, 8, 13)
+    );
     public static final VoxelShape WEST_EXTRA = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_EXTRA);
     public static final VoxelShape SOUTH_EXTRA = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_EXTRA);
     public static final VoxelShape EAST_EXTRA = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_EXTRA);
