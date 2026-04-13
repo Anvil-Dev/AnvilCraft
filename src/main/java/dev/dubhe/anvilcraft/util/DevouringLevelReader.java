@@ -58,6 +58,11 @@ public class DevouringLevelReader implements LevelReader {
     }
 
     @Override
+    public int getHeight() {
+        return parentLevel.getHeight();
+    }
+
+    @Override
     public int getSkyDarken() {
         return parentLevel.getSkyDarken();
     }
@@ -159,11 +164,6 @@ public class DevouringLevelReader implements LevelReader {
     @Override
     public int getBrightness(LightLayer lightType, BlockPos blockPos) {
         return parentLevel.getBrightness(lightType, blockPos);
-    }
-
-    @Override
-    public int getHeight() {
-        return parentLevel.getHeight();
     }
 
     @Override
