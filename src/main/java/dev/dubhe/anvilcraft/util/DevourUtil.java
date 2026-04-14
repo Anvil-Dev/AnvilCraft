@@ -7,11 +7,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DevourUtil {
     /**
@@ -40,78 +39,67 @@ public class DevourUtil {
         Direction devourDirection,
         int range,
         int chainCount) {
-        Iterable<BlockPos> devourPoses;
-        Iterable<BlockPos> topPoses;
+        // a -> max Y, b -> min Y, bottom corner
+        BlockPos a,b;
         switch (devourDirection) {
             case DOWN, UP -> {
-                devourPoses = BlockPos.betweenClosed(
-                    centerPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
-                    centerPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range)
-                );
-                topPoses = devourPoses;
+                a = centerPos.relative(Direction.NORTH, range).relative(Direction.WEST, range);
+                b = centerPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range);
             }
             case NORTH, SOUTH -> {
-                devourPoses = BlockPos.betweenClosed(
-                    centerPos.relative(Direction.UP, range).relative(Direction.WEST, range),
-                    centerPos.relative(Direction.DOWN, range).relative(Direction.EAST, range)
-                );
-                topPoses = BlockPos.betweenClosed(
-                    centerPos.relative(Direction.UP, range).relative(Direction.WEST, range),
-                    centerPos.relative(Direction.UP, range).relative(Direction.EAST, range)
-                );
+                a = centerPos.relative(Direction.DOWN, range).relative(Direction.WEST, range);
+                b = centerPos.relative(Direction.DOWN, range).relative(Direction.EAST, range);
             }
             case WEST, EAST -> {
-                devourPoses = BlockPos.betweenClosed(
-                    centerPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
-                    centerPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range)
-                );
-                topPoses = BlockPos.betweenClosed(
-                    centerPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
-                    centerPos.relative(Direction.UP, range).relative(Direction.SOUTH, range)
-                );
+                a = centerPos.relative(Direction.DOWN, range).relative(Direction.NORTH, range);
+                b = centerPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range);
             }
             default -> {
-                devourPoses = List.of(centerPos);
-                topPoses = devourPoses;
+                a = centerPos;
+                b = centerPos;
             }
         }
-        Stream<BlockPos> devuorStream;
         if (chainCount > 0) {
-            Stream<BlockPos> chainStream = Streams
-                .stream(topPoses)
-                .map(pos -> BlockPos.betweenClosed(pos.above(), pos.above(chainCount)))
-                .flatMap(Streams::stream)
-                .filter(pos -> level.getBlockState(pos).is(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING));
-            devuorStream = Streams.concat(Streams.stream(devourPoses), chainStream);
-        } else {
-            devuorStream = Streams.stream(devourPoses);
+            a = a.atY(a.getY() + 1);
         }
-        Set<BlockPos> devourTargets = devuorStream
-            .map(BlockPos::immutable)
+        // BlockPos.betweenClosed: down -> up
+        Set<BlockPos> devourTargets = Streams
+            .stream(BlockPos.betweenClosed(a, b))
+            .flatMap(bottomPos -> {
+                int ch = bottomPos.getY() + range * 2;
+                return Streams
+                    .stream(BlockPos.betweenClosed(bottomPos, bottomPos.atY(bottomPos.getY() + range * 2 + chainCount)))
+                    .map(BlockPos::immutable)
+                    .takeWhile(pos -> pos.getY() <= ch || DevourUtil.shouldChainDevour(level.getBlockState(pos)));
+                // in common devour OR chain until unchainable
+            })
             .collect(Collectors.toSet());
-        List<BlockPos> first = new ArrayList<>(devourTargets.size());
-        List<BlockPos> second = new ArrayList<>(devourTargets.size());
+
+        LinkedList<BlockPos> l = new LinkedList<>();
         DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devourTargets);
 
         for (BlockPos devourBlockPos : devourTargets) {
             BlockState devourState = level.getBlockState(devourBlockPos);
             if (!DevourUtil.shouldDevour(devourState)) continue;
             BlockPos normalizedBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
-            if (normalizedBlockPos != devourBlockPos) {
+            if (normalizedBlockPos.equals(devourBlockPos)) {
                 devourBlockPos = normalizedBlockPos;
                 devourState = level.getBlockState(normalizedBlockPos);
             }
             if (!devourState.canSurvive(devouringLevelReader, devourBlockPos)) {
-                first.add(devourBlockPos);
+                l.addFirst(devourBlockPos);
             } else {
-                second.add(devourBlockPos);
+                l.addLast(devourBlockPos);
             }
         }
-        first.addAll(second);
-        return first;
+        return l;
     }
 
     private static boolean shouldDevour(BlockState devourState) {
         return !devourState.isAir() && DevourUtil.canDevour(devourState);
+    }
+
+    private static boolean shouldChainDevour(BlockState devourState) {
+        return devourState.is(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING) && DevourUtil.shouldDevour(devourState);
     }
 }

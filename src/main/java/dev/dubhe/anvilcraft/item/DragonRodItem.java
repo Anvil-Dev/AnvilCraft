@@ -143,7 +143,9 @@ public class DragonRodItem extends Item {
         ItemStack dragonRod,
         BlockPos devourBlockPos) {
         BlockState devouringState = level.getBlockState(devourBlockPos);
-
+        if (devouringState.isAir()) {
+            return;
+        }
         boolean shouldDrop = !devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                              || level.random.nextDouble() <= 0.05;
 

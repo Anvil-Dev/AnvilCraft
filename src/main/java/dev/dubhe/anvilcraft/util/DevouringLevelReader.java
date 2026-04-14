@@ -138,7 +138,7 @@ public class DevouringLevelReader implements LevelReader {
     @Override
     public BlockState getBlockState(BlockPos blockPos) {
         BlockState blockState = parentLevel.getBlockState(blockPos);
-        if (devouringPoses.contains(blockPos)) {
+        if (DevourUtil.canDevour(blockState) && devouringPoses.contains(blockPos)) {
             return AIR_STATE;
         }
         return blockState;
