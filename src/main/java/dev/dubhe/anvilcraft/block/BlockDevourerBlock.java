@@ -207,7 +207,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             devourCenterPos,
             devourerDirection,
             range,
-            AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : -1
+            AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : 0
         );
         for (BlockPos devourBlockPos : devourPosList) {
             devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
@@ -224,8 +224,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
 
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
-        if (devourBlockState.isAir()) return;
-        if (!DevourUtil.canDevour(devourBlockState)) return;
+        if (!DevourUtil.shouldDevour(devourBlockState)) return;
         if (
             !(anvil instanceof FrostAnvilBlock)
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)

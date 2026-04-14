@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -112,7 +111,7 @@ public class DragonRodItem extends Item {
             centerPos,
             clickedSide,
             range,
-            AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : -1
+            0
         );
 
         for (BlockPos devouringPos : devourPosList) {
@@ -143,7 +142,7 @@ public class DragonRodItem extends Item {
         ItemStack dragonRod,
         BlockPos devourBlockPos) {
         BlockState devouringState = level.getBlockState(devourBlockPos);
-        if (devouringState.isAir()) {
+        if (!DevourUtil.shouldDevour(devouringState)) {
             return;
         }
         boolean shouldDrop = !devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)

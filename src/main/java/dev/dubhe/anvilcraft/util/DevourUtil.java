@@ -30,7 +30,7 @@ public class DevourUtil {
      * @param centerPos 中心坐标
      * @param devourDirection 吞噬方向
      * @param range 吞噬范围,从中心扩展格数
-     * @param chainCount 连锁数量,非正值以禁用连锁
+     * @param chainCount 连锁数量,0以禁用连锁
      *
      */
     public static List<BlockPos> getDevourPosList(
@@ -39,8 +39,9 @@ public class DevourUtil {
         Direction devourDirection,
         int range,
         int chainCount) {
-        // a -> max Y, b -> min Y, bottom corner
-        BlockPos a,b;
+        // a, b: bottom corners
+        BlockPos a;
+        BlockPos b;
         switch (devourDirection) {
             case DOWN, UP -> {
                 a = centerPos.relative(Direction.NORTH, range).relative(Direction.WEST, range);
@@ -59,18 +60,17 @@ public class DevourUtil {
                 b = centerPos;
             }
         }
-        if (chainCount > 0) {
-            a = a.atY(a.getY() + 1);
-        }
         // BlockPos.betweenClosed: down -> up
         Set<BlockPos> devourTargets = Streams
             .stream(BlockPos.betweenClosed(a, b))
             .flatMap(bottomPos -> {
-                int ch = bottomPos.getY() + range * 2;
+                // dh = 0 when DOWN, UP; above dh is chain range
+                int dh = devourDirection.getStepY() != 0 ? 0 : 2 * range;
+                int cy = bottomPos.getY() + dh;
                 return Streams
-                    .stream(BlockPos.betweenClosed(bottomPos, bottomPos.atY(bottomPos.getY() + range * 2 + chainCount)))
+                    .stream(BlockPos.betweenClosed(bottomPos, bottomPos.atY(cy + chainCount)))
                     .map(BlockPos::immutable)
-                    .takeWhile(pos -> pos.getY() <= ch || DevourUtil.shouldChainDevour(level.getBlockState(pos)));
+                    .takeWhile(pos -> pos.getY() <= cy || DevourUtil.shouldChainDevour(level.getBlockState(pos)));
                 // in common devour OR chain until unchainable
             })
             .collect(Collectors.toSet());
@@ -95,7 +95,7 @@ public class DevourUtil {
         return l;
     }
 
-    private static boolean shouldDevour(BlockState devourState) {
+    public static boolean shouldDevour(BlockState devourState) {
         return !devourState.isAir() && DevourUtil.canDevour(devourState);
     }
 
