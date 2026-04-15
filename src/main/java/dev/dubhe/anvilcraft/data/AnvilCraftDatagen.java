@@ -69,10 +69,7 @@ public class AnvilCraftDatagen {
         REGISTRUM.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
         REGISTRUM.addDataGenerator(ProviderType.FLUID_TAGS, TagsHandler::initFluid);
         REGISTRUM.addDataGenerator(ProviderType.ENCHANTMENT_TAGS, TagsHandler::initEnchantment);
-        REGISTRUM.addDataGenerator(
-            ProviderType.registerDynamicTag("tags/damage_type", "damage_type", Registries.DAMAGE_TYPE),
-            TagsHandler::initDamageType
-        );
+        REGISTRUM.addDataGenerator(ProviderType.DAMAGE_TYPE_TAGS, TagsHandler::initDamageType);
         REGISTRUM.addDataGenerator(ProviderType.ENTITY_TAGS, TagsHandler::initEntityType);
         REGISTRUM.addDataGenerator(ProviderType.LANG, LangHandler::init);
         REGISTRUM.addDataGenerator(ProviderType.RECIPE, RecipeHandler::init);
