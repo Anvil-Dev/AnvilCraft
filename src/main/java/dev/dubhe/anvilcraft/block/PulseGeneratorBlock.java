@@ -94,6 +94,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+
         this.update(level, pos, () -> state);
     }
 
@@ -137,18 +138,17 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         boolean lastInputting = generator.isInputtingSignal();
         boolean nowInputting = PulseGeneratorBlock.getInputSignal(level, pos, stateGetter.get()) > 0;
         generator.setInputtingSignal(nowInputting);
-
         boolean canStart = switch (generator.getStartMode()) {
             case RISING_EDGE -> !lastInputting && nowInputting;
             case FALLING_EDGE -> lastInputting && !nowInputting;
             case LOOP -> !generator.isDeadlock() && generator.getState() == PulseGeneratorBlockEntity.State.DEFAULT;
         } && !generator.isProcessing();
+
         if (canStart) {
             this.startWaiting(level, pos, stateGetter, generator);
+            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         }
-
         this.checkIsDeadlock(level, pos, stateGetter, generator);
-        this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
     }
 
     @Override
@@ -274,10 +274,12 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof PulseGeneratorBlockEntity blockEntity && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-            sp.openMenu(blockEntity, buf -> {
-                buf.writeBlockPos(pos);
-                buf.writeNbt(blockEntity.constructDataNbt());
-            });
+            sp.openMenu(
+                blockEntity, buf -> {
+                    buf.writeBlockPos(pos);
+                    buf.writeNbt(blockEntity.constructDataNbt());
+                }
+            );
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
