@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.ISensitiveBiPacket;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.screen.IFilterScreen;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
-import dev.dubhe.anvilcraft.util.Util;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -33,7 +33,7 @@ public record SlotFilterMaxStackSizeChangePacket(int index, int maxStackSize) im
     @Override
     public void handleOnClient(Player player) {
         if (!(Minecraft.getInstance().screen instanceof IFilterScreen<?> screen)) return;
-        if (!(screen.getFilterMenu().getFilterBlockEntity() instanceof IFilterBlockEntity filter)) return;
+        IFilterBlockEntity filter = screen.getFilterMenu().getFilterBlockEntity();
         filter.setSlotLimit(this.index, this.maxStackSize);
     }
 
@@ -41,7 +41,7 @@ public record SlotFilterMaxStackSizeChangePacket(int index, int maxStackSize) im
     public void handleOnServer(Player player) {
         if (!player.hasContainerOpen()) return;
         if (!(player.containerMenu instanceof IFilterMenu menu)) return;
-        if (!(menu.getFilterBlockEntity() instanceof IFilterBlockEntity filter)) return;
+        IFilterBlockEntity filter = menu.getFilterBlockEntity();
         filter.setSlotLimit(this.index, this.maxStackSize);
         if (filter instanceof BlockEntity be) {
             be.setChanged();

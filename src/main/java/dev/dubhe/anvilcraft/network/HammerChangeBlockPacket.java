@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.network;
 
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
     public static final StreamCodec<ByteBuf, HammerChangeBlockPacket> STREAM_CODEC = StreamCodec.composite(
         BlockPos.STREAM_CODEC,
         HammerChangeBlockPacket::pos,
-        CodecUtil.BLOCK_STATE_STREAM_CODEC,
+        StreamCodecUtil.BLOCK_STATE,
         HammerChangeBlockPacket::state,
         HammerChangeBlockPacket::new
     );

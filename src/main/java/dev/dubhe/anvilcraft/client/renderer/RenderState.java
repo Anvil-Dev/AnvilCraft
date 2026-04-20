@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.client.renderer;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.integration.iris.IrisState;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 

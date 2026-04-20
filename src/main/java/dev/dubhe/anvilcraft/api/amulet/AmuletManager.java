@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.api.amulet;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
+import dev.anvilcraft.lib.v2.util.CollectionUtil;
+import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModRegistries;
@@ -9,8 +11,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
-import dev.dubhe.anvilcraft.util.CollectionUtil;
-import dev.dubhe.anvilcraft.util.InventoryUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;

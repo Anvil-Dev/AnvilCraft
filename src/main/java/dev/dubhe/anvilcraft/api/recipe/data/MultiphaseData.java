@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.api.recipe.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
-import dev.dubhe.anvilcraft.util.ListUtil;
 import lombok.EqualsAndHashCode;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;

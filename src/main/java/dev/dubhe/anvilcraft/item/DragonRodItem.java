@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.item;
 
 import com.google.common.collect.Streams;
+import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import dev.dubhe.anvilcraft.util.InventoryUtil;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
@@ -207,7 +207,7 @@ public class DragonRodItem extends Item {
             case 9 -> 4;
             default -> 0;
         };
-        return Math.min(damage, Math.max(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1));
+        return Math.clamp(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1, damage);
     }
 
     public static int calculateCooldown(Player player) {

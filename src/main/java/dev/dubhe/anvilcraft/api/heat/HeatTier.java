@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.api.heat;
 
 import com.mojang.serialization.Codec;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,7 +14,7 @@ public enum HeatTier implements Comparable<HeatTier> {
 
     public static final Codec<HeatTier> INDEX_CODEC = CodecUtil.enumCodecInInt(HeatTier.class);
     public static final Codec<HeatTier> LOWER_NAME_CODEC = CodecUtil.enumCodecInLowerName(HeatTier.class);
-    public static final StreamCodec<ByteBuf, HeatTier> STREAM_CODEC = CodecUtil.enumStreamCodec(HeatTier.class);
+    public static final StreamCodec<ByteBuf, HeatTier> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(HeatTier.class);
 
     public Component getDisplayName() {
         return Component.translatable("tooltip.anvilcraft.heat.tier." + this);

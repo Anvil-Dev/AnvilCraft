@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.network.split;
 
-import dev.dubhe.anvilcraft.util.Util;
+import dev.anvilcraft.lib.v2.util.Util;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.ConnectionProtocol;

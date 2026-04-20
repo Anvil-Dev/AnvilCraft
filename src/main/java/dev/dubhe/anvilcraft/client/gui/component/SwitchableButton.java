@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import com.google.common.collect.Collections2;
-import dev.dubhe.anvilcraft.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -18,7 +18,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class SwitchableButton extends Button {
-    public static final Button.OnPress DO_NOTHING = OnPress::doNothing;
+    public static final Button.OnPress DO_NOTHING = btn -> {
+    };
 
     private final List<Button> switchables = new ArrayList<>();
     private final List<Component> message;
@@ -143,9 +144,6 @@ public class SwitchableButton extends Button {
         @Override
         default void accept(Button button, Integer index) {
             this.onPress(button, index);
-        }
-
-        private static <T> void doNothing(T t) {
         }
     }
 }

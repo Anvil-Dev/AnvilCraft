@@ -2,65 +2,15 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.util.thread.SidedThreadGroups;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
-    public static final Lazy<Boolean> jadePresent = new Lazy<>(() -> isLoaded("jade") || isLoaded("wthit"));
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-    public static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[]{
-        Direction.SOUTH,
-        Direction.WEST,
-        Direction.EAST,
-        Direction.NORTH
-    };
-    public static final Direction[] VERTICAL_DIRECTIONS = new Direction[]{
-        Direction.UP,
-        Direction.DOWN
-    };
-    public static final Direction[][] CORNER_DIRECTIONS = new Direction[][]{
-        {Direction.EAST, Direction.NORTH}, {Direction.EAST, Direction.SOUTH},
-        {Direction.WEST, Direction.NORTH}, {Direction.WEST, Direction.SOUTH},
-    };
-
-    /**
-     * 判断给定的 {@code modId} 对应的模组是否加载
-     *
-     * @return 模组是否加载
-     */
-    public static boolean isLoaded(String modId) {
-        return ModList.get().isLoaded(modId);
-    }
-
-    public static Function<InteractionResult, ItemInteractionResult> interactionResultConverter() {
-        return it -> switch (it) {
-            case SUCCESS, SUCCESS_NO_ITEM_USED -> ItemInteractionResult.SUCCESS;
-            case CONSUME -> ItemInteractionResult.CONSUME;
-            case CONSUME_PARTIAL -> ItemInteractionResult.CONSUME_PARTIAL;
-            case PASS -> ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            case FAIL -> ItemInteractionResult.FAIL;
-        };
-    }
-
-    public static <E> Optional<List<E>> intoOptional(List<E> collection) {
-        if (collection.isEmpty()) return Optional.empty();
-        return Optional.of(collection);
-    }
 
     public static String generateUniqueRecipeSuffix() {
         return "_generated_" + generateRandomString(8, true, false);
@@ -92,110 +42,5 @@ public class Util {
 
     public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {
         return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
-    }
-
-    public static void acceptDirections(BlockPos blockPos, Consumer<BlockPos> blockPosConsumer) {
-        for (Direction direction : Direction.values()) {
-            blockPosConsumer.accept(blockPos.relative(direction));
-        }
-        for (Direction horizontal : HORIZONTAL_DIRECTIONS) {
-            for (Direction vertical : VERTICAL_DIRECTIONS) {
-                blockPosConsumer.accept(blockPos.relative(horizontal).relative(vertical));
-            }
-        }
-        for (Direction[] corner : CORNER_DIRECTIONS) {
-            BlockPos pos1 = blockPos;
-            for (Direction direction : corner) {
-                pos1 = pos1.relative(direction);
-            }
-            for (Direction verticalDirection : VERTICAL_DIRECTIONS) {
-                pos1 = pos1.relative(verticalDirection);
-                blockPosConsumer.accept(pos1);
-            }
-        }
-    }
-
-    public static void acceptHorizontalDirections(BlockPos blockPos, Consumer<BlockPos> blockPosConsumer) {
-        for (Direction direction : HORIZONTAL_DIRECTIONS) {
-            blockPosConsumer.accept(blockPos.relative(direction));
-        }
-    }
-
-    public static boolean isClient() {
-        return Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER;
-    }
-
-    public static boolean isServer() {
-        return Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER;
-    }
-
-    /**
-     * 将传入的值强转为{@code T}类型
-     *
-     * @param <T> 想要转为的类型
-     * @param o   一个值
-     * @return 传入的值，但是类型为{@code T}
-     * @throws ClassCastException 当无法将传入的值强转时抛出
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T cast(Object o) {
-        return (T) o;
-    }
-
-    /**
-     * 若传入的值可被强转为{@code T}类型，则返回包含传入的值的{@link Optional}
-     *
-     * @param <T> 想要转为的类型
-     * @param o   一个值，可为null
-     * @return 一个可能包含传入的值的{@link Optional}
-     */
-    public static <T> Optional<T> castSafely(@Nullable Object o, Class<T> clazz) {
-        return Optional.ofNullable(o)
-            .filter(clazz::isInstance)
-            .map(Util::cast);
-    }
-
-    /**
-     * 若传入的值可被强转为传入的任意类型，则返回true
-     *
-     * @param o 一个值，可为null
-     * @return 传入的值，但是类型为{@code T}
-     */
-    @SuppressWarnings("TypeParameterExplicitlyExtendsObject")
-    @SafeVarargs
-    public static boolean instanceOfAny(@Nullable Object o, Class<? extends Object>... classes) {
-        Optional<Object> op = Optional.empty();
-        for (Class<?> clazz : classes) {
-            op = op.or(() -> Util.castSafely(o, clazz));
-        }
-        return op.isPresent();
-    }
-
-    /**
-     * 若传入的值可被强转为{@code T}类型，则使用传入的值执行传入的方法<br>
-     * 等效于{@code Util.castSafely(o, clazz).ifPresent(action);}
-     *
-     * @param <T>    想要转为的类型
-     * @param o      一个值，可为null
-     * @param action 将要执行的操作
-     */
-    public static <T> void ifCastable(@Nullable Object o, Class<T> clazz, Consumer<T> action) {
-        Optional.ofNullable(o)
-            .filter(clazz::isInstance)
-            .<T>map(Util::cast)
-            .ifPresent(action);
-    }
-
-    /**
-     * 使用传入的参数运行代码，并返回原参数
-     *
-     * @param value 原参数
-     * @param consumer 需要在传入前调用的方法
-     * @param <T> 原参数的类型
-     * @return 原参数
-     */
-    public static <T> T run(T value, Consumer<T> consumer) {
-        consumer.accept(value);
-        return value;
     }
 }

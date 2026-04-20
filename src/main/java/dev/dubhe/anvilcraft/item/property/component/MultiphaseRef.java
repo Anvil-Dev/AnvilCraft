@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.uuid.CreateOnFirstUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.DirectUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
@@ -12,7 +13,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphases;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -77,12 +77,12 @@ public record MultiphaseRef(IUuidProvider id) {
 
     public void cyclePhases(ItemStack stack) {
         if (this.isEmpty()) return;
-        this.toMultiphase().cyclePhases(stack);
+        this.toMultiphase().changePhase(stack);
     }
 
     public void cyclePhases(ItemStack stack, byte index) {
         if (this.isEmpty()) return;
-        this.toMultiphase().cyclePhases(stack, index);
+        this.toMultiphase().changePhase(stack, index);
     }
 
     public boolean isEmpty() {

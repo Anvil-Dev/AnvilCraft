@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.heat;
 
 import com.mojang.datafixers.util.Pair;
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
@@ -9,7 +10,6 @@ import dev.dubhe.anvilcraft.block.heatable.OverheatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.util.ListUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;

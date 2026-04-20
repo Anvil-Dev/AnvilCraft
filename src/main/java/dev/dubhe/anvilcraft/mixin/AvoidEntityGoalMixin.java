@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.dummy.DummyCat;
 import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.world.entity.LivingEntity;

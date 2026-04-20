@@ -5,27 +5,18 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.client.gui.screen.MultiphaseScreen;
-import dev.dubhe.anvilcraft.client.gui.screen.MultitoolScreen;
-import dev.dubhe.anvilcraft.client.gui.screen.ResonatorScreen;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.item.MultitoolItem;
-import dev.dubhe.anvilcraft.item.ResonatorItem;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
-import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -39,7 +30,6 @@ import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
@@ -71,89 +61,12 @@ public class ClientEventListener {
         SoundHelper.INSTANCE.clear();
     }
 
-    private static int lastSwitchPhasePressAction = 0;
-
     @SubscribeEvent
     public static void onKeyPress(InputEvent.Key event) {
         if (ModKeyMappings.TOGGLE_GOGGLE.get().isDown()) AnvilHammerItem.goggleEnabled = !AnvilHammerItem.goggleEnabled;
         if (Minecraft.getInstance().level == null) return;
 
         // 以下是界面部分
-
-        SWITCH_PHASE:
-        if (event.getKey() == ModKeyMappings.SWITCH_PHASE.get().getKey().getValue()) {
-            if (event.getAction() == InputConstants.REPEAT
-                && Minecraft.getInstance().screen == null
-            ) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) return;
-                ItemStack stack = player.getMainHandItem();
-                // noinspection DataFlowIssue
-                if (stack.has(ModComponents.MULTIPHASE) && !stack.get(ModComponents.MULTIPHASE).isEmpty()) {
-                    PacketDistributor.sendToServer(new MultiphasePackets.SingleSync(stack.get(ModComponents.MULTIPHASE).id().get()));
-                    Minecraft.getInstance().setScreen(new MultiphaseScreen(InteractionHand.MAIN_HAND));
-                    return;
-                }
-                stack = player.getOffhandItem();
-                // noinspection DataFlowIssue
-                if (stack.has(ModComponents.MULTIPHASE) && !stack.get(ModComponents.MULTIPHASE).isEmpty()) {
-                    PacketDistributor.sendToServer(new MultiphasePackets.SingleSync(stack.get(ModComponents.MULTIPHASE).id().get()));
-                    Minecraft.getInstance().setScreen(new MultiphaseScreen(InteractionHand.OFF_HAND));
-                }
-            }
-            if (event.getAction() != InputConstants.RELEASE) {
-                lastSwitchPhasePressAction = event.getAction();
-                break SWITCH_PHASE;
-            }
-            if (lastSwitchPhasePressAction == InputConstants.PRESS) {
-                PacketDistributor.sendToServer(new MultiphasePackets.SwitchPhase());
-            } else if (
-                lastSwitchPhasePressAction == InputConstants.REPEAT
-                && Minecraft.getInstance().screen instanceof MultiphaseScreen screen
-                && !screen.wheel.isClosingAnimationStarted()
-            ) {
-                screen.wheel.onClosing();
-            }
-        }
-
-        if (event.getKey() == ModKeyMappings.SWITCH_RESONATE_MODE.get().getKey().getValue()) {
-            if (event.getAction() == InputConstants.PRESS && Minecraft.getInstance().screen == null) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) return;
-                ItemStack stack = player.getMainHandItem();
-                if (stack.getItem() instanceof ResonatorItem) {
-                    Minecraft.getInstance().setScreen(new ResonatorScreen(
-                        InteractionHand.MAIN_HAND,
-                        ResonatorItem.getMode(stack)
-                    ));
-                    return;
-                }
-                stack = player.getOffhandItem();
-                if (stack.getItem() instanceof ResonatorItem) {
-                    Minecraft.getInstance().setScreen(new ResonatorScreen(
-                        InteractionHand.OFF_HAND,
-                        ResonatorItem.getMode(stack)
-                    ));
-                }
-            } else if (event.getAction() == InputConstants.RELEASE && Minecraft.getInstance().screen instanceof ResonatorScreen screen) {
-                screen.wheel.onClosing();
-            }
-        }
-
-        if (event.getKey() == ModKeyMappings.SWITCH_RESONATE_MODE.get().getKey().getValue()) {
-            if (event.getAction() == InputConstants.PRESS && Minecraft.getInstance().screen == null) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) {
-                    return;
-                }
-                ItemStack stack = player.getMainHandItem();
-                if (stack.is(ModItems.MULTITOOL_ITEM)) {
-                    Minecraft.getInstance().setScreen(new MultitoolScreen(InteractionHand.MAIN_HAND, MultitoolItem.getMode(stack)));
-                }
-            } else if (event.getAction() == InputConstants.RELEASE && Minecraft.getInstance().screen instanceof MultitoolScreen screen) {
-                screen.getWheel().onClosing();
-            }
-        }
 
         if (event.getKey() == ModKeyMappings.USE_PILL_BOX.get().getKey().getValue()) {
             if (event.getAction() == InputConstants.PRESS) {

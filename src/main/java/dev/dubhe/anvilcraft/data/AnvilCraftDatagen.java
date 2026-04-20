@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data;
 
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
+import dev.anvilcraft.lib.v2.multiblock.init.LibRegistries;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -14,6 +15,7 @@ import dev.dubhe.anvilcraft.data.provider.ModParticleDescriptionProvider;
 import dev.dubhe.anvilcraft.data.provider.ModPoiTagProvider;
 import dev.dubhe.anvilcraft.data.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.tags.TagsHandler;
+import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.advancements.Criterion;
@@ -62,6 +64,7 @@ public class AnvilCraftDatagen {
         var genInit = REGISTRUM.getDataGenInitializer();
         genInit.add(Registries.ENCHANTMENT, ModEnchantments::bootstrap);
         genInit.add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap);
+        genInit.add(LibRegistries.DEFINITIONS_KEY, ModMultiblockDefinitions::bootstrap);
 
         genInit.addDependency(ProviderType.RECIPE, ProviderType.DYNAMIC);
 

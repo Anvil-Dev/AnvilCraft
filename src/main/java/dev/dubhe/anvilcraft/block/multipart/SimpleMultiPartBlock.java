@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.multipart;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.state.ISimpleMultiPartBlockState;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -24,7 +24,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
     }
 
     public Vec3i getMainPartOffset() {
-        return new Vec3i(0, 0, 0);
+        return Vec3i.ZERO;
     }
 
     @Override
