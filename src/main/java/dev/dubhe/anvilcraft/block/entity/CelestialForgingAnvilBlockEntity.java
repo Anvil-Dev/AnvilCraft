@@ -34,11 +34,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.putBoolean("amplified", this.isAmplify);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         this.isAmplify = tag.getBoolean("amplified");
     }
 

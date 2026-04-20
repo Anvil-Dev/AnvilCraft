@@ -41,7 +41,10 @@ public class ItemDurabilityPressurePlateBlock extends PowerLevelPressurePlateBlo
             EntitySelector.NO_SPECTATORS.and(entity -> !entity.isIgnoringBlockTriggers())
         )) {
             ItemStack stack = item.getItem();
-            if (stack.getMaxDamage() == 0) set.add(1);
+            if (stack.getMaxDamage() == 0) {
+                set.add(1);
+                continue;
+            }
             set.add((stack.getMaxDamage() - stack.getDamageValue() - 0.0F) / stack.getMaxDamage());
         }
 

@@ -26,7 +26,6 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
     protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false);
     protected boolean isBigger = false;
-    protected int cooldown = 0;
 
     public LargeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);

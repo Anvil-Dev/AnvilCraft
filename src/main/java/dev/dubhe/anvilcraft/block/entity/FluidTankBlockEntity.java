@@ -23,7 +23,6 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
     protected final FluidTank tank = new FluidTank(CAPACITY);
     protected boolean isBigger = false;
-    protected int cooldown = 0;
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
