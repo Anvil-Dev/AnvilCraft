@@ -46,6 +46,7 @@ import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
@@ -74,6 +75,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
@@ -357,6 +359,12 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil", CelestialForgingAnvilBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL)
         .renderer(() -> CelestialForgingAnvilBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM
+        .blockEntity("wip_block", WipBlockEntity::new)
+        .validBlock(ModBlocks.WIP_BLOCK)
+        .renderer(() -> WipBlockEntityRenderer::new)
         .register();
 
     public static void register() {

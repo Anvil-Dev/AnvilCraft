@@ -9,6 +9,8 @@ import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessSerializer;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
@@ -226,6 +228,11 @@ public class ModRecipeTypes {
         registerType("anvil_collision");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT_SERIALIZER =
         RECIPE_SERIALIZERS.register("anvil_collision", AnvilCollisionCraftRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<ProceduralProcessRecipe>> PROCEDURAL_PROCESS =
+        registerType("procedural_process");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ProceduralProcessRecipe>> PROCEDURAL_PROCESS_SERIALIZER =
+        RECIPE_SERIALIZERS.register("procedural_process", ProceduralProcessSerializer::new);
 
     public static void register(IEventBus bus) {
         RECIPE_TYPES.register(bus);

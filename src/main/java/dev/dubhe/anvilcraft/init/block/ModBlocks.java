@@ -126,6 +126,7 @@ import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
+import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCutterBlock;
@@ -3406,6 +3407,15 @@ public class ModBlocks {
     public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM.block("arrow", ArrowBlock::new)
         .initialProperties(() -> Blocks.STONE)
         .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)
+        .properties(
+            p -> p.noOcclusion()
+                .lightLevel(bs -> 1)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .register();

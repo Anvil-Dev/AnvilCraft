@@ -1,0 +1,90 @@
+package dev.dubhe.anvilcraft.block;
+
+import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+
+public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
+    public WipBlock(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(WipBlock::new);
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return WipBlockEntity.createInstance(ModBlockEntities.WIP_BLOCK.get(), blockPos, blockState);
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        return List.of();
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        BlockEntity e = level.getBlockEntity(pos);
+        if (e instanceof WipBlockEntity wipBlockEntity) {
+            if (wipBlockEntity.getStepCount() >= 15) return 15;
+            if (wipBlockEntity.getStepCount() <= 0) return 0;
+            return wipBlockEntity.getStepCount();
+        }
+        return 0;
+    }
+
+    @Override
+    public CompoundTag clearData(Level level, BlockPos pos) {
+        CompoundTag tag = new CompoundTag();
+        BlockEntity e = level.getBlockEntity(pos);
+        if (e instanceof WipBlockEntity wipBlockEntity) {
+            tag.putInt("stepCount", wipBlockEntity.getStepCount());
+            tag.putString("initialBlock", BuiltInRegistries.BLOCK.getKey(wipBlockEntity.getInitialBlock()).toString());
+            tag.putString("recipe", wipBlockEntity.getRecipeId().toString());
+        }
+        return tag;
+    }
+
+    @Override
+    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
+        BlockEntity e = level.getBlockEntity(pos);
+        if (e instanceof WipBlockEntity wipBlockEntity) {
+            if (nbt.contains("stepCount")) {
+                wipBlockEntity.setStepCount(nbt.getInt("stepCount"));
+            }
+            if (nbt.contains("initialBlock")) {
+                ResourceLocation id = ResourceLocation.parse(nbt.getString("initialBlock"));
+                Block block = BuiltInRegistries.BLOCK.get(id);
+                wipBlockEntity.setInitialBlock(block);
+            }
+            if (nbt.contains("recipe")) {
+                wipBlockEntity.setRecipeId(ResourceLocation.parse(nbt.getString("recipe")));
+            }
+            wipBlockEntity.setChanged();
+        }
+    }
+}
