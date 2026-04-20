@@ -25,12 +25,13 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     public static final int EXHAUSTED_MODEL = 1;
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
+    public static final int MAX_ENERGY = 320000;
 
     public SpectralWeaponLauncherItem(Properties properties) {
         super(
             properties
-                .component(ModComponents.STORED_ENERGY, 0)
-                .component(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(SpectralWeaponLauncherItem.EXHAUSTED_MODEL))
+                .component(ModComponents.STORED_ENERGY, SpectralWeaponLauncherItem.MAX_ENERGY)
+                .component(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT)
         );
     }
 
@@ -102,12 +103,12 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     @Override
     public int getBarWidth(ItemStack stack) {
         int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return (int) (Math.clamp(energy / 320000F, 0F, 1F) * 13);
+        return Math.clamp(energy / SpectralWeaponLauncherItem.MAX_ENERGY, 0, 1) * 13;
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return ColorUtil.lerpColor(energy / 320000F, BAR_COLOR, FULL_BAR_COLOR);
+        float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        return ColorUtil.lerpColor(energy / SpectralWeaponLauncherItem.MAX_ENERGY, BAR_COLOR, FULL_BAR_COLOR);
     }
 }
