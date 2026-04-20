@@ -32,10 +32,9 @@ public abstract class HeatableBlock extends Block {
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         Direction[] directions = Direction.values();
+        if (HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) == HeatTier.NORMAL) return;
         for (Direction direction : directions) {
-            if (level.getBlockState(pos.relative(direction)).is(Blocks.TNT)
-                && HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) != HeatTier.NORMAL
-            ) {
+            if (level.getBlockState(pos.relative(direction)).is(Blocks.TNT)) {
                 TntBlock.explode(level, pos.relative(direction));
                 level.removeBlock(pos.relative(direction), false);
             }
