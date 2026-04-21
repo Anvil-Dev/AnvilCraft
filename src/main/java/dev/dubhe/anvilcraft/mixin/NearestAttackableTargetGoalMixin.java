@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
-import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.util.function.SafePredicate;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;

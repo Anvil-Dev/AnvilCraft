@@ -28,16 +28,60 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        if (this.menu.getSlot(2).hasItem()) {
+            Component removedText = Component.translatable("screen.anvilcraft.royal_grindstone.will_remove");
+            drawLabel(
+                63,
+                11,
+                removedText,
+                guiGraphics
+            );
+            Component removedRepairCostText = Component.translatable(
+                "screen.anvilcraft.royal_grindstone.repair_cost",
+                this.menu.removedRepairCost, this.menu.totalRepairCost
+            );
+            drawLabel(
+                63,
+                22,
+                removedRepairCostText,
+                guiGraphics
+            );
+            Component removedCurseCountText = Component.translatable(
+                "screen.anvilcraft.royal_grindstone.curse_count",
+                this.menu.removedCurseCount, this.menu.totalCurseCount
+            );
+            drawLabel(
+                63,
+                33,
+                removedCurseCountText,
+                guiGraphics
+            );
+            Component usedGoldText = Component.translatable(
+                "screen.anvilcraft.royal_grindstone.gold_cost",
+                this.menu.usedGold
+            );
+            drawLabel(
+                63,
+                44,
+                usedGoldText,
+                guiGraphics
+            );
+        }
+    }
+
+    @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = 3;
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-        this.renderLabels(guiGraphics);
     }
 
     protected void renderBg(GuiGraphics g, float partialTick, int mouseX, int mouseY) {
@@ -79,8 +123,8 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
             displayRepair = repair.getDefaultInstance();
         }
 
-        if (!displayRepair.isEmpty()) renderMaskedItem(g, displayRepair, i + 89, j + 22);
-        if (!displayResult.isEmpty()) renderMaskedItem(g, displayResult, i + 89, j + 47);
+        if (!displayRepair.isEmpty()) renderMaskedItem(g, displayRepair, i + 35, j + 21);
+        if (!displayResult.isEmpty()) renderMaskedItem(g, displayResult, i + 35, j + 45);
     }
 
     private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
@@ -109,39 +153,14 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         );
     }
 
-    protected void renderLabels(GuiGraphics guiGraphics) {
-        if (this.menu.getSlot(2).hasItem()) {
-            Component usedGoldText = Component.literal("" + this.menu.usedGold);
-            Component removedCurseCountText = Component.translatable(
-                "screen.anvilcraft.royal_grindstone.remove_curse_count",
-                this.menu.removedCurseCount, this.menu.totalCurseCount);
-            Component removedRepairCostText = Component.translatable(
-                "screen.anvilcraft.royal_grindstone.remove_repair_cost",
-                this.menu.removedRepairCost, this.menu.totalRepairCost);
-            drawLabel(
-                (int) (92 + 4.5 - (this.font.width(usedGoldText) / 2f)),
-                38,
-                usedGoldText,
-                guiGraphics);
-            drawLabel(
-                170 - this.font.width(removedCurseCountText),
-                13,
-                removedCurseCountText,
-                guiGraphics);
-            drawLabel(
-                170 - this.font.width(removedRepairCostText),
-                58,
-                removedRepairCostText,
-                guiGraphics);
-        }
-    }
-
     private void drawLabel(int x, int y, Component component, GuiGraphics guiGraphics) {
-        int i = (this.width - this.imageWidth - 2) / 2;
-        int j = (this.height - this.imageHeight + 23) / 2;
-        x += i;
-        y += j;
-        guiGraphics.drawString(this.font, component, x + 2, y - 10, 8453920);
+        guiGraphics.drawString(
+            this.font,
+            component,
+            x + 2,
+            y + 2,
+            8453920
+        );
     }
 
     @Override

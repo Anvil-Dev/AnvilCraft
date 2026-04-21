@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
-import dev.dubhe.anvilcraft.util.ListUtil;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;

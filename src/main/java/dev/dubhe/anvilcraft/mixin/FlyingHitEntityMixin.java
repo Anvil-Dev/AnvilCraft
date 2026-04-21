@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

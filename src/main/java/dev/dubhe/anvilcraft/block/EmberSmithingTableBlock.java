@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.IEmberBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;

@@ -40,8 +40,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");
         provider.add("screen.anvilcraft.slot.disable.tooltip", "Use item clicks to set filter");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_curse_count", "Removed curses: %1$s / %2$s");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Removed repair cost: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.will_remove", "Will remove:");
+        provider.add("screen.anvilcraft.royal_grindstone.curse_count", "Curses: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.repair_cost", "Repair cost: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.gold_cost", "Gold cost: %1$s");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
         provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
@@ -108,8 +110,8 @@ public class ScreenLang {
         provider.add("block.anvilcraft.heliostats.invalid_placement", "Invalid placement");
         provider.add("block.anvilcraft.heliostats.placement_no_pos", "Irradiation position not set");
         provider.add("item.anvilcraft.heliostats.pos_set", "Will irradiate %s");
-        provider.add("item.anvilcraft.heliostats.no_rotation_angle", "Will irradiate %s");
         provider.add("tooltip.anvilcraft.heliostats.not_work", "Heliostats are not working");
+        provider.add("tooltip.anvilcraft.heliostats.no_rotation_angle", "  No possible rotation angle to irradiate the target");
         provider.add("tooltip.anvilcraft.heliostats.no_sun", "  No sunlight");
         provider.add("tooltip.anvilcraft.heliostats.obscured", "  The illumination path is obscured");
         provider.add("tooltip.anvilcraft.heliostats.too_far", "  The illumination pos is too far");

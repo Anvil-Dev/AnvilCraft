@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.cfa.item;
 
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.HorizontalDirection;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -39,15 +39,16 @@ public class CelestialForgingAnvilInterfaceBlockItem extends BlockItem {
             BlockPos cfaPos = pos.relative(direction);
             BlockState cfaState = level.getBlockState(cfaPos);
             if (cfaState.is(ModBlocks.CELESTIAL_FORGING_ANVIL)) {
-                Cube3x3PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
-                if (half == Cube3x3PartHalf.BOTTOM_E
-                    || half == Cube3x3PartHalf.BOTTOM_W
-                    || half == Cube3x3PartHalf.BOTTOM_N
-                    || half == Cube3x3PartHalf.BOTTOM_S
-                    || half == Cube3x3PartHalf.BOTTOM_EN
-                    || half == Cube3x3PartHalf.BOTTOM_ES
-                    || half == Cube3x3PartHalf.BOTTOM_WN
-                    || half == Cube3x3PartHalf.BOTTOM_WS) {
+                Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
+                if (half == Cube323PartHalf.BOTTOM_E
+                    || half == Cube323PartHalf.BOTTOM_W
+                    || half == Cube323PartHalf.BOTTOM_N
+                    || half == Cube323PartHalf.BOTTOM_S
+                    || half == Cube323PartHalf.BOTTOM_NE
+                    || half == Cube323PartHalf.BOTTOM_SE
+                    || half == Cube323PartHalf.BOTTOM_NW
+                    || half == Cube323PartHalf.BOTTOM_SW
+                ) {
                     cfaDir.add(direction);
                 }
             }

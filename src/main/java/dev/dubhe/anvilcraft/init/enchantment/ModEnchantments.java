@@ -22,7 +22,6 @@ import net.minecraft.world.item.enchantment.effects.MultiplyValue;
 import net.minecraft.world.item.enchantment.effects.SetValue;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
-import net.neoforged.neoforge.registries.holdersets.AndHolderSet;
 import net.neoforged.neoforge.registries.holdersets.OrHolderSet;
 
 public class ModEnchantments {

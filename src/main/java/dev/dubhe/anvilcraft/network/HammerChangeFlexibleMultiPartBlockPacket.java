@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.network;
 
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import io.netty.buffer.ByteBuf;
@@ -22,7 +22,7 @@ public record HammerChangeFlexibleMultiPartBlockPacket(BlockPos pos, BlockState 
     public static final StreamCodec<ByteBuf, HammerChangeFlexibleMultiPartBlockPacket> STREAM_CODEC = StreamCodec.composite(
         BlockPos.STREAM_CODEC,
         HammerChangeFlexibleMultiPartBlockPacket::pos,
-        CodecUtil.BLOCK_STATE_STREAM_CODEC,
+        StreamCodecUtil.BLOCK_STATE,
         HammerChangeFlexibleMultiPartBlockPacket::state,
         Direction.STREAM_CODEC,
         HammerChangeFlexibleMultiPartBlockPacket::direction,

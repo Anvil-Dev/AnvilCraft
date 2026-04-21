@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
-import dev.dubhe.anvilcraft.util.stack.UnlimitedItemStack;
+import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;

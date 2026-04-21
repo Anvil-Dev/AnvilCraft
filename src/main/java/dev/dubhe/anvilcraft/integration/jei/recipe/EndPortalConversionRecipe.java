@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.integration.jei.recipe;
 
 import com.google.common.collect.ImmutableList;
-import dev.anvilcraft.lib.v2.recipe.component.ChanceItemStack;
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.SpectralAnvilConversionUtil;
 import net.minecraft.world.level.block.Block;

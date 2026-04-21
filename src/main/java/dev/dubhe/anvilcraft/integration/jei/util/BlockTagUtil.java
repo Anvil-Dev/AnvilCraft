@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
-import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.core.registries.Registries;

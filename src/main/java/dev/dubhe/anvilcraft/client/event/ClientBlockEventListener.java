@@ -46,7 +46,7 @@ public class ClientBlockEventListener {
         if (event.getLevel().isClientSide() && clientHandle(event, state, hand, event.getHitVec())) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
-        } else if (!state.is(BlockTags.CAULDRONS)) {
+        } else if (!state.is(BlockTags.CAULDRONS) && !state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) {
             event.setCanceled(true);
         }
     }

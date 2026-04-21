@@ -188,7 +188,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     @Override
     protected void init() {
         super.init();
-
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = 3;
         int buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
             this.addRenderableWidget(new SilencerButton(
@@ -245,30 +246,30 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
         return mouseX >= leftPos + START_LEFT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+               && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
+               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
+               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
     }
 
     private boolean mouseInRight(double mouseX, double mouseY, int leftPos, int topPos) {
         return mouseX >= leftPos + START_RIGHT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+               && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
+               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
+               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
     }
 
     private boolean mouseInLeftSlider(double mouseX, double mouseY, int leftPos, int topPos) {
         return mouseX >= leftPos + SCROLL_BAR_START_LEFT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+               && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
+               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
+               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
     }
 
     private boolean mouseInRightSlider(double mouseX, double mouseY, int leftPos, int topPos) {
         return mouseX >= leftPos + SCROLL_BAR_START_RIGHT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+               && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
+               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
+               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
     }
 
     @Override

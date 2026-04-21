@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -13,6 +14,8 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity> {
     private static final ModelResourceLocation RING1 =
@@ -22,7 +25,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     private static final ModelResourceLocation RING3 =
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
 
-    public CelestialForgingAnvilBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public CelestialForgingAnvilBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
     }
 
     @SuppressWarnings("deprecation")
@@ -40,9 +43,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.pushPose();
         final VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout());
         if (blockEntity.isAmplify()) {
-            poseStack.translate(0.5, 3.5, 0.5);
+            poseStack.translate(0.5, 4.5, 0.5);
         } else {
-            poseStack.translate(0.5, 2.5, 0.5);
+            poseStack.translate(0.5, 3.5, 0.5);
         }
         poseStack.mulPose(Axis.XP.rotationDegrees(rotation));
         if (blockEntity.isAmplify()) {
@@ -91,5 +94,20 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
         }
         poseStack.popPose();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(CelestialForgingAnvilBlockEntity blockEntity) {
+        BlockState state = blockEntity.getBlockState();
+        if (!blockEntity.isAmplify()) {
+            AABB aabb = new AABB(
+                blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())
+            ).inflate(1, 0, 1);
+            return aabb.setMaxY(aabb.maxY + 5);
+        }
+        AABB aabb = new AABB(
+            blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())
+        ).inflate(3, 0, 3);
+        return aabb.setMaxY(aabb.maxY + 7);
     }
 }

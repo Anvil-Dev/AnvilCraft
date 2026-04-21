@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.Util;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.component.FilteredSlot;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
-import dev.dubhe.anvilcraft.util.ListUtil;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.level.ServerPlayer;

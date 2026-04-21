@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.init.block;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
-import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullFunction;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
@@ -419,7 +419,8 @@ public class ModBlocks {
 
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRUM.block("giant_anvil", GiantAnvilBlock::new)
         .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.noOcclusion()
+        .properties(p -> p
+            .noOcclusion()
             .isValidSpawn(Blocks::never)
             .strength(4.0F)
             .sound(GiantAnvilBlock.SOUND_TYPE)
@@ -445,12 +446,18 @@ public class ModBlocks {
                 .define('B', ModItems.EMBER_METAL_INGOT)
                 .define('C', ModBlocks.NEGATIVE_MATTER_BLOCK)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEUTRONIUM_INGOT), AnvilCraftDatagen.has(ModItems.NEUTRONIUM_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CHARGED_NEUTRONIUM_INGOT),
-                    AnvilCraftDatagen.has(ModItems.CHARGED_NEUTRONIUM_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.STABLE_NEUTRONIUM_INGOT),
-                    AnvilCraftDatagen.has(ModItems.STABLE_NEUTRONIUM_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.CHARGED_NEUTRONIUM_INGOT),
+                    AnvilCraftDatagen.has(ModItems.CHARGED_NEUTRONIUM_INGOT)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModItems.STABLE_NEUTRONIUM_INGOT),
+                    AnvilCraftDatagen.has(ModItems.STABLE_NEUTRONIUM_INGOT)
+                )
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
+                    AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK)
+                )
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
                 .save(provider);
         })
@@ -512,8 +519,10 @@ public class ModBlocks {
                 .define('A', ModBlocks.CAKE_BLOCK)
                 .define('B', ModFoodItems.CREAMY_BREAD_ROLL)
                 .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CAKE_BLOCK), AnvilCraftDatagen.has(ModBlocks.CAKE_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CREAMY_BREAD_ROLL),
-                    AnvilCraftDatagen.has(ModFoodItems.CREAMY_BREAD_ROLL))
+                .unlockedBy(
+                    AnvilCraftDatagen.hasItem(ModFoodItems.CREAMY_BREAD_ROLL),
+                    AnvilCraftDatagen.has(ModFoodItems.CREAMY_BREAD_ROLL)
+                )
                 .save(provider);
         })
         .register();
@@ -574,8 +583,6 @@ public class ModBlocks {
         })
         .initialProperties(() -> Blocks.ANVIL)
         .tag(
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE,
             BlockTags.ANVIL,
             ModBlockTags.CANT_BROKEN_ANVIL,
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -607,7 +614,10 @@ public class ModBlocks {
                 .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
                 .save(provider, AnvilCraft.of("smithing/frost_grindstone"));
         })
-        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL
+        )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -627,7 +637,10 @@ public class ModBlocks {
                 .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
                 .save(provider, AnvilCraft.of("smithing/frost_smithing_table"));
         })
-        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL
+        )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -2207,7 +2220,13 @@ public class ModBlocks {
         )
         .lang("Block of Frost Metal")
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .tag(
             BlockTags.BEACON_BASE_BLOCKS,
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -2221,7 +2240,7 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/frost_metal_block").get()
         ))
         .item(FrostMetalBlockItem::new)
-        .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL)
+        .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL, ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
@@ -2245,12 +2264,20 @@ public class ModBlocks {
             ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/cut_frost_metal_block").get()
         ))
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
                 .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
@@ -2269,9 +2296,17 @@ public class ModBlocks {
             ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item()
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
                 .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
@@ -2294,10 +2329,16 @@ public class ModBlocks {
             ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .tag(ItemTags.SLABS)
+        .tag(ItemTags.SLABS, ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
@@ -2326,10 +2367,16 @@ public class ModBlocks {
             ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .properties(
+            properties -> properties
+                .lightLevel(state -> 9)
+                .noOcclusion()
+                .emissiveRendering(ModBlocks::always)
+                .explosionResistance(1200)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .tag(ItemTags.STAIRS)
+        .tag(ItemTags.STAIRS, ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe((ctx, provider) -> {
             SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
@@ -4619,7 +4666,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<LiquidBlock> OIL = REGISTRUM.block(
-        "oil", p -> new LiquidBlock(ModFluids.OIL.get(), p))
+            "oil", p -> new LiquidBlock(ModFluids.OIL.get(), p))
         .properties(it -> it.mapColor(MapColor.TERRACOTTA_BLACK)
             .replaceable()
             .noCollission()

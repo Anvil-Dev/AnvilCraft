@@ -33,6 +33,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = 3;
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
         this.value = new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));

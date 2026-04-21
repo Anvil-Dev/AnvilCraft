@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
 import dev.anvilcraft.lib.v2.recipe.data.advancement.predicate.item.NotPredicate;
 import dev.anvilcraft.lib.v2.recipe.init.LibItemSubPredicates;
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;

@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.serialization.Codec;
+import dev.anvilcraft.lib.v2.network.util.NetworkUtil;
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.sound.ISoundEventListener;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
@@ -9,8 +11,6 @@ import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.network.SilencerSyncPacket;
-import dev.dubhe.anvilcraft.util.DistExecutor;
-import dev.dubhe.anvilcraft.util.NetworkUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -143,8 +143,11 @@ public class ActiveSilencerBlockEntity
     public void sync(Player player, List<ResourceLocation> sounds) {
         this.sync(sounds);
         if (!(this.getLevel() instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) return;
-        NetworkUtil.sendToAllPlayersExcluded(
-            serverLevel, serverPlayer, new SilencerSyncPacket(this.getBlockPos(), List.copyOf(this.mutedSound)));
+        NetworkUtil.sendToAllPlayersInDimensionExcluded(
+            serverLevel,
+            serverPlayer,
+            new SilencerSyncPacket(this.getBlockPos(), List.copyOf(this.mutedSound))
+        );
     }
 
     @Override

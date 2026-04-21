@@ -7,8 +7,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
-import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullBiConsumer;
-import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullConsumer;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.block.state.Color;
@@ -606,7 +606,7 @@ public class ModItems {
             properties -> new DragonRodItem(properties, 9)
         )
         .properties(properties -> properties.durability(2031).fireResistant().component(ModComponents.FIRE_REFORGING, Unit.INSTANCE))
-        .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
+        .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD, ModItemTags.EXPLOSION_PROOF)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe((ctx, provider) -> {
             ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())

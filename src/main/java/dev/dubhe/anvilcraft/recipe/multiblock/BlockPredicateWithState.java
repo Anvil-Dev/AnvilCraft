@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.core.Holder;
@@ -158,18 +159,20 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     public record Raw(Block block, Map<String, String> propertiesMap) {
 
         public static final Codec<Raw> CODEC_RAW = RecordCodecBuilder.create(ins -> ins.group(
-                CodecUtil.BLOCK_CODEC.fieldOf("block").forGetter(Raw::block),
-                Codec.unboundedMap(Codec.STRING, Codec.STRING)
-                    .optionalFieldOf("properties", Collections.emptyMap())
-                    .forGetter(Raw::propertiesMap))
-            .apply(ins, Raw::new));
+            CodecUtil.BLOCK
+                .fieldOf("block")
+                .forGetter(Raw::block),
+            Codec.unboundedMap(Codec.STRING, Codec.STRING)
+                .optionalFieldOf("properties", Collections.emptyMap())
+                .forGetter(Raw::propertiesMap)
+        ).apply(ins, Raw::new));
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, Raw> STREAM_CODEC_RAW =
-            StreamCodec.composite(
-                CodecUtil.BLOCK_STREAM_CODEC,
-                Raw::block,
-                ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.STRING_UTF8),
-                Raw::propertiesMap,
-                Raw::new);
+        public static final StreamCodec<RegistryFriendlyByteBuf, Raw> STREAM_CODEC_RAW = StreamCodec.composite(
+            StreamCodecUtil.BLOCK,
+            Raw::block,
+            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.STRING_UTF8),
+            Raw::propertiesMap,
+            Raw::new
+        );
     }
 }

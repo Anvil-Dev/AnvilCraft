@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -38,7 +38,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     protected State state = State.DEFAULT;
 
     protected boolean isInputtingSignal = false;
-    protected boolean isDeadlock = false;
+    protected boolean isLocked = false;
 
     public PulseGeneratorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.PULSE_GENERATOR.get(), pos, blockState);
@@ -134,7 +134,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     public void setStartMode(int mode) {
         this.startMode = Mode.fromIndex(mode % 3);
         if (this.startMode != Mode.LOOP) {
-            this.isDeadlock = false;
+            this.isLocked = false;
         } else if (!this.isInputtingSignal && this.level != null) {
             Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
                 .ifPresent(block -> block.update(this.level, this.getBlockPos(), this::getBlockState));
@@ -172,7 +172,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public boolean isOutputting() {
-        if (this.isDeadlock) return this.outputInvert;
+        if (this.isLocked) return this.outputInvert;
         return (this.state == State.OUTPUTTING) != this.outputInvert;
     }
 
@@ -209,7 +209,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
             }
         }
         level.setBlock(pos, state.setValue(PulseGeneratorBlock.POWERED, this.isOutputting()), 3);
-        this.isDeadlock = false;
+        this.isLocked = false;
 
         Util.<PulseGeneratorBlock>cast(this.getBlockState().getBlock()).update(level, pos, () -> state);
 

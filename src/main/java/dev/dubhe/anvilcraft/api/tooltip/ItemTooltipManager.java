@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -8,9 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.ListUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -183,6 +183,11 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.FROST_ANVIL.asItem(), "Wither proof");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Wither proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Wither proof");
 
         SHIFT.put(ModBlocks.SPECTRAL_ANVIL.asItem(),
             "When the upper magnet is demagnetized, a phantom shadow is created and falls downward. "

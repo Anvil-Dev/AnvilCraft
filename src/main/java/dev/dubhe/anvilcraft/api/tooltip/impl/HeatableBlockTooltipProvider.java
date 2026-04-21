@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,7 +22,7 @@ public class HeatableBlockTooltipProvider extends ITooltipProvider.BlockEntityTo
 
     @Override
     public List<Component> tooltip(BlockEntity entity) {
-        if (Util.jadePresent.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return null;
+        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return null;
         List<Component> components = new ArrayList<>();
         HeatRecorder.getTier(entity.getLevel(), entity.getBlockPos(), entity.getBlockState())
             .ifPresent(tier -> components.add(ITooltipProvider.withIndentAndMerge(Component.translatable(

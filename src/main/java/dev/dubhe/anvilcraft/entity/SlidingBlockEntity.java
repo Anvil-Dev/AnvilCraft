@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.CrashReportCategory;
@@ -118,24 +118,6 @@ public class SlidingBlockEntity extends Entity {
     @Override
     public void move(MoverType type, Vec3 motion) {
         super.move(type, motion);
-        // if (motion.x == 0 && motion.y == 0 && motion.z == 0) return;
-        // List<Entity> list = this.level().getEntities(
-        //     this,
-        //     this.section.getBoundsOnSide(Direction.UP)
-        //         .expandTowards(0, 1, 0)
-        //         .move(this.blockPosition()),
-        //     EntitySelector.pushableBy(this)
-        // );
-        // if (list.isEmpty()) return;
-        // for (Entity entity : list) {
-        //     if (entity instanceof SlidingBlockEntity) continue;
-        //     Vec3 collide = this.section.findCollide(this.position(), entity.getBoundingBox());
-        //     entity.setDeltaMovement(
-        //         entity.getDeltaMovement().x + collide.x() + DEFAULT_MOVEMENT * 2.8,
-        //         entity.getDeltaMovement().y < 0 ? 0 : entity.getDeltaMovement().y,
-        //         entity.getDeltaMovement().z + collide.z() + DEFAULT_MOVEMENT * 2.8
-        //     );
-        // }
     }
 
     protected boolean checkCanMove() {

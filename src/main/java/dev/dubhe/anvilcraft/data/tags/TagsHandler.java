@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.data.tags;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;

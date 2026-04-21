@@ -1,0 +1,27 @@
+{
+  "grid": [
+    [
+      "AAA",
+      "A A",
+      "AAA"
+    ],
+    [
+      "A A",
+      " 0 ",
+      "A A"
+    ],
+    [
+      "AAA",
+      "A A",
+      "AAA"
+    ]
+  ],
+  "mapping": {
+    "0": {
+      "blocks": "anvilcraft:fluid_tank"
+    },
+    "A": {
+      "blocks": "anvilcraft:menger_sponge"
+    }
+  }
+}

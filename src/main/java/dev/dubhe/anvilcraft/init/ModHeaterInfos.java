@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.api.heat.HeatTierLine;
@@ -12,7 +13,6 @@ import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.BlockInfo;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.Optional;

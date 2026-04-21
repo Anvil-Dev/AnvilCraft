@@ -16,7 +16,7 @@
               "block": "anvilcraft:celestial_forging_anvil",
               "condition": "minecraft:block_state_property",
               "properties": {
-                "half": "mid_center"
+                "half": "bottom_center"
               }
             }
           ],

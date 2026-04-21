@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
-import dev.anvilcraft.lib.v2.recipe.component.ChanceItemStack;
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
