@@ -17,18 +17,18 @@ import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LightningEventListener {
     @SubscribeEvent
-    public static void onLightingStrike(LightningBoltStrikeEvent event) {
+    public static void onLightningStrike(LightningBoltStrikeEvent event) {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
-        LightningEventListener.strikeOnLightingRod(level, pos, level.getBlockState(pos));
+        LightningEventListener.strikeOnLightningRod(level, pos, level.getBlockState(pos));
     }
 
     @SubscribeEvent
     public static void onTeslaStrike(TeslaStrikeEvent.TargetBlock event) {
-        LightningEventListener.strikeOnLightingRod(event.getLevel(), event.getTargetPos(), event.getTargetState());
+        LightningEventListener.strikeOnLightningRod(event.getLevel(), event.getTargetPos(), event.getTargetState());
     }
 
-    private static void strikeOnLightingRod(Level level, BlockPos targetPos, BlockState targetState) {
+    private static void strikeOnLightningRod(Level level, BlockPos targetPos, BlockState targetState) {
         LightningEventListener.lightningCharge(targetPos, level, targetState);
         if (targetState.is(Blocks.LIGHTNING_ROD)) targetPos = targetPos.below();
         int depth = AnvilCraft.CONFIG.lightningStrikeDepth;

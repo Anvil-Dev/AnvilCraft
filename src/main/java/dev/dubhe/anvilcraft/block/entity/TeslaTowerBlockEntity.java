@@ -178,9 +178,14 @@ public class TeslaTowerBlockEntity extends BlockEntity
         this.flushState(this.level, getBlockPos().above(3));
         if (this.level.isClientSide()) return;
         if (state.getValue(TeslaTowerBlock.OVERLOAD) || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) {
+            final boolean hasChanged = this.targetEntity != null || this.targetEntityUUID != null || this.targetLightningRod != null;
             this.targetEntity = null;
             this.targetEntityUUID = null;
             this.targetLightningRod = null;
+            if (hasChanged) {
+                this.setChanged();
+                this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+            }
             return;
         }
         if (this.tickCount > 0) {
@@ -192,15 +197,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
         AABB aabb = new AABB(this.getBlockPos().above(3)).expandTowards(8, 8, 8).expandTowards(-8, -8, -8);
         if (this.targetEntity != null) {
             if (!targetEntity.isAlive()) {
-                this.targetEntity = null;
-                this.targetEntityUUID = null;
-                this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+                this.clearTargetEntity(state);
             } else {
                 AABB boundingBox = this.targetEntity.getBoundingBox();
                 if (!aabb.intersects(boundingBox)) {
-                    this.targetEntity = null;
-                    this.targetEntityUUID = null;
-                    this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+                    this.clearTargetEntity(state);
                 }
             }
         }
@@ -210,7 +211,10 @@ public class TeslaTowerBlockEntity extends BlockEntity
             .min((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()));
         if (target.isPresent()) {
             LivingEntity targetEntity = target.get();
-            if (NeoForge.EVENT_BUS.post(new TeslaStrikeEvent.TargetEntity(this.level, this, targetEntity)).isCanceled()) return;
+            if (NeoForge.EVENT_BUS.post(new TeslaStrikeEvent.TargetEntity(this.level, this, targetEntity)).isCanceled()) {
+                this.clearTargetEntity(state);
+                return;
+            }
             this.targetEntity = targetEntity;
             this.targetEntityUUID = targetEntity.getUUID();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
@@ -225,7 +229,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 .min((b1, b2) -> new DistanceComparator(getBlockPos().getCenter()).compare(b1.getCenter(), b2.getCenter()));
             if (targetBlock.isEmpty()) return;
             BlockPos targetLightningRod = targetBlock.get();
-            if (NeoForge.EVENT_BUS.post(new TeslaStrikeEvent.TargetBlock(this.level, this, targetLightningRod)).isCanceled()) return;
+            if (NeoForge.EVENT_BUS.post(new TeslaStrikeEvent.TargetBlock(this.level, this, targetLightningRod)).isCanceled()) {
+                this.targetLightningRod = null;
+                this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+                return;
+            }
             this.targetLightningRod = targetLightningRod;
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             ((LightningRodBlock) Blocks.LIGHTNING_ROD).onLightningStrike(
@@ -234,6 +242,12 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 targetLightningRod
             );
         }
+    }
+
+    private void clearTargetEntity(BlockState state) {
+        this.targetEntity = null;
+        this.targetEntityUUID = null;
+        this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
     }
 
     public void initWhiteList(Player player) {
