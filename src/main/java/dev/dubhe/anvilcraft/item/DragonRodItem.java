@@ -24,6 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoublePlantBlock;
@@ -138,6 +139,12 @@ public class DragonRodItem extends Item {
             devouringState = level.getBlockState(devouringPos);
 
             if (!player.getAbilities().instabuild) {
+                int expCount = EnchantmentHelper.processBlockExperience(
+                    level,
+                    dragonRod,
+                    devouringState.getExpDrop(level, devouringPos, level.getBlockEntity(devouringPos), player, dragonRod)
+                );
+                player.giveExperiencePoints(expCount);
                 List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devouringPos, dragonRod);
                 Inventory inventory = player.getInventory();
                 for (ItemStack drop : dropList) {
