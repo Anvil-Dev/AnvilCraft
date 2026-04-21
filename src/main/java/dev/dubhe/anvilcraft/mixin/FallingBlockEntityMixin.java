@@ -83,7 +83,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     }
 
     /**
-     * 拦截原版的 onGround() 检查，接管方块是否应该变成实体的逻辑。
+     * 拦截原版的 onGround() 检查，接管实体是否应该变成方块的逻辑。
      * 主逻辑 ↓
      */
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
@@ -92,11 +92,18 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     )
     private boolean anvilcraft$overrideOnGround(FallingBlockEntity instance, Operation<Boolean> original) {
         Vec3 gravityVec = GravityManager.getNetGravityVectorForFallingBlock(instance);
+
+        // 如果重力向下且没有显著水平分量，认为不处在特殊重力源范围内，跳过自定义逻辑返回原版
+        if (gravityVec.y < -0.01 && Math.abs(gravityVec.x) < 0.01 && Math.abs(gravityVec.z) < 0.01) {
+            return original.call(instance);
+        }
+
         Direction gravityDir = Direction.getNearest(gravityVec.x, gravityVec.y, gravityVec.z);
         Level level = instance.level();
         BlockPos pos = BlockPos.containing(instance.position());
         BlockPos supportPos = pos.relative(gravityDir);
         BlockState supportState = level.getBlockState(supportPos);
+
 
         // 0. 平衡环境
         if (gravityVec.lengthSqr() < 1.0E-5) return false;
