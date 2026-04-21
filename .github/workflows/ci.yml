@@ -83,6 +83,8 @@ jobs:
           java: 21
           fail-mode: skip
           changelog: Fixed some previously existing issues. 修复了部分此前存在的问题。
+          dependencies: |
+            anvil-lib(embedded){modrinth:nKAcAL9b}{curseforge:1484302}
 
           modrinth-id: vuISAWPc
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
