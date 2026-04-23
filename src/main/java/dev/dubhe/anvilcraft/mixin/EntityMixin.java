@@ -7,24 +7,25 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.event.NonPlayerEntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
+import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
-import dev.dubhe.anvilcraft.util.SpectralAnvilConversionUtil;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.PortalProcessor;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
@@ -38,6 +39,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
@@ -87,6 +89,10 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Shadow
     private Vec3 position;
+
+    @Shadow
+    @Nullable
+    public PortalProcessor portalProcess;
 
     @Override
     public boolean anvilcraft$isDeflected() {
@@ -242,32 +248,26 @@ public abstract class EntityMixin implements IEntityExtension {
         NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, beforeBoundingMovement.get().length()));
     }
 
-    @Inject(
-        method = "handlePortal", at = @At(
-        value = "INVOKE",
-        target = "Lnet/minecraft/world/entity/Entity;changeDimension("
-                 + "Lnet/minecraft/world/level/portal/DimensionTransition;"
-                 + ")"
-                 + "Lnet/minecraft/world/entity/Entity;"
+    @WrapOperation(
+        method = "handlePortal",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;changeDimension("
+                     + "Lnet/minecraft/world/level/portal/DimensionTransition;"
+                     + ")"
+                     + "Lnet/minecraft/world/entity/Entity;"
+        )
     )
-    )
-    private void handlePortal(CallbackInfo ci) {
-        // noinspection ConstantValue
-        if (!(((Object) this) instanceof FallingBlockEntity fallingBlockEntity)) return;
-        if (fallingBlockEntity.anvilcraft$isSpectral()) {
-            fallingBlockEntity.discard();
-            return;
-        }
-        if (!fallingBlockEntity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) {
-            BlockState newState = ModBlocks.END_DUST.getDefaultState();
-            if (fallingBlockEntity.blockState.is(BlockTags.ANVIL)) {
-                double rand = this.level.random.nextDouble();
-                if (rand < SpectralAnvilConversionUtil.chance(fallingBlockEntity.blockState.getBlock())) {
-                    newState = ModBlocks.SPECTRAL_ANVIL.getDefaultState();
-                }
-            }
-            fallingBlockEntity.blockState = newState;
-        }
+    @SuppressWarnings("deprecation")
+    private Entity handlePortal(Entity instance, DimensionTransition transition, Operation<Entity> original) {
+        Block portal = Util.cast(((PortalProcessorAccessor) this.portalProcess).getPortal());
+        NonPlayerEntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new NonPlayerEntityThroughPortalEvent(
+            this.level,
+            instance,
+            new PortalType(portal.builtInRegistryHolder().key().location())
+        ));
+        if (event.isCanceled()) return instance;
+        return original.call(event.getEntity(), transition);
     }
 
     @Inject(

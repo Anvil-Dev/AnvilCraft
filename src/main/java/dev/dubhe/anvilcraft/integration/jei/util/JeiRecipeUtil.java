@@ -45,6 +45,39 @@ public class JeiRecipeUtil {
         );
     }
 
+    public static List<Component> getTooltips(NumberProvider provider) {
+        ImmutableList.Builder<Component> tooltipLines = new ImmutableList.Builder<>();
+
+        if (provider instanceof BinomialDistributionGenerator(NumberProvider n, NumberProvider p)) {
+            if (n instanceof ConstantValue(float value) && value == 1) {
+                String chance = FORMATTER.format(NumberProviderUtil.expected(p) * 100);
+                tooltipLines.add(Component.translatable("gui.anvilcraft.category.chance", chance).withStyle(ChatFormatting.GRAY));
+            } else {
+                addAvgOutput(tooltipLines, NumberProviderUtil.expected(provider));
+            }
+            addMinMax(tooltipLines, 0, getMax(n));
+        } else if (provider.getClass() != ConstantValue.class) {
+            double val = NumberProviderUtil.expected(provider);
+            if (val != -1) {
+                addAvgOutput(tooltipLines, val);
+                if (provider instanceof UniformGenerator) {
+                    addMinMax(tooltipLines, getMin(provider), getMax(provider));
+                }
+            }
+        } else {
+            ConstantValue constant = (ConstantValue) provider;
+            float value = constant.value();
+            if (value != 1) {
+                tooltipLines.add(Component.translatable(
+                    "gui.anvilcraft.category.chance",
+                    FORMATTER.format(value * 100)
+                ).withStyle(ChatFormatting.GRAY));
+            }
+        }
+
+        return tooltipLines.build();
+    }
+
     public static void addTooltips(IRecipeSlotBuilder slot, int count, NumberProvider provider) {
         ImmutableList.Builder<Component> tooltipLines = new ImmutableList.Builder<>();
 

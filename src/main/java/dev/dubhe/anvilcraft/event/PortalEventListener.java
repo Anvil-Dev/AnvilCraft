@@ -1,0 +1,48 @@
+package dev.dubhe.anvilcraft.event;
+
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.event.NonPlayerEntityThroughPortalEvent;
+import dev.dubhe.anvilcraft.api.portal.PortalType;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import java.util.Map;
+import java.util.Optional;
+
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+public class PortalEventListener {
+    @SubscribeEvent
+    public static void onThroughPortal(NonPlayerEntityThroughPortalEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        if (!(event.getEntity() instanceof FallingBlockEntity entity)) return;
+        if (entity.anvilcraft$isSpectral()) {
+            entity.discard();
+            return;
+        }
+        if (entity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) return;
+        PortalType type = event.getType();
+        Optional<RecipeHolder<PortalConversionRecipe>> recipeOp = level.getRecipeManager().getRecipeFor(
+            ModRecipeTypes.PORTAL_CONVERSION_TYPE.get(),
+            new PortalConversionRecipe.Input(type, entity),
+            level
+        );
+        if (recipeOp.isEmpty()) return;
+        Map.Entry<BlockState, CompoundTag> result = recipeOp.get().value().getResults().getResult(level);
+        if (result == null) {
+            entity.blockState = ModBlocks.END_DUST.getDefaultState();
+            entity.blockData = null;
+        } else {
+            entity.blockState = result.getKey();
+            entity.blockData = result.getValue();
+        }
+    }
+}

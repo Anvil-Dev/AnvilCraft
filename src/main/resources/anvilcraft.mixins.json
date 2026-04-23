@@ -60,6 +60,7 @@
     "accessor.BaseSpawnerAccessor",
     "accessor.CropBlockAccessor",
     "accessor.GrowingPlantAccessor",
+    "accessor.PortalProcessorAccessor",
     "accessor.ShapedRecipePatternAccessor",
     "accessor.TargetingConditionsAccessor",
     "accessor.VaultServerDataAccessor",
@@ -70,6 +71,9 @@
     "piglin.PiglinMixin",
     "poachfixers.GiveCommandMixin",
     "poachfixers.JeiServerCommandUtilMixin",
+    "portal.EndGatewayBlockMixin",
+    "portal.EndPortalBlockMixin",
+    "portal.NetherPortalBlockMixin",
     "providence.ApplyBonusCountMixin",
     "providence.DamageEntityMixin",
     "providence.EnchantedCountIncreaseFunctionMixin"

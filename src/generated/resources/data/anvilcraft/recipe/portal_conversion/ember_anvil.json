@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:portal_conversion",
+  "input": {
+    "blocks": "anvilcraft:ember_anvil"
+  },
+  "portal": "minecraft:end_portal",
+  "results": {
+    "states": [
+      {
+        "state": {
+          "block": "anvilcraft:spectral_anvil"
+        }
+      }
+    ]
+  }
+}
