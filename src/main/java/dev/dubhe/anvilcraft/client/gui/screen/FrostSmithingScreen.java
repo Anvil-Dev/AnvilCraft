@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IPermutationMaterial;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.FrostSmithingMenu;
 import dev.dubhe.anvilcraft.item.template.frost.DeformationTemplateItem;
@@ -89,7 +90,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 2;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         this.left = this.addRenderableWidget(new TexturedButton(
             this.leftPos + 102,
             this.topPos + 32,

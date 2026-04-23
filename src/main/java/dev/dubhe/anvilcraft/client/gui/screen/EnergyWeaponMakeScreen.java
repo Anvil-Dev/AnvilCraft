@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EnergyWeaponMakeMenu;
 import dev.dubhe.anvilcraft.inventory.component.FilteredSlot;
@@ -71,7 +72,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         super.init();
         this.imageHeight = 175;
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 2;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
 
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 152,

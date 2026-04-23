@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.EmberGrindstoneSyncPacket;
@@ -67,7 +68,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 2;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override

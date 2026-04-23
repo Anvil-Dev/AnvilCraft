@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.client.gui.component.OutputDirectionButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,7 +59,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(directionButton);
     }

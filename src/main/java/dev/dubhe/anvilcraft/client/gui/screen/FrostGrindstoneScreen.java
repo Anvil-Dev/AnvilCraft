@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.FrostGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.FrostGrindstoneSyncPacket;
@@ -66,7 +67,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 2;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override

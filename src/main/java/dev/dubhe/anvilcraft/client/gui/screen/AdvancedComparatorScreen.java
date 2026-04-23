@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import dev.dubhe.anvilcraft.network.AdvancedComparatorUpdatePacket;
@@ -65,7 +66,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         super.init();
         this.clearWidgets();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 2;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         SwitchableButton compareMode = new SwitchableButton(
             this.leftPos + 8,
             this.topPos + 24,
