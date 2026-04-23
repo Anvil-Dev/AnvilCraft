@@ -57,7 +57,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
         this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(directionButton);
     }

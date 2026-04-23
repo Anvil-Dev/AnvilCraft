@@ -43,7 +43,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     @Override
     protected void init() {
         super.init();
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
         FilterContainer container = this.getMenu().getContainer();
 
         this.addRenderableWidget(new SwitchableButton(

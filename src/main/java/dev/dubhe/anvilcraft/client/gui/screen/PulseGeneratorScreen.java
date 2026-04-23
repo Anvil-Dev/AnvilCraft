@@ -62,7 +62,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         super.init();
         this.clearWidgets();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
         final SwitchableButton startMode = new SwitchableButton(
             this.leftPos + 28,
             this.topPos + 25,

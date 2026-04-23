@@ -54,7 +54,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     @Override
     protected void init() {
         super.init();
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
         this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
         if (this.minecraft == null) return;

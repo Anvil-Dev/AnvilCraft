@@ -189,7 +189,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
         int buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
             this.addRenderableWidget(new SilencerButton(

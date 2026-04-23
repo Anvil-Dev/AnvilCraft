@@ -71,7 +71,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         super.init();
         this.imageHeight = 175;
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
 
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 152,

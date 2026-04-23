@@ -65,7 +65,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         super.init();
         this.clearWidgets();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
         SwitchableButton compareMode = new SwitchableButton(
             this.leftPos + 8,
             this.topPos + 24,

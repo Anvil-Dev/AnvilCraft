@@ -66,7 +66,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = 2;
     }
 
     @Override
