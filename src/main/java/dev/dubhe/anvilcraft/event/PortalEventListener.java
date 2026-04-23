@@ -4,9 +4,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.NonPlayerEntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -37,12 +37,9 @@ public class PortalEventListener {
         );
         if (recipeOp.isEmpty()) return;
         Map.Entry<BlockState, CompoundTag> result = recipeOp.get().value().getResults().getResult(level);
-        if (result == null) {
-            entity.blockState = ModBlocks.END_DUST.getDefaultState();
-            entity.blockData = null;
-        } else {
-            entity.blockState = result.getKey();
-            entity.blockData = result.getValue();
-        }
+        if (result == null) result = CompatUtil.PORTAL_DEFAULT_CONVERSION.get(type.getPortal());
+        if (result == null) return;
+        entity.blockState = result.getKey();
+        entity.blockData = result.getValue();
     }
 }
