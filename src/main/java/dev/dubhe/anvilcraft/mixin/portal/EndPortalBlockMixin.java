@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.api.event.NonPlayerEntityThroughPortalEvent;
+import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -35,7 +35,7 @@ abstract class EndPortalBlockMixin {
         @Local(argsOnly = true) Level level
     ) {
         EndPortalBlock block = Util.cast(this);
-        NonPlayerEntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new NonPlayerEntityThroughPortalEvent(
+        EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(
             level,
             instance,
             new PortalType(block)

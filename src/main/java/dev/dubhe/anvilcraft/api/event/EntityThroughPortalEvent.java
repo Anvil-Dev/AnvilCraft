@@ -8,11 +8,11 @@ import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.neoforge.event.entity.EntityEvent;
 
 @Getter
-public class NonPlayerEntityThroughPortalEvent extends EntityEvent implements ICancellableEvent {
+public class EntityThroughPortalEvent extends EntityEvent implements ICancellableEvent {
     private final Level level;
     private final PortalType type;
 
-    public NonPlayerEntityThroughPortalEvent(Level level, Entity entity, PortalType type) {
+    public EntityThroughPortalEvent(Level level, Entity entity, PortalType type) {
         super(entity);
         this.level = level;
         this.type = type;

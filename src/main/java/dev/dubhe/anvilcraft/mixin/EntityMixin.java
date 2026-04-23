@@ -7,7 +7,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.api.event.NonPlayerEntityThroughPortalEvent;
+import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
@@ -260,8 +260,9 @@ public abstract class EntityMixin implements IEntityExtension {
     )
     @SuppressWarnings("deprecation")
     private Entity handlePortal(Entity instance, DimensionTransition transition, Operation<Entity> original) {
-        Block portal = Util.cast(((PortalProcessorAccessor) this.portalProcess).getPortal());
-        NonPlayerEntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new NonPlayerEntityThroughPortalEvent(
+        if (!(this.portalProcess instanceof PortalProcessorAccessor accessor)) return original.call(instance, transition);
+        Block portal = Util.cast(accessor.getPortal());
+        EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(
             this.level,
             instance,
             new PortalType(portal.builtInRegistryHolder().key().location())

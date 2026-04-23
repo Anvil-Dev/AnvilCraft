@@ -31,7 +31,11 @@ public class PortalType {
 
     public PortalType(ResourceLocation id) {
         this.id = id;
-        this.portal = Util.cast(BuiltInRegistries.BLOCK.get(id));
+        Block block = BuiltInRegistries.BLOCK.get(id);
+        if (!(block instanceof Portal portal1)) {
+            throw new IllegalArgumentException("Block '" + id + "' is not a portal");
+        }
+        this.portal = portal1;
     }
 
     @SuppressWarnings("deprecation")

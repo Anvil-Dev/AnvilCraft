@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -140,6 +141,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
     @Setter
     @Accessors(fluent = true)
     public static class Builder extends AbstractRecipeBuilder<PortalConversionRecipe> {
+        @Setter(AccessLevel.NONE)
         private ResourceLocation typeId;
         private final BlockStatePredicate.Builder input = BlockStatePredicate.builder();
         private final WeightedChanceBlockStates.Builder results = WeightedChanceBlockStates.builder();

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.event.NonPlayerEntityThroughPortalEvent;
+import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -21,25 +21,28 @@ import java.util.Optional;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PortalEventListener {
     @SubscribeEvent
-    public static void onThroughPortal(NonPlayerEntityThroughPortalEvent event) {
+    public static void onThroughPortal(EntityThroughPortalEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         if (!(event.getEntity() instanceof FallingBlockEntity entity)) return;
+        PortalEventListener.processBlockPortalConversionRecipe(level, entity, event.getType());
+    }
+
+    private static void processBlockPortalConversionRecipe(ServerLevel level, FallingBlockEntity entity, PortalType type) {
         if (entity.anvilcraft$isSpectral()) {
             entity.discard();
             return;
         }
         if (entity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) return;
-        PortalType type = event.getType();
+        Map.Entry<BlockState, CompoundTag> result = CompatUtil.PORTAL_DEFAULT_CONVERSION.get(type.getPortal());
         Optional<RecipeHolder<PortalConversionRecipe>> recipeOp = level.getRecipeManager().getRecipeFor(
             ModRecipeTypes.PORTAL_CONVERSION_TYPE.get(),
             new PortalConversionRecipe.Input(type, entity),
             level
         );
-        if (recipeOp.isEmpty()) return;
-        Map.Entry<BlockState, CompoundTag> result = recipeOp.get().value().getResults().getResult(level);
-        if (result == null) result = CompatUtil.PORTAL_DEFAULT_CONVERSION.get(type.getPortal());
+        if (recipeOp.isPresent()) result = recipeOp.get().value().getResults().getResult(level);
         if (result == null) return;
         entity.blockState = result.getKey();
-        entity.blockData = result.getValue();
+        CompoundTag nbt = result.getValue();
+        entity.blockData = nbt == null ? null : nbt.copy();
     }
 }
