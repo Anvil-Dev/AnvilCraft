@@ -3,9 +3,9 @@ package dev.dubhe.anvilcraft.recipe.anvil.predicate.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
@@ -278,7 +278,7 @@ public record HasCauldron(
          * 流编解码器
          */
         public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = StreamCodec.composite(
-            CodecUtil.VEC3_STREAM_CODEC,
+            StreamCodecUtil.VEC3,
             HasCauldron::offset,
             ResourceLocation.STREAM_CODEC,
             HasCauldron::fluid,

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import dev.anvilcraft.lib.v2.recipe.component.ChanceItemStack;
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;

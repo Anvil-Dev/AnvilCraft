@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.api.recipe.result.modifier;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
 import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.component.DataComponentType;

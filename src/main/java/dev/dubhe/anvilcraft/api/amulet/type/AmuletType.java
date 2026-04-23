@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.api.amulet.type;
 
 import com.mojang.serialization.Codec;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.fromto.Effect;
 import dev.dubhe.anvilcraft.api.amulet.fromto.ImmuneDamage;
 import dev.dubhe.anvilcraft.api.amulet.fromto.InventoryTick;
 import dev.dubhe.anvilcraft.api.amulet.fromto.Obtain;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.registries.Registries;

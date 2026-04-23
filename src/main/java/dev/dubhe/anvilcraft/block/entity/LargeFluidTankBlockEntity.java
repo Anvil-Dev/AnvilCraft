@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -25,9 +24,8 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
-    public static final int COOLDOWN = 100;
-    protected InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false);
-    protected int cooldown = 0;
+    protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false);
+    protected boolean isBigger = false;
 
     public LargeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -36,32 +34,29 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public void tick() {
         BlockState state = getBlockState();
         if (!state.getValue(LargeFluidTankBlock.HALF).equals(Cube3x3PartHalf.MID_CENTER)) return;
-        if (--cooldown <= 0) {
-            checkStructure();
-            cooldown = COOLDOWN;
-        }
+        this.checkInfinity();
         setChanged();
     }
 
-    protected void checkStructure() {
-        if (this.getLevel() == null) return;
-        if (!this.isMainPart()) {
-            this.getMainPart().checkStructure();
-            return;
-        }
+    protected void checkInfinity() {
+        if (this.tank.getCapacity() == LargeFluidTankBlockEntity.BIG_CAPACITY && this.tank.getSpace() <= 0) this.tank.setInfinity(true);
+    }
 
-        if (TankUtil.isMengerStructure(this.getLevel(), this.getBlockPos(), 9)) {
-            tank.setCapacity(BIG_CAPACITY);
-            if (tank.getSpace() <= 0) tank.setInfinity(true);
-        } else {
-            tank.setInfinity(false);
-            tank.setCapacity(CAPACITY);
-        }
+    public void onFormed() {
+        this.isBigger = true;
+        this.tank.setCapacity(BIG_CAPACITY);
+    }
+
+    public void onUnformed() {
+        this.isBigger = false;
+        this.tank.setInfinity(false);
+        this.tank.setCapacity(CAPACITY);
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
+        tag.putBoolean("bigger", this.isBigger);
         CompoundTag tankNbt = tank.writeToNBT(provider, new CompoundTag());
         if (!tankNbt.isEmpty()) {
             tag.put("tank", tankNbt);
@@ -71,12 +66,19 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
+        this.isBigger = tag.getBoolean("bigger");
+        if (this.isBigger) {
+            this.onFormed();
+        } else {
+            this.onUnformed();
+        }
         tank.readFromNBT(provider, tag.getCompound("tank"));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
+        tag.putBoolean("bigger", this.isBigger);
         CompoundTag fluidTag = new CompoundTag();
         tank.writeToNBT(registries, fluidTag);
         tag.put("tank", fluidTag);
@@ -89,7 +91,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
-        checkStructure();
+        this.checkInfinity();
         return FluidUtil.interactWithFluidHandler(player, hand, this.getFluidHandler());
     }
 

@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.saved.multiphase;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
-import dev.dubhe.anvilcraft.util.CollectionUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.EnchantmentUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -31,7 +31,7 @@ import java.util.Optional;
 public record Multiphase(LinkedList<Phase> phases) {
     public static final Multiphase EMPTY = make(Component.literal("Empty"));
 
-    private static final String DEFAULT_SUFFIXES = "αβγδεζηθικλμνξοπρστυφχψω";
+    public static final String DEFAULT_SUFFIXES = "αβγδεζηθικλμνξοπρστυφχψω";
     private static final int MAX_PHASE_COUNT = 4;
 
     public static Component makeName(int index) {
@@ -166,11 +166,11 @@ public record Multiphase(LinkedList<Phase> phases) {
         Objects.requireNonNull(this.phases.peek(), "Unexpect no phase multiphase").applyToStack(stack);
     }
 
-    public void cyclePhases(ItemStack stack) {
-        this.cyclePhases(stack, (byte) ((this.phases.peek().index + 1) % this.phases.size()));
+    public void changePhase(ItemStack stack) {
+        this.changePhase(stack, (byte) ((this.phases.peek().index + 1) % this.phases.size()));
     }
 
-    public void cyclePhases(ItemStack stack, byte index) {
+    public void changePhase(ItemStack stack, byte index) {
         // 若目标相已为首相，返回
         int current = this.phases.peek().index;
         if (index == current) return;

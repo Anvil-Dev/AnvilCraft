@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.api.power;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.Line;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.ColorUtil;
-import dev.dubhe.anvilcraft.util.ShapeUtil;
 import dev.dubhe.anvilcraft.util.VirtualThreadFactoryImpl;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;

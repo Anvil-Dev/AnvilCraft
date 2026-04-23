@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.saved;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.split.PacketSplitter;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;

@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.network;
 
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import io.netty.buffer.ByteBuf;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 public record SwitchMultitoolModePacket(InteractionHand hand, int mode) implements IServerboundPacket {
     public static final Type<SwitchMultitoolModePacket> TYPE = IPacket.type(AnvilCraft.of("switch_multitool_mode"));
     public static final StreamCodec<ByteBuf, SwitchMultitoolModePacket> STREAM_CODEC = StreamCodec.composite(
-        CodecUtil.enumStreamCodec(InteractionHand.class),
+        StreamCodecUtil.enumStreamCodec(InteractionHand.class),
         SwitchMultitoolModePacket::hand,
         ByteBufCodecs.VAR_INT,
         SwitchMultitoolModePacket::mode,

@@ -1,16 +1,16 @@
 package dev.dubhe.anvilcraft.network.multiple;
 
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.ISensitiveBiPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphases;
-import dev.dubhe.anvilcraft.util.Util;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -54,7 +54,7 @@ public class MultiphasePackets {
     public record ChangePhase(InteractionHand hand, byte index) implements IServerboundPacket {
         public static final Type<ChangePhase> TYPE = MultiphasePackets.of("change_phase");
         public static final StreamCodec<ByteBuf, ChangePhase> STREAM_CODEC = StreamCodec.composite(
-            CodecUtil.enumStreamCodec(InteractionHand.class),
+            StreamCodecUtil.enumStreamCodec(InteractionHand.class),
             ChangePhase::hand,
             ByteBufCodecs.BYTE,
             ChangePhase::index,
@@ -77,7 +77,7 @@ public class MultiphasePackets {
             if (stackOp.isEmpty()) return;
             var stack = stackOp.get();
             var multiphase = stack.get(ModComponents.MULTIPHASE).toMultiphase();
-            multiphase.cyclePhases(stack, this.index);
+            multiphase.changePhase(stack, this.index);
         }
     }
 

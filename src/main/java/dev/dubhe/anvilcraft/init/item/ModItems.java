@@ -7,8 +7,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
-import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullBiConsumer;
-import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullConsumer;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.block.state.Color;
@@ -94,6 +94,7 @@ import dev.dubhe.anvilcraft.item.template.mto.EightToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.FourToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.TwoToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
+import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -783,9 +784,21 @@ public class ModItems {
         })
         .register();
 
+    public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
+        .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.CROSSBOW_ENCHANTABLE
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -46,11 +46,6 @@ public class StandableLevitatingBlockEntity extends LevitatingBlockEntity {
         level.setBlock(pos, blockState.getFluidState().createLegacyBlock(), 3);
         level.addFreshEntity(levitating);
         return levitating;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
     }
 
     @Override

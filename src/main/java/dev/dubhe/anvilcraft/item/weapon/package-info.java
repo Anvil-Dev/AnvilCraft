@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.dubhe.anvilcraft.util.stack;
+package dev.dubhe.anvilcraft.item.weapon;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

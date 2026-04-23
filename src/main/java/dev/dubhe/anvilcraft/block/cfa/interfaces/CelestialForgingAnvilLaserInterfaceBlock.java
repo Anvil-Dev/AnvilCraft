@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
 import com.mojang.serialization.MapCodec;
-import dev.dubhe.anvilcraft.util.ShapeUtil;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -17,7 +17,8 @@ public class CelestialForgingAnvilLaserInterfaceBlock extends CelestialForgingAn
         CelestialForgingAnvilInterfaceBlock.BASE_NORTH,
         Block.box(4, 4, 4, 8, 12, 12),
         Block.box(5, 5, 2, 11, 11, 4),
-        Block.box(4, 8, 6, 12, 16, 14)
+        Block.box(4, 8, 6, 12, 16, 14),
+        Block.box(5, 12, 1, 11, 18, 7)
     );
     public static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH);
     public static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH);

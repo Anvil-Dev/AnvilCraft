@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
+import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -90,6 +91,9 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             if (itemStack.isEmpty()) return Optional.of(ItemStack.EMPTY);
             if (itemStack.getItem() instanceof AmuletItem item) {
                 if (this.usage + item.getWeight() > AmuletBoxItem.CAPACITY) return Optional.empty();
+                for (ItemStack amulet : this.amulets) {
+                    if (amulet.getItem() instanceof BigAmuletItem) return Optional.empty();
+                }
                 this.usage += item.getWeight();
                 this.amulets.add(itemStack.split(1));
                 return Optional.of(itemStack);

@@ -16,13 +16,14 @@ import org.jetbrains.annotations.Contract;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
+import javax.annotation.Nullable;
 
 public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
     @Setter
     private BiFunction<Integer, Integer, OutputDirectionButton> directionButtonSupplier;
 
     @Getter
-    private OutputDirectionButton directionButton = null;
+    private @Nullable OutputDirectionButton directionButton = null;
 
     @Getter
     private final Player player;
@@ -57,7 +58,7 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 2;
+        this.titleLabelY = 3;
         this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(directionButton);
     }

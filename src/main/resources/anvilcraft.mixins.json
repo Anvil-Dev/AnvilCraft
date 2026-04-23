@@ -81,6 +81,7 @@
     "GuiGraphicsMixin",
     "ItemFrameRendererMixin",
     "ItemInHandRendererMixin",
+    "ItemOverridesMixin",
     "LevelRendererMixin",
     "MinecraftClientMixin",
     "MouseHandlerMixin",

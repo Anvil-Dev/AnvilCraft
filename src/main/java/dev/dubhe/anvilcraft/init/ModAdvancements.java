@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.init;
 
-import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.constant.SharedTextures;

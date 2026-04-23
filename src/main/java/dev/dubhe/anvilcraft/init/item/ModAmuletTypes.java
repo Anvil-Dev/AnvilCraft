@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init.item;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.api.amulet.type.FourToOneAmuletType;
@@ -13,7 +14,6 @@ import dev.dubhe.anvilcraft.item.abnormal.ILevitation;
 import dev.dubhe.anvilcraft.item.abnormal.IRadiation;
 import dev.dubhe.anvilcraft.item.abnormal.ISuperHeavy;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageTypes;

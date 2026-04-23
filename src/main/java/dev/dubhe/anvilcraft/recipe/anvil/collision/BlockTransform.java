@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.recipe.anvil.collision;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
-import dev.anvilcraft.lib.v2.recipe.component.ChanceBlockState;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;

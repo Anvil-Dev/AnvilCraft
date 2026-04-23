@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
-import dev.dubhe.anvilcraft.util.ListUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;

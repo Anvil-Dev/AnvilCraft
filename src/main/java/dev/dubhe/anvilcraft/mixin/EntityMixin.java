@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
@@ -13,7 +14,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.SpectralAnvilConversionUtil;
-import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -278,17 +278,7 @@ public abstract class EntityMixin implements IEntityExtension {
         Level level = entity.level();
 
         // 获取基础重力
-        double baseGravity = cir.getReturnValue();
-
-        // 应用物质特殊属性
-        GravityManager.GravityType type = GravityManager.getGravityType(entity);
-        switch (type) {
-            case ANTI_GRAVITY -> baseGravity *= -1;
-            case MICRO_ANTI_GRAVITY -> baseGravity *= -0.005;
-            case LOW_GRAVITY -> baseGravity *= 0.5;
-            default -> {
-            }
-        }
+        double baseGravity = cir.getReturnValue() * GravityManager.getGravityType(entity).getScalar();
 
         // 维度重力 = 基础重力 * 维度系数
         double dimensionGravity = baseGravity * GravityManager.getDimensionGravity(level);

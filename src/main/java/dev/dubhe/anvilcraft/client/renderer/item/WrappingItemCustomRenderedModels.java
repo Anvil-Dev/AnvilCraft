@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -15,10 +16,15 @@ import java.util.Map;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class WrappingItemCustomRenderedModels {
+    public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER = AnvilCraft.of("spectral_weapon_launcher");
+    public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED = AnvilCraft.of("spectral_weapon_launcher_exhausted");
+
     @SubscribeEvent
     public static void onModelBake(ModelEvent.ModifyBakingResult event) {
         Map<ModelResourceLocation, BakedModel> modelRegistry = event.getModels();
         swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("spectral_slingshot")));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED));
     }
 
     public static void swapModels(Map<ModelResourceLocation, BakedModel> modelRegistry, ModelResourceLocation modelLocation) {

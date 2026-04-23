@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.LightningBoltStrikeEvent;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LightningBolt;
 import net.neoforged.neoforge.common.NeoForge;

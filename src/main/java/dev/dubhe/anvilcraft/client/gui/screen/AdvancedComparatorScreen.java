@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import dev.dubhe.anvilcraft.network.AdvancedComparatorUpdatePacket;
-import dev.dubhe.anvilcraft.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -227,6 +227,6 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
 
     private boolean isInSlider(double mouseX, double mouseY, int sliderX, int sliderY) {
         return MathUtil.isInRange(mouseX, sliderX - 1, sliderX + 7)
-            && MathUtil.isInRange(mouseY, sliderY - 1, sliderY + 11);
+               && MathUtil.isInRange(mouseY, sliderY - 1, sliderY + 11);
     }
 }

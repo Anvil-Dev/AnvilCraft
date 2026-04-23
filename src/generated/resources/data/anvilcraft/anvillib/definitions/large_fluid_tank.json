@@ -1,0 +1,111 @@
+{
+  "grid": [
+    [
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA",
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA",
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA"
+    ],
+    [
+      "A AA AA A",
+      "         ",
+      "A AA AA A",
+      "A A   A A",
+      "         ",
+      "A A   A A",
+      "A AA AA A",
+      "         ",
+      "A AA AA A"
+    ],
+    [
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA",
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA",
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA"
+    ],
+    [
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA",
+      "         ",
+      "         ",
+      "         ",
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA"
+    ],
+    [
+      "A A   A A",
+      "         ",
+      "A A   A A",
+      "         ",
+      "    0    ",
+      "         ",
+      "A A   A A",
+      "         ",
+      "A A   A A"
+    ],
+    [
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA",
+      "         ",
+      "         ",
+      "         ",
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA"
+    ],
+    [
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA",
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA",
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA"
+    ],
+    [
+      "A AA AA A",
+      "         ",
+      "A AA AA A",
+      "A A   A A",
+      "         ",
+      "A A   A A",
+      "A AA AA A",
+      "         ",
+      "A AA AA A"
+    ],
+    [
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA",
+      "AAA   AAA",
+      "A A   A A",
+      "AAA   AAA",
+      "AAAAAAAAA",
+      "A AA AA A",
+      "AAAAAAAAA"
+    ]
+  ],
+  "mapping": {
+    "0": {
+      "blocks": "anvilcraft:large_fluid_tank"
+    },
+    "A": {
+      "blocks": "anvilcraft:menger_sponge"
+    }
+  }
+}

@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity.heatable;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
 import dev.dubhe.anvilcraft.network.HeatableSyncPacket;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

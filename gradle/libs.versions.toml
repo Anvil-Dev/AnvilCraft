@@ -7,30 +7,33 @@ parchment = "2024.11.17"
 modDevGradle = "2.0.140"
 lombok = "8.7.1"
 machete = "1.+"
-anvillib = "2.0.0+snapshot.222"
+anvillib = "2.0.0+snapshot.313"
 sodium = "mc1.21.1-0.6.13-neoforge"
 embeddium = "1.0.11+mc1.21.1"
 iris = "1.8.1+1.21.1-neoforge"
 
 [libraries]
-neoForge = { group = "net.neoforged", name = "neoforge", version.ref = "neoForge" }
-jeiCommonApi = { group = "mezz.jei", name = "jei-1.21.1-common-api", version.ref = "jei" }
-jeiForgeApi = { group = "mezz.jei", name = "jei-1.21.1-neoforge-api", version.ref = "jei" }
-jeiForgeImpl = { group = "mezz.jei", name = "jei-1.21.1-neoforge", version.ref = "jei" }
+jei-common-api = { group = "mezz.jei", name = "jei-1.21.1-common-api", version.ref = "jei" }
+jei-forge-api = { group = "mezz.jei", name = "jei-1.21.1-neoforge-api", version.ref = "jei" }
+jei-forge = { group = "mezz.jei", name = "jei-1.21.1-neoforge", version.ref = "jei" }
 sodium = {  group = "maven.modrinth", name = "sodium", version.ref = "sodium"}
 embeddium = {  group = "maven.modrinth", name = "embeddium", version.ref = "embeddium"}
 iris = {  group = "maven.modrinth", name = "iris", version.ref = "iris"}
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
+anvillib-codec = { group = "dev.anvilcraft.lib", name = "anvillib-codec-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-config = { group = "dev.anvilcraft.lib", name = "anvillib-config-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-recipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-registrum = { group = "dev.anvilcraft.lib", name = "anvillib-registrum-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-moveableEntityBlock = { group = "dev.anvilcraft.lib", name = "anvillib-moveable-entity-block-neoforge-1.21.1", version.ref = "anvillib" }
+anvillib-multiblock = { group = "dev.anvilcraft.lib", name = "anvillib-multiblock-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-network = { group = "dev.anvilcraft.lib", name = "anvillib-network-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-integration = { group = "dev.anvilcraft.lib", name = "anvillib-integration-neoforge-1.21.1", version.ref = "anvillib" }
+anvillib-util = { group = "dev.anvilcraft.lib", name = "anvillib-util-neoforge-1.21.1", version.ref = "anvillib" }
+anvillib-wheel = { group = "dev.anvilcraft.lib", name = "anvillib-wheel-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-1.21.1", version.ref = "anvillib" }
 
 [bundles]
-anvillib = [ "anvillib-config", "anvillib-recipe", "anvillib-registrum", "anvillib-moveableEntityBlock", "anvillib-network", "anvillib-integration" ]
+anvillib = [ "anvillib-codec", "anvillib-config", "anvillib-recipe", "anvillib-registrum", "anvillib-moveableEntityBlock", "anvillib-multiblock", "anvillib-network", "anvillib-integration", "anvillib-util", "anvillib-wheel" ]
 
 [plugins]
 modDevGradle = { id = "net.neoforged.moddev", version.ref = "modDevGradle" }

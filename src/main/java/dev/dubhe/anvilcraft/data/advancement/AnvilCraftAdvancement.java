@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.data.advancement;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumAdvancementProvider;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.ModAdvancements;
-import dev.dubhe.anvilcraft.util.Util;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
