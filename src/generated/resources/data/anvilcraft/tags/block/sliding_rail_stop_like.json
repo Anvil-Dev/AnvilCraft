@@ -1,0 +1,10 @@
+{
+  "values": [
+    "#anvilcraft:heatable_blocks",
+    "minecraft:campfire",
+    "anvilcraft:sliding_rail_stop",
+    "anvilcraft:heater",
+    "anvilcraft:corrupted_beacon",
+    "anvilcraft:neutron_irradiator"
+  ]
+}

@@ -43,6 +43,7 @@ public class ModBlockTags {
     public static final TagKey<Block> ANVIL_TIER_1 = bind("anvil_tier_1");
     public static final TagKey<Block> ANVIL_TIER_2 = bind("anvil_tier_2");
     public static final TagKey<Block> ANVIL_TIER_3 = bind("anvil_tier_3");
+    public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = bind("sliding_rail_stop_like");
 
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = bindC("ores/tungsten");
