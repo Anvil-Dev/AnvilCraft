@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.sliding.ISlidingRail;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
 import lombok.Getter;
@@ -121,7 +122,8 @@ public class SlidingBlockEntity extends Entity {
     }
 
     protected boolean checkCanMove() {
-        if (!(this.level().getBlockState(this.blockPosition().below()).getBlock() instanceof ISlidingRail)) return false;
+        BlockState belowStack = this.level().getBlockState(this.blockPosition().below());
+        if (!(belowStack.getBlock() instanceof ISlidingRail || belowStack.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE))) return false;
         if (this.time > 1 && this.getDeltaMovement().equals(Vec3.ZERO)) return false;
         for (Vec3i pos : this.section.getWallsOnSide(this.moveDirection)) {
             BlockPos checking = this.blockPosition().offset(pos);

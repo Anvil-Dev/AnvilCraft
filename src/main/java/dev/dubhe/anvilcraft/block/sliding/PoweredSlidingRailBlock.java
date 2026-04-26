@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.block.sliding;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.event.NeighbourNotifyListener;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -177,6 +179,17 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
     @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
         boolean powered = this.updatePower(level, pos, state, fromPos);
+        Direction facing = state.getValue(FACING);
+        pullFromStopLike:
+        if (powered) {
+            BlockPos railStopPos = pos.relative(facing.getOpposite());
+            BlockPos blockToPush = railStopPos.above();
+            if (!level.getBlockState(railStopPos).is(ModBlockTags.SLIDING_RAIL_STOP_LIKE)
+                || level.isEmptyBlock(blockToPush)) break pullFromStopLike;
+            if (NeighbourNotifyListener.canMoveBlockTo(level, railStopPos, level.getBlockState(blockToPush), facing)) {
+                NeighbourNotifyListener.moveBlocksAbove(level, railStopPos, facing);
+            }
+        }
         pushAbove:
         if (powered) {
             fromPos = pos.above();
