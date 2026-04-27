@@ -1408,5 +1408,9 @@
   "tooltip.anvilcraft.item.cut_frost_metal_pillar": "防凋灵",
   "tooltip.anvilcraft.item.cut_frost_metal_slab": "防凋灵",
   "tooltip.anvilcraft.item.cut_frost_metal_stairs": "防凋灵",
-  "tooltip.anvilcraft.item.frost_metal_block": "防凋灵"
+  "tooltip.anvilcraft.item.frost_metal_block": "防凋灵",
+  "screen.anvilcraft.royal_grindstone.curse_count": "诅咒：%1$s / %2$s",
+  "screen.anvilcraft.royal_grindstone.gold_cost": "金消耗量：%1$s",
+  "screen.anvilcraft.royal_grindstone.repair_cost": "累积惩罚：%1$s / %2$s",
+  "screen.anvilcraft.royal_grindstone.will_remove": "将会移除："
 }
