@@ -79,23 +79,27 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
 
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
+        changeSlidingDirection(level, pos, entity);
+    }
+
+    public static void changeSlidingDirection(Level level, BlockPos pos, SlidingBlockEntity entity) {
         Direction moveTo = entity.getMoveDirection();
-        if (this.canMoveSlidingTo(level, pos, moveTo)) {
+        if (canMoveSlidingTo(level, pos, moveTo)) {
             return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getCounterClockWise())) {
+        } else if (canMoveSlidingTo(level, pos, moveTo.getCounterClockWise())) {
             entity.setMoveDirection(moveTo.getCounterClockWise());
             return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getClockWise())) {
+        } else if (canMoveSlidingTo(level, pos, moveTo.getClockWise())) {
             entity.setMoveDirection(moveTo.getClockWise());
             return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getOpposite())) {
+        } else if (canMoveSlidingTo(level, pos, moveTo.getOpposite())) {
             entity.setMoveDirection(moveTo.getOpposite());
             return;
         }
         ISlidingRail.stopSlidingBlock(entity);
     }
 
-    private boolean canMoveSlidingTo(Level level, BlockPos pos, Direction moveTo) {
+    private static boolean canMoveSlidingTo(Level level, BlockPos pos, Direction moveTo) {
         if (moveTo.getAxis() == Direction.Axis.Y) return false;
         BlockPos railPos = pos.relative(moveTo);
         BlockState railState = level.getBlockState(railPos);

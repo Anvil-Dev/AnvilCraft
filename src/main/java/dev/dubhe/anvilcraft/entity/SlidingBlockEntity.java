@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.sliding.ISlidingRail;
+import dev.dubhe.anvilcraft.block.sliding.SlidingRailStopBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
@@ -101,6 +102,8 @@ public class SlidingBlockEntity extends Entity {
         BlockState belowState = this.level().getBlockState(belowPos);
         if (belowState.getBlock() instanceof ISlidingRail slidingRail && !this.level().isClientSide) {
             slidingRail.onSlidingAbove(this.level(), belowPos, belowState, this);
+        } else if (belowState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE)) {
+            SlidingRailStopBlock.changeSlidingDirection(this.level(), belowPos, this);
         }
         Direction.Axis horizontalAnother = this.moveDirection.getClockWise().getAxis();
         this.setPos(this.position().with(horizontalAnother, Math.ceil(this.position().get(horizontalAnother)) - 0.5));
