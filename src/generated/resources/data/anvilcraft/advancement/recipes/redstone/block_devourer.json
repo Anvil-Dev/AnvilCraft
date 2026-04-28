@@ -11,21 +11,21 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_netherite_ingot": {
+    "has_dragon_head": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:netherite_ingot"
+            "items": "minecraft:dragon_head"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_piston": {
+    "has_netherite_ingot": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:piston"
+            "items": "minecraft:netherite_ingot"
           }
         ]
       },
@@ -52,7 +52,7 @@
     [
       "has_the_recipe",
       "has_netherite_ingot",
-      "has_piston",
+      "has_dragon_head",
       "has_redstone",
       "has_cobblestone"
     ]

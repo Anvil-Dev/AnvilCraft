@@ -143,7 +143,7 @@ public class RegistrumItemRecipeLoader {
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
             .save(provider, AnvilCraft.of("smithing/frost_metal_shovel"));
     }
 
@@ -607,8 +607,8 @@ public class RegistrumItemRecipeLoader {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItems.ROYAL_STEEL_INGOT)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_NUGGET.get()),
-                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_NUGGET)
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT.get()),
+                AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT)
             )
             .save(provider);
     }
@@ -658,8 +658,8 @@ public class RegistrumItemRecipeLoader {
             .define('A', ModItems.EMBER_METAL_NUGGET)
             .group(ctx.getId().toString())
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_NUGGETS),
-                RegistrumRecipeProvider.has(ModItemTags.TUNGSTEN_NUGGETS)
+                AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_NUGGET),
+                RegistrumRecipeProvider.has(ModItems.EMBER_METAL_NUGGET)
             )
             .save(provider);
     }

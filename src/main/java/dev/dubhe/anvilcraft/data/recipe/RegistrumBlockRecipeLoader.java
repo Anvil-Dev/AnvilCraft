@@ -658,14 +658,14 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
             .requires(ModBlocks.DISCHARGER)
-            .unlockedBy("hasitme", AnvilCraftDatagen.has(ModBlocks.DISCHARGER))
+            .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.DISCHARGER))
             .save(provider, AnvilCraft.of("charger_from_discharger"));
     }
 
     public static <T extends Block> void discharger(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
             .requires(ModBlocks.CHARGER)
-            .unlockedBy("hasitme", AnvilCraftDatagen.has(ModBlocks.DISCHARGER))
+            .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.CHARGER))
             .save(provider, AnvilCraft.of("discharger_from_charger"));
     }
 
@@ -677,7 +677,7 @@ public class RegistrumBlockRecipeLoader {
             .define('B', Items.NOTE_BLOCK)
             .define('C', Items.SCULK_SENSOR)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.JUKEBOX), AnvilCraftDatagen.has(Items.JUKEBOX))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.NOTE_BLOCK), AnvilCraftDatagen.has(Items.NOTE_BLOCK))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SCULK_SENSOR), AnvilCraftDatagen.has(Items.SCULK_SENSOR))
             .save(provider, AnvilCraft.of("active_silencer_old"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
@@ -718,7 +718,7 @@ public class RegistrumBlockRecipeLoader {
             .define('C', Items.REDSTONE)
             .define('D', Items.COBBLESTONE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.NETHERITE_INGOT), AnvilCraftDatagen.has(Items.NETHERITE_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.PISTON), AnvilCraftDatagen.has(Items.PISTON))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.DRAGON_HEAD), AnvilCraftDatagen.has(Items.DRAGON_HEAD))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.REDSTONE), AnvilCraftDatagen.has(Items.REDSTONE))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COBBLESTONE), AnvilCraftDatagen.has(Items.COBBLESTONE))
             .save(provider);

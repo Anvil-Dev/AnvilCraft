@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_royal_steel_nugget": {
+    "has_royal_steel_ingot": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:royal_steel_nugget"
+            "items": "anvilcraft:royal_steel_ingot"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_royal_steel_nugget"
+      "has_royal_steel_ingot"
     ]
   ],
   "rewards": {
