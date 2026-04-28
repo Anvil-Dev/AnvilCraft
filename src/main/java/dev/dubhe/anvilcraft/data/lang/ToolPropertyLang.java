@@ -21,5 +21,6 @@ public class ToolPropertyLang {
         provider.add("tooltip.anvilcraft.property.eternal", "Eternal: unbreakable, immune fire, explode, cactus, even the time and the void");
         provider.add("tooltip.anvilcraft.property.providence", "Providence: has chance to trigger [Hold %s] enchantments multiple times");
         provider.add("tooltip.anvilcraft.property.providence.shifting", "Providence: has chance to trigger (%s) enchantments multiple times");
+        provider.add("tooltip.anvilcraft.property.stored_energy", "Remaining Energy: %s");
     }
 }

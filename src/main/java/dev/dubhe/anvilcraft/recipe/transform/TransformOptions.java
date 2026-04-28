@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.transform;
 
 import com.mojang.serialization.Codec;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -66,7 +66,7 @@ public enum TransformOptions implements StringRepresentable {
     };
 
     public static final Codec<TransformOptions> CODEC = StringRepresentable.fromEnum(TransformOptions::values);
-    public static final StreamCodec<RegistryFriendlyByteBuf, TransformOptions> STREAM_CODEC = CodecUtil.enumStreamCodec(
+    public static final StreamCodec<RegistryFriendlyByteBuf, TransformOptions> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(
         TransformOptions.class
     );
     private final String name;

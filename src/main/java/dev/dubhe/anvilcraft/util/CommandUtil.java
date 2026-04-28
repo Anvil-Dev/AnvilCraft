@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import dev.anvilcraft.lib.v2.util.ComponentUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +40,7 @@ public class CommandUtil {
     }
 
     public static int sendSuccess(CommandSourceStack source, String key, boolean allowLogging, Object... args) {
-        return CommandUtil.sendSuccess(source, () -> Component.translatable(key, ComponentUtil.argValidate(args)), allowLogging);
+        return CommandUtil.sendSuccess(source, () -> Component.translatable(key, ComponentUtil.argsValidate(args)), allowLogging);
     }
 
     public static int sendSuccess(CommandSourceStack source, Supplier<Component> msg) {

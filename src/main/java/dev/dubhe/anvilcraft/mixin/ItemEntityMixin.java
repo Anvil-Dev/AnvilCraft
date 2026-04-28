@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
@@ -13,8 +14,8 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -48,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
@@ -421,8 +423,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @SuppressWarnings("checkstyle:NeedBraces")
     @Unique
-    private String anvilcraft$getMaterialKey(ItemStack stack) {
-        String id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+    private @Nullable String anvilcraft$getMaterialKey(ItemStack stack) {
+        String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
         for (String black : SPECIAL_BLACKLIST) if (id.contains(black)) return null; // 黑名单检查
         if (SPECIAL_MAP.containsKey(id)) return SPECIAL_MAP.get(id); // 别名/特判检查
         for (String key : MATERIAL_MAP.keySet()) { // 关键词匹配
@@ -492,16 +494,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 && stack.getDescriptionId().contains("ingot")
                 && !state.getValue(MagnetBlock.LIT)) {
 
-                Block targetBlock = null;
+                Block targetBlock;
                 if ("iron".equals(matKey)) targetBlock = ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get(); // 铁锭 -> 铁芯磁铁块
-                else if ("magnet".equals(matKey)) targetBlock = ModBlocks.MAGNET_BLOCK.get(); // 磁铁锭 -> 磁铁块
+                else targetBlock = ModBlocks.MAGNET_BLOCK.get(); // 磁铁锭 -> 磁铁块
 
-                if (targetBlock != null) {
-                    this.level().setBlockAndUpdate(pos, targetBlock.defaultBlockState());
-                    stack.shrink(1);
-                    if (stack.isEmpty()) { this.discard(); ci.cancel(); }
-                    return;
-                }
+                this.level().setBlockAndUpdate(pos, targetBlock.defaultBlockState());
+                stack.shrink(1);
+                if (stack.isEmpty()) { this.discard(); ci.cancel(); }
+                return;
             }
             // 2. 吸铁石就要吸铁
             if (anvilcraft$isTouchingMagnet()) {

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.player.LocalPlayer;

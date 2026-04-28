@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.network;
 
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,7 +21,7 @@ public record HammerUsePacket(BlockPos pos, InteractionHand hand, BlockHitResult
     public static final StreamCodec<RegistryFriendlyByteBuf, HammerUsePacket> STREAM_CODEC = StreamCodec.composite(
         BlockPos.STREAM_CODEC,
         HammerUsePacket::pos,
-        CodecUtil.enumStreamCodec(InteractionHand.class),
+        StreamCodecUtil.enumStreamCodec(InteractionHand.class),
         HammerUsePacket::hand,
         StreamCodec.of(FriendlyByteBuf::writeBlockHitResult, FriendlyByteBuf::readBlockHitResult),
         HammerUsePacket::result,

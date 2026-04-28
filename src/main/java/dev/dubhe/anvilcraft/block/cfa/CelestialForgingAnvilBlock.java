@@ -1,14 +1,19 @@
 package dev.dubhe.anvilcraft.block.cfa;
 
+import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
+import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.util.ShapeUtil;
+import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -30,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class CelestialForgingAnvilBlock
     extends SimpleMultiPartBlock<Cube323PartHalf>
-    implements MultiPartBlockEntity<Cube323PartHalf, CelestialForgingAnvilBlock>, IHammerRemovable {
+    implements MultiPartBlockEntity<Cube323PartHalf, CelestialForgingAnvilBlock>, IHammerRemovable, IController {
     public static final EnumProperty<Cube323PartHalf> HALF = EnumProperty.create("half", Cube323PartHalf.class);
     public static final VoxelShape BOTTOM_NW = ShapeUtil.merge(
         new AABB(0, 0, 0, 16, 4, 16),
@@ -172,7 +177,7 @@ public class CelestialForgingAnvilBlock
             return PropelPiston.createTickerHelper(
                 type,
                 ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1)
+                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
             );
         }
         return null;
@@ -186,5 +191,32 @@ public class CelestialForgingAnvilBlock
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.CELESTIAL_FORGING_ANVIL.create(pos, state);
+    }
+
+    @Override
+    public Block getBlock() {
+        return this;
+    }
+
+    @Override
+    public ResourceLocation getDefinitionId() {
+        return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.location();
+    }
+
+    @Override
+    public void onFormed(Level level, MultiblockState state) {
+        level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
+            .ifPresent(be -> be.setAmplify(true));
+    }
+
+    @Override
+    public void onUnformed(Level level, MultiblockState state) {
+        level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
+            .ifPresent(be -> be.setAmplify(false));
+    }
+
+    @Override
+    public BlockPos correctPos(ServerLevel level, BlockPos pos, BlockState state) {
+        return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
     }
 }

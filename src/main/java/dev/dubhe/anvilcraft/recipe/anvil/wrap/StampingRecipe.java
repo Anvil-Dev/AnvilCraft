@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
-import dev.anvilcraft.lib.v2.recipe.component.ChanceItemStack;
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import lombok.Getter;

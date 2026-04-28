@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
@@ -54,7 +55,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     @Override
     protected void init() {
         super.init();
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
         if (this.minecraft == null) return;

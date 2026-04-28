@@ -85,7 +85,13 @@ public class SpectralSlingshotRenderer extends BlockEntityWithoutLevelRenderer {
                     buffer,
                     packedLight,
                     packedOverlay,
-                    bakedModel
+                    bakedModel.getOverrides().resolve(
+                        bakedModel,
+                        ammo,
+                        null,
+                        null,
+                        42
+                    )
                 );
                 // poseStack.popPose();
                 poseStack.popPose();

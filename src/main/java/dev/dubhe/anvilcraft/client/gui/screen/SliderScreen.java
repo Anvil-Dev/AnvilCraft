@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.client.gui.component.Slider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
@@ -33,7 +34,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
         this.value = new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));

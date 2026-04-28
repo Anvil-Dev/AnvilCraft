@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
@@ -31,7 +32,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override

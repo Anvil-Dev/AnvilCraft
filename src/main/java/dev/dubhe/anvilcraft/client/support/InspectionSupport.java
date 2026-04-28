@@ -13,7 +13,6 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

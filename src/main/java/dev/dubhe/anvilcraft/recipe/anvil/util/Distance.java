@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.recipe.anvil.util;
 import com.google.common.collect.AbstractIterator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -132,6 +133,6 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
         /**
          * Type流编解码器
          */
-        public static final StreamCodec<ByteBuf, Type> STREAM_CODEC = CodecUtil.enumStreamCodec(Type.class);
+        public static final StreamCodec<ByteBuf, Type> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(Type.class);
     }
 }

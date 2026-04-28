@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.recipe.transform;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,7 +43,7 @@ public record MobTransformRecipe(
     public static final Codec<MobTransformRecipe> CODEC = Serializer.MAP_CODEC.codec();
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> STREAM_CODEC = StreamCodec.composite(
-        CodecUtil.ENTITY_STREAM_CODEC,
+        StreamCodecUtil.ENTITY,
         MobTransformRecipe::input,
         TransformResult.STREAM_CODEC.apply(ByteBufCodecs.list()),
         MobTransformRecipe::results,
@@ -164,11 +165,25 @@ public record MobTransformRecipe(
 
     public static final class Serializer implements RecipeSerializer<MobTransformRecipe> {
         public static final MapCodec<MobTransformRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            CodecUtil.ENTITY_CODEC.fieldOf("input").forGetter(MobTransformRecipe::input),
-            TransformResult.CODEC.listOf().fieldOf("results").forGetter(MobTransformRecipe::results),
-            NumericTagValuePredicate.CODEC.listOf().optionalFieldOf("tag_predicates", List.of()).forGetter(MobTransformRecipe::predicates),
-            TagModification.CODEC.listOf().optionalFieldOf("tag_modifications", List.of()).forGetter(MobTransformRecipe::tagModifications),
-            TransformOptions.CODEC.listOf().optionalFieldOf("transform_options", List.of()).forGetter(MobTransformRecipe::options)
+            CodecUtil.ENTITY
+                .fieldOf("input")
+                .forGetter(MobTransformRecipe::input),
+            TransformResult.CODEC
+                .listOf()
+                .fieldOf("results")
+                .forGetter(MobTransformRecipe::results),
+            NumericTagValuePredicate.CODEC
+                .listOf()
+                .optionalFieldOf("tag_predicates", List.of())
+                .forGetter(MobTransformRecipe::predicates),
+            TagModification.CODEC
+                .listOf()
+                .optionalFieldOf("tag_modifications", List.of())
+                .forGetter(MobTransformRecipe::tagModifications),
+            TransformOptions.CODEC
+                .listOf()
+                .optionalFieldOf("transform_options", List.of())
+                .forGetter(MobTransformRecipe::options)
         ).apply(ins, MobTransformRecipe::new));
 
         @Override

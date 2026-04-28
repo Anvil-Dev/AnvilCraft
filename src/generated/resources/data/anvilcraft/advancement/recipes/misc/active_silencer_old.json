@@ -11,11 +11,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_jukebox": {
+    "has_note_block": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:jukebox"
+            "items": "minecraft:note_block"
           }
         ]
       },
@@ -42,7 +42,7 @@
     [
       "has_the_recipe",
       "has_amethyst_block",
-      "has_jukebox",
+      "has_note_block",
       "has_sculk_sensor"
     ]
   ],

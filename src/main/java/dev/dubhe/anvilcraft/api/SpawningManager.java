@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.api;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
-import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;

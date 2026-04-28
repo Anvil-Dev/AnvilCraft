@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
 import dev.dubhe.anvilcraft.network.PulseGeneratorUpdatePacket;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
-import dev.dubhe.anvilcraft.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -62,7 +63,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         super.init();
         this.clearWidgets();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         final SwitchableButton startMode = new SwitchableButton(
             this.leftPos + 28,
             this.topPos + 25,

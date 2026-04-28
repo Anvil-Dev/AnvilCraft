@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
 import net.minecraft.client.Minecraft;
@@ -37,7 +38,7 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override

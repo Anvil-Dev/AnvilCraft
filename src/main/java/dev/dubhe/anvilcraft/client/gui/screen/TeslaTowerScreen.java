@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.client.gui.component.TeslaTowerButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.network.TeslaAddFilterPacket;
@@ -185,7 +186,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         int buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
             TeslaTowerButton button = new TeslaTowerButton(

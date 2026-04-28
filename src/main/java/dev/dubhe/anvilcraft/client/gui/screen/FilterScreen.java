@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.FilterMenu;
@@ -43,7 +44,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     @Override
     protected void init() {
         super.init();
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         FilterContainer container = this.getMenu().getContainer();
 
         this.addRenderableWidget(new SwitchableButton(

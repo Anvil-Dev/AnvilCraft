@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
 import com.mojang.serialization.MapCodec;
-import dev.dubhe.anvilcraft.util.ShapeUtil;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;

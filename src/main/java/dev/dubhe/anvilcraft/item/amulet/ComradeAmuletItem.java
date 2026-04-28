@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.item.amulet;
 
 import com.google.common.collect.HashBiMap;
+import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.init.item.ModAmuletTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
-import dev.dubhe.anvilcraft.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.client.gui.component.SilencerButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.network.SilencerAddMutedPacket;
@@ -189,7 +190,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-        this.titleLabelY = 3;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         int buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
             this.addRenderableWidget(new SilencerButton(

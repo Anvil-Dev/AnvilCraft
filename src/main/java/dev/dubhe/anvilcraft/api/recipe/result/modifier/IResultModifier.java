@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.recipe.result.modifier;
 
 import com.mojang.serialization.Codec;
-import dev.anvilcraft.lib.v2.recipe.util.ISerializer;
+import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
 import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.ModRegistries;

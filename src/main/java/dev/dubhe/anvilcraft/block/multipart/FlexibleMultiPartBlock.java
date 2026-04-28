@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.multipart;
 
-import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullFunction;
+import dev.anvilcraft.lib.v2.util.Util;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.loot.BlockLootSubProvider;
