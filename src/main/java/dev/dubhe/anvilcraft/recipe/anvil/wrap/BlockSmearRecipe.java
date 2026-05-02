@@ -11,7 +11,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -179,7 +179,7 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (inputs.isEmpty()) {
                 throw new IllegalArgumentException("Recipe inputs must not be empty, RecipeId: " + id);
             }

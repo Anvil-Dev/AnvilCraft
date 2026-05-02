@@ -15,7 +15,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
@@ -88,7 +88,7 @@ public class AmuletType {
             return this.obtain((player, source) -> source.typeHolder().is(tag));
         }
 
-        public Builder obtainByDamage(ResourceLocation type) {
+        public Builder obtainByDamage(Identifier type) {
             return this.obtainByDamage(TagKey.create(Registries.DAMAGE_TYPE, type));
         }
 
@@ -115,7 +115,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
-        public Builder obtainByMurder(ResourceLocation type) {
+        public Builder obtainByMurder(Identifier type) {
             return this.obtainByMurder(TagKey.create(Registries.ENTITY_TYPE, type));
         }
 
@@ -142,7 +142,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
-        public Builder obtainByDirectMurder(ResourceLocation type) {
+        public Builder obtainByDirectMurder(Identifier type) {
             return this.obtainByDirectMurder(TagKey.create(Registries.ENTITY_TYPE, type));
         }
 
@@ -173,7 +173,7 @@ public class AmuletType {
             return this.obtainOr((player, source) -> source.typeHolder().is(tag));
         }
 
-        public Builder obtainByDamageOr(ResourceLocation type) {
+        public Builder obtainByDamageOr(Identifier type) {
             return this.obtainByDamageOr(TagKey.create(Registries.DAMAGE_TYPE, type));
         }
 
@@ -200,7 +200,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
-        public Builder obtainByMurderOr(ResourceLocation type) {
+        public Builder obtainByMurderOr(Identifier type) {
             return this.obtainByMurderOr(TagKey.create(Registries.ENTITY_TYPE, type));
         }
 
@@ -227,7 +227,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
-        public Builder obtainByDirectMurderOr(ResourceLocation type) {
+        public Builder obtainByDirectMurderOr(Identifier type) {
             return this.obtainByDirectMurderOr(TagKey.create(Registries.ENTITY_TYPE, type));
         }
 

@@ -15,7 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -165,7 +165,7 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.ingredient == null) throw new IllegalArgumentException("Recipe has no ingredient, RecipeId: " + id);
             if (this.result == null) throw new IllegalArgumentException("Recipe has no result, RecipeId: " + id);
             if (this.power == 0) {

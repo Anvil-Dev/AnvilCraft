@@ -17,7 +17,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
@@ -31,7 +31,7 @@ import java.util.Optional;
 public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu>
     implements IFilterScreen<ItemDetectorMenu> {
 
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "item_detector");
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "item_detector");
     private final Component scrollToChangeTooltip =
         Component.translatable("screen.anvilcraft.filter.scroll_to_change")
             .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);

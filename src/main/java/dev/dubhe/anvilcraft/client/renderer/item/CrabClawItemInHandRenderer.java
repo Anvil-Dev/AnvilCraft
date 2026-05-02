@@ -7,7 +7,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.BlockItem;
@@ -18,10 +18,10 @@ import net.minecraft.world.item.MaceItem;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
-    private static final ModelResourceLocation HOLDING_ITEM =
-        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item"));
-    private static final ModelResourceLocation HOLDING_BLOCK =
-        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_block"));
+    private static final ModelIdentifier HOLDING_ITEM =
+        ModelIdentifier.standalone(AnvilCraft.of("item/crab_claw_holding_item"));
+    private static final ModelIdentifier HOLDING_BLOCK =
+        ModelIdentifier.standalone(AnvilCraft.of("item/crab_claw_holding_block"));
 
     protected CrabClawItemInHandRenderer(ItemRenderer itemRenderer, IItemRenderer renderer) {
         super(itemRenderer, renderer);

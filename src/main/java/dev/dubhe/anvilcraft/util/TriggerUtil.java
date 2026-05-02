@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -57,7 +57,7 @@ public class TriggerUtil {
         }
     }
 
-    public static void recipe(Level level, BlockPos pos, ResourceLocation id, List<ItemStack> stacks) {
+    public static void recipe(Level level, BlockPos pos, Identifier id, List<ItemStack> stacks) {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
                 CriteriaTriggers.RECIPE_CRAFTED.trigger(player, id, stacks);
@@ -65,7 +65,7 @@ public class TriggerUtil {
         }
     }
 
-    public static void inWorldRecipe(Level level, BlockPos pos, ResourceLocation recipeType, ResourceLocation id) {
+    public static void inWorldRecipe(Level level, BlockPos pos, Identifier recipeType, Identifier id) {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
                 ModCriterionTriggers.IN_WORLD_RECIPE.get().trigger(player, recipeType, id);

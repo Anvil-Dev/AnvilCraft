@@ -12,12 +12,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class IonoCraftBackpackHUD {
-    private static final ResourceLocation BATTERY_EMPTY = SharedTextures.textureGui("misc/battery_display/battery_empty");
-    private static final ResourceLocation BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
+    private static final Identifier BATTERY_EMPTY = SharedTextures.textureGui("misc/battery_display/battery_empty");
+    private static final Identifier BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
 
     public static void render(GuiGraphics guiGraphics, DeltaTracker partialTick) {
         if (!AnvilCraftClient.CONFIG.ionoCraftBackpackHud.enabled) {

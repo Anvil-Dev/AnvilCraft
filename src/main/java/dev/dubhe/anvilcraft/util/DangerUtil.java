@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 
@@ -21,10 +21,10 @@ public final class DangerUtil {
     }
 
     public static Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String path) {
-        return () -> new ModelFile.UncheckedModelFile(ResourceLocation.withDefaultNamespace(path));
+        return () -> new ModelFile.UncheckedModelFile(Identifier.withDefaultNamespace(path));
     }
 
     public static Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String namespace, String path) {
-        return () -> new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(namespace, path));
+        return () -> new ModelFile.UncheckedModelFile(Identifier.fromNamespaceAndPath(namespace, path));
     }
 }

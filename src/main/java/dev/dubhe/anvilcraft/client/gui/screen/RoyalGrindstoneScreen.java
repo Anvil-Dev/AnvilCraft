@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +21,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     private int tickCounter = 0;
     private int recipeIndex = 0;
 
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "royal_grindstone");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "royal_grindstone");
 
     public RoyalGrindstoneScreen(
         RoyalGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {

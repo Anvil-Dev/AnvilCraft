@@ -16,7 +16,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -487,7 +487,7 @@ public record AnvilCollisionCraftRecipe(
          * @param id 配方ID
          */
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (anvil == null) {
                 throw new IllegalArgumentException("Recipe has no anvil, RecipeId:" + id);
             }

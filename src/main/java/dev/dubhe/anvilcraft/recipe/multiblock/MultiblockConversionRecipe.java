@@ -12,7 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -308,7 +308,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (inputPattern.getSize() != outputPattern.getSize()) {
                 throw new IllegalArgumentException(("Input size must be same as output size: %s input size: %d, output size: %d")
                     .formatted(id, inputPattern.getSize(), outputPattern.getSize()));

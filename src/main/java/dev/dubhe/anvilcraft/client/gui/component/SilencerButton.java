@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class SilencerButton extends Button {
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     @Getter
     private final int index;
@@ -59,7 +59,7 @@ public class SilencerButton extends Button {
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         String searchText = this.parent.getFilterText();
-        ResourceLocation soundId = this.parent.getSoundIdAt(this.index, this.variant);
+        Identifier soundId = this.parent.getSoundIdAt(this.index, this.variant);
         if (soundId == null) return;
         this.renderTexture(guiGraphics, this.texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
         Component message;
@@ -109,7 +109,7 @@ public class SilencerButton extends Button {
 
     public void renderTexture(
         GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        Identifier texture,
         int x,
         int y,
         int puOffset,

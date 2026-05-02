@@ -10,10 +10,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class IonocraftRenderer extends EntityRenderer<IonocraftEntity> {
-    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/entity/ionocraft.png");
+    public static final Identifier TEXTURE = AnvilCraft.of("textures/entity/ionocraft.png");
     private final IonocraftModel<IonocraftEntity> model;
 
     public IonocraftRenderer(EntityRendererProvider.Context context) {
@@ -40,7 +40,7 @@ public class IonocraftRenderer extends EntityRenderer<IonocraftEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(IonocraftEntity entity) {
+    public Identifier getTextureLocation(IonocraftEntity entity) {
         return TEXTURE;
     }
 }

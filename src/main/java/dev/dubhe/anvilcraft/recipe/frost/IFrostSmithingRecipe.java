@@ -12,7 +12,7 @@ import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -209,7 +209,7 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.material.items().isEmpty()) {
                 throw new IllegalArgumentException("The material of " + this.getType() + " recipe must not be empty, RecipeId: " + id);
             }

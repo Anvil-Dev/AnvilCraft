@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.loot.functions.CurseLootItemFunction;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -37,7 +37,7 @@ public class LootTableEventListener {
      */
     @SubscribeEvent
     public static void lootTable(LootTableLoadEvent event) {
-        ResourceLocation id = event.getName();
+        Identifier id = event.getName();
         LootTable table = event.getTable();
         if (Blocks.BUDDING_AMETHYST.getLootTable().location().equals(id)) {
             table.addPool(new LootPool.Builder()

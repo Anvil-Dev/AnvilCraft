@@ -18,7 +18,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -173,7 +173,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * @param fluid 流体ID
          * @return 构建器实例
          */
-        public Builder fluid(ResourceLocation fluid) {
+        public Builder fluid(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
@@ -195,7 +195,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * @param transform 转换后的流体ID
          * @return 构建器实例
          */
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
@@ -239,7 +239,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.sound;
 
 import lombok.Getter;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -18,7 +18,7 @@ public class SoundHelper {
 
     private final Map<ResourceKey<Level>, List<ISoundEventListener>> eventListeners = new HashMap<>();
 
-    public boolean shouldMute(@Nullable Level level, ResourceLocation sound, Vec3 pos) {
+    public boolean shouldMute(@Nullable Level level, Identifier sound, Vec3 pos) {
         if (level == null) return false;
         return this.eventListeners.computeIfAbsent(level.dimension(), k -> new CopyOnWriteArrayList<>())
             .stream()

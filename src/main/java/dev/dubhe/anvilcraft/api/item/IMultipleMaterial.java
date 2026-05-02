@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.item;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -25,5 +25,5 @@ public interface IMultipleMaterial {
      * @param inputs   其它槽位内的物品
      * @return 该槽位应显示的纹理集
      */
-    List<ResourceLocation> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs);
+    List<Identifier> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs);
 }

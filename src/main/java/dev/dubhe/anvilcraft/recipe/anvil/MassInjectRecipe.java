@@ -15,7 +15,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -301,7 +301,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
          * @param id 配方ID
          */
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.ingredient == null) {
                 throw new IllegalArgumentException("Recipe ingredient must not be null, RecipeId: " + id);
             }
@@ -349,7 +349,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
          * @param id           配方ID
          */
         @Override
-        public void save(RecipeOutput output, ResourceLocation id) {
+        public void save(RecipeOutput output, Identifier id) {
             if (this.tagCondition != null) {
                 output = output.withConditions(new NotCondition(new TagEmptyCondition(this.tagCondition)));
             }

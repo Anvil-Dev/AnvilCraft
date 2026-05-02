@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.AABB;
 import org.joml.Quaternionf;
@@ -18,8 +18,8 @@ import org.joml.Vector3f;
 import java.util.Optional;
 
 public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity> {
-    private static final ModelResourceLocation HELIOSTATS_HEAD = ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head"));
-    private static final ModelResourceLocation HELIOSTATS_HEAD_SUNFLOWER = ModelResourceLocation.standalone(AnvilCraft.of(
+    private static final ModelIdentifier HELIOSTATS_HEAD = ModelIdentifier.standalone(AnvilCraft.of("block/heliostats_head"));
+    private static final ModelIdentifier HELIOSTATS_HEAD_SUNFLOWER = ModelIdentifier.standalone(AnvilCraft.of(
         "block/heliostats_head_sunflower"));
 
     @SuppressWarnings("unused")
@@ -31,7 +31,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
         return z < 0 ? (float) (angle + Math.PI) : angle;
     }
 
-    private ModelResourceLocation getHeadModel(HeliostatsBlockEntity blockEntity) {
+    private ModelIdentifier getHeadModel(HeliostatsBlockEntity blockEntity) {
         return Optional.of(blockEntity)
                    .filter(ignore -> AnvilCraftClient.CONFIG.heliostatsSunflowerModel)
                    .filter(be -> be.getLevel() != null)

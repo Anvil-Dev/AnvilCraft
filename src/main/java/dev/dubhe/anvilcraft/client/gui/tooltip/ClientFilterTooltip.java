@@ -5,11 +5,11 @@ import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class ClientFilterTooltip implements ClientTooltipComponent {
-    public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/bundle.png");
+    public static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/container/bundle.png");
     private final FilterContent content;
 
     public ClientFilterTooltip(FilterTooltip tooltip) {
@@ -46,7 +46,7 @@ public class ClientFilterTooltip implements ClientTooltipComponent {
 
     private void renderSlot(int x, int y, GuiGraphics guiGraphics) {
         guiGraphics.blitSprite(
-            ResourceLocation.withDefaultNamespace("container/bundle/slot"),
+            Identifier.withDefaultNamespace("container/bundle/slot"),
             x,
             y,
             18,

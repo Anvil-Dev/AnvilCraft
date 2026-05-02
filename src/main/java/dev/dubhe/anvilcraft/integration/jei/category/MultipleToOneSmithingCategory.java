@@ -20,7 +20,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -29,9 +29,9 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     public static final int WIDTH = 176;
     public static final int HEIGHT = 64;
 
-    private static final ResourceLocation BACKGROUND =
+    private static final Identifier BACKGROUND =
         AnvilCraft.of("textures/gui/container/smithing/background/multiple_to_one_smithing_jei.png");
-    private static final ResourceLocation DISABLED_SLOT =
+    private static final Identifier DISABLED_SLOT =
         AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
     private static final Component TOOLTIP_NOT_CONSUMED =
         Component.translatable("jei.anvilcraft.tooltip.not_consumed").withStyle(ChatFormatting.GOLD);

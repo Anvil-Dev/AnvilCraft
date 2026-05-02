@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -49,7 +49,7 @@ public class HasMobBlockItem extends BlockItem {
         ) {
             return;
         }
-        ResourceLocation id;
+        Identifier id;
         boolean isMonster = false;
         if (stack.is(ModBlocks.RESENTFUL_AMBER_BLOCK.asItem())) {
             isMonster = true;

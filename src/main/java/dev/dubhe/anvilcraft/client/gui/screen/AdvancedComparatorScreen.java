@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -21,9 +21,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.List;
 
 public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedComparatorMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "advanced_comparator");
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "advanced_comparator");
 
-    private static final ResourceLocation SLIDER = SharedTextures.textureGui("machine/advanced_comparator/slider");
+    private static final Identifier SLIDER = SharedTextures.textureGui("machine/advanced_comparator/slider");
 
     private final Minecraft minecraft;
     private static final int GRID = 6;

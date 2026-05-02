@@ -10,7 +10,7 @@ import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -18,7 +18,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "royal_anvil");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "royal_anvil");
     private EditBox name;
     private final Player player;
 
@@ -117,7 +117,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
-        ResourceLocation texture = this.menu.getSlot(0).getItem().isEmpty()
+        Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
                                    ? SharedTextures.TEXT_FIELD_DISABLE
                                    : SharedTextures.TEXT_FIELD;
         guiGraphics.blit(texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);

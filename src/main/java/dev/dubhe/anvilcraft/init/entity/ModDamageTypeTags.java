@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.init.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 
@@ -17,7 +17,7 @@ public class ModDamageTypeTags {
 
     @SuppressWarnings("unused")
     private static TagKey<DamageType> bindC(String id) {
-        return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("c", id));
+        return TagKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath("c", id));
     }
 
     private static TagKey<DamageType> bind(String id) {

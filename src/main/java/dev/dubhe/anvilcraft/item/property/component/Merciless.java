@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 public record Merciless() {
     public static final Merciless DEFAULT = new Merciless();
-    public static final ResourceLocation MERCILESS_ID = AnvilCraft.of("merciless");
+    public static final Identifier MERCILESS_ID = AnvilCraft.of("merciless");
     public static final MapCodec<Merciless> CODEC = Codec.EMPTY.xmap(a -> Merciless.DEFAULT, a -> Unit.INSTANCE);
     public static final StreamCodec<ByteBuf, Merciless> STREAM_CODEC = StreamCodec.unit(Merciless.DEFAULT);
 

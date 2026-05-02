@@ -13,7 +13,7 @@ import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> implements IFilterScreen<BatchCrafterMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "batch_crafter");
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "batch_crafter");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(116, 18);
 
     @Getter

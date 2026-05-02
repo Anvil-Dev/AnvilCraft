@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -33,7 +33,7 @@ public enum SpaceOvercompressorProvider implements IBlockComponentProvider, ISer
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return AnvilCraft.of("space_overcompressor");
     }
 }

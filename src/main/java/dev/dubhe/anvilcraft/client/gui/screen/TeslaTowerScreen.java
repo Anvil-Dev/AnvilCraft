@@ -15,7 +15,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "FieldCanBeLocal"})
 public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "tesla_tower");
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "tesla_tower");
 
     private static final int SCROLL_BAR_HEIGHT = 120;
     private static final int SCROLL_BAR_TOP_POS_Y = 35;

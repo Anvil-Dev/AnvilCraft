@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
@@ -43,7 +43,7 @@ public class BoilingRecipe extends AbstractProcessRecipe<BoilingRecipe> {
                 .setCauldronOffset(new Vec3i(0, -1, 0))
                 .setHasCauldron(
                     HasCauldronSimple
-                        .fluid(ResourceLocation.withDefaultNamespace("water"))
+                        .fluid(Identifier.withDefaultNamespace("water"))
                         .build()
                 )
                 .setBlockInputOffset(new Vec3i(0, -2, 0))

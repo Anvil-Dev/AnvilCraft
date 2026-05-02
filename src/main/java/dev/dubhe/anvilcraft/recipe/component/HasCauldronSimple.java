@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
@@ -25,9 +25,9 @@ import net.minecraft.world.phys.Vec3;
  * @param ignited   是否需要点燃
  */
 public record HasCauldronSimple(
-    ResourceLocation fluid,
+    Identifier fluid,
     int consume,
-    ResourceLocation transform,
+    Identifier transform,
     int produce,
     float chance,
     boolean ignited
@@ -50,13 +50,13 @@ public record HasCauldronSimple(
      */
     public static final MapCodec<HasCauldronSimple> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
-            ResourceLocation.CODEC
+            Identifier.CODEC
                 .optionalFieldOf("fluid", HasCauldron.EMPTY)
                 .forGetter(HasCauldronSimple::fluid),
             Codec.INT
                 .optionalFieldOf("consume", 0)
                 .forGetter(HasCauldronSimple::consume),
-            ResourceLocation.CODEC
+            Identifier.CODEC
                 .optionalFieldOf("transform", HasCauldron.NULL)
                 .forGetter(HasCauldronSimple::transform),
             Codec.INT
@@ -103,11 +103,11 @@ public record HasCauldronSimple(
      * HasCauldronSimple的网络流编解码器
      */
     public static final StreamCodec<RegistryFriendlyByteBuf, HasCauldronSimple> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC,
+        Identifier.STREAM_CODEC,
         HasCauldronSimple::fluid,
         ByteBufCodecs.INT,
         HasCauldronSimple::consume,
-        ResourceLocation.STREAM_CODEC,
+        Identifier.STREAM_CODEC,
         HasCauldronSimple::transform,
         ByteBufCodecs.INT,
         HasCauldronSimple::produce,
@@ -133,7 +133,7 @@ public record HasCauldronSimple(
      * @param fluid 流体ID
      * @return 构建器实例
      */
-    public static Builder fluid(ResourceLocation fluid) {
+    public static Builder fluid(Identifier fluid) {
         return Builder.of(fluid);
     }
 
@@ -141,9 +141,9 @@ public record HasCauldronSimple(
      * 构建器类，用于构建HasCauldronSimple实例
      */
     public static class Builder {
-        private ResourceLocation fluid = HasCauldron.EMPTY;
+        private Identifier fluid = HasCauldron.EMPTY;
         private int consume = 0;
-        private ResourceLocation transform = HasCauldron.NULL;
+        private Identifier transform = HasCauldron.NULL;
         private int produce = 0;
         private float chance = 1f;
         private boolean ignited = false;
@@ -163,7 +163,7 @@ public record HasCauldronSimple(
          * @param fluid 流体ID
          * @return 构建器实例
          */
-        public static Builder of(ResourceLocation fluid) {
+        public static Builder of(Identifier fluid) {
             Builder builder = new Builder();
             builder.fluid = fluid;
             return builder;
@@ -175,7 +175,7 @@ public record HasCauldronSimple(
          * @param fluid 流体ID
          * @return 构建器实例
          */
-        public Builder fluid(ResourceLocation fluid) {
+        public Builder fluid(Identifier fluid) {
             this.fluid = fluid;
             return this;
         }
@@ -186,7 +186,7 @@ public record HasCauldronSimple(
          * @param transform 转换后的流体ID
          * @return 构建器实例
          */
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Identifier transform) {
             this.transform = transform;
             if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
             return this;

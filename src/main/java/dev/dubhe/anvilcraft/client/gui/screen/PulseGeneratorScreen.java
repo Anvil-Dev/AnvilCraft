@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -22,19 +22,19 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGeneratorMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "pulse_generator");
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "pulse_generator");
 
-    private static final ResourceLocation BUTTON_ADD_T =
+    private static final Identifier BUTTON_ADD_T =
         SharedTextures.textureGui("machine/pulse_generator/button_add_t");
-    private static final ResourceLocation BUTTON_ADD_S =
+    private static final Identifier BUTTON_ADD_S =
         SharedTextures.textureGui("machine/pulse_generator/button_add_s");
-    private static final ResourceLocation BUTTON_ADD_M =
+    private static final Identifier BUTTON_ADD_M =
         SharedTextures.textureGui("machine/pulse_generator/button_add_m");
-    private static final ResourceLocation BUTTON_MINUS_T =
+    private static final Identifier BUTTON_MINUS_T =
         SharedTextures.textureGui("machine/pulse_generator/button_minus_t");
-    private static final ResourceLocation BUTTON_MINUS_S =
+    private static final Identifier BUTTON_MINUS_S =
         SharedTextures.textureGui("machine/pulse_generator/button_minus_s");
-    private static final ResourceLocation BUTTON_MINUS_M =
+    private static final Identifier BUTTON_MINUS_M =
         SharedTextures.textureGui("machine/pulse_generator/button_minus_m");
 
     private final Minecraft minecraft;

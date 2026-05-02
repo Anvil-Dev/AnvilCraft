@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.data.tags;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -25,7 +25,7 @@ public class DamageTypeTagLoader {
 
         provider.addTag(ModDamageTypeTags.TOPAZ_AMULET_VALID)
             .addTag(DamageTypeTags.IS_LIGHTNING)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("immersiveengineering", "wire_shock"));
+            .addOptional(Identifier.fromNamespaceAndPath("immersiveengineering", "wire_shock"));
 
         provider.addTag(ModDamageTypeTags.RUBY_AMULET_VALID)
             .addTag(DamageTypeTags.IS_FIRE)

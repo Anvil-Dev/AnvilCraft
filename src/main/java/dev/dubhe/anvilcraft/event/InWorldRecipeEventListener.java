@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.VanillaRecipesWrap;
 import dev.dubhe.anvilcraft.recipe.generate.MeshRecipeGeneratingCache;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -43,11 +43,11 @@ public class InWorldRecipeEventListener {
     @SubscribeEvent
     public static void inWorldRecipe(InWorldRecipeEvent event) {
         RecipeType<? extends InWorldRecipe> recipeType = event.getRecipeType();
-        ResourceLocation id = event.getId();
+        Identifier id = event.getId();
         InWorldRecipeContext context = event.getContext();
         ServerLevel level = context.getLevel();
         BlockPos pos = BlockPos.containing(context.getPos());
-        TriggerUtil.inWorldRecipe(level, pos, ResourceLocation.parse(recipeType.toString()), id);
+        TriggerUtil.inWorldRecipe(level, pos, Identifier.parse(recipeType.toString()), id);
     }
 
     @SubscribeEvent

@@ -21,7 +21,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -136,7 +136,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         IRecipeSlotsView recipeSlotsView,
         double mouseX,
         double mouseY) {
-        ResourceLocation id = getRegistryName(recipe);
+        Identifier id = getRegistryName(recipe);
         IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 42 && mouseY <= 52) {

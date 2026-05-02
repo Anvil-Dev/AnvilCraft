@@ -33,7 +33,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -61,8 +61,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class StructureToolScreen extends AbstractContainerScreen<StructureToolMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "structure_tool");
-    private static final ResourceLocation BUTTON = SharedTextures.textureGui("misc/structure_tool/button");
+    private static final Identifier BACKGROUND = SharedTextures.bg("misc", "structure_tool");
+    private static final Identifier BUTTON = SharedTextures.textureGui("misc/structure_tool/button");
 
     private static final Component REGULAR_RECIPE_TOOLTIP =
         Component.translatable("screen.anvilcraft.structure_tool.regular_recipe");

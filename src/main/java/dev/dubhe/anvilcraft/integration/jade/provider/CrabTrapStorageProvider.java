@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import snownee.jade.api.Accessor;
@@ -36,7 +36,7 @@ public enum CrabTrapStorageProvider implements IServerExtensionProvider<ItemStac
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return AnvilCraft.of("crab_trap");
     }
 }

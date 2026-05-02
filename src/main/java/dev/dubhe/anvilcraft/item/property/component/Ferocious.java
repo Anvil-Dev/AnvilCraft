@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -22,7 +22,7 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public record Ferocious() {
     public static final Ferocious DEFAULT = new Ferocious();
-    public static final ResourceLocation FEROCIOUS_ID = AnvilCraft.of("ferocious");
+    public static final Identifier FEROCIOUS_ID = AnvilCraft.of("ferocious");
     public static final MapCodec<Ferocious> CODEC = Codec.EMPTY.xmap(a -> Ferocious.DEFAULT, a -> Unit.INSTANCE);
     public static final StreamCodec<ByteBuf, Ferocious> STREAM_CODEC = StreamCodec.unit(Ferocious.DEFAULT);
 

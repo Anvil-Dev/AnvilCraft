@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
 import net.minecraft.core.Direction;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ModMultiblockDefinitions {
     public static final ResourceKey<MultiblockDefinition> CELESTIAL_FORGING_ANVIL = key(AnvilCraft.of("cfa"));
@@ -86,7 +86,7 @@ public class ModMultiblockDefinitions {
         );
     }
 
-    private static ResourceKey<MultiblockDefinition> key(ResourceLocation id) {
+    private static ResourceKey<MultiblockDefinition> key(Identifier id) {
         return ResourceKey.create(LibRegistries.DEFINITIONS_KEY, id);
     }
 }

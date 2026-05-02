@@ -11,16 +11,16 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
-    public static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "slider_like");
-    public static final ResourceLocation BUTTON_MAX = SharedTextures.textureGui("misc/slider_like/button_max");
-    public static final ResourceLocation BUTTON_ADD = SharedTextures.textureGui("misc/slider_like/button_add");
-    public static final ResourceLocation BUTTON_MINUS = SharedTextures.textureGui("misc/slider_like/button_minus");
-    public static final ResourceLocation BUTTON_MIN = SharedTextures.textureGui("misc/slider_like/button_min");
+    public static final Identifier BACKGROUND = SharedTextures.bg("misc", "slider_like");
+    public static final Identifier BUTTON_MAX = SharedTextures.textureGui("misc/slider_like/button_max");
+    public static final Identifier BUTTON_ADD = SharedTextures.textureGui("misc/slider_like/button_add");
+    public static final Identifier BUTTON_MINUS = SharedTextures.textureGui("misc/slider_like/button_minus");
+    public static final Identifier BUTTON_MIN = SharedTextures.textureGui("misc/slider_like/button_min");
     private Slider slider = null;
     private EditBox value;
 

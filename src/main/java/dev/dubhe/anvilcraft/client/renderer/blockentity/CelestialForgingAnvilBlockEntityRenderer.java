@@ -13,17 +13,17 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity> {
-    private static final ModelResourceLocation RING1 =
-        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1"));
-    private static final ModelResourceLocation RING2 =
-        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
-    private static final ModelResourceLocation RING3 =
-        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
+    private static final ModelIdentifier RING1 =
+        ModelIdentifier.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1"));
+    private static final ModelIdentifier RING2 =
+        ModelIdentifier.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
+    private static final ModelIdentifier RING3 =
+        ModelIdentifier.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
 
     public CelestialForgingAnvilBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
     }

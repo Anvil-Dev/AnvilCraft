@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -125,7 +125,7 @@ public class LargeFluidTankBlock
     }
 
     @Override
-    public ResourceLocation getDefinitionId() {
+    public Identifier getDefinitionId() {
         return ModMultiblockDefinitions.LARGE_FLUID_TANK.location();
     }
 

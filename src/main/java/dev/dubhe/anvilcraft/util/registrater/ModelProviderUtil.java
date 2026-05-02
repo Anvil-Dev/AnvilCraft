@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumBlockstateProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumItemModelProvider;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -30,7 +30,7 @@ public class ModelProviderUtil {
     public static void bucket(DataGenContext<Item, ? extends BucketItem> ctx, RegistrumItemModelProvider provider) {
         provider.withExistingParent(
             ctx.getName(),
-            ResourceLocation.parse("neoforge:item/bucket_drip")
+            Identifier.parse("neoforge:item/bucket_drip")
         ).customLoader((builder, helper) -> DynamicFluidContainerModelBuilder.begin(builder, helper).fluid(ctx.get().content));
     }
 }

@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -74,7 +74,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
     }
 
     @Override
-    public ResourceLocation getDefinitionId() {
+    public Identifier getDefinitionId() {
         return ModMultiblockDefinitions.FLUID_TANK.location();
     }
 

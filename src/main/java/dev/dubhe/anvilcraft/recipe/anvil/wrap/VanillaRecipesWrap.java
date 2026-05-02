@@ -13,7 +13,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -107,7 +107,7 @@ public class VanillaRecipesWrap {
             builder.result(result);
             UnpackRecipe unpackRecipe = builder.buildRecipe();
             String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-            ResourceLocation location = AnvilCraft.of("unpack_warp_%s_2_%s".formatted(ingredient, res));
+            Identifier location = AnvilCraft.of("unpack_warp_%s_2_%s".formatted(ingredient, res));
             VanillaRecipesWrap.recipes.add(new RecipeHolder<>(location, unpackRecipe));
         }
         if (ingredients.size() != 4 && ingredients.size() != 9) return;
@@ -132,7 +132,7 @@ public class VanillaRecipesWrap {
         builder.result(result);
         ItemCompressRecipe itemCompressRecipe = builder.buildRecipe();
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res));
+        Identifier location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res));
         VanillaRecipesWrap.recipes.add(new RecipeHolder<>(location, itemCompressRecipe));
     }
 
@@ -167,7 +167,7 @@ public class VanillaRecipesWrap {
         builder.result(result);
         ItemCompressRecipe itemCompressRecipe = builder.buildRecipe();
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res));
+        Identifier location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res));
         VanillaRecipesWrap.recipes.add(new RecipeHolder<>(location, itemCompressRecipe));
     }
 
@@ -202,7 +202,7 @@ public class VanillaRecipesWrap {
         }
         result.setCount(result.getCount() * (boost ? 2 : 1));
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("super_heating_warp_%s_2_%s".formatted(ingredient, res));
+        Identifier location = AnvilCraft.of("super_heating_warp_%s_2_%s".formatted(ingredient, res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
@@ -235,7 +235,7 @@ public class VanillaRecipesWrap {
             }
         }
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("smoking_warp_%s_2_%s".formatted(ingredient, res));
+        Identifier location = AnvilCraft.of("smoking_warp_%s_2_%s".formatted(ingredient, res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
@@ -269,7 +269,7 @@ public class VanillaRecipesWrap {
             }
         }
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("cooking_warp_%s_2_%s".formatted(ingredient, res));
+        Identifier location = AnvilCraft.of("cooking_warp_%s_2_%s".formatted(ingredient, res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
@@ -305,7 +305,7 @@ public class VanillaRecipesWrap {
             }
         }
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("heating_warp_%s_2_%s".formatted(ingredient, res));
+        Identifier location = AnvilCraft.of("heating_warp_%s_2_%s".formatted(ingredient, res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,

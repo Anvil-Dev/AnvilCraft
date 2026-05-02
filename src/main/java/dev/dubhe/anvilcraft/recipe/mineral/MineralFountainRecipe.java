@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -191,7 +191,7 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.needBlock == null) {
                 throw new IllegalArgumentException("needBlock must not be null, RecipeId: " + id);
             }

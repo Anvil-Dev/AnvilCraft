@@ -6,7 +6,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class PacketCollector {
     private static final HashMap<UUID, PacketCollector> COLLECTORS = new HashMap<>();
-    private final ResourceLocation typeId;
+    private final Identifier typeId;
     private final byte[][] received;
 
     private final RegistryAccess registryAccess;
@@ -27,7 +27,7 @@ public class PacketCollector {
 
     public PacketCollector(
         int total,
-        ResourceLocation typeId,
+        Identifier typeId,
         RegistryAccess registryAccess,
         ICommonPacketListener listener,
         ConnectionProtocol protocol,

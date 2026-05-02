@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +29,7 @@ public class SwitchableButton extends Button {
 
     public SwitchableButton(
         int x, int y, int width, int height,
-        List<ResourceLocation> textures, int texYDiff, int textureWidth, int textureHeight,
+        List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
         OnPress onPress
     ) {
         this(
@@ -47,7 +47,7 @@ public class SwitchableButton extends Button {
 
     public SwitchableButton(
         int x, int y, int width, int height,
-        List<ResourceLocation> textures, int texYDiff, int textureWidth, int textureHeight,
+        List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
         OnPress onPress, List<Component> message
     ) {
         this(

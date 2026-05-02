@@ -203,7 +203,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -2274,7 +2274,7 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((ctx, prov) -> {
-            LootTable.Builder builder = LootTable.lootTable().setRandomSequence(ResourceLocation.withDefaultNamespace("blocks/large_cake"));
+            LootTable.Builder builder = LootTable.lootTable().setRandomSequence(Identifier.withDefaultNamespace("blocks/large_cake"));
             ctx.add(prov, builder);
         })
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
@@ -3014,7 +3014,7 @@ public class ModBlocks {
         Block block,
         int tickCount
     ) {
-        ResourceLocation location = BuiltInRegistries.BLOCK.getKey(block);
+        Identifier location = BuiltInRegistries.BLOCK.getKey(block);
         String id = prefix + "copper" + "_pressure_plate";
         return REGISTRUM.block(id, properties -> new TimeCountedPressurePlateBlock(BlockSetType.IRON, properties, tickCount))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.PRESSURE_PLATES)
@@ -3026,7 +3026,7 @@ public class ModBlocks {
                 .pushReaction(PushReaction.DESTROY))
             .blockstate((ctx, provider) -> provider.pressurePlateBlock(
                 ctx.get(),
-                ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
+                Identifier.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
             ))
             .item()
             .tag(ModItemTags.PLATES, ModItemTags.COPPER_PLATES)
@@ -3041,7 +3041,7 @@ public class ModBlocks {
         NonNullFunction<BlockBehaviour.Properties, ? extends PowerLevelPressurePlateBlock> plateBlockFactory,
         Item... ingredients
     ) {
-        ResourceLocation location;
+        Identifier location;
         if (block instanceof BlockEntry<? extends Block> entry) {
             location = entry.getId();
         } else {
@@ -3060,7 +3060,7 @@ public class ModBlocks {
                 provider,
                 ctx.getId(),
                 ctx.get(),
-                ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
+                Identifier.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
             ))
             .item()
             .tag(ModItemTags.PLATES, ModItemTags.bindC("plates/" + type))
@@ -3076,7 +3076,7 @@ public class ModBlocks {
         NonNullFunction<BlockBehaviour.Properties, ? extends PowerLevelPressurePlateBlock> plateBlockFactory,
         TagKey<Item>... ingredients
     ) {
-        ResourceLocation location;
+        Identifier location;
         if (block instanceof BlockEntry<? extends Block> entry) {
             location = entry.getId();
         } else {
@@ -3095,7 +3095,7 @@ public class ModBlocks {
                 provider,
                 ctx.getId(),
                 ctx.get(),
-                ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
+                Identifier.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
             ))
             .item()
             .tag(ModItemTags.PLATES, ModItemTags.bindC("plates/" + type), ModItemTags.PLATES)
@@ -3518,7 +3518,7 @@ public class ModBlocks {
             .noCollission()
             .strength(0.5f)
             .pushReaction(PushReaction.DESTROY))
-        .blockstate((ctx, provider) -> provider.pressurePlateBlock(ctx.get(), ResourceLocation.withDefaultNamespace("block/copper_block")))
+        .blockstate((ctx, provider) -> provider.pressurePlateBlock(ctx.get(), Identifier.withDefaultNamespace("block/copper_block")))
         .item()
         .tag(ModItemTags.PLATES, ModItemTags.COPPER_PLATES)
         .build()
@@ -3564,7 +3564,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends PowerLevelPressurePlateBlock> SILVER_PRESSURE_PLATE = registerPressurePlate(
         "silver", SILVER_BLOCK, properties -> new EntityCountPressurePlateBlock(
             properties,
-            entity -> entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.withDefaultNamespace("undead")))
+            entity -> entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, Identifier.withDefaultNamespace("undead")))
         ), ModItemTags.SILVER_INGOTS
     );
     public static final BlockEntry<? extends PowerLevelPressurePlateBlock> URANIUM_PRESSURE_PLATE = registerPressurePlate(

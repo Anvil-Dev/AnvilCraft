@@ -17,7 +17,7 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
@@ -43,8 +43,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataGenUtil {
     public static void powerLevelPressurePlate(
-        RegistrumBlockstateProvider provider, ResourceLocation id,
-        PowerLevelPressurePlateBlock block, ResourceLocation texture
+        RegistrumBlockstateProvider provider, Identifier id,
+        PowerLevelPressurePlateBlock block, Identifier texture
     ) {
         ModelFile pressurePlate = provider.models().pressurePlate(id.getPath(), texture);
         ModelFile pressurePlateDown = provider.models().pressurePlateDown(id.getPath() + "_down", texture);

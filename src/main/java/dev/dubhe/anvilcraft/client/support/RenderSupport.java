@@ -30,10 +30,10 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
@@ -72,11 +72,11 @@ public class RenderSupport {
     public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
 
-    private static final ModelResourceLocation TRIDENT_MODEL = ModelResourceLocation.inventory(
-        ResourceLocation.withDefaultNamespace("trident")
+    private static final ModelIdentifier TRIDENT_MODEL = ModelIdentifier.inventory(
+        Identifier.withDefaultNamespace("trident")
     );
-    private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.inventory(
-        ResourceLocation.withDefaultNamespace("spyglass")
+    private static final ModelIdentifier SPYGLASS_MODEL = ModelIdentifier.inventory(
+        Identifier.withDefaultNamespace("spyglass")
     );
     private static ClientLevel currentClientLevel = null;
     private static LevelLike.AirLevelLike airLevelLike = null;
@@ -486,7 +486,7 @@ public class RenderSupport {
             if (compositeRenderType.state().transparencyState == RenderStateShard.NO_TRANSPARENCY
                 && compositeRenderType.state().textureState instanceof RenderStateShard.TextureStateShard textureStateShard
             ) {
-                Optional<ResourceLocation> text = textureStateShard.texture;
+                Optional<Identifier> text = textureStateShard.texture;
                 if (text.isPresent()) {
                     return RenderType.entityTranslucentCull(text.get());
                 }

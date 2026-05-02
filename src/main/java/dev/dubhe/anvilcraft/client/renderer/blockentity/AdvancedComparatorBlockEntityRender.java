@@ -10,12 +10,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class AdvancedComparatorBlockEntityRender implements BlockEntityRenderer<AdvancedComparatorBlockEntity> {
-    private static final ModelResourceLocation INDICATOR = ModelResourceLocation.standalone(
+    private static final ModelIdentifier INDICATOR = ModelIdentifier.standalone(
         AnvilCraft.of("block/advanced_comparator_indicator")
     );
 

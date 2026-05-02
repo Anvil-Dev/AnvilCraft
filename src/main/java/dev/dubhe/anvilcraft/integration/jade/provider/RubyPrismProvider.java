@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -31,7 +31,7 @@ public enum RubyPrismProvider implements IBlockComponentProvider, IServerDataPro
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return AnvilCraft.of("ruby_prism");
     }
 }

@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -28,7 +28,7 @@ import java.util.Iterator;
 
 public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> extends ArrowRenderer<T> {
 
-    public static final ResourceLocation ARROW_LOCATION = ResourceLocation.withDefaultNamespace(
+    public static final Identifier ARROW_LOCATION = Identifier.withDefaultNamespace(
         "textures/entity/projectiles/arrow.png"
     );
     private final ItemRenderer itemRenderer;
@@ -43,7 +43,7 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T t) {
+    public Identifier getTextureLocation(T t) {
         return ARROW_LOCATION;
     }
 

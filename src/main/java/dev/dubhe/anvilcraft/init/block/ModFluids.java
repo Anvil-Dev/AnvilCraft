@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.level.block.Block;
@@ -212,11 +212,11 @@ public class ModFluids {
         .explosionResistance(100);
     public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
         NeoForgeRegistries.FLUID_TYPES.key(),
-        ResourceLocation.withDefaultNamespace("powder_snow")
+        Identifier.withDefaultNamespace("powder_snow")
     );
     public static final DeferredHolder<Fluid, PowderSnowFluid> POWDER_SNOW = DeferredHolder.create(
         Registries.FLUID,
-        ResourceLocation.withDefaultNamespace("powder_snow")
+        Identifier.withDefaultNamespace("powder_snow")
     );
 
     public static void register(IEventBus eventBus) {
@@ -305,8 +305,8 @@ public class ModFluids {
         );
         e.registerFluidType(
             new ModClientFluidTypeExtensionImpl(
-                ResourceLocation.withDefaultNamespace("block/powder_snow"),
-                ResourceLocation.withDefaultNamespace("block/powder_snow")
+                Identifier.withDefaultNamespace("block/powder_snow"),
+                Identifier.withDefaultNamespace("block/powder_snow")
             ), POWDER_SNOW_TYPE
         );
     }

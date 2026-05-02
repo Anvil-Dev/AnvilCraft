@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProducer> implements BlockEntityRenderer<T> {
@@ -59,5 +59,5 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
         return ROTATION_MAGIC;
     }
 
-    protected abstract ModelResourceLocation getModel();
+    protected abstract ModelIdentifier getModel();
 }

@@ -12,12 +12,12 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Function;
 
 public class Slider extends AbstractWidget {
-    public static final ResourceLocation SLIDER = SharedTextures.textureGui("misc/slider_like/slider");
+    public static final Identifier SLIDER = SharedTextures.textureGui("misc/slider_like/slider");
 
     @Setter
     @Getter

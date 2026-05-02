@@ -8,14 +8,14 @@ import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Objects;
 
 public class AmuletSelectorSupport {
-    public static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "amulet_box");
+    public static final Identifier BACKGROUND = SharedTextures.bg("misc", "amulet_box");
     public static final int BACKGROUND_WIDTH = 78;
     public static final int BACKGROUND_HEIGHT = 80;
 

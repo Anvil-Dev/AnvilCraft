@@ -13,14 +13,14 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * 复制指定输入物品的数据，并将其粘贴到另一个数据组件类型下。
  */
 public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig, ICustomDataComponent<T> dest) implements IResultModifier {
     public static final MapCodec<ChangeDataType<?>> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        ResourceLocation.CODEC
+        Identifier.CODEC
             .fieldOf("orig")
             .forGetter(ChangeDataType::origId),
         ICustomDataComponent.CODEC
@@ -30,7 +30,7 @@ public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig
             .forGetter(ChangeDataType::input)
     ).apply(ins, ChangeDataType::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ChangeDataType<?>> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC,
+        Identifier.STREAM_CODEC,
         ChangeDataType::origId,
         ICustomDataComponent.STREAM_CODEC,
         ChangeDataType::dest,
@@ -39,7 +39,7 @@ public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig
         ChangeDataType::new
     );
 
-    public ChangeDataType(ResourceLocation origId, ICustomDataComponent<T> dest, RecipeInputSlot slot) {
+    public ChangeDataType(Identifier origId, ICustomDataComponent<T> dest, RecipeInputSlot slot) {
         this(
             slot,
             Util.cast(BuiltInRegistries.DATA_COMPONENT_TYPE.get(origId)),
@@ -71,7 +71,7 @@ public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig
         return ModResultModifierTypes.CHANGE_DATA_TYPE.get();
     }
 
-    private ResourceLocation origId() {
+    private Identifier origId() {
         return BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this.orig);
     }
 

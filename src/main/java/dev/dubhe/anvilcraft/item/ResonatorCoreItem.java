@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.item;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -11,17 +11,17 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class ResonatorCoreItem extends Item implements IMultipleMaterial {
-    private static final ResourceLocation EMPTY_SLOT_AXE =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_axe");
-    private static final ResourceLocation EMPTY_SLOT_SHOVEL =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_shovel");
-    private static final ResourceLocation EMPTY_SLOT_HOE =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_hoe");
-    private static final ResourceLocation EMPTY_SLOT_PICKAXE =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_pickaxe");
+    private static final Identifier EMPTY_SLOT_AXE =
+        Identifier.withDefaultNamespace("item/empty_slot_axe");
+    private static final Identifier EMPTY_SLOT_SHOVEL =
+        Identifier.withDefaultNamespace("item/empty_slot_shovel");
+    private static final Identifier EMPTY_SLOT_HOE =
+        Identifier.withDefaultNamespace("item/empty_slot_hoe");
+    private static final Identifier EMPTY_SLOT_PICKAXE =
+        Identifier.withDefaultNamespace("item/empty_slot_pickaxe");
     private static final Component MISSING_TOOLS_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.resonator_core.missing_tools");
-    private static final List<ResourceLocation> EMPTY_SLOT_TEXTURES = List.of(
+    private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
         EMPTY_SLOT_AXE,
         EMPTY_SLOT_SHOVEL,
         EMPTY_SLOT_HOE,
@@ -38,8 +38,8 @@ public class ResonatorCoreItem extends Item implements IMultipleMaterial {
     }
 
     @Override
-    public List<ResourceLocation> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
-        List<ResourceLocation> textures = ListUtil.cycle(EMPTY_SLOT_TEXTURES, id);
+    public List<Identifier> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
+        List<Identifier> textures = ListUtil.cycle(EMPTY_SLOT_TEXTURES, id);
         for (ItemStack input : inputs) {
             if (input.is(ItemTags.AXES)) {
                 textures.remove(EMPTY_SLOT_AXE);

@@ -23,7 +23,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -182,7 +182,7 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
             return this;
         }
 
-        public Builder removeAttribute(ResourceLocation... attrs) {
+        public Builder removeAttribute(Identifier... attrs) {
             return this.removeAttribute(RemoveAttribute.removeAttr(attrs));
         }
 

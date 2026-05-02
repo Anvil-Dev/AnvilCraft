@@ -11,7 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -45,10 +45,10 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_256 = new DynamicPowerComponent.PowerConsumption(256);
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_512 = new DynamicPowerComponent.PowerConsumption(512);
 
-    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack.png");
-    public static final ResourceLocation TEXTURE_OFF = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack_off.png");
+    public static final Identifier TEXTURE = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack.png");
+    public static final Identifier TEXTURE_OFF = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack_off.png");
 
-    public static final ResourceLocation CREATIVE_FLIGHT_ID = AnvilCraft.of("creative_flight");
+    public static final Identifier CREATIVE_FLIGHT_ID = AnvilCraft.of("creative_flight");
     public static final AttributeModifier CREATIVE_FLIGHT = new AttributeModifier(
         CREATIVE_FLIGHT_ID,
         1,
@@ -108,7 +108,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     }
 
     @Override
-    public @Nullable ResourceLocation getArmorTexture(
+    public @Nullable Identifier getArmorTexture(
         ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
         if (getFlightTime(stack) > 0) {
             return TEXTURE;

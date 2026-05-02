@@ -20,7 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
@@ -354,9 +354,9 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         ANY(SharedTextures.BUTTON_ANY),
         ALL(SharedTextures.BUTTON_ALL);
 
-        public final ResourceLocation buttonTexture;
+        public final Identifier buttonTexture;
 
-        Mode(ResourceLocation buttonTexture) {
+        Mode(Identifier buttonTexture) {
             this.buttonTexture = buttonTexture;
         }
 

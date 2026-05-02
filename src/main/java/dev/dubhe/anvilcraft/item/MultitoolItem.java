@@ -13,7 +13,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -86,7 +86,7 @@ public class MultitoolItem extends Item {
     @SuppressWarnings("removal")
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         ItemProperties.register(
-            this, ResourceLocation.withDefaultNamespace("cast"), (itemStack, level, entity, value) -> {
+            this, Identifier.withDefaultNamespace("cast"), (itemStack, level, entity, value) -> {
                 if (entity == null) {
                     return 0.0f;
                 } else {

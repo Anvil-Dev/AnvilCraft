@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import java.util.List;
 
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity> {
-    public static final ResourceLocation BEAM_LOCATION = ResourceLocation.withDefaultNamespace("textures/entity/beacon_beam.png");
+    public static final Identifier BEAM_LOCATION = Identifier.withDefaultNamespace("textures/entity/beacon_beam.png");
     public static final int MAX_RENDER_Y = 1024;
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState defaultLightState = Blocks.WHITE_CONCRETE.defaultBlockState();
@@ -128,7 +128,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     public static void renderBeaconBeam(
         PoseStack pose,
         MultiBufferSource bufferSource,
-        ResourceLocation beamLocation,
+        Identifier beamLocation,
         float partialTick,
         float textureScale,
         long gameTime,

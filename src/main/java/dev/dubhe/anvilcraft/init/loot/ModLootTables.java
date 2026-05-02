@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.init.loot;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -37,7 +37,7 @@ public class ModLootTables {
     }
 
     private static ResourceKey<LootTable> beheadingKey(EntityType<?> entityType) {
-        ResourceLocation entityId = EntityType.getKey(entityType);
+        Identifier entityId = EntityType.getKey(entityType);
         return key("entities/beheading/" + entityId.getNamespace() + '/' + entityId.getPath());
     }
 

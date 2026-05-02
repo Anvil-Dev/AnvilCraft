@@ -47,7 +47,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import lombok.Getter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
@@ -139,11 +139,11 @@ public class AnvilCraft {
         eventBus.addListener(ModFluids::registerVanilla);
     }
 
-    public static ResourceLocation of(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier of(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
-    public static ResourceLocation advancementOf(String path) {
+    public static Identifier advancementOf(String path) {
         return of("anvilcraft/" + path);
     }
 

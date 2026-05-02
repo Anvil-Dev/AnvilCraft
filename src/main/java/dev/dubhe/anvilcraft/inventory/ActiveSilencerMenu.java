@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -53,15 +53,15 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
         );
     }
 
-    public void addSound(ResourceLocation soundId) {
+    public void addSound(Identifier soundId) {
         blockEntity.addSound(soundId);
     }
 
-    public void removeSound(ResourceLocation soundId) {
+    public void removeSound(Identifier soundId) {
         blockEntity.removeSound(soundId);
     }
 
-    public void handleSync(List<ResourceLocation> sounds) {
+    public void handleSync(List<Identifier> sounds) {
         blockEntity.sync(sounds);
     }
 }

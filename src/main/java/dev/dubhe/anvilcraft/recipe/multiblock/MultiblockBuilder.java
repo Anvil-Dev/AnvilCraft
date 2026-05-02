@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -52,7 +52,7 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
     }
 
     @Override
-    public void validate(ResourceLocation id) {
+    public void validate(Identifier id) {
         if (result == null) {
             throw new IllegalArgumentException("Recipe result must not be null, Recipe: " + id);
         }

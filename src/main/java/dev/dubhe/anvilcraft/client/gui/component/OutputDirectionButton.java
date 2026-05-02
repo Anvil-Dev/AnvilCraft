@@ -8,7 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ public class OutputDirectionButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation location = switch (direction) {
+        Identifier location = switch (direction) {
             case UP -> SharedTextures.BUTTON_U;
             case EAST -> SharedTextures.BUTTON_E;
             case WEST -> SharedTextures.BUTTON_W;
@@ -77,7 +77,7 @@ public class OutputDirectionButton extends Button {
 
     public void renderTexture(
         GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        Identifier texture,
         int x,
         int y,
         int puOffset,

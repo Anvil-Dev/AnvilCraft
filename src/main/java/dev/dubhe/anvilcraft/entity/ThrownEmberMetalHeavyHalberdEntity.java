@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,7 +24,7 @@ public class ThrownEmberMetalHeavyHalberdEntity extends ThrownHeavyHalberdEntity
     }
 
     @Override
-    public ResourceLocation getTextureBase() {
+    public Identifier getTextureBase() {
         return AnvilCraft.of("ember_metal");
     }
 

@@ -16,7 +16,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -32,11 +32,11 @@ import org.jetbrains.annotations.Contract;
 
 @Getter
 public class MineralFountainChanceRecipe implements Recipe<MineralFountainChanceRecipe.Input> {
-    private final ResourceLocation dimension;
+    private final Identifier dimension;
     private final BlockStatePredicate fromBlock;
     private final ChanceBlockState toBlock;
 
-    public MineralFountainChanceRecipe(ResourceLocation dimension, BlockStatePredicate fromBlock, ChanceBlockState toBlock) {
+    public MineralFountainChanceRecipe(Identifier dimension, BlockStatePredicate fromBlock, ChanceBlockState toBlock) {
         this.dimension = dimension;
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
@@ -90,7 +90,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         return true;
     }
 
-    public record Input(ResourceLocation dimension, Block fromBlock) implements RecipeInput {
+    public record Input(Identifier dimension, Block fromBlock) implements RecipeInput {
         @Override
         public ItemStack getItem(int i) {
             return new ItemStack(this.fromBlock);
@@ -109,7 +109,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
 
     public static class Serializer implements RecipeSerializer<MineralFountainChanceRecipe> {
         private static final MapCodec<MineralFountainChanceRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                ResourceLocation.CODEC
+                Identifier.CODEC
                     .fieldOf("dimension")
                     .forGetter(MineralFountainChanceRecipe::getDimension),
                 BlockStatePredicate.CODEC
@@ -123,7 +123,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
 
         private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainChanceRecipe> STREAM_CODEC =
             StreamCodec.composite(
-                ResourceLocation.STREAM_CODEC,
+                Identifier.STREAM_CODEC,
                 MineralFountainChanceRecipe::getDimension,
                 BlockStatePredicate.STREAM_CODEC,
                 MineralFountainChanceRecipe::getFromBlock,
@@ -146,7 +146,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<MineralFountainChanceRecipe> {
-        private ResourceLocation dimension;
+        private Identifier dimension;
         private BlockStatePredicate fromBlock;
         private ChanceBlockState toBlock;
 
@@ -208,7 +208,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.dimension == null) {
                 throw new IllegalArgumentException("Dimension must be not null, RecipeId: " + id);
             }

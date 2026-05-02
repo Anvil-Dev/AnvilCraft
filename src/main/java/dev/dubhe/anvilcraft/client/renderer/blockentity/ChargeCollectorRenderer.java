@@ -3,10 +3,10 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 
 public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollectorBlockEntity> {
-    public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
+    public static final ModelIdentifier MODEL = ModelIdentifier.standalone(
         AnvilCraft.of("block/charge_collector_cube")
     );
 
@@ -24,7 +24,7 @@ public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollect
     }
 
     @Override
-    protected ModelResourceLocation getModel() {
+    protected ModelIdentifier getModel() {
         return MODEL;
     }
 }

@@ -17,7 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -70,7 +70,7 @@ public record ProduceHeat(List<HeatData> heatData, Distance distance) implements
             if (!state.is(ModBlockTags.HEATABLE_BLOCKS)) continue;
 
             HeatableBlockEntity heatable = Util.castSafely(level.getBlockEntity(pos), HeatableBlockEntity.class).orElse(null);
-            Optional<ResourceLocation> idOp = HeatRecorder.getId(level, pos, state);
+            Optional<Identifier> idOp = HeatRecorder.getId(level, pos, state);
             if (idOp.isEmpty()) continue;
             HeatTier currentTier = HeatRecorder.getTier(level, pos, state)
                 .orElseThrow(() -> new IllegalStateException("Unexpected non tier heatable block!"));

@@ -23,7 +23,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -144,7 +144,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     ) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         BlockCompressRecipe recipe = recipeHolder.value();
-        ResourceLocation id = getRegistryName(recipeHolder);
+        Identifier id = getRegistryName(recipeHolder);
 
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY < 42) {

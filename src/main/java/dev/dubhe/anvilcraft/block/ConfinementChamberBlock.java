@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -30,7 +30,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         super(properties);
     }
 
-    public static final ResourceLocation CONTENTS = ResourceLocation.withDefaultNamespace("contents");
+    public static final Identifier CONTENTS = Identifier.withDefaultNamespace("contents");
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {

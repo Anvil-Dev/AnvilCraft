@@ -18,7 +18,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -310,7 +310,7 @@ public class ItemTooltipManager {
             }
         }
         if (stack.is(ModItemTags.REINFORCED_CONCRETE)) {
-            ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+            Identifier key = BuiltInRegistries.ITEM.getKey(item);
             tooltip.add(
                 1,
                 Component.translatable("tooltip.%s.item.reinforced_concrete".formatted(key.getNamespace()))
@@ -324,7 +324,7 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKey(Item item) {
-        ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+        Identifier key = BuiltInRegistries.ITEM.getKey(item);
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
 

@@ -11,7 +11,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -97,7 +97,7 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
                 // 匹配以#开头的标签格式
                 Pattern pattern = Pattern.compile("^#(([a-z0-9._-]*:[a-z0-9/._-]*)|[a-z0-9/._-]*)$");
                 if (pattern.matcher(string).matches()) {
-                    TagKey<Item> tag = TagKey.create(Registries.ITEM, ResourceLocation.parse(string.substring(1)));
+                    TagKey<Item> tag = TagKey.create(Registries.ITEM, Identifier.parse(string.substring(1)));
                     if (stack.is(tag)) return true;
                 }
             }

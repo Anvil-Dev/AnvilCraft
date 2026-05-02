@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -25,7 +25,7 @@ public record LaserState(
     @SuppressWarnings("deprecation")
     public static @Nullable LaserState create(BaseLaserBlockEntity blockEntity, PoseStack poseStack) {
         if (blockEntity.getIrradiateBlockPos() == null) return null;
-        Function<ResourceLocation, TextureAtlasSprite> spriteGetter = Minecraft.getInstance()
+        Function<Identifier, TextureAtlasSprite> spriteGetter = Minecraft.getInstance()
             .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS);
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.5f, 0.5);
@@ -44,7 +44,7 @@ public record LaserState(
             spriteGetter
                 .apply(AnvilCraft.of("block/laser")),
             spriteGetter
-                .apply(ResourceLocation.withDefaultNamespace("block/white_concrete"))
+                .apply(Identifier.withDefaultNamespace("block/white_concrete"))
         );
         poseStack.popPose();
         return laserState;

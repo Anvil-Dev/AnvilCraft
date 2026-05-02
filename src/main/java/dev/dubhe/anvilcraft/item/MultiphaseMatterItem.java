@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
 import dev.dubhe.anvilcraft.api.item.IPermutationMaterial;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -21,7 +21,7 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
     private static final Component FROST_MISSING_TOOLTIP = Component.translatable(
         "screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools"
     );
-    private static final Map<Item, ResourceLocation> EMBER_EMPTY_SLOT_TEXTURES = Map.of(
+    private static final Map<Item, Identifier> EMBER_EMPTY_SLOT_TEXTURES = Map.of(
         Items.SHEARS, AnvilCraft.of("item/empty_slot_shears"),
         Items.FLINT_AND_STEEL, AnvilCraft.of("item/empty_slot_flint_and_steel"),
         Items.BRUSH, AnvilCraft.of("item/empty_slot_brush"),
@@ -31,12 +31,12 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
         Items.CARROT_ON_A_STICK, AnvilCraft.of("item/empty_slot_carrot_on_a_stick"),
         Items.WARPED_FUNGUS_ON_A_STICK, AnvilCraft.of("item/empty_slot_warped_fungus_on_a_stick")
     );
-    private static final List<ResourceLocation> FROST_EMPTY_SLOT_TEXTURES = List.of(
-        ResourceLocation.withDefaultNamespace("item/empty_slot_sword"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_axe"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_pickaxe"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_shovel"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_hoe"),
+    private static final List<Identifier> FROST_EMPTY_SLOT_TEXTURES = List.of(
+        Identifier.withDefaultNamespace("item/empty_slot_sword"),
+        Identifier.withDefaultNamespace("item/empty_slot_axe"),
+        Identifier.withDefaultNamespace("item/empty_slot_pickaxe"),
+        Identifier.withDefaultNamespace("item/empty_slot_shovel"),
+        Identifier.withDefaultNamespace("item/empty_slot_hoe"),
         AnvilCraft.of("item/empty_slot_heavy_halberd"),
         AnvilCraft.of("item/empty_slot_resonator")
     );
@@ -56,8 +56,8 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
     }
 
     @Override
-    public List<ResourceLocation> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
-        List<ResourceLocation> result = new ArrayList<>();
+    public List<Identifier> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
+        List<Identifier> result = new ArrayList<>();
         EMPTY_SLOTS_TEXTURES_CHECK:
         for (Item item : EMBER_EMPTY_SLOT_TEXTURES.keySet()) {
             for (ItemStack input : inputs) {
@@ -69,7 +69,7 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
     }
 
     @Override
-    public List<ResourceLocation> getEmptySlotTextures() {
+    public List<Identifier> getEmptySlotTextures() {
         return FROST_EMPTY_SLOT_TEXTURES;
     }
 }

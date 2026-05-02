@@ -21,7 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -45,11 +45,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class ActiveSilencerBlockEntity
     extends BlockEntity
     implements MenuProvider, ISoundEventListener, IDiskCloneable, IHasAffectRange {
-    public static final Codec<List<ResourceLocation>> CODEC =
-        ResourceLocation.CODEC.listOf().fieldOf("mutedSound").codec();
+    public static final Codec<List<Identifier>> CODEC =
+        Identifier.CODEC.listOf().fieldOf("mutedSound").codec();
 
     @Getter
-    private final Set<ResourceLocation> mutedSound = new CopyOnWriteArraySet<>();
+    private final Set<Identifier> mutedSound = new CopyOnWriteArraySet<>();
 
     private final AABB range;
 
@@ -117,30 +117,30 @@ public class ActiveSilencerBlockEntity
     /**
      * 添加声音
      */
-    public void addSound(ResourceLocation soundId) {
+    public void addSound(Identifier soundId) {
         mutedSound.add(soundId);
         this.setChanged();
     }
 
-    public void removeSound(ResourceLocation soundId) {
+    public void removeSound(Identifier soundId) {
         mutedSound.remove(soundId);
         this.setChanged();
     }
 
     @Override
-    public boolean shouldMute(ResourceLocation sound, Vec3 pos) {
+    public boolean shouldMute(Identifier sound, Vec3 pos) {
         if (getBlockState().getValue(ActiveSilencerBlock.POWERED)) return true;
         boolean inRange = range.contains(pos);
         boolean inList = mutedSound.contains(sound);
         return inRange && inList;
     }
 
-    public void sync(List<ResourceLocation> sounds) {
+    public void sync(List<Identifier> sounds) {
         this.mutedSound.clear();
         this.mutedSound.addAll(sounds);
     }
 
-    public void sync(Player player, List<ResourceLocation> sounds) {
+    public void sync(Player player, List<Identifier> sounds) {
         this.sync(sounds);
         if (!(this.getLevel() instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) return;
         NetworkUtil.sendToAllPlayersInDimensionExcluded(

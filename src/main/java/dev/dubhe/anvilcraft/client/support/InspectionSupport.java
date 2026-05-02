@@ -18,7 +18,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -30,8 +30,8 @@ import java.util.Map;
 @Slf4j
 public class InspectionSupport {
     public static final InspectionSupport INSTANCE = new InspectionSupport();
-    private final Map<ResourceLocation, InspectionAction> inspectionActionMap = new HashMap<>();
-    private final Object2BooleanMap<ResourceLocation> inspectionState = new Object2BooleanAVLTreeMap<>();
+    private final Map<Identifier, InspectionAction> inspectionActionMap = new HashMap<>();
+    private final Object2BooleanMap<Identifier> inspectionState = new Object2BooleanAVLTreeMap<>();
 
     public static void initializeClient() {
         INSTANCE.registerActionClient(AnvilCraft.of("silencer"), (p, r, c, d) -> {
@@ -61,11 +61,11 @@ public class InspectionSupport {
      *
      * <p>检查项需同时在 {@link ModInspections} 和 {@link InspectionSupport} 中注册</p>
      *
-     * <p>对于 {@link ModInspections}，使用 {@link ModInspections#registerActionServer(ResourceLocation)} 注册检查项</p>
+     * <p>对于 {@link ModInspections}，使用 {@link ModInspections#registerActionServer(Identifier)} 注册检查项</p>
      *
      * @see ModInspections
      */
-    public void registerActionClient(ResourceLocation id, InspectionAction action) {
+    public void registerActionClient(Identifier id, InspectionAction action) {
         synchronized (inspectionActionMap) {
             if (inspectionActionMap.containsKey(id)) {
                 throw new IllegalArgumentException("Duplicated inspection action id:" + id);
@@ -75,7 +75,7 @@ public class InspectionSupport {
         }
     }
 
-    public void changeStateClient(ResourceLocation id, boolean state) {
+    public void changeStateClient(Identifier id, boolean state) {
         log.info("{} inspection {}.", state ? "Disabling" : "Enabling", id);
         inspectionState.put(id, state);
     }

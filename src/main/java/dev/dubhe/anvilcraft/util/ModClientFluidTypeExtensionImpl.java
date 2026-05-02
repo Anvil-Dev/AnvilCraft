@@ -6,22 +6,22 @@ import lombok.Getter;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import org.joml.Vector3f;
 
 public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensions {
     @Getter
-    public final ResourceLocation stillTexture;
+    public final Identifier stillTexture;
     @Getter
-    public final ResourceLocation flowingTexture;
+    public final Identifier flowingTexture;
     public final boolean noFog;
     public final int fogColor;
     public final float fogDistance;
 
     public ModClientFluidTypeExtensionImpl(
-        ResourceLocation stillTexture,
-        ResourceLocation flowingTexture,
+        Identifier stillTexture,
+        Identifier flowingTexture,
         int fogColor,
         float fogDistance
     ) {
@@ -33,8 +33,8 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
     }
 
     public ModClientFluidTypeExtensionImpl(
-        ResourceLocation stillTexture,
-        ResourceLocation flowingTexture
+        Identifier stillTexture,
+        Identifier flowingTexture
     ) {
         this.stillTexture = stillTexture;
         this.flowingTexture = flowingTexture;
@@ -43,7 +43,7 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         this.fogDistance = 96.0f;
     }
 
-    public ModClientFluidTypeExtensionImpl(ResourceLocation texture) {
+    public ModClientFluidTypeExtensionImpl(Identifier texture) {
         this(texture, texture);
     }
 

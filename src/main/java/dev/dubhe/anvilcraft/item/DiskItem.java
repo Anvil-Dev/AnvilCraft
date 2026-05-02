@@ -9,7 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -78,7 +78,7 @@ public class DiskItem extends Item {
         TooltipFlag isAdvanced) {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (hasDataStored(stack)) {
-            ResourceLocation storedFrom = ResourceLocation.parse(getData(stack).getString("StoredFrom"));
+            Identifier storedFrom = Identifier.parse(getData(stack).getString("StoredFrom"));
             String name = Component.translatable("block." + storedFrom.toLanguageKey())
                 .getString();
             tooltipComponents.add(Component.translatable("item.anvilcraft.disk.stored_from", name)

@@ -10,7 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -19,16 +19,16 @@ import java.util.List;
 import java.util.Optional;
 
 public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "ember_smithing_table");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "ember_smithing_table");
 
     // 空槽位纹理 - 模板
-    private static final ResourceLocation EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
+    private static final Identifier EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
         "item/empty_slot_two_to_one_smithing_template"
     );
-    private static final ResourceLocation EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
+    private static final Identifier EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
         "item/empty_slot_four_to_one_smithing_template"
     );
-    private static final ResourceLocation EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
+    private static final Identifier EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
         "item/empty_slot_eight_to_one_smithing_template"
     );
 
@@ -38,7 +38,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     );
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
 
-    public static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
+    public static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
         EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE,
         EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE,
         EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE

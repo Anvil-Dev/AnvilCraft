@@ -2,6 +2,6 @@
 @ParametersAreNonnullByDefault
 package dev.dubhe.anvilcraft.api.injection;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

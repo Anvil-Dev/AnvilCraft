@@ -3,20 +3,20 @@ package dev.dubhe.anvilcraft.client.gui.component;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class TexturedButton extends Button {
     private final int texYDiff;
     private final int textureWidth;
     private final int textureHeight;
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     public TexturedButton(
         int x,
         int y,
         int width,
         int height,
-        ResourceLocation texture,
+        Identifier texture,
         int texYDiff,
         int textureWidth,
         int textureHeight,
@@ -35,7 +35,7 @@ public class TexturedButton extends Button {
         int y,
         int width,
         int height,
-        ResourceLocation texture,
+        Identifier texture,
         int texYDiff,
         int textureWidth,
         int textureHeight,

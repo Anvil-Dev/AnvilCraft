@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.recipe.generate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -30,11 +30,11 @@ public abstract class BaseGeneratingCache<T extends Recipe<?>> {
         return LoggerFactory.getLogger(STACK_WALKER.getCallerClass());
     }
 
-    protected ResourceLocation generateRecipeId(String type, Item recipeInput, Item recipeResult) {
-        ResourceLocation inputId = BuiltInRegistries.ITEM.getKey(recipeInput);
-        ResourceLocation resultId = BuiltInRegistries.ITEM.getKey(recipeResult);
+    protected Identifier generateRecipeId(String type, Item recipeInput, Item recipeResult) {
+        Identifier inputId = BuiltInRegistries.ITEM.getKey(recipeInput);
+        Identifier resultId = BuiltInRegistries.ITEM.getKey(recipeResult);
         logger().debug("Generating {} for {}", this.recipeName, resultId);
-        ResourceLocation newId = AnvilCraft.of("%s/generated/%s_from_%s_for_%s".formatted(
+        Identifier newId = AnvilCraft.of("%s/generated/%s_from_%s_for_%s".formatted(
             this.recipeId, resultId.toString().replace(':', '_'), inputId.toString().replace(':', '_'), type));
         logger().debug("The generated recipe id is {}", newId);
         return newId;

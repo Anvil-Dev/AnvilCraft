@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -23,7 +23,7 @@ import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindstoneMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "ember_grindstone");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "ember_grindstone");
 
     private final EmberGrindstoneMenu menu;
     private final Player player;

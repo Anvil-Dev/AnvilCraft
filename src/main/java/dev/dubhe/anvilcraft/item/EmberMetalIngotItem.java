@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.item.IPermutationMaterial;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -12,12 +12,12 @@ public class EmberMetalIngotItem extends Item implements IPermutationMaterial {
     private static final Component MISSING_TOOLTIP = Component.translatable(
         "screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools"
     );
-    private static final List<ResourceLocation> EMPTY_SLOT_TEXTURES = List.of(
-        ResourceLocation.withDefaultNamespace("item/empty_slot_sword"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_axe"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_pickaxe"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_shovel"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_hoe")
+    private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
+        Identifier.withDefaultNamespace("item/empty_slot_sword"),
+        Identifier.withDefaultNamespace("item/empty_slot_axe"),
+        Identifier.withDefaultNamespace("item/empty_slot_pickaxe"),
+        Identifier.withDefaultNamespace("item/empty_slot_shovel"),
+        Identifier.withDefaultNamespace("item/empty_slot_hoe")
     );
 
     public EmberMetalIngotItem(Properties properties) {
@@ -30,7 +30,7 @@ public class EmberMetalIngotItem extends Item implements IPermutationMaterial {
     }
 
     @Override
-    public List<ResourceLocation> getEmptySlotTextures() {
+    public List<Identifier> getEmptySlotTextures() {
         return EMPTY_SLOT_TEXTURES;
     }
 }

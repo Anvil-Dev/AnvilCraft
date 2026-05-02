@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -33,7 +33,7 @@ abstract class RecipeManagerMixin {
     private HolderLookup.Provider registries;
 
     @Shadow
-    private Map<ResourceLocation, RecipeHolder<?>> byName;
+    private Map<Identifier, RecipeHolder<?>> byName;
 
     @Shadow
     private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
@@ -44,7 +44,7 @@ abstract class RecipeManagerMixin {
         at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;")
     )
     private void beforeBuildRecipe(
-        Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
+        Map<Identifier, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
         @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache
     ) {
         JewelCraftingRecipeGeneratingCache jewelsCache1 = new JewelCraftingRecipeGeneratingCache(this.registries);
@@ -61,9 +61,9 @@ abstract class RecipeManagerMixin {
         )
     )
     private void afterBuildRecipe(
-        Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
+        Map<Identifier, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
         @Local ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byTypeBuilder,
-        @Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byNameBuilder,
+        @Local ImmutableMap.Builder<Identifier, RecipeHolder<?>> byNameBuilder,
         @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache
     ) {
         jewelsCache.get().buildRecipes()

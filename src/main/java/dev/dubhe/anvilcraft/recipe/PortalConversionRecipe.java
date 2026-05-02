@@ -16,7 +16,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.Item;
@@ -142,7 +142,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
     @Accessors(fluent = true)
     public static class Builder extends AbstractRecipeBuilder<PortalConversionRecipe> {
         @Setter(AccessLevel.NONE)
-        private ResourceLocation typeId;
+        private Identifier typeId;
         private final BlockStatePredicate.Builder input = BlockStatePredicate.builder();
         private final WeightedChanceBlockStates.Builder results = WeightedChanceBlockStates.builder();
 
@@ -419,7 +419,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.typeId == null) {
                 throw new IllegalArgumentException("The portal type of portal conversion recipe cannot be null. Recipe id: " + id);
             }

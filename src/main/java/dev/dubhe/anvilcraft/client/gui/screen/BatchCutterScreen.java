@@ -18,7 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implements IFilterScreen<BatchCutterMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "batch_cutter");
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "batch_cutter");
     private final BatchCutterMenu menu;
     private final BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(8, 20);
     private final Scrollable scrollable = new Scrollable() {

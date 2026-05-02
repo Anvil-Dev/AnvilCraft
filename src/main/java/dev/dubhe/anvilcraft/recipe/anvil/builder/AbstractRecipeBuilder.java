@@ -9,7 +9,7 @@ import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +60,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      * @param id 配方ID
      */
     @Override
-    public void save(RecipeOutput output, ResourceLocation id) {
+    public void save(RecipeOutput output, Identifier id) {
         validate(id);
         Advancement.Builder advancement = output
             .advancement()
@@ -105,7 +105,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      *
      * @param id 配方ID
      */
-    public abstract void validate(ResourceLocation id);
+    public abstract void validate(Identifier id);
 
     /**
      * 获取配方类型

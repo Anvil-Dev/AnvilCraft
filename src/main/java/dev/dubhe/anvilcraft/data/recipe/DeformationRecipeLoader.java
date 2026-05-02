@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -23,37 +23,37 @@ public class DeformationRecipeLoader {
         DeformationRecipeLoader.register(
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ResourceLocation.withDefaultNamespace("wooden"),
+            Identifier.withDefaultNamespace("wooden"),
             "weapons_and_tools"
         );
         DeformationRecipeLoader.register(
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ResourceLocation.withDefaultNamespace("stone"),
+            Identifier.withDefaultNamespace("stone"),
             "weapons_and_tools"
         );
         DeformationRecipeLoader.register(
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ResourceLocation.withDefaultNamespace("iron"),
+            Identifier.withDefaultNamespace("iron"),
             "weapons_and_tools"
         );
         DeformationRecipeLoader.register(
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ResourceLocation.withDefaultNamespace("golden"),
+            Identifier.withDefaultNamespace("golden"),
             "weapons_and_tools"
         );
         DeformationRecipeLoader.register(
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ResourceLocation.withDefaultNamespace("diamond"),
+            Identifier.withDefaultNamespace("diamond"),
             "weapons_and_tools"
         );
         DeformationRecipeLoader.register(
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ResourceLocation.withDefaultNamespace("netherite"),
+            Identifier.withDefaultNamespace("netherite"),
             "weapons_and_tools"
         );
         DeformationRecipeLoader.register(
@@ -84,31 +84,31 @@ public class DeformationRecipeLoader {
         DeformationRecipeLoader.register(
             provider,
             DeformationRecipeLoader.ARMORS,
-            ResourceLocation.withDefaultNamespace("chainmail"),
+            Identifier.withDefaultNamespace("chainmail"),
             "armors"
         );
         DeformationRecipeLoader.register(
             provider,
             DeformationRecipeLoader.ARMORS,
-            ResourceLocation.withDefaultNamespace("iron"),
+            Identifier.withDefaultNamespace("iron"),
             "armors"
         );
         DeformationRecipeLoader.register(
             provider,
             DeformationRecipeLoader.ARMORS,
-            ResourceLocation.withDefaultNamespace("golden"),
+            Identifier.withDefaultNamespace("golden"),
             "armors"
         );
         DeformationRecipeLoader.register(
             provider,
             DeformationRecipeLoader.ARMORS,
-            ResourceLocation.withDefaultNamespace("diamond"),
+            Identifier.withDefaultNamespace("diamond"),
             "armors"
         );
         DeformationRecipeLoader.register(
             provider,
             DeformationRecipeLoader.ARMORS,
-            ResourceLocation.withDefaultNamespace("netherite"),
+            Identifier.withDefaultNamespace("netherite"),
             "armors"
         );
 
@@ -121,7 +121,7 @@ public class DeformationRecipeLoader {
     private static void register(
         RegistrumRecipeProvider provider,
         List<String> bases,
-        ResourceLocation id,
+        Identifier id,
         String suffix
     ) {
         var builder = DeformationRecipe.builder();

@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -199,7 +199,7 @@ public class CelestialForgingAnvilBlock
     }
 
     @Override
-    public ResourceLocation getDefinitionId() {
+    public Identifier getDefinitionId() {
         return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.location();
     }
 

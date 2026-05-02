@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -73,7 +73,7 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity> {
      */
     @SuppressWarnings("deprecation")
     @Override
-    public ResourceLocation getTextureLocation(SlidingBlockEntity entity) {
+    public Identifier getTextureLocation(SlidingBlockEntity entity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

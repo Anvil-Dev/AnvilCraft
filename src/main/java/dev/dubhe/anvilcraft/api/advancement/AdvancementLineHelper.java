@@ -41,7 +41,7 @@ import net.minecraft.advancements.critereon.SlotsPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.SlotRanges;
@@ -85,7 +85,7 @@ public class AdvancementLineHelper {
             ItemStack icon,
             Component title,
             Component description,
-            @Nullable ResourceLocation background,
+            @Nullable Identifier background,
             AdvancementType type,
             boolean showToast,
             boolean announceChat,
@@ -99,7 +99,7 @@ public class AdvancementLineHelper {
             ItemLike icon,
             Component title,
             Component description,
-            @Nullable ResourceLocation background,
+            @Nullable Identifier background,
             AdvancementType type,
             boolean showToast,
             boolean announceChat,
@@ -186,13 +186,13 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, UseItemTrigger.TriggerInstance.useItem(item.asItem()));
         }
 
-        public AdvancementHelper recipe(String key, ResourceLocation recipeId) {
+        public AdvancementHelper recipe(String key, Identifier recipeId) {
             return this.addCriterion(key, RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeId));
         }
 
         public AdvancementHelper recipeMod(String key, String namespace, String recipeId) {
             return this.addCriterion(key, RecipeCraftedTrigger.TriggerInstance.craftedItem(
-                ResourceLocation.fromNamespaceAndPath(namespace, recipeId)
+                Identifier.fromNamespaceAndPath(namespace, recipeId)
             ));
         }
 
@@ -204,13 +204,13 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe());
         }
 
-        public AdvancementHelper inWorldRecipe(String key, ResourceLocation recipeId) {
+        public AdvancementHelper inWorldRecipe(String key, Identifier recipeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe(recipeId));
         }
 
         public AdvancementHelper inWorldRecipeMod(String key, String namespace, String recipeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe(
-                ResourceLocation.fromNamespaceAndPath(namespace, recipeId)
+                Identifier.fromNamespaceAndPath(namespace, recipeId)
             ));
         }
 
@@ -218,13 +218,13 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe(AnvilCraft.of(recipeId)));
         }
 
-        public AdvancementHelper inWorldRecipeType(String key, ResourceLocation typeId) {
+        public AdvancementHelper inWorldRecipeType(String key, Identifier typeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipeType(typeId));
         }
 
         public AdvancementHelper inWorldRecipeTypeMod(String key, String namespace, String typeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipeType(
-                ResourceLocation.fromNamespaceAndPath(namespace, typeId)
+                Identifier.fromNamespaceAndPath(namespace, typeId)
             ));
         }
 

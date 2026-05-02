@@ -8,7 +8,7 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class TransformRecipeBuilder {
                 .withPrefix("mob_transform/"));
     }
 
-    public void save(RecipeOutput output, ResourceLocation id) {
+    public void save(RecipeOutput output, Identifier id) {
         Advancement.Builder advancement = output
             .advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))

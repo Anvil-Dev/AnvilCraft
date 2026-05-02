@@ -6,7 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Locale;
@@ -44,13 +44,13 @@ public class CycleFilterModeButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation location = this.filterMode.get().buttonTexture;
+        Identifier location = this.filterMode.get().buttonTexture;
         this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     public void renderTexture(
         GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        Identifier texture,
         int x,
         int y,
         int puOffset,

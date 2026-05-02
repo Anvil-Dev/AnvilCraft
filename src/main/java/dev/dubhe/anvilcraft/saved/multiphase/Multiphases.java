@@ -18,7 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public class Multiphases extends BetterSavedData {
             .forGetter(Multiphases::getRecover)
     ).apply(ins, Multiphases::new));
     private static final Multiphases CLIENT_COPY = new Multiphases();
-    private static final ResourceLocation FIXER_ID = AnvilCraft.of("multiphases_fixers");
+    private static final Identifier FIXER_ID = AnvilCraft.of("multiphases_fixers");
     private static final double CURRENT_VERSION = 0.0;
     private final Map<UUID, Multiphase> multiphases;
     private final RecoverStation<Multiphase> recover;

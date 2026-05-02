@@ -11,7 +11,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -178,7 +178,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         ItemProperties.register(
             this,
-            ResourceLocation.withDefaultNamespace("throwing"),
+            Identifier.withDefaultNamespace("throwing"),
             (stack, level, entity, data) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F
         );
     }

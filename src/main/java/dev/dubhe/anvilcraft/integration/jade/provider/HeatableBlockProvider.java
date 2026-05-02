@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -36,7 +36,7 @@ public enum HeatableBlockProvider implements IBlockComponentProvider, IServerDat
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return AnvilCraft.of("heatable_block_provider");
     }
 }

@@ -16,7 +16,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -29,8 +29,8 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("DuplicatedCode")
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "active_silencer");
-    public static final ResourceLocation SLIDER = SharedTextures.SMALL_SLIDER;
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "active_silencer");
+    public static final Identifier SLIDER = SharedTextures.SMALL_SLIDER;
 
     private static final int SCROLL_BAR_HEIGHT = 120;
     private static final int SCROLL_BAR_TOP_POS_Y = 35;
@@ -53,9 +53,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
-    private final List<Pair<ResourceLocation, Component>> allSounds = new ArrayList<>();
-    private final List<Pair<ResourceLocation, Component>> filteredSounds = new ArrayList<>();
-    private final List<Pair<ResourceLocation, Component>> mutedSounds = new ArrayList<>();
+    private final List<Pair<Identifier, Component>> allSounds = new ArrayList<>();
+    private final List<Pair<Identifier, Component>> filteredSounds = new ArrayList<>();
+    private final List<Pair<Identifier, Component>> mutedSounds = new ArrayList<>();
 
     private void onSearchTextChange(String text) {
         leftScrollOff = 0;
@@ -115,7 +115,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int actualIndex = selectedIndex;
         actualIndex += leftScrollOff;
         if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return;
-        ResourceLocation sound = filteredSounds.get(actualIndex).left();
+        Identifier sound = filteredSounds.get(actualIndex).left();
         addMutedSound(sound);
         PacketDistributor.sendToServer(new SilencerAddMutedPacket(sound));
         refreshSoundList();
@@ -125,13 +125,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int actualIndex = selectedIndex;
         actualIndex += rightScrollOff;
         if (mutedSounds.isEmpty() || actualIndex >= mutedSounds.size()) return;
-        ResourceLocation sound = mutedSounds.get(actualIndex).left();
+        Identifier sound = mutedSounds.get(actualIndex).left();
         removeMutedSound(sound);
         PacketDistributor.sendToServer(new SilencerRemoveMutedPacket(sound));
         refreshSoundList();
     }
 
-    void addMutedSound(ResourceLocation sound) {
+    void addMutedSound(Identifier sound) {
         this.menu.addSound(sound);
         SoundManager manager = Minecraft.getInstance().getSoundManager();
         WeighedSoundEvents event = manager.getSoundEvent(sound);
@@ -139,7 +139,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         this.mutedSounds.add(Pair.of(sound, event.getSubtitle() == null ? Component.empty() : event.getSubtitle()));
     }
 
-    void removeMutedSound(ResourceLocation sound) {
+    void removeMutedSound(Identifier sound) {
         this.menu.removeSound(sound);
         this.mutedSounds.removeIf(it -> it.left().equals(sound));
     }
@@ -163,7 +163,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /**
      * 获取屏幕上某一项的声音id
      */
-    public @Nullable ResourceLocation getSoundIdAt(int index, int variant) {
+    public @Nullable Identifier getSoundIdAt(int index, int variant) {
         int actualIndex = index;
         if (variant == SOUND_FILTERED) {
             actualIndex += leftScrollOff;
@@ -378,11 +378,11 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /**
      * 处理静音同步包
      */
-    public void handleSync(List<ResourceLocation> sounds) {
+    public void handleSync(List<Identifier> sounds) {
         rightScrollOff = 0;
         mutedSounds.clear();
         SoundManager manager = Minecraft.getInstance().getSoundManager();
-        for (ResourceLocation sound : sounds) {
+        for (Identifier sound : sounds) {
             WeighedSoundEvents events = manager.getSoundEvent(sound);
             if (events == null || events.getSubtitle() == null) return;
             mutedSounds.add(Pair.of(sound, events.getSubtitle()));

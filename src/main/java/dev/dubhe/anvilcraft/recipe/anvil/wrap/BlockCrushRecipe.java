@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -175,7 +175,7 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (input == null) {
                 throw new IllegalArgumentException("Recipe input must not be null, RecipeId: " + id);
             }

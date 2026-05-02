@@ -14,7 +14,7 @@ import lombok.Getter;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -226,7 +226,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * @param fluid 流体ID
          * @return 构建器实例
          */
-        public Builder cauldron(ResourceLocation fluid) {
+        public Builder cauldron(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
@@ -248,7 +248,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * @param transform 转换后的流体ID
          * @return 构建器实例
          */
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
@@ -371,7 +371,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
         }
 
         @Override

@@ -8,7 +8,7 @@ import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
-    private static final ResourceLocation SMITHING_LOCATION = SharedTextures.bg("crafting", "royal_smithing_table");
-    private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_armor_trim");
-    private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_smithing_template_netherite_upgrade");
+    private static final Identifier SMITHING_LOCATION = SharedTextures.bg("crafting", "royal_smithing_table");
+    private static final Identifier EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM =
+        Identifier.withDefaultNamespace("item/empty_slot_smithing_template_armor_trim");
+    private static final Identifier EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE =
+        Identifier.withDefaultNamespace("item/empty_slot_smithing_template_netherite_upgrade");
     private static final Component MISSING_TEMPLATE_TOOLTIP =
         Component.translatable("container.upgrade.missing_template_tooltip");
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
-    private static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES =
+    private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES =
         List.of(EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
     public static final Quaternionf ARMOR_STAND_ANGLE =
         new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);

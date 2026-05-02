@@ -6,7 +6,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import org.joml.Matrix4f;
@@ -14,7 +14,7 @@ import org.joml.Matrix4f;
 import java.io.IOException;
 
 public class ModShaders {
-    public static final ResourceLocation LASER_BLOOM_LOCATION = ResourceLocation.fromNamespaceAndPath(
+    public static final Identifier LASER_BLOOM_LOCATION = Identifier.fromNamespaceAndPath(
         "anvilcraft",
         "shaders/post/bloom.json"
     );

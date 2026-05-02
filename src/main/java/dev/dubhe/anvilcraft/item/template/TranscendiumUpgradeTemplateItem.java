@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.item.template;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.SmithingTemplateItem;
 
 import java.util.List;
@@ -24,12 +24,12 @@ public class TranscendiumUpgradeTemplateItem extends SmithingTemplateItem {
         "screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.base_slot_description");
     private static final Component UPGRADE_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(
         "screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.additions_slot_description");
-    private static final ResourceLocation EMPTY_SLOT_PICKAXE =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_pickaxe");
-    private static final ResourceLocation EMPTY_SLOT_INGOT =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_ingot");
-    private static final ResourceLocation EMPTY_SLOT_HAMMER = AnvilCraft.of("item/empty_slot_hammer");
-    private static final ResourceLocation EMPTY_SLOT_BLOCK = AnvilCraft.of("item/empty_slot_block");
+    private static final Identifier EMPTY_SLOT_PICKAXE =
+        Identifier.withDefaultNamespace("item/empty_slot_pickaxe");
+    private static final Identifier EMPTY_SLOT_INGOT =
+        Identifier.withDefaultNamespace("item/empty_slot_ingot");
+    private static final Identifier EMPTY_SLOT_HAMMER = AnvilCraft.of("item/empty_slot_hammer");
+    private static final Identifier EMPTY_SLOT_BLOCK = AnvilCraft.of("item/empty_slot_block");
 
     public TranscendiumUpgradeTemplateItem(Properties properties) {
         super(

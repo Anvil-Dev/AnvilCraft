@@ -20,7 +20,7 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -145,7 +145,7 @@ public class RegistrumBlockRecipeLoader {
     ) {
         return (ctx, provider) -> {
             for (Item ingredient : ingredients) {
-                ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(ingredient);
+                Identifier location1 = BuiltInRegistries.ITEM.getKey(ingredient);
                 ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 1)
                     .pattern("AA")
                     .define('A', ingredient)
@@ -1947,7 +1947,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void copperPressurePlate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(Items.COPPER_INGOT);
+        Identifier location1 = BuiltInRegistries.ITEM.getKey(Items.COPPER_INGOT);
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 1)
             .pattern("AA")
             .define('A', Items.COPPER_INGOT)

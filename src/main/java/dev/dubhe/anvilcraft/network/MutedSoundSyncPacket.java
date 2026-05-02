@@ -8,15 +8,15 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 
-public record MutedSoundSyncPacket(List<ResourceLocation> sounds) implements IClientboundPacket {
+public record MutedSoundSyncPacket(List<Identifier> sounds) implements IClientboundPacket {
     public static final Type<MutedSoundSyncPacket> TYPE = IPacket.type(AnvilCraft.of("muted_sound_sync"));
     public static final StreamCodec<ByteBuf, MutedSoundSyncPacket> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()),
         MutedSoundSyncPacket::sounds,
         MutedSoundSyncPacket::new
     );

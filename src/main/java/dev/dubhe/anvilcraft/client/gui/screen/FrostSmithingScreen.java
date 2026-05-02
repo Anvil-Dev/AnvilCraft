@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
@@ -32,30 +32,30 @@ import java.util.List;
 import java.util.Optional;
 
 public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "frost_smithing_table");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "frost_smithing_table");
 
-    private static final ResourceLocation LEFT =
+    private static final Identifier LEFT =
         SharedTextures.textureGui("crafting/frost_smithing_table/button_left");
-    private static final ResourceLocation RIGHT =
+    private static final Identifier RIGHT =
         SharedTextures.textureGui("crafting/frost_smithing_table/button_right");
 
-    private static final ResourceLocation EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE =
+    private static final Identifier EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE =
         AnvilCraft.of("item/empty_slot_permutation_smithing_template");
-    private static final ResourceLocation EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE =
+    private static final Identifier EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE =
         AnvilCraft.of("item/empty_slot_deformation_smithing_template");
-    private static final ResourceLocation EMPTY_SLOT_INGOT =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_ingot");
+    private static final Identifier EMPTY_SLOT_INGOT =
+        Identifier.withDefaultNamespace("item/empty_slot_ingot");
 
     private static final Component MISSING_TEMPLATE_TOOLTIP = Component.translatable(
         "screen.anvilcraft.frost_smithing.tooltip.missing_template"
     );
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
 
-    private static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
+    private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
         EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE,
         EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE
     );
-    private static final List<ResourceLocation> EMPTY_SLOT_DEFORM_MATERIAL = List.of(
+    private static final List<Identifier> EMPTY_SLOT_DEFORM_MATERIAL = List.of(
         EMPTY_SLOT_INGOT
     );
     public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);

@@ -20,7 +20,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -46,9 +46,9 @@ import java.util.Optional;
  */
 public record HasCauldron(
     Vec3 offset,
-    ResourceLocation fluid,
+    Identifier fluid,
     int consume,
-    ResourceLocation transform,
+    Identifier transform,
     int produce,
     float chance,
     boolean ignited
@@ -56,12 +56,12 @@ public record HasCauldron(
     /**
      * 空炼药锅标识
      */
-    public static final ResourceLocation EMPTY = ResourceLocation.withDefaultNamespace("empty");
+    public static final Identifier EMPTY = Identifier.withDefaultNamespace("empty");
 
     /**
      * 空转换标识
      */
-    public static final ResourceLocation NULL = ResourceLocation.withDefaultNamespace("null");
+    public static final Identifier NULL = Identifier.withDefaultNamespace("null");
 
     /**
      * 构造一个炼药锅条件谓词
@@ -267,12 +267,12 @@ public record HasCauldron(
      * @param fluid 流体ID
      * @return 炼药锅方块
      */
-    public static Block getDefaultCauldron(ResourceLocation fluid) {
+    public static Block getDefaultCauldron(Identifier fluid) {
         if (fluid.equals(HasCauldron.EMPTY) || fluid.equals(HasCauldron.NULL)) return Blocks.CAULDRON;
         if (CompatUtil.F2C_TRANSFORM.containsKey(fluid)) return CompatUtil.F2C_TRANSFORM.get(fluid).get();
         String namespace = fluid.getNamespace();
         String path = fluid.getPath();
-        ResourceLocation cauldron = ResourceLocation.fromNamespaceAndPath(namespace, "%s_cauldron".formatted(path));
+        Identifier cauldron = Identifier.fromNamespaceAndPath(namespace, "%s_cauldron".formatted(path));
         Holder.Reference<Block> reference = BuiltInRegistries.BLOCK.getHolder(cauldron).orElse(null);
         Block block = Blocks.WATER_CAULDRON;
         if (reference != null) block = reference.value();
@@ -295,13 +295,13 @@ public record HasCauldron(
                 Vec3.CODEC
                     .fieldOf("offset")
                     .forGetter(HasCauldron::offset),
-                ResourceLocation.CODEC
+                Identifier.CODEC
                     .optionalFieldOf("fluid", EMPTY)
                     .forGetter(HasCauldron::fluid),
                 Codec.INT
                     .optionalFieldOf("consume", 0)
                     .forGetter(HasCauldron::consume),
-                ResourceLocation.CODEC
+                Identifier.CODEC
                     .optionalFieldOf("transform", NULL)
                     .forGetter(HasCauldron::transform),
                 Codec.INT
@@ -322,11 +322,11 @@ public record HasCauldron(
         public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = StreamCodecUtil.composite(
             StreamCodecUtil.VEC3,
             HasCauldron::offset,
-            ResourceLocation.STREAM_CODEC,
+            Identifier.STREAM_CODEC,
             HasCauldron::fluid,
             ByteBufCodecs.INT,
             HasCauldron::consume,
-            ResourceLocation.STREAM_CODEC,
+            Identifier.STREAM_CODEC,
             HasCauldron::transform,
             ByteBufCodecs.INT,
             HasCauldron::produce,
@@ -353,9 +353,9 @@ public record HasCauldron(
      */
     public static class Builder {
         private Vec3 offset = Vec3.ZERO;
-        private ResourceLocation fluid = HasCauldron.EMPTY;
+        private Identifier fluid = HasCauldron.EMPTY;
         private int consume = 0;
-        private ResourceLocation transform = HasCauldron.NULL;
+        private Identifier transform = HasCauldron.NULL;
         private int produce = 0;
         private float chance = 1;
         private boolean ignited = false;
@@ -437,7 +437,7 @@ public record HasCauldron(
          * @param fluid 流体ID
          * @return 构建器实例
          */
-        public Builder fluid(ResourceLocation fluid) {
+        public Builder fluid(Identifier fluid) {
             this.fluid = fluid;
             return this;
         }
@@ -459,7 +459,7 @@ public record HasCauldron(
          * @param transform 转换后的流体ID
          * @return 构建器实例
          */
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Identifier transform) {
             this.transform = transform;
             if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
             return this;

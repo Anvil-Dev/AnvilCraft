@@ -3,10 +3,10 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 
 public class HeatCollectorRenderer extends PowerProducerRenderer<HeatCollectorBlockEntity> {
-    public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
+    public static final ModelIdentifier MODEL = ModelIdentifier.standalone(
         AnvilCraft.of("block/heat_collector_cube")
     );
 
@@ -24,7 +24,7 @@ public class HeatCollectorRenderer extends PowerProducerRenderer<HeatCollectorBl
     }
 
     @Override
-    protected ModelResourceLocation getModel() {
+    protected ModelIdentifier getModel() {
         return MODEL;
     }
 }

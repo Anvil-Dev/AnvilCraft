@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
@@ -21,7 +21,7 @@ public class ConcreteRecipeLoader {
             Color color = entry.getKey();
             CementCauldronBlock cauldronBlock = entry.getValue().get();
             Item concrete = BuiltInRegistries.ITEM.get(
-                ResourceLocation.withDefaultNamespace("%s_concrete".formatted(color.getSerializedName()))
+                Identifier.withDefaultNamespace("%s_concrete".formatted(color.getSerializedName()))
             );
             Item reinforcedConcrete = BuiltInRegistries.ITEM.get(
                 AnvilCraft.of("reinforced_concrete_%s".formatted(color.getSerializedName()))

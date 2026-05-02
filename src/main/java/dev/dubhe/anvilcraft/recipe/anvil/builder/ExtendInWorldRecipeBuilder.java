@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import lombok.EqualsAndHashCode;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
@@ -125,7 +125,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @param fluid 液体ID
      * @return 当前构建器实例
      */
-    public ExtendInWorldRecipeBuilder hasCauldron(ResourceLocation fluid) {
+    public ExtendInWorldRecipeBuilder hasCauldron(Identifier fluid) {
         return this.with(HasCauldron.builder().fluid(fluid).offset(this.offset).build());
     }
 
@@ -136,7 +136,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @param fluid  液体ID
      * @return 当前构建器实例
      */
-    public ExtendInWorldRecipeBuilder hasCauldron(Vec3 offset, ResourceLocation fluid) {
+    public ExtendInWorldRecipeBuilder hasCauldron(Vec3 offset, Identifier fluid) {
         return this.with(HasCauldron.builder().fluid(fluid).offset(offset).build());
     }
 
@@ -149,7 +149,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @param fluid 液体ID
      * @return 当前构建器实例
      */
-    public ExtendInWorldRecipeBuilder hasCauldron(double x, double y, double z, ResourceLocation fluid) {
+    public ExtendInWorldRecipeBuilder hasCauldron(double x, double y, double z, Identifier fluid) {
         return this.with(HasCauldron.builder().fluid(fluid).offset(new Vec3(x, y, z)).build());
     }
 
@@ -160,7 +160,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @param consume 消耗量
      * @return 当前构建器实例
      */
-    public ExtendInWorldRecipeBuilder hasCauldron(ResourceLocation fluid, int consume) {
+    public ExtendInWorldRecipeBuilder hasCauldron(Identifier fluid, int consume) {
         return this.with(HasCauldron.builder().fluid(fluid).offset(this.offset).consume(consume).build());
     }
 
@@ -172,7 +172,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @param consume 消耗量
      * @return 当前构建器实例
      */
-    public ExtendInWorldRecipeBuilder hasCauldron(Vec3 offset, ResourceLocation fluid, int consume) {
+    public ExtendInWorldRecipeBuilder hasCauldron(Vec3 offset, Identifier fluid, int consume) {
         return this.with(HasCauldron.builder().fluid(fluid).offset(offset).consume(consume).build());
     }
 
@@ -186,7 +186,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @param consume 消耗量
      * @return 当前构建器实例
      */
-    public ExtendInWorldRecipeBuilder hasCauldron(double x, double y, double z, ResourceLocation fluid, int consume) {
+    public ExtendInWorldRecipeBuilder hasCauldron(double x, double y, double z, Identifier fluid, int consume) {
         return this.with(HasCauldron.builder().fluid(fluid).offset(new Vec3(x, y, z)).consume(consume).build());
     }
 

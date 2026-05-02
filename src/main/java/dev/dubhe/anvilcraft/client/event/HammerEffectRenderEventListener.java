@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -31,7 +31,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 public class HammerEffectRenderEventListener {
 
     public static final Pair<Direction, Component>[] DIRECTION_TEXTS;
-    public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(AnvilCraft.of("block/axis"));
+    public static final ModelIdentifier MODEL = ModelIdentifier.standalone(AnvilCraft.of("block/axis"));
 
     static {
         Pair<Direction, Component>[] texts = new Pair[Direction.values().length - 2];

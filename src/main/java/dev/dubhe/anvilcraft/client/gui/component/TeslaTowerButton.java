@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class TeslaTowerButton extends Button {
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     @Getter
     private final int index;
@@ -108,7 +108,7 @@ public class TeslaTowerButton extends Button {
 
     public void renderTexture(
         GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        Identifier texture,
         int x,
         int y,
         int puOffset,

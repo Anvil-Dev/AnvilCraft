@@ -32,7 +32,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -320,7 +320,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         double mouseX,
         double mouseY) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
-        ResourceLocation id = getRegistryName(recipeHolder);
+        Identifier id = getRegistryName(recipeHolder);
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
 
         if (mouseX >= 70 && mouseX <= 88) {

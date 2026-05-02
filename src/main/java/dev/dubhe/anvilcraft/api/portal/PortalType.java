@@ -8,7 +8,7 @@ import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Portal;
 
@@ -17,19 +17,19 @@ import java.util.Objects;
 @Getter
 public class PortalType {
     public static final MapCodec<PortalType> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-        ResourceLocation.CODEC
+        Identifier.CODEC
             .fieldOf("portal")
             .forGetter(PortalType::getId)
     ).apply(inst, PortalType::new));
     public static final StreamCodec<ByteBuf, PortalType> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC,
+        Identifier.STREAM_CODEC,
         PortalType::getId,
         PortalType::new
     );
-    private final ResourceLocation id;
+    private final Identifier id;
     private final Portal portal;
 
-    public PortalType(ResourceLocation id) {
+    public PortalType(Identifier id) {
         this.id = id;
         Block block = BuiltInRegistries.BLOCK.get(id);
         if (!(block instanceof Portal portal1)) {

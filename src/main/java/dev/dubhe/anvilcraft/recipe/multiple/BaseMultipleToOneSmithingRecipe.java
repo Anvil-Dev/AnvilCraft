@@ -18,7 +18,7 @@ import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -338,7 +338,7 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.template.items().isEmpty()) {
                 throw new IllegalArgumentException("The template of multiple to one recipe must not be empty, RecipeId: " + id);
             }

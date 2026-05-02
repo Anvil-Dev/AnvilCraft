@@ -7,12 +7,12 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.PillBocContents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class PillSelectorSupport {
     public static final PillSelectorSupport INSTANCE = new PillSelectorSupport();
-    public static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "pill_box");
+    public static final Identifier BACKGROUND = SharedTextures.bg("misc", "pill_box");
 
     private ItemStack pillBox = ItemStack.EMPTY;
     private PillBocContents contents = PillBocContents.EMPTY;

@@ -5,11 +5,11 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ItemCollectorButton extends Button {
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     /**
      * 物品收集器 screen 的加减按钮
@@ -26,7 +26,7 @@ public class ItemCollectorButton extends Button {
 
     public void renderTexture(
         GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        Identifier texture,
         int x,
         int y,
         int puOffset,

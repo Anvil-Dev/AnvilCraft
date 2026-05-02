@@ -16,7 +16,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -205,7 +205,7 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (ingredients.isEmpty() || ingredients.size() > 9) {
                 throw new IllegalArgumentException("Recipe ingredients size must in 0-9, RecipeId: " + id);
             }

@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
@@ -119,7 +119,7 @@ public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity>
     }
 
     @Override
-    public ResourceLocation getTextureLocation(CauldronOutletEntity entity) {
-        return ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/block/cauldron_outlet.png");
+    public Identifier getTextureLocation(CauldronOutletEntity entity) {
+        return Identifier.fromNamespaceAndPath("anvilcraft", "textures/block/cauldron_outlet.png");
     }
 }

@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -129,7 +129,7 @@ public class HeaterManager {
         this.heatableBlocks.add(pos);
 
         HeatableBlockEntity heatable = Util.castSafely(this.level.getBlockEntity(pos), HeatableBlockEntity.class).orElse(null);
-        Optional<ResourceLocation> idOp = HeatRecorder.getId(this.level, pos, heatableState);
+        Optional<Identifier> idOp = HeatRecorder.getId(this.level, pos, heatableState);
         if (idOp.isEmpty()) return;
         HeatTier tier = HeatRecorder.getTier(this.level, pos, heatableState)
             .orElseThrow(() -> new IllegalStateException("Unexpected non tier heatable block!"));

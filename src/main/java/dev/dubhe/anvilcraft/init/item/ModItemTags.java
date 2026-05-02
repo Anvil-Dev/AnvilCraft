@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.state.Color;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
@@ -181,11 +181,11 @@ public class ModItemTags {
     public static final Object2ObjectMap<Color, TagKey<Item>> DYED_COLORS = initDyedTags();
 
     public static TagKey<Item> bindC(String id) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", id));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", id));
     }
 
     public static TagKey<Item> bindCurios(String id) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("curios", id));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("curios", id));
     }
 
     public static TagKey<Item> bind(String id) {
