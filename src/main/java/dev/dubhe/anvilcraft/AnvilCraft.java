@@ -56,7 +56,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -160,17 +160,15 @@ public class AnvilCraft {
         ItemTooltipManager.addTooltip(event.getItemStack(), event.getToolTip());
     }
 
-    public static void addReloadListeners(AddReloadListenerEvent event) {
+    public static void addReloadListeners(AddServerReloadListenersEvent event) {
         RecipeManager recipeManager = event.getServerResources().getRecipeManager();
-        event.addListener((
+        event.addListener(AnvilCraft.of("on_reload"), (
+            _,
+            _,
             prepBarrier,
-            resourceManager,
-            prepProfiler,
-            reloadProfiler,
-            backgroundExecutor,
-            gameExecutor
+            reloadExecutor
         ) -> prepBarrier.wait(Unit.INSTANCE)
-            .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor));
+            .thenRunAsync(() -> RecipeCaches.reload(recipeManager), reloadExecutor));
     }
 
     public static void loadComplete(FMLLoadCompleteEvent event) {

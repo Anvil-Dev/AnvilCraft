@@ -4,12 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.criterion.ContextAwarePredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.Optional;
 
@@ -24,13 +26,17 @@ public class UseItemTrigger extends SimpleCriterionTrigger<UseItemTrigger.Trigge
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ItemPredicate> item) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-            EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
-            ItemPredicate.CODEC.optionalFieldOf("item").forGetter(TriggerInstance::item)
-        ).apply(instance, TriggerInstance::new));
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((inst) -> inst.group(
+            EntityPredicate.ADVANCEMENT_CODEC
+                .optionalFieldOf("player")
+                .forGetter(TriggerInstance::player),
+            ItemPredicate.CODEC
+                .optionalFieldOf("item")
+                .forGetter(TriggerInstance::item)
+        ).apply(inst, TriggerInstance::new));
 
-        public static Criterion<TriggerInstance> useItem(Item item) {
-            return useItem(ItemPredicate.Builder.item().of(item));
+        public static Criterion<TriggerInstance> useItem(HolderGetter<Item> items, ItemLike item) {
+            return useItem(ItemPredicate.Builder.item().of(items, item));
         }
 
         public static Criterion<TriggerInstance> useItem(ItemPredicate.Builder item) {

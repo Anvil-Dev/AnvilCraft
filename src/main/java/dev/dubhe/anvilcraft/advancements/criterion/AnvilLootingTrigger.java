@@ -4,9 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.criterion.ContextAwarePredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -39,11 +40,11 @@ public class AnvilLootingTrigger extends SimpleCriterionTrigger<AnvilLootingTrig
             );
         }
 
-        public static Criterion<TriggerInstance> looting(EntityType<?> entityType) {
+        public static Criterion<TriggerInstance> looting(HolderGetter<EntityType<?>> lookup, EntityType<?> entityType) {
             return ModCriterionTriggers.ANVIL_LOOTING.get().createCriterion(
                 new TriggerInstance(
                     Optional.empty(),
-                    Optional.of(EntityPredicate.wrap(EntityPredicate.Builder.entity().of(entityType).build())))
+                    Optional.of(EntityPredicate.wrap(EntityPredicate.Builder.entity().of(lookup, entityType).build())))
             );
         }
 

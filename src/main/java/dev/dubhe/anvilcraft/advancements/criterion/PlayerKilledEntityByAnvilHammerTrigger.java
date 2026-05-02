@@ -4,9 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.criterion.ContextAwarePredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -33,9 +34,11 @@ public class PlayerKilledEntityByAnvilHammerTrigger extends SimpleCriterionTrigg
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("entity").forGetter(TriggerInstance::entity)
         ).apply(instance, TriggerInstance::new));
 
-        public static Criterion<TriggerInstance> killedEntity(EntityType<?> type) {
+        public static Criterion<TriggerInstance> killedEntity(HolderGetter<EntityType<?>> lookup, EntityType<?> type) {
             return ModCriterionTriggers.PLAYER_KILLED_ENTITY_BY_ANVIL_HAMMER.get().createCriterion(
-                new TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(EntityPredicate.Builder.entity().of(type))))
+                new TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(
+                    EntityPredicate.Builder.entity().of(lookup, type)
+                )))
             );
         }
 

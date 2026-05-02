@@ -392,14 +392,14 @@
         </module>
         <module name="LambdaParameterName">
             <!-- Lambda参数名 -->
-            <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+            <property name="format" value="^(?:[a-z]([a-z0-9][a-zA-Z0-9]*)?|_)$"/>
             <!-- 格式 -->
             <message key="name.invalidPattern"
                      value="Lambda parameter name ''{0}'' must match pattern ''{1}''.Lambda参数名''{0}''必须匹配模式''{1}''。"/>
         </module>
         <module name="CatchParameterName">
             <!-- Catch参数名 -->
-            <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+            <property name="format" value="^(?:[a-z]([a-z0-9][a-zA-Z0-9]*)?|_)$"/>
             <!-- 格式 -->
             <message key="name.invalidPattern"
                      value="Catch parameter name ''{0}'' must match pattern ''{1}''.Catch参数名''{0}''必须匹配模式''{1}''。"/>
