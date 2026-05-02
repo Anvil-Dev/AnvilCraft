@@ -4,18 +4,25 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jspecify.annotations.Nullable;
 
 public class ResentfulAmberBlockEntity extends MobAmberBlockEntity {
     private ResentfulAmberBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    @Override
+    protected @Nullable Entity createDefaultEntity(Level level) {
+        return EntityType.ZOMBIE.create(level, EntitySpawnReason.SPAWN_ITEM_USE);
     }
 
     public static ResentfulAmberBlockEntity createBlockEntity(
@@ -31,14 +38,12 @@ public class ResentfulAmberBlockEntity extends MobAmberBlockEntity {
         Entity displayEntity = getOrCreateDisplayEntity(level);
         if (displayEntity == null) return;
         Vec3 center = blockPos.getCenter();
-        Entity nearest = level.getNearestEntity(
-            Player.class,
-            TargetingConditions.forNonCombat(),
-            null,
+        Player nearest = level.getNearestPlayer(
             center.x,
             center.y,
             center.z,
-            AABB.ofSize(center, 8, 8, 8)
+            8,
+            false
         );
         if (nearest == null) return;
         displayEntity.setPos(blockPos.getCenter());

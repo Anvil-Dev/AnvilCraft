@@ -52,6 +52,7 @@ import dev.dubhe.anvilcraft.item.HeavyHalberdCoreItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.IonoCraftItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
+import dev.dubhe.anvilcraft.item.ModTiers;
 import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
@@ -116,6 +117,7 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -153,6 +155,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<GeodeItem> GEODE = REGISTRUM.item("geode", GeodeItem::new).register();
     public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRUM.item("amethyst_pickaxe", AmethystPickaxeItem::new)
+        .properties(properties -> properties.pickaxe(ToolMaterial.WOOD.AMETHYST))
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.FORTUNE, 3))
         .recipe(RegistrumItemRecipeLoader.pickaxe(
             Items.AMETHYST_SHARD,
@@ -1043,7 +1046,7 @@ public class ModItems {
         return REGISTRUM.item("%s_cement_bucket".formatted(color), p -> new BucketItem(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
             .tag(Tags.Items.BUCKETS, ModItemTags.CEMENT_BUCKETS)
             .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
-            .model(ModelProviderUtil::bucket)
+            .model(() -> ModelGeProviderUtil::bucket)
             .register();
     }
 

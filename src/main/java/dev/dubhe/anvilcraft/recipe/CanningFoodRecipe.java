@@ -1,14 +1,16 @@
 package dev.dubhe.anvilcraft.recipe;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.food.FoodProperties;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.component.UseRemainder;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -19,9 +21,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class CanningFoodRecipe extends CustomRecipe {
-    public CanningFoodRecipe(CraftingBookCategory category) {
-        super(category);
-    }
+    private static final CanningFoodRecipe INSTANCE = new CanningFoodRecipe();
+    public static final MapCodec<CanningFoodRecipe> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CanningFoodRecipe> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static final RecipeSerializer<CanningFoodRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
     public boolean isFood(ItemStack foodStack) {
         if (foodStack.is(ModFoodItems.CANNED_FOOD)) return false;
@@ -58,7 +61,8 @@ public class CanningFoodRecipe extends CustomRecipe {
         return canCount == 1 && foodCount >= 1 && foodCount <= 5;
     }
 
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    @Override
+    public ItemStack assemble(CraftingInput input) {
         ItemStack food = ItemStack.EMPTY;
         for (ItemStack item : input.items()) {
             if (food.isEmpty() && isFood(item)) {
@@ -78,29 +82,22 @@ public class CanningFoodRecipe extends CustomRecipe {
 
         for (int i = 0; i < remainingItems.size(); i++) {
             ItemStack item = input.getItem(i);
-            if (item.hasCraftingRemainingItem()) {
-                remainingItems.set(i, item.getCraftingRemainingItem());
+            if (item.getCraftingRemainder() != null) {
+                remainingItems.set(i, item.getCraftingRemainder().create());
             } else {
                 int finalI = i;
-                Optional.ofNullable(item.get(DataComponents.FOOD))
-                    .flatMap(FoodProperties::usingConvertsTo)
-                    .ifPresent(stack -> remainingItems.set(finalI, stack.copy()));
+                Optional.ofNullable(item.get(DataComponents.USE_REMAINDER))
+                    .map(UseRemainder::convertInto)
+                    .map(ItemStackTemplate::create)
+                    .ifPresent(stack -> remainingItems.set(finalI, stack));
             }
         }
 
         return remainingItems;
     }
 
-    /**
-     * Used to determine if this recipe can fit in a grid of the given width/height
-     */
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<CanningFoodRecipe> getSerializer() {
         return ModRecipeTypes.CANNING_FOOD_SERIALIZER.get();
     }
 }

@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class AdvancementLineHelper {
@@ -374,9 +375,15 @@ public class AdvancementLineHelper {
         }
 
         public AdvancementHolder build(String id) {
-            AdvancementHolder holder = this.current.build(AnvilCraft.advancementOf(id));
+            AdvancementHolder holder = this.current.build(AnvilCraft.advancement(id));
             this.lineHelper.parent = holder;
             return holder;
+        }
+
+        public AdvancementHolder save(Consumer<AdvancementHolder> output, String id) {
+            AdvancementHolder advancement = this.build(id);
+            output.accept(advancement);
+            return advancement;
         }
     }
 }

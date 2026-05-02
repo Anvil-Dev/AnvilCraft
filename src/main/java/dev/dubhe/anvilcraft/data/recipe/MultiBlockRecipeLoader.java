@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -201,7 +201,7 @@ public class MultiBlockRecipeLoader {
             .symbol('A', ModBlocks.MENGER_SPONGE)
             .save(provider, AnvilCraft.of("multiblock/menger_sponge_2"));
 
-        MultiblockRecipe.builder("anvilcraft:deflection_ring", 1)
+        MultiblockRecipe.builder(ModBlocks.DEFLECTION_RING, 1)
             .layer("ABA", "BAB", "ABA")
             .layer("   ", "   ", "   ")
             .layer("ABA", "BAB", "ABA")
@@ -209,7 +209,7 @@ public class MultiBlockRecipeLoader {
             .symbol('B', "anvilcraft:heavy_iron_block")
             .save(provider);
 
-        MultiblockRecipe.builder("anvilcraft:acceleration_ring", 1)
+        MultiblockRecipe.builder(ModBlocks.ACCELERATION_RING, 1)
             .layer("ABA", "B B", "ABA")
             .layer("CDC", "D D", "CDC")
             .layer("ABA", "B B", "ABA")

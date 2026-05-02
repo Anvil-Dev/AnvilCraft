@@ -2,28 +2,24 @@ package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -31,8 +27,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class HasMobBlockItem extends BlockItem {
     public HasMobBlockItem(Block block, Properties properties) {
@@ -40,42 +36,21 @@ public class HasMobBlockItem extends BlockItem {
     }
 
     @Override
-    public void verifyComponentsAfterLoad(ItemStack stack) {
-        super.verifyComponentsAfterLoad(stack);
-        if (stack.has(ModComponents.SAVED_ENTITY)) return;
-        if (
-            !stack.is(ModBlocks.MOB_AMBER_BLOCK.asItem())
-            && !stack.is(ModBlocks.RESENTFUL_AMBER_BLOCK.asItem())
-        ) {
-            return;
-        }
-        Identifier id;
-        boolean isMonster = false;
-        if (stack.is(ModBlocks.RESENTFUL_AMBER_BLOCK.asItem())) {
-            isMonster = true;
-            id = BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.ZOMBIE);
-        } else {
-            id = BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.MOOSHROOM);
-        }
-        CompoundTag tag = new CompoundTag();
-        tag.putString("id", id.toString());
-        SavedEntity savedEntity = new SavedEntity(tag, isMonster);
-        stack.set(ModComponents.SAVED_ENTITY, savedEntity);
-    }
-
-    @Override
+    @SuppressWarnings("deprecation")
     public void appendHoverText(
         ItemStack stack,
-        Item.TooltipContext context,
-        List<Component> tooltipComponents,
-        TooltipFlag isAdvanced
+        TooltipContext context,
+        TooltipDisplay display,
+        Consumer<Component> builder,
+        TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
+        super.appendHoverText(stack, context, display, builder, tooltipFlag);
         if (!HasMobBlockItem.hasMob(stack)) return;
         Optional.ofNullable(context.level())
             .map(level -> HasMobBlockItem.getMobFromItem(level, stack))
-            .ifPresent(entity -> tooltipComponents.add(
-                Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)));
+            .ifPresent(entity -> builder.accept(
+                Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)
+            ));
     }
 
     @Override
@@ -125,7 +100,7 @@ public class HasMobBlockItem extends BlockItem {
             return ItemStack.EMPTY;
         }
 
-        SavedEntity savedEntity = SavedEntity.fromMob(entity);
+        SavedEntity savedEntity = SavedEntity.fromEntity(entity);
         ItemStack newStack = stack.split(1);
         newStack.set(ModComponents.SAVED_ENTITY, savedEntity);
         if (entity instanceof Villager villager) {

@@ -2040,7 +2040,6 @@ public class ModBlocks {
         .lang("Block of Amber with Mob")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
-        .recipe(RegistrumBlockRecipeLoader::mobAmberBlock)
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
         .loot((ctx, prov) -> {
@@ -3120,7 +3119,6 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe(RegistrumBlockRecipeLoader::nestingShulkerBox)
         .register();
 
     public static final BlockEntry<OverNestingShulkerBoxBlock> OVER_NESTING_SHULKER_BOX = REGISTRUM.block(
@@ -3138,7 +3136,6 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe(RegistrumBlockRecipeLoader::overNestingShulkerBox)
         .register();
 
     public static final BlockEntry<SupercriticalNestingShulkerBoxBlock> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRUM.block(
@@ -3156,7 +3153,6 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe(RegistrumBlockRecipeLoader::supercriticalNestingShulkerBox)
         .register();
 
     public static final BlockEntry<ExpFluidBlock> EXP_FLUID = REGISTRUM.block(

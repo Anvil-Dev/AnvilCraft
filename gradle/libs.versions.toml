@@ -6,7 +6,7 @@ jade = "21.1.7+neoforge"
 modDevGradle = "2.0.141"
 lombok = "8.7.1"
 machete = "1.+"
-anvillib = "2.0.0+snapshot.330"
+anvillib = "2.0.0+snapshot.332"
 sodium = "mc26.1.2-0.8.10-neoforge"
 iris = "1.10.9+26.1-neoforge"
 

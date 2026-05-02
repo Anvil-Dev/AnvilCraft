@@ -156,7 +156,7 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION_TYPE =
         registerType("multiblock_conversion");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockRecipe>> MULTIBLOCK_SERIALIZER =
-        RECIPE_SERIALIZERS.register("multiblock", MultiblockRecipe.Serializer::new);
+        RECIPE_SERIALIZERS.register("multiblock", MultiblockRecipe::serializer);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockConversionRecipe>>
         MULTIBLOCK_CONVERSION_SERIALIZER =
         RECIPE_SERIALIZERS.register("multiblock_conversion", MultiblockConversionRecipe.Serializer::new);
@@ -178,10 +178,10 @@ public class ModRecipeTypes {
         RECIPE_SERIALIZERS.register("jewel_crafting", JewelCraftingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CanningFoodRecipe>> CANNING_FOOD_SERIALIZER =
-        RECIPE_SERIALIZERS.register("canning_food", () -> new SimpleCraftingRecipeSerializer<>(CanningFoodRecipe::new));
+        RECIPE_SERIALIZERS.register("canning_food", () -> CanningFoodRecipe.SERIALIZER);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PillRecipe>> PILL_RECIPE_SERIALIZER =
-        RECIPE_SERIALIZERS.register("pill_recipe", () -> new SimpleCraftingRecipeSerializer<>(PillRecipe::new));
+        RECIPE_SERIALIZERS.register("pill_recipe", () -> PillRecipe.SERIALIZER);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<ChargerChargingRecipe>> CHARGER_CHARGING_TYPE =
         registerType("charger_charging");

@@ -5,8 +5,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
@@ -15,13 +14,13 @@ import net.minecraft.world.level.block.Block;
 public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     private BlockPattern pattern = BlockPattern.create();
-    private ItemStack result;
+    private ItemStackTemplate result;
 
     public MultiblockBuilder() {
     }
 
     public MultiblockBuilder(ItemLike item, int count) {
-        this.result = new ItemStack(item, count);
+        this.result = new ItemStackTemplate(item.asItem(), count);
     }
 
     public MultiblockBuilder layer(String... layers) {
@@ -48,7 +47,7 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     @Override
     public MultiblockRecipe buildRecipe() {
-        return new MultiblockRecipe(pattern, result);
+        return new MultiblockRecipe(this.pattern, this.result);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
     }
 
     @Override
-    public Item getResult() {
-        return result.getItem();
+    public ItemStackTemplate getResult() {
+        return this.result;
     }
 }

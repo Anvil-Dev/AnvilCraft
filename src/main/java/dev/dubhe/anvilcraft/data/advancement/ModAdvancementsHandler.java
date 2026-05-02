@@ -1,5 +1,6 @@
-package dev.dubhe.anvilcraft.init;
+package dev.dubhe.anvilcraft.data.advancement;
 
+import dev.anvilcraft.lib.v2.registrum.providers.RegistrumAdvancementProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
@@ -13,7 +14,6 @@ import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -21,12 +21,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
-import java.util.function.Consumer;
 
-public class ModAdvancements implements AdvancementSubProvider {
+public class ModAdvancementsHandler {
     @SuppressWarnings("unused")
-    @Override
-    public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> output) {
+    public static void init(RegistrumAdvancementProvider provider) {
+        HolderLookup.Provider registries = provider.getProvider();
         HolderLookup<Item> itemLookup = registries.lookupOrThrow(Registries.ITEM);
         HolderLookup<EntityType<?>> entityTypeLookup = registries.lookupOrThrow(Registries.ENTITY_TYPE);
         AdvancementLineHelper mainLine = new AdvancementLineHelper();
@@ -43,7 +42,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .playerFirstDetected("join")
             .rewardLoot(ModLootTables.ADVANCEMENT_ROOT)
-            .build("root");
+            .save(provider, "root");
 
         AdvancementLineHelper clawLine = mainLine.createBranch();
         AdvancementHolder crabClaw = clawLine.next()
@@ -58,7 +57,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .hasItems("has_crab_claw", ModItems.CRAB_CLAW)
-            .build("crab_claw");
+            .save(provider, "crab_claw");
         AdvancementHolder placer = clawLine.next()
             .display(
                 ModBlocks.BLOCK_PLACER.asItem(),
@@ -71,7 +70,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .placerPlace("placer_place_placer", ModBlocks.BLOCK_PLACER)
-            .build("block_placer");
+            .save(provider, "block_placer");
         AdvancementHolder devourer = clawLine.next()
             .display(
                 ModBlocks.BLOCK_DEVOURER.asItem(),
@@ -84,7 +83,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .devourerDevour("devourer_devour_devourer", ModBlocks.BLOCK_DEVOURER)
-            .build("block_devourer");
+            .save(provider, "block_devourer");
 
         AdvancementLineHelper geodeLine = mainLine.createBranch();
         AdvancementHolder geode = geodeLine.next()
@@ -99,7 +98,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .useItem("use_geode", itemLookup, ModItems.GEODE)
-            .build("geode");
+            .save(provider, "geode");
         AdvancementHolder amethystPickaxe = geodeLine.next()
             .display(
                 ModItems.AMETHYST_PICKAXE,
@@ -112,7 +111,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .recipeAnc("crafting_amethyst_pickaxe", "amethyst_pickaxe")
-            .build("amethyst_pickaxe");
+            .save(provider, "amethyst_pickaxe");
         AdvancementHolder topaz = geodeLine.next()
             .display(
                 ModItems.TOPAZ,
@@ -125,7 +124,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .useItem("use_topaz", itemLookup, ModItems.TOPAZ)
-            .build("topaz");
+            .save(provider, "topaz");
         AdvancementHolder liftingAnvil = geodeLine.next()
             .display(
                 ModBlocks.MAGNET_BLOCK,
@@ -139,7 +138,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .liftingAnvil("lifting_anvil")
             .anvilOnGround("anvil_on_ground")
-            .build("lifting_anvil");
+            .save(provider, "lifting_anvil");
 
         AdvancementLineHelper autoLine = mainLine.createBranch();
         AdvancementHolder redstoneMilker = autoLine.next()
@@ -154,7 +153,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .milk("milk")
-            .build("redstone_milker");
+            .save(provider, "redstone_milker");
         AdvancementHolder realLooting = autoLine.next()
             .display(
                 Blocks.ANVIL,
@@ -167,7 +166,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .anvilLooting("anvil_looting")
-            .build("real_looting");
+            .save(provider, "real_looting");
         AdvancementHolder ironMeterReversal = autoLine.next()
             .display(
                 Blocks.IRON_BLOCK,
@@ -181,7 +180,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .anvilLooting("anvil_looting_iron_golem", entityTypeLookup, EntityType.IRON_GOLEM)
             .repairIronGolem("repair_iron_golem")
-            .build("iron_meter_reversal");
+            .save(provider, "iron_meter_reversal");
 
         AdvancementHolder dang = mainLine.next()
             .display(
@@ -195,7 +194,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .inWorldRecipe("anything_anvil_crafting")
-            .build("dang");
+            .save(provider, "dang");
 
         AdvancementLineHelper stoneLine = mainLine.createBranch();
         AdvancementHolder stoneCrusher = stoneLine.next()
@@ -211,7 +210,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .inWorldRecipeAnc("crush_cobblestone", "block_crush/gravel")
             .inWorldRecipeAnc("crush_gravel", "block_crush/sand")
-            .build("stone_crusher");
+            .save(provider, "stone_crusher");
         AdvancementHolder fossick = stoneLine.next()
             .display(
                 Items.GOLD_NUGGET,
@@ -224,7 +223,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .inWorldRecipeAnc("mesh", "mesh/sand")
-            .build("fossick");
+            .save(provider, "fossick");
 
         AdvancementLineHelper iceLine = mainLine.createBranch();
         AdvancementHolder iceMaker = iceLine.next()
@@ -239,7 +238,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .inWorldRecipeAnc("make_ice", "squeezing/powder_snow_cauldron_from_snow_block")
-            .build("ice_maker");
+            .save(provider, "ice_maker");
         AdvancementHolder four281 = iceLine.next()
             .display(
                 Items.BLUE_ICE,
@@ -253,7 +252,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .inWorldRecipeAnc("packed_ice", "block_compress/packed_ice")
             .inWorldRecipeAnc("blue_ice", "block_compress/blue_ice")
-            .build("4281");
+            .save(provider, "4281");
 
         AdvancementLineHelper stampingLine = mainLine.createBranch();
         AdvancementHolder vanillaIronPlate = stampingLine.next()
@@ -268,7 +267,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .inWorldRecipeAnc("heavy_weighted_pressure_plate", "stamping/heavy_weighted_pressure_plate")
-            .build("vanilla_iron_plate");
+            .save(provider, "vanilla_iron_plate");
         AdvancementHolder recyclingDiamonds = stampingLine.next()
             .display(
                 Items.DIAMOND,
@@ -291,7 +290,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .inWorldRecipeAnc("diamond_leggings", "item_crush/armor/diamond_leggings_2_diamond")
             .inWorldRecipeAnc("diamond_boots", "item_crush/armor/diamond_boots_2_diamond")
             .inWorldRecipeAnc("diamond_horse_armor", "item_crush/armor/diamond_horse_armor_2_diamond")
-            .build("recycling_diamonds");
+            .save(provider, "recycling_diamonds");
 
         AdvancementHolder allInOne = mainLine.next()
             .display(
@@ -319,7 +318,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 List.of("shift_right_click"),
                 List.of("hurt_entity")
             )
-            .build("all_in_one");
+            .save(provider, "all_in_one");
 
         AdvancementLineHelper killingLine = mainLine.createBranch();
         AdvancementHolder hammerAndNail = killingLine.next()
@@ -341,7 +340,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .hammerKill("kill_cow", entityTypeLookup, EntityType.COW)
             .hammerKill("kill_sheep", entityTypeLookup, EntityType.SHEEP)
             .hammerKill("kill_chicken", entityTypeLookup, EntityType.CHICKEN)
-            .build("hammer");
+            .save(provider, "hammer");
         AdvancementHolder superKill = killingLine.next()
             .display(
                 ModItems.ROYAL_ANVIL_HAMMER,
@@ -354,7 +353,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .hammerHurt("super_kill", 80)
-            .build("super_kill");
+            .save(provider, "super_kill");
 
         AdvancementHolder hertsOfIron = mainLine.next()
             .display(
@@ -368,7 +367,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .recipeAnc("craft_magnetoelectric_core", "magnetoelectric_core")
-            .build("hearts_of_iron");
+            .save(provider, "hearts_of_iron");
 
         AdvancementLineHelper generateElectLine = mainLine.createBranch();
         AdvancementHolder notBeacon = generateElectLine.next()
@@ -384,7 +383,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .recipeAnc("craft_charge_collector", "charge_collector")
             .playerPlace("place_charge_collector", ModBlocks.CHARGE_COLLECTOR)
-            .build("not_beacon");
+            .save(provider, "not_beacon");
         AdvancementHolder lighter = generateElectLine.next()
             .display(
                 ModBlocks.PIEZOELECTRIC_CRYSTAL,
@@ -397,7 +396,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .hitPiezoelectricCrystal("hit_piezoelectric_crystal")
-            .build("lighter");
+            .save(provider, "lighter");
 
         AdvancementHolder networking = mainLine.next()
             .display(
@@ -412,7 +411,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .recipeAnc("craft_transmission_pole", "transmission_pole")
             .playerPlace("place_transmission_pole", ModBlocks.TRANSMISSION_POLE)
-            .build("networking");
+            .save(provider, "networking");
         AdvancementHolder electricFieldRhythm = mainLine.next()
             .display(
                 ModItems.ANVIL_HAMMER,
@@ -425,7 +424,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .wearHammer("wear_anvil_hammer")
-            .build("electric_filed_rhythm");
+            .save(provider, "electric_filed_rhythm");
         AdvancementHolder industrialGradeSmelting = mainLine.next()
             .display(
                 ModBlocks.HEATER,
@@ -438,7 +437,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .inWorldRecipeTypeAnc("super_heating", "super_heating")
-            .build("industrial_grade_smelting");
+            .save(provider, "industrial_grade_smelting");
         AdvancementHolder nobleMetal = mainLine.next()
             .display(
                 ModItems.ROYAL_STEEL_INGOT,
@@ -452,7 +451,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .requireAny()
             .hasItemAny("has_", ModBlocks.ROYAL_STEEL_BLOCK, ModItems.ROYAL_STEEL_INGOT, ModItems.ROYAL_STEEL_NUGGET)
-            .build("noble_metal");
+            .save(provider, "noble_metal");
 
         AdvancementHolder overseer = mainLine.createBranch().next()
             .display(
@@ -466,7 +465,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .recipeAnc("craft_overseer", "overseer")
-            .build("overseer");
+            .save(provider, "overseer");
 
         AdvancementHolder smithingTable = mainLine.next()
             .display(
@@ -480,7 +479,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .recipeAnc("craft_smithing", "smithing/royal_smithing_table")
-            .build("smithing_table");
+            .save(provider, "smithing_table");
 
         AdvancementHolder durableGoods = mainLine.createBranch().next()
             .display(
@@ -499,7 +498,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .recipeAnc("royal_steel_shovel", "smithing/royal_steel_shovel")
             .recipeAnc("royal_steel_hoe", "smithing/royal_steel_hoe")
             .recipeAnc("royal_steel_sword", "smithing/royal_steel_sword")
-            .build("durable_goods");
+            .save(provider, "durable_goods");
 
         AdvancementHolder royalBlacksmith = mainLine.next()
             .display(
@@ -515,7 +514,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .hasItems("has_royal_anvil", ModBlocks.ROYAL_ANVIL)
             .hasItems("has_royal_smithing_table", ModBlocks.ROYAL_SMITHING_TABLE)
             .hasItems("has_royal_grindstone", ModBlocks.ROYAL_GRINDSTONE)
-            .build("royal_blacksmith");
+            .save(provider, "royal_blacksmith");
         AdvancementHolder wither = mainLine.next()
             .display(
                 ModBlocks.CORRUPTED_BEACON,
@@ -528,7 +527,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .convertBeacon("convert_beacon")
-            .build("wither");
+            .save(provider, "wither");
         AdvancementHolder ripVanWinkle = mainLine.next()
             .display(
                 ModBlocks.CORRUPTED_BEACON,
@@ -541,7 +540,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .inWorldRecipeTypeAnc("time_warp_recipe", "time_warp")
-            .build("rip_van_winkle");
+            .save(provider, "rip_van_winkle");
 
         AdvancementLineHelper frostLine = mainLine.createBranch();
         AdvancementHolder frostMetal = frostLine.next()
@@ -557,7 +556,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .requireAny()
             .hasItemAny("has_", ModBlocks.FROST_METAL_BLOCK, ModItems.FROST_METAL_INGOT, ModItems.FROST_METAL_NUGGET)
-            .build("frost_metal");
+            .save(provider, "frost_metal");
         AdvancementHolder taiShangWangQing = frostLine.next()
             .display(
                 ModItems.FROST_METAL_SWORD,
@@ -579,7 +578,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 ModItems.FROST_METAL_HOE,
                 ModItems.FROST_METAL_HEAVY_HALBERD
             )
-            .build("tai_shang_wang_qing");
+            .save(provider, "tai_shang_wang_qing");
 
         AdvancementLineHelper emberLine = mainLine.createBranch();
         AdvancementHolder forAeons = emberLine.next()
@@ -604,7 +603,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .inWorldRecipeAnc("oil_from_rotten_flesh", "time_warp/oil_from_rotten_flesh")
             .inWorldRecipeAnc("oil_from_spider_eye", "time_warp/oil_from_spider_eye")
             .inWorldRecipeAnc("oil_from_zombie_head", "time_warp/oil_from_zombie_head")
-            .build("for_aeons");
+            .save(provider, "for_aeons");
         AdvancementHolder forgedOverEons = emberLine.next()
             .display(
                 ModItems.EMBER_METAL_INGOT,
@@ -620,7 +619,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .hasItems("has_ember_metal_block", ModBlocks.EMBER_METAL_BLOCK)
             .hasItems("has_ember_metal_ingot", ModItems.EMBER_METAL_INGOT)
             .hasItems("has_ember_metal_nugget", ModItems.EMBER_METAL_NUGGET)
-            .build("forged_over_eons");
+            .save(provider, "forged_over_eons");
         AdvancementHolder selfInFlaming = emberLine.next()
             .display(
                 ModItems.EMBER_METAL_PICKAXE,
@@ -633,7 +632,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .fireReforge("fire_reforge")
-            .build("self_in_flaming");
+            .save(provider, "self_in_flaming");
 
         AdvancementLineHelper gemLine = mainLine.createBranch();
         AdvancementHolder gemTransform = gemLine.next()
@@ -652,7 +651,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .inWorldRecipeAnc("ruby_block", "time_warp/ruby_block")
             .inWorldRecipeAnc("sapphire_block", "time_warp/sapphire_block")
             .inWorldRecipeAnc("topaz_block", "time_warp/topaz_block")
-            .build("gem_transform");
+            .save(provider, "gem_transform");
 
         AdvancementLineHelper laserLine = gemLine.createBranch();
         AdvancementHolder laser = laserLine.next()
@@ -667,7 +666,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .hasItems("has_ruby_laser", ModBlocks.RUBY_LASER)
-            .build("laser");
+            .save(provider, "laser");
         AdvancementHolder orePoint = laserLine.next()
             .display(
                 ModBlocks.MINERAL_FOUNTAIN,
@@ -680,7 +679,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .mineralFountainCreate("mineral_fountain_create")
-            .build("ore_point");
+            .save(provider, "ore_point");
 
         AdvancementHolder heatUtilizing = gemLine.next()
             .display(
@@ -694,7 +693,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .hasItems("has_heat_collector", ModBlocks.HEAT_COLLECTOR)
-            .build("heat_utilizing");
+            .save(provider, "heat_utilizing");
 
         AdvancementHolder isotopeDecayBattery = gemLine.createBranch().next()
             .display(
@@ -708,7 +707,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .heatCollectOn("nuclear_sources", BlockStatePredicate.builder().of(ModBlocks.URANIUM_BLOCK, ModBlocks.PLUTONIUM_BLOCK))
-            .build("isotope_decay_battery");
+            .save(provider, "isotope_decay_battery");
 
         AdvancementHolder superHeat = gemLine.next()
             .display(
@@ -722,7 +721,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .heatCollectorOutput("super_heat", MinMaxBounds.Ints.atLeast(HeatCollectorBlockEntity.MAX_OUTPUT_POWER))
-            .build("super_heat");
+            .save(provider, "super_heat");
 
         AdvancementHolder giantAge = mainLine.next()
             .display(
@@ -736,7 +735,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .hasItems("has_giant_anvil", ModBlocks.GIANT_ANVIL)
-            .build("giant_age");
+            .save(provider, "giant_age");
         AdvancementHolder anvilAccelerator = mainLine.next()
             .display(
                 ModBlocks.ACCELERATION_RING,
@@ -751,7 +750,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .requireAll()
             .hasItems("has_acceleration_ring", ModBlocks.ACCELERATION_RING)
             .hasItems("has_deflection_ring", ModBlocks.DEFLECTION_RING)
-            .build("anvil_accelerator");
+            .save(provider, "anvil_accelerator");
 
         AdvancementLineHelper sideLine1 = mainLine.createBranch();
         AdvancementHolder newMatter = sideLine1.next()
@@ -769,7 +768,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .recipeAnc("uranium", "anvil_collision/anvil_tier_1_and_redstone_block_32")
             .recipeAnc("multiphase_matter", "anvil_collision/ember_anvil_and_frost_metal_block_32")
             .recipeAnc("negative_matter", "anvil_collision/anvil_tier_1_and_levitation_powder_block_32")
-            .build("new_matter");
+            .save(provider, "new_matter");
         AdvancementHolder anvilon = sideLine1.next()
             .display(
                 ModBlocks.CONFINED_SPACE_ANVILON,
@@ -788,7 +787,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .recipeAnc("energy_4_beacon", "anvil_collision/anvil_tier_0_and_corrupted_beacon_128")
             .recipeAnc("space_8", "anvil_collision/anvil_tier_0_and_space_overcompressor_32")
             .recipeAnc("energy_4_space", "anvil_collision/anvil_tier_0_and_space_overcompressor_128")
-            .build("anvilon");
+            .save(provider, "anvilon");
 
         AdvancementHolder overheated = mainLine.next()
             .display(
@@ -804,7 +803,7 @@ public class ModAdvancements implements AdvancementSubProvider {
             .requireAny()
             .recipeAnc("uranium_heat", "anvil_collision/anvil_tier_2_and_uranium_block_256")
             .recipeAnc("plutonium_heat", "anvil_collision/anvil_tier_2_and_plutonium_block_256")
-            .build("overheated");
+            .save(provider, "overheated");
 
         AdvancementHolder nuclearPower10a = mainLine.createBranch().next()
             .display(
@@ -818,7 +817,7 @@ public class ModAdvancements implements AdvancementSubProvider {
                 false
             )
             .heatCollectOn("collect_overheated", BlockStatePredicate.builder().of(ModBlockTags.OVERHEATED_BLOCKS))
-            .build("nuclear_power_10a");
+            .save(provider, "nuclear_power_10a");
 
         AdvancementHolder transcendence = mainLine.next()
             .display(
@@ -833,6 +832,6 @@ public class ModAdvancements implements AdvancementSubProvider {
             )
             .requireAny()
             .hasItemAny("has_", ModBlocks.TRANSCENDIUM_BLOCK, ModItems.TRANSCENDIUM_INGOT, ModItems.TRANSCENDIUM_NUGGET)
-            .build("transcendence");
+            .save(provider, "transcendence");
     }
 }

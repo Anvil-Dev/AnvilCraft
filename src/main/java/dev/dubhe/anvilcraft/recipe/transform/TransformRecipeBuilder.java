@@ -5,17 +5,21 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 public class TransformRecipeBuilder {
     protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
@@ -48,9 +52,9 @@ public class TransformRecipeBuilder {
         return this;
     }
 
-    public TransformRecipeBuilder predicate(Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
+    public TransformRecipeBuilder predicate(UnaryOperator<NumericTagValuePredicate.Builder> predicateBuilder) {
         NumericTagValuePredicate.Builder builder = NumericTagValuePredicate.builder();
-        predicateBuilder.accept(builder);
+        builder = predicateBuilder.apply(builder);
         predicates.add(builder.build());
         return this;
     }
@@ -81,13 +85,14 @@ public class TransformRecipeBuilder {
     }
 
     public void save(RecipeOutput output, Identifier id) {
+        ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, id);
         Advancement.Builder advancement = output
             .advancement()
-            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-            .rewards(AdvancementRewards.Builder.recipe(id))
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+            .rewards(AdvancementRewards.Builder.recipe(key))
             .requirements(AdvancementRequirements.Strategy.OR);
-        criteria.forEach(advancement::addCriterion);
+        this.criteria.forEach(advancement::addCriterion);
         MobTransformRecipe recipe = create();
-        output.accept(id, recipe, advancement.build(id.withPrefix("recipe/")));
+        output.accept(key, recipe, advancement.build(id.withPrefix("recipe/")));
     }
 }

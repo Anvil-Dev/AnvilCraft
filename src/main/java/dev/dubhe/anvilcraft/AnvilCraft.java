@@ -35,7 +35,7 @@ import dev.dubhe.anvilcraft.init.item.ModAmuletTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
-import dev.dubhe.anvilcraft.init.item.ModItemSubPredicates;
+import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
 import dev.dubhe.anvilcraft.init.loot.ModLootItemConditions;
@@ -96,7 +96,7 @@ public class AnvilCraft {
         ModParticles.register(modEventBus);
         ModMobEffects.register(modEventBus);
         ModInspections.initialize();
-        ModItemSubPredicates.initialize(modEventBus);
+        ModDataComponentPredicates.initialize(modEventBus);
         ModUuidProviders.register(modEventBus);
 
         ModCriterionTriggers.register(modEventBus);
@@ -143,8 +143,12 @@ public class AnvilCraft {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
-    public static Identifier advancementOf(String path) {
+    public static Identifier advancement(String path) {
         return of("anvilcraft/" + path);
+    }
+
+    public static String recipe(String path) {
+        return MOD_ID + ':' + path;
     }
 
     public static void registerCommand(RegisterCommandsEvent event) {

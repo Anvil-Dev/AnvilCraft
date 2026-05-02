@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
@@ -20,10 +20,10 @@ public class ConcreteRecipeLoader {
         for (Map.Entry<Color, BlockEntry<CementCauldronBlock>> entry : ModBlocks.CEMENT_CAULDRONS.entrySet()) {
             Color color = entry.getKey();
             CementCauldronBlock cauldronBlock = entry.getValue().get();
-            Item concrete = BuiltInRegistries.ITEM.get(
+            Item concrete = BuiltInRegistries.ITEM.getValue(
                 Identifier.withDefaultNamespace("%s_concrete".formatted(color.getSerializedName()))
             );
-            Item reinforcedConcrete = BuiltInRegistries.ITEM.get(
+            Item reinforcedConcrete = BuiltInRegistries.ITEM.getValue(
                 AnvilCraft.of("reinforced_concrete_%s".formatted(color.getSerializedName()))
             );
             BulgingRecipe.builder()

@@ -4,16 +4,25 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jspecify.annotations.Nullable;
 
 public class MobAmberBlockEntity extends HasMobBlockEntity {
     protected MobAmberBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    @Override
+    protected @Nullable Entity createDefaultEntity(Level level) {
+        return EntityType.MOOSHROOM.create(level, EntitySpawnReason.SPAWN_ITEM_USE);
     }
 
     public static MobAmberBlockEntity createBlockEntity(

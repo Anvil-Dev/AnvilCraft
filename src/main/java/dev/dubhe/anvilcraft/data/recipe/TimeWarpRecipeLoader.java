@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.recipe.data.advancement.predicate.item.NotPredicate;
-import dev.anvilcraft.lib.v2.recipe.init.LibItemSubPredicates;
+import dev.anvilcraft.lib.v2.recipe.init.LibDataComponentPredicates;
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
@@ -11,24 +11,33 @@ import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItemSubPredicates;
+import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentExactPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.Map;
+
 public class TimeWarpRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        final HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+
         timeWarp(provider, ModItems.RESIN, 1, ModItems.AMBER, 1);
         timeWarp(provider, Items.OBSIDIAN, 1, Items.CRYING_OBSIDIAN, 1);
         timeWarp(provider, Items.CHARCOAL, 1, Items.COAL, 2);
@@ -150,7 +159,7 @@ public class TimeWarpRecipeLoader {
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(1000)
             .result(ModItems.FROST_METAL_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.ROYAL_STEEL_INGOT))
             .save(provider, "frost_metal_ingot_0");
 
         TimeWarpRecipe.builder()
@@ -159,8 +168,8 @@ public class TimeWarpRecipeLoader {
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(1000)
             .result(ModItems.FROST_METAL_INGOT, 2)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(lookup, Items.IRON_INGOT))
             .save(provider, "frost_metal_ingot_1");
 
         TimeWarpRecipe.builder()
@@ -169,8 +178,8 @@ public class TimeWarpRecipeLoader {
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(1000)
             .result(ModItems.FROST_METAL_INGOT, 3)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT), AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT), AnvilCraftDatagen.has(lookup, ModItems.SILVER_INGOT))
             .save(provider, "frost_metal_ingot_2");
 
         TimeWarpRecipe.builder()
@@ -179,8 +188,8 @@ public class TimeWarpRecipeLoader {
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(1000)
             .result(ModItems.FROST_METAL_INGOT, 4)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TITANIUM_INGOT), AnvilCraftDatagen.has(ModItems.TITANIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TITANIUM_INGOT), AnvilCraftDatagen.has(lookup, ModItems.TITANIUM_INGOT))
             .save(provider, "frost_metal_ingot_3");
 
         TimeWarpRecipe.builder()
@@ -204,15 +213,18 @@ public class TimeWarpRecipeLoader {
         TimeWarpRecipe.builder()
             .requires(ItemIngredientPredicate.Builder.item()
                 .of(ModBlocks.RESIN_BLOCK)
-                .withSubPredicate(
-                    LibItemSubPredicates.NOT.get(),
-                    NotPredicate.of(ModItemSubPredicates.SAVED_ENTITY.get(), ItemSavedEntityPredicate.any())
-                )
+                .hasComponents(new DataComponentMatchers(
+                    DataComponentExactPredicate.builder().build(),
+                    Map.of(
+                        LibDataComponentPredicates.NOT.get(),
+                        NotPredicate.of(ModDataComponentPredicates.SAVED_ENTITY.get(), ItemSavedEntityPredicate.any())
+                    )
+                ))
                 .build()
             )
             .result(ModBlocks.AMBER_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK), AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
-            .save(provider, AnvilCraft.of("time_warp/amber_block"));
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RESIN_BLOCK))
+            .save(provider, AnvilCraft.recipe("time_warp/amber_block"));
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .hasCauldron(0, -1, 0)
@@ -225,10 +237,13 @@ public class TimeWarpRecipeLoader {
                 .of(ModBlocks.RESIN_BLOCK)
                 .offset(0.0, -0.375, 0.0)
                 .range(0.75, 0.75, 0.75)
-                .with(
-                    LibItemSubPredicates.NOT.get(),
-                    NotPredicate.of(ModItemSubPredicates.SAVED_ENTITY.get(), ItemSavedEntityPredicate.monster())
-                )
+                .has(new DataComponentMatchers(
+                    DataComponentExactPredicate.builder().build(),
+                    Map.of(
+                        LibDataComponentPredicates.NOT.get(),
+                        NotPredicate.of(ModDataComponentPredicates.SAVED_ENTITY.get(), ItemSavedEntityPredicate.monster())
+                    )
+                ))
                 .saveComponent(ModComponents.SAVED_ENTITY, AnvilCraft.of("saved_entity"))
             )
             .spawnItem(builder -> builder
@@ -237,9 +252,9 @@ public class TimeWarpRecipeLoader {
                 .applyComponent(ModComponents.SAVED_ENTITY, AnvilCraft.of("saved_entity"))
             )
             .maxEfficiency(1)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK), AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RESIN_BLOCK))
             .group("time_warp")
-            .icon(ModBlocks.MOB_AMBER_BLOCK.asStack())
+            .icon(ItemStackTemplate.fromNonEmptyStack(ModBlocks.MOB_AMBER_BLOCK.asStack()))
             .save(provider, AnvilCraft.of("mob_amber_block"));
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
@@ -253,10 +268,13 @@ public class TimeWarpRecipeLoader {
                 .of(ModBlocks.RESIN_BLOCK)
                 .offset(0.0, -0.375, 0.0)
                 .range(0.75, 0.75, 0.75)
-                .with(
-                    ModItemSubPredicates.SAVED_ENTITY.get(),
-                    ItemSavedEntityPredicate.monster()
-                )
+                .has(new DataComponentMatchers(
+                    DataComponentExactPredicate.builder().build(),
+                    Map.of(
+                        ModDataComponentPredicates.SAVED_ENTITY.get(),
+                        ItemSavedEntityPredicate.monster()
+                    )
+                ))
                 .saveComponent(ModComponents.SAVED_ENTITY, AnvilCraft.of("saved_entity"))
             )
             .chooseOne(builder -> builder
@@ -276,9 +294,9 @@ public class TimeWarpRecipeLoader {
                 )
             )
             .maxEfficiency(1)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK), AnvilCraftDatagen.has(ModBlocks.RESIN_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RESIN_BLOCK))
             .group("time_warp")
-            .icon(ModBlocks.RESENTFUL_AMBER_BLOCK.asStack())
+            .icon(ItemStackTemplate.fromNonEmptyStack(ModBlocks.RESENTFUL_AMBER_BLOCK.asStack()))
             .save(provider, AnvilCraft.of("resentful_amber_block"));
     }
 

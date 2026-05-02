@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.neoforged.neoforge.common.Tags;
 
 public class DamageTypeTagLoader {
     /**
@@ -15,33 +16,42 @@ public class DamageTypeTagLoader {
      * @param provider 提供器
      */
     public static void init(RegistrumTagsProvider<DamageType> provider) {
-        provider.addTag(ModDamageTypeTags.AMULET_VALID)
-            .addOptionalTag(ModDamageTypeTags.TOPAZ_AMULET_VALID)
-            .addOptionalTag(ModDamageTypeTags.RUBY_AMULET_VALID)
-            .addOptionalTag(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
-            .addOptionalTag(ModDamageTypeTags.ANVIL_AMULET_VALID)
-            .addOptionalTag(ModDamageTypeTags.FEATHER_AMULET_VALID)
-            .addOptionalTag(ModDamageTypeTags.ABNORMAL_AMULET_VALID);
+        provider.rawBuilder(DamageTypeTags.BYPASSES_ARMOR)
+            .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
+        provider.rawBuilder(DamageTypeTags.BYPASSES_RESISTANCE)
+            .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
+        provider.rawBuilder(DamageTypeTags.NO_KNOCKBACK)
+            .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
+        provider.rawBuilder(Tags.DamageTypes.IS_MAGIC)
+            .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
 
-        provider.addTag(ModDamageTypeTags.TOPAZ_AMULET_VALID)
-            .addTag(DamageTypeTags.IS_LIGHTNING)
-            .addOptional(Identifier.fromNamespaceAndPath("immersiveengineering", "wire_shock"));
+        provider.rawBuilder(ModDamageTypeTags.AMULET_VALID)
+            .addOptionalTag(ModDamageTypeTags.TOPAZ_AMULET_VALID.location())
+            .addOptionalTag(ModDamageTypeTags.RUBY_AMULET_VALID.location())
+            .addOptionalTag(ModDamageTypeTags.SAPPHIRE_AMULET_VALID.location())
+            .addOptionalTag(ModDamageTypeTags.ANVIL_AMULET_VALID.location())
+            .addOptionalTag(ModDamageTypeTags.FEATHER_AMULET_VALID.location())
+            .addOptionalTag(ModDamageTypeTags.ABNORMAL_AMULET_VALID.location());
 
-        provider.addTag(ModDamageTypeTags.RUBY_AMULET_VALID)
-            .addTag(DamageTypeTags.IS_FIRE)
-            .addOptional(ModDamageTypes.LASER.location());
+        provider.rawBuilder(ModDamageTypeTags.TOPAZ_AMULET_VALID)
+            .addTag(DamageTypeTags.IS_LIGHTNING.location())
+            .addOptionalElement(Identifier.fromNamespaceAndPath("immersiveengineering", "wire_shock"));
 
-        provider.addTag(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
-            .addTag(DamageTypeTags.IS_DROWNING)
-            .add(DamageTypes.DRY_OUT);
+        provider.rawBuilder(ModDamageTypeTags.RUBY_AMULET_VALID)
+            .addTag(DamageTypeTags.IS_FIRE.location())
+            .addOptionalElement(ModDamageTypes.LASER.identifier());
 
-        provider.addTag(ModDamageTypeTags.ANVIL_AMULET_VALID)
-            .add(DamageTypes.FALLING_ANVIL);
+        provider.rawBuilder(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
+            .addTag(DamageTypeTags.IS_DROWNING.location())
+            .addElement(DamageTypes.DRY_OUT.identifier());
 
-        provider.addTag(ModDamageTypeTags.FEATHER_AMULET_VALID)
-            .addTag(DamageTypeTags.IS_FALL);
+        provider.rawBuilder(ModDamageTypeTags.ANVIL_AMULET_VALID)
+            .addElement(DamageTypes.FALLING_ANVIL.identifier());
 
-        provider.addTag(ModDamageTypeTags.ABNORMAL_AMULET_VALID)
-            .add(DamageTypes.WITHER);
+        provider.rawBuilder(ModDamageTypeTags.FEATHER_AMULET_VALID)
+            .addTag(DamageTypeTags.IS_FALL.location());
+
+        provider.rawBuilder(ModDamageTypeTags.ABNORMAL_AMULET_VALID)
+            .addElement(DamageTypes.WITHER.identifier());
     }
 }

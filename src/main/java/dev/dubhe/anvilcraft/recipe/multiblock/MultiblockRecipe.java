@@ -5,13 +5,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import lombok.Getter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
@@ -24,10 +26,26 @@ import java.util.stream.Collectors;
 
 @Getter
 public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
+    private static final MapCodec<MultiblockRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        BlockPattern.CODEC
+            .fieldOf("pattern")
+            .forGetter(MultiblockRecipe::getPattern),
+        ItemStackTemplate.CODEC
+            .fieldOf("result")
+            .forGetter(MultiblockRecipe::getResult)
+    ).apply(ins, MultiblockRecipe::new));
+    private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> STREAM_CODEC = StreamCodec.composite(
+        BlockPattern.STREAM_CODEC,
+        MultiblockRecipe::getPattern,
+        ItemStackTemplate.STREAM_CODEC,
+        MultiblockRecipe::getResult,
+        MultiblockRecipe::new
+    );
     public final BlockPattern pattern;
-    public final ItemStack result;
+    public final ItemStackTemplate result;
+    private PlacementInfo placementInfo;
 
-    public MultiblockRecipe(BlockPattern pattern, ItemStack result) {
+    public MultiblockRecipe(BlockPattern pattern, ItemStackTemplate result) {
         this.pattern = pattern;
         this.result = result;
     }
@@ -42,34 +60,34 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         return new MultiblockBuilder(item, count);
     }
 
-    public static MultiblockBuilder builder(String item, int count) {
-        return builder(BuiltInRegistries.ITEM.get(Identifier.parse(item)), count);
-    }
-
     public static MultiblockBuilder builder(ItemLike item) {
         return builder(item, 1);
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<MultiblockRecipe> getType() {
         return ModRecipeTypes.MULTIBLOCK_TYPE.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public PlacementInfo placementInfo() {
+        if (this.placementInfo == null) {
+            this.placementInfo = PlacementInfo.createFromOptionals(List.of());
+        }
+        return this.placementInfo;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    public RecipeSerializer<MultiblockRecipe> getSerializer() {
         return ModRecipeTypes.MULTIBLOCK_SERIALIZER.get();
     }
 
-    @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return true;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return result;
-    }
-
+    @SuppressWarnings("deprecation")
     @Override
     public boolean matches(MultiblockInput input, Level level) {
         int size = input.size();
@@ -141,9 +159,19 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     }
 
     @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "";
+    }
+
+    @Override
     public String toDatagen() {
         StringBuilder codeBuilder = new StringBuilder("MultiblockRecipe.builder(\"%s\", %d)"
-            .formatted(BuiltInRegistries.ITEM.getKey(result.getItem()), result.getCount()));
+            .formatted(BuiltInRegistries.ITEM.getKey(this.result.item().value()), this.result.count()));
         codeBuilder.append("\n");
 
         for (List<String> layer : this.pattern.getLayers()) {
@@ -186,37 +214,15 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
 
     @Override
     public String getSuggestedName() {
-        return BuiltInRegistries.ITEM.getKey(this.result.getItem()).getPath();
+        return BuiltInRegistries.ITEM.getKey(this.result.item().value()).getPath();
     }
 
     @Override
-    public ItemStack assemble(MultiblockInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(MultiblockInput input) {
         return ItemStack.EMPTY;
     }
 
-    public static class Serializer implements RecipeSerializer<MultiblockRecipe> {
-
-        private static final MapCodec<MultiblockRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                BlockPattern.CODEC.fieldOf("pattern").forGetter(MultiblockRecipe::getPattern),
-                ItemStack.CODEC.fieldOf("result").forGetter(MultiblockRecipe::getResult))
-            .apply(ins, MultiblockRecipe::new));
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> STREAM_CODEC =
-            StreamCodec.composite(
-                BlockPattern.STREAM_CODEC,
-                MultiblockRecipe::getPattern,
-                ItemStack.STREAM_CODEC,
-                MultiblockRecipe::getResult,
-                MultiblockRecipe::new);
-
-        @Override
-        public MapCodec<MultiblockRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+    public static RecipeSerializer<MultiblockRecipe> serializer() {
+        return new RecipeSerializer<>(MultiblockRecipe.CODEC, MultiblockRecipe.STREAM_CODEC);
     }
 }

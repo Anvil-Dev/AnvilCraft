@@ -5,12 +5,13 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +39,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
-        criteria.put(name, criterion);
+        this.criteria.put(name, criterion);
         return this;
     }
 
@@ -53,23 +54,36 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
         return this;
     }
 
+    @Override
+    public void save(RecipeOutput output, ResourceKey<Recipe<?>> key) {
+        this.validate(key.identifier());
+        Advancement.Builder advancement = output
+            .advancement()
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+            .rewards(AdvancementRewards.Builder.recipe(key))
+            .requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(advancement::addCriterion);
+        T recipe = this.buildRecipe();
+        output.accept(key, recipe, advancement.build(key.identifier().withPrefix("recipes/")));
+    }
+
     /**
      * 保存配方到指定位置
      *
      * @param output 配方输出
      * @param id 配方ID
      */
-    @Override
     public void save(RecipeOutput output, Identifier id) {
-        validate(id);
+        this.validate(id);
+        ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, id);
         Advancement.Builder advancement = output
             .advancement()
-            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-            .rewards(AdvancementRewards.Builder.recipe(id))
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+            .rewards(AdvancementRewards.Builder.recipe(key))
             .requirements(AdvancementRequirements.Strategy.OR);
-        criteria.forEach(advancement::addCriterion);
-        T recipe = buildRecipe();
-        output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
+        this.criteria.forEach(advancement::addCriterion);
+        T recipe = this.buildRecipe();
+        output.accept(key, recipe, advancement.build(id.withPrefix("recipes/")));
     }
 
     /**
@@ -80,7 +94,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public void save(RecipeOutput output, String id) {
-        save(output, AnvilCraft.of(id).withPrefix(getType() + "/"));
+        this.save(output, AnvilCraft.of(id).withPrefix(getType() + "/"));
     }
 
     /**
@@ -90,7 +104,12 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public void save(RecipeOutput recipeOutput) {
-        save(recipeOutput, BuiltInRegistries.ITEM.getKey(getResult()).getPath());
+        this.save(recipeOutput, this.defaultId());
+    }
+
+    @Override
+    public ResourceKey<Recipe<?>> defaultId() {
+        return RecipeBuilder.getDefaultRecipeId(this.getResult());
     }
 
     /**
@@ -119,5 +138,5 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      *
      * @return 配方结果物品
      */
-    public abstract Item getResult();
+    public abstract ItemStackTemplate getResult();
 }
