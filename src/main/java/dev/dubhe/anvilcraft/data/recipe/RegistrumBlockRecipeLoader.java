@@ -1573,9 +1573,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Item> void mobAmberBlock(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-    }
-
     public static <T extends Item> void levitationPowderBlock(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ctx.get())
             .requires(ModItems.LEVITATION_POWDER, 9)
@@ -1797,15 +1794,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void nestingShulkerBox(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-    }
-
-    public static <T extends Block> void overNestingShulkerBox(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-    }
-
-    public static <T extends Block> void supercriticalNestingShulkerBox(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-    }
-
     public static <T extends Block> void confinedNeutroniumIngotBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ItemInjectRecipe.builder()
             .inputBlock(ModBlocks.CONFINEMENT_CHAMBER)
@@ -2014,5 +2002,21 @@ public class RegistrumBlockRecipeLoader {
             .define('A', Items.COPPER_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
             .save(provider, AnvilCraft.of("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
+    }
+
+    public static <T extends Block> void tradingStation(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("WWW")
+            .pattern("S S")
+            .pattern("PBP")
+            .define('B', Blocks.BARREL)
+            .define('P', ItemTags.PLANKS)
+            .define('S', Items.STICK)
+            .define('W', ItemTags.WOOL)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.BARREL), AnvilCraftDatagen.has(Blocks.BARREL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.PLANKS), AnvilCraftDatagen.has(ItemTags.PLANKS))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.STICK), AnvilCraftDatagen.has(Items.STICK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.WOOL), AnvilCraftDatagen.has(ItemTags.WOOL))
+            .save(provider);
     }
 }

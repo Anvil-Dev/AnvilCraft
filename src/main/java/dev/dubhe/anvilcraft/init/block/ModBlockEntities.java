@@ -47,6 +47,7 @@ import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
@@ -80,6 +81,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
@@ -364,6 +366,12 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil", CelestialForgingAnvilBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL)
         .renderer(() -> CelestialForgingAnvilBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<TradingStationBlockEntity> TRADING_STATION = REGISTRUM
+        .blockEntity("trading_station", TradingStationBlockEntity::new)
+        .validBlock(ModBlocks.TRADING_STATION)
+        .renderer(() -> TradingStationBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<FishTankBlockEntity> FISH_TANK = REGISTRUM

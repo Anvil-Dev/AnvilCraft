@@ -20,5 +20,6 @@ public class LangHandler {
         FluidLang.init(provider);
         IntegrationScreenLang.init(provider);
         ScreenTooltipLang.init(provider);
+        MessageLang.init(provider);
     }
 }

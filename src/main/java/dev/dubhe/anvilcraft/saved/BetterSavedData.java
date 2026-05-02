@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 public abstract class BetterSavedData extends SavedData {
     protected BetterSavedData() {
@@ -35,19 +36,29 @@ public abstract class BetterSavedData extends SavedData {
     public abstract CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries);
 
     protected static <T extends BetterSavedData> T get(String id, Supplier<T> constructor, T clientCopy) {
-        if (Util.isServer()) {
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if (server != null) {
-                ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-                // noinspection ConstantConditions - 主世界已加载
-                DimensionDataStorage storage = overworld.getDataStorage();
-                return storage.computeIfAbsent(
-                    new SavedData.Factory<>(constructor, BetterSavedData.getLoader(constructor)),
-                    AnvilCraft.MOD_ID.concat("_").concat(id)
-                );
-            }
-        }
-        return clientCopy;
+        if (!Util.isServer()) return clientCopy;
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return clientCopy;
+        ServerLevel overworld = server.getLevel(Level.OVERWORLD);
+        // noinspection ConstantConditions - 主世界已加载
+        DimensionDataStorage storage = overworld.getDataStorage();
+        return storage.computeIfAbsent(
+            new SavedData.Factory<>(constructor, BetterSavedData.getLoader(constructor)),
+            AnvilCraft.MOD_ID.concat("_").concat(id)
+        );
+    }
+
+    protected static <T extends BetterSavedData> T get(String id, Supplier<T> constructor) {
+        if (!Util.isServer()) throw new IllegalThreadStateException(id + " could not be get in client");
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) throw new IllegalThreadStateException(id + " could not be get in client");
+        ServerLevel overworld = server.getLevel(Level.OVERWORLD);
+        // noinspection ConstantConditions - 主世界已加载
+        DimensionDataStorage storage = overworld.getDataStorage();
+        return storage.computeIfAbsent(
+            new SavedData.Factory<>(constructor, BetterSavedData.getLoader(constructor)),
+            AnvilCraft.MOD_ID.concat("_").concat(id)
+        );
     }
 
     private static <T extends BetterSavedData> BiFunction<CompoundTag, HolderLookup.Provider, T> getLoader(Supplier<T> constructor) {
@@ -74,8 +85,11 @@ public abstract class BetterSavedData extends SavedData {
         );
     }
 
-    protected abstract Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess);
+    protected @Nullable Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess) {
+        return null;
+    }
 
+    @SuppressWarnings("RedundantRecordConstructor")
     protected record Packet<T extends CustomPacketPayload>(
         CustomPacketPayload.Type<T> type,
         StreamCodec<? super RegistryFriendlyByteBuf, T> codec,

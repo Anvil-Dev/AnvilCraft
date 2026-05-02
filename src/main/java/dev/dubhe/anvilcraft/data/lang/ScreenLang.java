@@ -224,10 +224,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: ");
         provider.add("screen.anvilcraft.smart_block_placer.missing.block", "Missing:");
         provider.add("screen.anvilcraft.smart_block_placer.no_structure_record", "Record a structure with the Structure Scanner first");
-        
+
         // Structure Material Book
         provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
-        
+
         // Structure Scanner
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
         provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
@@ -235,5 +235,17 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks", "Structure contains unknown blocks");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, cannot be recognized by Smart Block Placer");
+
+        provider.add("screen.anvilcraft.trading_station.not_owner", "You are not the owner of this Trading Station!");
+        provider.add("screen.anvilcraft.trading_station.provide", "Mark as providing items");
+        provider.add("screen.anvilcraft.trading_station.request", "Mark as requesting items");
+        provider.add("screen.anvilcraft.trading_station.player_allow", "Allow trading with player");
+        provider.add("screen.anvilcraft.trading_station.player_not_allow", "Disallow trading with player");
+        provider.add("screen.anvilcraft.trading_station.villager_allow", "Allow trading with villager");
+        provider.add("screen.anvilcraft.trading_station.villager_not_allow", "Disallow trading with villager");
+        provider.add("screen.anvilcraft.trading_station.input_allow", "Allow automatically inputting");
+        provider.add("screen.anvilcraft.trading_station.input_not_allow", "Disallow automatically inputting");
+        provider.add("screen.anvilcraft.trading_station.output_allow", "Allow automatically outputting");
+        provider.add("screen.anvilcraft.trading_station.output_not_allow", "Disallow automatically outputting");
     }
 }

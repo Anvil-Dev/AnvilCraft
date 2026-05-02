@@ -121,6 +121,7 @@ import dev.dubhe.anvilcraft.block.StepEffectStairBlock;
 import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
+import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendiumBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
@@ -161,6 +162,7 @@ import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SuperHeavyBlockItem;
+import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
 import dev.dubhe.anvilcraft.block.item.UncontainableBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
@@ -671,6 +673,17 @@ public class ModBlocks {
         })
         .build()
         .recipe(RegistrumBlockRecipeLoader::heliostats)
+        .register();
+
+    public static final BlockEntry<TradingStationBlock> TRADING_STATION = REGISTRUM.block("trading_station", TradingStationBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .properties(p -> p.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot(FlexibleMultiPartBlock::loot)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .item(TradingStationBlockItem::new)
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::tradingStation)
         .register();
 
     public static final BlockEntry<LoadMonitorBlock> LOAD_MONITOR = REGISTRUM.block("load_monitor", LoadMonitorBlock::new)
@@ -2115,7 +2128,6 @@ public class ModBlocks {
         .lang("Block of Amber with Mob")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
-        .recipe(RegistrumBlockRecipeLoader::mobAmberBlock)
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
         .loot((ctx, prov) -> {
@@ -3195,7 +3207,6 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe(RegistrumBlockRecipeLoader::nestingShulkerBox)
         .register();
 
     public static final BlockEntry<OverNestingShulkerBoxBlock> OVER_NESTING_SHULKER_BOX = REGISTRUM.block(
@@ -3213,7 +3224,6 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe(RegistrumBlockRecipeLoader::overNestingShulkerBox)
         .register();
 
     public static final BlockEntry<SupercriticalNestingShulkerBoxBlock> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRUM.block(
@@ -3231,7 +3241,6 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe(RegistrumBlockRecipeLoader::supercriticalNestingShulkerBox)
         .register();
 
     public static final BlockEntry<ExpFluidBlock> EXP_FLUID = REGISTRUM.block(
