@@ -13,7 +13,6 @@ dependencies {
 
     // Sodium, Iris, Embeddium
     compileOnly(libs.sodium)
-    compileOnly(libs.embeddium)
     compileOnly(libs.iris)
 
     // Jade
