@@ -3,12 +3,11 @@ package dev.dubhe.anvilcraft.data.provider;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.common.data.ParticleDescriptionProvider;
+import net.neoforged.neoforge.client.data.ParticleDescriptionProvider;
 
 public class ModParticleDescriptionProvider extends ParticleDescriptionProvider {
-    public ModParticleDescriptionProvider(PackOutput output, ExistingFileHelper fileHelper) {
-        super(output, fileHelper);
+    public ModParticleDescriptionProvider(PackOutput output) {
+        super(output);
     }
 
     @Override

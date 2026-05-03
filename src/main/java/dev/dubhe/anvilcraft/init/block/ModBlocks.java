@@ -300,7 +300,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .blockstate(() -> DataGenUtil::horizontalFacingBlock)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::stampingPlatform)
@@ -1266,7 +1266,7 @@ public class ModBlocks {
             .isRedstoneConductor(ModBlocks::never)
             .noTerrainParticles()
             .replaceable()
-            .noCollission()
+            .noCollision()
             .strength(-1.0F, 3600000.0F)
             .noLootTable())
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -2192,7 +2192,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM.block("arrow", ArrowBlock::new)
         .initialProperties(() -> Blocks.STONE)
-        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .properties(p -> p.noOcclusion().noCollision().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .register();
@@ -3020,7 +3020,7 @@ public class ModBlocks {
             .initialProperties(() -> block)
             .properties(properties -> properties.forceSolidOn()
                 .instrument(NoteBlockInstrument.BASS)
-                .noCollission()
+                .noCollision()
                 .strength(0.5f)
                 .pushReaction(PushReaction.DESTROY))
             .blockstate((ctx, provider) -> provider.pressurePlateBlock(
@@ -3052,14 +3052,13 @@ public class ModBlocks {
             .initialProperties(block::get)
             .properties(properties -> properties.forceSolidOn()
                 .instrument(NoteBlockInstrument.BASS)
-                .noCollission()
+                .noCollision()
                 .strength(0.5f)
                 .pushReaction(PushReaction.DESTROY))
-            .blockstate((ctx, provider) -> DataGenUtil.powerLevelPressurePlate(
+            .blockstate(() -> (ctx, provider) -> DataGenUtil.powerLevelPressurePlate(
                 provider,
                 ctx.getId(),
-                ctx.get(),
-                Identifier.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
+                ctx.get()
             ))
             .item()
             .tag(ModItemTags.PLATES, ModItemTags.bindC("plates/" + type))
@@ -3087,14 +3086,13 @@ public class ModBlocks {
             .initialProperties(block::get)
             .properties(properties -> properties.forceSolidOn()
                 .instrument(NoteBlockInstrument.BASS)
-                .noCollission()
+                .noCollision()
                 .strength(0.5f)
                 .pushReaction(PushReaction.DESTROY))
-            .blockstate((ctx, provider) -> DataGenUtil.powerLevelPressurePlate(
+            .blockstate(() -> (ctx, provider) -> DataGenUtil.powerLevelPressurePlate(
                 provider,
                 ctx.getId(),
-                ctx.get(),
-                Identifier.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
+                ctx.get()
             ))
             .item()
             .tag(ModItemTags.PLATES, ModItemTags.bindC("plates/" + type), ModItemTags.PLATES)
@@ -3161,7 +3159,7 @@ public class ModBlocks {
         )
         .properties(it -> it.mapColor(MapColor.COLOR_GREEN)
             .replaceable()
-            .noCollission()
+            .noCollision()
             .pushReaction(PushReaction.DESTROY)
             .noLootTable()
             .liquid()
@@ -3174,7 +3172,7 @@ public class ModBlocks {
             "oil", p -> new LiquidBlock(ModFluids.OIL.get(), p))
         .properties(it -> it.mapColor(MapColor.TERRACOTTA_BLACK)
             .replaceable()
-            .noCollission()
+            .noCollision()
             .pushReaction(PushReaction.DESTROY)
             .noLootTable()
             .liquid()
@@ -3198,7 +3196,7 @@ public class ModBlocks {
         return REGISTRUM.block("%s_cement".formatted(color), p -> new LiquidBlock(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
             .properties(it -> it.mapColor(DyeColor.byName(color.getSerializedName(), DyeColor.GRAY))
                 .replaceable()
-                .noCollission()
+                .noCollision()
                 .pushReaction(PushReaction.DESTROY)
                 .noLootTable()
                 .liquid()
@@ -3213,7 +3211,7 @@ public class ModBlocks {
         .properties(it -> it.mapColor(MapColor.EMERALD)
             .lightLevel(s -> 15)
             .replaceable()
-            .noCollission()
+            .noCollision()
             .pushReaction(PushReaction.DESTROY)
             .noLootTable()
             .liquid()
@@ -3511,7 +3509,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.COPPER_BLOCK)
         .properties(properties -> properties.forceSolidOn()
             .instrument(NoteBlockInstrument.BASS)
-            .noCollission()
+            .noCollision()
             .strength(0.5f)
             .pushReaction(PushReaction.DESTROY))
         .blockstate((ctx, provider) -> provider.pressurePlateBlock(ctx.get(), Identifier.withDefaultNamespace("block/copper_block")))

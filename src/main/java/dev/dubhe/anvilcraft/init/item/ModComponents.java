@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
+import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -143,6 +144,11 @@ public class ModComponents {
     public static final DataComponentType<OverLimitItemContainerContents> OVER_LIMIT_CONTAINER = register(
         "over_limit_item_container_contents",
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<ResonateMode> RESONATE_MODE = register(
+        "resonate_mode",
+        b -> b.persistent(ResonateMode.CODEC).networkSynchronized(ResonateMode.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {

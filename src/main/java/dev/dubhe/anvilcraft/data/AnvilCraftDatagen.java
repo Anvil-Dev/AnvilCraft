@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.data.provider.ModFurnaceFuelProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootModifierProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.provider.ModParticleDescriptionProvider;
-import dev.dubhe.anvilcraft.data.provider.ModPoiTagProvider;
 import dev.dubhe.anvilcraft.data.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.tags.TagsHandler;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
@@ -39,17 +38,25 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilCraftDatagen {
     @SubscribeEvent
+    public static void gatherData(GatherDataEvent.Client event) {
+        DataGenerator generator = event.getGenerator();
+        PackOutput packOutput = generator.getPackOutput();
+
+        generator.addProvider(true, new ModParticleDescriptionProvider(packOutput));
+
+        IntegrationHook.setEvent(event);
+        AnvilCraft.getINTEGRATION_MANAGER().loadAllClientDataIntegrations();
+    }
+
+    @SubscribeEvent
     public static void gatherData(GatherDataEvent.Server event) {
         DataGenerator generator = event.getGenerator();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         PackOutput packOutput = generator.getPackOutput();
 
         generator.addProvider(true, new ModLootTableProvider(packOutput, lookupProvider));
-        generator.addProvider(true, new ModPoiTagProvider(packOutput, lookupProvider, existingFileHelper));
         generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, lookupProvider));
         generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProvider, AnvilCraft.MOD_ID));
-        generator.addProvider(event.includeClient(), new ModParticleDescriptionProvider(packOutput, existingFileHelper));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllServerDataIntegrations();
@@ -74,7 +81,10 @@ public class AnvilCraftDatagen {
         REGISTRUM.addDataGenerator(ProviderType.LANG, LangHandler::init);
         REGISTRUM.addDataGenerator(ProviderType.RECIPE, RecipeHandler::init);
         REGISTRUM.addDataGenerator(ProviderType.ADVANCEMENT, ModAdvancementsHandler::init);
-        REGISTRUM.addDataGenerator(ProviderType.DAMAGE_TYPE_TAGS, TagsHandler::initDamageType);
+        REGISTRUM.addDataGenerator(
+            ProviderType.registerDynamicTag("tags/point_of_interest_type", "poi_type", Registries.POINT_OF_INTEREST_TYPE),
+            TagsHandler::initPoiType
+        );
     }
 
     public static Criterion<InventoryChangeTrigger.TriggerInstance> has(HolderLookup<Item> lookup, ItemLike itemLike) {

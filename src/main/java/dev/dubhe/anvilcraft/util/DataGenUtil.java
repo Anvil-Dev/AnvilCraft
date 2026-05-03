@@ -1,10 +1,14 @@
 package dev.dubhe.anvilcraft.util;
 
+import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumBlockstateProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import lombok.AccessLevel;
@@ -14,10 +18,17 @@ import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemSubPredicates;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.renderer.block.dispatch.Variant;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
@@ -37,35 +48,37 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.blockstate.CustomBlockStateModelBuilder;
 
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataGenUtil {
     public static void powerLevelPressurePlate(
-        RegistrumBlockstateProvider provider, Identifier id,
-        PowerLevelPressurePlateBlock block, Identifier texture
+        RegistrumBlockModelGenerator provider,
+        Identifier id,
+        PowerLevelPressurePlateBlock block
     ) {
-        ModelFile pressurePlate = provider.models().pressurePlate(id.getPath(), texture);
-        ModelFile pressurePlateDown = provider.models().pressurePlateDown(id.getPath() + "_down", texture);
-
-        provider.getVariantBuilder(block)
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 0).addModels(new ConfiguredModel(pressurePlate))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 1).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 2).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 3).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 4).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 5).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 6).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 7).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 8).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 9).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 10).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 11).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 12).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 13).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 14).addModels(new ConfiguredModel(pressurePlateDown))
-            .partialState().with(PowerLevelPressurePlateBlock.POWER, 15).addModels(new ConfiguredModel(pressurePlateDown));
+        PropertyDispatch.C1<MultiVariant, Integer> builder = PropertyDispatch.initial(PowerLevelPressurePlateBlock.POWER)
+            .select(
+                0,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(id.withPrefix("block/")))
+                        .build()
+                )
+            );
+        for (int i = 0; i < 15; i++) {
+            builder.select(
+                i + 1,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(id.withPrefix("block/").withSuffix("_down")))
+                        .build()
+                )
+            );
+        }
+        provider.blockStateOutput.accept(MultiVariantGenerator.dispatch(block).with(builder));
     }
 
     public static <T extends Item> void energy(DataGenContext<Item, T> ctx, CreativeModeTabModifier modifier) {
@@ -77,24 +90,50 @@ public class DataGenUtil {
     }
 
     @SuppressWarnings("unused")
-    public static <T extends RegistrumProvider> void noExtraModelOrState(DataGenContext<?, ?> context, T provider) {
+    public static <R, A extends R, T> NonNullBiConsumer<DataGenContext<R, A>, T> noExtraModelOrState() {
     }
 
-    public static <T extends RegistrumBlockstateProvider> void horizontalFacingBlock(
+    public static <T extends RegistrumBlockModelGenerator> void horizontalFacingBlock(
         DataGenContext<Block, ?> context,
         T provider
     ) {
-        ModelFile model = new ModelFile.ExistingModelFile(
-            context.getId().withPrefix("block/"),
-            provider.models().existingFileHelper
-        );
-
-        provider.getVariantBuilder(context.get()).forAllStates(
-            state -> ConfiguredModel.builder()
-                .modelFile(model)
-                .rotationY(((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + 180) % 360)
-                .build()
-        );
+        provider.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+            context.get()
+        ).with(
+            PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING)
+                .select(
+                    Direction.SOUTH,
+                    new MultiVariant(
+                        WeightedList.<Variant>builder()
+                            .add(new Variant(context.getId().withPrefix("block/")).withYRot(Quadrant.R0))
+                            .build()
+                    )
+                )
+                .select(
+                    Direction.WEST,
+                    new MultiVariant(
+                        WeightedList.<Variant>builder()
+                            .add(new Variant(context.getId().withPrefix("block/")).withYRot(Quadrant.R90))
+                            .build()
+                    )
+                )
+                .select(
+                    Direction.NORTH,
+                    new MultiVariant(
+                        WeightedList.<Variant>builder()
+                            .add(new Variant(context.getId().withPrefix("block/")).withYRot(Quadrant.R180))
+                            .build()
+                    )
+                )
+                .select(
+                    Direction.EAST,
+                    new MultiVariant(
+                        WeightedList.<Variant>builder()
+                            .add(new Variant(context.getId().withPrefix("block/")).withYRot(Quadrant.R270))
+                            .build()
+                    )
+                )
+        ));
     }
 
     @SuppressWarnings("unused")

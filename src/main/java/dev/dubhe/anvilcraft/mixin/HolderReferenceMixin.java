@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
-import dev.dubhe.anvilcraft.item.ResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.resources.ResourceKey;

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
@@ -64,7 +65,7 @@ public class ItemCrushRecipeLoader {
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .group("item_crush")
-            .icon(ModBlocks.CRUSHING_TABLE.asStack())
+            .icon(new ItemStackTemplate(ModBlocks.CRUSHING_TABLE.asItem()))
             .hasBlock(0, -1, 0, ModBlocks.CRUSHING_TABLE.getDefaultState())
             .hasItemIngredient((builder) -> builder
                 .offset(0, -.125, 0)
@@ -110,10 +111,10 @@ public class ItemCrushRecipeLoader {
             .result(Items.BONE_MEAL, 64)
             .save(provider, AnvilCraft.of("item_crush/bone_meal_from_skeleton_skull"));
 
-        armor(provider, Items.CHAINMAIL_HELMET, Items.CHAIN);
-        armor(provider, Items.CHAINMAIL_CHESTPLATE, Items.CHAIN);
-        armor(provider, Items.CHAINMAIL_LEGGINGS, Items.CHAIN);
-        armor(provider, Items.CHAINMAIL_BOOTS, Items.CHAIN);
+        armor(provider, Items.CHAINMAIL_HELMET, Items.IRON_CHAIN);
+        armor(provider, Items.CHAINMAIL_CHESTPLATE, Items.IRON_CHAIN);
+        armor(provider, Items.CHAINMAIL_LEGGINGS, Items.IRON_CHAIN);
+        armor(provider, Items.CHAINMAIL_BOOTS, Items.IRON_CHAIN);
 
         armor(provider, Items.LEATHER_HELMET, Items.LEATHER);
         armor(provider, Items.LEATHER_CHESTPLATE, Items.LEATHER);

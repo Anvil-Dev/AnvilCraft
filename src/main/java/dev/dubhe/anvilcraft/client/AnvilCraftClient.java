@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
+import dev.dubhe.anvilcraft.client.model.FlightTimeProperty;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -26,6 +27,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterRangeSelectItemModelPropertyEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
@@ -44,6 +46,7 @@ public class AnvilCraftClient {
         modBus.addListener(AnvilCraftClient::registerClientExtensions);
         modBus.addListener(AnvilCraftClient::registerCustomItemDecorations);
         modBus.addListener(AnvilCraftClient::registerParticleProviders);
+        modBus.addListener(AnvilCraftClient::registerRangeSelectItemModelProperties);
         modBus.addListener(ModShaders::register);
         modBus.addListener(ModModelLayers::register);
         modBus.addListener(ModModelLayers::createModel);
@@ -70,6 +73,10 @@ public class AnvilCraftClient {
 
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
         e.registerSpriteSet(ModParticles.PLASMA_JETS.get(), PlasmaJetsParticle.Provider::new);
+    }
+
+    public static void registerRangeSelectItemModelProperties(RegisterRangeSelectItemModelPropertyEvent event) {
+        event.register(AnvilCraft.of("flight_time"), FlightTimeProperty.CODEC);
     }
 
     public static class ItemExtensionImpl implements IClientItemExtensions {

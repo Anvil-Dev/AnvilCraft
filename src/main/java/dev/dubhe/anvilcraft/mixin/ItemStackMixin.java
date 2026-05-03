@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
-import dev.dubhe.anvilcraft.item.ResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponentHolder;

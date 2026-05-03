@@ -2,9 +2,8 @@ package dev.dubhe.anvilcraft.init.item;
 
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.item.property.predicate.ItemEnchantmentCountPredicate;
+import dev.dubhe.anvilcraft.item.property.predicate.ItemEnchCountPredicate;
 import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
-import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.bus.api.IEventBus;
@@ -17,22 +16,25 @@ public class ModDataComponentPredicates {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<ItemSavedEntityPredicate>> SAVED_ENTITY = register(
-        "saved_entity",
-        ItemSavedEntityPredicate.CODEC
-    );
-
-    public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<ItemEnchantmentCountPredicate>> ENCHANTMENT_COUNT =
+    public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<ItemSavedEntityPredicate>> SAVED_ENTITY =
         register(
-            "enchantment_count",
-            ItemEnchantmentCountPredicate.CODEC.codec()
+            "saved_entity",
+            ItemSavedEntityPredicate.CODEC
         );
 
-    public static <T extends DataComponentPredicate> DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<T>> register(
+    public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<ItemEnchCountPredicate>> ENCH_COUNT =
+        register(
+            "enchantment_count",
+            ItemEnchCountPredicate.CODEC.codec()
+        );
+
+    public static <T extends DataComponentPredicate>
+    DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<T>> register(
         String name,
         Codec<T> codec
     ) {
-        return DF.register(name, () -> new DataComponentPredicate.Type<>(codec));
+        return DF.register(name, () -> new DataComponentPredicate.TypeBase<>(codec) {
+        });
     }
 
     public static void initialize(IEventBus modEventBus) {

@@ -1,6 +1,7 @@
-package dev.dubhe.anvilcraft.item;
+package dev.dubhe.anvilcraft.item.tool;
 
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.ModTiers;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 
 public class FrostMetalResonatorItem extends ResonatorItem {

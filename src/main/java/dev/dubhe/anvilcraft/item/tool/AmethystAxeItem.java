@@ -1,10 +1,11 @@
-package dev.dubhe.anvilcraft.item;
+package dev.dubhe.anvilcraft.item.tool;
 
+import dev.dubhe.anvilcraft.init.item.ModToolMaterials;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.DiggerItem;
 
 public class AmethystAxeItem extends AxeItem {
     public AmethystAxeItem(Properties properties) {
-        super(ModTiers.AMETHYST, properties.attributes(DiggerItem.createAttributes(ModTiers.AMETHYST, 7, -3.2f)));
+        super(ModToolMaterials.AMETHYST, 7.0F, -3.2F, properties);
     }
 }

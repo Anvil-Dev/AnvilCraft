@@ -26,25 +26,25 @@ public class MineralFountainRecipeLoader {
 
 
         MineralFountainChanceRecipe.builder()
-            .dimension(Level.OVERWORLD.location())
+            .dimension(Level.OVERWORLD.identifier())
             .fromBlock(Blocks.DEEPSLATE)
             .toBlock(ModBlocks.VOID_STONE.get(), 0.01f)
             .save(provider);
 
         MineralFountainChanceRecipe.builder()
-            .dimension(Level.OVERWORLD.location())
+            .dimension(Level.OVERWORLD.identifier())
             .fromBlock(Blocks.DEEPSLATE)
             .toBlock(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01f)
             .save(provider);
 
         MineralFountainChanceRecipe.builder()
-            .dimension(Level.NETHER.location())
+            .dimension(Level.NETHER.identifier())
             .fromBlock(Blocks.DEEPSLATE)
             .toBlock(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.1f)
             .save(provider);
 
         MineralFountainChanceRecipe.builder()
-            .dimension(Level.END.location())
+            .dimension(Level.END.identifier())
             .fromBlock(Blocks.DEEPSLATE)
             .toBlock(ModBlocks.VOID_STONE.get(), 0.1f)
             .save(provider);

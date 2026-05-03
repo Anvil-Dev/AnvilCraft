@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,8 +26,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForgeMod;
@@ -39,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarriedAware {
+public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAware {
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_64 = new DynamicPowerComponent.PowerConsumption(64);
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_128 = new DynamicPowerComponent.PowerConsumption(128);
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_256 = new DynamicPowerComponent.PowerConsumption(256);
@@ -58,23 +61,8 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
 
     public IonoCraftBackpackItem(Properties properties) {
-        super(
-            ArmorMaterials.IRON,
-            Type.CHESTPLATE,
-            properties.component(ModComponents.FLIGHT_TIME, 0)
-        );
-        DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
+        super(properties.component(ModComponents.FLIGHT_TIME, 0));
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
-    }
-
-    @Override
-    public boolean isEnchantable(ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public int getEnchantmentValue(ItemStack stack) {
-        return 15;
     }
 
     @Override
