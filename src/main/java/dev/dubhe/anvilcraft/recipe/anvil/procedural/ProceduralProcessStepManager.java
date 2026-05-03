@@ -33,6 +33,7 @@ public class ProceduralProcessStepManager {
      * 也就是说，它是在已知当前步骤是什么的时候查询要执行的配方是哪个的
      */
     public static Map<ProceduralProcessStep, ResourceLocation> PROCEDURAL_RECIPE_INQUIRY = new HashMap<>();
+    //其实用step作为key不太好，但是加入step id是非常过分的事情，之后可以看看要不要再改
 
     /**
      * 在recipe manager构建配方之后执行
@@ -110,8 +111,8 @@ public class ProceduralProcessStepManager {
                             WipBlockEntity wip = ProceduralProcessRecipe.getWipBlockFromContext(context);
                             if (wip != null && step.getStepIndex() == wip.getStepCount()) {
                                 ResourceLocation recipeId = wip.getRecipeId();
-                                if (recipeId == PROCEDURAL_RECIPE_INQUIRY.get(step)) {
-                                    Block initialBlock = wip.getInitialBlock();
+                                if (recipeId.equals(PROCEDURAL_RECIPE_INQUIRY.get(step))) {
+                                    BlockState initialBlock = wip.getInitialBlock();
                                     apr.assemble(context, sl.registryAccess());
                                     context.accept();
                                     //这个时候原本的wip大概率已经消失了，会有一个新的wip方块
@@ -122,6 +123,8 @@ public class ProceduralProcessStepManager {
                                         wip2.setInitialBlock(initialBlock);
                                         wip2.setRecipeId(recipeId);
                                         //将当前执行的配方设置进去
+                                        wip2.setChanged();
+                                        sl.sendBlockUpdated(wip2.getBlockPos(), wip2.getBlockState(), wip2.getBlockState(), 3);
                                     }
                                     //如果新的wip方块存在，则设置其中数据
                                     //如果不存在，那么我们就假设它是最后一步吧。
@@ -138,15 +141,15 @@ public class ProceduralProcessStepManager {
                                     // 如果有则按照那个写，如果没有搜索到则直接用配方里的
                                     BlockPos pos = BlockPos.containing(context.getPos());
                                     pos = pos.below();
-                                    Block initialBlock = recipe.getInitialBlock().getBlocks().get(0).value();
+                                    BlockState initialBlock = recipe.getInitialBlock().getBlocks().get(0).value().defaultBlockState();
                                     // 初始值是配方里的
                                     if (recipe.initialBlock.test(sl, sl.getBlockState(pos), sl.getBlockEntity(pos))) {
-                                        initialBlock = sl.getBlockState(pos).getBlock();
+                                        initialBlock = sl.getBlockState(pos);
                                     }
                                     else {
                                         pos = pos.below();
                                         if (recipe.initialBlock.test(sl, sl.getBlockState(pos), sl.getBlockEntity(pos))) {
-                                            initialBlock = sl.getBlockState(pos).getBlock();
+                                            initialBlock = sl.getBlockState(pos);
                                         }
                                     }
                                     // 两个方块逐个判断过后，如果都不是则还是初始值，如果有一个是那就是两个方块里的值
@@ -160,6 +163,8 @@ public class ProceduralProcessStepManager {
                                         wip0.setInitialBlock(initialBlock);
                                         wip0.setRecipeId(rl);
                                         //将当前执行的配方设置进去
+                                        wip0.setChanged();
+                                        sl.sendBlockUpdated(wip0.getBlockPos(), wip0.getBlockState(), wip0.getBlockState(), 3);
                                     }
                                     return true;
                                 }

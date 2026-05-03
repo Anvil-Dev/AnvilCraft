@@ -38,9 +38,9 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     //TODO：为一些具有API性质的东西写javadoc
 
-    //TODO：实现WIP方块的渲染
-
     //TODO: 把方块涂抹里面的草方块配方迁移到正确的地方去
+
+    //TODO：考虑是否需要修改PROCEDURAL_RECIPE_INQUIRY的索引方式
 
     public ProceduralProcessRecipe(BlockStatePredicate initialBlock, List<ProceduralProcessStep> steps, ChanceBlockState resultBlock, ItemStack icon) {
         this.initialBlock = initialBlock;

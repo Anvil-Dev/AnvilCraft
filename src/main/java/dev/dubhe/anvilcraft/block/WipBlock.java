@@ -5,13 +5,13 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -63,7 +63,7 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
         BlockEntity e = level.getBlockEntity(pos);
         if (e instanceof WipBlockEntity wipBlockEntity) {
             tag.putInt("stepCount", wipBlockEntity.getStepCount());
-            tag.putString("initialBlock", BuiltInRegistries.BLOCK.getKey(wipBlockEntity.getInitialBlock()).toString());
+            tag.put("initialBlock", NbtUtils.writeBlockState(wipBlockEntity.getInitialBlock()));
             tag.putString("recipe", wipBlockEntity.getRecipeId().toString());
         }
         return tag;
@@ -77,9 +77,10 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
                 wipBlockEntity.setStepCount(nbt.getInt("stepCount"));
             }
             if (nbt.contains("initialBlock")) {
-                ResourceLocation id = ResourceLocation.parse(nbt.getString("initialBlock"));
-                Block block = BuiltInRegistries.BLOCK.get(id);
-                wipBlockEntity.setInitialBlock(block);
+                wipBlockEntity.setInitialBlock(NbtUtils.readBlockState(
+                    level.holderLookup(Registries.BLOCK),
+                    nbt.getCompound("initialBlock")
+                ));
             }
             if (nbt.contains("recipe")) {
                 wipBlockEntity.setRecipeId(ResourceLocation.parse(nbt.getString("recipe")));
