@@ -180,7 +180,7 @@ public class WrapUtils {
         ResourceLocation key = BuiltInRegistries.BLOCK.getKey(cauldron);
         String namespace = key.getNamespace();
         String path = key.getPath();
-        if (path.endsWith("_cauldron")) path = path.substring(0, path.length() - 9);
+        path = path.endsWith("_cauldron") ? path.substring(0, path.length() - 9) : "empty";
         return ResourceLocation.fromNamespaceAndPath(namespace, path);
     }
 }

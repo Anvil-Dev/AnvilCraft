@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableList;
+import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
@@ -33,9 +34,22 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 @Getter
-public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHolder, IFluidHandlerHolder {
+public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder {
     public static final int CAPACITY = FluidType.BUCKET_VOLUME;
-    private final FluidTank fluidHandler = new FluidTank(CAPACITY);
+    private final FluidTank fluidHandler = new FluidTank(CAPACITY) {
+        @Override
+        protected void onContentsChanged() {
+            FishTankBlockEntity.this.setChanged();
+            Level level = FishTankBlockEntity.this.getLevel();
+            if (level == null) return;
+            level.sendBlockUpdated(
+                FishTankBlockEntity.this.getBlockPos(),
+                FishTankBlockEntity.this.getBlockState(),
+                FishTankBlockEntity.this.getBlockState(),
+                Block.UPDATE_CLIENTS
+            );
+        }
+    };
     /**
      * 0-7 为输出产物，<br>
      * 8-15 为输入物品
@@ -78,6 +92,16 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    @Override
+    public PollableItemHandler getInput() {
+        return this.itemHandler;
+    }
+
+    @Override
+    public PollableItemHandler getOutput() {
+        return this.itemHandler;
     }
 
     @Override

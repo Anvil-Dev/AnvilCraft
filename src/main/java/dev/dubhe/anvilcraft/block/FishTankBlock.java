@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -22,7 +24,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -37,7 +38,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-public class FishTankBlock extends Block implements EntityBlock, HammerRotateBehavior, IHammerRemovable {
+public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable {
     public static final BooleanProperty TROPICAL = BooleanProperty.create("tropical");
     public static final BooleanProperty OUTLET = BooleanProperty.create("outlet");
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -165,5 +166,19 @@ public class FishTankBlock extends Block implements EntityBlock, HammerRotateBeh
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.FISH_TANK.create(pos, state);
+    }
+
+    @Override
+    public CompoundTag clearData(Level level, BlockPos pos) {
+        CompoundTag tag = IMoveableEntityBlock.super.clearData(level, pos);
+        level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
+            .ifPresent(be -> tag.put("data", be.getUpdateTag(level.registryAccess())));
+        return tag;
+    }
+
+    @Override
+    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
+        level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
+            .ifPresent(be -> be.loadAdditional(nbt.getCompound("data"), level.registryAccess()));
     }
 }
