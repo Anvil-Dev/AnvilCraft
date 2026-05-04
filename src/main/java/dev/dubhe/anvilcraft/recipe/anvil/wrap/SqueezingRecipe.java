@@ -301,6 +301,16 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
         }
 
         /**
+         * 设置需要点燃锅
+         *
+         * @return 构建器实例
+         */
+        public Builder ignite() {
+            this.hasCauldron.ignite();
+            return this;
+        }
+
+        /**
          * 设置铁砧条件
          *
          * @param anvil 铁砧方块

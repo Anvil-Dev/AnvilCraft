@@ -1,9 +1,10 @@
 {
   "type": "anvilcraft:squeezing",
+  "fluid": "minecraft:null",
   "ingredient": {
     "blocks": "minecraft:moss_block"
   },
-  "produce": 333,
+  "produce": 250,
   "result": {
     "block": "minecraft:moss_carpet"
   },

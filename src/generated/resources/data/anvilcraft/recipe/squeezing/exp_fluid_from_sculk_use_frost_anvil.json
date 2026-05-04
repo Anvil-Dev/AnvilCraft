@@ -6,6 +6,7 @@
     }
   },
   "chance": 0.4,
+  "fluid": "minecraft:null",
   "ingredient": {
     "blocks": "minecraft:sculk"
   },

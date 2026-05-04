@@ -8,10 +8,12 @@ import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -39,6 +41,7 @@ import java.util.Optional;
  * @param transform 转换后的流体ID
  * @param produce   产生量
  * @param chance    转换成功的概率
+ * @param ignited   是否需要点燃
  */
 public record HasCauldron(
     Vec3 offset,
@@ -46,7 +49,8 @@ public record HasCauldron(
     int consume,
     ResourceLocation transform,
     int produce,
-    float chance
+    float chance,
+    boolean ignited
 ) implements IRecipePredicate<HasCauldron> {
     /**
      * 空炼药锅标识
@@ -67,6 +71,7 @@ public record HasCauldron(
      * @param transform 转换后的流体ID
      * @param produce   产生量
      * @param chance    转换成功的概率
+     * @param ignited   是否需要点燃
      */
     public HasCauldron {
     }
@@ -78,7 +83,7 @@ public record HasCauldron(
      * @return HasCauldron实例
      */
     public static HasCauldron empty(Vec3 offset) {
-        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0f);
+        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0f, false);
     }
 
     @Override
@@ -114,6 +119,14 @@ public record HasCauldron(
         ResourceLocation curFluid = HasCauldron.getCurFluid(cache, pos);
         if (this.hasCheck() && !this.fluid().equals(curFluid)) return false;
 
+        // 如果锅必须为可点燃锅
+        if (this.ignited) {
+            // 锅不为可点燃锅 否决
+            if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+            // 锅未点燃 否决
+            if (!cauldron.isIgnited(cache, pos)) return false;
+        }
+
         // 不消耗且不产生 通过
         if (this.consume() == 0 && this.produce() == 0) return true;
 
@@ -147,7 +160,7 @@ public record HasCauldron(
         if (!HasCauldron.isNotEmpty(newFluid)) newFluid = this.fluid();
         if (!HasCauldron.isNotEmpty(newFluid)) return;
         if (amount > 0 && HasCauldron.isNotEmpty(newFluid)) {
-            HasCauldron.applyFluid(cache, pos, newFluid, amount);
+            HasCauldron.applyFluid(cache, pos, newFluid, amount, this.ignited);
         } else {
             HasCauldron.applyEmpty(cache, pos);
         }
@@ -217,7 +230,10 @@ public record HasCauldron(
         }
     }
 
-    public static void applyFluid(BlockCache cache, BlockPos pos, ResourceLocation fluid, double mb) {
+    public static void applyFluid(BlockCache cache, BlockPos pos, ResourceLocation fluid, double mb, boolean ignited) {
+        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+            if (cauldron.isIgnited(cache, pos)) ignited = true;
+        }
         if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) {
             IFluidHandler handler = holder.getFluidHandler();
             handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
@@ -227,8 +243,18 @@ public record HasCauldron(
             IntegerProperty property = CauldronUtil.LEVEL_4;
             if (cauldron.getOptionalValue(property).isEmpty()) property = CauldronUtil.LEVEL_3;
             if (cauldron.getOptionalValue(property).isEmpty()) property = null;
-            if (property != null) cauldron = cauldron.setValue(property, (int) Math.round(mb / 1000 * property.max));
+            if (property != null) {
+                long layer = Math.round(mb / 1000 * property.max);
+                if (layer == 0) {
+                    cauldron = Blocks.CAULDRON.defaultBlockState();
+                } else {
+                    cauldron = cauldron.setValue(property, (int) layer);
+                }
+            }
             cache.setBlock(pos, cauldron);
+        }
+        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+            if (cauldron.isIgnited(cache, pos) != ignited) cauldron.setIgnited(cache, pos, ignited);
         }
     }
 
@@ -240,6 +266,7 @@ public record HasCauldron(
      */
     public static Block getDefaultCauldron(ResourceLocation fluid) {
         if (fluid.equals(HasCauldron.EMPTY) || fluid.equals(HasCauldron.NULL)) return Blocks.CAULDRON;
+        if (CompatUtil.F2C_TRANSFORM.containsKey(fluid)) return CompatUtil.F2C_TRANSFORM.get(fluid).get();
         String namespace = fluid.getNamespace();
         String path = fluid.getPath();
         ResourceLocation cauldron = ResourceLocation.fromNamespaceAndPath(namespace, "%s_cauldron".formatted(path));
@@ -279,14 +306,17 @@ public record HasCauldron(
                     .forGetter(HasCauldron::produce),
                 Codec.FLOAT
                     .optionalFieldOf("chance", 1.0f)
-                    .forGetter(HasCauldron::chance)
+                    .forGetter(HasCauldron::chance),
+                Codec.BOOL
+                    .optionalFieldOf("ignited", false)
+                    .forGetter(HasCauldron::ignited)
             ).apply(instance, HasCauldron::new)
         );
 
         /**
          * 流编解码器
          */
-        public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = StreamCodec.composite(
+        public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = StreamCodecUtil.composite(
             StreamCodecUtil.VEC3,
             HasCauldron::offset,
             ResourceLocation.STREAM_CODEC,
@@ -299,6 +329,8 @@ public record HasCauldron(
             HasCauldron::produce,
             ByteBufCodecs.FLOAT,
             HasCauldron::chance,
+            ByteBufCodecs.BOOL,
+            HasCauldron::ignited,
             HasCauldron::new
         );
 
@@ -323,6 +355,7 @@ public record HasCauldron(
         private ResourceLocation transform = HasCauldron.NULL;
         private int produce = 0;
         private float chance = 1;
+        private boolean ignited = false;
 
         /**
          * 设置偏移量
@@ -425,6 +458,7 @@ public record HasCauldron(
          */
         public Builder transform(ResourceLocation transform) {
             this.transform = transform;
+            if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
             return this;
         }
 
@@ -462,12 +496,22 @@ public record HasCauldron(
         }
 
         /**
+         * 设置需要点燃锅
+         *
+         * @return 构建器实例
+         */
+        public Builder ignite() {
+            this.ignited = true;
+            return this;
+        }
+
+        /**
          * 构建HasCauldron实例
          *
          * @return HasCauldron实例
          */
         public HasCauldron build() {
-            return new HasCauldron(this.offset, this.fluid, this.consume, this.transform, this.produce, this.chance);
+            return new HasCauldron(this.offset, this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
         }
     }
 }

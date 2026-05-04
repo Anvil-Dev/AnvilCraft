@@ -7,6 +7,7 @@
     "inverted": true
   },
   "chance": 0.1,
+  "fluid": "minecraft:null",
   "ingredient": {
     "blocks": "minecraft:sculk"
   },

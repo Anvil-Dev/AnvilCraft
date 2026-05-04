@@ -100,7 +100,8 @@ public class TimeWarpRecipeLoader {
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
             .result(ModItems.EMBER_METAL_INGOT, 3)
-            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .fluid(ModBlocks.OIL_CAULDRON.get())
+            .ignite()
             .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_0"));
 
@@ -108,7 +109,8 @@ public class TimeWarpRecipeLoader {
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 1)
             .result(ModItems.EMBER_METAL_INGOT, 4)
-            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .fluid(ModBlocks.OIL_CAULDRON.get())
+            .ignite()
             .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_1"));
 
@@ -116,7 +118,8 @@ public class TimeWarpRecipeLoader {
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 2)
             .result(ModItems.EMBER_METAL_INGOT, 5)
-            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .fluid(ModBlocks.OIL_CAULDRON.get())
+            .ignite()
             .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_2"));
 
@@ -124,7 +127,8 @@ public class TimeWarpRecipeLoader {
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 3)
             .result(ModItems.EMBER_METAL_INGOT, 6)
-            .fluid(ModBlocks.FIRE_CAULDRON.get())
+            .fluid(ModBlocks.OIL_CAULDRON.get())
+            .ignite()
             .consume(1000)
             .save(provider, AnvilCraft.of("time_warp/ember_metal_ingot_3"));
 

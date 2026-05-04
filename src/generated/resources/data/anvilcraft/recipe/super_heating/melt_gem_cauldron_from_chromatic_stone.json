@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:super_heating",
+  "fluid": "minecraft:null",
   "ingredients": [
     {
       "items": "anvilcraft:chromatic_stone"

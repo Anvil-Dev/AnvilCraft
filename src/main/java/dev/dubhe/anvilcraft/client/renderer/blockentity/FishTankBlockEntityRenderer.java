@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
@@ -9,24 +10,32 @@ import dev.dubhe.anvilcraft.client.event.ClientTickRecorder;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.joml.Quaternionf;
 
 import java.util.List;
 
 public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTankBlockEntity> {
+    private static final ModelResourceLocation FIRE = ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4"));
     private final RandomSource random = RandomSource.create();
+    private final BlockRenderDispatcher dispatcher;
 
-    public FishTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
+    public FishTankBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+        this.dispatcher = ctx.getBlockRenderDispatcher();
     }
 
     @Override
@@ -49,7 +58,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             float height = 1 - 2 * TANK_W;
 
             minY = TANK_W;
-            maxY = minY + height;
+            maxY = minY + height * fill;
         }
 
         PollableItemHandler handler = tank.getItemHandler();
@@ -66,6 +75,26 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             overlay
         );
         FishTankBlockEntityRenderer.drawFluidInTank(pose, source, light, fluid, minY, maxY);
+        if (tank.isIgnited()) {
+            pose.pushPose();
+            pose.translate(0, maxY - (1 - TANK_W), 0);
+            PoseStack.Pose last = pose.last();
+            BakedModel fire = this.dispatcher.getBlockModelShaper().getModelManager().getModel(FishTankBlockEntityRenderer.FIRE);
+            this.dispatcher.getModelRenderer().renderModel(
+                last,
+                source.getBuffer(RenderType.CUTOUT),
+                null,
+                fire,
+                1,
+                1,
+                1,
+                0xFFFFFF,
+                overlay,
+                ModelData.EMPTY,
+                null
+            );
+            pose.popPose();
+        }
     }
 
     private static final float TANK_W = 1 / 16F + 0.001F; // avoiding Z-fighting

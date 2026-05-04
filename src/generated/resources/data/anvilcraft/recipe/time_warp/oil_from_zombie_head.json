@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:time_warp",
+  "fluid": "minecraft:null",
   "ingredients": [
     {
       "items": "minecraft:zombie_head"

@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlock;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlockIngredient;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -177,6 +178,8 @@ public class WrapUtils {
      * @return 流体ID
      */
     public static ResourceLocation cauldron2Fluid(Block cauldron) {
+        ResourceLocation fluid = CompatUtil.getFluidFromCauldron(cauldron);
+        if (fluid != null) return fluid;
         ResourceLocation key = BuiltInRegistries.BLOCK.getKey(cauldron);
         String namespace = key.getNamespace();
         String path = key.getPath();

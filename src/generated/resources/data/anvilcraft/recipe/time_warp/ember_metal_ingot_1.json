@@ -1,7 +1,8 @@
 {
   "type": "anvilcraft:time_warp",
   "consume": 1000,
-  "fluid": "anvilcraft:fire",
+  "fluid": "anvilcraft:oil",
+  "ignited": true,
   "ingredients": [
     {
       "items": "#anvilcraft:netherite_block"

@@ -401,6 +401,16 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
             return this;
         }
 
+        /**
+         * 设置需要点燃锅
+         *
+         * @return 构建器实例
+         */
+        public Builder ignite() {
+            this.hasCauldron.ignite();
+            return this;
+        }
+
         @Override
         protected TimeWarpRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
             return new TimeWarpRecipe(itemIngredients, results, this.hasCauldron.build(), this.produceHeat.build());
