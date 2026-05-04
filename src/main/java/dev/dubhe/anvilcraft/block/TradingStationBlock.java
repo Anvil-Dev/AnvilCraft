@@ -40,6 +40,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Set;
+
 public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertical2PartHalf, DirectionProperty, Direction>
     implements MultiPartBlockEntity<DirectionVertical2PartHalf, TradingStationBlock>, IHammerChangeable {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -154,6 +157,23 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
         if (oldState.getBlock() != this || oldState.equals(newState)) return;
         if (!(level instanceof ServerLevel serverside)) return;
         TradingStationMessageManager.get().onNonPlayerBreak(serverside, pos);
+    }
+
+    public Collection<BlockState> getBottomStates() {
+        return Set.of(
+            this.defaultBlockState()
+                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(FACING, Direction.NORTH),
+            this.defaultBlockState()
+                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(FACING, Direction.SOUTH),
+            this.defaultBlockState()
+                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(FACING, Direction.EAST),
+            this.defaultBlockState()
+                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(FACING, Direction.WEST)
+        );
     }
 
     // Shapes
