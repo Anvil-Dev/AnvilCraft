@@ -7,7 +7,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Block;
@@ -33,13 +33,13 @@ public class CompatUtil {
         Util.cast(Blocks.END_PORTAL), Map.entry(ModBlocks.END_DUST.getDefaultState(), new CompoundTag()),
         Util.cast(Blocks.NETHER_PORTAL), Map.entry(ModBlocks.NETHER_DUST.getDefaultState(), new CompoundTag())
     ));
-    public static final BiMap<ResourceLocation, Supplier<? extends AbstractCauldronBlock>> F2C_TRANSFORM = HashBiMap.create(Map.of(
-        ResourceLocation.withDefaultNamespace("lava"),
+    public static final BiMap<Identifier, Supplier<? extends AbstractCauldronBlock>> F2C_TRANSFORM = HashBiMap.create(Map.of(
+        Identifier.withDefaultNamespace("lava"),
         ModBlocks.LAVA_CAULDRON
     ));
 
-    public static @Nullable ResourceLocation getFluidFromCauldron(Block cauldron) {
-        for (Map.Entry<ResourceLocation, Supplier<? extends AbstractCauldronBlock>> value : F2C_TRANSFORM.entrySet()) {
+    public static @Nullable Identifier getFluidFromCauldron(Block cauldron) {
+        for (Map.Entry<Identifier, Supplier<? extends AbstractCauldronBlock>> value : F2C_TRANSFORM.entrySet()) {
             if (cauldron.equals(value.getValue().get())) return value.getKey();
         }
         return null;

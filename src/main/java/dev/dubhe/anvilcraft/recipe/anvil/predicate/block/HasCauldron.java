@@ -17,18 +17,22 @@ import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.Optional;
 
@@ -84,7 +88,7 @@ public record HasCauldron(
      * @return HasCauldron实例
      */
     public static HasCauldron empty(Vec3 offset) {
-        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0f, false);
+        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0F, false);
     }
 
     @Override
@@ -119,7 +123,7 @@ public record HasCauldron(
         if (this.consume() > capacity || this.produce() > capacity) return false;
 
         // 锅中流体检查不通过 否决
-        ResourceLocation curFluid = HasCauldron.getCurFluid(cache, pos);
+        Identifier curFluid = HasCauldron.getCurFluid(cache, pos);
         if (this.hasCheck() && !this.fluid().equals(curFluid)) return false;
 
         // 如果锅必须为可点燃锅
@@ -159,13 +163,13 @@ public record HasCauldron(
         double afterConsume = cur - this.consume();
         double amount = afterConsume + this.produce();
 
-        ResourceLocation newFluid = this.transform();
+        Identifier newFluid = this.transform();
         if (!HasCauldron.isNotEmpty(newFluid)) newFluid = this.fluid();
         if (!HasCauldron.isNotEmpty(newFluid)) return;
         if (amount > 0 && HasCauldron.isNotEmpty(newFluid)) {
-            HasCauldron.applyFluid(cache, pos, newFluid, amount, this.ignited);
+            HasCauldron.applyFluid(context, pos, newFluid, amount, this.ignited);
         } else {
-            HasCauldron.applyEmpty(cache, pos);
+            HasCauldron.applyEmpty(context, pos);
         }
 
         context.putAcceptor(BlockCache.BLOCK_CACHE.location(), BlockCache.DEFAULT_ACCEPTOR);
@@ -180,7 +184,7 @@ public record HasCauldron(
         return new Builder();
     }
 
-    public static boolean isNotEmpty(ResourceLocation fluid) {
+    public static boolean isNotEmpty(Identifier fluid) {
         return !fluid.equals(HasCauldron.NULL) && !fluid.equals(HasCauldron.EMPTY);
     }
 
@@ -190,7 +194,7 @@ public record HasCauldron(
 
     public static double getCapacity(BlockCache cache, BlockPos pos) {
         return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder
-               ? holder.getFluidHandler().getTankCapacity(0)
+               ? holder.getFluidHandler().getCapacityAsInt(0, holder.getFluidHandler().getResource(0))
                : 1000;
     }
 
@@ -199,9 +203,9 @@ public record HasCauldron(
      *
      * @return 炼药锅方块
      */
-    public static ResourceLocation getCurFluid(BlockCache cache, BlockPos pos) {
+    public static Identifier getCurFluid(BlockCache cache, BlockPos pos) {
         return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder
-               ? holder.getFluidHandler().getFluidInTank(0).getFluidHolder().getKey().location()
+               ? holder.getFluidHandler().getResource(0).typeHolder().getKey().identifier()
                : WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
     }
 
@@ -211,7 +215,7 @@ public record HasCauldron(
      * @return 炼药锅方块
      */
     public static double getCur(BlockCache cache, BlockPos pos) {
-        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) return holder.getFluidHandler().getFluidInTank(0).getAmount();
+        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) return holder.getFluidHandler().getAmountAsInt(0);
         BlockState state = cache.getBlockState(pos);
         if (state.is(Blocks.CAULDRON)) return 0.0;
         IntegerProperty property = CauldronUtil.LEVEL_4;
@@ -224,39 +228,36 @@ public record HasCauldron(
         return value.map(layer -> (double) layer / finalProperty.max * 1000.0).orElse(1000.0);
     }
 
-    public static void applyEmpty(BlockCache cache, BlockPos pos) {
-        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) {
-            IFluidHandler handler = holder.getFluidHandler();
-            handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-        } else {
-            cache.setBlock(pos, Blocks.CAULDRON);
+    public static void applyEmpty(InWorldRecipeContext ctx, BlockPos pos) {
+        ResourceHandler<FluidResource> handler = ctx.getLevel().getCapability(Capabilities.Fluid.BLOCK, pos, null);
+        if (handler == null) return;
+        try (Transaction transaction = Transaction.openRoot()) {
+            handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
+            transaction.commit();
         }
     }
 
-    public static void applyFluid(BlockCache cache, BlockPos pos, ResourceLocation fluid, double mb, boolean ignited) {
-        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+    public static void applyFluid(InWorldRecipeContext ctx, BlockPos pos, Identifier fluid, double mb, boolean ignited) {
+        ResourceHandler<FluidResource> handler = ctx.getLevel().getCapability(Capabilities.Fluid.BLOCK, pos, null);
+        if (handler == null) return;
+        BlockCache cache = new BlockCache(ctx.getLevel());
+        if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos)) ignited = true;
         }
-        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) {
-            IFluidHandler handler = holder.getFluidHandler();
-            handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-            handler.fill(new FluidStack(BuiltInRegistries.FLUID.get(fluid), (int) Math.round(mb)), IFluidHandler.FluidAction.EXECUTE);
-        } else {
-            BlockState cauldron = HasCauldron.getDefaultCauldron(fluid).defaultBlockState();
-            IntegerProperty property = CauldronUtil.LEVEL_4;
-            if (cauldron.getOptionalValue(property).isEmpty()) property = CauldronUtil.LEVEL_3;
-            if (cauldron.getOptionalValue(property).isEmpty()) property = null;
-            if (property != null) {
-                long layer = Math.round(mb / 1000 * property.max);
-                if (layer == 0) {
-                    cauldron = Blocks.CAULDRON.defaultBlockState();
-                } else {
-                    cauldron = cauldron.setValue(property, (int) layer);
-                }
+        try (Transaction transaction = Transaction.openRoot()) {
+            FluidResource resource = FluidResource.of(BuiltInRegistries.FLUID.getOrThrow(ResourceKey.create(Registries.FLUID, fluid)));
+            if (!handler.getResource(0).equals(resource)) handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
+            int amount = (int) Math.round(mb);
+            amount -= handler.getAmountAsInt(0);
+            if (amount < 0) {
+                handler.extract(resource, -amount, transaction);
+            } else {
+                handler.insert(resource, amount, transaction);
             }
-            cache.setBlock(pos, cauldron);
+            transaction.commit();
         }
-        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+        cache = new BlockCache(ctx.getLevel());
+        if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos) != ignited) cauldron.setIgnited(cache, pos, ignited);
         }
     }
@@ -273,7 +274,7 @@ public record HasCauldron(
         String namespace = fluid.getNamespace();
         String path = fluid.getPath();
         Identifier cauldron = Identifier.fromNamespaceAndPath(namespace, "%s_cauldron".formatted(path));
-        Holder.Reference<Block> reference = BuiltInRegistries.BLOCK.getHolder(cauldron).orElse(null);
+        Holder.Reference<Block> reference = BuiltInRegistries.BLOCK.get(ResourceKey.create(Registries.BLOCK, cauldron)).orElse(null);
         Block block = Blocks.WATER_CAULDRON;
         if (reference != null) block = reference.value();
         return block;
