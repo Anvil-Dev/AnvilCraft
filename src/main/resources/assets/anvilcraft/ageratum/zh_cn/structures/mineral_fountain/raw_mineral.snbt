@@ -1,0 +1,27 @@
+{
+    DataVersion: 3955,
+    size: [7, 2, 3],
+    data: [
+        {pos: [0, 0, 1], state: "minecraft:raw_gold_block"},
+        {pos: [1, 0, 0], state: "minecraft:raw_gold_block"},
+        {pos: [1, 0, 1], state: "anvilcraft:mineral_fountain", nbt: {id: "anvilcraft:mineral_fountain", tickCount: -1}},
+        {pos: [1, 0, 2], state: "minecraft:raw_gold_block"},
+        {pos: [2, 0, 1], state: "minecraft:raw_gold_block"},
+        {pos: [4, 0, 1], state: "minecraft:raw_gold_block"},
+        {pos: [5, 0, 0], state: "minecraft:raw_gold_block"},
+        {pos: [5, 0, 1], state: "anvilcraft:mineral_fountain", nbt: {id: "anvilcraft:mineral_fountain", tickCount: -1}},
+        {pos: [5, 0, 2], state: "minecraft:raw_gold_block"},
+        {pos: [6, 0, 1], state: "minecraft:raw_gold_block"},
+        {pos: [1, 1, 1], state: "minecraft:deepslate"},
+        {pos: [3, 1, 1], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [5, 1, 1], state: "minecraft:deepslate_gold_ore"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:raw_gold_block",
+        "minecraft:deepslate_gold_ore",
+        "minecraft:deepslate",
+        "anvilcraft:arrow{facing:east}",
+        "anvilcraft:mineral_fountain"
+    ]
+}
