@@ -55,7 +55,7 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
 
     @Override
     public RecipeType<NeutronIrradiationRecipe> getType() {
-        return ModRecipeTypes.NEUTRON_IRRADIATION.get();
+        return ModRecipeTypes.NEUTRON_IRRADIATION_TYPE.get();
     }
 
     public static Builder builder() {

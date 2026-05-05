@@ -1,0 +1,42 @@
+{
+    DataVersion: 3955,
+    size: [5, 5, 5],
+    data: [
+        {pos: [2, 0, 2], state: "anvilcraft:end_dust"},
+        {pos: [2, 1, 2], state: "anvilcraft:arrow{facing:down}"},
+        {pos: [0, 2, 1], state: "minecraft:end_portal_frame{eye:true,facing:east}"},
+        {pos: [0, 2, 2], state: "minecraft:end_portal_frame{eye:true,facing:east}"},
+        {pos: [0, 2, 3], state: "minecraft:end_portal_frame{eye:true,facing:east}"},
+        {pos: [1, 2, 0], state: "minecraft:end_portal_frame{eye:true,facing:south}"},
+        {pos: [1, 2, 1], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [1, 2, 2], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [1, 2, 3], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [1, 2, 4], state: "minecraft:end_portal_frame{eye:true,facing:north}"},
+        {pos: [2, 2, 0], state: "minecraft:end_portal_frame{eye:true,facing:south}"},
+        {pos: [2, 2, 1], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [2, 2, 2], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [2, 2, 3], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [2, 2, 4], state: "minecraft:end_portal_frame{eye:true,facing:north}"},
+        {pos: [3, 2, 0], state: "minecraft:end_portal_frame{eye:true,facing:south}"},
+        {pos: [3, 2, 1], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [3, 2, 2], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [3, 2, 3], state: "minecraft:end_portal", nbt: {id: "minecraft:end_portal"}},
+        {pos: [3, 2, 4], state: "minecraft:end_portal_frame{eye:true,facing:north}"},
+        {pos: [4, 2, 1], state: "minecraft:end_portal_frame{eye:true,facing:west}"},
+        {pos: [4, 2, 2], state: "minecraft:end_portal_frame{eye:true,facing:west}"},
+        {pos: [4, 2, 3], state: "minecraft:end_portal_frame{eye:true,facing:west}"},
+        {pos: [2, 3, 2], state: "anvilcraft:arrow{facing:down}"},
+        {pos: [2, 4, 2], state: "minecraft:gravel"}
+    ],
+    entities: [],
+    palette: [
+        "anvilcraft:end_dust",
+        "minecraft:gravel",
+        "anvilcraft:arrow{facing:down}",
+        "minecraft:end_portal_frame{eye:true,facing:east}",
+        "minecraft:end_portal_frame{eye:true,facing:south}",
+        "minecraft:end_portal_frame{eye:true,facing:north}",
+        "minecraft:end_portal_frame{eye:true,facing:west}",
+        "minecraft:end_portal"
+    ]
+}

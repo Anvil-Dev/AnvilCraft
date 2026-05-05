@@ -6,6 +6,10 @@ dependencies {
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
     jarJar(libs.anvillib)
 
+    // Ageratum 藿香
+    implementation(libs.ageratum)
+    jarJar(libs.ageratum)
+
     // JEI
     compileOnlyApi(libs.jei.common.api) { transitive = false }
     compileOnlyApi(libs.jei.forge.api) { transitive = false }

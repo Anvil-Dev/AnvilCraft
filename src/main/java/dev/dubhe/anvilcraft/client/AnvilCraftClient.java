@@ -49,6 +49,7 @@ public class AnvilCraftClient {
         modBus.addListener(ModModelLayers::createModel);
         modBus.addListener(ModTooltipComponents::register);
         modBus.addListener(AnvilCraftClient::clientSetup);
+        AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modEventBus);
         InspectionSupport.initializeClient();
     }
 
