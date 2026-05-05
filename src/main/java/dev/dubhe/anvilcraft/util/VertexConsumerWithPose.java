@@ -29,6 +29,11 @@ public class VertexConsumerWithPose implements VertexConsumer {
     }
 
     @Override
+    public VertexConsumer setColor(int i) {
+        return parent.setColor(i);
+    }
+
+    @Override
     public VertexConsumer setUv(float u, float v) {
         return parent.setUv(u, v);
     }
@@ -51,6 +56,11 @@ public class VertexConsumerWithPose implements VertexConsumer {
     @Override
     public VertexConsumer setNormal(float x, float y, float z) {
         return parent.setNormal(pose, x, y, z);
+    }
+
+    @Override
+    public VertexConsumer setLineWidth(float v) {
+        return parent.setLineWidth(v);
     }
 
 }

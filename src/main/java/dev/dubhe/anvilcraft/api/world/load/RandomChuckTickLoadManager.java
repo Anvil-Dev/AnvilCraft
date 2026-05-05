@@ -30,9 +30,9 @@ public class RandomChuckTickLoadManager {
             for (ChunkPos chunkPos : loadChuckData.getChunkPosList()) {
                 ServerLevel serverLevel = loadChuckData.getServerLevel();
                 ChunkMap chunkMap = serverLevel.getChunkSource().chunkMap;
-                if (chunkMap.updatingChunkMap.containsKey(chunkPos.toLong())) {
+                if (chunkMap.updatingChunkMap.containsKey(chunkPos.pack())) {
                     serverLevel.tickChunk(
-                        serverLevel.getChunk(chunkPos.x, chunkPos.z),
+                        serverLevel.getChunk(chunkPos.x(), chunkPos.z()),
                         serverLevel.getServer().getGameRules().getInt(GameRules.RULE_RANDOMTICKING)
                     );
                 }

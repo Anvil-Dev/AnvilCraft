@@ -162,7 +162,7 @@ public class ActiveSilencerBlockEntity
             .getOrThrow()
             .getFirst());
         this.setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
     }

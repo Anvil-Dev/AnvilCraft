@@ -113,7 +113,7 @@ public class OverNestingShulkerBoxBlock extends BetterBlock implements EntityBlo
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof OverNestingShulkerBoxBlockEntity nesting) {
-            if (!level.isClientSide && player.isCreative() && !nesting.getItems().isEmpty()) {
+            if (!level.isClientSide() && player.isCreative() && !nesting.getItems().isEmpty()) {
                 ItemStack stack = this.asItem().getDefaultInstance();
                 stack.applyComponents(be.collectComponents());
                 ItemEntity itemEntity = new ItemEntity(

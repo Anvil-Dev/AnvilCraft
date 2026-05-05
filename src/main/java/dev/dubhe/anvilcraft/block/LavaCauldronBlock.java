@@ -67,7 +67,7 @@ public class LavaCauldronBlock extends Layered4LevelCauldronBlock implements IHa
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         if (this.isFull(state)) {

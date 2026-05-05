@@ -49,7 +49,7 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         if (level.getBlockEntity(pos) instanceof CreativeGeneratorBlockEntity entity

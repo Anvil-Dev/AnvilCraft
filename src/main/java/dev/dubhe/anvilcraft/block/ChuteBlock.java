@@ -177,7 +177,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         BlockState neighborState = level.getBlockState(neighborPos);
         Block neighborBlock1 = neighborState.getBlock();
         if (isChuteBlock(neighborBlock) || isChuteBlock(neighborBlock1)) {
@@ -244,7 +244,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         Player player,
         InteractionHand hand,
         BlockHitResult hit) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);

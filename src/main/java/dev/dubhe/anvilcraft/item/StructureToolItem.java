@@ -85,7 +85,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
             }
         } else {
             StructureData data = itemstack.get(ModComponents.STRUCTURE_DATA);
-            if (data != null && !level.isClientSide) {
+            if (data != null && !level.isClientSide()) {
                 if (!data.isCube()) {
                     player.displayClientMessage(
                         Component.translatable("tooltip.anvilcraft.item.structure_tool.must_cube")

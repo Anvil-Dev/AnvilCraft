@@ -46,7 +46,7 @@ public class BlockPlaceAssist {
         EnumProperty<Direction.Axis> propertyDef,
         BlockState newBlockState
     ) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player.isShiftKeyDown() || !player.mayBuild()) return InteractionResult.PASS;
         ItemStack itemInHand = player.getItemInHand(hand);
         if (itemInHand.is(blockItem)) {

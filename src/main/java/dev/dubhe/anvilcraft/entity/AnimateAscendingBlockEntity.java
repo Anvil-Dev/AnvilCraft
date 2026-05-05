@@ -94,7 +94,7 @@ public class AnimateAscendingBlockEntity extends Entity {
         Vec3 mov = this.getDeltaMovement().add(0.0, 0.4, 0.0);
         this.setDeltaMovement(mov);
         this.setPos(this.getX() + mov.x, this.getY() + mov.y, this.getZ() + mov.z);
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         BlockPos current = this.blockPosition();
         BlockPos eyePos = BlockPos.containing(this.getEyePosition());
         BlockPos up = current.above();

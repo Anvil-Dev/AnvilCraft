@@ -34,7 +34,7 @@ public class TopazItem extends Item {
             Player player = context.getPlayer();
             lightningBolt.setPos(clickedPos.getCenter());
             level.addFreshEntity(lightningBolt);
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 ModCriterionTriggers.USE_ITEM.get().trigger((ServerPlayer) player, this);
             }
             if (player != null && player.getAbilities().instabuild) return InteractionResult.SUCCESS;

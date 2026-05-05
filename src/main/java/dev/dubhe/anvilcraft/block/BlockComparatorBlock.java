@@ -85,7 +85,7 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        if (level.isClientSide || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
+        if (level.isClientSide() || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
         boolean newPowered = checkBlocks(level, pos, state);
         level.setBlock(pos, state.setValue(POWERED, newPowered), 3);
         this.updateNeighborsInFront(level, pos, state);
@@ -93,7 +93,7 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (level.isClientSide || (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))) return;
+        if (level.isClientSide() || (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))) return;
         if (state.getValue(POWERED)) {
             this.updateNeighborsInFront(level, pos, state);
         }
@@ -108,7 +108,7 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
             BlockState newState = state.cycle(PRECISE);
             level.setBlock(pos, newState.setValue(POWERED, checkBlocks(level, pos, newState)), 2);
             this.updateNeighborsInFront(level, pos, state);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
     }
 

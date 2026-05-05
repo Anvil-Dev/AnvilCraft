@@ -56,7 +56,7 @@ public class MagnetizedNodeEntity extends Entity {
             rotatingState.startIfStopped(this.tickCount);
         }
         super.tick();
-        if (!this.level().isClientSide && !this.level().getBlockState(this.blockPos).is(this.blockState.getBlock())) {
+        if (!this.level().isClientSide() && !this.level().getBlockState(this.blockPos).is(this.blockState.getBlock())) {
             BlockState currentState = this.level().getBlockState(this.blockPos);
             if (!currentState.is(this.blockState.getBlock())
                 && (!currentState.is(BlockTags.CAULDRONS) || !this.blockState.is(BlockTags.CAULDRONS))) {

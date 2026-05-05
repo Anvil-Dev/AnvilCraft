@@ -75,7 +75,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             this.updateDisplayItem(ItemStack.EMPTY);
         } else if (this.selecting >= recipes.size()) {
             this.selecting = 0;
-            if (!this.level.isClientSide) {
+            if (!this.level.isClientSide()) {
                 PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
                     this.selecting,
                     this.getPos()
@@ -86,7 +86,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
         }
 
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
                 this.getDisplayingStack(),
                 this.getPos()
@@ -106,7 +106,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         if (this.selecting >= recipes.size()) {
             this.selecting = 0;
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
                     this.selecting,
                     this.getPos()
@@ -115,7 +115,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
         ItemStack result = recipes.get(this.selecting).value().assemble(this.createInput(), level.registryAccess());
         this.displayingStack = result.copy();
-        if (!level.isClientSide) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        if (!level.isClientSide()) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
         int times = IntStream.range(0, this.handler.getSlots())
@@ -184,7 +184,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             this.updateDisplayItem(ItemStack.EMPTY);
         } else if (this.selecting >= recipes.size()) {
             this.selecting = 0;
-            if (!this.level.isClientSide) {
+            if (!this.level.isClientSide()) {
                 PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
                     this.selecting,
                     this.getPos()
@@ -196,7 +196,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
         }
 
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(this.selecting, this.getPos()));
         }
     }

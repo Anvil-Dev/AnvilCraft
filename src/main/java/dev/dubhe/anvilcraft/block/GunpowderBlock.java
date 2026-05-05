@@ -37,7 +37,7 @@ public class GunpowderBlock extends Block {
     }
 
     public void explosion(Level level, BlockPos pos) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
@@ -92,7 +92,7 @@ public class GunpowderBlock extends Block {
                 stack.consume(1, player);
             }
             player.awardStat(Stats.ITEM_USED.get(item));
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
@@ -138,7 +138,7 @@ public class GunpowderBlock extends Block {
 
     @Override
     protected void onProjectileHit(Level level, BlockState state, BlockHitResult hit, Projectile projectile) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         BlockPos pos = hit.getBlockPos();
@@ -149,7 +149,7 @@ public class GunpowderBlock extends Block {
 
     @Override
     public void wasExploded(Level level, BlockPos pos, Explosion explosion) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         explosion(level, pos);

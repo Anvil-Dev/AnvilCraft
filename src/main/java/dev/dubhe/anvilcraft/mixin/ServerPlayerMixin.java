@@ -41,8 +41,8 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @Unique
     private DynamicPowerComponent anvilcraft$component;
 
-    public ServerPlayerMixin(Level level, BlockPos pos, float rotY, GameProfile gameProfile) {
-        super(level, pos, rotY, gameProfile);
+    public ServerPlayerMixin(Level level, GameProfile gameProfile) {
+        super(level, gameProfile);
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))

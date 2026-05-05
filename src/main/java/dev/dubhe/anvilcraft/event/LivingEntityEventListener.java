@@ -109,7 +109,7 @@ public class LivingEntityEventListener {
         Entity entity = event.getTarget();
         Level level = event.getLevel();
         ItemStack heldItem = event.getItemStack();
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (entity instanceof LivingEntity livingEntity) {
             ItemStack item1 = livingEntity.getMainHandItem();
             if (!item1.isEmpty() && !item1.is(Items.AIR) && item1.getItem() != heldItem.getItem()) return;

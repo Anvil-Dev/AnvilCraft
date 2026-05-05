@@ -124,7 +124,7 @@ public final class SlidingBlockSection {
     }
 
     public void setBlock(Level level, BlockPos center, Entity entity) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         for (SlidingBlockInfo info : this.blocks) {
             BlockPos pos = info.getPos(center);
             BlockState state = info.state();

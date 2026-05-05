@@ -21,7 +21,7 @@ public class ExpFluidCauldronBlock extends Layered4LevelCauldronBlock implements
 
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (!this.isEntityInsideContent(state, pos, entity)) return;
         if (entity instanceof Player player) {
             if (!this.isFull(state)) return;

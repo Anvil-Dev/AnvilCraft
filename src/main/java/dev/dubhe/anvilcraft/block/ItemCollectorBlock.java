@@ -113,7 +113,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         BlockState state,
         BlockEntityType<T> type
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
@@ -142,7 +142,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         Player player,
         InteractionHand hand,
         BlockHitResult hit) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -174,7 +174,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);

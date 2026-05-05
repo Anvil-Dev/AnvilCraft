@@ -187,7 +187,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
                 MOVING_PISTON_MAP.get(pos).fromPos = fromPos;
             } else MOVING_PISTON_MAP.put(pos, ppi);
         }
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (!powered) return;
         BlockState blockState = level.getBlockState(MOVING_PISTON_MAP.get(pos) instanceof PistonPushInfo info ? info.fromPos : fromPos);
         if (!MOVING_PISTON_MAP.containsKey(pos)) return;

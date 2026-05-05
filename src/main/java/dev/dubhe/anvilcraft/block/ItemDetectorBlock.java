@@ -91,7 +91,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        if (level.isClientSide || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
+        if (level.isClientSide() || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
         if (level.getBlockEntity(pos) instanceof ItemDetectorBlockEntity blockEntity) {
             blockEntity.recalcDetectionRange();
         }
@@ -101,7 +101,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         super.onRemove(state, level, pos, newState, isMoving);
-        if (level.isClientSide
+        if (level.isClientSide()
             || (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))
             || !state.getValue(POWERED)) {
             return;
@@ -116,7 +116,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         Player player,
         InteractionHand hand,
         BlockHitResult hit) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -175,7 +175,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         BlockState state,
         BlockEntityType<T> type
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(type, ModBlockEntities.ITEM_DETECTOR.get(),

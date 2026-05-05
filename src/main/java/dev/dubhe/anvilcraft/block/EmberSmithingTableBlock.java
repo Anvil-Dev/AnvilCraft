@@ -72,7 +72,7 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, Objects.requireNonNull(state.getMenuProvider(level, pos)));
         player.awardStat(Stats.INTERACT_WITH_SMITHING_TABLE);
         return InteractionResult.CONSUME;

@@ -98,7 +98,7 @@ public class SlidingBlockEntity extends Entity {
         BlockPos pos = this.blockPosition();
         BlockPos belowPos = pos.below();
         BlockState belowState = this.level().getBlockState(belowPos);
-        if (belowState.getBlock() instanceof ISlidingRail slidingRail && !this.level().isClientSide) {
+        if (belowState.getBlock() instanceof ISlidingRail slidingRail && !this.level().isClientSide()) {
             slidingRail.onSlidingAbove(this.level(), belowPos, belowState, this);
         }
         Direction.Axis horizontalAnother = this.moveDirection.getClockWise().getAxis();
@@ -108,7 +108,7 @@ public class SlidingBlockEntity extends Entity {
             this.stop();
         } else if (this.checkCanMove()) {
             this.setDeltaMovement(Vec3.ZERO.relative(this.moveDirection, DEFAULT_MOVEMENT));
-        } else if (!this.level().isClientSide && !this.isRemoved()) {
+        } else if (!this.level().isClientSide() && !this.isRemoved()) {
             this.setDeltaMovement(Vec3.ZERO);
             this.stop();
         }
@@ -137,7 +137,7 @@ public class SlidingBlockEntity extends Entity {
 
     public void setMoveDirection(Direction moveDirection) {
         this.moveDirection = moveDirection;
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             (ServerLevel) this.level(), new ChunkPos(this.blockPosition()),
             new SlidingEntitySyncPacket(this.getId(), this.section.blocks(), moveDirection)
@@ -145,7 +145,7 @@ public class SlidingBlockEntity extends Entity {
     }
 
     public void stop() {
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         this.section.setBlock(this.level(), this.blockPosition(), this);
         this.discard();
     }

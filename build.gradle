@@ -54,3 +54,13 @@ machete {
 lombok {
     version = "1.18.44"
 }
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile).tap {
+            configureEach {
+                options.compilerArgs << "-Xmaxerrs" << "10000"
+            }
+        }
+    }
+}

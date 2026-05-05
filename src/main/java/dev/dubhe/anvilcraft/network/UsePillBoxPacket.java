@@ -25,10 +25,10 @@ public record UsePillBoxPacket() implements IServerboundPacket {
     @Override
     public void handleOnServer(Player player) {
         Inventory inventory = player.getInventory();
-        for (int i = 0; i < inventory.items.size(); i++) {
+        for (int i = 0; i < inventory.getNonEquipmentItems().size(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (!stack.is(ModItems.PILL_BOX)) continue;
-            if (player.getCooldowns().isOnCooldown(stack.getItem())) return;
+            if (player.getCooldowns().isOnCooldown(stack.getItem().getDefaultInstance())) return;
             PillBoxItem.use(stack, player);
             player.containerMenu.sendAllDataToRemote();
         }

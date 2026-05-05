@@ -124,7 +124,7 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof SupercriticalNestingShulkerBoxBlockEntity nesting) {
-            if (!level.isClientSide && player.isCreative() && !nesting.getItems().isEmpty()) {
+            if (!level.isClientSide() && player.isCreative() && !nesting.getItems().isEmpty()) {
                 ItemStack stack = this.asItem().getDefaultInstance();
                 stack.applyComponents(be.collectComponents());
                 ItemEntity itemEntity = new ItemEntity(

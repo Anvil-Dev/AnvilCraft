@@ -81,7 +81,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         public void onContentsChanged(int slot) {
-            if (level == null || level.isClientSide || changed) return;
+            if (level == null || level.isClientSide() || changed) return;
             changed = true;
             Objects.requireNonNull(level.getServer()).execute(() -> {
                 try {
@@ -219,7 +219,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Override
     public void gridTick() {
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         this.updatePoachingMapForThis();
         // 如果保持“截胡模式就不再主动吸取物品”的设定就把下面一行取消注释回来
         // if (cooldown.get() == 0) return;

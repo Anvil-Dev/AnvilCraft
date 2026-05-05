@@ -70,7 +70,7 @@ public class HeliostatsItem extends BlockItem {
         @Nullable Player player,
         ItemStack stack,
         BlockState state) {
-        if (level.isClientSide) return false;
+        if (level.isClientSide()) return false;
         if (!hasDataStored(stack)) {
             if (player != null) {
                 player.displayClientMessage(
@@ -149,7 +149,7 @@ public class HeliostatsItem extends BlockItem {
     @Override
     public InteractionResultHolder<ItemStack> use(
         Level level, Player player, InteractionHand usedHand) {
-        if (!level.isClientSide && player.isShiftKeyDown()) {
+        if (!level.isClientSide() && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             if (hasDataStored(itemStack)) {
                 deleteData(itemStack);

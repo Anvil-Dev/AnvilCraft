@@ -83,7 +83,7 @@ public abstract class LivingEntityMixin extends Entity {
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
     private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         switch (value.getEntity()) {
-            case FallingBlockEntity falling when !this.level().isClientSide -> {
+            case FallingBlockEntity falling when !this.level().isClientSide() -> {
                 Block anvil = falling.getBlockState().getBlock();
                 if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return value;
                 ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());

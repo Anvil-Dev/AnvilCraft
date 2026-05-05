@@ -84,7 +84,7 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
         BlockState state,
         Player player
     ) {
-        if (!level.isClientSide && player.isCreative()) {
+        if (!level.isClientSide() && player.isCreative()) {
             this.preventCreativeDropFromMainPart(level, pos, state, player);
         }
         return super.playerWillDestroy(level, pos, state, player);

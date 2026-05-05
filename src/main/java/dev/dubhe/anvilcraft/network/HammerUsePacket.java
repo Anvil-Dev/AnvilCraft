@@ -37,6 +37,6 @@ public record HammerUsePacket(BlockPos pos, InteractionHand hand, BlockHitResult
     public void handleOnServer(Player player) {
         ServerPlayer serverside = Util.cast(player);
         ItemStack itemInHand = serverside.getItemInHand(this.hand);
-        AnvilHammerItem.useBlock(serverside, this.pos, serverside.serverLevel(), itemInHand, this.hand, this.result);
+        AnvilHammerItem.useBlock(serverside, this.pos, serverside.level(), itemInHand, this.hand, this.result);
     }
 }

@@ -88,7 +88,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
     private WorkResult validatePos(@Nullable BlockPos irritatePos) {
         normalVector3f = new Vector3f();
         if (level == null) return WorkResult.UNKNOWN;
-        if (level.isClientSide && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
+        if (level.isClientSide() && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
         if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 64) {
             return WorkResult.TOO_FAR;
@@ -126,7 +126,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
             irritateVec3,
             ClipContext.Block.COLLIDER,
             ClipContext.Fluid.NONE,
-            level.isClientSide
+            level.isClientSide()
                 ? Objects.requireNonNull(Minecraft.getInstance().player)
                 : AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer())
         );
@@ -172,7 +172,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
     public void tick() {
         if (level == null) return;
         if (level.getGameTime() % (AnvilCraft.CONFIG.heliostatsDetectionInterval + 1) != 0) return;
-        if (irritatePos == null && level.isClientSide) {
+        if (irritatePos == null && level.isClientSide()) {
             PacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), irritatePos));
         }
         workResult = validatePos(irritatePos);

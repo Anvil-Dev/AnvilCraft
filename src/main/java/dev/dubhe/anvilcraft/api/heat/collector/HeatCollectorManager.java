@@ -125,7 +125,7 @@ public class HeatCollectorManager {
     }
 
     private void tick() {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         if (this.level.getGameTime() % GRID_TICK != 0) return;

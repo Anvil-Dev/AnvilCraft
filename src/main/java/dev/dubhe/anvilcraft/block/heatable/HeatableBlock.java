@@ -45,7 +45,7 @@ public abstract class HeatableBlock extends Block {
     protected abstract boolean hasBlockEntity();
 
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState ignored, BlockEntityType<T> ignored1) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         if (!this.hasBlockEntity()) return null;
         return (level1, pos, it, it1) -> HeatableBlockEntity.tick(level1, pos);
     }

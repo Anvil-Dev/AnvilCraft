@@ -57,7 +57,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         ISlidingRail.whenNeighborChanged(level, self(), pos, fromPos);
     }
 
@@ -109,7 +109,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
 
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (entity instanceof ItemEntity) {
             AABB railBox = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
             if (railBox.intersects(entity.getBoundingBox())) {

@@ -143,7 +143,7 @@ public class AnvilHammerItem extends Item implements Equipable {
     }
 
     public static boolean dropAnvil(@Nullable Player player, Level level, BlockPos blockPos) {
-        if (player == null || level.isClientSide) return false;
+        if (player == null || level.isClientSide()) return false;
         ItemStack itemStack = player.getMainHandItem();
         Item item = itemStack.getItem();
         if (!(item instanceof AnvilHammerItem anvilHammerItem)) return false;

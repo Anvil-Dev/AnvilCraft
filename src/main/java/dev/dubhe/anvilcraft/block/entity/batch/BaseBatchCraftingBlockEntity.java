@@ -72,7 +72,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
         level.updateNeighbourForOutputSignal(pos, state.getBlock());
         boolean powered = state.getValue(BaseBatchCraftingBlock.POWERED);
         this.cooldown = Math.max(0, this.cooldown - 1);
-        if (powered && !this.poweredBefore && !level.isClientSide && this.cooldown == 0) {
+        if (powered && !this.poweredBefore && !level.isClientSide() && this.cooldown == 0) {
             if (this.craft(level)) this.cooldown = this.getCooldownDuration();
         }
         this.poweredBefore = powered;
@@ -281,7 +281,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     public void applyDiskData(CompoundTag data) {
         handler.deserializeFiltering(data.getCompound("Filtering"));
         this.setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
     }

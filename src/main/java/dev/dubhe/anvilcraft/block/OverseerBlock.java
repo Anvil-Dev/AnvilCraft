@@ -105,7 +105,7 @@ public class OverseerBlock
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return null;
         return (level1, pos, state1, entity) -> {
             if (entity instanceof OverseerBlockEntity be) be.tick(level1, pos, state1);

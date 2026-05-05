@@ -130,7 +130,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     public void update(Level level, BlockPos pos, Supplier<BlockState> stateGetter) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
 
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (!(blockentity instanceof PulseGeneratorBlockEntity generator)) return;
@@ -271,7 +271,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         Player player,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity be = level.getBlockEntity(pos);
@@ -298,7 +298,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof PulseGeneratorBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
                 return Util.interactionResultConverter()

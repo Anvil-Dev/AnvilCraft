@@ -83,7 +83,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof ActiveSilencerBlockEntity asbe
@@ -112,7 +112,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         Player player,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity be = level.getBlockEntity(pos);

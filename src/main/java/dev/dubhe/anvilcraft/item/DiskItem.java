@@ -92,7 +92,7 @@ public class DiskItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-        if (level.isClientSide) return InteractionResult.PASS;
+        if (level.isClientSide()) return InteractionResult.PASS;
         Player player = context.getPlayer();
         if (player == null || player.isShiftKeyDown()) return InteractionResult.FAIL;
         BlockPos clickedPos = context.getClickedPos();
@@ -123,7 +123,7 @@ public class DiskItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(
         Level level, Player player, InteractionHand usedHand) {
-        if (!level.isClientSide && player.isShiftKeyDown()) {
+        if (!level.isClientSide() && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             if (hasDataStored(itemStack)) {
                 deleteData(itemStack);

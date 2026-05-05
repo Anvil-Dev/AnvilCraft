@@ -128,7 +128,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!level.isClientSide && !state.is(newState.getBlock())) {
+        if (!level.isClientSide() && !state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof FishTankBlockEntity tank) {
                 IItemHandler handler = tank.getItemHandler();
@@ -159,7 +159,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     public ItemInteractionResult changeOutlet(Level level, BlockPos pos, BlockState state, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             // 水平的四个方向根据被右键的方向转换
             Direction outletDir = Direction.from2DDataValue((hitResult.getDirection().get2DDataValue()));
             boolean hasOutlet = !state.getValue(FishTankBlock.OUTLET);

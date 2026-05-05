@@ -262,7 +262,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         BlockHitResult hit
     ) {
         ItemStack itemStack = player.getItemInHand(hand);
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (eat(level, pos, player).consumesAction()) {
                 return InteractionResult.SUCCESS;
             }

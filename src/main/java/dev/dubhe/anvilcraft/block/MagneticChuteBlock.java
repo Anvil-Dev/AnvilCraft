@@ -208,7 +208,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);

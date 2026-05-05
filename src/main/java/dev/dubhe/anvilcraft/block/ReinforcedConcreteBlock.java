@@ -49,7 +49,7 @@ public class ReinforcedConcreteBlock extends Block {
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (shouldIgnoreUpdate(pos, neighborPos)) return;
         ReinforcedConcreteHalf half = state.getValue(HALF);
         BlockState aboveState = level.getBlockState(pos.above());

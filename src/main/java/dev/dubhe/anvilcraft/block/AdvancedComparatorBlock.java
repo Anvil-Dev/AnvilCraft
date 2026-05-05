@@ -145,7 +145,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     public void update(Level level, BlockPos pos, BlockState state) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (!(blockentity instanceof AdvancedComparatorBlockEntity comparator)) return;
         Mode mode = comparator.getCompareMode();
@@ -224,7 +224,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         Optional<AdvancedComparatorBlockEntity> optional = level.getBlockEntity(pos, ModBlockEntities.ADVANCED_COMPARATOR.get());
-        if (level.isClientSide || optional.isEmpty()) return;
+        if (level.isClientSide() || optional.isEmpty()) return;
         AdvancedComparatorBlockEntity blockEntity = optional.get();
         blockEntity.updateInputtingSignal(level, pos, state);
         this.updateBlockAndNeighbours(level, pos, state, blockEntity);
@@ -264,7 +264,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         Player player,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity be = level.getBlockEntity(pos);
@@ -289,7 +289,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof AdvancedComparatorBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
                 return Util.interactionResultConverter()

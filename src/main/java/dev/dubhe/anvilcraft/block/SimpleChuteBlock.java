@@ -105,7 +105,7 @@ public class SimpleChuteBlock
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         BlockState neighborState = level.getBlockState(neighborPos);
         Block neighborBlock1 = neighborState.getBlock();
         if (ChuteBlock.isChuteBlock(neighborBlock) || ChuteBlock.isChuteBlock(neighborBlock1)) {
@@ -193,7 +193,7 @@ public class SimpleChuteBlock
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         return createTickerHelper(
             blockEntityType,
             ModBlockEntities.SIMPLE_CHUTE.get(),

@@ -61,7 +61,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, getMenuProvider(state, level, pos));
         player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
         return InteractionResult.sidedSuccess(level.isClientSide());

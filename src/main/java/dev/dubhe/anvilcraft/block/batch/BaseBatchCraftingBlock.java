@@ -77,7 +77,7 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
         ItemStack stack = player.getItemInHand(hand);
@@ -181,7 +181,7 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 

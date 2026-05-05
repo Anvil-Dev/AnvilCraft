@@ -34,7 +34,7 @@ public abstract class LevelChunkMixin {
         )
     )
     private void onLoadBlockEntity(BlockEntity entity, CallbackInfo ci) {
-        if (this.getLevel().isClientSide) return;
+        if (this.getLevel().isClientSide()) return;
         NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerLoad(this.getLevel(), entity));
     }
 
@@ -47,7 +47,7 @@ public abstract class LevelChunkMixin {
         CallbackInfo ci,
         @Local(ordinal = 1) BlockEntity be
     ) {
-        if (this.getLevel().isClientSide) return;
+        if (this.getLevel().isClientSide()) return;
         NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), be));
     }
 
@@ -65,7 +65,7 @@ public abstract class LevelChunkMixin {
     )
     private @Nullable <K, V> V onRemoveBlockEntity(Map<K, V> instance, Object key, Operation<V> original) {
         final V removed = original.call(instance, key);
-        if (!this.getLevel().isClientSide && removed != null) {
+        if (!this.getLevel().isClientSide() && removed != null) {
             if (removed instanceof BlockEntity entity) {
                 NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), entity));
             }

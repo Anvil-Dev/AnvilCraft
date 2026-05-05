@@ -42,7 +42,7 @@ public class PlayerUtil {
      * @return 玩家列表
      */
     public static List<ServerPlayer> searchPlayerByPos(Level level, BlockPos pos, int radius) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             AABB aabb = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ()).inflate(radius);
             return level.getEntitiesOfClass(ServerPlayer.class, aabb);
         }

@@ -66,14 +66,14 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         if (itemStack.is(handItemStack.getItem())) return ItemInteractionResult.FAIL;
         player.setItemInHand(hand, itemStack.copy());
         confinementChamberBlockEntity.getItemHandler().setStackInSlot(0, handItemStack.copy());
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }*/
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (blockentity instanceof ConfinementChamberBlockEntity confinementChamberBlockEntity) {
-            if (!level.isClientSide && player.isCreative() && !confinementChamberBlockEntity.getItemHandler().getStackInSlot(0).isEmpty()) {
+            if (!level.isClientSide() && player.isCreative() && !confinementChamberBlockEntity.getItemHandler().getStackInSlot(0).isEmpty()) {
                 ItemStack itemstack = new ItemStack(ModBlocks.CONFINEMENT_CHAMBER.asItem());
                 itemstack.applyComponents(blockentity.collectComponents());
                 ItemEntity itementity = new ItemEntity(
@@ -111,7 +111,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (stack.is(ModItems.CHARGED_NEUTRONIUM_INGOT)) {
                 level.setBlockAndUpdate(pos, ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK.getDefaultState());
                 stack.consume(1, player);

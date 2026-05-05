@@ -50,7 +50,7 @@ abstract class PlayerMixin extends LivingEntity {
     private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (value.getEntity() instanceof FallingBlockEntity falling
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
-            && !this.level().isClientSide
+            && !this.level().isClientSide()
         ) {
             ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
             this.lastHurtByPlayer = killer;

@@ -48,7 +48,7 @@ public class CrabClawItem extends Item {
      */
     public static void holdingCrabClawIncreasesRange(LivingEntity entity) {
         if (!(entity instanceof Player player)) return;
-        if (entity.level().isClientSide) return;
+        if (entity.level().isClientSide()) return;
         CompoundTag customData = EntityHelper.getCustomData(entity);
         boolean inOffHand = ModItems.CRAB_CLAW.isIn(player.getOffhandItem());
         boolean inMainHand = ModItems.CRAB_CLAW.isIn(player.getMainHandItem());
@@ -82,11 +82,11 @@ public class CrabClawItem extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (target instanceof Shulker shulker && shulker.isAlive()) {
-            if (!player.level().isClientSide) {
+            if (!player.level().isClientSide()) {
                 EntityUtil.setShulkerOpen(shulker);
             }
 
-            return InteractionResult.sidedSuccess(player.level().isClientSide);
+            return InteractionResult.sidedSuccess(player.level().isClientSide());
         }
 
         return InteractionResult.PASS;

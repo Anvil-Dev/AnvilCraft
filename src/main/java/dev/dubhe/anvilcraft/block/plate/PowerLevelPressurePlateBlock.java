@@ -54,7 +54,7 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             int i = this.getSignalForState(state);
             if (i == 0) {
                 this.checkPressed(entity, level, pos, state, i);

@@ -75,7 +75,7 @@ public class BatchCutterBlock extends BaseBatchCraftingBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.BATCH_CUTTER.get(),

@@ -304,7 +304,7 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      * @return 当前构建器实例
      */
     public ExtendInWorldRecipeBuilder spawnItem(Vec3 offset, double chance, ItemStack stack) {
-        return this.out(SpawnItem.builder().offset(offset).count((float) chance).item(stack).build());
+        return this.out(SpawnItem.builder().offset(offset).count((float) chance).item(stack.getItem()).build());
     }
 
     /**

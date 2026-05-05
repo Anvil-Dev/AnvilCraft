@@ -88,11 +88,11 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
             if (this.getDeltaMovement().y > 0F) {
                 this.fallDistance = 0;
             }
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 BlockPos blockPos = this.blockPosition();
                 Block block = this.blockState.getBlock();
                 if (!this.onGround()) {
-                    if (!this.level().isClientSide
+                    if (!this.level().isClientSide()
                         && (this.time > 100
                         && (blockPos.getY() <= this.level().getMinBuildHeight()
                         || blockPos.getY()

@@ -62,7 +62,7 @@ public class FrostAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
         Player player,
         InteractionHand hand,
         BlockHitResult hit) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_ANVIL);
         return InteractionResult.CONSUME;

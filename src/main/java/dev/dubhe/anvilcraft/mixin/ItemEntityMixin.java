@@ -230,20 +230,20 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                        || Mth.floor(this.yo) != Mth.floor(this.getY())
                        || Mth.floor(this.zo) != Mth.floor(this.getZ());
         int i = flag ? 2 : 40;
-        if (this.tickCount % i == 0 && !this.level().isClientSide && this.isMergable()) {
+        if (this.tickCount % i == 0 && !this.level().isClientSide() && this.isMergable()) {
             this.mergeWithNeighbours();
         }
         if (this.age != -32768) {
             ++this.age;
         }
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             double d0 = this.getDeltaMovement().subtract(vec3).lengthSqr();
             if (d0 > 0.01) {
                 this.hasImpulse = true;
             }
         }
         item = this.getItem();
-        if (!this.level().isClientSide && this.age >= this.lifespan) {
+        if (!this.level().isClientSide() && this.age >= this.lifespan) {
             this.lifespan = Mth.clamp(this.lifespan + EventHooks.onItemExpire(thiz), 0, 32766);
             if (this.age >= this.lifespan) {
                 this.discard();
@@ -348,7 +348,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     public void anvilcraft$poach() {
         if (!anvilcraft$shouldPoach) return;
         Level level = this.level();
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         Map<ChunkPos, List<ItemCollectorBlockEntity>> map = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level);
         if (map == null) return;
         ChunkPos chunkPos = this.chunkPosition();
@@ -490,7 +490,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         if (matKey == null) return;
         // 1. 空芯磁铁块转化
         if ("iron".equals(matKey) || "magnet".equals(matKey)) {
-            if (!this.level().isClientSide && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())
+            if (!this.level().isClientSide() && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())
                 && stack.getDescriptionId().contains("ingot")
                 && !state.getValue(MagnetBlock.LIT)) {
 

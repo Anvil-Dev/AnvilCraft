@@ -104,7 +104,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         BlockState oldState,
         boolean movedByPiston
     ) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             checkIfTriggered(level, state, pos);
         }
     }
@@ -132,7 +132,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             checkIfTriggered(level, state, pos);
         }
     }

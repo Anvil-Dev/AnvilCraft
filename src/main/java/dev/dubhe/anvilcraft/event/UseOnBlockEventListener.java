@@ -16,7 +16,7 @@ public class UseOnBlockEventListener {
         if (e.getUsePhase() != UseItemOnBlockEvent.UsePhase.BLOCK) return;
         UseOnContext context = e.getUseOnContext();
         if (!context.getItemInHand().is(ItemTags.HOES)) return;
-        if (context.getLevel().isClientSide) return;
+        if (context.getLevel().isClientSide()) return;
         ModEnchantmentHelper.onUseOnBlock(
             (ServerLevel) context.getLevel(),
             context.getItemInHand(),

@@ -88,7 +88,7 @@ public interface ISlidingRail extends IBlockExtension {
     }
 
     static void whenNeighborChanged(Level level, Block block, BlockPos pos, BlockPos fromPos) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         BlockState blockState = level.getBlockState(fromPos);
         if (!MOVING_PISTON_MAP.containsKey(pos)) return;
         if (blockState.is(Blocks.MOVING_PISTON)) return;

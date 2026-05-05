@@ -50,7 +50,7 @@ public class UtusanItem extends Item {
      * @param livingEntity 生物
      */
     public static void removeHarmfulEffects(LivingEntity livingEntity) {
-        if (livingEntity.level().isClientSide) return;
+        if (livingEntity.level().isClientSide()) return;
         boolean bl = false;
         List<Holder<MobEffect>> effects = new ArrayList<>();
         for (MobEffectInstance effect : livingEntity.getActiveEffects()) {

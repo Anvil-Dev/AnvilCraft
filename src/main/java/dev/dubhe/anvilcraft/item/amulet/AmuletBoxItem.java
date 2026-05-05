@@ -93,7 +93,7 @@ public class AmuletBoxItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         Inventory inventory = player.getInventory();
         ItemStack box = player.getItemInHand(usedHand);
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BoxContents contents = box.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
             BoxContents.Mutable mutable = contents.mutable();
             if (!player.isShiftKeyDown()) {

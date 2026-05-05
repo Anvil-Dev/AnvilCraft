@@ -8,18 +8,20 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Objects;
 
 @Mixin(SoundEngine.class)
 abstract class SoundEngineMixin {
     @Inject(method = "play", at = @At(value = "HEAD"), cancellable = true)
-    private void onSoundPlay(SoundInstance sound, CallbackInfo ci) {
+    private void onSoundPlay(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         if (SoundHelper.INSTANCE.shouldMute(
             Minecraft.getInstance().level,
-            sound.getLocation(),
-            new Vec3(sound.getX(), sound.getY(), sound.getZ())
+            Objects.requireNonNull(instance.getSound()).getLocation(),
+            new Vec3(instance.getX(), instance.getY(), instance.getZ())
         )) {
-            ci.cancel();
+            cir.cancel();
         }
     }
 }

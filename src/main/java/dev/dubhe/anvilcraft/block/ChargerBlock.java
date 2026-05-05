@@ -63,7 +63,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         BlockState state,
         BlockEntityType<T> type
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
@@ -82,7 +82,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);

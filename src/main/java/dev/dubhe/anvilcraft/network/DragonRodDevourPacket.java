@@ -35,7 +35,7 @@ public record DragonRodDevourPacket(InteractionHand hand, BlockPos pos, Directio
     @Override
     public void handleOnServer(Player player) {
         ServerPlayer serverside = Util.cast(player);
-        ServerLevel level = serverside.serverLevel();
+        ServerLevel level = serverside.level();
         DragonRodItem.devourBlock(
             level,
             player,

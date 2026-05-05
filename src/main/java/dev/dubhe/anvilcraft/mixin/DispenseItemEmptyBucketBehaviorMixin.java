@@ -52,7 +52,7 @@ abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemB
         if (cows.isEmpty() && goats.isEmpty()) return;
         levelAccessor.gameEvent(null, GameEvent.FLUID_PICKUP, blockPos);
         Item item = Items.MILK_BUCKET;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, blockPos, 5)) {
                 ModCriterionTriggers.MILK.get().trigger(player);
             }

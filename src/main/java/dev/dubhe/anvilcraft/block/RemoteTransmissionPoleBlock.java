@@ -111,7 +111,7 @@ public class RemoteTransmissionPoleBlock
     @Override
     public BlockState playerWillDestroy(
         Level level, BlockPos pos, BlockState state, Player player) {
-        if (level.isClientSide) return state;
+        if (level.isClientSide()) return state;
         onRemove(level, pos, state);
         super.playerWillDestroy(level, pos, state, player);
         return state;
@@ -127,7 +127,7 @@ public class RemoteTransmissionPoleBlock
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         return (level1, pos, state1, entity) -> {
             if (entity instanceof RemoteTransmissionPoleBlockEntity be) be.tick(level1, pos);
         };
@@ -142,7 +142,7 @@ public class RemoteTransmissionPoleBlock
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         if (state.getValue(HALF) != Vertical4PartHalf.BOTTOM) return;

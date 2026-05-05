@@ -22,7 +22,7 @@ public class ItemMixin {
         )
     )
     private void use(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             ModCriterionTriggers.USE_ITEM.get().trigger((ServerPlayer) player, player.getItemInHand(usedHand).getItem());
         }
     }

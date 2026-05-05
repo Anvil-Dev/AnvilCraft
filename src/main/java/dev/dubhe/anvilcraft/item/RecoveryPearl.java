@@ -26,7 +26,7 @@ public class RecoveryPearl extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             MinecraftServer server = level.getServer();
             ServerPlayer serverPlayer = server.getPlayerList().getPlayer(player.getUUID());
             DimensionTransition dimensionTransition = serverPlayer

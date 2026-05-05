@@ -41,7 +41,7 @@ public abstract class BaseChuteBlockEntity
         @Override
         public void onContentsChanged(int slot) {
             assert level != null;
-            if (level.isClientSide) return;
+            if (level.isClientSide()) return;
             setChanged();
         }
     };
@@ -280,7 +280,7 @@ public abstract class BaseChuteBlockEntity
     public void applyDiskData(CompoundTag data) {
         itemHandler.deserializeFiltering(data.getCompound("Filtering"));
         this.setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
     }

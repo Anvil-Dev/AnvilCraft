@@ -65,7 +65,7 @@ public class SugarBlock extends Block {
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         double chance = random.nextDouble();
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (state.getValue(FRAGMENTATION_DEGREE) != FragmentationDegree.THREE) {
                 if (chance <= 0.05) {
                     level.setBlockAndUpdate(pos, state.setValue(FRAGMENTATION_DEGREE, state.getValue(FRAGMENTATION_DEGREE).next()));

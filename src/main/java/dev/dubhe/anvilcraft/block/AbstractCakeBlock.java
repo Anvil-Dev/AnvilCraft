@@ -50,7 +50,7 @@ public class AbstractCakeBlock extends Block {
         if (!(itemStack.getItem().canPerformAction(itemStack, ItemAbilities.SHOVEL_DIG))) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (eat(level, pos, player, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter()).consumesAction()) {
                 return ItemInteractionResult.SUCCESS;
             }

@@ -106,7 +106,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
 
             public void onTake(Player player, ItemStack stack) {
                 if (!EmberGrindstoneMenu.this.hasSelectedEnchantment()) return;
-                if (!player.level().isClientSide) player.giveExperienceLevels(-EmberGrindstoneMenu.this.getCost());
+                if (!player.level().isClientSide()) player.giveExperienceLevels(-EmberGrindstoneMenu.this.getCost());
 
                 player.playSound(SoundEvents.GRINDSTONE_USE);
 

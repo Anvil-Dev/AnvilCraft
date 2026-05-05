@@ -153,7 +153,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         BlockHitResult hit
     ) {
         ItemStack itemInHand = player.getItemInHand(hand);
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (itemInHand.is(ModBlocks.INDUCTION_LIGHT.asItem())) {
             return BlockPlaceAssist.tryPlace(
                 state, level, pos, player, hand, hit,
@@ -183,7 +183,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
@@ -202,7 +202,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (state.getValue(WATERLOGGED)) level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         if (state.getValue(OVERLOAD)) return;
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);

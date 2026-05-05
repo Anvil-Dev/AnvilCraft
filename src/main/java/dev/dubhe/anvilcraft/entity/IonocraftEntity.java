@@ -70,7 +70,7 @@ public class IonocraftEntity extends VehicleEntity {
     @Override
     public void tick() {
         this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 0.8, 0.8));
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             PowerGrid powerGrid = PowerGrid.findPowerGridContains(level(), this.getPowerSupplyingBoundingBox()).orElse(null);
             PowerGrid findSmaller = PowerGrid.findPowerGridContains(level(), this.getBoundingBox()).orElse(null);
             this.component.switchTo(powerGrid);

@@ -36,7 +36,7 @@ public class MineralFountainBlock extends BaseEntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         return createTickerHelper(
             blockEntityType,
             ModBlockEntities.MINERAL_FOUNTAIN.get(),

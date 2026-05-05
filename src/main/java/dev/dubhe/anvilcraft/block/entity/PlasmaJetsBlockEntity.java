@@ -125,7 +125,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     public static void tick(Level level, BlockPos ignored, BlockState ignored1, PlasmaJetsBlockEntity entity) {
         if (level instanceof ServerLevel serverLevel) {
             entity.serverTick(serverLevel);
-        } else if (level.isClientSide) {
+        } else if (level.isClientSide()) {
             CLIENT_TICK.accept(entity, level);
         }
     }

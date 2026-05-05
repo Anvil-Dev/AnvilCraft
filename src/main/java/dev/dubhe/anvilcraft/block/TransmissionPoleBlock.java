@@ -115,7 +115,7 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         return (level1, pos, state1, entity) -> {
             if (entity instanceof TransmissionPoleBlockEntity be) be.tick(level1, pos);
         };
@@ -130,7 +130,7 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(2);
         BlockState topState = level.getBlockState(topPos);

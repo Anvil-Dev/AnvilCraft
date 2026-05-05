@@ -95,7 +95,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                            BlockPos pos,
                            BlockState oldState,
                            boolean movedByPiston) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             checkIfTriggered(level, state, pos);
         }
     }
@@ -121,7 +121,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             checkIfTriggered(level, state, pos);
         }
     }

@@ -40,7 +40,7 @@ public class HeaterManager {
     private final Multimap<HeaterInfo<?>, BlockPos> producers = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     public static HeaterManager getInstance(Level level) {
-        if (level.isClientSide) return new HeaterManager(level);
+        if (level.isClientSide()) return new HeaterManager(level);
         if (!INSTANCES.containsKey(level)) {
             INSTANCES.put(level, new HeaterManager(level));
         }

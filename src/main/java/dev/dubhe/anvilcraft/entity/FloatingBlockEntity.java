@@ -73,7 +73,7 @@ public class FloatingBlockEntity extends FallingBlockEntity {
             if (this.level().getFluidState(blockPos.above()).is(FluidTags.WATER) && !underCeiling) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.04, 0.0));
             } else {
-                if (!this.level().isClientSide) {
+                if (!this.level().isClientSide()) {
                     if (underCeiling) blockPos = blockPos.above();
                     BlockState blockState = this.level().getBlockState(blockPos);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));

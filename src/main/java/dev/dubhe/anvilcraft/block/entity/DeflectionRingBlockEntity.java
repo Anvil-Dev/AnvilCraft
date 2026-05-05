@@ -168,7 +168,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
     public void tick() {
         if (level == null) return;
-        if (resetEntitySpeedTickCounter >= 40 && !level.isClientSide) updateLastEntitySpeed(0.0);
+        if (resetEntitySpeedTickCounter >= 40 && !level.isClientSide()) updateLastEntitySpeed(0.0);
         else resetEntitySpeedTickCounter++;
         if (overSpeed && overSpeedTick > 1) {
             overSpeed = false;
@@ -179,7 +179,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         } else if (overSpeed) {
             overSpeedTick++;
         }
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (!getBlockState().getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
             if (isWork()) {
                 addSelfToMap();
@@ -296,7 +296,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             }
             entity.setDeltaMovement(entity.getDeltaMovement().scale(1.0204081632653061));
             entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
-            if (level.isClientSide) continue;
+            if (level.isClientSide()) continue;
             updateLastEntitySpeed(entity.getDeltaMovement().length());
         }
     }

@@ -143,7 +143,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         if (blockEntity.lastCheckY >= height) {
             blockEntity.lastCheckY = level.getMinBuildHeight() - 1;
             blockEntity.beamSections = blockEntity.checkingBeamSections;
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 boolean lastHasLevel = lastLevel > 0;
                 boolean shouldLit = blockEntity.levels > 0 && !blockEntity.beamSections.isEmpty();
                 // 根据信标状态变化播放相应的音效和更新方块状态
@@ -238,7 +238,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     }
 
     private static void affectEntities(Level level, BlockPos pos) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         AABB aabb = new AABB(pos).expandTowards(0.0, level.getHeight(), 0.0);
         List<LivingEntity> list = level.getEntitiesOfClass(LivingEntity.class, aabb);
         if (list.isEmpty()) return;

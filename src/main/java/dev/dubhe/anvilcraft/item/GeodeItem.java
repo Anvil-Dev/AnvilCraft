@@ -32,7 +32,7 @@ public class GeodeItem extends Item {
         ItemStack itemStack = player.getItemInHand(usedHand);
         BlockPos pos = player.getOnPos().below();
         player.getCooldowns().addCooldown(itemStack.getItem(), AnvilCraft.CONFIG.geodeCooldown * 20);
-        if (!level.isClientSide) return InteractionResultHolder.success(itemStack);
+        if (!level.isClientSide()) return InteractionResultHolder.success(itemStack);
         int interval = AnvilCraft.CONFIG.geodeInterval;
         int radius = AnvilCraft.CONFIG.geodeRadius;
         block:

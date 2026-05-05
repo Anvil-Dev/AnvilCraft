@@ -57,7 +57,7 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
     @SuppressWarnings("UnreachableCode")
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_ANVIL);
         return InteractionResult.CONSUME;

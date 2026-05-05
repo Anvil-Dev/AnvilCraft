@@ -159,7 +159,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         return createTickerHelper(type,

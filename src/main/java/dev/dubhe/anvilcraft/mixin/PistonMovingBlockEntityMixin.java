@@ -34,7 +34,7 @@ abstract class PistonMovingBlockEntityMixin {
         )
     )
     private static void slidingRail(Level level, BlockPos pos, BlockState state, PistonMovingBlockEntity blockEntity, CallbackInfo ci) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         Direction facing = state.getValue(MovingPistonBlock.FACING);
         switch (facing) {
             case UP, DOWN -> {

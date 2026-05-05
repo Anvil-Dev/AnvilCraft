@@ -226,7 +226,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         if (isTooDamagedToUse(stack)) return;
         Holder<SoundEvent> soundEvent = EnchantmentHelper.pickHighestLevel(stack, EnchantmentEffectComponents.TRIDENT_SOUND)
             .orElse(SoundEvents.TRIDENT_THROW);
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
             if (spinStrength == 0.0F) {
                 ThrownHeavyHalberdEntity thrown = this.createThrown(level, player, stack);

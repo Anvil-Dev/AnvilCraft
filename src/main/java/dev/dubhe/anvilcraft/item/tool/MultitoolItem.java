@@ -225,7 +225,7 @@ public class MultitoolItem extends Item {
     private InteractionResultHolder<ItemStack> useAsFishingRod(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemstack = player.getItemInHand(usedHand);
         if (player.fishing != null) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 int i = player.fishing.retrieve(itemstack);
                 ItemStack original = itemstack.copy();
                 itemstack.hurtAndBreak(i, player, LivingEntity.getSlotForHand(usedHand));
@@ -317,7 +317,7 @@ public class MultitoolItem extends Item {
                 itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
             }
 
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         } else {
             return super.useOn(context);
         }
@@ -463,7 +463,7 @@ public class MultitoolItem extends Item {
     }
 
     private boolean mineBlockAsShears(ItemStack stack, Level level, BlockState state, LivingEntity miningEntity) {
-        if (!level.isClientSide && !state.is(BlockTags.FIRE)) {
+        if (!level.isClientSide() && !state.is(BlockTags.FIRE)) {
             stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
         }
         return state.is(BlockTags.LEAVES)

@@ -94,7 +94,7 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
         Player player,
         BlockHitResult hitResult
     ) {
-        if (p.isClientSide) {
+        if (p.isClientSide()) {
             return InteractionResult.SUCCESS;
         } else {
             player.openMenu(s.getMenuProvider(p, pos));

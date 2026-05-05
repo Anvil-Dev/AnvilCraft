@@ -197,7 +197,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     }
 
     private void onChanged() {
-        // if (!level.isClientSide) return;
+        // if (!level.isClientSide()) return;
         RecipeManager recipeManager = level.getRecipeManager();
         Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager.getRecipeFor(
             RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer().asCraftInput(), level);

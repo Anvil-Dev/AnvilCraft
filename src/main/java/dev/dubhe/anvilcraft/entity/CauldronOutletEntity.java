@@ -67,7 +67,7 @@ public class CauldronOutletEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             BlockState currentState = this.level().getBlockState(this.getCauldronPos());
 
             // 0. 防止滑步
@@ -196,7 +196,7 @@ public class CauldronOutletEntity extends Entity {
             entity.moveTo(ejectPos);
             entity.setDeltaMovement(motion);
             entity.anvilcraft$setIsAdsorbable(true);
-            if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
+            if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.getChunkSource().broadcast(entity, new ClientboundTeleportEntityPacket(entity));
                 serverLevel.getChunkSource().broadcast(entity, new ClientboundSetEntityMotionPacket(entity));
             }

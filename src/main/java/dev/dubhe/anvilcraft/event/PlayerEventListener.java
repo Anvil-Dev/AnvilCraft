@@ -132,7 +132,7 @@ public class PlayerEventListener {
             return;
         }
 
-        if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START && !level.isClientSide) {
+        if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START && !level.isClientSide()) {
             DragonRodItem.devourBlock((ServerLevel) level, player, hand, pos, state, blockFace);
         } else if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
             PacketDistributor.sendToServer(new DragonRodDevourPacket(hand, pos, blockFace));

@@ -173,7 +173,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
             }
 
             if (entity instanceof LivingEntity livingentity) {
-                if (!this.level().isClientSide && this.getPierceLevel() <= 0) {
+                if (!this.level().isClientSide() && this.getPierceLevel() <= 0) {
                     livingentity.setArrowCount(livingentity.getArrowCount() + 1);
                 }
 
@@ -199,7 +199,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
             entity.setRemainingFireTicks(i);
             this.deflect(ProjectileDeflection.NONE, entity, this.getOwner(), false);
             this.setDeltaMovement(this.getDeltaMovement().scale(0.2));
-            if (!this.level().isClientSide && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
+            if (!this.level().isClientSide() && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
                 if (this.pickup == AbstractArrow.Pickup.ALLOWED) {
                     this.pickup = AbstractArrow.Pickup.DISALLOWED;
                     // this.spawnAtLocation(this.getPickupItem(), 0.1F);

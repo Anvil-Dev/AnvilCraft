@@ -112,7 +112,7 @@ public class RubyLaserBlock extends BaseLaserBlock implements IHammerRemovable, 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         return createTickerHelper(
             type, ModBlockEntities.RUBY_LASER.get(), (level1, pos, state1, entity) -> entity.tick(level1));
     }

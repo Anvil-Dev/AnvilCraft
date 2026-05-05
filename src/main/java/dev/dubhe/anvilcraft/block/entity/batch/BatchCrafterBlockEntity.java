@@ -78,7 +78,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
                 .getResultItem(this.level.registryAccess())
         ).orElse(ItemStack.EMPTY));
 
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
                 this.getDisplayingStack(),
                 this.getPos()
@@ -118,7 +118,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         
         result = holderOp.get().value().assemble(this.craftingContainer.asCraftInput(), level.registryAccess());
         this.displayingStack = result.copy();
-        if (!level.isClientSide) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        if (!level.isClientSide()) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
         int times = IntStream.range(0, this.handler.getSlots())

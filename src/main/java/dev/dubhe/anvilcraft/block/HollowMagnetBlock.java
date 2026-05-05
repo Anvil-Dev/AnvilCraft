@@ -107,7 +107,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         if (state.getValue(LIT)) {

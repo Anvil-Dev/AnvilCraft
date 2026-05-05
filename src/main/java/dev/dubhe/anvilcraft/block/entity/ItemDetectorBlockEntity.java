@@ -147,7 +147,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     public void tick() {
         Level level = this.level;
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         if (this.detectionRange == null) {
             this.recalcDetectionRange();
             if (this.detectionRange == null) return;

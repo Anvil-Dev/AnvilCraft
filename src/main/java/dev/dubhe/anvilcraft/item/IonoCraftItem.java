@@ -54,7 +54,7 @@ public class IonoCraftItem extends Item {
                 if (!level.noCollision(entity, entity.getBoundingBox())) {
                     return InteractionResultHolder.fail(itemstack);
                 } else {
-                    if (!level.isClientSide) {
+                    if (!level.isClientSide()) {
                         level.addFreshEntity(entity);
                         level.gameEvent(player, GameEvent.ENTITY_PLACE, hitresult.getLocation());
                         itemstack.consume(1, player);
