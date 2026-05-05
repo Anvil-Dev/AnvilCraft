@@ -21,6 +21,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -108,8 +109,10 @@ public record HasCauldron(
         // 转换为空且产生流体 否决
         if (!HasCauldron.isNotEmpty(this.transform()) && this.produce() > 0) return false;
 
+        // 不是锅 否决
         BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS)) return false;
 
         // 消耗/产生比锅容量大 否决
         double capacity = HasCauldron.getCapacity(cache, pos);
