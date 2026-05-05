@@ -42,11 +42,13 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
     public ActiveSilencerBlock(Properties properties) {
         super(properties);
         registerDefaultState(getStateDefinition().any().setValue(POWERED, false));
-    };
+    }
 
     public static VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 16, 8, 16),
-        Block.box(2, 8, 2, 14, 16, 14)
+        Block.box(2, 8, 2, 14, 16, 14),
+        Block.box(6, 8, 0, 10, 12, 16),
+        Block.box(0, 8, 6, 16, 12, 10)
     );
 
     @Override
@@ -139,12 +141,12 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         return RenderShape.MODEL;
     }
 
-    @Override
     public VoxelShape getShape(
         BlockState state,
         BlockGetter level,
         BlockPos pos,
-        CollisionContext context) {
+        CollisionContext context
+    ) {
         return SHAPE;
     }
 }
