@@ -10,14 +10,6 @@ items:
 # 飘升机
 
 <row halign="center">
-<item id="anvilcraft:ionocraft"/>
-</row>
-
-<color=#97d9e1> ~~飞起来\~~~ </color>
-
-# 合成
-
-<row halign="center">
 <recipe id="anvilcraft:ionocraft"/>
 </row>
 
@@ -27,3 +19,5 @@ items:
 - 电网范围中给电网增加16kw负荷，会快速上升
 - 不在电网范围内会缓慢下降
 - 实体可以踩在上面
+
+

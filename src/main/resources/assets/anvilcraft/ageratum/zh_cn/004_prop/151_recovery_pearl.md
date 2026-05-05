@@ -10,21 +10,16 @@ items:
 # 回溯珍珠
 
 <row halign="center">
-<item id="anvilcraft:recovery_pearl"/>
+<recipe id="anvilcraft:recovery_pearl"/>
 </row>
 
-## 回溯珍珠
 
 - 右键使用将玩家传送到上个死亡点
 - 玩家距离上个死亡点距离小于12格时，右键使用将玩家传送回重生点
 - 使用后消耗，对玩家造成4点摔落伤害
 
-## 获取
-
-<row halign="center">
-<recipe id="anvilcraft:recovery_pearl"/>
-</row>
+---
 
 ## 相关
 
-[回溯图腾](152_totem_of_recovery.md)
+- [回溯图腾](152_totem_of_recovery.md)

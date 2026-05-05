@@ -9,13 +9,9 @@ items:
 
 # 余烬锻造台
 
-<item id="anvilcraft:ember_smithing_table"/>
-
-# 合成
-
 <recipe id="anvilcraft:smithing/ember_smithing_table"/>
 
-# 功能
+## 功能
 
 - 不消耗任何锻造模板的特殊锻造台
 - 只能用于多合一配方

@@ -13,16 +13,13 @@ navigation:
 
 # 特性
 
-<row halign="center">
-<GameScene zoom="2">
-    <structure id="../ac_assets/structure/vault.snbt"/>
-</GameScene>
 
-- 使用<translate key="block.anvilcraft.lead_block"/>让<translate key="item.minecraft.vault"/>忘记自己曾被打开
+<structure id="../ac_assets/structure/vault.snbt"/>
 
-- 然后就可以对着一个<translate key="item.minecraft.vault"/>使劲薅羊毛
+- 使用<translate key="block.anvilcraft.lead_block"/>让<translate key="block.minecraft.vault"/>忘记自己曾被打开
 
-</row>
+<tip>
+配合[珠宝台](../005_block/002_jewelcrafting_table.md)批量制造钥匙，对着一个<translate key="block.minecraft.vault"/>使劲薅羊毛吧
+</tip>
 
-> 可配合[珠宝台](../005_block/002_jewelcrafting_table.md)批量制造钥匙
 

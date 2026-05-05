@@ -40,5 +40,4 @@ items:
 
 - 爆炸抗性极高
 - 可以被[<translate key="item.anvilcraft.anvil_hammer"/>](../004_tool/000_anvil_hammer.md)shift+右键 快速拆卸
-- [<translate key="item.anvilcraft.heavy_iron_door"/>](007_heavy_iron_block.md)、[<translate key="item.anvilcraft.heavy_iron_trapdoor"/>](007_heavy_iron_block.md)无法用手关闭，
-  需手持[<translate key="item.anvilcraft.anvil_hammer"/>](../004_tool/000_anvil_hammer.md)右键
+- [<translate key="block.anvilcraft.heavy_iron_door"/>](007_heavy_iron_block.md)、[<translate key="block.anvilcraft.heavy_iron_trapdoor"/>](007_heavy_iron_block.md)无法用手关闭，需手持[<translate key="item.anvilcraft.anvil_hammer"/>](../004_tool/000_anvil_hammer.md)右键

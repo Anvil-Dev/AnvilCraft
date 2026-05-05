@@ -9,24 +9,20 @@ items:
 
 # 手持磁铁
 
-<item id="anvilcraft:magnet"/>
-
-# 获取
-
 <recipe id="anvilcraft:magnet"/>
 
-# 功能
+## 功能
 
 - 右键使用，将附近的**掉落物**和**经验球**吸引到脚下
 - shift+右键，在方块上表面生成/删除**磁化节点**
 
-> 能够被附魔上 经验修补、耐久和消失诅咒
+<info>
+能够被附魔上 经验修补、耐久和消失诅咒
+</info>
 
 # 磁化节点
 
-<GameScene zoom="4">
-    <Entity id="anvilcraft:magnetized_node" />
-</GameScene>
+<entity id="anvilcraft:magnetized_node" />
 
 - 只能附着在方块上
 - 物品一接触到**附着方块**，就会被吸引至**磁化节点**的位置

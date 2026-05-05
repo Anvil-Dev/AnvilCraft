@@ -23,7 +23,7 @@ items:
 <item id="anvilcraft:frost_metal_ingot"/>
 <item id="anvilcraft:frost_metal_nugget"/>
 </row>
-<gradient start="#5dc2ef" end="#efefe3"> ~~数值怪还是机制怪?~~ </gradient>
+<gradient start="#5dc2ef" end="#9f9f93"> 数值够高就是机制！ </gradient>
 
 # 合成
 

@@ -9,10 +9,6 @@ items:
 
 # 腐肉块
 
-<item id="anvilcraft:rotten_flesh_block"/>
-
-# 获取
-
 <recipe id="anvilcraft:rotten_flesh_block"/>
 
 # 功能

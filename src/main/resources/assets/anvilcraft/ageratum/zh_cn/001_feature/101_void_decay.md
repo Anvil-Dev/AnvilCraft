@@ -13,7 +13,7 @@ navigation:
 
 # 定义
 
-- [<translate key="block.anvilcraft.void_matter_block"/>](../002_material/140_void_matter.md)会自发地转化为随机方块
+- [<translate key="block.anvilcraft.void_matter_block"/>](../002_material/140_void_matter.md)在一定条件下，会自发地转化为随机方块
 
 # 详细
 
@@ -29,7 +29,5 @@ navigation:
    - 锌、锡、铅矿石
    - 各种虫蚀石
 
-<GameScene zoom="3" interactive={true}>
-    <structure id="../ac_assets/structure/void_decay.snbt"/>
-</GameScene>
+<structure id="../ac_assets/structure/void_decay.snbt"/>
 

@@ -10,18 +10,11 @@ items:
 
 # 溜槽
 
-<row halign="center">
-<item id="anvilcraft:chute"/>
-<item id="anvilcraft:magnetic_chute"/>
-</row>
-
-# 溜槽
-
 <recipe id="anvilcraft:chute"/>
 
 ## 功能
 
-- [<translate key="item.anvilcraft.chute"/>](001_chute.md)是一种特殊的漏斗，有9格容量，一次性输送一组物品
+- [<translate key="block.anvilcraft.chute"/>](001_chute.md)是一种特殊的漏斗，有9格容量，一次性输送一组物品
 - 既可以将物品输入容器，也可以将物品丢出至世界上
 - 打开gui可以:
     - 查看库存、改变输出方向和设置过滤
@@ -32,7 +25,9 @@ items:
 ## 特性
 
 - 可以被红石信号锁定
-- [<translate key="item.anvilcraft.chute"/>](001_chute.md)成链时，被指向的[<translate key="item.anvilcraft.chute"/>](001_chute.md)变为**简化溜槽**
+- [<translate key="block.anvilcraft.chute"/>](001_chute.md)成链时，被指向的[<translate key="block.anvilcraft.chute"/>](001_chute.md)变为**简化溜槽**
+
+<block id="anvilcraft:simple_chute"/>
 
 ## 简化溜槽
 
@@ -47,8 +42,8 @@ items:
 
 ## 功能
 
-- 具有[<translate key="item.anvilcraft.chute"/>](001_chute.md)的所有功能
-- [<translate key="item.anvilcraft.magnetic_chute"/>](001_chute.md)可以吸取侧方甚至下方的物品，但无法自由调整输出
+- 具有[<translate key="block.anvilcraft.chute"/>](001_chute.md)的所有功能
+- [<translate key="block.anvilcraft.magnetic_chute"/>](001_chute.md)可以吸取侧方甚至下方的物品，但无法自由调整输出
 
 ## 特性
 

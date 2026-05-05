@@ -9,10 +9,6 @@ items:
 
 # 火药块
 
-<item id="anvilcraft:gunpowder_block"/>
-
-# 获取
-
 <recipe id="anvilcraft:gunpowder_block"/>
 
 # 功能

@@ -21,7 +21,7 @@ items:
 
 # [<translate key="item.anvilcraft.capacitor"/>](101_capacitor.md)
 
-- 能够配合[<translate key="item.anvilcraft.charger"/>](../003_power/102_power_charge.md)存储电能或释放电能
+- 能够配合[<translate key="block.anvilcraft.charger"/>](../003_power/102_power_charge.md)存储电能或释放电能
 
 <recipe id="anvilcraft:capacitor_empty"/>
 
@@ -32,11 +32,14 @@ items:
 
 ---
 
-# [<translate key="item.anvilcraft.supercapacitor"/>](101_capacitor.md)
+# <translate key="item.anvilcraft.supercapacitor"/>
 
-> 树脂块内必须装有苦力怕
-> 
-> 若为高压版本，转为50%获得大爆炸或50%获得满的电容器
+树脂块内必须装有苦力怕
+
+<danger>
+若为高压版本，有50%概率发生大爆炸、有50%概率获得充满的电容器
+</danger>
+
 
 <recipe id="anvilcraft:item_compress/supercapacitor_empty"/>
 

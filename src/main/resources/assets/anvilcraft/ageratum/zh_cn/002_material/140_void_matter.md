@@ -19,11 +19,11 @@ items:
 
 # 获得
 
-- 通过[<translate key="item.anvilcraft.mineral_fountain"/>](../006_struct/130_mineral_fountain.md)生产
+- 通过[<translate key="block.anvilcraft.mineral_fountain"/>](../006_struct/130_mineral_fountain.md)生产
 
 # 功能
 
-- 可用于制作[<translate key="item.anvilcraft.void_energy_collector"/>](../003_power/201_void_energy_collection.md)
+- 可用于制作[<translate key="block.anvilcraft.void_energy_collector"/>](../003_power/201_void_energy_collection.md)
 
 # 特性
 

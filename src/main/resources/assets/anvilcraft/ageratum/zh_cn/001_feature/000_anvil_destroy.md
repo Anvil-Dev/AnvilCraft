@@ -21,8 +21,16 @@ navigation:
 
 使用不同的铁砧参与破坏方块的行为，具有不同的破坏效果：
 
-- <translate key="item.minecraft.anvil"/>：常规挖掘
-- [<translate key="item.anvilcraft.spectral_anvil"/>](../005_block/105_spectral_anvil.md)：常规挖掘
-- [<translate key="item.anvilcraft.royal_anvil"/>](../005_block/103_royal_anvil.md)：精准采集
-- [<translate key="item.anvilcraft.ember_anvil"/>](../005_block/223_ember_anvil.md)：熔炼
-- [<translate key="item.anvilcraft.transcendence_anvil"/>](../005_block/311_transcendence_anvil.md)：时运V
+<row>
+<item id="minecraft:anvil"/>
+<item id="anvilcraft:spectral_anvil"/>
+<item id="anvilcraft:royal_anvil"/>
+<item id="anvilcraft:ember_anvil"/>
+<item id="anvilcraft:transcendence_anvil"/>
+</row>
+
+-  <translate key="block.minecraft.anvil"/>：常规挖掘
+- [<translate key="block.anvilcraft.spectral_anvil"/>](../005_block/105_spectral_anvil.md)：常规挖掘
+- [<translate key="block.anvilcraft.royal_anvil"/>](../005_block/103_royal_anvil.md)：精准采集
+- [<translate key="block.anvilcraft.ember_anvil"/>](../005_block/223_ember_anvil.md)：熔炼
+- [<translate key="block.anvilcraft.transcendence_anvil"/>](../005_block/311_transcendence_anvil.md)：时运V

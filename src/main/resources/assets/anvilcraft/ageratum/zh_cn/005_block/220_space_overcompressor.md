@@ -33,9 +33,9 @@ items:
 ## 功能
 
 - 生产[<translate key="item.anvilcraft.neutronium_ingot"/>](../002_material/221_neutronium_ingot.md)：
-    - 将任意金属块/锭/粒置于[<translate key="item.anvilcraft.space_overcompressor"/>](220_space_overcompressor.md)之上
-    - 用铁砧砸入，转化为质量值
-    - 当[<translate key="item.anvilcraft.space_overcompressor"/>](220_space_overcompressor.md)的积攒了足够的质量值后，在下方输出一个[<translate key="item.anvilcraft.neutronium_ingot"/>](../002_material/221_neutronium_ingot.md)
+  - 将任意金属块/锭/粒置于[<translate key="block.anvilcraft.space_overcompressor"/>](220_space_overcompressor.md)之上
+  - 用铁砧砸入，转化为质量值
+  - 当[<translate key="block.anvilcraft.space_overcompressor"/>](220_space_overcompressor.md)的积攒了足够的质量值后，在下方输出一个[<translate key="item.anvilcraft.neutronium_ingot"/>](../002_material/221_neutronium_ingot.md)
 - 参与[多方块合成](210_giant_anvil.md#功能)
 
 ---
@@ -45,8 +45,8 @@ items:
 ## 特性
 
 - 继承了潜影盒的性质，会被活塞破坏
-- 右键三种嵌套潜影盒，其分别会发出1,2,3次开启和关闭的声音，每次都会被<translate key="item.minecraft.observer"/>识别
-- 可以解压回<translate key="item.minecraft.shulker_box"/>
+- 右键三种嵌套潜影盒，其分别会发出1,2,3次开启和关闭的声音，每次都会被<translate key="block.minecraft.observer"/>识别
+- 可以解压回<translate key="block.minecraft.shulker_box"/>
 
 <row halign="center">
 <recipe id="anvilcraft:stamping/shulker_box_from_nesting_shulker_box"/>

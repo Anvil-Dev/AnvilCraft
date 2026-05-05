@@ -9,10 +9,6 @@ items:
 
 # 皇家锻造台
 
-<item id="anvilcraft:royal_smithing_table"/>
-
-# 合成
-
 <recipe id="anvilcraft:smithing/royal_smithing_table"/>
 
 # 功能

@@ -9,10 +9,6 @@ items:
 
 # 电感灯
 
-<item id="anvilcraft:induction_light"/>
-
-# 获取
-
 <recipe id="anvilcraft:induction_light"/>
 
 # 功能
@@ -27,7 +23,9 @@ items:
 | <translate key="item.minecraft.glowstone_dust"/> | 3x3x3的区段 | 抑制**怪物**的生成             |    16    |
 |  [<translate key="item.anvilcraft.void_matter"/>](../002_material/140_void_matter.md)  | 3x3x3的区段 | 抑制**动物**的生成             |    16    |
 
-> 区段：**区块**的一截，16x16x16大小。按F3+G可查看，以蓝线切分。
+<info>
+区段：**区块**的一截，16x16x16大小。按F3+G可查看，以蓝线切分
+</info>
 
 # 特性
 

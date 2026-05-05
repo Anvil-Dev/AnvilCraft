@@ -25,8 +25,7 @@ items:
 <item id="anvilcraft:ember_metal_nugget"/>
 </row>
 
-<gradient start="#ff7a00" end="#dfdf83"> ~~烈火，永不熄灭！~~ </gradient>
-<color=#>  </color>
+<gradient start="#ff7a00" end="#9f9f23"> 以烈火立誓，此身即永恒 </gradient>
 
 # 合成
 

@@ -19,16 +19,18 @@ items:
 </row>
 
 # 首次获取
-需要使用<translate key="item.minecraft.lightning_rod"/>吸引雷电，
+需要使用<translate key="block.minecraft.lightning_rod"/>吸引雷电，
 将<translate key="block.minecraft.iron_block"/>雷击转化为[<translate key="block.anvilcraft.hollow_magnet_block"/>](001_magnet.md)
 
-默认的雷击转化磁铁块范围如下
 
-> 使用[<translate key="item.anvilcraft.topaz"/>](000_gems.md)右键<translate key="item.minecraft.lightning_rod"/>，
-会消耗[<translate key="item.anvilcraft.topaz"/>](000_gems.md)并制造一道闪电
+<tip>
+使用[<translate key="item.anvilcraft.topaz"/>](000_gems.md)右键<translate key="block.minecraft.lightning_rod"/>，会消耗[<translate key="item.anvilcraft.topaz"/>](000_gems.md)并立刻制造一道闪电
+</tip>
+
+默认的雷击转化磁铁块范围如下
+<structure id="../ac_assets/structure/lightning_convert_magnets.snbt"/>
 
 <row halign="center">
-<GameScene zoom="2"><structure id="../ac_assets/structure/lightning_convert_magnets.snbt"/></GameScene>
 <recipe id="anvilcraft:magnet_ingot_from_hollow_block"/>
 <recipe id="anvilcraft:hollow_magnet_block"/>
 </row>

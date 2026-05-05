@@ -42,9 +42,13 @@ items:
 | [<translate key="block.anvilcraft.chocolate_cake_block"/>](008_large_cake.md)  | 20  | 12  |
 |      [<translate key="item.anvilcraft.large_cake"/>](008_large_cake.md)       | 15  | 12  |
 
-> 原料方块适用铲子挖掘
-> 
-> 使用铲子右键将其整块吃掉
+<info>
+原料方块使用铲子加速挖掘
+</info>
+
+<info>
+使用铲子右键，将其整块吃掉
+</info>
 
 # 制造
 
@@ -62,9 +66,9 @@ items:
 <recipe id="anvilcraft:block_compress/chocolate_cake_block"/>
 </row>
 
-<GameScene zoom="3" interactive={true}>
-    <structure id="../ac_assets/structure/large_cake.snbt"/>
-</GameScene>
+<structure id="../ac_assets/structure/large_cake.snbt"/>
 - 使用[多方块转化](../005_block/210_giant_anvil.md#功能)配方制作
 
-> 来试试巨型蛋糕自动化，成为自动化“糕”手
+<tip>
+来试试巨型蛋糕自动化，成为自动化“糕”手
+</tip>

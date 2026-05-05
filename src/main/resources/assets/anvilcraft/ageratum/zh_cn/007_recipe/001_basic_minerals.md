@@ -76,6 +76,6 @@ navigation:
 # [<translate key="item.anvilcraft.titanium_ingot"/>](../002_material/003_common_nugget.md)-[<translate key="item.anvilcraft.levitation_powder"/>](../002_material/009_levitation_powder.md)产线
 
 <row halign="center">
-[生产[<translate key="item.anvilcraft.end_dust"/>](../001_feature/002_end_portal.md)](../feature/end_portal.md)
+生产[<translate key="block.anvilcraft.end_dust"/>](../001_feature/002_end_portal.md)
 <recipe id="anvilcraft:mesh/end_dust"/>
 </row>

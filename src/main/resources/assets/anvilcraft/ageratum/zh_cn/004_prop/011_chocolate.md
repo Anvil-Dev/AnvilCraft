@@ -37,14 +37,12 @@ items:
 <item id="anvilcraft:chocolate_slab"/>
 <item id="anvilcraft:chocolate_stairs"/>
 </row>
----
 <row halign="center">
 <item id="anvilcraft:chocolate_black"/>
 <item id="anvilcraft:black_chocolate_block"/>
 <item id="anvilcraft:black_chocolate_slab"/>
 <item id="anvilcraft:black_chocolate_stairs"/>
 </row>
----
 <row halign="center">
 <item id="anvilcraft:chocolate_white"/>
 <item id="anvilcraft:white_chocolate_block"/>

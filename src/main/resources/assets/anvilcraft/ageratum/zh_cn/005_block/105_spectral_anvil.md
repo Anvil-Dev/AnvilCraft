@@ -14,13 +14,13 @@ items:
 </row>
 
 # 生产
-[铁砧落入末地门](../001_feature/002_end_portal.md)有概率变成[<translate key="item.anvilcraft.spectral_anvil"/>](105_spectral_anvil.md):
-- <translate key="item.minecraft.damaged_anvil"/>：1%
-- <translate key="item.minecraft.chipped_anvil"/>：2%
-- <translate key="item.minecraft.anvil"/>：3%
-- [<translate key="item.anvilcraft.royal_anvil"/>](103_royal_anvil.md)：50%
-- [<translate key="item.anvilcraft.ember_anvil"/>](223_ember_anvil.md)：100%
-- [<translate key="item.anvilcraft.transcendence_anvil"/>](311_transcendence_anvil.md)：100%
+[铁砧落入末地门](../001_feature/002_end_portal.md)有概率变成[<translate key="block.anvilcraft.spectral_anvil"/>](105_spectral_anvil.md):
+- <translate key="block.minecraft.damaged_anvil"/>：1%
+- <translate key="block.minecraft.chipped_anvil"/>：2%
+- <translate key="block.minecraft.anvil"/>：3%
+- [<translate key="block.anvilcraft.royal_anvil"/>](103_royal_anvil.md)：50%
+- [<translate key="block.anvilcraft.ember_anvil"/>](223_ember_anvil.md)：100%
+- [<translate key="block.anvilcraft.transcendence_anvil"/>](311_transcendence_anvil.md)：100%
 
 # 特性
 - 不会受到重力影响
@@ -31,4 +31,4 @@ items:
 
 # 与铁砧的不同之处
 - 无法进行[铁砧抢劫](../001_feature/000_anvil_loot.md)
-- 砸击[<translate key="item.anvilcraft.piezoelectric_crystal"/>](../003_power/100_basic_power_generation.md)产生的电荷也会偏少
+- 砸击[<translate key="block.anvilcraft.piezoelectric_crystal"/>](../003_power/100_basic_power_generation.md)产生的电荷也会偏少

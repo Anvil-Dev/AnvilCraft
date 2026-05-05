@@ -19,7 +19,7 @@ items:
 <item id="anvilcraft:circuit_board"/>
 </row>
 
-# [<translate key="item.anvilcraft.resin"/>](002_resin.md)
+# <translate key="item.anvilcraft.resin"/>
 ## 合成
 
 <recipe id="anvilcraft:item_crush/wood_fiber"/>
@@ -34,12 +34,17 @@ items:
 <recipe id="anvilcraft:boiling/slime_ball"/>
 </row>
 
-# [<translate key="item.anvilcraft.hardend_resin"/>](002_resin.md)
+# <translate key="item.anvilcraft.hardend_resin"/>
 
-- 用于合成[<translate key="item.anvilcraft.circuit_board"/>](002_resin.md)等...
+用于合成[<translate key="item.anvilcraft.circuit_board"/>](002_resin.md)等...
 
+<row halign="center">
 <recipe id="anvilcraft:circuit_board"/>
+<recipe id="anvilcraft:processor"/>
+<recipe id="anvilcraft:comparator"/>
+<recipe id="anvilcraft:repeater"/>
+</row>
 
-# [<translate key="item.anvilcraft.circuit_board"/>](002_resin.md)
+# <translate key="item.anvilcraft.circuit_board"/>&<translate key="item.anvilcraft.processor"/>
 
 作为大多数机器的合成材料

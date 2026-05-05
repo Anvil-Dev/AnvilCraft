@@ -9,13 +9,11 @@ items:
 
 # 方块吞噬器
 
-<item id="anvilcraft:block_devourer"/>
-
-# 获取
-
 <recipe id="anvilcraft:block_devourer"/>
 
-> 通过斩首III附魔砍末影龙，100%获得龙头
+<info>
+通过斩首III附魔砍末影龙，100%获得龙头
+</info>
 
 # 功能
 
@@ -28,5 +26,5 @@ items:
 # 特性
 
 - 可以被活塞推拉
-- 世界基质方块如 <translate key="item.minecraft.stone"/> 、 <translate key="item.minecraft.netherrack"/> 等只有极少概率掉落
+- 世界基质方块如 <translate key="block.minecraft.stone"/> 、 <translate key="block.minecraft.netherrack"/> 等只有极少概率掉落
 - 更廉价的方块破坏器可以使用[铁砧+切石机](../006_struct/000_block_processing.md)

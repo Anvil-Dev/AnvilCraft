@@ -9,10 +9,6 @@ items:
 
 # 糖块
 
-<item id="anvilcraft:sugar_block"/>
-
-# 获取
-
 <recipe id="anvilcraft:sugar_block"/>
 
 # 功能

@@ -38,10 +38,10 @@ items:
 # 获取
 
 - 获取第一个护符需要[<translate key="item.anvilcraft.amulet_box"/>](100_amulet_box.md)：
-    - 背包内有[<translate key="item.anvilcraft.amulet_box"/>](100_amulet_box.md)，且盒内有不死图腾
-    - 受到特定致密伤害并消耗不死图腾抵挡
-    - 20%的概率获得相应护符。若失败，额外增加10%
-- 之后可在[<translate key="item.anvilcraft.jewelcrafting_table"/>](../005_block/002_jewelcrafting_table.md)中仿制，必须先得到第一个才可仿制
+  - 背包内有[<translate key="item.anvilcraft.amulet_box"/>](100_amulet_box.md)，且盒内有不死图腾
+  - 受到特定致密伤害并消耗不死图腾抵挡
+  - 20%的概率获得相应护符。若失败，额外增加10%
+- 之后可在[<translate key="block.anvilcraft.jewelcrafting_table"/>](../005_block/002_jewelcrafting_table.md)中仿制，必须先得到第一个才可仿制
 
 以下是各普通护符、致命伤害和效果的列表
 
@@ -61,7 +61,7 @@ items:
 
 # 仿制配方
 
-获得第一个护符后，可以通过[<translate key="item.anvilcraft.jewelcrafting_table"/>](../005_block/002_jewelcrafting_table.md)仿制
+获得第一个护符后，可以通过[<translate key="block.anvilcraft.jewelcrafting_table"/>](../005_block/002_jewelcrafting_table.md)仿制
 
 <row halign="center">
 <recipe id="anvilcraft:jewel_crafting/emerald_amulet"/>
@@ -82,5 +82,5 @@ items:
 # 生效
 
 - 主副手持有的护符生效（两手都有就生效两个）
-- <ItemLink id="anvilcraft:amulet_box"></ItemLink>可以容纳护符，主副手持有护符盒，盒中的护符可以生效
+- [护符盒](100_amulet_box.md)可以容纳护符，主副手持有护符盒，盒中的护符可以生效
 - 饰品栏模组的饰品栏中的护符可以生效

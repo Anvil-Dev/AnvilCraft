@@ -9,10 +9,6 @@ items:
 
 # 珠宝加工台
 
-<item id="anvilcraft:jewelcrafting_table"/>
-
-# 获取
-
 <recipe id="anvilcraft:jewelcrafting_table"/>
 
 # 功能

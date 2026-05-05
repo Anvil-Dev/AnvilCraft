@@ -9,15 +9,11 @@ items:
 
 # 蟹笼
 
-<item id="anvilcraft:crab_trap"/>
-
-# 获取
-
 <recipe id="anvilcraft:crab_trap"/>
 
 # 功能
 
-- [<translate key="item.anvilcraft.crab_trap"/>](000_crab_trap.md)放置在水面，确保四面紧邻的方块至少三个为水源或含水方块
+- [<translate key="block.anvilcraft.crab_trap"/>](000_crab_trap.md)放置在水面，确保四面紧邻的方块至少三个为水源或含水方块
 - 可以自动产出鱼获
 - 不同生物群系产出略有不同，但都会产出[<translate key="item.anvilcraft.crab_claw"/>](../004_prop/001_crab_claw.md)
 

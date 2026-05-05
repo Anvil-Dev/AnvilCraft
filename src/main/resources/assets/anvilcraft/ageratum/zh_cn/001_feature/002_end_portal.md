@@ -15,20 +15,17 @@ items:
 <item id="anvilcraft:spectral_anvil"/>
 </row>
 
-# 末地传送门新特性
+---
 
-- 落入末地门的方块会变成[<translate key="item.anvilcraft.end_dust"/>](002_end_portal.md)
-- 如果方块是铁砧，还有可能获得[<translate key="item.anvilcraft.spectral_anvil"/>](../005_block/105_spectral_anvil.md)
+- 落入末地门的方块会变成[<translate key="block.anvilcraft.end_dust"/>](002_end_portal.md)
+- 如果方块是铁砧，还有可能获得[<translate key="block.anvilcraft.spectral_anvil"/>](../005_block/105_spectral_anvil.md)
 
-> 不必担心原版刷沙机，铁砧工艺有更好的制造沙子的方式
+<info>
+不必担心原版刷沙机的离去，正在赶来的是：[更好的刷沙机](../020_machine/003_sand.md)
+</info>
 
-<GameScene zoom="2" interactive={true}>
-    <structure id="../ac_assets/structure/end_portal.snbt"/>
-    <DiamondAnnotation pos="2.5 0.5 2.5" color="#ffff00">
-        被转化并传送入末地
-    </DiamondAnnotation>
-</GameScene>
+<structure id="../ac_assets/structure/end_portal.snbt"/>
 
-# 末地尘
+## 末地尘
 
 - 非重力方块，且可以凭空放置

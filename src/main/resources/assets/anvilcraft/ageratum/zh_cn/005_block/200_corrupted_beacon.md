@@ -14,7 +14,7 @@ items:
 <item id="anvilcraft:corrupted_beacon"/>
 </row>
 
-<gradient start="#991155" end="#bbaa55">~~释放了曾被封印的凋灵之力~~</gradient>
+<gradient start="#991155" end="#bbaa55">释放了曾被封印的凋灵之力</gradient>
 
 # 腐化信标
 
@@ -22,7 +22,7 @@ items:
 
 1. 完全使用[<translate key="block.anvilcraft.cursed_gold_block"/>](../002_material/122_cruse_gold.md)作为信标底座，
 2. 消耗[<translate key="item.anvilcraft.cursed_gold_ingot"/>](../002_material/122_cruse_gold.md)激活信标
-3. 信标有概率转化为[<translate key="item.anvilcraft.corrupted_beacon"/>](200_corrupted_beacon.md)(底座层数越多，转化概率越大)，此时天气被控制为雷雨天
+3. 信标有概率转化为[<translate key="block.anvilcraft.corrupted_beacon"/>](200_corrupted_beacon.md)(底座层数越多，转化概率越大)，此时天气被控制为雷雨天
 
 | 层数 |  概率  | 基座诅咒金块 |   等价诅咒金锭    | 期望成功转化所需次数 | 95%的把握成功转化所需次数 |
 |:--:|:----:|:------:|:-----------:|:----------:|:--------------:|
@@ -35,9 +35,7 @@ items:
 
 ## 功能
 
-<GameScene zoom="2">
-    <structure id="../ac_assets/structure/corrupted_beacon.snbt"/>
-</GameScene>
+<structure id="../structures/corrupted_beacon.snbt"/>
 
 - 此结构可以实现时移操作，此时腐化信标必须是激活状态
 

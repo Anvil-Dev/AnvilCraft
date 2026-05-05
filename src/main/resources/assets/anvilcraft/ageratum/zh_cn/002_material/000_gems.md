@@ -43,4 +43,4 @@ items:
 
 # 量产宝石
 
-拥有[<translate key="item.anvilcraft.corrupted_beacon"/>](../005_block/200_corrupted_beacon.md)后，可以[量产宝石](../007_recipe/204_gem.md)
+拥有[<translate key="block.anvilcraft.corrupted_beacon"/>](../005_block/200_corrupted_beacon.md)后，可以[量产宝石](../007_recipe/204_gem.md)

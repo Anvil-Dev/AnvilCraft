@@ -21,9 +21,14 @@ items:
 <item id="anvilcraft:transcendence_anvil_hammer"/>
 </row>
 
-## 合成
+---
 
 <recipe id="anvilcraft:anvil_hammer"/>
+
+
+之后可以升级为[皇家版本](../002_material/110_royal_steel.md)
+
+---
 
 ## 功能
 

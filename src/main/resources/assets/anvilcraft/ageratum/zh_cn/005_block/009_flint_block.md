@@ -9,10 +9,6 @@ items:
 
 # 燧石块
 
-<item id="anvilcraft:flint_block"/>
-
-# 获取
-
 <recipe id="anvilcraft:flint_block"/>
 
 # 功能

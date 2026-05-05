@@ -43,10 +43,10 @@ items:
 - 大小不同，转换能量不同，详情见下表
 
 
-|                        能量转换器                        | 消耗(kW) | 等价能量(FE/t) | 损耗后转换出的能量(FE/t) |
-|:---------------------------------------------------:|:------:|:----------:|:---------------:|
-| [<translate key="item.anvilcraft.power_converter_small"/>](103_power_convert.md)  |   1    |     80     |       72        |
-| [<translate key="item.anvilcraft.power_converter_middle"/>](103_power_convert.md) |   6    |    480     |       432       |
-|  [<translate key="item.anvilcraft.power_converter_big"/>](103_power_convert.md)   |   36   |    2880    |      2592       |
+|                                       能量转换器                                        | 消耗(kW) | 等价能量(FE/t) | 损耗后转换出的能量(FE/t) |
+|:----------------------------------------------------------------------------------:|:------:|:----------:|:---------------:|
+| [<translate key="block.anvilcraft.power_converter_small"/>](103_power_convert.md)  |   1    |     80     |       72        |
+| [<translate key="block.anvilcraft.power_converter_middle"/>](103_power_convert.md) |   6    |    480     |       432       |
+|  [<translate key="block.anvilcraft.power_converter_big"/>](103_power_convert.md)   |   36   |    2880    |      2592       |
 
 > 默认配置下，1kW = 80FE/t

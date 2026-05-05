@@ -19,15 +19,11 @@ navigation:
     <structure id="../ac_assets/structure/break.snbt"/>
     <ItemEntity pos="1.5 0.5 0.5" id="minecraft:cobblestone"></ItemEntity>
 </GameScene>
-<Column>
 
-可以破坏无法被普通TNT爆炸破坏的方块，如<translate key="item.minecraft.obsidian"/>，但是普通铁砧将固定损坏一个耐久等级。
+- 可以破坏无法被普通TNT爆炸破坏的方块，如<translate key="block.minecraft.obsidian"/>，但是普通铁砧将固定损坏一个耐久等级。
+- 为了防止方块破坏后铁砧掉在切石机上变为掉落物，你需要控制[<translate key="block.anvilcraft.magnet_block"/>](../002_material/001_magnet.md)收回铁砧的时间。
+- 属于[铁砧挖掘](../001_feature/000_anvil_destroy.md)的一种实现
 
-为了防止方块破坏后铁砧掉在切石机上变为掉落物，你需要控制[<translate key="block.anvilcraft.magnet_block"/>](../002_material/001_magnet.md)收回铁砧的时间。
-
-属于[铁砧挖掘](../001_feature/000_anvil_destroy.md)的一种实现
-
-</Column>
 </row>
 
 
@@ -36,8 +32,8 @@ navigation:
 <row halign="center">
 <GameScene zoom="2"><structure id="../ac_assets/structure/block_crush.snbt"/></GameScene>
 
-- <translate key="item.minecraft.cobblestone"/> → <translate key="item.minecraft.gravel"/> → <translate key="item.minecraft.sand"/>
-- <translate key="item.minecraft.polished_granite"/> → <translate key="item.minecraft.granite"/> → <translate key="item.minecraft.red_sand"/>
+- <translate key="block.minecraft.cobblestone"/> → <translate key="block.minecraft.gravel"/> → <translate key="block.minecraft.sand"/>
+- <translate key="block.minecraft.polished_granite"/> → <translate key="block.minecraft.granite"/> → <translate key="block.minecraft.red_sand"/>
 - 有裂纹变种的方块 → 对应的裂纹变种
 - ...
 
@@ -77,11 +73,10 @@ navigation:
 
 # 方块 + 炼药锅：方块压榨
 
-<row halign="center">
-<GameScene zoom="2"><structure id="../ac_assets/structure/squeeze.snbt"/></GameScene>
-<Column>
-
 转化方块，并在炼药锅中生成资源
+
+<row halign="center">
+<structure id="../ac_assets/structure/squeeze.snbt"/>
 
 - 湿海绵 → 海绵 + 水
 - 苔藓块 → 覆地苔藓 + 水
@@ -90,9 +85,9 @@ navigation:
 - 满蜂巢 → 空蜂巢 + 蜂蜜
 - ...
 
-> 当炼药锅集满4层蜂蜜时，可以用漏斗等物流方块取出蜂蜜块"
-
-</Column>
 </row>
 
+<info>
+本模组改进：当炼药锅集满4层蜂蜜时，可以用漏斗等物流方块取出蜂蜜块
+</info>
     

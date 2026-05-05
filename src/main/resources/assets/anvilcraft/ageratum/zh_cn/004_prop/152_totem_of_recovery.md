@@ -24,6 +24,8 @@ items:
 <recipe id="anvilcraft:totem_of_recovery"/>
 </row>
 
+---
+
 ## 相关
 
-[回溯珍珠](151_recovery_pearl.md)
+- [回溯珍珠](151_recovery_pearl.md)

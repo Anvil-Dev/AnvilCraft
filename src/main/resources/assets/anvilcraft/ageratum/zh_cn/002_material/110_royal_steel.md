@@ -25,7 +25,7 @@ items:
 <item id="anvilcraft:royal_steel_nugget"/>
 </row>
 
-<gradient start="#e1ffc4" end="#7fffa3"> ~~黄瓜钢大人~~ </gradient>
+<gradient start="#418814" end="#7fffa3"> 黄瓜钢大人 </gradient>
 
 # 合成
 
@@ -42,7 +42,7 @@ items:
 
 - 用于合成机器
 - 与[<translate key="item.anvilcraft.royal_steel_upgrade_smithing_template"/>](109_royal_template.md)配合，升级工具
-    - 工具拥有<color=#97d9e1> **钻石品质** </color>
+    - 工具拥有<color=#47d9e1> 钻石品质 </color>
 
 <row halign="center">
 <recipe id="anvilcraft:smithing/royal_steel_pickaxe"/>

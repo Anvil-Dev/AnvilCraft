@@ -9,10 +9,6 @@ items:
 
 # 物品收集器
 
-<item id="anvilcraft:item_collector"/>
-
-# 获取
-
 <recipe id="anvilcraft:item_collector"/>
 
 # 功能

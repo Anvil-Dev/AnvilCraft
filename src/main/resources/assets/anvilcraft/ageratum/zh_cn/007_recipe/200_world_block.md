@@ -15,7 +15,7 @@ navigation:
 <item id="minecraft:end_stone"/>
 </row>
 
-需要借助[<translate key="item.anvilcraft.corrupted_beacon"/>](../005_block/200_corrupted_beacon.md)的力量
+需要借助[<translate key="block.anvilcraft.corrupted_beacon"/>](../005_block/200_corrupted_beacon.md)的力量
 
 <row halign="center">
 <recipe id="anvilcraft:time_warp/dirt"/>

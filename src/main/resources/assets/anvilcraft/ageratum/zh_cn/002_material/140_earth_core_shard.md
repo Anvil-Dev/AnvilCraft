@@ -19,7 +19,7 @@ items:
 
 # 获得
 
-- 通过[<translate key="item.anvilcraft.mineral_fountain"/>](../006_struct/130_mineral_fountain.md)生产
+- 通过[<translate key="block.anvilcraft.mineral_fountain"/>](../006_struct/130_mineral_fountain.md)生产
 
 # 功能
 

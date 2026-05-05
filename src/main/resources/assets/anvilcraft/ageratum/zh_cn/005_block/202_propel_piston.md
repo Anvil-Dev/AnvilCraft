@@ -9,10 +9,6 @@ items:
 
 # 推进活塞
 
-<item id="anvilcraft:propel_piston"/>
-
-# 合成
-
 <recipe id="anvilcraft:propel_piston"/>
 
 # 功能
@@ -24,5 +20,7 @@ items:
   - 背部接收到激光时可以充能，充能功率 = 激光等级 * 15kW
   - 可以使用电容手动充能
 
-# 相关
+---
+
+## 相关
 - [激光系统](201_basic_laser.md)

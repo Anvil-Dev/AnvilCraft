@@ -8,20 +8,11 @@ items:
   - anvilcraft:pill_box
 ---
 
-# 药片与药盒
-
-<row halign="center">
-<item id="anvilcraft:pill"/>
-<item id="anvilcraft:pill_box"/>
-</row>
-
 # 药片
-
-## 合成
 
 <recipe id="anvilcraft:stamping/pill"/>
 
-- 将空白[<translate key="item.anvilcraft.pill"/>](011_pill.md)和药水在合成栏合成，得到对应药水效果的药片
+- 再将空白[<translate key="item.anvilcraft.pill"/>](011_pill.md)和药水在合成栏合成，得到对应药水效果的药片
 
 ## 作用
 
@@ -31,8 +22,6 @@ items:
 ---
 
 # 药盒
-
-## 合成
 
 <recipe id="anvilcraft:pill_box"/>
 

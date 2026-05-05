@@ -13,11 +13,9 @@ navigation:
 
 # 特性
 
-被铁砧砸中的<translate key="item.minecraft.spawner"/>会立刻尝试一次刷怪
+被铁砧砸中的<translate key="block.minecraft.spawner"/>会立刻尝试一次刷怪
 
-<GameScene zoom="2">
-    <structure id="../ac_assets/structure/spawner.snbt"/>
-</GameScene>
+<structure id="../ac_assets/structure/spawner.snbt"/>
 
 - 铁砧下落高度h决定刷怪概率p: **p = 1 - 1/h** (高度越高，概率越大)
 - *不需要* **周围有玩家** (记得确保区块被加载)
