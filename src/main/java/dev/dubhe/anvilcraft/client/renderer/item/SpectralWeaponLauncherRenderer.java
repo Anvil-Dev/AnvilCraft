@@ -79,11 +79,11 @@ public class SpectralWeaponLauncherRenderer extends BlockEntityWithoutLevelRende
             if (cp != null && !cp.isEmpty()) {
                 ItemStack ammo = cp.getItems().getFirst();
                 poseStack.pushPose();
-                // poseStack.translate(38f / 256f, 5f / 64f, 7f / 8f);
+                // poseStack.translate(38F / 256F, 5F / 64F, 7F / 8F);
                 // poseStack.mulPose(Axis.YP.rotationDegrees(90));
                 // poseStack.mulPose(Axis.XN.rotationDegrees(45));
                 // poseStack.mulPose(Axis.ZN.rotationDegrees(45));
-                poseStack.translate(0f, 7f / 16f, 7f / 8f);
+                poseStack.translate(0F, 7F / 16F, 7F / 8F);
                 poseStack.mulPose(Axis.YP.rotationDegrees(90));
                 poseStack.mulPose(Axis.ZN.rotationDegrees(45));
                 // poseStack.pushPose();

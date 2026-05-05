@@ -55,8 +55,8 @@ public class TopazItem extends Item {
                         player.getZ(),
                         SoundEvents.ITEM_BREAK,
                         player.getSoundSource(),
-                        0.8f,
-                        0.8f + player.level().random.nextFloat() * 0.4f,
+                        0.8F,
+                        0.8F + player.level().random.nextFloat() * 0.4F,
                         false);
             }
             this.spawnItemParticles(player, stack);

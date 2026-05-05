@@ -63,7 +63,7 @@ public record HasCauldronSimple(
                 .optionalFieldOf("produce", 0)
                 .forGetter(HasCauldronSimple::produce),
             Codec.FLOAT
-                .optionalFieldOf("chance", 1.0f)
+                .optionalFieldOf("chance", 1.0F)
                 .forGetter(HasCauldronSimple::chance),
             Codec.BOOL
                 .optionalFieldOf("ignited", false)
@@ -145,7 +145,7 @@ public record HasCauldronSimple(
         private int consume = 0;
         private Identifier transform = HasCauldron.NULL;
         private int produce = 0;
-        private float chance = 1f;
+        private float chance = 1F;
         private boolean ignited = false;
 
         /**

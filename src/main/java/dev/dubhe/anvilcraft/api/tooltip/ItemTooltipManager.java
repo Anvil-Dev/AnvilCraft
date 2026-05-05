@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -368,7 +369,7 @@ public class ItemTooltipManager {
         );
     }
 
-    private static void propertyTooltip(String propertyName, List<Component> tooltip, int color, Object... args) {
+    public static void propertyTooltip(DataComponentType<?> type, List<Component> tooltip, int color, Object... args) {
         int i = 0;
         for (int j = 0; j < tooltip.size(); j++) {
             if (tooltip.get(j).getContents() instanceof TranslatableContents t && t.getKey().contains("enchantment")
@@ -384,7 +385,7 @@ public class ItemTooltipManager {
         }
         tooltip.add(
             1 + i,
-            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName), args).withColor(color)
+            Component.translatable("tooltip.anvilcraft.property.%s".formatted(), args).withColor(color)
         );
     }
 }

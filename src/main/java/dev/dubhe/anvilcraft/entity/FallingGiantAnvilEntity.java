@@ -82,10 +82,10 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
             }
 
             this.move(MoverType.SELF, this.getDeltaMovement());
-            if (this.getDeltaMovement().y < 0f) {
+            if (this.getDeltaMovement().y < 0F) {
                 this.fallDistance -= (float) this.getDeltaMovement().y;
             }
-            if (this.getDeltaMovement().y > 0f) {
+            if (this.getDeltaMovement().y > 0F) {
                 this.fallDistance = 0;
             }
             if (!this.level().isClientSide) {

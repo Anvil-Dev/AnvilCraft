@@ -36,7 +36,7 @@ public class SugarBlock extends Block {
     public static void loot(RegistrumBlockLootTables tables, Block block) {
         tables.add(block, LootTable.lootTable()
             .withPool(LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0f))
+                .setRolls(ConstantValue.exactly(1.0F))
                 .add(LootItem.lootTableItem(block)
                     .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
                         .setProperties(StatePropertiesPredicate.Builder.properties()
@@ -50,7 +50,7 @@ public class SugarBlock extends Block {
                             .setProperties(StatePropertiesPredicate.Builder.properties()
                                 .hasProperty(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.TWO))))
                     .otherwise(tables.applyExplosionCondition(block, LootItem.lootTableItem(Items.SUGAR)
-                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(9.0f)))
+                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(9.0F)))
                         .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
                             .setProperties(StatePropertiesPredicate.Builder.properties()
                                 .hasProperty(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.THREE)))))

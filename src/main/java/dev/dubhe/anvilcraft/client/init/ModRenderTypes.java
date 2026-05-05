@@ -63,10 +63,10 @@ public class ModRenderTypes {
                 this.getShader()
                     .safeGetUniform("OverlayColor")
                     .set(
-                        FastColor.ARGB32.red(color) / 255f,
-                        FastColor.ARGB32.green(color) / 255f,
-                        FastColor.ARGB32.blue(color) / 255f,
-                        FastColor.ARGB32.alpha(color) / 255f
+                        FastColor.ARGB32.red(color) / 255F,
+                        FastColor.ARGB32.green(color) / 255F,
+                        FastColor.ARGB32.blue(color) / 255F,
+                        FastColor.ARGB32.alpha(color) / 255F
                     );
                 RenderSystem.setShader(this::getShader);
             }

@@ -55,13 +55,13 @@ public class BulgingRecipeLoader {
             .cauldron(Blocks.WATER_CAULDRON)
             .requires(Items.RED_MUSHROOM)
             .result(Blocks.RED_MUSHROOM_BLOCK)
-            .result(Blocks.MUSHROOM_STEM, 0.1f)
+            .result(Blocks.MUSHROOM_STEM, 0.1F)
             .save(provider);
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .requires(Items.BROWN_MUSHROOM)
             .result(Blocks.BROWN_MUSHROOM_BLOCK)
-            .result(Blocks.MUSHROOM_STEM, 0.1f)
+            .result(Blocks.MUSHROOM_STEM, 0.1F)
             .save(provider);
 
         BulgingRecipe.builder()

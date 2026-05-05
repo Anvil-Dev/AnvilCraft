@@ -28,7 +28,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWit
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.function.BiConsumer;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BeheadingLootSubProvider implements LootTableSubProvider {
     private final HolderLookup.Provider provider;
@@ -42,44 +42,44 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         generateBeheading(consumer,
             ModLootTables.BEHEADING_WITHER_SKELETON,
             Items.WITHER_SKELETON_SKULL,
-            0.07f,
-            0.02f
+            0.07F,
+            0.02F
         );
         generateBeheading(consumer,
             ModLootTables.BEHEADING_ZOMBIE,
             Items.ZOMBIE_HEAD,
-            0.01f,
-            0.01f
+            0.01F,
+            0.01F
         );
         generateBeheading(consumer,
             ModLootTables.BEHEADING_SKELETON,
             Items.SKELETON_SKULL,
-            0.01f,
-            0.01f
+            0.01F,
+            0.01F
         );
         generateBeheading(consumer,
             ModLootTables.BEHEADING_CREEPER,
             Items.CREEPER_HEAD,
-            0.01f,
-            0.01f
+            0.01F,
+            0.01F
         );
         generateBeheading(consumer,
             ModLootTables.BEHEADING_PIGLIN,
             Items.PIGLIN_HEAD,
-            0.01f,
-            0.01f
+            0.01F,
+            0.01F
         );
         generateBeheading(consumer,
             ModLootTables.BEHEADING_ENDER_DRAGON,
             Items.DRAGON_HEAD,
-            1.0f,
-            0.0f
+            1.0F,
+            0.0F
         );
         generateBeheading(consumer,
             ModLootTables.BEHEADING_PLAYER,
             Items.PLAYER_HEAD,
-            1.0f,
-            0.0f,
+            1.0F,
+            0.0F,
             FillPlayerHead.fillPlayerHead(LootContext.EntityTarget.THIS)
         );
     }
@@ -95,10 +95,10 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
             .withPool(generatePool(headItem, baseChance, bonusChancePerLevel))
             .withPool(
                 generatePool(headItem, baseChance, bonusChancePerLevel)
-                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25f))))
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25F))))
             .withPool(
                 generatePool(headItem, baseChance, bonusChancePerLevel)
-                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05f))))
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05F))))
         );
     }
 
@@ -114,10 +114,10 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
             .withPool(generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction))
             .withPool(
                 generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
-                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25f))))
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25F))))
             .withPool(
                 generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
-                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05f))))
+                    .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05F))))
         );
     }
 
@@ -125,7 +125,7 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         return LootPool.lootPool()
             .add(LootItem.lootTableItem(headItem))
             .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
-                0.0f,
+                0.0F,
                 LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
                 new DummyHolder(ModEnchantments.BEHEADING_KEY)
             ))
@@ -141,7 +141,7 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         return LootPool.lootPool()
             .add(LootItem.lootTableItem(headItem).apply(extraFunction))
             .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
-                0.0f,
+                0.0F,
                 LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
                 new DummyHolder(ModEnchantments.BEHEADING_KEY)
             ))

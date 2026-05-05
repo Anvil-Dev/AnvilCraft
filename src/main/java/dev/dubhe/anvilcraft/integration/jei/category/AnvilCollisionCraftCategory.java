@@ -227,7 +227,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
 
                     PoseStack pose = guiGraphics.pose();
                     pose.pushPose();
-                    pose.scale(0.8f, 0.8f, 1.0f);
+                    pose.scale(0.8F, 0.8F, 1.0F);
                     guiGraphics.drawString(Minecraft.getInstance().font,
                         Component.translatable("gui.anvilcraft.category.anvil_collision.maxcount", blockTransform.maxCount()),
                         135, 75, 0xFF000000, false);
@@ -268,7 +268,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     arrowDefault.draw(guiGraphics, 98, 26);
                     PoseStack pose = guiGraphics.pose();
                     pose.pushPose();
-                    pose.scale(0.8f, 0.8f, 1.0f);
+                    pose.scale(0.8F, 0.8F, 1.0F);
                     guiGraphics.drawString(Minecraft.getInstance().font,
                         Component.translatable("gui.anvilcraft.category.anvil_collision.maxcount", blockTransform.maxCount()),
                         135, 75, 0xFF000000, false);
@@ -298,11 +298,11 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                 pose,
                 55 - i * 3,
                 24,
-                1f - (float) i / 10
+                1F - (float) i / 10
             );
         }
         pose.pushPose();
-        pose.scale(0.8f, 0.8f, 1.0f);
+        pose.scale(0.8F, 0.8F, 1.0F);
         guiGraphics.drawString(Minecraft.getInstance().font,
             Component.translatable("gui.anvilcraft.category.anvil_collision.consume", recipe.consume()),
             0, 65, 0xFF000000, false);

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.FlightTime;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
@@ -61,7 +62,7 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
 
     public IonoCraftBackpackItem(Properties properties) {
-        super(properties.component(ModComponents.FLIGHT_TIME, 0));
+        super(properties.component(ModComponents.FLIGHT_TIME, FlightTime.EMPTY));
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
     }
 
@@ -104,24 +105,15 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         return TEXTURE_OFF;
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        int flightTime = getFlightTime(stack);
-        double energy = flightTime / 20.0 * 0.05;
-        tooltipComponents.add(Component.translatable(
-            "item.anvilcraft.ionocraft_backpack.flight_time_energy",
-            Component.literal(String.format("%.1f", energy)).withStyle(ChatFormatting.GOLD),
-            Component.literal(String.valueOf(flightTime / 20)).withStyle(ChatFormatting.GOLD)
-        ));
-    }
-
     public static int getFlightTime(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.FLIGHT_TIME, 0);
+        return stack.getOrDefault(ModComponents.FLIGHT_TIME, FlightTime.EMPTY).time();
     }
 
     public static void addFlightTime(ItemStack stack, int time) {
-        stack.set(ModComponents.FLIGHT_TIME, Math.clamp(getFlightTime(stack) + time, 0, AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime));
+        stack.set(
+            ModComponents.FLIGHT_TIME,
+            new FlightTime(Math.clamp(getFlightTime(stack) + time, 0, AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime))
+        );
     }
 
     public static boolean canModify(ItemStack stack, DynamicPowerComponent component) {

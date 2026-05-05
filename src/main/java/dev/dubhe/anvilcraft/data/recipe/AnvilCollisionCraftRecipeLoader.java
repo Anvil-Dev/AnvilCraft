@@ -88,16 +88,16 @@ public class AnvilCollisionCraftRecipeLoader {
             .consume(false)
             .hitBlock(Blocks.REDSTONE_BLOCK)
             .outputItem(ModItems.URANIUM_NUGGET.get(), 6)
-            .outputItem(ModItems.URANIUM_NUGGET.get(), 4, 0.5f)
-            .outputItem(ModItems.URANIUM_NUGGET.get(), 2, 0.25f)
+            .outputItem(ModItems.URANIUM_NUGGET.get(), 4, 0.5F)
+            .outputItem(ModItems.URANIUM_NUGGET.get(), 2, 0.25F)
             .save(provider);
         AnvilCollisionCraftRecipe.builder()
             .anvil(ModBlockTags.ANVIL_TIER_1)
             .consume(false)
             .hitBlock(ModBlocks.LEVITATION_POWDER_BLOCK.get())
             .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 6)
-            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.5f)
-            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.25f)
+            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.5F)
+            .outputItem(ModItems.NEGATIVE_MATTER_NUGGET.get(), 2, 0.25F)
             .save(provider);
 
         CompoundTag uraniumHeatableData = new CompoundTag();

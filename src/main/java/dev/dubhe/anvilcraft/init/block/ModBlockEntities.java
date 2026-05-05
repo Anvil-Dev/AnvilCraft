@@ -58,7 +58,7 @@ import dev.dubhe.anvilcraft.block.entity.nesting.NestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.nesting.OverNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
@@ -270,7 +270,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<AdvancedComparatorBlockEntity> ADVANCED_COMPARATOR = REGISTRUM.blockEntity(
         "advanced_comparator",
         AdvancedComparatorBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.ADVANCED_COMPARATOR).renderer(() -> AdvancedComparatorBlockEntityRender::new).register();
+    ).validBlocks(ModBlocks.ADVANCED_COMPARATOR).renderer(() -> AdvancedComparatorRenderer::new).register();
 
     public static final BlockEntityEntry<HeatedBlockEntity> HEATED_BLOCK = REGISTRUM.blockEntity(
         "heated_block",

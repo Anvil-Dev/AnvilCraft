@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
 import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
@@ -63,7 +63,7 @@ public class GunpowderBlock extends Block {
             pos.getX(),
             pos.getY(),
             pos.getZ(),
-            4.0f,
+            4.0F,
             false,
             Level.ExplosionInteraction.BLOCK);
     }

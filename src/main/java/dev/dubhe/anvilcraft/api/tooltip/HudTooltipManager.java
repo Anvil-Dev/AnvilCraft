@@ -40,8 +40,8 @@ import static dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper.renderTooltip
 public class HudTooltipManager {
     public static final HudTooltipManager INSTANCE = new HudTooltipManager();
     private static final int BACKGROUND_COLOR = 0xCC100010;
-    private static final int BORDER_COLOR_TOP = 0x505000ff;
-    private static final int BORDER_COLOR_BOTTOM = 0x5028007f;
+    private static final int BORDER_COLOR_TOP = 0x505000Ff;
+    private static final int BORDER_COLOR_BOTTOM = 0x5028007F;
     private final List<ITooltipProvider.BlockTooltipProvider> blockProviders = new ArrayList<>();
     private final List<ITooltipProvider.BlockEntityTooltipProvider> blockEntityProviders = new ArrayList<>();
     private final List<IAffectRangeProvider> affectRangeProviders = new ArrayList<>();
@@ -190,7 +190,7 @@ public class HudTooltipManager {
         if (currentProvider == null) return;
         VoxelShape shape = currentProvider.affectRange(entity);
         if (shape == null) return;
-        renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00ffcc);
+        renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00Ffcc);
     }
 
     private IHandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {

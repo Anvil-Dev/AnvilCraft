@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.sounds.SoundEvents;

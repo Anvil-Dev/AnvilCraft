@@ -134,7 +134,7 @@ public abstract class LevelRendererMixin {
             FogRenderer.fogRed,
             FogRenderer.fogGreen,
             FogRenderer.fogBlue,
-            0f
+            0F
         );
         RenderTarget result = ModShaders.getBloomChain().getTempTarget("result");
         RenderTarget main = Minecraft.getInstance().getMainRenderTarget();

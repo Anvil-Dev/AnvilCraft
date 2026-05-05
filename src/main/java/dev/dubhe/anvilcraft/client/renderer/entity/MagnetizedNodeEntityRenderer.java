@@ -37,9 +37,9 @@ public class MagnetizedNodeEntityRenderer extends EntityRenderer<MagnetizedNodeE
         int packedLight
     ) {
         poseStack.pushPose();
-        poseStack.translate(0, -1.31f, 0);
+        poseStack.translate(0, -1.31F, 0);
         float ageInTicks = entity.tickCount + partialTick;
-        model.setupAnim(entity, 0f, 0f, ageInTicks, 0f, 0f);
+        model.setupAnim(entity, 0F, 0F, ageInTicks, 0F, 0F);
         VertexConsumer consumer = bufferSource.getBuffer(model.renderType(MAGNETIZED_NODE_TEXTURE));
         this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();

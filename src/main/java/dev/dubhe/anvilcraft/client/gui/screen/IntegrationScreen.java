@@ -32,7 +32,7 @@ import net.minecraft.util.FormattedCharSequence;
 
 import java.net.URI;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class IntegrationScreen extends Screen {
     public static final Component TITLE = Component.translatable(
@@ -164,13 +164,13 @@ public class IntegrationScreen extends Screen {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
             pose.translate(x, y, 0);
-            pose.scale(1.25f, 1.25f, 1.0f);
+            pose.scale(1.25F, 1.25F, 1.0F);
             Minecraft minecraft = Minecraft.getInstance();
             guiGraphics.drawString(minecraft.font, this.label.getFirst(), 0, 0, -1, false);
             pose.popPose();
             pose.pushPose();
             pose.translate(x + width, y + 2, 0);
-            pose.scale(0.8f, 0.8f, 1.0f);
+            pose.scale(0.8F, 0.8F, 1.0F);
             Component component = switch (this.status) {
                 case LOADED -> Component.translatable("screen.anvilcraft.integration_screen.loaded").withStyle(ChatFormatting.GREEN);
                 case NOT_LOADED -> Component.translatable("screen.anvilcraft.integration_screen.not_loaded").withStyle(ChatFormatting.RED);
@@ -275,7 +275,7 @@ public class IntegrationScreen extends Screen {
     public class NoteIntegrationEntry extends AbstractIntegrationEntry {
         final Component note;
 
-        static final float SCALE = 0.9f;
+        static final float SCALE = 0.9F;
 
         public NoteIntegrationEntry(Component note) {
             super(null);
@@ -298,7 +298,7 @@ public class IntegrationScreen extends Screen {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
             pose.translate(left, top, 0);
-            pose.scale(SCALE, SCALE, 1.0f);
+            pose.scale(SCALE, SCALE, 1.0F);
             int maxWidth = (int) (width / SCALE);
             guiGraphics.drawWordWrap(Minecraft.getInstance().font, this.note, 0, 0, maxWidth, -1);
             pose.popPose();
@@ -348,8 +348,8 @@ public class IntegrationScreen extends Screen {
         ) {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
-            pose.translate(left + width / 2.0f, top + height - 36.0f, 0);
-            pose.scale(2.0f, 2.0f, 1.0f);
+            pose.translate(left + width / 2.0F, top + height - 36.0F, 0);
+            pose.scale(2.0F, 2.0F, 1.0F);
             guiGraphics.drawCenteredString(
                 Minecraft.getInstance().font,
                 this.label,

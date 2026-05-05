@@ -16,40 +16,40 @@ import java.util.function.Supplier;
 public enum ModTiers implements Tier {
     AMETHYST(
         751,
-        4.0f,
-        1.0f,
+        4.0F,
+        1.0F,
         5,
         () -> Ingredient.of(Items.AMETHYST_SHARD),
         BlockTags.INCORRECT_FOR_STONE_TOOL
     ),
     ROYAL(
         1561,
-        8.0f,
-        3.0f,
+        8.0F,
+        3.0F,
         10,
         () -> Ingredient.of(ModItems.ROYAL_STEEL_INGOT),
         BlockTags.INCORRECT_FOR_DIAMOND_TOOL
     ),
     FROST_METAL(
         2031,
-        9.0f,
-        4.0f,
+        9.0F,
+        4.0F,
         15,
         () -> Ingredient.of(ModItems.FROST_METAL_INGOT),
         BlockTags.INCORRECT_FOR_NETHERITE_TOOL
     ),
     EMBER_METAL(
         2031,
-        10.0f,
-        5.0f,
+        10.0F,
+        5.0F,
         22,
         () -> Ingredient.of(ModItems.EMBER_METAL_INGOT),
         ModBlockTags.INCORRECT_FOR_EMBER_TOOL
     ),
     TRANSCENDIUM(
         3156,
-        14.0f,
-        7.0f,
+        14.0F,
+        7.0F,
         28,
         () -> Ingredient.of(ModItems.TRANSCENDIUM_INGOT),
         ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL

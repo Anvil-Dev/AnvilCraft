@@ -43,7 +43,7 @@ public class ModEntities {
 
     public static final EntityEntry<? extends FallingSpectralBlockEntity> FALLING_SPECTRAL_BLOCK = AnvilCraft.REGISTRUM
         .entity("falling_spectral_block", FallingSpectralBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98f, 0.98f))
+        .properties(builder -> builder.sized(0.98F, 0.98F))
         .renderer(() -> SpectralBlockRenderer::new)
         .register();
 
@@ -54,25 +54,25 @@ public class ModEntities {
 
     public static final EntityEntry<? extends LevitatingBlockEntity> LEVITATING_BLOCK = AnvilCraft.REGISTRUM
         .entity("levitating_block", LevitatingBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98f, 0.98f))
+        .properties(builder -> builder.sized(0.98F, 0.98F))
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends StandableFallingBlockEntity> STANDABLE_FALLING_BLOCK = AnvilCraft.REGISTRUM
         .entity("standable_falling_block", StandableFallingBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98f, 0.98f))
+        .properties(builder -> builder.sized(0.98F, 0.98F))
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends StandableLevitatingBlockEntity> STANDABLE_LEVITATING_BLOCK = AnvilCraft.REGISTRUM
         .entity("standable_levitating_block", StandableLevitatingBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98f, 0.98f))
+        .properties(builder -> builder.sized(0.98F, 0.98F))
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends IonocraftEntity> IONOCRAFT = AnvilCraft.REGISTRUM
         .<IonocraftEntity>entity("ionocraft", IonocraftEntity::new, MobCategory.MISC)
-        .properties(it -> it.sized(0.75f, 0.75f)
+        .properties(it -> it.sized(0.75F, 0.75F)
             .eyeHeight(0.5625F)
             .clientTrackingRange(10)
         ).renderer(() -> IonocraftRenderer::new)
@@ -125,13 +125,13 @@ public class ModEntities {
 
     public static final EntityEntry<? extends MagnetizedNodeEntity> MAGNETIZED_NODE = AnvilCraft.REGISTRUM
         .<MagnetizedNodeEntity>entity("magnetized_node", MagnetizedNodeEntity::new, MobCategory.MISC)
-        .properties(it -> it.eyeHeight(0f))
+        .properties(it -> it.eyeHeight(0F))
         .renderer(() -> MagnetizedNodeEntityRenderer::new)
         .register();
 
     public static final EntityEntry<? extends CauldronOutletEntity> CAULDRON_OUTLET = AnvilCraft.REGISTRUM
         .<CauldronOutletEntity>entity("cauldron_outlet", CauldronOutletEntity::new, MobCategory.MISC)
-        .properties(it -> it.eyeHeight(0f))
+        .properties(it -> it.eyeHeight(0F))
         .renderer(() -> CauldronOutletRenderer::new)
         .register();
 

@@ -21,7 +21,7 @@ public class SqueezingRecipeLoader {
             .result(Blocks.AIR)
             .transform(ModBlocks.EXP_FLUID_CAULDRON.get())
             .produce(250)
-            .chance(0.1f)
+            .chance(0.1F)
             .noFrostAnvil()
             .save(provider, AnvilCraft.of("squeezing/exp_fluid_from_sculk"));
 
@@ -30,7 +30,7 @@ public class SqueezingRecipeLoader {
             .result(Blocks.AIR)
             .transform(ModBlocks.EXP_FLUID_CAULDRON.get())
             .produce(250)
-            .chance(0.4f)
+            .chance(0.4F)
             .frostAnvil()
             .save(provider, AnvilCraft.of("squeezing/exp_fluid_from_sculk_use_frost_anvil"));
     }

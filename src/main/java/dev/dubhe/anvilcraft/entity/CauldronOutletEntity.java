@@ -291,7 +291,7 @@ public class CauldronOutletEntity extends Entity {
 
     @Override
     protected AABB makeBoundingBox() {
-        return EntityDimensions.scalable(0.375f, 0.375f).makeBoundingBox(this.position());
+        return EntityDimensions.scalable(0.375F, 0.375F).makeBoundingBox(this.position());
     }
 
     @Override

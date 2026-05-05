@@ -109,7 +109,7 @@ public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity>
                 poseStack.mulPose(Axis.ZP.rotationDegrees(120));
             }
         }
-        poseStack.scale(0.73f, 0.73f, 0.73f);
+        poseStack.scale(0.73F, 0.73F, 0.73F);
 
         var consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(getTextureLocation(entity)));
         this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, -1);

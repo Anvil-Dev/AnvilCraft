@@ -97,12 +97,12 @@ public class ModShaders {
         }
         orthoMatrix = new Matrix4f()
             .setOrtho(
-                0f,
+                0F,
                 width,
-                0f,
+                0F,
                 height,
-                0.1f,
-                1000f
+                0.1F,
+                1000F
             );
     }
 

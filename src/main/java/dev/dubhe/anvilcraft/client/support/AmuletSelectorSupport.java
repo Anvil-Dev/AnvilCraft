@@ -169,7 +169,7 @@ public class AmuletSelectorSupport {
 
                 poseStack.pushPose();
                 poseStack.translate(x + 4 + 2, y + 4 + 2, 1001);
-                poseStack.scale(47f / 16, 47f / 16, 0);
+                poseStack.scale(47F / 16, 47F / 16, 0);
                 ItemStack amulet1 = amulets.getFirst();
                 guiGraphics.renderFakeItem(amulet1, 0, 0);
                 guiGraphics.renderItemDecorations(Minecraft.getInstance().font, amulet1, 0, 0);
@@ -200,7 +200,7 @@ public class AmuletSelectorSupport {
 
                 poseStack.pushPose();
                 poseStack.translate(x + 4, y + 4 + 9, 1001);
-                poseStack.scale(34f / 16, 34f / 16, 0);
+                poseStack.scale(34F / 16, 34F / 16, 0);
                 ItemStack amulet1 = amulets.getFirst();
                 guiGraphics.renderFakeItem(amulet1, 0, 0);
                 guiGraphics.renderItemDecorations(Minecraft.getInstance().font, amulet1, 0, 0);
@@ -235,7 +235,7 @@ public class AmuletSelectorSupport {
 
                 poseStack.pushPose();
                 poseStack.translate(x + 4, y + 4 + 9, 1001);
-                poseStack.scale(34f / 16, 34f / 16, 0);
+                poseStack.scale(34F / 16, 34F / 16, 0);
                 ItemStack amulet1 = amulets.getFirst();
                 guiGraphics.renderFakeItem(amulet1, 0, 0);
                 guiGraphics.renderItemDecorations(Minecraft.getInstance().font, amulet1, 0, 0);
@@ -243,7 +243,7 @@ public class AmuletSelectorSupport {
 
                 poseStack.pushPose();
                 poseStack.translate(x + 40, y + 4 + 9, 1001);
-                poseStack.scale(34f / 16, 34f / 16, 0);
+                poseStack.scale(34F / 16, 34F / 16, 0);
                 ItemStack amulet2 = amulets.get(1);
                 guiGraphics.renderFakeItem(amulet2, 0, 0);
                 guiGraphics.renderItemDecorations(Minecraft.getInstance().font, amulet2, 0, 0);
@@ -253,7 +253,7 @@ public class AmuletSelectorSupport {
 
         private static final int COLOR_FIRST = 0x5522b14c;
         private static final int COLOR_SECOND = 0x5500a2e8;
-        private static final int COLOR_TOTEM = 0x55ffc90e;
+        private static final int COLOR_TOTEM = 0x55Ffc90e;
         private static final int COLOR_SELECTION_BOX_FRAME = 0xff663112;
 
         private final byte alreadyUsedIndexes;

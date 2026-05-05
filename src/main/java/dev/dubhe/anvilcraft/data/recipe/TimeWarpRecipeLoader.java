@@ -194,7 +194,7 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ItemTags.FLOWERS)
-            .result(Items.WITHER_ROSE, 0.2f)
+            .result(Items.WITHER_ROSE, 0.2F)
             .save(provider);
 
         TimeWarpRecipe.builder()

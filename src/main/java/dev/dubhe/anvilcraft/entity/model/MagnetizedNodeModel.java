@@ -16,24 +16,24 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.RenderType;
 
 public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity> {
-    public static final AnimationDefinition ROTATING = AnimationDefinition.Builder.withLength(6f).looping()
+    public static final AnimationDefinition ROTATING = AnimationDefinition.Builder.withLength(6F).looping()
         .addAnimation("rotating",
             new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                new Keyframe(0F, KeyframeAnimations.degreeVec(0F, 0F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
-                new Keyframe(2f, KeyframeAnimations.degreeVec(0f, 360f, 0f),
+                new Keyframe(2F, KeyframeAnimations.degreeVec(0F, 360F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
-                new Keyframe(4f, KeyframeAnimations.degreeVec(0f, 720f, 0f),
+                new Keyframe(4F, KeyframeAnimations.degreeVec(0F, 720F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
-                new Keyframe(6f, KeyframeAnimations.degreeVec(0f, 1080f, 0f),
+                new Keyframe(6F, KeyframeAnimations.degreeVec(0F, 1080F, 0F),
                     AnimationChannel.Interpolations.LINEAR)))
         .addAnimation("main",
             new AnimationChannel(AnimationChannel.Targets.ROTATION,
-                new Keyframe(0f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
+                new Keyframe(0F, KeyframeAnimations.degreeVec(0F, 0F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
-                new Keyframe(3f, KeyframeAnimations.degreeVec(0f, -360f, 0f),
+                new Keyframe(3F, KeyframeAnimations.degreeVec(0F, -360F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
-                new Keyframe(6f, KeyframeAnimations.degreeVec(0f, -720f, 0f),
+                new Keyframe(6F, KeyframeAnimations.degreeVec(0F, -720F, 0F),
                     AnimationChannel.Interpolations.LINEAR))).build();
     private final ModelPart root;
 
@@ -87,7 +87,7 @@ public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity>
         float headPitch
     ) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
-        animate(entity.rotatingState, ROTATING, ageInTicks, 1.0f);
+        animate(entity.rotatingState, ROTATING, ageInTicks, 1.0F);
     }
 
     @Override

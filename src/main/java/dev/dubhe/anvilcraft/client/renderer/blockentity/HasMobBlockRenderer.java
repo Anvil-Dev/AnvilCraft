@@ -27,13 +27,13 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
         Entity entity = blockEntity.getOrCreateDisplayEntity(blockEntity.getLevel());
         if (entity == null) return;
         poseStack.pushPose();
-        poseStack.translate(0.5f, 0.0f, 0.5f);
-        float size = 0.73125f;
+        poseStack.translate(0.5F, 0.0F, 0.5F);
+        float size = 0.73125F;
         float max = Math.max(entity.getBbWidth(), entity.getBbHeight());
         if ((double) max > 1.0) {
             size /= max;
         }
-        poseStack.translate(0.0f, 0.14f, 0.0f);
+        poseStack.translate(0.0F, 0.14F, 0.0F);
         poseStack.scale(size, size, size);
         Minecraft minecraft = Minecraft.getInstance();
         EntityRenderDispatcher dispatcher = minecraft.getEntityRenderDispatcher();

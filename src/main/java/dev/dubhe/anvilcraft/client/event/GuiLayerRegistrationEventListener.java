@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -85,13 +85,13 @@ public class GuiLayerRegistrationEventListener {
         // RenderSystem.setShader(ModShaders::getRingShader);
         // ModShaders.getRingShader()
         //     .safeGetUniform("Center")
-        //     .set(10f * guiScale, 10f * guiScale);
+        //     .set(10F * guiScale, 10F * guiScale);
         // ModShaders.getRingShader()
         //     .safeGetUniform("FramebufferSize")
         //     .set((float)window.getWidth(),(float) window.getHeight());
         // ModShaders.getRingShader()
         //     .safeGetUniform("Radius")
-        //     .set(10f * guiScale);
+        //     .set(10F * guiScale);
         // RenderSystem.setShaderColor(1, 1, 1, 1);
         // BufferUploader.drawWithShader(bufferBuilder.build());
     }

@@ -13,7 +13,7 @@ import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProducer> implements BlockEntityRenderer<T> {
-    public static final float ROTATION_MAGIC = 0.001220703125f;
+    public static final float ROTATION_MAGIC = 0.001220703125F;
 
     @Override
     public void render(
@@ -48,11 +48,11 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
     }
 
     protected float rotation(T blockEntity, float partialTick) {
-        return ((float) blockEntity.getTime() + partialTick) * (float) Math.log(blockEntity.getServerPower() + 1) * magic() * 50.0f;
+        return ((float) blockEntity.getTime() + partialTick) * (float) Math.log(blockEntity.getServerPower() + 1) * magic() * 50.0F;
     }
 
     protected float elevation() {
-        return 0.8f;
+        return 0.8F;
     }
 
     protected float magic() {

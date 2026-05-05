@@ -47,9 +47,9 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
             int nutrition = copiedFood.nutrition();
             float magnification = switch (foodStack.getCount()) {
                 case 1 -> 1;
-                case 2 -> 1.8f;
-                case 3 -> 2.4f;
-                case 4 -> 2.8f;
+                case 2 -> 1.8F;
+                case 3 -> 2.4F;
+                case 4 -> 2.8F;
                 case 5 -> 3;
                 default -> throw new IndexOutOfBoundsException(foodStack.getCount());
             };
@@ -57,7 +57,7 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
                 (int) (nutrition * magnification),
                 copiedFood.saturation() * magnification,
                 false,
-                0.8f,
+                0.8F,
                 Optional.empty(),
                 List.of()
             ));
@@ -90,6 +90,6 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
 
     @Override
     public float scale(ItemStack stack) {
-        return 0.5f;
+        return 0.5F;
     }
 }

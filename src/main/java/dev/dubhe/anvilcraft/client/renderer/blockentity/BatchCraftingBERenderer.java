@@ -1,23 +1,23 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import dev.dubhe.anvilcraft.block.entity.batch.BaseBatchCraftingBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.BaseShowItemRenderState;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
-
-public class BatchCraftingBERenderer extends BaseShowItemRenderer<BaseBatchCraftingBlockEntity> {
+public class BatchCraftingBERenderer extends BaseShowItemRenderer<BaseBatchCraftingBlockEntity, BaseShowItemRenderState> {
     public BatchCraftingBERenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    protected @Nullable ItemStack getDisplayItemStack(BaseBatchCraftingBlockEntity blockEntity) {
-        return blockEntity.getDisplayingStack();
+    public BaseShowItemRenderState createRenderState() {
+        return new BaseShowItemRenderState();
     }
 
     @Override
-    protected int getSeed(BaseBatchCraftingBlockEntity blockEntity) {
-        return blockEntity.getId();
+    protected @Nullable ItemStack getDisplayItemStack(BaseBatchCraftingBlockEntity blockEntity) {
+        return blockEntity.getDisplayingStack();
     }
 }

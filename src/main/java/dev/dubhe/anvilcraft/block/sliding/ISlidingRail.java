@@ -186,10 +186,10 @@ public interface ISlidingRail extends IBlockExtension {
         Vec3 entityPos = entity.position();
         Vector3f acceleration = blockPos.toVector3f()
             .sub(entityPos.toVector3f())
-            .mul(0.45f)
-            .div(0.98f)
+            .mul(0.45F)
+            .div(0.98F)
             .mul(new Vector3f(1, 0, 1));
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.5f, 0.5f, 0.5f).add(new Vec3(acceleration)));
+        entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.5F, 0.5F, 0.5F).add(new Vec3(acceleration)));
     }
 
     class PistonPushInfo {

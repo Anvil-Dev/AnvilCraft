@@ -23,7 +23,7 @@ public class ItemCrushRecipeLoader {
         ItemCrushRecipe.builder()
             .requires(Tags.Items.CROPS_WHEAT)
             .result(ModFoodItems.FLOUR)
-            .result(ModFoodItems.FLOUR, 0.5f)
+            .result(ModFoodItems.FLOUR, 0.5F)
             .save(provider);
         ItemCrushRecipe.builder()
             .requires(ItemTags.LOGS)
@@ -58,9 +58,9 @@ public class ItemCrushRecipeLoader {
         ItemCrushRecipe.builder()
             .requires(ModItems.GEODE)
             .result(Items.AMETHYST_SHARD, 4)
-            .result(ModItems.TOPAZ.get(), 0.25f)
-            .result(ModItems.SAPPHIRE.get(), 0.25f)
-            .result(ModItems.RUBY.get(), 0.25f)
+            .result(ModItems.TOPAZ.get(), 0.25F)
+            .result(ModItems.SAPPHIRE.get(), 0.25F)
+            .result(ModItems.RUBY.get(), 0.25F)
             .save(provider, AnvilCraft.of("item_crush/geode_gems"));
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
@@ -78,25 +78,25 @@ public class ItemCrushRecipeLoader {
                         .offset(0, -.6875, 0)
                         .item(ModItems.RUBY)
                         .build(),
-                    .25f
+                    .25F
                 ).choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)
                         .item(ModItems.TOPAZ)
                         .build(),
-                    .25f
+                    .25F
                 ).choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)
                         .item(ModItems.SAPPHIRE)
                         .build(),
-                    .25f
+                    .25F
                 ).choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)
                         .item(Items.EMERALD)
                         .build(),
-                    .25f
+                    .25F
                 )
             )
             .save(provider, AnvilCraft.of("item_crush/gem_from_chromatic_stone"));
@@ -198,21 +198,21 @@ public class ItemCrushRecipeLoader {
     private static void tool(RegistrumRecipeProvider provider, ItemLike tool, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(tool)
-            .result(result, 0.5f)
+            .result(result, 0.5F)
             .save(provider, AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(getName(tool), getName(result))));
     }
 
     private static void blockCrush(RegistrumRecipeProvider provider, ItemLike input, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(input)
-            .result(result, 0.8f)
+            .result(result, 0.8F)
             .save(provider, AnvilCraft.of("item_crush/block_crush/%s_from_%s".formatted(getName(result), getName(input))));
     }
 
     private static void armor(RegistrumRecipeProvider provider, ItemLike armor, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(armor)
-            .result(result, UniformGenerator.between(0.0f, 2.0f))
+            .result(result, UniformGenerator.between(0.0F, 2.0F))
             .save(provider, AnvilCraft.of("item_crush/armor/%s_2_%s".formatted(getName(armor), getName(result))));
     }
 

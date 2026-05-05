@@ -99,7 +99,7 @@ public class FallingBlockCollisionEventListener {
         double x = pos.getCenter().x;
         double y = pos.getCenter().y;
         double z = pos.getCenter().z;
-        float radius = 4f;
+        float radius = 4F;
         boolean fire = true;
         boolean spawnParticles = true;
         ParticleOptions smallExplosionParticles = ParticleTypes.EXPLOSION;
@@ -158,7 +158,7 @@ public class FallingBlockCollisionEventListener {
             Vec3 normal = pos.getCenter().subtract(entityPos).scale(0.6).multiply(1, 0, 1);
             final float dRoute;
             if (number == 2) {
-                dRoute = 0f;
+                dRoute = 0F;
             } else {
                 dRoute = (float) (2 * Math.PI / (number - 2));
             }

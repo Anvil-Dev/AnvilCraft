@@ -67,7 +67,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     public static final int DELAY = 150; // ms
     public static final int ANIMATION_T = 300; // ms
     public static final int CLOSING_ANIMATION_T = 150; // ms
-    public static final float ZOOM = 13.5f;
+    public static final float ZOOM = 13.5F;
     public static final int IGNORE_CURSOR_MOVE_LENGTH = 15;
 
     private static final MethodHandle PROPERTY_TOSTRING;
@@ -79,14 +79,14 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private static final int SELECTION_EFFECT_COLOR = 0xddFFFF00;
     private static final int SELECTION_EFFECT_RADIUS = 20;
 
-    private static final float TEXT_SCALE = 1f;
+    private static final float TEXT_SCALE = 1F;
     private static final int TEXT_COLOR = 0xfdfdfd;
 
     private static final Vector2f ROTATION_START = new Vector2f(0, 1);
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
 
     /// Nonlinear, should bigger than 1, 1 means no animation
-    private static final float SELECTION_ANIMATION_SPEED_FACTOR = 5.0f;
+    private static final float SELECTION_ANIMATION_SPEED_FACTOR = 5.0F;
 
     static {
         MethodType mt = MethodType.methodType(
@@ -120,7 +120,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private Vector2f centerPos;
     private Vector2f selectionEffectPosFromCenter = MathUtil.copy(ROTATION_START).mul(RADIUS);
     /// *rad*
-    private float targetAngle = 0f;
+    private float targetAngle = 0F;
     private boolean shouldRebuildChunk = true;
     private boolean validate = true;
     private final InteractionHand hand;
@@ -143,10 +143,10 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     @Override
     protected void init() {
         items.clear();
-        float centerX = this.width / 2f;
-        float centerY = this.height / 2f;
+        float centerX = this.width / 2F;
+        float centerY = this.height / 2F;
         this.centerPos = new Vector2f(centerX, centerY);
-        float degreeEachRotation = 360f / this.possibleStates.size();
+        float degreeEachRotation = 360F / this.possibleStates.size();
         for (int i = 0; i < this.possibleStates.size(); i++) {
             BlockState state = this.possibleStates.get(i);
             float rotation = degreeEachRotation * i;
@@ -155,8 +155,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 .mul(RADIUS)
                 .add(centerX, centerY);
             try {
-                float detectionStart = (float) (Math.toRadians(rotation - degreeEachRotation / 2f) + Math.PI);
-                float detectionEnd = (float) (Math.toRadians(rotation + degreeEachRotation / 2f) + Math.PI);
+                float detectionStart = (float) (Math.toRadians(rotation - degreeEachRotation / 2F) + Math.PI);
+                float detectionEnd = (float) (Math.toRadians(rotation + degreeEachRotation / 2F) + Math.PI);
                 detectionStart = detectionStart % (float) (Math.PI * 2);
                 detectionEnd = detectionEnd % (float) (Math.PI * 2);
                 this.items.add(
@@ -231,8 +231,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (this.closingAnimationStarted) return true;
-        float screenCenterX = this.width / 2f;
-        float screenCenterY = this.height / 2f;
+        float screenCenterX = this.width / 2F;
+        float screenCenterY = this.height / 2F;
         Vector2f cursorVec2 = new Vector2f(
             (float) mouseX - screenCenterX,
             (float) mouseY - screenCenterY
@@ -263,8 +263,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     public void renderClosingAnimation(GuiGraphics guiGraphics, int mouseX, int mouseY, float particalTick) {
         if (!this.closingAnimationStarted) return;
         float delta = this.displayTime + CLOSING_ANIMATION_T - System.currentTimeMillis();
-        float centerX = this.width / 2f;
-        float centerY = this.height / 2f;
+        float centerX = this.width / 2F;
+        float centerY = this.height / 2F;
         float progress = delta / CLOSING_ANIMATION_T;
         if (progress >= 1 || progress <= 0) {
             this.minecraft.setScreen(null);
@@ -287,10 +287,10 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         poseStack.translate(x, y, z);
         poseStack.scale(scale, scale, scale);
         poseStack.mulPose(new Matrix4f().scaling(1, -1, 1));
-        poseStack.translate(0.5f, 0.5f, 0.5f);
+        poseStack.translate(0.5F, 0.5F, 0.5F);
         poseStack.mulPose(Axis.XP.rotationDegrees(this.camera.getEntity().getXRot()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(this.camera.getEntity().getYRot() + 180f));
-        poseStack.translate(-0.5f, -0.5f, -0.5f);
+        poseStack.mulPose(Axis.YP.rotationDegrees(this.camera.getEntity().getYRot() + 180F));
+        poseStack.translate(-0.5F, -0.5F, -0.5F);
 
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 
@@ -364,8 +364,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         poseStack.pushPose();
         renderRing(
             guiGraphics,
-            this.width / 2f,
-            this.height / 2f,
+            this.width / 2F,
+            this.height / 2F,
             RING_COLOR,
             RING_INNER_DIAMETER * progress,
             RING_OUTER_DIAMETER * progress
@@ -418,9 +418,9 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             }
             final int textAlpha = (int) (progress * 0xff) << 24;
             poseStack.pushPose();
-            float coordinateScale = 0.7f;
-            float offsetX = 0.1f * this.width;
-            float offsetY = 0.1f * this.height;
+            float coordinateScale = 0.7F;
+            float offsetX = 0.1F * this.width;
+            float offsetY = 0.1F * this.height;
             float adjustedX = (x - offsetX) / coordinateScale;
             float adjustedY = (y - offsetY - 20) / coordinateScale;
             poseStack.translate(offsetX, offsetY, 0);
@@ -442,8 +442,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
-        final float centerX = this.width / 2f;
-        final float centerY = this.height / 2f;
+        final float centerX = this.width / 2F;
+        final float centerY = this.height / 2F;
         if (this.validate && !isValidState(this.currentBlockState)) {
             this.validate = false;
             this.displayTime = System.currentTimeMillis();
@@ -470,8 +470,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         }
         renderRing(
             guiGraphics,
-            this.width / 2f,
-            this.height / 2f,
+            this.width / 2F,
+            this.height / 2F,
             RING_COLOR,
             RING_INNER_DIAMETER,
             RING_OUTER_DIAMETER
@@ -500,9 +500,9 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 );
             }
             poseStack.pushPose();
-            float coordinateScale = 0.7f;
-            float offsetX = 0.1f * this.width;
-            float offsetY = 0.1f * this.height;
+            float coordinateScale = 0.7F;
+            float offsetX = 0.1F * this.width;
+            float offsetY = 0.1F * this.height;
             float adjustedX = (x - offsetX) / coordinateScale;
             float adjustedY = (y - offsetY - 20) / coordinateScale;
 

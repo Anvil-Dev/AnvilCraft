@@ -40,7 +40,7 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         this.flowingTexture = flowingTexture;
         this.noFog = true;
         this.fogColor = 0xFF0000;
-        this.fogDistance = 96.0f;
+        this.fogDistance = 96.0F;
     }
 
     public ModClientFluidTypeExtensionImpl(Identifier texture) {
@@ -74,7 +74,7 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         FogShape shape
     ) {
         if (camera.getEntity().isSpectator() || this.noFog) return;
-        RenderSystem.setShaderFogStart(0.0f);
+        RenderSystem.setShaderFogStart(0.0F);
         RenderSystem.setShaderFogEnd(this.fogDistance);
     }
 }

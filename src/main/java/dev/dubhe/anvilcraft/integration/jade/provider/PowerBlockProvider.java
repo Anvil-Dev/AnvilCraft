@@ -46,7 +46,7 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
                 elementHelper.progressStyle().color(color).textColor(-1),
                 Util.make(STYLE, boxStyle -> {
                     boxStyle.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
-                    boxStyle.borderWidth = 1.0f;
+                    boxStyle.borderWidth = 1.0F;
                     boxStyle.bgColor = 0xFF32CD32;
                 }),
                 true));

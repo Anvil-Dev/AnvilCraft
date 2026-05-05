@@ -76,9 +76,9 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
             if (leavesKey.isEmpty()) continue;
             MeshRecipe.Builder recipeBuilder = MeshRecipe.builder()
                 .requires(leaves)
-                .result(leaves.getDefaultInstance(), 0.5f);
+                .result(leaves.getDefaultInstance(), 0.5F);
             for (Item sapling : this.leavesAndSaplings.get(leaves)) {
-                recipeBuilder.result(sapling.getDefaultInstance(), 0.2f);
+                recipeBuilder.result(sapling.getDefaultInstance(), 0.2F);
             }
             Identifier leavesId = leavesKey.get().location();
             Identifier newId = AnvilCraft.of("mesh/generated/%s".formatted(leavesId.toString().replace(':', '_')));

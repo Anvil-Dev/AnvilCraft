@@ -16,7 +16,7 @@ public class RottenFleshBlock extends Block {
 
     @Override
     public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
-        entity.causeFallDamage(fallDistance, 0.2f, level.damageSources().fall());
+        entity.causeFallDamage(fallDistance, 0.2F, level.damageSources().fall());
         if (entity instanceof LivingEntity livingEntity) {
             livingEntity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 30 * 20));
         }

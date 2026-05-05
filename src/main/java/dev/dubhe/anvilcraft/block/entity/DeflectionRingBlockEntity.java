@@ -218,7 +218,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             AccelerateManager::canBeAccelerated
         );
         for (Entity entity : entities2) {
-            if (entity.getDeltaMovement().length() > Integer.MAX_VALUE * 0.99f) {
+            if (entity.getDeltaMovement().length() > Integer.MAX_VALUE * 0.99F) {
                 this.overSpeed = true;
                 BlockState state = getBlockState();
                 if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;

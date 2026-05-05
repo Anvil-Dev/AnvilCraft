@@ -183,13 +183,13 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         }
 
         /**
-         * 添加结果方块（默认概率为1.0f）
+         * 添加结果方块（默认概率为1.0F）
          *
          * @param result 结果方块
          * @return 构建器实例
          */
         public Builder toBlock(Block result) {
-            return this.toBlock(result, 1.0f);
+            return this.toBlock(result, 1.0F);
         }
 
         @Override

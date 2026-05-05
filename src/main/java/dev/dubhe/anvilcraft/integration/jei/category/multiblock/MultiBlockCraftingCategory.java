@@ -151,7 +151,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         }
         final boolean renderAllLayers = level.isAllLayersVisible();
         final int visibleLayer = level.getCurrentVisibleLayer();
-        RenderSupport.renderLevelLike(level, guiGraphics, 45, 50, SCALE_FAC, 2.0f);
+        RenderSupport.renderLevelLike(level, guiGraphics, 45, 50, SCALE_FAC, 2.0F);
         final Minecraft minecraft = Minecraft.getInstance();
         PoseStack pose = guiGraphics.pose();
         int sizeY = level.verticalSize();
@@ -167,7 +167,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             this.layerDownButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
         }
         pose.pushPose();
-        pose.scale(0.03f, 0.03f, 1.0f);
+        pose.scale(0.03F, 0.03F, 1.0F);
         conversion.draw(guiGraphics, 4300, 1700);
         pose.popPose();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
@@ -177,14 +177,14 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
                 .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                 .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
             138,
-            44.8f + anvilYOffset,
+            44.8F + anvilYOffset,
             20,
             5,
             RenderSupport.SINGLE_BLOCK
         );
         pose.pushPose();
-        pose.scale(0.8f, 0.8f, 0.8f);
-        int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(component) - 5);
+        pose.scale(0.8F, 0.8F, 0.8F);
+        int textX = Math.round(WIDTH / 0.8F - minecraft.font.width(component) - 5);
         guiGraphics.drawString(minecraft.font, component, textX, 0, 0xFF000000, false);
         int size = recipe.value().pattern.getSize();
         guiGraphics.drawString(

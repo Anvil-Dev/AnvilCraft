@@ -163,13 +163,13 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         }
 
         /**
-         * 设置结果方块（默认概率为1.0f）
+         * 设置结果方块（默认概率为1.0F）
          *
          * @param result 结果方块
          * @return 构建器实例
          */
         public Builder result(Block result) {
-            this.result = new ChanceBlockState(result.defaultBlockState(), 1.0f);
+            this.result = new ChanceBlockState(result.defaultBlockState(), 1.0F);
             return this;
         }
 

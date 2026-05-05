@@ -73,6 +73,7 @@ public abstract class ResonatorItem extends Item {
     public static final int HOE_MODE = 3;
     public static final int PICKAXE_MODE = 4;
     private final ToolMaterial material;
+    private final float attackDamage;
 
     public ResonatorItem(ToolMaterial material, float attackDamage, float attackSpeed, Properties properties) {
         super(
@@ -82,6 +83,7 @@ public abstract class ResonatorItem extends Item {
                 .component(DataComponents.WEAPON, new Weapon(2, 0.0F))
         );
         this.material = material;
+        this.attackDamage = attackDamage;
     }
 
     private boolean isTranscendence(ItemStack stack) {
@@ -152,25 +154,25 @@ public abstract class ResonatorItem extends Item {
             case AUTO -> createToolProperties(material);
             case AXE -> new Tool(
                 List.of(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), material.speed())),
-                1.0f,
+                1.0F,
                 1,
                 true
             );
             case SHOVEL -> new Tool(
                 List.of(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_SHOVEL), material.speed())),
-                1.0f,
+                1.0F,
                 1,
                 true
             );
             case HOE -> new Tool(
                 List.of(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_HOE), material.speed())),
-                1.0f,
+                1.0F,
                 1,
                 true
             );
             case PICKAXE -> new Tool(
                 List.of(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_PICKAXE), material.speed())),
-                1.0f,
+                1.0F,
                 1,
                 true
             );
@@ -237,7 +239,7 @@ public abstract class ResonatorItem extends Item {
                         Attributes.ATTACK_DAMAGE,
                         new AttributeModifier(
                             BASE_ATTACK_DAMAGE_ID,
-                            resonator.getBaseAttackDamage() + material.attackDamageBonus(),
+                            resonator.attackDamage + material.attackDamageBonus(),
                             AttributeModifier.Operation.ADD_VALUE
                         ),
                         EquipmentSlotGroup.MAINHAND
@@ -250,8 +252,6 @@ public abstract class ResonatorItem extends Item {
         }
     }
 
-    protected abstract double getBaseAttackDamage();
-
     @Override
     public void inventoryTick(ItemStack stack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
         super.inventoryTick(stack, level, owner, slot);
@@ -260,7 +260,7 @@ public abstract class ResonatorItem extends Item {
     }
 
     public float getDestroySpeed(ItemStack stack, BlockState state) {
-        if (ResonatorItem.isTooDamagedToUse(stack)) return 1.0f;
+        if (ResonatorItem.isTooDamagedToUse(stack)) return 1.0F;
         Tool tool = stack.get(DataComponents.TOOL);
         return tool != null ? tool.getMiningSpeed(state) : this.getMaterial().speed();
     }
@@ -308,7 +308,7 @@ public abstract class ResonatorItem extends Item {
         // 0.5秒 = 10 ticks
         if (this.getUseDuration(stack, livingEntity) - remainingUseDuration >= 10) {
             // 获取视线方块
-            if (player.pick(player.blockInteractionRange(), 0f, false) instanceof BlockHitResult hit) {
+            if (player.pick(player.blockInteractionRange(), 0F, false) instanceof BlockHitResult hit) {
                 BlockPos pos = hit.getBlockPos();
                 BlockState state = level.getBlockState(pos);
                 // 检查是否可破坏 (硬度 >= 0)
@@ -477,10 +477,10 @@ public abstract class ResonatorItem extends Item {
         public boolean is(ResonateMode mode, HolderSet<Item> holders) {
             if (mode == ResonateMode.AUTO) return holders.contains(this);
             return switch (holders) {
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.AXES) -> h.contains(this) && mode == AXE_MODE;
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.SHOVELS) -> h.contains(this) && mode == SHOVEL_MODE;
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.HOES) -> h.contains(this) && mode == HOE_MODE;
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.PICKAXES) -> h.contains(this) && mode == PICKAXE_MODE;
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.AXES) -> h.contains(this) && mode == ResonateMode.AXE;
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.SHOVELS) -> h.contains(this) && mode == ResonateMode.SHOVEL;
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.HOES) -> h.contains(this) && mode == ResonateMode.HOE;
+                case HolderSet.Named<Item> h when h.key().equals(ItemTags.PICKAXES) -> h.contains(this) && mode == ResonateMode.PICKAXE;
                 default -> holders.contains(this);
             };
         }

@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -169,7 +170,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        Integer energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        Integer energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy();
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
             propelPistonBlockEntity.updateStoredEnergy(energy);

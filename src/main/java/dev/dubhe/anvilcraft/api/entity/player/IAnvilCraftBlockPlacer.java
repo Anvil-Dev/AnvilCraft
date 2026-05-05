@@ -77,8 +77,8 @@ public interface IAnvilCraftBlockPlacer {
             pos,
             soundType.getPlaceSound(),
             SoundSource.BLOCKS,
-            (soundType.getVolume() + 1.0f) / 2.0f,
-            soundType.getPitch() * 0.8f
+            (soundType.getVolume() + 1.0F) / 2.0F,
+            soundType.getPitch() * 0.8F
         );
         TriggerUtil.placerPlaceBlock(level, pos, blockState.getBlock());
         return InteractionResult.SUCCESS;

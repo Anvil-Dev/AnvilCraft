@@ -93,8 +93,8 @@ public class HasMobBlockItem extends BlockItem {
                     blockPos,
                     item1.getPlaceSound(blockState),
                     SoundSource.BLOCKS,
-                    (soundType.getVolume() + 1.0f) / 2.0f,
-                    soundType.getPitch() * 0.8f
+                    (soundType.getVolume() + 1.0F) / 2.0F,
+                    soundType.getPitch() * 0.8F
                 );
             }
             return ItemStack.EMPTY;

@@ -81,7 +81,7 @@ public class SmeltingLootModifier extends LootModifier {
                 continue;
             }
             if (item.is(Tags.Items.RAW_MATERIALS) || item.is(Tags.Items.ORES)) {
-                float chance = lvl == 1 ? 0 : (lvl - 1) * 0.25f;
+                float chance = lvl == 1 ? 0 : (lvl - 1) * 0.25F;
                 if (lvl >= 5) chance = 1;
                 if (ctx.getRandom().nextFloat() < chance) {
                     needDouble = true;

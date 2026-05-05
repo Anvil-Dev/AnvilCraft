@@ -49,7 +49,7 @@ public class TotemOfRecoveryHandler implements TotemHandler {
                                       : player.getRespawnPosition();
                 RecoveryPearl.crossDimensionTeleportTo(respawnDimension, player, respawnPos);
             }
-            entity.setHealth(1.0f);
+            entity.setHealth(1.0F);
             entity.removeEffectsCuredBy(EffectCures.PROTECTED_BY_TOTEM);
             entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));
             entity.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 100, 1));

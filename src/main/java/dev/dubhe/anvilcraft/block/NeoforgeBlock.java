@@ -90,7 +90,7 @@ public class NeoforgeBlock extends FallingBlock {
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, 20);
+        entity.setHurtsEntities(2.0F, 20);
     }
 
     @Override

@@ -106,9 +106,9 @@ public class ModDispenserBehavior {
                 .toList();
         if (entities.isEmpty()) return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
         IronGolem ironGolem = entities.get(level.random.nextInt(0, entities.size()));
-        ironGolem.heal(25.0f);
-        float g = 1.0f + (level.random.nextFloat() - level.random.nextFloat()) * 0.2f;
-        ironGolem.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0f, g);
+        ironGolem.heal(25.0F);
+        float g = 1.0F + (level.random.nextFloat() - level.random.nextFloat()) * 0.2F;
+        ironGolem.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, g);
         ItemStack stack1 = stack.copy();
         stack1.shrink(1);
         for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, blockPos, 5)) {

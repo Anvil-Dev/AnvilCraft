@@ -135,13 +135,13 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         if (!result.hasItem()) return;
 
         Component component = Component.translatable("screen.anvilcraft.ember_grindstone.cost", cost);
-        int textColor = 0x80ff20;
+        int textColor = 0x80Ff20;
         if (!result.mayPickup(this.player)) {
             textColor = 0xff6060;
         }
 
         int k = this.imageWidth - 1 - this.font.width(component) - 2;
-        guiGraphics.fill(k - 2, 65, this.imageWidth - 1, 76, 0x4f000000);
+        guiGraphics.fill(k - 2, 65, this.imageWidth - 1, 76, 0x4F000000);
         guiGraphics.drawString(this.font, component, k, 66, textColor);
     }
 

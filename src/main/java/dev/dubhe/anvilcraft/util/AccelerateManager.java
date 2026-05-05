@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -98,7 +98,7 @@ public class AccelerateManager {
             entity.setPos(entity.position().add(fixMovement.multiply(5, 5, 5)));
         }
         deltaMovement = deltaMovement.scale(1.0204081632653061)
-            .add(new Vec3(0.1f, 0.1f, 0.1f).multiply(Vec3.atLowerCornerOf(direction.getNormal())));
+            .add(new Vec3(0.1F, 0.1F, 0.1F).multiply(Vec3.atLowerCornerOf(direction.getNormal())));
         entity.setDeltaMovement(deltaMovement);
         entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
     }

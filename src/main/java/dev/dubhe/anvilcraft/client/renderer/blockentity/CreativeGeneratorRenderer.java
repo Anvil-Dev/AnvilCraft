@@ -18,7 +18,7 @@ public class CreativeGeneratorRenderer extends PowerProducerRenderer<CreativeGen
 
     @Override
     protected float elevation() {
-        return 0.75f;
+        return 0.75F;
     }
 
     @Override

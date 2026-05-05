@@ -116,7 +116,7 @@ public class VanillaRecipesLoader {
             Ingredient.of(lookup.getOrThrow(ModItemTags.DOUGH)),
             RecipeCategory.FOOD,
             Items.BREAD,
-            0.35f,
+            0.35F,
             600
         ).unlockedBy(
             AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()),
@@ -126,7 +126,7 @@ public class VanillaRecipesLoader {
             Ingredient.of(lookup.getOrThrow(ModItemTags.DOUGH)),
             RecipeCategory.FOOD,
             Items.BREAD,
-            0.35f,
+            0.35F,
             100
         ).unlockedBy(
             AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()),
@@ -137,7 +137,7 @@ public class VanillaRecipesLoader {
             RecipeCategory.FOOD,
             CookingBookCategory.FOOD,
             Items.BREAD,
-            0.35f,
+            0.35F,
             200
         ).unlockedBy(
             AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()),

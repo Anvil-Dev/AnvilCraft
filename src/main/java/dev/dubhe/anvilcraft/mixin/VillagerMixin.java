@@ -27,7 +27,7 @@ public abstract class VillagerMixin extends AbstractVillager {
         // 如果需要不叠加，就加上&& !player.hasEffect(MobEffects.HERO_OF_THE_VILLAGE)
         if (player.hasData(DISCOUNT_RATE)) {
             double d = player.getData(DISCOUNT_RATE);
-            if (d == 0f) return;
+            if (d == 0F) return;
             for (MerchantOffer merchantOffer : this.getOffers()) {
                 int k = (int) Math.floor(d * merchantOffer.getBaseCostA().getCount());
                 merchantOffer.addToSpecialPriceDiff(-Math.max(k, 1));

@@ -36,7 +36,7 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES =
         List.of(EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
     public static final Quaternionf ARMOR_STAND_ANGLE =
-        new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
+        new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
     private final CyclingSlotBackground baseIcon = new CyclingSlotBackground(1);
     private final CyclingSlotBackground additionalIcon = new CyclingSlotBackground(2);
@@ -73,8 +73,8 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
             this.armorStandPreview = new ArmorStand(this.minecraft.level, 0.0, 0.0, 0.0);
             this.armorStandPreview.setNoBasePlate(true);
             this.armorStandPreview.setShowArms(true);
-            this.armorStandPreview.yBodyRot = 210.0f;
-            this.armorStandPreview.setXRot(25.0f);
+            this.armorStandPreview.yBodyRot = 210.0F;
+            this.armorStandPreview.setXRot(25.0F);
             this.armorStandPreview.yHeadRot = this.armorStandPreview.getYRot();
             this.armorStandPreview.yHeadRotO = this.armorStandPreview.getYRot();
         }

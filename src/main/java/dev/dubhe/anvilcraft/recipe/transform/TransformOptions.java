@@ -52,12 +52,12 @@ public enum TransformOptions implements StringRepresentable {
                         if (n instanceof Mob mob) {
                             mob.setDropChance(
                                 value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
-                                1.0f);
+                                1.0F);
                         }
                         if (o instanceof Mob mob) {
                             mob.setDropChance(
                                 value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
-                                1.0f);
+                                1.0F);
                         }
                     }
                 }

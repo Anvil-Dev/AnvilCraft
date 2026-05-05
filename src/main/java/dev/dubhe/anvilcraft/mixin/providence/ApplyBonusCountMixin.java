@@ -44,9 +44,9 @@ public class ApplyBonusCountMixin {
             return result;
         }
         float random = random1.nextFloat();
-        if (random >= 0.25f) return result;
+        if (random >= 0.25F) return result;
         result += original.call(instance, random1, count, level);
-        if (random >= 0.05f) return result;
+        if (random >= 0.05F) return result;
         result += original.call(instance, random1, count, level);
         return result;
     }

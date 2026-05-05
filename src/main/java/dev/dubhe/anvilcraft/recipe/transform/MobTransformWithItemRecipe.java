@@ -123,8 +123,8 @@ public record MobTransformWithItemRecipe(
         boolean hasTransformItem = this.testItem(livingEntity.getMainHandItem());
         float probability = 0;
         if (hasTransformItem) {
-            probability = this.chancePercentPerItem() * 0.01f * livingEntity.getMainHandItem().getCount();
-            probability = Math.min(probability, 1f);
+            probability = this.chancePercentPerItem() * 0.01F * livingEntity.getMainHandItem().getCount();
+            probability = Math.min(probability, 1F);
         }
         float r = rand.nextFloat();
         if (hasTransformItem && r <= probability) {
@@ -193,7 +193,7 @@ public record MobTransformWithItemRecipe(
                 new ItemStack(itemResult.getItem(), itemResult.getCount())
             );
             if (entity instanceof Mob mob) {
-                mob.setDropChance(EquipmentSlot.MAINHAND, 1.0f);
+                mob.setDropChance(EquipmentSlot.MAINHAND, 1.0F);
             }
         }
     }

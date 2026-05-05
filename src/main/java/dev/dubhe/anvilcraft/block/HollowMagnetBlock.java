@@ -144,7 +144,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
                     blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
                 }
                 level.setBlockAndUpdate(pos, blockState);
-                level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return ItemInteractionResult.SUCCESS;
             } else if (stack.is(ModItems.MAGNET_INGOT)) {
                 stack.consume(1, player);
@@ -153,7 +153,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
                     blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
                 }
                 level.setBlockAndUpdate(pos, blockState);
-                level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return ItemInteractionResult.SUCCESS;
             }
         }

@@ -33,7 +33,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
     default void tryAbsorbWater(Level level, BlockPos pos) {
         if (this.removeFluidBreadthFirstSearch(level, pos)) {
             level.levelEvent(2001, pos, Block.getId(getCheckBlockState()));
-            level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
+            level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1F, 1F);
         }
     }
 

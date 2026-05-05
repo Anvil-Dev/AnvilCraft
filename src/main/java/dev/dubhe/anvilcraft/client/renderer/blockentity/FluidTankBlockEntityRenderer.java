@@ -56,7 +56,7 @@ public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTa
         // ms.popPose();
     }
 
-    private static final float TANK_W = 1 / 16f + 0.001f; // avoiding Z-fighting
+    private static final float TANK_W = 1 / 16F + 0.001F; // avoiding Z-fighting
 
     public static void drawFluidInTank(PoseStack ps, MultiBufferSource mbs, int light, FluidStack fluid, float fill) {
         // From Modern Industrialization

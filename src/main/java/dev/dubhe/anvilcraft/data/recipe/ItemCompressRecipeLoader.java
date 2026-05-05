@@ -119,13 +119,13 @@ public class ItemCompressRecipeLoader {
                 .choice(
                     new ProduceExplosion(
                         new Vec3(0.0, -0.75, 0.0),
-                        1f,
+                        1F,
                         true,
                         Level.ExplosionInteraction.BLOCK,
                         // 同权重二选一已经包含50%概率了，这里的概率要填1.0
-                        ConstantValue.exactly(1f)
+                        ConstantValue.exactly(1F)
                     ),
-                    0.5f
+                    0.5F
                 )
                 .choice(
                     SpawnItem.builder()
@@ -133,7 +133,7 @@ public class ItemCompressRecipeLoader {
                             ItemStackTemplate.fromNonEmptyStack(ModItems.SUPER_CAPACITOR.asStack()))
                         .offset(new Vec3(0.0, -0.75, 0.0))
                         .build(),
-                    0.5f
+                    0.5F
                 )
             )
             .group("item_compress")

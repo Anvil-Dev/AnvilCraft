@@ -134,7 +134,7 @@ public class AmuletBoxItem extends Item {
     @Override
     public int getBarWidth(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return (int) (Math.clamp(contents.usage() / (float) CAPACITY, 0f, 1f) * 13);
+        return (int) (Math.clamp(contents.usage() / (float) CAPACITY, 0F, 1F) * 13);
     }
 
     @Override

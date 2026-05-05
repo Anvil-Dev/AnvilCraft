@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record HeliostatsIrradiationPacket(BlockPos pos, @Nullable BlockPos irritatePos) implements ISensitiveBiPacket {
     public static final Type<HeliostatsIrradiationPacket> TYPE = IPacket.type(AnvilCraft.of("heliostats_irradiation_pack"));

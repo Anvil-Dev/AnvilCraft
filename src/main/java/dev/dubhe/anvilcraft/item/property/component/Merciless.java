@@ -8,24 +8,30 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 
-public record Merciless() {
+public record Merciless() implements TooltipProvider {
     public static final Merciless DEFAULT = new Merciless();
     public static final Identifier MERCILESS_ID = AnvilCraft.of("merciless");
-    public static final MapCodec<Merciless> CODEC = Codec.EMPTY.xmap(a -> Merciless.DEFAULT, a -> Unit.INSTANCE);
+    public static final MapCodec<Merciless> CODEC = MapCodec.unit(Merciless.DEFAULT);
     public static final StreamCodec<ByteBuf, Merciless> STREAM_CODEC = StreamCodec.unit(Merciless.DEFAULT);
 
     public static void tick(ServerPlayer player) {
@@ -94,5 +100,10 @@ public record Merciless() {
             }
         }
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+        consumer.accept(Component.translatable("tooltip.anvilcraft.property.merciless").withColor(0xB4F0F6));
     }
 }

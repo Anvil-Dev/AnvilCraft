@@ -63,7 +63,7 @@ public class HammerEffectRenderEventListener {
             pos.getY() - cameraPos.y - 0.0005,
             pos.getZ() - cameraPos.z - 0.0005
         );
-        poseStack.scale(1.001f, 1.001f, 1.001f);
+        poseStack.scale(1.001F, 1.001F, 1.001F);
         BakedModel model = mc.getBlockRenderer().getBlockModel(state);
         ModelBlockRenderer renderer = mc.getBlockRenderer().getModelRenderer();
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
@@ -73,9 +73,9 @@ public class HammerEffectRenderEventListener {
             vertexConsumer,
             state,
             model,
-            1f,
-            1f,
-            1f,
+            1F,
+            1F,
+            1F,
             LightTexture.FULL_BLOCK,
             OverlayTexture.NO_OVERLAY
         );
@@ -85,9 +85,9 @@ public class HammerEffectRenderEventListener {
             vertexConsumer,
             state,
             mc.getModelManager().getModel(MODEL),
-            1f,
-            1f,
-            1f,
+            1F,
+            1F,
+            1F,
             LightTexture.FULL_BRIGHT,
             OverlayTexture.NO_OVERLAY
         );

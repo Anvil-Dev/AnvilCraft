@@ -107,7 +107,7 @@ public class MagnetizedNodeEntity extends Entity {
 
     @Override
     protected AABB makeBoundingBox() {
-        return EntityDimensions.scalable(0.25f, 0.25f).makeBoundingBox(this.position());
+        return EntityDimensions.scalable(0.25F, 0.25F).makeBoundingBox(this.position());
     }
 
     @Override

@@ -176,7 +176,7 @@ public class RenderSupport {
         poseStack.pushPose();
         poseStack.translate(x, y, z);
         poseStack.scale(-scale, -scale, -scale);
-        poseStack.translate(-0.5f, -0.5f, 0);
+        poseStack.translate(-0.5F, -0.5F, 0);
         poseStack.mulPose(rotationX);
         poseStack.translate(0.5F, 0, -0.5F);
         poseStack.mulPose(rotationY);
@@ -232,7 +232,7 @@ public class RenderSupport {
             scale,
             fn,
             Axis.XP.rotationDegrees(-30F),
-            Axis.YP.rotationDegrees(45f)
+            Axis.YP.rotationDegrees(45F)
         );
     }
 
@@ -280,7 +280,7 @@ public class RenderSupport {
                 BlockPos.ZERO.atY(visibleLayer), new BlockPos(sizeX - 1, visibleLayer, sizeX - 1));
         }
         pose.pushPose();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         pose.translate(0, 0, -1);
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
@@ -318,7 +318,7 @@ public class RenderSupport {
         int posY,
         float scale
     ) {
-        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
+        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0F);
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {

@@ -15,12 +15,12 @@ public class HeatCollectorRenderer extends PowerProducerRenderer<HeatCollectorBl
 
     @Override
     protected float elevation() {
-        return 0.75f;
+        return 0.75F;
     }
 
     @Override
     protected float rotation(HeatCollectorBlockEntity blockEntity, float partialTick) {
-        return blockEntity.getRotation() + (float) (Math.log(blockEntity.getServerPower() + 1) * 2.5f * partialTick);
+        return blockEntity.getRotation() + (float) (Math.log(blockEntity.getServerPower() + 1) * 2.5F * partialTick);
     }
 
     @Override

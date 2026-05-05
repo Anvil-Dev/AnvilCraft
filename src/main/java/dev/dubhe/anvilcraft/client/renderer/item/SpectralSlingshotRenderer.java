@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
+import dev.dubhe.anvilcraft.item.tool.SpectralSlingshotItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -72,7 +72,7 @@ public class SpectralSlingshotRenderer extends BlockEntityWithoutLevelRenderer {
             if (cp != null && !cp.isEmpty()) {
                 ItemStack ammo = cp.getItems().getFirst();
                 poseStack.pushPose();
-                poseStack.translate(0f, 0.7f, 0.50F);
+                poseStack.translate(0F, 0.7F, 0.50F);
                 poseStack.mulPose(Axis.YP.rotationDegrees(90));
                 poseStack.mulPose(Axis.ZP.rotationDegrees(- 45));
                 // poseStack.pushPose();

@@ -7,7 +7,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static dev.dubhe.anvilcraft.client.init.ModShaders.MINECRAFT;
 

@@ -61,7 +61,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                 if (ingredientItems != null) {
                     int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     ItemStack stack = ingredientItems[index];
-                    RenderSupport.renderItemWithTransparency(stack, poseStack, slot.x, slot.y, 0.52f);
+                    RenderSupport.renderItemWithTransparency(stack, poseStack, slot.x, slot.y, 0.52F);
                     guiGraphics.renderItemDecorations(font, stack.copyWithCount(count), slot.x, slot.y);
                 }
             }

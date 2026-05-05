@@ -40,7 +40,7 @@ public class ModAmuletTypes {
             .obtainByMurder(type)
             .inventoryTick((player, amulet, isEnabled) -> {
                 if (isEnabled) {
-                    player.setData(DISCOUNT_RATE, 0.3f);
+                    player.setData(DISCOUNT_RATE, 0.3F);
                 } else {
                     player.removeData(DISCOUNT_RATE);
                 }

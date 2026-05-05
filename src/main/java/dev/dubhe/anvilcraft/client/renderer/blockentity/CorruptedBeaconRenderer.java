@@ -52,8 +52,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         if (level == null) return;
         final BakedModel model = blockRenderer.getBlockModel(defaultLightState);
         poseStack.pushPose();
-        poseStack.translate(0.005f, 0.005f, 0.005f);
-        poseStack.scale(0.99f, 0.99f, 0.99f);
+        poseStack.translate(0.005F, 0.005F, 0.005F);
+        poseStack.scale(0.99F, 0.99F, 0.99F);
         VertexConsumer vertexConsumer = buffer.getBuffer(ModRenderTypes.BEACON_GLASS);
         for (Direction value : Direction.values()) {
             List<BakedQuad> quads = model.getQuads(
@@ -67,10 +67,10 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
                 vertexConsumer.putBulkData(
                     poseStack.last(),
                     quad,
-                    109 / 255f,
-                    1 / 255f,
-                    206 / 255f,
-                    0.3f,
+                    109 / 255F,
+                    1 / 255F,
+                    206 / 255F,
+                    0.3F,
                     packedLight,
                     packedOverlay
                 );

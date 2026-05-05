@@ -429,7 +429,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder outputItem(Item item, int count) {
-            return outputItem(ChanceItemStack.of(new ItemStack(item, count), 1f));
+            return outputItem(ChanceItemStack.of(new ItemStack(item, count), 1F));
         }
 
         /**
@@ -450,7 +450,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder outputItem(Item item) {
-            return outputItem(ChanceItemStack.of(new ItemStack(item, 1), 1f));
+            return outputItem(ChanceItemStack.of(new ItemStack(item, 1), 1F));
         }
 
         public Builder speed(int speed) {

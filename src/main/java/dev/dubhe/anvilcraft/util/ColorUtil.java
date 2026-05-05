@@ -8,9 +8,9 @@ import net.minecraft.util.Mth;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ColorUtil {
     public static float [] rgbToHsv(int r, int g, int b) {
-        float normR = r / 255.0f;
-        float normG = g / 255.0f;
-        float normB = b / 255.0f;
+        float normR = r / 255.0F;
+        float normG = g / 255.0F;
+        float normB = b / 255.0F;
 
         float maxC = Math.max(normR, Math.max(normG, normB));
         float minC = Math.min(normR, Math.min(normG, normB));

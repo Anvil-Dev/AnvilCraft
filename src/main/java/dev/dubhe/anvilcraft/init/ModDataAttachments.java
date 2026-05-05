@@ -16,7 +16,7 @@ public class ModDataAttachments {
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
 
     public static final Supplier<AttachmentType<Float>> DISCOUNT_RATE = ATTACHMENT_TYPES.register(
-        "discount_rate", () -> AttachmentType.builder(() -> 0f).build());
+        "discount_rate", () -> AttachmentType.builder(() -> 0F).build());
 
     public static final Supplier<AttachmentType<Boolean>> ZOMBIFICATED_BY_CURSE = ATTACHMENT_TYPES.register(
         "zombificated_by_curse", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());

@@ -10,19 +10,19 @@ import java.util.function.Function;
 
 public class LaserCompiler {
     public static final float[] LASER_WIDTH;
-    public static final float PIXEL = 1 / 16f;
-    public static final float HALF_PIXEL = PIXEL / 2f;
+    public static final float PIXEL = 1 / 16F;
+    public static final float HALF_PIXEL = PIXEL / 2F;
 
     static {
         float[] array = new float[65];
         for (int i = 1; i <= 64; i++) {
-            array[i] = (float) Math.sqrt(i) / 2f * PIXEL;
+            array[i] = (float) Math.sqrt(i) / 2F * PIXEL;
         }
         LASER_WIDTH = array;
     }
 
     public static float laserWidth(LaserState state) {
-        return LASER_WIDTH[Math.clamp(state.blockEntity().getLaserLevel(), 1, 64)] + 0.001f;
+        return LASER_WIDTH[Math.clamp(state.blockEntity().getLaserLevel(), 1, 64)] + 0.001F;
     }
 
     public static void compile(
@@ -35,12 +35,12 @@ public class LaserCompiler {
             bufferBuilderFunction.apply(RenderType.solid()),
             state.pose(),
             -width,
-            -state.offset() - 0.001f,
+            -state.offset() - 0.001F,
             -width,
             width,
-            state.length() + 0.501f,
+            state.length() + 0.501F,
             width,
-            1f,
+            1F,
             state.laserAtlasSprite(),
             state.concreteAtlasSprite()
         );
@@ -52,9 +52,9 @@ public class LaserCompiler {
             -state.offset(),
             -haloWidth,
             haloWidth,
-            state.length() + 0.5f + HALF_PIXEL,
+            state.length() + 0.5F + HALF_PIXEL,
             haloWidth,
-            0.6f,
+            0.6F,
             state.laserAtlasSprite(),
             state.concreteAtlasSprite()
         );
@@ -74,7 +74,7 @@ public class LaserCompiler {
         TextureAtlasSprite endSprite) {
         renderQuadX(consumer, pose, maxX, maxX, minY, minZ, maxY, maxZ, a, sprite);
         renderQuadX(consumer, pose, minX, minX, minY, maxZ, maxY, minZ, a, sprite);
-        renderQuadY(consumer, pose, maxY, maxY, minX, minZ, maxX, maxZ, a - 0.25f, endSprite);
+        renderQuadY(consumer, pose, maxY, maxY, minX, minZ, maxX, maxZ, a - 0.25F, endSprite);
         // renderQuadY(consumer, pose, minY, minY, maxX, minZ, minX, maxZ, a, endSprite);
         renderQuadZ(consumer, pose, maxZ, maxZ, minX, maxY, maxX, minY, a, sprite);
         renderQuadZ(consumer, pose, minZ, minZ, minX, minY, maxX, maxY, a, sprite);
@@ -141,7 +141,7 @@ public class LaserCompiler {
         float v,
         float a) {
         consumer.addVertex(pose.pose(), x, y, z)
-            .setColor(1f, .05f, .05f, a)
+            .setColor(1F, .05F, .05F, a)
             .setUv(u, v)
             .setUv1(0, 0)
             .setUv2(240, 240)

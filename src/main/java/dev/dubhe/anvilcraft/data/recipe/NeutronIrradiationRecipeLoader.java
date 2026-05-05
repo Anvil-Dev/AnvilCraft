@@ -26,11 +26,11 @@ public class NeutronIrradiationRecipeLoader {
             .chooseOne(builder -> builder.choice(
                 new ProduceExplosion(
                     new Vec3(0.0, -0.75, 0.0),
-                    3f,
+                    3F,
                     false,
                     Level.ExplosionInteraction.BLOCK,
-                    ConstantValue.exactly(1f)
-                ), 1f
+                    ConstantValue.exactly(1F)
+                ), 1F
             ))
             .save(provider, "uranium_block_explosion");
     }

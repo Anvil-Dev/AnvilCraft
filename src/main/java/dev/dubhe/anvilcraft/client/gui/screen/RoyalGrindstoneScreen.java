@@ -89,7 +89,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         g.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        g.setColor(1f, 1f, 1f, 1);
+        g.setColor(1F, 1F, 1F, 1);
         ItemStack repairToolItem = this.menu.getSlot(0).getItem();
         ItemStack repairItem = this.menu.getSlot(1).getItem();
         ItemStack resultItem = this.menu.getSlot(3).getItem();

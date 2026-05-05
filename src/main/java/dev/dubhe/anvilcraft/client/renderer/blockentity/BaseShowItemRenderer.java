@@ -1,155 +1,93 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import net.minecraft.client.renderer.MultiBufferSource;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.BaseShowItemRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
+public abstract class BaseShowItemRenderer<B extends BlockEntity, S extends BaseShowItemRenderState> implements BlockEntityRenderer<B, S> {
+    private final ItemModelResolver resolver;
 
-public abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntityRenderer<B> {
-    private static final float ITEM_BUNDLE_OFFSET_SCALE = 0.15F;
-    private static final int ITEM_COUNT_FOR_5_BUNDLE = 48;
-    private static final int ITEM_COUNT_FOR_4_BUNDLE = 32;
-    private static final int ITEM_COUNT_FOR_3_BUNDLE = 16;
-    private static final int ITEM_COUNT_FOR_2_BUNDLE = 1;
-    private static final float FLAT_ITEM_BUNDLE_OFFSET_X = 0.0F;
-    private static final float FLAT_ITEM_BUNDLE_OFFSET_Y = 0.0F;
-    private static final float FLAT_ITEM_BUNDLE_OFFSET_Z = 0.09375F;
-    private final ItemRenderer itemRenderer;
-
-    public BaseShowItemRenderer(BlockEntityRendererProvider.Context context) {
-        itemRenderer = context.getItemRenderer();
+    public BaseShowItemRenderer(BlockEntityRendererProvider.Context ctx) {
+        this.resolver = ctx.itemModelResolver();
     }
 
-    private static int getRenderAmount(ItemStack stack) {
-        int i = 1;
-        if (stack.getCount() > ITEM_COUNT_FOR_5_BUNDLE) {
-            i = 5;
-        } else if (stack.getCount() > ITEM_COUNT_FOR_4_BUNDLE) {
-            i = 4;
-        } else if (stack.getCount() > ITEM_COUNT_FOR_3_BUNDLE) {
-            i = 3;
-        } else if (stack.getCount() > ITEM_COUNT_FOR_2_BUNDLE) {
-            i = 2;
-        }
-        return i;
+    @Override
+    public void extractRenderState(
+        B be,
+        S state,
+        float partialTicks,
+        Vec3 cameraPosition,
+        ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
+    ) {
+        BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        ItemStack stack = this.getDisplayItemStack(be);
+        if (stack == null || stack.isEmpty()) return;
+        state.setRotation((be.getLevel().getGameTime() + partialTicks) * 2f);
+        state.setDisplay(stack);
+        state.setDisplayState(new ItemClusterRenderState());
+        state.getDisplayState().extractItemGroupRenderState(null, stack, this.resolver);
     }
 
     @Nullable
     protected abstract ItemStack getDisplayItemStack(B blockEntity);
 
-    protected abstract int getSeed(B blockEntity);
-
     @Override
-    public void render(
-        B be,
-        float partialTick,
-        PoseStack poseStack,
-        MultiBufferSource buffer,
-        int packedLight,
-        int packedOverlay
-    ) {
-        BaseShowItemRenderer.renderItem(
-            be.getLevel(),
-            this.getDisplayItemStack(be),
-            0.5F,
-            0.5F,
-            0.5F,
-            this.itemRenderer,
-            poseStack,
-            buffer,
-            packedLight,
-            partialTick,
-            this.getSeed(be)
-        );
-    }
+    public void submit(S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        ItemStack display = state.getDisplay();
+        final RandomSource random = RandomSource.create(Item.getId(display.getItem()) + display.getDamageValue());
+        ItemClusterRenderState cluster = state.getDisplayState();
+        int amount = cluster.count;
+        if (amount == 0) return;
+        random.setSeed(cluster.seed);
+        ItemStackRenderState item = cluster.item;
+        AABB modelBB = item.getModelBoundingBox();
+        float modelDepth = (float) modelBB.getZsize();
+        if (modelDepth > 0.0625F) {
+            item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
 
-    public static void renderItem(
-        Level level,
-        @Nullable ItemStack stack,
-        float x,
-        float y,
-        float z,
-        ItemRenderer renderer,
-        PoseStack pose,
-        MultiBufferSource buffer,
-        int packedLight,
-        float partialTick,
-        int seed
-    ) {
-        if (stack == null || stack.isEmpty()) return;
-        final RandomSource random = RandomSource.create(Item.getId(stack.getItem()) + stack.getDamageValue());
-        BakedModel bakedModel = renderer.getModel(stack, level, null, seed);
-        pose.pushPose();
-        final boolean isGui3d = bakedModel.isGui3d();
-        final int renderAmount = BaseShowItemRenderer.getRenderAmount(stack);
-        @SuppressWarnings("deprecation")
-        float transformedGroundScaleY = bakedModel
-            .getTransforms()
-            .getTransform(ItemDisplayContext.GROUND)
-            .scale
-            .y();
-        pose.translate(x, y * transformedGroundScaleY + 0.15f, z);
-        float rotation = (level.getGameTime() + partialTick) * 2f;
-        pose.mulPose(Axis.YP.rotationDegrees(rotation));
-        @SuppressWarnings("deprecation")
-        float groundScaleX = bakedModel.getTransforms().ground.scale.x();
-        @SuppressWarnings("deprecation")
-        float groundScaleY = bakedModel.getTransforms().ground.scale.y();
-        @SuppressWarnings("deprecation")
-        float groundScaleZ = bakedModel.getTransforms().ground.scale.z();
-
-        if (!isGui3d) {
-            float ox = -FLAT_ITEM_BUNDLE_OFFSET_X * (float) (renderAmount - 1) * x * groundScaleX;
-            float oy = -FLAT_ITEM_BUNDLE_OFFSET_Y * (float) (renderAmount - 1) * y * groundScaleY;
-            float oz = -FLAT_ITEM_BUNDLE_OFFSET_Z * (float) (renderAmount - 1) * z * groundScaleZ;
-            pose.translate(ox, oy, oz);
-        }
-        for (int i = 0; i < renderAmount; ++i) {
-            pose.pushPose();
-            if (i > 0) {
-                if (isGui3d) {
-                    float p = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
-                    float q = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
-                    float s = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
-                    pose.translate(p, q, s);
-                } else {
-                    float p = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE * x;
-                    float q = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE * y;
-                    pose.translate(p, q, 0.0F);
+            for (int i = 1; i < amount; i++) {
+                poseStack.pushPose();
+                float xo = (random.nextFloat() * 2.0F - 1.0F) * 0.15F;
+                float yo = (random.nextFloat() * 2.0F - 1.0F) * 0.15F;
+                float zo = (random.nextFloat() * 2.0F - 1.0F) * 0.15F;
+                if (cluster.shouldSpread) {
+                    poseStack.translate(xo, yo, zo);
                 }
+                item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
+                poseStack.popPose();
             }
+        } else {
+            float offsetZ = modelDepth * 1.5F;
+            poseStack.translate(0.0F, 0.0F, -(offsetZ * (amount - 1) / 2.0F));
+            item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
+            poseStack.translate(0.0F, 0.0F, offsetZ);
 
-            renderer.render(
-                stack,
-                ItemDisplayContext.GROUND,
-                false,
-                pose,
-                buffer,
-                packedLight,
-                OverlayTexture.NO_OVERLAY,
-                bakedModel
-            );
-            pose.popPose();
-            if (!isGui3d) {
-                pose.translate(
-                    FLAT_ITEM_BUNDLE_OFFSET_X * groundScaleX,
-                    FLAT_ITEM_BUNDLE_OFFSET_Y * groundScaleY,
-                    FLAT_ITEM_BUNDLE_OFFSET_Z * groundScaleZ
-                );
+            for (int i = 1; i < amount; i++) {
+                poseStack.pushPose();
+                float xo = (random.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
+                float yo = (random.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
+                if (cluster.shouldSpread) {
+                    poseStack.translate(xo, yo, 0.0F);
+                }
+                item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
+                poseStack.popPose();
+                poseStack.translate(0.0F, 0.0F, offsetZ);
             }
         }
-        pose.popPose();
     }
 }

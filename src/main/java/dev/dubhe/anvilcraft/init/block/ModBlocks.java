@@ -208,6 +208,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -235,6 +236,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
@@ -360,7 +362,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> NEUTRON_IRRADIATOR = REGISTRUM.block("neutron_irradiator", NeutronIrradiatorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties(p -> p.strength(50.0f, 1200f).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
+        .properties(p -> p.strength(50.0F, 1200F).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
         .recipe(RegistrumBlockRecipeLoader::neutronIrradiator)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item()
@@ -388,7 +390,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
         .recipe(RegistrumBlockRecipeLoader::royalAnvil)
         .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
+        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .tag(ItemTags.ANVIL)
@@ -410,7 +412,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRUM.block("royal_grindstone", RoyalGrindstoneBlock::new)
         .recipe(RegistrumBlockRecipeLoader::royalGrindstone)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
+        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -422,7 +424,7 @@ public class ModBlocks {
         )
         .recipe(RegistrumBlockRecipeLoader::royalSmithingTable)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -443,7 +445,7 @@ public class ModBlocks {
             .lightLevel(state -> 9)
             .noOcclusion()
             .emissiveRendering(ModBlocks::always)
-            .strength(50.0f, 1200f)
+            .strength(50.0F, 1200F)
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -493,7 +495,7 @@ public class ModBlocks {
             .lightLevel(state -> 9)
             .noOcclusion()
             .emissiveRendering(ModBlocks::always)
-            .strength(50.0f, 1200f)
+            .strength(50.0F, 1200F)
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -547,7 +549,7 @@ public class ModBlocks {
             .lightLevel(state -> 9)
             .noOcclusion()
             .emissiveRendering(ModBlocks::always)
-            .strength(50.0f, 1200f)
+            .strength(50.0F, 1200F)
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -839,7 +841,7 @@ public class ModBlocks {
         .properties(p -> p.rarity(Rarity.UNCOMMON))
         .build()
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200f))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200F))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockDevourer)
@@ -1239,7 +1241,7 @@ public class ModBlocks {
             VoidEnergyCollectorBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200f))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -1274,7 +1276,7 @@ public class ModBlocks {
 
     public static final BlockEntry<PropelPiston> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPiston::new)
         .properties((properties) -> {
-            return properties.mapColor(MapColor.TERRACOTTA_WHITE).requiresCorrectToolForDrops().strength(1.5f).noOcclusion();
+            return properties.mapColor(MapColor.TERRACOTTA_WHITE).requiresCorrectToolForDrops().strength(1.5F).noOcclusion();
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1283,9 +1285,9 @@ public class ModBlocks {
                 block,
                 LootTable.lootTable()
                     .withPool(LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0f))
+                        .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(ModBlocks.PROPEL_PISTON))
-                        .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                        .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                             .include(ModComponents.STORED_ENERGY)))
             );
         })
@@ -1300,7 +1302,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRUM.block("royal_steel_block", Block::new)
         .lang("Block of Royal Steel")
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .item()
         .tag(Tags.Items.STORAGE_BLOCKS)
         .build()
@@ -1318,7 +1320,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRUM.block("smooth_royal_steel_block", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, ModBlockTags.OVERSEER_BASE, ModBlockTags.HAMMER_REMOVABLE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::smoothRoyalSteelBlock)
         .register();
@@ -1326,7 +1328,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_BLOCK = REGISTRUM.block("cut_royal_steel_block", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, ModBlockTags.OVERSEER_BASE, ModBlockTags.HAMMER_REMOVABLE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelBlock)
         .register();
@@ -1337,7 +1339,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, ModBlockTags.OVERSEER_BASE, ModBlockTags.HAMMER_REMOVABLE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelPillar)
@@ -1352,7 +1354,7 @@ public class ModBlocks {
             ModBlockTags.HAMMER_REMOVABLE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_royal_steel_block"),
@@ -1377,7 +1379,7 @@ public class ModBlocks {
             ModBlockTags.HAMMER_REMOVABLE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_royal_steel_block")))
         .item()
         .tag(ItemTags.STAIRS)
@@ -1652,7 +1654,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.noOcclusion().strength(5.0f, 1200f))
+        .properties(p -> p.noOcclusion().strength(5.0F, 1200F))
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/heavy_iron_block").get()
@@ -1664,7 +1666,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_BLOCK = REGISTRUM.block("polished_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::polishedHeavyIronBlock)
@@ -1672,7 +1674,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRUM.block("polished_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/polished_heavy_iron_block"),
@@ -1691,7 +1693,7 @@ public class ModBlocks {
             (properties) -> new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/polished_heavy_iron_block")))
         .item()
         .tag(ItemTags.STAIRS)
@@ -1702,7 +1704,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_BLOCK = REGISTRUM.block("cut_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::cutHeavyIronBlock)
@@ -1710,7 +1712,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRUM.block("cut_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_heavy_iron_block"),
@@ -1729,7 +1731,7 @@ public class ModBlocks {
             (properties) -> new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_heavy_iron_block")))
         .item()
         .tag(ItemTags.STAIRS)
@@ -1740,7 +1742,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_PLATE = REGISTRUM.block("heavy_iron_plate", HeavyIronPlateBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -1749,7 +1751,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_COLUMN = REGISTRUM.block("heavy_iron_column", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -1758,7 +1760,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BEAM = REGISTRUM.block("heavy_iron_beam", HeavyIronBeamBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model(DataGenUtil::noExtraModelOrState)
@@ -1769,7 +1771,7 @@ public class ModBlocks {
 
     public static final BlockEntry<HeavyIronWallBlock> HEAVY_IRON_WALL = REGISTRUM.block("heavy_iron_wall", HeavyIronWallBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.strength(5.0f, 1200f).noOcclusion())
+        .properties(properties -> properties.strength(5.0F, 1200F).noOcclusion())
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.WALLS)
         .recipe(RegistrumBlockRecipeLoader::heavyIronWall)
@@ -1781,7 +1783,7 @@ public class ModBlocks {
 
     public static final BlockEntry<HeavyIronDoorBlock> HEAVY_IRON_DOOR = REGISTRUM.block("heavy_iron_door", HeavyIronDoorBlock::new)
         .initialProperties(() -> Blocks.IRON_DOOR)
-        .properties(properties -> properties.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0F, 1200F))
         .loot((l, b) -> {
             l.add(b, l.createDoorTable(b));
         })
@@ -1801,7 +1803,7 @@ public class ModBlocks {
             HeavyIronTrapdoorBlock::new
         )
         .initialProperties(() -> Blocks.IRON_TRAPDOOR)
-        .properties(properties -> properties.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0F, 1200F))
         .defaultLoot()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.TRAPDOORS)
@@ -2045,7 +2047,7 @@ public class ModBlocks {
         .loot((ctx, prov) -> {
             LootTable.Builder builder = LootTable.lootTable()
                 .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
+                    .setRolls(ConstantValue.exactly(1.0F))
                     .add(LootItem.lootTableItem(ModBlocks.MOB_AMBER_BLOCK))
                     .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                         .include(ModComponents.SAVED_ENTITY)));
@@ -2066,7 +2068,7 @@ public class ModBlocks {
         .loot((ctx, prov) -> {
             LootTable.Builder builder = LootTable.lootTable()
                 .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
+                    .setRolls(ConstantValue.exactly(1.0F))
                     .add(LootItem.lootTableItem(ModBlocks.RESENTFUL_AMBER_BLOCK))
                     .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                         .include(ModComponents.SAVED_ENTITY)));
@@ -2076,7 +2078,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> TEMPERING_GLASS = REGISTRUM.block("tempering_glass", TransparentBlock::new)
         .initialProperties(() -> Blocks.GLASS)
-        .properties(properties -> properties.explosionResistance(1200.0f)
+        .properties(properties -> properties.explosionResistance(1200.0F)
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
             .isRedstoneConductor(ModBlocks::never)
@@ -2869,7 +2871,7 @@ public class ModBlocks {
     private static BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(Color color) {
         return REGISTRUM.block("reinforced_concrete_" + color, ReinforcedConcreteBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
@@ -2911,7 +2913,7 @@ public class ModBlocks {
     private static BlockEntry<SlabBlock> registerReinforcedConcreteSlabBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRUM.block("reinforced_concrete_" + color + "_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
@@ -2941,7 +2943,7 @@ public class ModBlocks {
                 (properties) -> new StairBlock(parent.getDefaultState(), properties)
             )
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
@@ -2963,7 +2965,7 @@ public class ModBlocks {
     private static BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRUM.block("reinforced_concrete_" + color + "_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
-            .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .blockstate((ctx, provider) -> provider.wallBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
@@ -3021,7 +3023,7 @@ public class ModBlocks {
             .properties(properties -> properties.forceSolidOn()
                 .instrument(NoteBlockInstrument.BASS)
                 .noCollision()
-                .strength(0.5f)
+                .strength(0.5F)
                 .pushReaction(PushReaction.DESTROY))
             .blockstate((ctx, provider) -> provider.pressurePlateBlock(
                 ctx.get(),
@@ -3053,7 +3055,7 @@ public class ModBlocks {
             .properties(properties -> properties.forceSolidOn()
                 .instrument(NoteBlockInstrument.BASS)
                 .noCollision()
-                .strength(0.5f)
+                .strength(0.5F)
                 .pushReaction(PushReaction.DESTROY))
             .blockstate(() -> (ctx, provider) -> DataGenUtil.powerLevelPressurePlate(
                 provider,
@@ -3087,7 +3089,7 @@ public class ModBlocks {
             .properties(properties -> properties.forceSolidOn()
                 .instrument(NoteBlockInstrument.BASS)
                 .noCollision()
-                .strength(0.5f)
+                .strength(0.5F)
                 .pushReaction(PushReaction.DESTROY))
             .blockstate(() -> (ctx, provider) -> DataGenUtil.powerLevelPressurePlate(
                 provider,
@@ -3510,7 +3512,7 @@ public class ModBlocks {
         .properties(properties -> properties.forceSolidOn()
             .instrument(NoteBlockInstrument.BASS)
             .noCollision()
-            .strength(0.5f)
+            .strength(0.5F)
             .pushReaction(PushReaction.DESTROY))
         .blockstate((ctx, provider) -> provider.pressurePlateBlock(ctx.get(), Identifier.withDefaultNamespace("block/copper_block")))
         .item()

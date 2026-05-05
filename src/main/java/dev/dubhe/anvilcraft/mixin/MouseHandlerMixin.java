@@ -61,7 +61,7 @@ public abstract class MouseHandlerMixin implements IMouseHandlerExtension {
         MultiPlayerGameMode gameMode = Minecraft.getInstance().gameMode;
         if (level == null || player == null || hitResult == null || gameMode == null) return;
         if (action == 1 && hitResult instanceof BlockHitResult blockHitResult
-            && level.getBlockState(blockHitResult.getBlockPos()).getDestroyProgress(player, level, blockHitResult.getBlockPos()) >= 1.0f
+            && level.getBlockState(blockHitResult.getBlockPos()).getDestroyProgress(player, level, blockHitResult.getBlockPos()) >= 1.0F
             && player.getMainHandItem().getItem() instanceof ResonatorItem
         ) {
             ((MultiPlayerGameModeAccessor) gameMode).setDestroyDelay(5);

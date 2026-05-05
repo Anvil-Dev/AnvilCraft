@@ -44,7 +44,7 @@ public class ItemHandlerUtil {
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) continue;
             if (filterStack == null) {
                 filterStack = sourceStack.copy();
-                maxAmount = (int) (maxAmountWeight / 64f * sourceStack.getMaxStackSize());
+                maxAmount = (int) (maxAmountWeight / 64F * sourceStack.getMaxStackSize());
             } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) {
                 continue;
             }
@@ -89,7 +89,7 @@ public class ItemHandlerUtil {
             if (sourceStack.isEmpty() || !predicate.test(sourceStack)) continue;
             if (filterStack == null) {
                 filterStack = sourceStack.copy();
-                maxAmount = (int) (maxAmountWeight / 64f * sourceStack.getMaxStackSize());
+                maxAmount = (int) (maxAmountWeight / 64F * sourceStack.getMaxStackSize());
             } else if (!ItemStack.isSameItemSameComponents(filterStack, sourceStack)) {
                 continue;
             }

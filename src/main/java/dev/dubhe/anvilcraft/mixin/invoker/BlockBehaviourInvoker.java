@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Mixin(BlockBehaviour.class)
 public interface BlockBehaviourInvoker {

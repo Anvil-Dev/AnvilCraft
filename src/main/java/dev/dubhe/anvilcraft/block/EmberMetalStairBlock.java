@@ -34,7 +34,7 @@ public class EmberMetalStairBlock extends StairBlock implements IEmberBlock {
         RandomSource random
     ) {
         if (random.nextDouble() <= 0.1) {
-            level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
+            level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1F, 1F);
             level.setBlock(pos, state.setValue(SlabBlock.WATERLOGGED, false), 2);
         }
     }

@@ -274,7 +274,7 @@ public class ModFluids {
                 AnvilCraft.of("block/exp_fluid"),
                 AnvilCraft.of("block/exp_fluid_flow"),
                 0xC1E8A9,
-                1.0f
+                1.0F
             ), EXP_FLUID_TYPE
         );
         e.registerFluidType(
@@ -282,7 +282,7 @@ public class ModFluids {
                 AnvilCraft.of("block/oil"),
                 AnvilCraft.of("block/oil_flow"),
                 0x1B061F,
-                1.0f
+                1.0F
             ), OIL_TYPE
         );
         for (Color color : Color.values()) {
@@ -290,8 +290,8 @@ public class ModFluids {
                 new ModClientFluidTypeExtensionImpl(
                     AnvilCraft.of("block/%s_cement".formatted(color)),
                     AnvilCraft.of("block/%s_cement".formatted(color)),
-                    ColorUtil.mulValue(((DyeItem) color.dyeItem()).getDyeColor().getTextColor(), 0.6f),
-                    1.0f
+                    ColorUtil.mulValue(((DyeItem) color.dyeItem()).getDyeColor().getTextColor(), 0.6F),
+                    1.0F
                 ), CEMENT_TYPES.get(color)
             );
         }
@@ -300,7 +300,7 @@ public class ModFluids {
                 AnvilCraft.of("block/melt_gem"),
                 AnvilCraft.of("block/melt_gem_flow"),
                 0xB7EEDE,
-                2.0f
+                2.0F
             ), MELT_GEM_TYPE
         );
         e.registerFluidType(

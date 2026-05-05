@@ -96,7 +96,7 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     public float getLaserOffset() {
-        return 0.489f;
+        return 0.489F;
     }
 
     @Override

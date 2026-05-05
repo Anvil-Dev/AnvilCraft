@@ -21,7 +21,7 @@ public class IonocraftBackpackModel extends HumanoidModel<LivingEntity> {
     }
 
     public static LayerDefinition createBodyLayer() {
-        MeshDefinition meshdefinition = HumanoidModel.createMesh(CubeDeformation.NONE, 0f);
+        MeshDefinition meshdefinition = HumanoidModel.createMesh(CubeDeformation.NONE, 0F);
         PartDefinition partdefinition = meshdefinition.getRoot();
 
         PartDefinition body = partdefinition.addOrReplaceChild(

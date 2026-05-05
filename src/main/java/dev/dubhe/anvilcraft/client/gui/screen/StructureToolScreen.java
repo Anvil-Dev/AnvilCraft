@@ -212,7 +212,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         if (structureData != null && level != null) {
             pose.pushPose();
 
-            pose.translate((this.width - this.imageWidth) / 2f, (this.height - this.imageHeight) / 2f, 0);
+            pose.translate((this.width - this.imageWidth) / 2F, (this.height - this.imageHeight) / 2F, 0);
             pose.scale(0.75F, 0.75F, 0.75F);
 
             guiGraphics.drawString(
@@ -244,7 +244,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         // button text render
         pose.pushPose();
 
-        pose.translate((this.width - this.imageWidth) / 2f, (this.height - this.imageHeight) / 2f, 0);
+        pose.translate((this.width - this.imageWidth) / 2F, (this.height - this.imageHeight) / 2F, 0);
         pose.scale(0.7F, 0.7F, 0.7F);
 
         guiGraphics.drawString(

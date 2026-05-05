@@ -136,7 +136,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
     public ChanceBlockState getFirstResultBlock() {
         return Objects.requireNonNullElseGet(
             this.getResultBlocks().getFirst(),
-            () -> new ChanceBlockState(Blocks.AIR.defaultBlockState(), 1.0f)
+            () -> new ChanceBlockState(Blocks.AIR.defaultBlockState(), 1.0F)
         );
     }
 
@@ -395,7 +395,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * @return 构建器实例
          */
         public B result(ItemLike result) {
-            return this.result(result, ConstantValue.exactly(1.0f));
+            return this.result(result, ConstantValue.exactly(1.0F));
         }
 
         @Override

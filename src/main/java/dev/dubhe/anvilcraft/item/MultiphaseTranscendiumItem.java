@@ -31,7 +31,7 @@ public class MultiphaseTranscendiumItem extends Item implements IMultipleMateria
     );
 
     public MultiphaseTranscendiumItem(Properties properties) {
-        super(properties.component(ModComponents.ETERNAL, Eternal.INSTANCE));
+        super(properties.component(ModComponents.ETERNAL, Eternal.DEFAULT));
     }
 
     @Override

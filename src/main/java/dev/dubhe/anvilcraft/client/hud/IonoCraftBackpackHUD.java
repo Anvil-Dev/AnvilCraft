@@ -53,7 +53,7 @@ public class IonoCraftBackpackHUD {
         int textWidth = font.width(text);
         guiGraphics.drawString(font, text, 0, 0, 0xFFFFFFFF, true);
 
-        final int batteryHeight = (int) (percent / 100f * 16);
+        final int batteryHeight = (int) (percent / 100F * 16);
 
         poseStack.translate(textWidth + 4, -4, 0);
         guiGraphics.blitSprite(BATTERY_EMPTY, 0, 0, 8, 16);

@@ -157,7 +157,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
             y,
             x + 18,
             y + 18,
-            FastColor.ARGB32.colorFromFloat(alpha * 0.9f, 1, 0, 0)
+            FastColor.ARGB32.colorFromFloat(alpha * 0.9F, 1, 0, 0)
         );
     }
 

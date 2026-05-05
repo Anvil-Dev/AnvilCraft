@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.item.tool.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,7 +31,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     public SpectralWeaponLauncherItem(Properties properties) {
         super(
             properties
-                .component(ModComponents.STORED_ENERGY, SpectralWeaponLauncherItem.MAX_ENERGY)
+                .component(ModComponents.STORED_ENERGY, new StoredEnergy(SpectralWeaponLauncherItem.MAX_ENERGY))
                 .component(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT)
         );
     }
@@ -44,7 +45,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
 
     @Override
     public boolean unableToUse(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.STORED_ENERGY, 0) < SpectralWeaponLauncherItem.SHOOT_CONSUME;
+        return stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy() < SpectralWeaponLauncherItem.SHOOT_CONSUME;
     }
 
     @Override
@@ -59,7 +60,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     ) {
         super.performShooting(level, shooter, hand, weapon, velocity, inaccuracy, target);
         if (shooter.hasInfiniteMaterials()) return;
-        int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - SpectralWeaponLauncherItem.SHOOT_CONSUME;
+        int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy() - SpectralWeaponLauncherItem.SHOOT_CONSUME;
         weapon.set(ModComponents.STORED_ENERGY, newEnergy);
         if (newEnergy < SpectralWeaponLauncherItem.SHOOT_CONSUME) {
             weapon.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(SpectralWeaponLauncherItem.EXHAUSTED_MODEL));
@@ -73,7 +74,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
         if (launcher.isEmpty() || !launcher.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) launcher = player.getOffhandItem();
         if (launcher.isEmpty() || !launcher.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) return;
 
-        int energy = launcher.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        int energy = launcher.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy();
         while (energy <= 240000) { // 240MJ
             Inventory inventory = player.getInventory();
             int slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
@@ -85,8 +86,8 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
             }
             energy += 80000; // 80MJ
         }
-        if (energy == launcher.getOrDefault(ModComponents.STORED_ENERGY, 0)) return;
-        launcher.set(ModComponents.STORED_ENERGY, energy);
+        if (energy == launcher.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy()) return;
+        launcher.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy));
         launcher.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
     }
 
@@ -102,13 +103,13 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy();
         return Math.clamp(energy / SpectralWeaponLauncherItem.MAX_ENERGY, 0, 1) * 13;
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy();
         return ColorUtil.lerpColor(energy / SpectralWeaponLauncherItem.MAX_ENERGY, BAR_COLOR, FULL_BAR_COLOR);
     }
 }

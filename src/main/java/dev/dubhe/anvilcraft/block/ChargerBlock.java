@@ -186,8 +186,8 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                                 pos,
                                 SoundEvents.ITEM_PICKUP,
                                 SoundSource.PLAYERS,
-                                .2f,
-                                1f + level.getRandom().nextFloat()
+                                .2F,
+                                1F + level.getRandom().nextFloat()
                             );
                             return ItemInteractionResult.SUCCESS;
                         }

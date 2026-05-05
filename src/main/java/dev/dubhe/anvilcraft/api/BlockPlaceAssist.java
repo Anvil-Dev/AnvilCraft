@@ -26,7 +26,7 @@ public class BlockPlaceAssist {
 
     private static List<Direction> orderDirectionByDistance(
         BlockPos pos, Vec3 hit, Predicate<Direction> includeDirection) {
-        Vec3 centerToHit = hit.subtract(Vec3.atLowerCornerOf(pos).add(.5f, .5f, .5f));
+        Vec3 centerToHit = hit.subtract(Vec3.atLowerCornerOf(pos).add(.5F, .5F, .5F));
         return Arrays.stream(Direction.values())
             .filter(includeDirection)
             .map(dir -> Pair.of(dir, Vec3.atLowerCornerOf(dir.getNormal()).distanceTo(centerToHit)))
@@ -79,8 +79,8 @@ public class BlockPlaceAssist {
                         blockPos,
                         soundType.getPlaceSound(),
                         SoundSource.BLOCKS,
-                        (soundType.volume + 1) / 2.0f,
-                        soundType.pitch * 0.8f
+                        (soundType.volume + 1) / 2.0F,
+                        soundType.pitch * 0.8F
                     );
                     if (!player.getAbilities().instabuild) itemInHand.shrink(1);
                 }

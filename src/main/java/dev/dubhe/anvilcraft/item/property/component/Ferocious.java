@@ -8,22 +8,29 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-public record Ferocious() {
+import java.util.function.Consumer;
+
+public record Ferocious() implements TooltipProvider {
     public static final Ferocious DEFAULT = new Ferocious();
     public static final Identifier FEROCIOUS_ID = AnvilCraft.of("ferocious");
-    public static final MapCodec<Ferocious> CODEC = Codec.EMPTY.xmap(a -> Ferocious.DEFAULT, a -> Unit.INSTANCE);
+    public static final MapCodec<Ferocious> CODEC = MapCodec.unit(Ferocious.DEFAULT);
     public static final StreamCodec<ByteBuf, Ferocious> STREAM_CODEC = StreamCodec.unit(Ferocious.DEFAULT);
 
     public static void tick(ServerPlayer player) {
@@ -70,5 +77,10 @@ public record Ferocious() {
             }
         }
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+        consumer.accept(Component.translatable("tooltip.anvilcraft.property.ferocious").withColor(0xDD1212));
     }
 }

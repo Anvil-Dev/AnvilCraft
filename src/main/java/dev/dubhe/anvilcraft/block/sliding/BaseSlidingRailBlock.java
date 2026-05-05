@@ -28,11 +28,11 @@ import java.util.Objects;
 
 public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail, IHammerRemovable {
     public BaseSlidingRailBlock(Properties properties) {
-        super(properties.friction(1.0204082f));
+        super(properties.friction(1.0204082F));
     }
 
     protected BaseSlidingRailBlock(Properties properties, boolean shouldSetFriction) {
-        super(shouldSetFriction ? properties.friction(1.0204082f) : properties);
+        super(shouldSetFriction ? properties.friction(1.0204082F) : properties);
     }
 
     @Override
@@ -129,10 +129,10 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
                     Vec3 entityPos = entity.position();
                     Vector3f acceleration = blockPos.toVector3f()
                         .sub(entityPos.toVector3f())
-                        .mul(0.15f)
-                        .div(0.98f)
+                        .mul(0.15F)
+                        .div(0.98F)
                         .mul(new Vector3f(1, 0, 1));
-                    entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8f, 0.8f, 0.8f).add(new Vec3(acceleration)));
+                    entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8F, 0.8F, 0.8F).add(new Vec3(acceleration)));
                 }
             }
         }

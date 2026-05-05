@@ -99,10 +99,10 @@ public class BlockHighlightUtil {
                 pos2.x(),
                 pos2.y(),
                 pos2.z(),
-                (color >> 16 & 0xFF) / 255f,
-                (color >> 8 & 0xFF) / 255f,
-                (color & 0xFF) / 255f,
-                (color >> 24) / 255f);
+                (color >> 16 & 0xFF) / 255F,
+                (color >> 8 & 0xFF) / 255F,
+                (color & 0xFF) / 255F,
+                (color >> 24) / 255F);
         }
         poseStack.popPose();
     }

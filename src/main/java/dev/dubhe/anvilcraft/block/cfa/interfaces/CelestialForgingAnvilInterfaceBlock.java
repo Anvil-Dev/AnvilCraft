@@ -39,7 +39,7 @@ public abstract class CelestialForgingAnvilInterfaceBlock
 
     @Override
     protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
-        return 1.0f;
+        return 1.0F;
     }
 
     @Override

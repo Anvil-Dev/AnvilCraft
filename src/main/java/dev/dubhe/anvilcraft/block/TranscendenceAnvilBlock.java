@@ -73,6 +73,6 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, Integer.MAX_VALUE);
+        entity.setHurtsEntities(2.0F, Integer.MAX_VALUE);
     }
 }

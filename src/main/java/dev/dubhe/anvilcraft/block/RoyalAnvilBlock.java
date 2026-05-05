@@ -78,6 +78,6 @@ public class RoyalAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, 80);
+        entity.setHurtsEntities(2.0F, 80);
     }
 }

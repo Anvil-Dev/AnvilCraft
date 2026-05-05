@@ -11,6 +11,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
@@ -83,7 +84,7 @@ public class DataGenUtil {
 
     public static <T extends Item> void energy(DataGenContext<Item, T> ctx, CreativeModeTabModifier modifier) {
         ItemStack stack = ctx.get().getDefaultInstance();
-        stack.set(ModComponents.STORED_ENERGY, 0);
+        stack.set(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY);
         stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(1));
         modifier.accept(stack.copy());
         modifier.accept(ctx.get().getDefaultInstance());

@@ -24,8 +24,8 @@ public class ModDamageTypes {
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
-        ctx.register(LASER, new DamageType("anvilcraft.laser", 0.1f, DamageEffects.BURNING));
-        ctx.register(LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1f));
+        ctx.register(LASER, new DamageType("anvilcraft.laser", 0.1F, DamageEffects.BURNING));
+        ctx.register(LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
     }
 
     public static DamageSource laser(Level level) {

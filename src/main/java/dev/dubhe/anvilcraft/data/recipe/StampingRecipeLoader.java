@@ -48,8 +48,8 @@ public class StampingRecipeLoader {
         StampingRecipe.builder()
             .requires(Items.HEART_OF_THE_SEA)
             .result(ModItems.SEA_HEART_SHELL_SHARD, 3)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
+            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5F)
+            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5F)
             .result(ModItems.SAPPHIRE)
             .save(provider);
         StampingRecipe.builder()
@@ -66,9 +66,9 @@ public class StampingRecipeLoader {
         StampingRecipe.builder()
             .requires(ModItems.GEODE)
             .result(Items.AMETHYST_SHARD, 4)
-            .result(ModItems.TOPAZ.get(), 0.25f)
-            .result(ModItems.SAPPHIRE.get(), 0.25f)
-            .result(ModItems.RUBY.get(), 0.25f)
+            .result(ModItems.TOPAZ.get(), 0.25F)
+            .result(ModItems.SAPPHIRE.get(), 0.25F)
+            .result(ModItems.RUBY.get(), 0.25F)
             .save(provider, AnvilCraft.of("stamping/geode_gems"));
         StampingRecipe.builder()
             .requires(Items.COCOA_BEANS)
@@ -79,8 +79,8 @@ public class StampingRecipeLoader {
             .requires(ModItems.PRISMARINE_CLUSTER)
             .result(Items.PRISMARINE_CRYSTALS, 2)
             .result(Items.PRISMARINE_SHARD)
-            .result(Items.PRISMARINE_CRYSTALS, 0.5f)
-            .result(ModItems.PRISMARINE_BLADE, 0.15f)
+            .result(Items.PRISMARINE_CRYSTALS, 0.5F)
+            .result(ModItems.PRISMARINE_BLADE, 0.15F)
             .save(provider);
 
         StampingRecipe.builder()

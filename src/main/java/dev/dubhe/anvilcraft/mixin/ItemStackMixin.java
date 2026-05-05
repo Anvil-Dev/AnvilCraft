@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -16,66 +17,45 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin implements DataComponentHolder {
-    @WrapOperation(
-        method = "is(Lnet/minecraft/tags/TagKey;)Z",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Holder$Reference;is(Lnet/minecraft/tags/TagKey;)Z")
+    @Definition(
+        id = "addToTooltip",
+        method = "Lnet/minecraft/world/item/ItemStack;"
+                 + "addToTooltip(Lnet/minecraft/core/component/DataComponentType;"
+                 + "Lnet/minecraft/world/item/Item$TooltipContext;"
+                 + "Lnet/minecraft/world/item/component/TooltipDisplay;"
+                 + "Ljava/util/function/Consumer;"
+                 + "Lnet/minecraft/world/item/TooltipFlag;)V"
     )
-    private boolean tryUseResonatorVer1(Holder.Reference<Item> instance, TagKey<Item> tagKey, Operation<Boolean> original) {
-        if (instance instanceof ResonatorItem.ResonatorHolder holder) {
-            return holder.is(ResonatorItem.getMode(Util.cast(this)), tagKey);
-        } else if (instance instanceof MultitoolItem.MultitoolHolder holder) {
-            return holder.is(MultitoolItem.getMode(Util.cast(this)), tagKey);
-        }
-        return original.call(instance, tagKey);
-    }
-
-    @WrapOperation(
-        method = "is(Lnet/minecraft/core/HolderSet;)Z",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/core/HolderSet;contains(Lnet/minecraft/core/Holder;)Z")
+    @Definition(
+        id = "ENCHANTMENTS",
+        field = "Lnet/minecraft/core/component/DataComponents;ENCHANTMENTS:Lnet/minecraft/core/component/DataComponentType;"
     )
-    private boolean tryUseResonatorVer2(HolderSet<Item> instance, Holder<Item> holder0, Operation<Boolean> original) {
-        if (instance instanceof MultitoolItem.MultitoolHolder holder) {
-            return holder.is(MultitoolItem.getMode(Util.cast(this)), instance);
-        } else if (instance instanceof ResonatorItem.ResonatorHolder holder) {
-            return holder.is(ResonatorItem.getMode(Util.cast(this)), instance);
-        }
-        return original.call(instance, holder0);
-    }
-
-    @Inject(
-        method = "getTooltipLines",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/item/ItemStack;"
-                     + "addToTooltip("
-                     + "Lnet/minecraft/core/component/DataComponentType;"
-                     + "Lnet/minecraft/world/item/Item$TooltipContext;"
-                     + "Ljava/util/function/Consumer;"
-                     + "Lnet/minecraft/world/item/TooltipFlag;"
-                     + ")V",
-            ordinal = 3
-        )
-    )
+    @Expression("this.addToTooltip(ENCHANTMENTS, ?, ?, ?, ?)")
+    @Inject(method = "addDetailsToTooltip", at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER))
     private void addMercilessToTooltip(
-        Item.TooltipContext tooltipContext,
-        Player player,
+        Item.TooltipContext context,
+        TooltipDisplay display,
+        @Nullable Player player,
         TooltipFlag tooltipFlag,
-        CallbackInfoReturnable<List<Component>> cir,
-        @Local List<Component> list
+        Consumer<Component> builder,
+        CallbackInfo ci
     ) {
         this.addToTooltip(
             ModComponents.MERCILESS_ENCHANTMENTS,
-            tooltipContext,
-            tooltip -> list.add(tooltip.copy().withColor(0x5F93A3)),
+            context,
+            display,
+            tooltip -> builder.accept(tooltip.copy().withColor(0x5F93A3)),
             tooltipFlag
         );
     }

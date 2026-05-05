@@ -129,9 +129,9 @@ public final class FluidRenderHelper {
         boolean horizontal = dir.getAxis().isHorizontal();
         boolean x = dir.getAxis() == Direction.Axis.X;
 
-        float shrink = texture.uvShrinkRatio() * 0.25f * textureScale;
-        float centerU = texture.getU0() + (texture.getU1() - texture.getU0()) * 0.5f * textureScale;
-        float centerV = texture.getV0() + (texture.getV1() - texture.getV0()) * 0.5f * textureScale;
+        float shrink = texture.uvShrinkRatio() * 0.25F * textureScale;
+        float centerU = texture.getU0() + (texture.getU1() - texture.getU0()) * 0.5F * textureScale;
+        float centerV = texture.getV0() + (texture.getV1() - texture.getV0()) * 0.5F * textureScale;
 
         float f;
         float x2;

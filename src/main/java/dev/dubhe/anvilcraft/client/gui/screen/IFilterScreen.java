@@ -177,8 +177,8 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     default void renderFilterItem(GuiGraphics guiGraphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
-        RenderSupport.renderItemWithTransparency(stack, guiGraphics.pose(), i, j, 0.52f);
-        guiGraphics.fill(i, j, i + 16, j + 16, 0x60ffaaaa);
+        RenderSupport.renderItemWithTransparency(stack, guiGraphics.pose(), i, j, 0.52F);
+        guiGraphics.fill(i, j, i + 16, j + 16, 0x60Ffaaaa);
     }
 
     default void renderSlotLimit(GuiGraphics guiGraphics, Slot slot) {
@@ -193,8 +193,8 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         String text = String.valueOf(limit);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0, 0, 300);
-        float scale = 0.6f;
-        guiGraphics.pose().scale(scale, scale, 1.0f);
+        float scale = 0.6F;
+        guiGraphics.pose().scale(scale, scale, 1.0F);
         int width = Minecraft.getInstance().font.width(text);
         int height = Minecraft.getInstance().font.lineHeight;
         int x = (int) ((slot.x + 16.25 - width * scale) / scale);

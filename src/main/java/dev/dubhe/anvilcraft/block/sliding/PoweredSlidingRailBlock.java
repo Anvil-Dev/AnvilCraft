@@ -224,10 +224,10 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
                 Vec3 entityPos = entity.position();
                 Vector3f acceleration = blockPos.toVector3f()
                     .sub(entityPos.toVector3f())
-                    .mul(0.15f)
-                    .div(0.98f)
+                    .mul(0.15F)
+                    .div(0.98F)
                     .mul(new Vector3f(1, 0, 1));
-                entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8f, 0.8f, 0.8f).add(new Vec3(acceleration)));
+                entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8F, 0.8F, 0.8F).add(new Vec3(acceleration)));
             }
         } else {
             if (!isSneakPlayer) {

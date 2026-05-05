@@ -154,7 +154,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             if (recipe.isConsumeFluid()) {
                 PoseStack pose = guiGraphics.pose();
                 pose.pushPose();
-                pose.scale(0.8f, 0.8f, 1.0f);
+                pose.scale(0.8F, 0.8F, 1.0F);
                 guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     Component.translatable(
@@ -169,7 +169,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             } else if (recipe.isProduceFluid()) {
                 PoseStack pose = guiGraphics.pose();
                 pose.pushPose();
-                pose.scale(0.8f, 0.8f, 1.0f);
+                pose.scale(0.8F, 0.8F, 1.0F);
                 guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     Component.translatable(

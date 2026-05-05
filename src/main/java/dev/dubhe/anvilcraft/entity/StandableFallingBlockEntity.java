@@ -109,7 +109,7 @@ public class StandableFallingBlockEntity extends FallingBlockEntity {
 
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        return EntityDimensions.scalable(0.98f, 0.98f);
+        return EntityDimensions.scalable(0.98F, 0.98F);
     }
 
     public static boolean isFree(Level level, BlockPos pos) {

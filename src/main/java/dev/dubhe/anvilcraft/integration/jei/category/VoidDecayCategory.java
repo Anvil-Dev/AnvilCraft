@@ -148,7 +148,7 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
             level = showCase;
         }
 
-        RenderSupport.renderLevelLike(level, guiGraphics, 24, 36, 60, 0.5f);
+        RenderSupport.renderLevelLike(level, guiGraphics, 24, 36, 60, 0.5F);
 
         slot.draw(guiGraphics, 7, 83);
         slot.draw(guiGraphics, 7, 101);

@@ -9,11 +9,12 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -51,13 +52,12 @@ public class ComradeAmuletItem extends AmuletItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        ItemStack amulet = player.getItemInHand(usedHand);
-
-        if (ComradeAmuletItem.registerPlayerToAmulet(amulet, player)) {
-            return InteractionResultHolder.success(amulet);
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+        if (ComradeAmuletItem.registerPlayerToAmulet(player.getItemInHand(usedHand), player)) {
+            return InteractionResult.SUCCESS;
         } else {
-            return InteractionResultHolder.pass(amulet);
+            return InteractionResult.PASS;
         }
     }
 
@@ -73,17 +73,18 @@ public class ComradeAmuletItem extends AmuletItem {
     }
 
     public static boolean registerPlayerToAmulet(ItemStack amulet, Player player) {
-        HashBiMap<Component, UUID> signedPlayers = ComradeAmuletItem.getSignedPlayers(amulet);
-        signedPlayers.put(player.getName(), player.getUUID());
-        amulet.set(ModComponents.SIGNED_PLAYERS, new SignedPlayers(signedPlayers));
+        amulet.set(ModComponents.SIGNED_PLAYERS, ComradeAmuletItem.getSignedPlayers(amulet).sign(player));
         return true;
     }
 
     public static boolean canIgnorePlayer(ItemStack amulet, UUID playerUUID) {
-        return ComradeAmuletItem.getSignedPlayers(amulet).containsValue(playerUUID);
+        for (SignedPlayers.Info info : ComradeAmuletItem.getSignedPlayers(amulet).players()) {
+            if (info.id().equals(playerUUID)) return true;
+        }
+        return false;
     }
 
-    public static HashBiMap<Component, UUID> getSignedPlayers(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.SIGNED_PLAYERS, SignedPlayers.EMPTY).playerInfos();
+    public static SignedPlayers getSignedPlayers(DataComponentGetter getter) {
+        return getter.getOrDefault(ModComponents.SIGNED_PLAYERS, SignedPlayers.EMPTY);
     }
 }

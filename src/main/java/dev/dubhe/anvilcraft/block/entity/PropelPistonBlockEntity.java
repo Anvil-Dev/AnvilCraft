@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.network.UpdatePropelPistonStoredEnergyPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -134,13 +136,13 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput componentInput) {
-        Integer energy = componentInput.getOrDefault(ModComponents.STORED_ENERGY, 0);
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        Integer energy = components.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy();
         this.updateStoredEnergy(energy);
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
-        components.set(ModComponents.STORED_ENERGY, this.storedEnergy);
+        components.set(ModComponents.STORED_ENERGY, new StoredEnergy(this.storedEnergy));
     }
 }

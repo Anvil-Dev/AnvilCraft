@@ -210,8 +210,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 this.displayMode.getDiscription()
             );
         pose.pushPose();
-        pose.scale(0.8f, 0.8f, 0.8f);
-        int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(currentModeTooltip) - 5);
+        pose.scale(0.8F, 0.8F, 0.8F);
+        int textX = Math.round(WIDTH / 0.8F - minecraft.font.width(currentModeTooltip) - 5);
         guiGraphics.drawString(minecraft.font, currentModeTooltip, textX, 0, 0xFF000000, false);
         pose.popPose();
         this.displayModeButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
@@ -243,8 +243,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 final boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
-                RenderSupport.renderLevelLike(input, guiGraphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0f);
-                RenderSupport.renderLevelLike(output, guiGraphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0f);
+                RenderSupport.renderLevelLike(input, guiGraphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0F);
+                RenderSupport.renderLevelLike(output, guiGraphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0F);
                 if (modifiedInput) {
                     input.setAllLayersVisible(false);
                 }
@@ -257,7 +257,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 }
                 arrowOut.draw(guiGraphics, 73, 40);
                 pose.pushPose();
-                pose.scale(0.03f, 0.03f, 1.0f);
+                pose.scale(0.03F, 0.03F, 1.0F);
                 conversion.draw(guiGraphics, 2375, 875);
                 pose.popPose();
                 float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
@@ -267,13 +267,13 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                         .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                         .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
                     80,
-                    19.8f + anvilYOffset,
+                    19.8F + anvilYOffset,
                     20,
                     5,
                     RenderSupport.SINGLE_BLOCK
                 );
                 pose.pushPose();
-                pose.scale(0.8f, 0.8f, 1.0f);
+                pose.scale(0.8F, 0.8F, 1.0F);
                 int size = recipe.value().getSize();
                 guiGraphics.drawString(
                     minecraft.font,
@@ -296,11 +296,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderSupport.renderLevelLike(rendered, guiGraphics, 80, 86, SCALE_FAC_LARGE, 2.0f);
+        RenderSupport.renderLevelLike(rendered, guiGraphics, 80, 86, SCALE_FAC_LARGE, 2.0F);
         Component component = this.layerTooltip(rendered);
         pose.pushPose();
-        pose.scale(0.8f, 0.8f, 0.8f);
-        textX = Math.round(WIDTH / 0.8f - minecraft.font.width(component) - 5);
+        pose.scale(0.8F, 0.8F, 0.8F);
+        textX = Math.round(WIDTH / 0.8F - minecraft.font.width(component) - 5);
         guiGraphics.drawString(minecraft.font, component, textX, 25, 0xFF000000, false);
         pose.popPose();
         this.renderSwitchButton(rendered).draw(guiGraphics, 125, 30);

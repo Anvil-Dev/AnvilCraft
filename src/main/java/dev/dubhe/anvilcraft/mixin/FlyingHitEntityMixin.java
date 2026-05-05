@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public abstract class FlyingHitEntityMixin extends Entity {
 
     @Unique
-    private static final float DAMAGE_FACTOR = 40 / 1.7444f;
+    private static final float DAMAGE_FACTOR = 40 / 1.7444F;
 
     @Shadow
     public abstract ItemStack getItemBySlot(EquipmentSlot slot);

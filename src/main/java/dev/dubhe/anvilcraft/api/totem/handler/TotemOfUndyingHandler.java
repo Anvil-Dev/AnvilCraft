@@ -22,7 +22,7 @@ public class TotemOfUndyingHandler implements TotemHandler {
                 CriteriaTriggers.USED_TOTEM.trigger(player, Items.TOTEM_OF_UNDYING.getDefaultInstance());
                 entity.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
             }
-            entity.setHealth(1.0f);
+            entity.setHealth(1.0F);
             entity.removeEffectsCuredBy(EffectCures.PROTECTED_BY_TOTEM);
             entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));
             entity.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 100, 1));

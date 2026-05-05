@@ -50,7 +50,7 @@ public class InspectionSupport {
                     c.z,
                     BlockPos.ZERO,
                     Shapes.create(it),
-                    0xff00ffcc
+                    0xff00Ffcc
                 ));
             buf.endBatch();
         });

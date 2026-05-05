@@ -162,7 +162,7 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
-        pose.scale(0.8f, 0.8f, 1.0f);
+        pose.scale(0.8F, 0.8F, 1.0F);
         pose.popPose();
     }
 

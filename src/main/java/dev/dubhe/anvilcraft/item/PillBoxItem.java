@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.property.component.PillBocContents;
+import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class PillBoxItem extends Item {
     public PillBoxItem(Properties properties) {
-        super(properties.component(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY));
+        super(properties.component(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY));
     }
 
     @Override
@@ -34,13 +34,13 @@ public class PillBoxItem extends Item {
         if (!pillBox.is(ModItems.PILL_BOX)) {
             return InteractionResultHolder.pass(pillBox);
         }
-        PillBocContents contents = pillBox.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
+        PillBoxContents contents = pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
         if (contents.pills().isEmpty()) {
             return InteractionResultHolder.pass(pillBox);
         }
-        PillBocContents.Mutable mutable = contents.mutable();
+        PillBoxContents.Mutable mutable = contents.mutable();
         mutable.useAll(player);
-        pillBox.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
+        pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
         player.getCooldowns().addCooldown(ModItems.PILL_BOX.asItem(), 40);
         return InteractionResultHolder.success(pillBox);
     }
@@ -54,15 +54,15 @@ public class PillBoxItem extends Item {
         Player player,
         SlotAccess access
     ) {
-        final PillBocContents contents = stack.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
-        final PillBocContents.Mutable mutable = contents.mutable();
+        final PillBoxContents contents = stack.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
+        final PillBoxContents.Mutable mutable = contents.mutable();
         if (!slot.allowModification(player)) {
             return false;
         }
         if (action == ClickAction.PRIMARY) {
             if (!other.isEmpty()) {
                 if (mutable.insert(other)) {
-                    stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
+                    stack.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
                     access.set(ItemStack.EMPTY);
                     return true;
                 }
@@ -74,7 +74,7 @@ public class PillBoxItem extends Item {
                     ItemStack itemStack = stackOptional.get();
                     if (!itemStack.isEmpty()) {
                         access.set(itemStack);
-                        stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
+                        stack.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
                         return true;
                     }
                 }
@@ -85,8 +85,8 @@ public class PillBoxItem extends Item {
 
     @Override
     public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
-        final PillBocContents contents = stack.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
-        final PillBocContents.Mutable mutable = contents.mutable();
+        final PillBoxContents contents = stack.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
+        final PillBoxContents.Mutable mutable = contents.mutable();
         final ItemStack other = slot.getItem();
         if (!slot.allowModification(player)) {
             return false;
@@ -94,7 +94,7 @@ public class PillBoxItem extends Item {
         if (action == ClickAction.PRIMARY) {
             if (!other.isEmpty()) {
                 if (mutable.insert(other)) {
-                    stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
+                    stack.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
                     slot.set(ItemStack.EMPTY);
                     return true;
                 }
@@ -106,7 +106,7 @@ public class PillBoxItem extends Item {
                     ItemStack itemStack = stackOptional.get();
                     if (!itemStack.isEmpty()) {
                         slot.set(itemStack);
-                        stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
+                        stack.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
                         return true;
                     }
                 }

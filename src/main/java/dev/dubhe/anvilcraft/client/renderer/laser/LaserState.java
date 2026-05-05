@@ -28,7 +28,7 @@ public record LaserState(
         Function<Identifier, TextureAtlasSprite> spriteGetter = Minecraft.getInstance()
             .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS);
         poseStack.pushPose();
-        poseStack.translate(0.5f, 0.5f, 0.5);
+        poseStack.translate(0.5F, 0.5F, 0.5);
         float length = (float) (blockEntity
             .getIrradiateBlockPos()
             .getCenter()

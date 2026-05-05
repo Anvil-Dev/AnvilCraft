@@ -91,12 +91,12 @@ public class RenderModelSupport {
             min.z = Math.min(min.z, f.z);
         });
         // 对坐标进行限制，确保在合理范围内
-        max.x = Math.clamp(max.x, -1.0f, 2.0f);
-        max.y = Math.clamp(max.y, -1.0f, 2.0f);
-        max.z = Math.clamp(max.z, -1.0f, 2.0f);
-        min.x = Math.clamp(min.x, -1.0f, 2.0f);
-        min.y = Math.clamp(min.y, -1.0f, 2.0f);
-        min.z = Math.clamp(min.z, -1.0f, 2.0f);
+        max.x = Math.clamp(max.x, -1.0F, 2.0F);
+        max.y = Math.clamp(max.y, -1.0F, 2.0F);
+        max.z = Math.clamp(max.z, -1.0F, 2.0F);
+        min.x = Math.clamp(min.x, -1.0F, 2.0F);
+        min.y = Math.clamp(min.y, -1.0F, 2.0F);
+        min.z = Math.clamp(min.z, -1.0F, 2.0F);
         return new AABB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 

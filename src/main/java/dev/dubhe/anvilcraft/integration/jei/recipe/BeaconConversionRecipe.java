@@ -21,15 +21,15 @@ public class BeaconConversionRecipe {
         }
         this.cursedGoldBlockCount = count;
         this.corruptedBeaconOutput = ChanceItemStack.of(ModBlocks.CORRUPTED_BEACON.asStack(), chance);
-        this.beaconOutput = ChanceItemStack.of(Blocks.BEACON.asItem().getDefaultInstance(), 1.0f - chance);
+        this.beaconOutput = ChanceItemStack.of(Blocks.BEACON.asItem().getDefaultInstance(), 1.0F - chance);
     }
 
     public static ImmutableList<BeaconConversionRecipe> getAllRecipes() {
         ImmutableList.Builder<BeaconConversionRecipe> builder = ImmutableList.builder();
-        builder.add(new BeaconConversionRecipe(1, 0.02f));
-        builder.add(new BeaconConversionRecipe(2, 0.05f));
-        builder.add(new BeaconConversionRecipe(3, 0.2f));
-        builder.add(new BeaconConversionRecipe(4, 1.0f));
+        builder.add(new BeaconConversionRecipe(1, 0.02F));
+        builder.add(new BeaconConversionRecipe(2, 0.05F));
+        builder.add(new BeaconConversionRecipe(3, 0.2F));
+        builder.add(new BeaconConversionRecipe(4, 1.0F));
         return builder.build();
     }
 }

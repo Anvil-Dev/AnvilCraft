@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEntity> {
-    private static final float LIGHTNING_WIDTH = 1f;
+    private static final float LIGHTNING_WIDTH = 1F;
     private static final AABB BASE_RENDER_BBOX = new AABB(BlockPos.ZERO).inflate(17, 17, 17);
 
     @SuppressWarnings("unused")
@@ -60,7 +60,7 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
         BlockPos pos = blockEntity.getBlockPos();
         Vec3 localCamera = cameraPos.subtract(pos.getX(), pos.getY(), pos.getZ());
 
-        renderLightning(poseStack, bufferSource, start, end, localCamera, LIGHTNING_WIDTH, 0.7f);
+        renderLightning(poseStack, bufferSource, start, end, localCamera, LIGHTNING_WIDTH, 0.7F);
 
         poseStack.popPose();
     }
@@ -94,29 +94,29 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
         float pz = (float) perp.z;
 
         consumer.addVertex(matrix, sx - px, sy - py, sz - pz)
-            .setColor(0.6f, 0.7f, 1.0f, alpha)
-            .setUv(0.0f, 0.0f)
+            .setColor(0.6F, 0.7F, 1.0F, alpha)
+            .setUv(0.0F, 0.0F)
             .setUv1(0, 0)
             .setUv2(240, 240)
             .setNormal(0, 1, 0);
 
         consumer.addVertex(matrix, ex - px, ey - py, ez - pz)
-            .setColor(0.6f, 0.7f, 1.0f, alpha)
-            .setUv(1.0f, 0.0f)
+            .setColor(0.6F, 0.7F, 1.0F, alpha)
+            .setUv(1.0F, 0.0F)
             .setUv1(0, 0)
             .setUv2(240, 240)
             .setNormal(0, 1, 0);
 
         consumer.addVertex(matrix, ex + px, ey + py, ez + pz)
-            .setColor(0.6f, 0.7f, 1.0f, alpha)
-            .setUv(1.0f, 1.0f)
+            .setColor(0.6F, 0.7F, 1.0F, alpha)
+            .setUv(1.0F, 1.0F)
             .setUv1(0, 0)
             .setUv2(240, 240)
             .setNormal(0, 1, 0);
 
         consumer.addVertex(matrix, sx + px, sy + py, sz + pz)
-            .setColor(0.6f, 0.7f, 1.0f, alpha)
-            .setUv(0.0f, 1.0f)
+            .setColor(0.6F, 0.7F, 1.0F, alpha)
+            .setUv(0.0F, 1.0F)
             .setUv1(0, 0)
             .setUv2(240, 240)
             .setNormal(0, 1, 0);

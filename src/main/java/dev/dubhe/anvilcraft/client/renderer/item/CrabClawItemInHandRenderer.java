@@ -72,7 +72,7 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                         && player.getUseItemRemainingTicks() > 0
                         && player.getUsedItemHand() == hand
                 ) {
-                    poseStack.translate(0, -0.25f, 0.05f);
+                    poseStack.translate(0, -0.25F, 0.05F);
                 }
                 break;
             case NONE:
@@ -95,17 +95,17 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                 .getModel(isBlockItem ? HOLDING_BLOCK : HOLDING_ITEM)
         );
         if (isBlockItem) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(60f * i));
-            poseStack.mulPose(Axis.XP.rotationDegrees(25f));
-            poseStack.scale(0.5f, 0.5f, 0.5f);
-            poseStack.translate(0.25f * i, 0.4f, -0.1f);
+            poseStack.mulPose(Axis.YP.rotationDegrees(60F * i));
+            poseStack.mulPose(Axis.XP.rotationDegrees(25F));
+            poseStack.scale(0.5F, 0.5F, 0.5F);
+            poseStack.translate(0.25F * i, 0.4F, -0.1F);
         } else {
-            poseStack.mulPose(Axis.ZP.rotationDegrees(5f * i));
-            poseStack.scale(0.75f, 0.75f, 0.75f);
-            poseStack.translate(0, 0.45f, 0.02f);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(5F * i));
+            poseStack.scale(0.75F, 0.75F, 0.75F);
+            poseStack.translate(0, 0.45F, 0.02F);
             if (stack.getItem() instanceof MaceItem) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(-10f * i));
-                poseStack.translate(0.08f * i, -0.1f, 0);
+                poseStack.mulPose(Axis.YP.rotationDegrees(-10F * i));
+                poseStack.translate(0.08F * i, -0.1F, 0);
             }
         }
     }

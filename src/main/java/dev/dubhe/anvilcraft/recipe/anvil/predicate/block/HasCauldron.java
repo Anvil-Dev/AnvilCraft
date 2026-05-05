@@ -308,7 +308,7 @@ public record HasCauldron(
                     .optionalFieldOf("produce", 0)
                     .forGetter(HasCauldron::produce),
                 Codec.FLOAT
-                    .optionalFieldOf("chance", 1.0f)
+                    .optionalFieldOf("chance", 1.0F)
                     .forGetter(HasCauldron::chance),
                 Codec.BOOL
                     .optionalFieldOf("ignited", false)

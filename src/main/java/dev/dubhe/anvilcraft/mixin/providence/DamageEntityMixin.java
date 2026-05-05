@@ -36,9 +36,9 @@ public class DamageEntityMixin {
         float result = original.call(random1, minInclusive, maxExclusive);
         if (!ProvidenceRef.shouldItTrigger()) return result;
         float random = random1.nextFloat();
-        if (random >= 0.25f) return result;
+        if (random >= 0.25F) return result;
         result += original.call(random1, this.minDamage.calculate(level), this.maxDamage.calculate(level));
-        if (random >= 0.05f) return result;
+        if (random >= 0.05F) return result;
         result += original.call(random1, this.minDamage.calculate(level), this.maxDamage.calculate(level));
         return result;
     }

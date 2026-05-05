@@ -34,7 +34,7 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 import java.util.Collection;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Input> {

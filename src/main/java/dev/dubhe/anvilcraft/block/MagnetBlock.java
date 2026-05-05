@@ -172,7 +172,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                         blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
                     }
                     level.setBlockAndUpdate(pos, blockState);
-                    level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+                    level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
                     return InteractionResult.SUCCESS;
                 }
             }

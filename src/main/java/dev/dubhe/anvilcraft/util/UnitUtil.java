@@ -11,9 +11,9 @@ public class UnitUtil {
             double mjValue = (double) energy / 1000;
             double truncated = Math.floor(mjValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
-                return String.format("%.0f MJ", truncated);
+                return String.format("%.0F MJ", truncated);
             } else {
-                return String.format("%.2f MJ", truncated);
+                return String.format("%.2F MJ", truncated);
             }
         }
     }
@@ -28,17 +28,17 @@ public class UnitUtil {
             double mwValue = (double) power / 1000;
             double truncated = Math.floor(mwValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
-                return String.format("%.0f MW", truncated);
+                return String.format("%.0F MW", truncated);
             } else {
-                return String.format("%.2f MW", truncated);
+                return String.format("%.2F MW", truncated);
             }
         } else {
             double gwValue = (double) power / 1000000;
             double truncated = Math.floor(gwValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
-                return String.format("%.0f GW", truncated);
+                return String.format("%.0F GW", truncated);
             } else {
-                return String.format("%.2f GW", truncated);
+                return String.format("%.2F GW", truncated);
             }
         }
     }
@@ -57,9 +57,9 @@ public class UnitUtil {
             double generateTruncated = Math.floor(generateMW * 100) / 100;
 
             if (consumeTruncated == Math.floor(consumeTruncated) && generateTruncated == Math.floor(generateTruncated)) {
-                return String.format("%.0f/%.0f MW", consumeTruncated, generateTruncated);
+                return String.format("%.0F/%.0F MW", consumeTruncated, generateTruncated);
             } else {
-                return String.format("%.2f/%.2f MW", consumeTruncated, generateTruncated);
+                return String.format("%.2F/%.2F MW", consumeTruncated, generateTruncated);
             }
         } else {
             double consumeMW = (double) consume / 1000000;
@@ -68,9 +68,9 @@ public class UnitUtil {
             double generateTruncated = Math.floor(generateMW * 100) / 100;
 
             if (consumeTruncated == Math.floor(consumeTruncated) && generateTruncated == Math.floor(generateTruncated)) {
-                return String.format("%.0f/%.0f GW", consumeTruncated, generateTruncated);
+                return String.format("%.0F/%.0F GW", consumeTruncated, generateTruncated);
             } else {
-                return String.format("%.2f/%.2f GW", consumeTruncated, generateTruncated);
+                return String.format("%.2F/%.2F GW", consumeTruncated, generateTruncated);
             }
         }
     }

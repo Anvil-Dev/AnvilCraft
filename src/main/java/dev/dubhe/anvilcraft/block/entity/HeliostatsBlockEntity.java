@@ -60,11 +60,11 @@ public class HeliostatsBlockEntity extends BlockEntity {
             return vec31.add(0, 0, 0);
         }
         Vec2 vec2 = new Vec2((float) (vec32.z - vec31.z), (float) (vec32.x - vec31.x));
-        if (vec2.x == 0) return vec31.add(vec2.y > 0 ? 0.49f : -0.49f, 0, 0);
-        if (vec2.y == 0) return vec31.add(0, 0, vec2.x > 0 ? 0.49f : -0.49f);
+        if (vec2.x == 0) return vec31.add(vec2.y > 0 ? 0.49F : -0.49F, 0, 0);
+        if (vec2.y == 0) return vec31.add(0, 0, vec2.x > 0 ? 0.49F : -0.49F);
         float k = vec2.y / vec2.x;
-        float x = vec2.x > 0 ? 0.49f : -0.49f;
-        float y = vec2.y > 0 ? 0.49f : -0.49f;
+        float x = vec2.x > 0 ? 0.49F : -0.49F;
+        float y = vec2.y > 0 ? 0.49F : -0.49F;
         if (y / k < 0.5 && y / k > -0.5) {
             return vec31.add(y, 0, y / k);
         }
@@ -122,7 +122,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         Vec3 irritateVec3 =
             getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
         BlockHitResult blockHitResult = level.clip(new ClipContext(
-            getBlockPos().getCenter().add(0f, 1.376f, 0f),
+            getBlockPos().getCenter().add(0F, 1.376F, 0F),
             irritateVec3,
             ClipContext.Block.COLLIDER,
             ClipContext.Fluid.NONE,

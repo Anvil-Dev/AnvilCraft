@@ -167,7 +167,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
             level.setBlock(pos, newState, 3);
         }
-        level.playSound(player, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+        level.playSound(player, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
         return ItemInteractionResult.SUCCESS;
     }
 

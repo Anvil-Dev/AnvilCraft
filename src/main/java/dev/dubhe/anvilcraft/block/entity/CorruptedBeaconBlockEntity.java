@@ -251,7 +251,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     }
 
     public static void playSound(Level level, BlockPos pos, SoundEvent sound) {
-        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0f, 1.0f);
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     public List<BeaconBeamSection> getBeamSections() {

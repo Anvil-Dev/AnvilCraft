@@ -42,7 +42,7 @@ public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         pose.pushPose();
         pose.translate(x + item.offsetX(stack), y + item.offsetY(stack), 0);
         float scale = item.scale(stack);
-        pose.scale(scale, scale, 1.0f);
+        pose.scale(scale, scale, 1.0F);
         itemRenderer.renderItem(entity, level, innerStack, 0, 0, seed, guiOffset + 10);
         recursionSetter.accept(recursion - 1);
         pose.popPose();

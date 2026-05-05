@@ -49,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
@@ -161,9 +161,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Inject(method = "getBlockPosBelowThatAffectsMyMovement", at = @At("HEAD"), cancellable = true)
     private void slidingRailProgress(CallbackInfoReturnable<BlockPos> cir) {
-        BlockState blockState = this.level().getBlockState(this.getOnPos(0.1f));
+        BlockState blockState = this.level().getBlockState(this.getOnPos(0.1F));
         if (blockState.is(ModBlockTags.SLIDING_RAILS)) {
-            cir.setReturnValue(this.getOnPos(0.1f));
+            cir.setReturnValue(this.getOnPos(0.1F));
         }
     }
 

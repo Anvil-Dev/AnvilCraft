@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -30,5 +32,10 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4")));
+    }
+
+    @SubscribeEvent
+    public static void registerModelParts(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(AdvancedComparatorRenderer.INDICATOR_LAYER, AdvancedComparatorRenderer::createLayer);
     }
 }

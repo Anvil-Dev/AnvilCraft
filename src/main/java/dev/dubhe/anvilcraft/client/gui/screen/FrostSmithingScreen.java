@@ -58,7 +58,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     private static final List<Identifier> EMPTY_SLOT_DEFORM_MATERIAL = List.of(
         EMPTY_SLOT_INGOT
     );
-    public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
+    public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
 
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
     private final CyclingSlotBackground materialIcon = new CyclingSlotBackground(1);
@@ -130,8 +130,8 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             this.armorStandPreview = new ArmorStand(this.minecraft.level, 0.0, 0.0, 0.0);
             this.armorStandPreview.setNoBasePlate(true);
             this.armorStandPreview.setShowArms(true);
-            this.armorStandPreview.yBodyRot = 210.0f;
-            this.armorStandPreview.setXRot(25.0f);
+            this.armorStandPreview.yBodyRot = 210.0F;
+            this.armorStandPreview.setXRot(25.0F);
             this.armorStandPreview.yHeadRot = this.armorStandPreview.getYRot();
             this.armorStandPreview.yHeadRotO = this.armorStandPreview.getYRot();
         }

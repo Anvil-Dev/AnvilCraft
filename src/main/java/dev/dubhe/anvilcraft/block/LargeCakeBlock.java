@@ -279,7 +279,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         if (!player.canEat(false)) {
             return InteractionResult.PASS;
         } else {
-            player.getFoodData().eat(15, 0.8f);
+            player.getFoodData().eat(15, 0.8F);
             removeFromTop(level, pos, player);
             return InteractionResult.SUCCESS;
         }

@@ -15,7 +15,7 @@ public class OverheatedEmberMetalBlock extends OverheatedBlock implements IOverh
 
     @Override
     public Optional<BlockState> getPrevTier(Level level, BlockPos pos, BlockState state) {
-        if (level.random.nextFloat() <= 0.05f) return Optional.of(Blocks.NETHERITE_BLOCK.defaultBlockState());
+        if (level.random.nextFloat() <= 0.05F) return Optional.of(Blocks.NETHERITE_BLOCK.defaultBlockState());
         return super.getPrevTier(level, pos, state);
     }
 }

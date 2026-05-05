@@ -114,7 +114,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
-        pose.scale(0.8f, 0.8f, 1.0f);
+        pose.scale(0.8F, 0.8F, 1.0F);
         guiGraphics.drawString(Minecraft.getInstance().font,
             Component.translatable(recipe.getPower() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE,
                 Math.abs(recipe.getPower())),

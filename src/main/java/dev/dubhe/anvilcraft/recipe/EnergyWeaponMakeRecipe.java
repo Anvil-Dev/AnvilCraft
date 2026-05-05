@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import lombok.Setter;
@@ -68,7 +69,7 @@ public record EnergyWeaponMakeRecipe(
         ItemStack result = this.result.copy();
         ItemEnchantments enchantments = input.items.getFirst().get(DataComponents.ENCHANTMENTS);
         if (enchantments != null) result.set(DataComponents.ENCHANTMENTS, enchantments);
-        if (result.has(ModComponents.STORED_ENERGY)) result.set(ModComponents.STORED_ENERGY, 320000); // 320MJ
+        if (result.has(ModComponents.STORED_ENERGY)) result.set(ModComponents.STORED_ENERGY, new StoredEnergy(320000)); // 320MJ
         return result;
     }
 

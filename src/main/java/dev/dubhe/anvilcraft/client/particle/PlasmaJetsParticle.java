@@ -46,7 +46,7 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
     }
 
     protected void setColorFromAge(int age, int maxAge) {
-        float oneThird = maxAge / 3.0f;
+        float oneThird = maxAge / 3.0F;
         float r = 1;
         float g = 1;
         float b = 1;

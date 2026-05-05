@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.entity;
 
 import com.google.common.collect.ImmutableSet;
-import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import net.minecraft.core.HolderSet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;

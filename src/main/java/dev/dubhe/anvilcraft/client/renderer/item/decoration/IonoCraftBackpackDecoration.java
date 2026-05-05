@@ -16,7 +16,7 @@ public class IonoCraftBackpackDecoration implements IItemDecorator {
 
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(offsetX, offsetY, 200.0F);
-            guiGraphics.pose().scale(0.5f, 0.5f, 0.5f);
+            guiGraphics.pose().scale(0.5F, 0.5F, 0.5F);
             guiGraphics.drawString(font, "%d%%".formatted(percent), 0, 0, 0xFF00FF80, true);
             guiGraphics.pose().popPose();
 

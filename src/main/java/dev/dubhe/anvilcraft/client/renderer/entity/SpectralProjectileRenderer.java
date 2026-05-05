@@ -74,7 +74,7 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
             .getTransform(ItemDisplayContext.GROUND)
             .scale
             .y();
-        poseStack.translate(0F, 0.5F * transformedGroundScaleY - 0.1f, 0F);
+        poseStack.translate(0F, 0.5F * transformedGroundScaleY - 0.1F, 0F);
         Vec2 rotationVector = entity.getRotationVector();
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationVector.y - 90));
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotationVector.x - 45));

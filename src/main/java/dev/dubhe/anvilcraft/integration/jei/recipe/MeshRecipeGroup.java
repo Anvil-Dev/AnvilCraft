@@ -55,7 +55,7 @@ public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> r
             results.sort(resultSorter);
 
             jeiRecipes.add(new MeshRecipeGroup(ingredient, results));
-            int rows = Mth.ceil(values.size() / 9f);
+            int rows = Mth.ceil(values.size() / 9F);
             if (rows > maxRows) {
                 maxRows = rows;
             }

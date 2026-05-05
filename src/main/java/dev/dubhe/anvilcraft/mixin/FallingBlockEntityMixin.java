@@ -44,7 +44,7 @@ import java.util.function.Predicate;
 @Mixin(FallingBlockEntity.class)
 abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEntityExtension {
     @Unique
-    private static final float DAMAGE_FACTOR = 40 / 1.7444f;
+    private static final float DAMAGE_FACTOR = 40 / 1.7444F;
 
     @Shadow
     public BlockState blockState;

@@ -3,21 +3,25 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
-import dev.dubhe.anvilcraft.client.support.RenderModelSupport;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.BaseShowItemRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
-
-public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntity> {
+public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntity, BaseShowItemRenderState> {
     public ChargerBlockRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
+    }
+
+    @Override
+    public BaseShowItemRenderState createRenderState() {
+        return new BaseShowItemRenderState();
     }
 
     @Override
@@ -27,24 +31,15 @@ public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntit
     }
 
     @Override
-    protected int getSeed(ChargerBlockEntity blockEntity) {
-        return 0;
-    }
-
-    @Override
-    public void render(
-        ChargerBlockEntity be,
-        float partialTick,
+    public void submit(
+        BaseShowItemRenderState state,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int packedLight,
-        int packedOverlay
+        SubmitNodeCollector submitNodeCollector,
+        CameraRenderState camera
     ) {
-        ItemStack stack = getDisplayItemStack(be);
-        if (stack == null || stack.isEmpty()) return;
-        BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, be.getLevel(), null, getSeed(be));
-
-        AABB aabb = RenderModelSupport.getSize(model);
+        ItemClusterRenderState cluster = state.getDisplayState();
+        ItemStackRenderState item = cluster.item;
+        AABB aabb = item.getModelBoundingBox();
 
         double modelDepth = aabb.getZsize();
 
@@ -56,11 +51,9 @@ public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntit
 
         // 先平移到计算好的位置，再进行旋转
         poseStack.translate(x, y, z);
-        poseStack.mulPose(Axis.XP.rotationDegrees(90.0f));
+        poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
 
-        Minecraft.getInstance()
-            .getItemRenderer()
-            .render(stack, ItemDisplayContext.GROUND, false, poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, model);
+        item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
         poseStack.popPose();
     }
 }

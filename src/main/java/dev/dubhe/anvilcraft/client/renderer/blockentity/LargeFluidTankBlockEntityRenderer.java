@@ -47,14 +47,14 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
          * FacingToRotation.get(tank.getForward(), tank.getUp()).push(ms); ms.translate(-0.5, -0.5, -0.5);
          */
         float fill = (float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity();
-        if (fill <= 0.025) fill = 0.025f;
+        if (fill <= 0.025) fill = 0.025F;
 
         drawFluidInTank(ms, vertexConsumers, light, tank.getTank().getFluid(), fill);
 
         // ms.popPose();
     }
 
-    private static final float TANK_W = 4 / 16f + 0.001f; // avoiding Z-fighting
+    private static final float TANK_W = 4 / 16F + 0.001F; // avoiding Z-fighting
 
     public static void drawFluidInTank(PoseStack ps, MultiBufferSource mbs, int light, FluidStack fluid, float fill) {
         // From Modern Industrialization

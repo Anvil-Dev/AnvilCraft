@@ -130,7 +130,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
-        pose.scale(0.8f, 0.8f, 1.0f);
+        pose.scale(0.8F, 0.8F, 1.0F);
         guiGraphics.drawString(Minecraft.getInstance().font,
             Component.translatable(KEY_MASS_VALUE, recipe.displayMassValue()),
             0, 10, 0xFF000000, false);

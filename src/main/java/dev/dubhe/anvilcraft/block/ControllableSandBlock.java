@@ -21,7 +21,7 @@ public class ControllableSandBlock extends Block implements IHammerRemovable {
         boolean belowIsFree = StandableFallingBlockEntity.isFree(level, pos.below());
         if (!aboveIsFree && !belowIsFree) return;
         if (aboveIsFree && belowIsFree) {
-            if (random.nextFloat() > 0.5f) aboveIsFree = false;
+            if (random.nextFloat() > 0.5F) aboveIsFree = false;
             else belowIsFree = false;
         }
 

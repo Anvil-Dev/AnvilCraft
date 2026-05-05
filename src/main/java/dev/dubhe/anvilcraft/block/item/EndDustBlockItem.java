@@ -23,8 +23,8 @@ public class EndDustBlockItem extends BlockItem {
     public InteractionResultHolder<ItemStack> use(
         Level level, Player player, InteractionHand usedHand) {
         BlockPos blockPos = level.clip(new ClipContext(
-                player.getEyePosition(1f),
-                player.getEyePosition(1f).add(player.getViewVector(1f).scale(2.5)),
+                player.getEyePosition(1F),
+                player.getEyePosition(1F).add(player.getViewVector(1F).scale(2.5)),
                 ClipContext.Block.OUTLINE,
                 ClipContext.Fluid.NONE,
                 player))

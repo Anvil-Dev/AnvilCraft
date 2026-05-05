@@ -227,6 +227,6 @@ public class SlidingBlockEntity extends Entity {
 
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        return EntityDimensions.scalable(0.98f, 0.98f);
+        return EntityDimensions.scalable(0.98F, 0.98F);
     }
 }
