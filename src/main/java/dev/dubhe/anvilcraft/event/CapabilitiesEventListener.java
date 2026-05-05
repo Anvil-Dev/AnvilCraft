@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -26,7 +28,8 @@ public class CapabilitiesEventListener {
             ModBlockEntities.CONFINEMENT_CHAMBER.get(),
             ModBlockEntities.NESTING_SHULKER_BOX.get(),
             ModBlockEntities.OVER_NESTING_SHULKER_BOX.get(),
-            ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get()
+            ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get(),
+            ModBlockEntities.FISH_TANK.get()
         ).forEach(type -> event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
                 type,
@@ -41,6 +44,7 @@ public class CapabilitiesEventListener {
         );
 
         List.of(
+            ModBlockEntities.FISH_TANK.get(),
             ModBlockEntities.FLUID_TANK.get(),
             ModBlockEntities.LARGE_FLUID_TANK.get()
         ).forEach(type -> event.registerBlockEntity(
@@ -49,6 +53,10 @@ public class CapabilitiesEventListener {
             (be, side) -> be.getFluidHandler()
         ));
 
-
+        event.registerItem(
+            Capabilities.FluidHandler.ITEM,
+            (stack, ctx) -> new PowderSnowWrapper(stack),
+            Items.POWDER_SNOW_BUCKET
+        );
     }
 }

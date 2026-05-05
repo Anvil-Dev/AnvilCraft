@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.api.advancement;
 
-import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerClickBlockTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;

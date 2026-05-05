@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.block.heatable;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
+import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -26,8 +28,17 @@ public abstract class HeatableBlock extends Block {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
+        Direction[] directions = Direction.values();
+        if (HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) == HeatTier.NORMAL) return;
+        for (Direction direction : directions) {
+            if (level.getBlockState(pos.relative(direction)).is(Blocks.TNT)) {
+                TntBlock.explode(level, pos.relative(direction));
+                level.removeBlock(pos.relative(direction), false);
+            }
+        }
         HeaterManager.addHeatableBlock(pos, level);
     }
 
@@ -85,7 +96,9 @@ public abstract class HeatableBlock extends Block {
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.getBlockState(neighborPos).is(Blocks.TNT)) {
+        if (level.getBlockState(neighborPos).is(Blocks.TNT)
+            && HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) != HeatTier.NORMAL
+        ) {
             TntBlock.explode(level, neighborPos);
             level.removeBlock(neighborPos, false);
         }

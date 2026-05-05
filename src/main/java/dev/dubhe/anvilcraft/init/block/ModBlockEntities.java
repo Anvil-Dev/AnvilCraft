@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
@@ -65,6 +66,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
@@ -357,6 +359,12 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil", CelestialForgingAnvilBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL)
         .renderer(() -> CelestialForgingAnvilBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<FishTankBlockEntity> FISH_TANK = REGISTRUM
+        .blockEntity("fish_tank", FishTankBlockEntity::new)
+        .validBlocks(ModBlocks.FISH_TANK)
+        .renderer(() -> FishTankBlockEntityRenderer::new)
         .register();
 
     public static void register() {

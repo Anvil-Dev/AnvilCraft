@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:portal_conversion",
+  "input": {
+    "blocks": "minecraft:anvil"
+  },
+  "portal": "minecraft:end_portal",
+  "results": {
+    "states": [
+      {
+        "state": {
+          "block": "anvilcraft:spectral_anvil",
+          "chance": 0.03
+        }
+      }
+    ]
+  }
+}

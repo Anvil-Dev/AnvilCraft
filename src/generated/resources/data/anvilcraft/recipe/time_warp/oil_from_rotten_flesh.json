@@ -1,11 +1,11 @@
 {
   "type": "anvilcraft:time_warp",
-  "consume": -250,
   "ingredients": [
     {
       "count": 64,
       "items": "minecraft:rotten_flesh"
     }
   ],
+  "produce": 250,
   "transform": "anvilcraft:oil"
 }

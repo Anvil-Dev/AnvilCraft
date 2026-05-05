@@ -3,14 +3,17 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.InWorldRecipe;
-import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
-import dev.anvilcraft.lib.v2.recipe.component.ChanceBlockState;
-import dev.anvilcraft.lib.v2.recipe.component.ChanceItemStack;
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
+import dev.anvilcraft.lib.v2.recipe.outcome.SetBlock;
+import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlock;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlockIngredient;
+import dev.anvilcraft.lib.v2.recipe.predicate.item.HasItemIngredient;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
@@ -814,7 +817,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
             List<IRecipePredicate<?>> predicates = new ArrayList<>();
             if (this.inputItems != null) {
                 for (ItemIngredientPredicate ingredient : this.inputItems) {
-                    predicates.add(ingredient.toHasItemIngredient(this.itemInputOffset, this.itemInputRange));
+                    predicates.add(HasItemIngredient.fromPredicate(ingredient, this.itemInputOffset, this.itemInputRange));
                 }
             }
             return predicates;
@@ -829,13 +832,13 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
             List<IRecipeOutcome<?>> outcomes = new ArrayList<>();
             if (this.resultItems != null) {
                 for (ChanceItemStack chanceItemStack : this.resultItems) {
-                    outcomes.add(chanceItemStack.toSpawnItem(this.itemOutputOffset));
+                    outcomes.add(SpawnItem.fromChance(chanceItemStack, this.itemOutputOffset));
                 }
             }
             if (this.resultBlocks != null) {
                 for (int i = 0; i < this.resultBlocks.size(); i++) {
                     ChanceBlockState chanceBlockState = this.resultBlocks.get(i);
-                    outcomes.add(chanceBlockState.toSetBlock(this.getBlockOutputOffset().subtract(0, i, 0)));
+                    outcomes.add(SetBlock.fromState(chanceBlockState, this.getBlockOutputOffset().subtract(0, i, 0)));
                 }
             }
             if (this.produceHeat != null) {

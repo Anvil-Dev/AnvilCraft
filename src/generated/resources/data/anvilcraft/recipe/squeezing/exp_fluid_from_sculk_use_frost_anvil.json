@@ -6,10 +6,10 @@
     }
   },
   "chance": 0.4,
-  "consume": -250,
   "ingredient": {
     "blocks": "minecraft:sculk"
   },
+  "produce": 250,
   "result": {
     "block": "minecraft:air"
   },

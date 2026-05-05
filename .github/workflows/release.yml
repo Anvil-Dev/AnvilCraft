@@ -75,6 +75,8 @@ jobs:
           java: 21
           fail-mode: skip
           changelog: ${{ github.event.release.body }}
+          dependencies: |
+            anvil-lib(embedded){modrinth:nKAcAL9b}{curseforge:1484302}
 
           modrinth-id: vuISAWPc
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}

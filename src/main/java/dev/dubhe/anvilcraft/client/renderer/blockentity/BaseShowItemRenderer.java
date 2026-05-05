@@ -14,9 +14,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import javax.annotation.Nullable;
 
 public abstract class BaseShowItemRenderer<B extends BlockEntity> implements BlockEntityRenderer<B> {
     private static final float ITEM_BUNDLE_OFFSET_SCALE = 0.15F;
@@ -28,13 +27,12 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
     private static final float FLAT_ITEM_BUNDLE_OFFSET_Y = 0.0F;
     private static final float FLAT_ITEM_BUNDLE_OFFSET_Z = 0.09375F;
     private final ItemRenderer itemRenderer;
-    private final RandomSource random = RandomSource.create();
 
     public BaseShowItemRenderer(BlockEntityRendererProvider.Context context) {
         itemRenderer = context.getItemRenderer();
     }
 
-    private int getRenderAmount(ItemStack stack) {
+    private static int getRenderAmount(ItemStack stack) {
         int i = 1;
         if (stack.getCount() > ITEM_COUNT_FOR_5_BUNDLE) {
             i = 5;
@@ -55,31 +53,56 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
 
     @Override
     public void render(
-        B blockEntity,
+        B be,
         float partialTick,
         PoseStack poseStack,
         MultiBufferSource buffer,
         int packedLight,
         int packedOverlay
     ) {
-        Level level = blockEntity.getLevel();
-        ItemStack itemStack = getDisplayItemStack(blockEntity);
-        if (itemStack == null || itemStack.isEmpty()) return;
-        int seed = Item.getId(itemStack.getItem()) + itemStack.getDamageValue();
-        this.random.setSeed(seed);
-        BakedModel bakedModel = this.itemRenderer.getModel(itemStack, level, null, getSeed(blockEntity));
-        poseStack.pushPose();
+        BaseShowItemRenderer.renderItem(
+            be.getLevel(),
+            this.getDisplayItemStack(be),
+            0.5F,
+            0.5F,
+            0.5F,
+            this.itemRenderer,
+            poseStack,
+            buffer,
+            packedLight,
+            partialTick,
+            this.getSeed(be)
+        );
+    }
+
+    public static void renderItem(
+        Level level,
+        @Nullable ItemStack stack,
+        float x,
+        float y,
+        float z,
+        ItemRenderer renderer,
+        PoseStack pose,
+        MultiBufferSource buffer,
+        int packedLight,
+        float partialTick,
+        int seed
+    ) {
+        if (stack == null || stack.isEmpty()) return;
+        final RandomSource random = RandomSource.create(Item.getId(stack.getItem()) + stack.getDamageValue());
+        BakedModel bakedModel = renderer.getModel(stack, level, null, seed);
+        pose.pushPose();
         final boolean isGui3d = bakedModel.isGui3d();
-        final int renderAmount = this.getRenderAmount(itemStack);
+        final int renderAmount = BaseShowItemRenderer.getRenderAmount(stack);
         @SuppressWarnings("deprecation")
         float transformedGroundScaleY = bakedModel
             .getTransforms()
             .getTransform(ItemDisplayContext.GROUND)
             .scale
             .y();
-        poseStack.translate(0.5F, 0.5F * transformedGroundScaleY + 0.15f, 0.5F);
-        float rotation = (Objects.requireNonNull(blockEntity.getLevel()).getGameTime() + partialTick) * 2f;
-        poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
+        pose.translate(x, y * transformedGroundScaleY + 0.15f, z);
+        float rotation = (level.getGameTime() + partialTick) * 2f;
+        pose.mulPose(Axis.YP.rotationDegrees(rotation));
         @SuppressWarnings("deprecation")
         float groundScaleX = bakedModel.getTransforms().ground.scale.x();
         @SuppressWarnings("deprecation")
@@ -88,44 +111,45 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
         float groundScaleZ = bakedModel.getTransforms().ground.scale.z();
 
         if (!isGui3d) {
-            float ox = -FLAT_ITEM_BUNDLE_OFFSET_X * (float) (renderAmount - 1) * 0.5F * groundScaleX;
-            float oy = -FLAT_ITEM_BUNDLE_OFFSET_Y * (float) (renderAmount - 1) * 0.5F * groundScaleY;
-            float oz = -FLAT_ITEM_BUNDLE_OFFSET_Z * (float) (renderAmount - 1) * 0.5F * groundScaleZ;
-            poseStack.translate(ox, oy, oz);
+            float ox = -FLAT_ITEM_BUNDLE_OFFSET_X * (float) (renderAmount - 1) * x * groundScaleX;
+            float oy = -FLAT_ITEM_BUNDLE_OFFSET_Y * (float) (renderAmount - 1) * y * groundScaleY;
+            float oz = -FLAT_ITEM_BUNDLE_OFFSET_Z * (float) (renderAmount - 1) * z * groundScaleZ;
+            pose.translate(ox, oy, oz);
         }
         for (int i = 0; i < renderAmount; ++i) {
-            poseStack.pushPose();
+            pose.pushPose();
             if (i > 0) {
                 if (isGui3d) {
-                    float p = (this.random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
-                    float q = (this.random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
-                    float s = (this.random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
-                    poseStack.translate(p, q, s);
+                    float p = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
+                    float q = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
+                    float s = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE;
+                    pose.translate(p, q, s);
                 } else {
-                    float p = (this.random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE * 0.5F;
-                    float q = (this.random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE * 0.5F;
-                    poseStack.translate(p, q, 0.0F);
+                    float p = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE * x;
+                    float q = (random.nextFloat() * 2.0F - 1.0F) * ITEM_BUNDLE_OFFSET_SCALE * y;
+                    pose.translate(p, q, 0.0F);
                 }
             }
 
-            this.itemRenderer.render(
-                itemStack,
+            renderer.render(
+                stack,
                 ItemDisplayContext.GROUND,
                 false,
-                poseStack,
+                pose,
                 buffer,
                 packedLight,
                 OverlayTexture.NO_OVERLAY,
                 bakedModel
             );
-            poseStack.popPose();
+            pose.popPose();
             if (!isGui3d) {
-                poseStack.translate(
+                pose.translate(
                     FLAT_ITEM_BUNDLE_OFFSET_X * groundScaleX,
                     FLAT_ITEM_BUNDLE_OFFSET_Y * groundScaleY,
-                    FLAT_ITEM_BUNDLE_OFFSET_Z * groundScaleZ);
+                    FLAT_ITEM_BUNDLE_OFFSET_Z * groundScaleZ
+                );
             }
         }
-        poseStack.popPose();
+        pose.popPose();
     }
 }

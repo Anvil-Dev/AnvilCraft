@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
-import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,34 +21,27 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 16 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
-    public static final int COOLDOWN = 100;
-    protected FluidTank tank = new FluidTank(CAPACITY);
-    protected int cooldown = 0;
+    protected final FluidTank tank = new FluidTank(CAPACITY);
+    protected boolean isBigger = false;
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
-    public void tick() {
-        if (--cooldown <= 0) {
-            checkStructure();
-            cooldown = COOLDOWN;
-        }
-        setChanged();
+    public void onFormed() {
+        this.isBigger = true;
+        this.tank.setCapacity(BIG_CAPACITY);
     }
 
-    protected void checkStructure() {
-        if (this.getLevel() == null) return;
-
-        int targetCapacity = TankUtil.isMengerStructure(this.getLevel(), this.getBlockPos(), 3) ? BIG_CAPACITY : CAPACITY;
-        if (tank.getCapacity() != targetCapacity) {
-            tank.setCapacity(targetCapacity);
-        }
+    public void onUnformed() {
+        this.isBigger = false;
+        this.tank.setCapacity(CAPACITY);
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
+        tag.putBoolean("bigger", this.isBigger);
         CompoundTag tankNbt = tank.writeToNBT(provider, new CompoundTag());
         if (!tankNbt.isEmpty()) {
             tag.put("tank", tankNbt);
@@ -59,12 +51,19 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
+        this.isBigger = tag.getBoolean("bigger");
+        if (this.isBigger) {
+            this.onFormed();
+        } else {
+            this.onUnformed();
+        }
         tank.readFromNBT(provider, tag.getCompound("tank"));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
+        tag.putBoolean("bigger", this.isBigger);
         CompoundTag fluidTag = new CompoundTag();
         tank.writeToNBT(registries, fluidTag);
         tag.put("tank", fluidTag);
@@ -77,7 +76,6 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
-        checkStructure();
         return FluidUtil.interactWithFluidHandler(player, hand, tank);
     }
 

@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
 import dev.anvilcraft.lib.v2.recipe.data.advancement.predicate.item.NotPredicate;
 import dev.anvilcraft.lib.v2.recipe.init.LibItemSubPredicates;
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
@@ -99,7 +99,6 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
-            .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 3)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
             .consume(1000)
@@ -108,7 +107,6 @@ public class TimeWarpRecipeLoader {
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 1)
-            .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 4)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
             .consume(1000)
@@ -117,7 +115,6 @@ public class TimeWarpRecipeLoader {
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 2)
-            .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 5)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
             .consume(1000)
@@ -126,7 +123,6 @@ public class TimeWarpRecipeLoader {
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
             .requires(ModItems.EARTH_CORE_SHARD, 3)
-            .transform(ModBlocks.FIRE_CAULDRON.get())
             .result(ModItems.EMBER_METAL_INGOT, 6)
             .fluid(ModBlocks.FIRE_CAULDRON.get())
             .consume(1000)

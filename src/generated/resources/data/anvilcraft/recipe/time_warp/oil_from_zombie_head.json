@@ -1,10 +1,10 @@
 {
   "type": "anvilcraft:time_warp",
-  "consume": -250,
   "ingredients": [
     {
       "items": "minecraft:zombie_head"
     }
   ],
+  "produce": 250,
   "transform": "anvilcraft:oil"
 }

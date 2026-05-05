@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_nuggets/tungsten": {
+    "has_ember_metal_nugget": {
       "conditions": {
         "items": [
           {
-            "items": "#c:nuggets/tungsten"
+            "items": "anvilcraft:ember_metal_nugget"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_nuggets/tungsten"
+      "has_ember_metal_nugget"
     ]
   ],
   "rewards": {

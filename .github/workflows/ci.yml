@@ -83,6 +83,8 @@ jobs:
           java: 21
           fail-mode: skip
           changelog: Early test version, please download and play with caution. 早期测试版本，请谨慎下载游玩
+          dependencies: |
+            anvil-lib(embedded){modrinth:nKAcAL9b}{curseforge:1484302}
 
           modrinth-id: vuISAWPc
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}

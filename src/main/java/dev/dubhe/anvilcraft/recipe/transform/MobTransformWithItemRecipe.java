@@ -3,10 +3,11 @@ package dev.dubhe.anvilcraft.recipe.transform;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.util.ListUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -51,8 +52,8 @@ public record MobTransformWithItemRecipe(
 ) implements Recipe<MobTransformWithItemRecipe.Input> {
     public static final Codec<MobTransformWithItemRecipe> CODEC = Serializer.MAP_CODEC.codec();
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformWithItemRecipe> STREAM_CODEC = CodecUtil.composite(
-        CodecUtil.ENTITY_STREAM_CODEC,
+    public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformWithItemRecipe> STREAM_CODEC = StreamCodecUtil.composite(
+        StreamCodecUtil.ENTITY,
         MobTransformWithItemRecipe::input,
         ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
         MobTransformWithItemRecipe::itemIngredients,
@@ -241,7 +242,7 @@ public record MobTransformWithItemRecipe(
 
     public static final class Serializer implements RecipeSerializer<MobTransformWithItemRecipe> {
         public static final MapCodec<MobTransformWithItemRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            CodecUtil.ENTITY_CODEC.fieldOf("input").forGetter(MobTransformWithItemRecipe::input),
+            CodecUtil.ENTITY.fieldOf("input").forGetter(MobTransformWithItemRecipe::input),
             ItemIngredientPredicate.CODEC.listOf()
                     .optionalFieldOf("ingredients", List.of()).forGetter(MobTransformWithItemRecipe::itemIngredients),
             TransformResult.CODEC.fieldOf("special_result").forGetter(MobTransformWithItemRecipe::specialResult),

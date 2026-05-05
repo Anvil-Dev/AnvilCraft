@@ -168,6 +168,8 @@ public class ItemTagLoader {
             .add(ModItems.STABLE_NEUTRONIUM_INGOT.getKey());
         provider.addTag(ModItemTags.HEATABLE_BLOCKS)
             .add(findResourceKey(Items.NETHERITE_BLOCK));
+        provider.addTag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
+            .addTag(ModItemTags.ANVIL_HAMMER);
 
         provider.addTag(ModItemTags.AMULET)
             .addOptional(AnvilCraft.of("cogwheel_amulet"));

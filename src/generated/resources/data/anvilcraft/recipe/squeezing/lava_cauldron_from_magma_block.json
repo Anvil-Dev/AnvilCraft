@@ -1,9 +1,9 @@
 {
   "type": "anvilcraft:squeezing",
-  "consume": -250,
   "ingredient": {
     "blocks": "minecraft:magma_block"
   },
+  "produce": 250,
   "result": {
     "block": "minecraft:netherrack"
   },

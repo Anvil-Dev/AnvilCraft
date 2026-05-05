@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.init.block;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
-import dev.anvilcraft.lib.v2.registrum.util.nullness.NonNullFunction;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
@@ -186,17 +185,14 @@ import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.FragmentationDegree;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
-import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.FishTankBlockItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -207,12 +203,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
-import net.minecraft.data.recipes.SingleItemRecipeBuilder;
-import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -221,10 +211,8 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -260,7 +248,10 @@ import static dev.dubhe.anvilcraft.AnvilCraft.of;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
-@SuppressWarnings({"unused", "CodeBlock2Expr"})
+@SuppressWarnings({
+    "unused",
+    "CodeBlock2Expr"
+})
 public class ModBlocks {
     static {
         REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
@@ -280,15 +271,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_MAGNET
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.MAGNET_INGOT)
-                .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::magnetBlock)
         .register();
 
     public static final BlockEntry<? extends Block> HOLLOW_MAGNET_BLOCK = REGISTRUM.block("hollow_magnet_block", HollowMagnetBlock::new)
@@ -298,15 +281,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.MAGNET, BlockTags.NEEDS_STONE_TOOL)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("AAA")
-                .pattern("A A")
-                .pattern("AAA")
-                .define('A', ModItems.MAGNET_INGOT)
-                .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::hollowMagnetBlock)
         .register();
 
     public static final BlockEntry<? extends Block> FERRITE_CORE_MAGNET_BLOCK = REGISTRUM.block(
@@ -319,17 +294,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.MAGNET, BlockTags.NEEDS_STONE_TOOL)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("AAA")
-                .pattern("ABA")
-                .pattern("AAA")
-                .define('A', ModItems.MAGNET_INGOT)
-                .define('B', Tags.Items.INGOTS_IRON)
-                .unlockedBy("has_magnet_ingot", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
-                .unlockedBy("has_iron_ingot", RegistrumRecipeProvider.has(Tags.Items.INGOTS_IRON))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::ferriteCoreMagnetBlock)
         .register();
 
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
@@ -338,17 +303,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::horizontalFacingBlock)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("BAB")
-                .pattern("B B")
-                .pattern("B B")
-                .define('A', ModItemTags.IRON_PLATES)
-                .define('B', Tags.Items.INGOTS_IRON)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.IRON_PLATES), AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::stampingPlatform)
         .register();
 
     public static final BlockEntry<? extends Block> CRUSHING_TABLE = REGISTRUM.block("crushing_table", CrushingTableBlock::new)
@@ -357,23 +312,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(ModBlocks.STAMPING_PLATFORM)
-                .requires(Items.GRINDSTONE)
-                .unlockedBy("has_" + Items.GRINDSTONE, AnvilCraftDatagen.has(Items.GRINDSTONE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
-                .save(provider, AnvilCraft.of("shapeless_crushing_table_recipe"));
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("BAB")
-                .pattern("B B")
-                .pattern("B B")
-                .define('A', Items.GRINDSTONE)
-                .define('B', Tags.Items.INGOTS_IRON)
-                .unlockedBy("has_" + Items.GRINDSTONE, AnvilCraftDatagen.has(Items.GRINDSTONE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
-                .save(provider, AnvilCraft.of("shaped_crushing_table_recipe"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::crushingTable)
         .register();
 
     public static final BlockEntry<FishTankBlock> FISH_TANK = REGISTRUM.block("fish_tank", FishTankBlock::new)
@@ -382,16 +321,7 @@ public class ModBlocks {
         .item(FishTankBlockItem::new)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A A")
-                .pattern("B B")
-                .pattern("BBB")
-                .define('A', Items.IRON_INGOT)
-                .define('B', Tags.Items.GLASS_PANES)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::fishTank)
         .register();
 
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
@@ -400,13 +330,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 2)
-                .requires(ModItemTags.BRASS_PLATES)
-                .requires(ModBlocks.FISH_TANK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FISH_TANK.asItem()), AnvilCraftDatagen.has(ModBlocks.FISH_TANK))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();
 
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
@@ -437,24 +361,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(p -> p.strength(50.0f, 1200f).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern(" A ")
-                .pattern("BCB")
-                .pattern("BBB")
-                .define('A', Ingredient.of(ModItems.NEUTRONIUM_INGOT, ModItems.CHARGED_NEUTRONIUM_INGOT, ModItems.STABLE_NEUTRONIUM_INGOT))
-                .define('B', ModItems.EMBER_METAL_INGOT)
-                .define('C', ModBlocks.NEGATIVE_MATTER_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEUTRONIUM_INGOT), AnvilCraftDatagen.has(ModItems.NEUTRONIUM_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CHARGED_NEUTRONIUM_INGOT),
-                    AnvilCraftDatagen.has(ModItems.CHARGED_NEUTRONIUM_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.STABLE_NEUTRONIUM_INGOT),
-                    AnvilCraftDatagen.has(ModItems.STABLE_NEUTRONIUM_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::neutronIrradiator)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -479,15 +386,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(Items.ANVIL),
-                Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK),
-                RecipeCategory.MISC,
-                ctx.get().asItem()
-            ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK)).save(provider, AnvilCraft.of("smithing/royal_anvil"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::royalAnvil)
         .initialProperties(() -> Blocks.ANVIL)
         .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -505,32 +404,11 @@ public class ModBlocks {
         .tag(ItemTags.ANVIL)
         .build()
         .tag(BlockTags.ANVIL, ModBlockTags.NON_MAGNETIC, ModBlockTags.CANT_BROKEN_ANVIL)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("AAA")
-                .pattern(" B ")
-                .pattern("BBB")
-                .define('A', ModBlocks.CAKE_BLOCK)
-                .define('B', ModFoodItems.CREAMY_BREAD_ROLL)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CAKE_BLOCK), AnvilCraftDatagen.has(ModBlocks.CAKE_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CREAMY_BREAD_ROLL),
-                    AnvilCraftDatagen.has(ModFoodItems.CREAMY_BREAD_ROLL))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::neoforge)
         .register();
 
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRUM.block("royal_grindstone", RoyalGrindstoneBlock::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(Items.GRINDSTONE),
-                    Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/royal_grindstone"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::royalGrindstone)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -542,17 +420,7 @@ public class ModBlocks {
             "royal_smithing_table",
             RoyalSmithingTableBlock::new
         )
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(Items.SMITHING_TABLE),
-                    Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/royal_smithing_table"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::royalSmithingTable)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -562,21 +430,9 @@ public class ModBlocks {
 
     public static final BlockEntry<FrostAnvilBlock> FROST_ANVIL = REGISTRUM
         .block("frost_anvil", FrostAnvilBlock::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModBlocks.ROYAL_ANVIL),
-                    Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/frost_anvil"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::frostAnvil)
         .initialProperties(() -> Blocks.ANVIL)
         .tag(
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE,
             BlockTags.ANVIL,
             ModBlockTags.CANT_BROKEN_ANVIL,
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -597,18 +453,11 @@ public class ModBlocks {
 
     public static final BlockEntry<FrostGrindstoneBlock> FROST_GRINDSTONE = REGISTRUM
         .block("frost_grindstone", FrostGrindstoneBlock::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModBlocks.ROYAL_GRINDSTONE),
-                    Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/frost_grindstone"));
-        })
-        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .recipe(RegistrumBlockRecipeLoader::frostGrindstone)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL
+        )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -617,18 +466,11 @@ public class ModBlocks {
 
     public static final BlockEntry<FrostSmithingTableBlock> FROST_SMITHING_TABLE = REGISTRUM
         .block("frost_smithing_table", FrostSmithingTableBlock::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModBlocks.ROYAL_SMITHING_TABLE),
-                    Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/frost_smithing_table"));
-        })
-        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .recipe(RegistrumBlockRecipeLoader::frostSmithingTable)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL
+        )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -636,15 +478,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<EmberAnvilBlock> EMBER_ANVIL = REGISTRUM.block("ember_anvil", EmberAnvilBlock::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModBlocks.ROYAL_ANVIL),
-                Ingredient.of(ModBlocks.EMBER_METAL_BLOCK),
-                RecipeCategory.MISC,
-                ctx.get().asItem()
-            ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK)).save(provider, AnvilCraft.of("smithing/ember_anvil"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::emberAnvil)
         .initialProperties(() -> Blocks.ANVIL)
         .tag(
             BlockTags.WITHER_IMMUNE,
@@ -669,17 +503,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<EmberGrindstoneBlock> EMBER_GRINDSTONE = REGISTRUM.block("ember_grindstone", EmberGrindstoneBlock::new)
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModBlocks.ROYAL_GRINDSTONE),
-                    Ingredient.of(ModBlocks.EMBER_METAL_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/ember_grindstone"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::emberGrindstone)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
@@ -693,17 +517,7 @@ public class ModBlocks {
             "ember_smithing_table",
             EmberSmithingTableBlock::new
         )
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModBlocks.ROYAL_SMITHING_TABLE),
-                    Ingredient.of(ModBlocks.EMBER_METAL_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/ember_smithing_table"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::emberSmithingTable)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
@@ -717,17 +531,7 @@ public class ModBlocks {
             "transcendence_anvil",
             TranscendenceAnvilBlock::new
         )
-        .recipe((ctx, provider) -> {
-            SmithingTransformRecipeBuilder.smithing(
-                    Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-                    Ingredient.of(ModBlocks.EMBER_ANVIL),
-                    Ingredient.of(ModBlocks.TRANSCENDIUM_BLOCK),
-                    RecipeCategory.MISC,
-                    ctx.get().asItem()
-                )
-                .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.TRANSCENDIUM_BLOCK))
-                .save(provider, AnvilCraft.of("smithing/transcendence_anvil"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::transcendenceAnvil)
         .initialProperties(() -> Blocks.ANVIL)
         .tag(
             BlockTags.WITHER_IMMUNE,
@@ -770,22 +574,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("BCB")
-                .pattern("BBB")
-                .define('A', Items.TERRACOTTA)
-                .define('B', Items.IRON_INGOT)
-                .define('C', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.TERRACOTTA), AnvilCraftDatagen.has(Items.TERRACOTTA))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::heater)
         .register();
 
     public static final BlockEntry<TransmissionPoleBlock> TRANSMISSION_POLE = REGISTRUM.block(
@@ -804,22 +593,7 @@ public class ModBlocks {
         .model(DataGenUtil::noExtraModelOrState)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A")
-                .pattern("B")
-                .pattern("C")
-                .define('A', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('B', Items.LIGHTNING_ROD)
-                .define('C', Items.IRON_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), AnvilCraftDatagen.has(Items.LIGHTNING_ROD))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::transmissionPole)
         .loot(SimpleMultiPartBlock::loot)
         .register();
 
@@ -840,21 +614,7 @@ public class ModBlocks {
         .model(DataGenUtil::noExtraModelOrState)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A")
-                .pattern("B")
-                .pattern("C")
-                .define('A', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('B', ModBlocks.TRANSMISSION_POLE)
-                .define('C', Items.ANVIL)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TRANSMISSION_POLE), AnvilCraftDatagen.has(ModBlocks.TRANSMISSION_POLE))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::remoteTransmissionPole)
         .register();
 
     public static final BlockEntry<TeslaTowerBlock> TESLA_TOWER = REGISTRUM.block("tesla_tower", TeslaTowerBlock::new)
@@ -873,20 +633,7 @@ public class ModBlocks {
         })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("ACA")
-                .pattern("ADA")
-                .define('A', ModItems.ROYAL_STEEL_INGOT)
-                .define('B', ModBlocks.TOPAZ_BLOCK)
-                .define('C', ModBlocks.TRANSMISSION_POLE)
-                .define('D', ModItems.CIRCUIT_BOARD)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TRANSMISSION_POLE), AnvilCraftDatagen.has(ModBlocks.TRANSMISSION_POLE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TOPAZ_BLOCK), AnvilCraftDatagen.has(ModBlocks.TOPAZ_BLOCK))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::teslaTower)
         .register();
 
     public static final BlockEntry<InductionLightBlock> INDUCTION_LIGHT = REGISTRUM.block("induction_light", InductionLightBlock::new)
@@ -899,20 +646,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
-                .pattern("A")
-                .pattern("B")
-                .pattern("A")
-                .define('A', Items.IRON_INGOT)
-                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::inductionLight)
         .register();
 
     public static final BlockEntry<ChargeCollectorBlock> CHARGE_COLLECTOR = REGISTRUM.block("charge_collector", ChargeCollectorBlock::new)
@@ -921,22 +655,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern(" A ")
-                .pattern("B B")
-                .pattern("CCC")
-                .define('A', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('B', Items.COPPER_INGOT)
-                .define('C', Items.IRON_INGOT)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::chargeCollector)
         .register();
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)
@@ -947,31 +666,7 @@ public class ModBlocks {
         .model((a, b) -> {
         })
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
-                .pattern("S S")
-                .pattern("SFS")
-                .pattern(" I ")
-                .define('S', ModItemTags.SILVER_PLATES)
-                .define('F', Items.SUNFLOWER)
-                .define('I', Blocks.IRON_BLOCK)
-                .group(ctx.getId().toString())
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUNFLOWER), AnvilCraftDatagen.has(Items.SUNFLOWER))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.IRON_BLOCK), AnvilCraftDatagen.has(Blocks.IRON_BLOCK))
-                .save(provider, AnvilCraft.of("heliostats_biological"));
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
-                .pattern("SDS")
-                .pattern("SCS")
-                .pattern(" I ")
-                .define('S', ModItemTags.SILVER_PLATES)
-                .define('D', Blocks.DAYLIGHT_DETECTOR)
-                .define('C', ModItems.PROCESSOR)
-                .define('I', Blocks.IRON_BLOCK)
-                .group(ctx.getId().toString())
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(ModItems.PROCESSOR))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.IRON_BLOCK), AnvilCraftDatagen.has(Blocks.IRON_BLOCK))
-                .save(provider, AnvilCraft.of("heliostats_electrical"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::heliostats)
         .register();
 
     public static final BlockEntry<LoadMonitorBlock> LOAD_MONITOR = REGISTRUM.block("load_monitor", LoadMonitorBlock::new)
@@ -988,19 +683,7 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx, "_0"))
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                .pattern("A")
-                .pattern("B")
-                .define('A', Items.COMPASS)
-                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COMPASS), AnvilCraftDatagen.has(Items.COMPASS))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::loadMonitor)
         .register();
 
     public static final BlockEntry<PowerConverterSmallBlock> POWER_CONVERTER_SMALL = REGISTRUM.block(
@@ -1016,14 +699,7 @@ public class ModBlocks {
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 9)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_big"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 3)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_middle"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::powerConverterSmall)
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
@@ -1043,21 +719,7 @@ public class ModBlocks {
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A")
-                .pattern("A")
-                .pattern("A")
-                .define('A', ModBlocks.POWER_CONVERTER_SMALL)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL),
-                    AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL)
-                )
-                .save(provider, ctx.getId() + "_from_small");
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 3)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::powerConverterMiddle)
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
@@ -1077,38 +739,7 @@ public class ModBlocks {
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A")
-                .pattern("B")
-                .define('A', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('B', Items.COPPER_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .save(provider);
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("A")
-                .pattern("A")
-                .pattern("A")
-                .define('A', ModBlocks.POWER_CONVERTER_MIDDLE)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
-                    AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
-                )
-                .save(provider, ctx.getId() + "_from_middle");
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModBlocks.POWER_CONVERTER_SMALL)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
-                    AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
-                )
-                .save(provider, ctx.getId() + "_from_small");
-        })
+        .recipe(RegistrumBlockRecipeLoader::powerConverterBig)
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
@@ -1124,28 +755,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.GLASS)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                .pattern("ABA")
-                .pattern(" B ")
-                .pattern("ABA")
-                .define('A', Items.COPPER_INGOT)
-                .define('B', Items.QUARTZ_BLOCK)
-                .group(ctx.getId().toString())
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.QUARTZ_BLOCK), AnvilCraftDatagen.has(Items.QUARTZ_BLOCK))
-                .save(provider);
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                .pattern("ABA")
-                .pattern(" B ")
-                .pattern("ABA")
-                .define('A', Items.COPPER_INGOT)
-                .define('B', Items.AMETHYST_BLOCK)
-                .group(ctx.getId().toString())
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK))
-                .save(provider, BuiltInRegistries.ITEM.getKey(ctx.get().asItem()) + "_amethyst");
-        })
+        .recipe(RegistrumBlockRecipeLoader::piezoelectricCrystal)
         .register();
 
     public static final BlockEntry<? extends Block> BATCH_CRAFTER = REGISTRUM.block("batch_crafter", BatchCrafterBlock::new)
@@ -1153,24 +763,7 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("ABA")
-                .pattern("ADA")
-                .pattern("AEA")
-                .define('A', Items.GLASS)
-                .define('B', Items.CRAFTER)
-                .define('D', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('E', ModItems.CIRCUIT_BOARD)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.GLASS), AnvilCraftDatagen.has(Items.GLASS))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.CRAFTER), AnvilCraftDatagen.has(Items.CRAFTER))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::batchCrafter)
         .simpleItem()
         .onRegister(block -> BaseBatchCraftingBlock.registerBatchCrafting(() -> block))
         .register();
@@ -1180,24 +773,7 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("ABA")
-                .pattern("ADA")
-                .pattern("AEA")
-                .define('A', Items.GLASS)
-                .define('B', Items.STONECUTTER)
-                .define('D', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('E', ModItems.CIRCUIT_BOARD)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.GLASS), AnvilCraftDatagen.has(Items.GLASS))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.STONECUTTER), AnvilCraftDatagen.has(Items.STONECUTTER))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::batchCutter)
         .simpleItem()
         .onRegister(block -> BaseBatchCraftingBlock.registerBatchCrafting(() -> block))
         .register();
@@ -1208,24 +784,7 @@ public class ModBlocks {
         .simpleItem()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((c, p) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get())
-                .pattern("ABA")
-                .pattern("CDC")
-                .pattern("ACA")
-                .define('A', Items.IRON_INGOT)
-                .define('B', ModItems.MAGNET)
-                .define('C', Items.HOPPER)
-                .define('D', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MAGNET), AnvilCraftDatagen.has(ModItems.MAGNET))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.HOPPER), AnvilCraftDatagen.has(Items.HOPPER))
-                .save(p);
-        })
+        .recipe(RegistrumBlockRecipeLoader::itemCollector)
         .register();
 
     public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRUM.block("heat_collector", HeatCollectorBlock::new)
@@ -1234,23 +793,7 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("CBC")
-                .pattern("BIB")
-                .pattern("RHR")
-                .define('B', ModItems.SAPPHIRE)
-                .define('C', ModItemTags.COPPER_PLATES)
-                .define('H', ModBlocks.CHARGE_COLLECTOR)
-                .define('I', Items.BLUE_ICE)
-                .define('R', ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE), AnvilCraftDatagen.has(ModItems.SAPPHIRE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.COPPER_PLATES), AnvilCraftDatagen.has(ModItemTags.COPPER_PLATES))
-                .unlockedBy("has_charge_collector", AnvilCraftDatagen.has(ModBlocks.CHARGE_COLLECTOR))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.BLUE_ICE), AnvilCraftDatagen.has(Items.BLUE_ICE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::heatCollector)
         .register();
 
     public static final BlockEntry<ChargerBlock> CHARGER = REGISTRUM.block("charger", ChargerBlock::new)
@@ -1259,27 +802,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ADA")
-                .pattern("ABA")
-                .pattern("CCC")
-                .define('A', Items.COPPER_INGOT)
-                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('C', Items.IRON_INGOT)
-                .define('D', Tags.Items.GLASS_PANES)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                )
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(ModBlocks.DISCHARGER)
-                .unlockedBy("hasitme", AnvilCraftDatagen.has(ModBlocks.DISCHARGER))
-                .save(provider, AnvilCraft.of("charger_from_discharger"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::charger)
         .register();
 
     public static final BlockEntry<DischargerBlock> DISCHARGER = REGISTRUM.block("discharger", DischargerBlock::new)
@@ -1289,12 +812,7 @@ public class ModBlocks {
         .simpleItem()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-                .requires(ModBlocks.CHARGER)
-                .unlockedBy("hasitme", AnvilCraftDatagen.has(ModBlocks.DISCHARGER))
-                .save(provider, AnvilCraft.of("discharger_from_charger"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::discharger)
         .register();
 
     public static final BlockEntry<ActiveSilencerBlock> ACTIVE_SILENCER = REGISTRUM.block("active_silencer", ActiveSilencerBlock::new)
@@ -1303,34 +821,7 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("ACA")
-                .define('A', Items.AMETHYST_BLOCK)
-                .define('B', Items.NOTE_BLOCK)
-                .define('C', Items.SCULK_SENSOR)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.JUKEBOX), AnvilCraftDatagen.has(Items.JUKEBOX))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.SCULK_SENSOR), AnvilCraftDatagen.has(Items.SCULK_SENSOR))
-                .save(provider, AnvilCraft.of("active_silencer_old"));
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("ACA")
-                .pattern("BDB")
-                .define('A', Items.AMETHYST_BLOCK)
-                .define('B', Items.NOTE_BLOCK)
-                .define('C', ModItems.PROCESSOR)
-                .define('D', ModBlocks.PIEZOELECTRIC_CRYSTAL)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_BLOCK), AnvilCraftDatagen.has(Items.AMETHYST_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.NOTE_BLOCK), AnvilCraftDatagen.has(Items.NOTE_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(ModItems.PROCESSOR))
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.PIEZOELECTRIC_CRYSTAL),
-                    AnvilCraftDatagen.has(ModBlocks.PIEZOELECTRIC_CRYSTAL)
-                )
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::activeSilencer)
         .register();
 
     public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRUM.block("block_placer", BlockPlacerBlock::new)
@@ -1339,18 +830,7 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("AAA")
-                .pattern("DCB")
-                .pattern("AAA")
-                .define('A', Items.COBBLESTONE)
-                .define('B', ModItems.CRAB_CLAW)
-                .define('C', Items.REDSTONE)
-                .define('D', Items.HOPPER)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CRAB_CLAW), AnvilCraftDatagen.has(ModItems.CRAB_CLAW))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::blockPlacer)
         .register();
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)
@@ -1362,21 +842,7 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200f))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("DA ")
-                .pattern("CBA")
-                .pattern("DA ")
-                .define('A', Items.NETHERITE_INGOT)
-                .define('B', Items.DRAGON_HEAD)
-                .define('C', Items.REDSTONE)
-                .define('D', Items.COBBLESTONE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.NETHERITE_INGOT), AnvilCraftDatagen.has(Items.NETHERITE_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.PISTON), AnvilCraftDatagen.has(Items.PISTON))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.REDSTONE), AnvilCraftDatagen.has(Items.REDSTONE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COBBLESTONE), AnvilCraftDatagen.has(Items.COBBLESTONE))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::blockDevourer)
         .register();
 
     public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRUM.block("ruby_laser", RubyLaserBlock::new)
@@ -1388,23 +854,7 @@ public class ModBlocks {
                 return 0;
             }
         }))
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                .pattern("AEA")
-                .pattern("BDB")
-                .pattern("ACA")
-                .define('A', ModItems.ROYAL_STEEL_INGOT)
-                .define('B', ModBlocks.INDUCTION_LIGHT)
-                .define('C', ModItemTags.SILVER_PLATES)
-                .define('D', ModBlocks.RUBY_BLOCK)
-                .define('E', Items.TINTED_GLASS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.INDUCTION_LIGHT), AnvilCraftDatagen.has(ModBlocks.INDUCTION_LIGHT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_PLATES), AnvilCraftDatagen.has(ModItemTags.SILVER_PLATES))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK), AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.TINTED_GLASS), AnvilCraftDatagen.has(Items.TINTED_GLASS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::rubyLaser)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
@@ -1415,19 +865,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ACA")
-                .pattern("CBC")
-                .pattern("AAA")
-                .define('A', ModItems.ROYAL_STEEL_INGOT)
-                .define('B', ModBlocks.RUBY_BLOCK)
-                .define('C', ModItems.RUBY)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK), AnvilCraftDatagen.has(ModBlocks.RUBY_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RUBY), AnvilCraftDatagen.has(ModItems.RUBY))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::rubyPrism)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1441,21 +879,7 @@ public class ModBlocks {
             .isRedstoneConductor(ModBlocks::never)
             .requiresCorrectToolForDrops()
             .lightLevel((blockState) -> blockState.getValue(LaserReceiverBlock.ACTIVE) ? 15 : 0))
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("AAA")
-                .pattern("ABA")
-                .pattern("DCD")
-                .define('A', ModItems.RUBY)
-                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-                .define('C', Items.REDSTONE)
-                .define('D', ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RUBY))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.REDSTONE))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::laserReceiver)
         .simpleItem()
         .register();
 
@@ -1463,18 +887,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.OBSERVER)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("ABA")
-                .pattern(" C ")
-                .pattern(" D ")
-                .define('A', Blocks.OBSERVER)
-                .define('B', Blocks.COMPARATOR)
-                .define('C', ModItems.CIRCUIT_BOARD)
-                .define('D', Tags.Items.DUSTS_REDSTONE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::blockComparator)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .register();
@@ -1483,18 +896,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.DAYLIGHT_DETECTOR)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("CC ")
-                .pattern("CBR")
-                .pattern("III")
-                .define('C', Tags.Items.INGOTS_COPPER)
-                .define('B', ModItems.CIRCUIT_BOARD)
-                .define('R', Blocks.COMPARATOR)
-                .define('I', Tags.Items.INGOTS_IRON)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::itemDetector)
         .blockstate((ctx, provider) -> {
             provider.horizontalBlock(
                 ctx.get(),
@@ -1509,17 +911,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .blockstate((context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/impact_pile").get()))
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern(" A ")
-                .pattern(" B ")
-                .pattern(" B ")
-                .define('A', Blocks.OBSIDIAN)
-                .define('B', Items.NETHERITE_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.OBSIDIAN), AnvilCraftDatagen.has(Blocks.OBSIDIAN))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.NETHERITE_INGOT), AnvilCraftDatagen.has(Items.NETHERITE_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::impactPile)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .build()
@@ -1533,18 +925,7 @@ public class ModBlocks {
         .item(SimpleMultiPartBlockItem<Vertical3PartHalf>::new)
         .model(DataGenUtil::noExtraModelOrState)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("ABA")
-                .pattern("CBC")
-                .define('A', Items.OBSIDIAN)
-                .define('B', Items.ENDER_EYE)
-                .define('C', ModBlocks.ROYAL_STEEL_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.ENDER_EYE), AnvilCraftDatagen.has(Items.ENDER_EYE))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::overseerBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
     public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
@@ -1576,20 +957,7 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.VILLAGER_JOB_SITES)
         .lang("Jewel Crafting Table")
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABC")
-                .pattern("DDD")
-                .pattern("F F")
-                .define('A', Blocks.GRINDSTONE)
-                .define('B', Blocks.GLASS)
-                .define('C', Blocks.GRINDSTONE)
-                .define('D', Blocks.SMOOTH_STONE)
-                .define('F', ItemTags.PLANKS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.GRINDSTONE), AnvilCraftDatagen.has(Blocks.GRINDSTONE))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.STONECUTTER), AnvilCraftDatagen.has(Blocks.STONECUTTER))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::jewelCraftingTable)
         .register();
 
     public static final BlockEntry<TransparentCraftingTableBlock> TRANSPARENT_CRAFTING_TABLE = REGISTRUM.block(
@@ -1600,16 +968,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern(" A ")
-                .pattern("ABA")
-                .pattern(" A ")
-                .define('A', Items.AMETHYST_SHARD)
-                .define('B', Items.CRAFTING_TABLE)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.AMETHYST_SHARD))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::transparentCraftingTable)
         .register();
 
     public static final BlockEntry<CrabTrapBlock> CRAB_TRAP = REGISTRUM.block("crab_trap", CrabTrapBlock::new)
@@ -1619,16 +978,7 @@ public class ModBlocks {
         .item(PlaceInWaterBlockItem::new)
         .build()
         .tag(BlockTags.MINEABLE_WITH_AXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("B B")
-                .pattern("ABA")
-                .define('A', Items.STICK)
-                .define('B', Items.STRING)
-                .unlockedBy("hasitem", RegistrumRecipeProvider.has(Items.STRING))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::crabTrap)
         .register();
 
     public static final BlockEntry<MengerSpongeBlock> MENGER_SPONGE = REGISTRUM.block("menger_sponge", MengerSpongeBlock::new)
@@ -1647,17 +997,7 @@ public class ModBlocks {
         .onRegister(blockItem -> Item.BY_BLOCK.put(ModBlocks.SIMPLE_CHUTE.get(), blockItem))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                .pattern("A A")
-                .pattern("ABA")
-                .pattern(" A ")
-                .define('A', Items.IRON_INGOT)
-                .define('B', Items.DROPPER)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::chute)
         .register();
 
     public static final BlockEntry<MagneticChuteBlock> MAGNETIC_CHUTE = REGISTRUM.block("magnetic_chute", MagneticChuteBlock::new)
@@ -1667,17 +1007,7 @@ public class ModBlocks {
         .item(ChuteBlockItem::new)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                .pattern(" A ")
-                .pattern("ABA")
-                .pattern("A A")
-                .define('A', ModItems.MAGNET_INGOT)
-                .define('B', Items.DROPPER)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT), AnvilCraftDatagen.has(ModItems.MAGNET_INGOT))
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(Items.DROPPER))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::magneticChute)
         .register();
 
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
@@ -1728,16 +1058,7 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 16)
-                .pattern("A A")
-                .pattern("BAB")
-                .pattern("BBB")
-                .define('A', Blocks.BLUE_ICE)
-                .define('B', Items.IRON_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.BLUE_ICE), AnvilCraftDatagen.has(Blocks.BLUE_ICE))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::slidingRail)
         .register();
 
     public static BlockEntry<PoweredSlidingRailBlock> POWERED_SLIDING_RAIL = REGISTRUM.block(
@@ -1751,16 +1072,7 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 8)
-                .pattern("SSS")
-                .pattern("SPS")
-                .pattern("SSS")
-                .define('P', Items.PISTON)
-                .define('S', ModBlocks.SLIDING_RAIL)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SLIDING_RAIL), AnvilCraftDatagen.has(ModBlocks.SLIDING_RAIL))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::poweredSlidingRail)
         .register();
 
     public static BlockEntry<ActivatorSlidingRailBlock> ACTIVATOR_SLIDING_RAIL = REGISTRUM.block(
@@ -1774,16 +1086,7 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 8)
-                .pattern("SSS")
-                .pattern("SRS")
-                .pattern("SSS")
-                .define('R', Blocks.REDSTONE_BLOCK)
-                .define('S', ModBlocks.SLIDING_RAIL)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SLIDING_RAIL), AnvilCraftDatagen.has(ModBlocks.SLIDING_RAIL))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::activatorSlidingRail)
         .register();
 
     public static BlockEntry<DetectorSlidingRailBlock> DETECTOR_SLIDING_RAIL = REGISTRUM.block(
@@ -1797,16 +1100,7 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 8)
-                .pattern("SSS")
-                .pattern("SPS")
-                .pattern("SSS")
-                .define('P', Ingredient.of(Items.STONE_PRESSURE_PLATE, Items.POLISHED_BLACKSTONE_PRESSURE_PLATE))
-                .define('S', ModBlocks.SLIDING_RAIL)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SLIDING_RAIL), AnvilCraftDatagen.has(ModBlocks.SLIDING_RAIL))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::detectorSlidingRail)
         .register();
 
     public static BlockEntry<SlidingRailStopBlock> SLIDING_RAIL_STOP = REGISTRUM.block("sliding_rail_stop", SlidingRailStopBlock::new)
@@ -1819,16 +1113,7 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
-                .pattern("A A")
-                .pattern("BAB")
-                .pattern("BBB")
-                .define('A', Blocks.SOUL_SAND)
-                .define('B', Items.IRON_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.BLUE_ICE), AnvilCraftDatagen.has(Blocks.BLUE_ICE))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::slidingRailStop)
         .register();
 
     public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
@@ -1958,19 +1243,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("AAA")
-                .pattern("ABA")
-                .pattern("CCC")
-                .define('A', ModBlocks.VOID_MATTER_BLOCK)
-                .define('B', ModBlocks.CHARGE_COLLECTOR)
-                .define('C', ModBlocks.HEAVY_IRON_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.VOID_MATTER_BLOCK), AnvilCraftDatagen.has(ModBlocks.VOID_MATTER_BLOCK))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHARGE_COLLECTOR), AnvilCraftDatagen.has(ModBlocks.CHARGE_COLLECTOR))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::voidEnergyCollector)
         .register();
 
     public static final BlockEntry<MagnetoElectricCoreBlock> MAGNETO_ELECTRIC_CORE_BLOCK = REGISTRUM.block(
@@ -1981,17 +1254,7 @@ public class ModBlocks {
         .properties((properties) -> properties.lightLevel((blockState) -> 6).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("BCB")
-                .pattern("ABA")
-                .define('A', Tags.Items.INGOTS_COPPER)
-                .define('B', Tags.Items.GLASS_BLOCKS)
-                .define('C', ModBlocks.HOLLOW_MAGNET_BLOCK)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HOLLOW_MAGNET_BLOCK))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::magnetoElectricCoreBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
         .register();
 
@@ -2026,40 +1289,7 @@ public class ModBlocks {
                             .include(ModComponents.STORED_ENERGY)))
             );
         })
-        .recipe((ctx, provider) -> {
-            ItemStack itemStack = new ItemStack(ctx.get());
-            itemStack.set(ModComponents.STORED_ENERGY, 4000);
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, itemStack)
-                .pattern("CDC")
-                .pattern("ABA")
-                .pattern("AEA")
-                .define('A', ModItems.IONOCRAFT)
-                .define('B', ModItems.CAPACITOR)
-                .define('C', Items.IRON_INGOT)
-                .define('D', Items.PISTON)
-                .define('E', ModItems.RUBY)
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.IONOCRAFT))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.CAPACITOR))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.PISTON))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RUBY))
-                .save(provider);
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-                .pattern("CDC")
-                .pattern("ABA")
-                .pattern("AEA")
-                .define('A', ModItems.IONOCRAFT)
-                .define('B', ModItems.CAPACITOR_EMPTY)
-                .define('C', Items.IRON_INGOT)
-                .define('D', Items.PISTON)
-                .define('E', ModItems.RUBY)
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.IONOCRAFT))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.CAPACITOR_EMPTY))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.IRON_INGOT))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(Items.PISTON))
-                .unlockedBy("has_item", AnvilCraftDatagen.has(ModItems.RUBY))
-                .save(provider, "empty_propel_piston");
-        })
+        .recipe(RegistrumBlockRecipeLoader::propelPiston)
         .simpleItem()
         .register();
 
@@ -2082,15 +1312,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.HAMMER_REMOVABLE
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.ROYAL_STEEL_INGOT)
-                .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.ROYAL_STEEL_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::royalSteelBlock)
         .register();
 
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRUM.block("smooth_royal_steel_block", Block::new)
@@ -2098,11 +1320,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/smooth_royal_steel_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::smoothRoyalSteelBlock)
         .register();
 
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_BLOCK = REGISTRUM.block("cut_royal_steel_block", Block::new)
@@ -2110,11 +1328,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelBlock)
         .register();
 
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_PILLAR = REGISTRUM.block(
@@ -2126,14 +1340,7 @@ public class ModBlocks {
         .properties(p -> p.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_pillar_from_cut_royal_steel_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_pillar_from_royal_steel_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelPillar)
         .register();
 
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_SLAB = REGISTRUM.block("cut_royal_steel_slab", SlabBlock::new)
@@ -2155,19 +1362,7 @@ public class ModBlocks {
         .tag(ItemTags.SLABS)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_slab_from_royal_steel_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_slab_from_cut_royal_steel_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelSlab)
         .register();
 
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_STAIRS = REGISTRUM.block(
@@ -2187,19 +1382,7 @@ public class ModBlocks {
         .item()
         .tag(ItemTags.STAIRS)
         .build()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_stairs_from_royal_steel_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    1
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_royal_steel_stairs_from_cut_royal_steel_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelStairs)
         .register();
 
     public static final BlockEntry<FrostMetalBlock> FROST_METAL_BLOCK = REGISTRUM.block(
@@ -2221,9 +1404,7 @@ public class ModBlocks {
             BlockTags.NEEDS_IRON_TOOL,
             ModBlockTags.OVERSEER_BASE,
             Tags.Blocks.STORAGE_BLOCKS,
-            ModBlockTags.STORAGE_BLOCKS_FROST_METAL,
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE
+            ModBlockTags.STORAGE_BLOCKS_FROST_METAL
         )
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
@@ -2232,15 +1413,7 @@ public class ModBlocks {
         .item(FrostMetalBlockItem::new)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL, ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.FROST_METAL_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT), RegistrumRecipeProvider.has(ModItems.FROST_METAL_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::frostMetalBlock)
         .defaultLoot()
         .register();
 
@@ -2251,9 +1424,7 @@ public class ModBlocks {
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
-            ModBlockTags.OVERSEER_BASE,
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE
+            ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(
@@ -2270,11 +1441,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_frost_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFrostMetalBlock)
         .defaultLoot()
         .register();
 
@@ -2285,9 +1452,7 @@ public class ModBlocks {
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
-            ModBlockTags.OVERSEER_BASE,
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE
+            ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(
@@ -2301,14 +1466,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_frost_metal_pillar_from_frost_metal_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_frost_metal_pillar_from_cut_frost_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFrostMetalPillar)
         .defaultLoot()
         .register();
 
@@ -2320,9 +1478,7 @@ public class ModBlocks {
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
             BlockTags.SLABS,
-            ModBlockTags.OVERSEER_BASE,
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE
+            ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(
@@ -2336,19 +1492,7 @@ public class ModBlocks {
         .item()
         .tag(ItemTags.SLABS, ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_frost_metal_slab_from_frost_metal_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_frost_metal_slab_from_cut_frost_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFrostMetalSlab)
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .register();
 
@@ -2360,9 +1504,7 @@ public class ModBlocks {
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_IRON_TOOL,
             BlockTags.STAIRS,
-            ModBlockTags.OVERSEER_BASE,
-            BlockTags.WITHER_IMMUNE,
-            BlockTags.DRAGON_IMMUNE
+            ModBlockTags.OVERSEER_BASE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(
@@ -2376,19 +1518,7 @@ public class ModBlocks {
         .item()
         .tag(ItemTags.STAIRS, ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_frost_metal_stairs_from_frost_metal_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    1
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_frost_metal_stairs_from_cut_frost_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFrostMetalStairs)
         .register();
 
     public static final BlockEntry<EmberMetalBlock> EMBER_METAL_BLOCK = REGISTRUM.block(
@@ -2415,15 +1545,7 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.HEATABLE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.EMBER_METAL_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), RegistrumRecipeProvider.has(ModItems.EMBER_METAL_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::emberMetalBlock)
         .defaultLoot()
         .register();
 
@@ -2441,11 +1563,7 @@ public class ModBlocks {
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .build()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_ember_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutEmberMetalBlock)
         .defaultLoot()
         .register();
 
@@ -2461,14 +1579,7 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_ember_metal_pillar_from_ember_metal_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_ember_metal_pillar_from_cut_ember_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutEmberMetalPillar)
         .register();
 
     public static final BlockEntry<EmberMetalSlabBlock> CUT_EMBER_METAL_SLAB = REGISTRUM.block(
@@ -2490,19 +1601,7 @@ public class ModBlocks {
         .tag(ItemTags.SLABS)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_ember_metal_slab_from_ember_metal_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_ember_metal_slab_from_cut_ember_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutEmberMetalSlab)
         .register();
 
     public static final BlockEntry<EmberMetalStairBlock> CUT_EMBER_METAL_STAIRS = REGISTRUM.block(
@@ -2523,19 +1622,7 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ItemTags.STAIRS)
         .build()
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_ember_metal_stairs_from_ember_metal_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    1
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_EMBER_METAL_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/cut_ember_metal_stairs_from_cut_ember_metal_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutEmberMetalStairs)
         .register();
 
     public static final BlockEntry<TranscendiumBlock> TRANSCENDIUM_BLOCK = REGISTRUM.block("transcendium_block", TranscendiumBlock::new)
@@ -2560,18 +1647,7 @@ public class ModBlocks {
         .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.EXPLOSION_PROOF, Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.TRANSCENDIUM_INGOT)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
-                    RegistrumRecipeProvider.has(ModItems.TRANSCENDIUM_INGOT)
-                )
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::transcendiumBlock)
         .register();
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
@@ -2583,15 +1659,7 @@ public class ModBlocks {
         ))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', Tags.Items.STORAGE_BLOCKS_IRON)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_IRON))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::heavyIronBlock)
         .register();
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_BLOCK = REGISTRUM.block("polished_heavy_iron_block", Block::new)
@@ -2599,11 +1667,7 @@ public class ModBlocks {
         .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::polishedHeavyIronBlock)
         .register();
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRUM.block("polished_heavy_iron_slab", SlabBlock::new)
@@ -2619,19 +1683,7 @@ public class ModBlocks {
         .build()
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.SLABS)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::polishedHeavyIronSlab)
         .register();
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_STAIRS = REGISTRUM.block(
@@ -2645,18 +1697,7 @@ public class ModBlocks {
         .tag(ItemTags.STAIRS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.STAIRS)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get()
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::polishedHeavyIronStairs)
         .register();
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_BLOCK = REGISTRUM.block("cut_heavy_iron_block", Block::new)
@@ -2664,19 +1705,7 @@ public class ModBlocks {
         .properties(p -> p.strength(5.0f, 1200f))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    4
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutHeavyIronBlock)
         .register();
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRUM.block("cut_heavy_iron_slab", SlabBlock::new)
@@ -2692,27 +1721,7 @@ public class ModBlocks {
         .build()
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.SLABS)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 16)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    8
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutHeavyIronSlab)
         .register();
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_STAIRS = REGISTRUM.block(
@@ -2726,22 +1735,7 @@ public class ModBlocks {
         .tag(ItemTags.STAIRS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.STAIRS)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    4
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutHeavyIronStairs)
         .register();
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_PLATE = REGISTRUM.block("heavy_iron_plate", HeavyIronPlateBlock::new)
@@ -2750,38 +1744,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 16)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    8
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_SLAB),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    4
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_SLAB))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_slab"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_SLAB), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_SLAB))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_slab"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::heavyIronPlate)
         .register();
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_COLUMN = REGISTRUM.block("heavy_iron_column", Block::new)
@@ -2790,22 +1753,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    4
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::heavyIronColumn)
         .register();
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BEAM = REGISTRUM.block("heavy_iron_beam", HeavyIronBeamBlock::new)
@@ -2816,22 +1764,7 @@ public class ModBlocks {
         .model(DataGenUtil::noExtraModelOrState)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    4
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::heavyIronBeam)
         .register();
 
     public static final BlockEntry<HeavyIronWallBlock> HEAVY_IRON_WALL = REGISTRUM.block("heavy_iron_wall", HeavyIronWallBlock::new)
@@ -2839,22 +1772,7 @@ public class ModBlocks {
         .properties(properties -> properties.strength(5.0f, 1200f).noOcclusion())
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.WALLS)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    4
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::heavyIronWall)
         .item()
         .tag(ItemTags.WALLS)
         .model((ctx, provide) -> provide.wallInventory("heavy_iron_wall", AnvilCraft.of("block/heavy_iron_wall")))
@@ -2869,19 +1787,7 @@ public class ModBlocks {
         })
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.DOORS)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::heavyIronDoor)
         .item()
         .tag(ItemTags.DOORS)
         .model((ctx, prov) -> {
@@ -2899,22 +1805,7 @@ public class ModBlocks {
         .defaultLoot()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.TRAPDOORS)
-        .recipe((ctx, provider) -> {
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    4
-                )
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POLISHED_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_HEAVY_IRON_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_cut_heavy_iron_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::heavyIronTrapdoor)
         .item()
         .tag(ItemTags.TRAPDOORS)
         .model((c, p) -> {
@@ -2930,15 +1821,7 @@ public class ModBlocks {
         .tag(ItemTags.PIGLIN_LOVED, Tags.Items.STORAGE_BLOCKS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.BEACON_BASE_BLOCKS)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.CURSED_GOLD_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT), AnvilCraftDatagen.has(ModItems.CURSED_GOLD_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::cursedGoldBlock)
         .register();
 
     public static final BlockEntry<? extends Block> ZINC_BLOCK = REGISTRUM.block("zinc_block", Block::new)
@@ -2948,15 +1831,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_ZINC, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.ZINC_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS), AnvilCraftDatagen.has(ModItemTags.ZINC_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::zincBlock)
         .register();
 
     public static final BlockEntry<? extends Block> TIN_BLOCK = REGISTRUM.block("tin_block", Block::new)
@@ -2966,15 +1841,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_TIN, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.TIN_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS), AnvilCraftDatagen.has(ModItemTags.TIN_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::tinBlock)
         .register();
 
     public static final BlockEntry<? extends Block> TITANIUM_BLOCK = REGISTRUM.block("titanium_block", Block::new)
@@ -2989,15 +1856,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_TITANIUM, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.TITANIUM_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TITANIUM_INGOTS), AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::titaniumBlock)
         .register();
 
     public static final BlockEntry<NormalBlock> TUNGSTEN_BLOCK = REGISTRUM.block("tungsten_block", NormalBlock::new)
@@ -3014,15 +1873,7 @@ public class ModBlocks {
             ModBlockTags.STORAGE_BLOCKS_TUNGSTEN,
             ModBlockTags.HEATABLE_BLOCKS
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.TUNGSTEN_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_INGOTS), AnvilCraftDatagen.has(ModItemTags.TUNGSTEN_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::tungstenBlock)
         .register();
 
     public static final BlockEntry<? extends Block> LEAD_BLOCK = REGISTRUM.block("lead_block", Block::new)
@@ -3032,15 +1883,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_LEAD, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.LEAD_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS), AnvilCraftDatagen.has(ModItemTags.LEAD_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::leadBlock)
         .register();
 
     public static final BlockEntry<? extends Block> SILVER_BLOCK = REGISTRUM.block("silver_block", Block::new)
@@ -3050,15 +1893,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_SILVER, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.SILVER_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS), AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::silverBlock)
         .register();
 
     public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM.block("uranium_block", Block::new)
@@ -3068,15 +1903,7 @@ public class ModBlocks {
         .item(RadiationBlockItem::new)
         .tag(ModItemTags.STORAGE_BLOCKS_URANIUM, Tags.Items.STORAGE_BLOCKS, ModItemTags.RADIATIONS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.URANIUM_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS), AnvilCraftDatagen.has(ModItemTags.URANIUM_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::uraniumBlock)
         .register();
 
     public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM.block("plutonium_block", Block::new)
@@ -3091,15 +1918,7 @@ public class ModBlocks {
         .item(RadiationBlockItem::new)
         .tag(ModItemTags.STORAGE_BLOCKS_PLUTONIUM, Tags.Items.STORAGE_BLOCKS, ModItemTags.RADIATIONS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.PLUTONIUM_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.PLUTONIUM_INGOTS), AnvilCraftDatagen.has(ModItemTags.PLUTONIUM_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::plutoniumBlock)
         .register();
 
     public static final BlockEntry<? extends Block> BRONZE_BLOCK = REGISTRUM.block("bronze_block", Block::new)
@@ -3109,15 +1928,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_BRONZE, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.BRONZE_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS), AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::bronzeBlock)
         .register();
 
     public static final BlockEntry<? extends Block> BRASS_BLOCK = REGISTRUM.block("brass_block", Block::new)
@@ -3127,15 +1938,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_BRASS, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItemTags.BRASS_INGOTS)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS), AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::brassBlock)
         .register();
 
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRUM.block("topaz_block", Block::new)
@@ -3151,15 +1954,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_TOPAZ
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.TOPAZ)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TOPAZ), AnvilCraftDatagen.has(ModItems.TOPAZ))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::topazBlock)
         .register();
 
     public static final BlockEntry<? extends Block> RUBY_BLOCK = REGISTRUM.block("ruby_block", Block::new)
@@ -3175,15 +1970,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_RUBY
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.RUBY)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RUBY), AnvilCraftDatagen.has(ModItems.RUBY))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::rubyBlock)
         .register();
 
     public static final BlockEntry<? extends Block> SAPPHIRE_BLOCK = REGISTRUM.block("sapphire_block", Block::new)
@@ -3199,15 +1986,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_SAPPHIRE
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.SAPPHIRE)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SAPPHIRE), AnvilCraftDatagen.has(ModItems.SAPPHIRE))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::sapphireBlock)
         .register();
 
     public static final BlockEntry<? extends Block> CHROMATIC_STONE = REGISTRUM.block("chromatic_stone", Block::new)
@@ -3230,15 +2009,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_EXP_GEM
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.EXP_GEM)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EXP_GEM), AnvilCraftDatagen.has(ModItems.EXP_GEM))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::expGemBlock)
         .register();
 
     public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRUM.block("resin_block", ResinBlock::new)
@@ -3250,15 +2021,7 @@ public class ModBlocks {
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_RESIN)
         .build()
         .tag(Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_RESIN)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.RESIN)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN), AnvilCraftDatagen.has(ModItems.RESIN))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::resinBlock)
         .register();
 
     public static final BlockEntry<? extends Block> AMBER_BLOCK = REGISTRUM.block("amber_block", AmberBlock::new)
@@ -3270,23 +2033,14 @@ public class ModBlocks {
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_AMBER)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_AMBER)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.AMBER)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER), AnvilCraftDatagen.has(ModItems.AMBER))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::amberBlock)
         .register();
 
     public static final BlockEntry<MobAmberBlock> MOB_AMBER_BLOCK = REGISTRUM.block("mob_amber_block", MobAmberBlock::new)
         .lang("Block of Amber with Mob")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
-        .recipe((ctx, provider) -> {
-        })
+        .recipe(RegistrumBlockRecipeLoader::mobAmberBlock)
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
         .loot((ctx, prov) -> {
@@ -3402,10 +2156,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.SAND)
         .item(LevitationBlockItem::new)
         .tag(ModItemTags.LEVITATIONALS)
-        .recipe((ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ctx.get())
-            .requires(ModItems.LEVITATION_POWDER, 9)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.LEVITATION_POWDER), AnvilCraftDatagen.has(ModItems.LEVITATION_POWDER))
-            .save(provider, ctx.getId().withSuffix("_from_powders")))
+        .recipe(RegistrumBlockRecipeLoader::levitationPowderBlock)
         .build()
         .tag(BlockTags.MINEABLE_WITH_SHOVEL, ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)
         .register();
@@ -3420,15 +2171,7 @@ public class ModBlocks {
             .partialState()
             .addModels(new ConfiguredModel(provider.models().getExistingFile(ctx.getId().withPrefix("block/")))))
         .simpleItem()
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ctx.get())
-            .pattern("LRL")
-            .pattern("RSR")
-            .pattern("LRL")
-            .define('L', ModItems.LEVITATION_POWDER)
-            .define('R', Items.REDSTONE)
-            .define('S', ItemTags.SAND)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.LEVITATION_POWDER), AnvilCraftDatagen.has(ModItems.LEVITATION_POWDER))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::controllableSand)
         .tag(BlockTags.MINEABLE_WITH_SHOVEL, ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)
         .register();
 
@@ -3550,13 +2293,7 @@ public class ModBlocks {
         .tag(Tags.Items.STORAGE_BLOCKS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModFoodItems.CHOCOLATE)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CHOCOLATE), AnvilCraftDatagen.has(ModFoodItems.CHOCOLATE))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::chocolateBlock)
         .register();
 
     public static final BlockEntry<StepEffectBlock> BLACK_CHOCOLATE_BLOCK = REGISTRUM.block(
@@ -3569,13 +2306,7 @@ public class ModBlocks {
         .tag(Tags.Items.STORAGE_BLOCKS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModFoodItems.CHOCOLATE_BLACK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CHOCOLATE_BLACK), AnvilCraftDatagen.has(ModFoodItems.CHOCOLATE_BLACK))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::blackChocolateBlock)
         .register();
 
     public static final BlockEntry<StepEffectBlock> WHITE_CHOCOLATE_BLOCK = REGISTRUM.block(
@@ -3588,13 +2319,7 @@ public class ModBlocks {
         .tag(Tags.Items.STORAGE_BLOCKS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModFoodItems.CHOCOLATE_WHITE)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CHOCOLATE_WHITE), AnvilCraftDatagen.has(ModFoodItems.CHOCOLATE_WHITE))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::whiteChocolateBlock)
         .register();
 
     public static final BlockEntry<StepEffectSlabBlock> CHOCOLATE_SLAB = REGISTRUM.block(
@@ -3609,16 +2334,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/chocolate_block"), AnvilCraft.of("block/chocolate_block"));
         })
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
-                .pattern("AAA")
-                .define('A', ModBlocks.CHOCOLATE_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(ModBlocks.CHOCOLATE_BLOCK))
-                .save(provider);
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CHOCOLATE_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(ModBlocks.CHOCOLATE_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::chocolateSlab)
         .register();
 
     public static final BlockEntry<StepEffectSlabBlock> BLACK_CHOCOLATE_SLAB = REGISTRUM.block(
@@ -3633,27 +2349,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/black_chocolate_block"), AnvilCraft.of("block/black_chocolate_block"));
         })
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
-                .pattern("AAA")
-                .define('A', ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                )
-                .save(provider);
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.BLACK_CHOCOLATE_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                )
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::blackChocolateSlab)
         .register();
 
     public static final BlockEntry<StepEffectSlabBlock> WHITE_CHOCOLATE_SLAB = REGISTRUM.block(
@@ -3668,27 +2364,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/white_chocolate_block"), AnvilCraft.of("block/white_chocolate_block"));
         })
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
-                .pattern("AAA")
-                .define('A', ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.WHITE_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                )
-                .save(provider);
-            SingleItemRecipeBuilder.stonecutting(
-                    Ingredient.of(ModBlocks.WHITE_CHOCOLATE_BLOCK),
-                    RecipeCategory.BUILDING_BLOCKS,
-                    ctx.get(),
-                    2
-                )
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.WHITE_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                )
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::whiteChocolateSlab)
         .register();
 
     public static final BlockEntry<StepEffectStairBlock> CHOCOLATE_STAIRS = REGISTRUM.block(
@@ -3703,18 +2379,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.stairsBlock(ctx.get(), AnvilCraft.of("block/chocolate_block"));
         })
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .pattern("A  ")
-                .pattern("AA ")
-                .pattern("AAA")
-                .define('A', ModBlocks.CHOCOLATE_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(ModBlocks.CHOCOLATE_BLOCK))
-                .save(provider);
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CHOCOLATE_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(ModBlocks.CHOCOLATE_BLOCK))
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::chocolateStairs)
         .register();
 
     public static final BlockEntry<StepEffectStairBlock> BLACK_CHOCOLATE_STAIRS = REGISTRUM.block(
@@ -3729,24 +2394,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.stairsBlock(ctx.get(), AnvilCraft.of("block/black_chocolate_block"));
         })
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .pattern("A  ")
-                .pattern("AA ")
-                .pattern("AAA")
-                .define('A', ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                )
-                .save(provider);
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.BLACK_CHOCOLATE_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                )
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::blackChocolateStairs)
         .register();
 
     public static final BlockEntry<StepEffectStairBlock> WHITE_CHOCOLATE_STAIRS = REGISTRUM.block(
@@ -3761,24 +2409,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.stairsBlock(ctx.get(), AnvilCraft.of("block/white_chocolate_block"));
         })
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .pattern("A  ")
-                .pattern("AA ")
-                .pattern("AAA")
-                .define('A', ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.WHITE_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                )
-                .save(provider);
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.WHITE_CHOCOLATE_BLOCK), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.WHITE_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                )
-                .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-        })
+        .recipe(RegistrumBlockRecipeLoader::whiteChocolateStairs)
         .register();
 
     public static final Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES = registerReinforcedConcretes();
@@ -3914,13 +2545,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_ZINC_BLOCK = REGISTRUM.block("raw_zinc_block", Block::new)
         .lang("Block of Raw Zinc")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.RAW_ZINC)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_ZINC), AnvilCraftDatagen.has(ModItems.RAW_ZINC))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::rawZincBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_RAW_ZINC)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_ZINC, Tags.Items.STORAGE_BLOCKS)
@@ -3930,13 +2555,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_TIN_BLOCK = REGISTRUM.block("raw_tin_block", Block::new)
         .lang("Block of Raw Tin")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.RAW_TIN)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TIN), AnvilCraftDatagen.has(ModItems.RAW_TIN))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::rawTinBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_TIN)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_TIN, Tags.Items.STORAGE_BLOCKS)
@@ -3946,13 +2565,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_TITANIUM_BLOCK = REGISTRUM.block("raw_titanium_block", Block::new)
         .lang("Block of Raw Titanium")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.RAW_TITANIUM)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TITANIUM), AnvilCraftDatagen.has(ModItems.RAW_TITANIUM))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::rawTitaniumBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_TITANIUM)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_TITANIUM, Tags.Items.STORAGE_BLOCKS)
@@ -3962,13 +2575,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_TUNGSTEN_BLOCK = REGISTRUM.block("raw_tungsten_block", Block::new)
         .lang("Block of Raw Tungsten")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.RAW_TUNGSTEN)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_TUNGSTEN), AnvilCraftDatagen.has(ModItems.RAW_TUNGSTEN))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::rawTungstenBlock)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN, Tags.Items.STORAGE_BLOCKS)
@@ -3979,13 +2586,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_LEAD_BLOCK = REGISTRUM.block("raw_lead_block", Block::new)
         .lang("Block of Raw Lead")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.RAW_LEAD)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_LEAD), AnvilCraftDatagen.has(ModItems.RAW_LEAD))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::rawLeadBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_LEAD)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_LEAD, Tags.Items.STORAGE_BLOCKS)
@@ -3995,13 +2596,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_SILVER_BLOCK = REGISTRUM.block("raw_silver_block", Block::new)
         .lang("Block of Raw Silver")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.RAW_SILVER)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_SILVER), AnvilCraftDatagen.has(ModItems.RAW_SILVER))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::rawSilverBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_SILVER)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_SILVER, Tags.Items.STORAGE_BLOCKS)
@@ -4011,13 +2606,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_URANIUM_BLOCK = REGISTRUM.block("raw_uranium_block", Block::new)
         .lang("Block of Raw Uranium")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.RAW_URANIUM)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RAW_URANIUM), AnvilCraftDatagen.has(ModItems.RAW_URANIUM))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::rawUraniumBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_URANIUM)
         .item(RadiationBlockItem::new)
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_URANIUM, Tags.Items.STORAGE_BLOCKS, ModItemTags.RADIATIONS)
@@ -4136,13 +2725,7 @@ public class ModBlocks {
             context.get(),
             DangerUtil.genConfiguredModel("block/void_matter_block").get()
         ))
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.VOID_MATTER)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.VOID_MATTER), AnvilCraftDatagen.has(ModItems.VOID_MATTER))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::voidMatterBlock)
         .item()
         .tag(ModItemTags.VOID_RESISTANT, ModItemTags.STORAGE_BLOCKS_VOID_MATTER, Tags.Items.STORAGE_BLOCKS)
         .build()
@@ -4158,13 +2741,7 @@ public class ModBlocks {
         .lang("Block of Earth Core Shard")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(properties -> properties.explosionResistance(1200))
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItems.EARTH_CORE_SHARD)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EARTH_CORE_SHARD), AnvilCraftDatagen.has(ModItems.EARTH_CORE_SHARD))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::earthCoreShardBlock)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.STORAGE_BLOCKS_EARTH_CORE_SHARD, Tags.Items.STORAGE_BLOCKS)
@@ -4195,15 +2772,7 @@ public class ModBlocks {
             BlockTags.NEEDS_DIAMOND_TOOL,
             BlockTags.MINEABLE_WITH_PICKAXE
         )
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.MULTIPHASE_MATTER)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER), AnvilCraftDatagen.has(ModItems.MULTIPHASE_MATTER))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::multiphaseMatterBlock)
         .register();
 
     public static final BlockEntry<NegativeMatterBlock> NEGATIVE_MATTER_BLOCK = REGISTRUM.block(
@@ -4222,15 +2791,7 @@ public class ModBlocks {
         .initialProperties(Item.Properties::new)
         .tag(Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .pattern("AAA")
-                .pattern("AAA")
-                .pattern("AAA")
-                .define('A', ModItems.NEGATIVE_MATTER)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEGATIVE_MATTER), RegistrumRecipeProvider.has(ModItems.NEGATIVE_MATTER))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::negativeMatterBlock)
         .defaultLoot()
         .register();
 
@@ -4362,16 +2923,7 @@ public class ModBlocks {
             ))
             .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
-            .recipe((ctx, provider) -> {
-                ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
-                    .pattern("AAA")
-                    .define('A', parent)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(parent))
-                    .save(provider);
-                SingleItemRecipeBuilder.stonecutting(Ingredient.of(parent), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                    .unlockedBy("hasitem", AnvilCraftDatagen.has(parent))
-                    .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            })
+            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteSlab(parent))
             .register();
     }
 
@@ -4396,18 +2948,7 @@ public class ModBlocks {
             .build()
             .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color)))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
-            .recipe((ctx, provider) -> {
-                ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                    .pattern("A  ")
-                    .pattern("AA ")
-                    .pattern("AAA")
-                    .define('A', parent)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(parent))
-                    .save(provider);
-                SingleItemRecipeBuilder.stonecutting(Ingredient.of(parent), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                    .unlockedBy("hasitem", AnvilCraftDatagen.has(parent))
-                    .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            })
+            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteStair(parent))
             .register();
     }
 
@@ -4426,17 +2967,7 @@ public class ModBlocks {
             .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
             .blockstate((ctx, provider) -> provider.wallBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
-            .recipe((ctx, provider) -> {
-                ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                    .pattern("AAA")
-                    .pattern("AAA")
-                    .define('A', parent)
-                    .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(parent))
-                    .save(provider);
-                SingleItemRecipeBuilder.stonecutting(Ingredient.of(parent), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                    .unlockedBy("hasitem", AnvilCraftDatagen.has(parent))
-                    .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
-            })
+            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
             .item()
             .model((ctx, provide) -> provide.wallInventory(
                 "reinforced_concrete_" + color + "_wall",
@@ -4534,16 +3065,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.PLATES, ModItemTags.bindC("plates/" + type))
             .build()
-            .recipe((ctx, provider) -> {
-                for (Item ingredient : ingredients) {
-                    ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(ingredient);
-                    ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 1)
-                        .pattern("AA")
-                        .define('A', ingredient)
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ingredient), AnvilCraftDatagen.has(ingredient))
-                        .save(provider, AnvilCraft.of(id + "_from_" + location1.getPath().replace('/', '_')));
-                }
-            })
+            .recipe(RegistrumBlockRecipeLoader.pressurePlateItems(id, ingredients))
             .register();
     }
 
@@ -4579,15 +3101,7 @@ public class ModBlocks {
             .tag(ModItemTags.PLATES, ModItemTags.bindC("plates/" + type), ModItemTags.PLATES)
             .initialProperties(() -> type.equals("tungsten") ? new Item.Properties().fireResistant() : new Item.Properties())
             .build()
-            .recipe((ctx, provider) -> {
-                for (TagKey<Item> ingredient : ingredients) {
-                    ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 1)
-                        .pattern("AA")
-                        .define('A', ingredient)
-                        .unlockedBy(AnvilCraftDatagen.hasItem(ingredient), AnvilCraftDatagen.has(ingredient))
-                        .save(provider, AnvilCraft.of(id + "_from_" + ingredient.location().getPath().replace('/', '_')));
-                }
-            })
+            .recipe(RegistrumBlockRecipeLoader.pressurePlateTags(id, ingredients))
             .register();
     }
 
@@ -4606,8 +3120,7 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-        })
+        .recipe(RegistrumBlockRecipeLoader::nestingShulkerBox)
         .register();
 
     public static final BlockEntry<OverNestingShulkerBoxBlock> OVER_NESTING_SHULKER_BOX = REGISTRUM.block(
@@ -4625,8 +3138,7 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-        })
+        .recipe(RegistrumBlockRecipeLoader::overNestingShulkerBox)
         .register();
 
     public static final BlockEntry<SupercriticalNestingShulkerBoxBlock> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRUM.block(
@@ -4644,8 +3156,7 @@ public class ModBlocks {
         )
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
-        .recipe((ctx, provider) -> {
-        })
+        .recipe(RegistrumBlockRecipeLoader::supercriticalNestingShulkerBox)
         .register();
 
     public static final BlockEntry<ExpFluidBlock> EXP_FLUID = REGISTRUM.block(
@@ -4664,7 +3175,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<LiquidBlock> OIL = REGISTRUM.block(
-        "oil", p -> new LiquidBlock(ModFluids.OIL.get(), p))
+            "oil", p -> new LiquidBlock(ModFluids.OIL.get(), p))
         .properties(it -> it.mapColor(MapColor.TERRACOTTA_BLACK)
             .replaceable()
             .noCollission()
@@ -4778,13 +3289,7 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(16))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            ItemInjectRecipe.builder()
-                .inputBlock(ModBlocks.CONFINEMENT_CHAMBER)
-                .requires(ModItems.CHARGED_NEUTRONIUM_INGOT)
-                .resultBlock(ctx)
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::confinedNeutroniumIngotBlock)
         .register();
 
     public static BlockEntry<ConfinementChamberBlock> CONFINEMENT_CHAMBER = REGISTRUM.block(
@@ -4798,17 +3303,7 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-                .pattern("ABA")
-                .pattern("B B")
-                .pattern("ABA")
-                .define('A', ModItems.TRANSCENDIUM_NUGGET)
-                .define('B', ModItems.MAGNET_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_NUGGET), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_NUGGET))
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT), AnvilCraftDatagen.has(ModItems.MAGNET_INGOT))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::confinementChamber)
         .register();
 
     public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
@@ -4824,15 +3319,7 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
-        .recipe((ctx, provider) -> {
-            MultiblockRecipe.builder(ctx.get(), 1)
-                .layer("ABA", "BAB", "ABA")
-                .layer("BAB", "ABA", "BAB")
-                .layer("ABA", "BAB", "ABA")
-                .symbol('A', ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK)
-                .symbol('B', ModBlocks.NEGATIVE_MATTER_BLOCK)
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::singularityCrystal)
         .register();
 
     public static final BlockEntry<SugarBlock> SUGAR_BLOCK = REGISTRUM.block("sugar_block", SugarBlock::new)
@@ -4869,17 +3356,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_SUGAR, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .requires(Items.SUGAR, 9)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.SUGAR))
-                .save(provider);
-
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Items.SUGAR, 9)
-                .requires(ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ctx.get()))
-                .save(provider, of("sugar_from_sugar_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::sugarBlock)
         .register();
 
     public static final BlockEntry<GunpowderBlock> GUNPOWER_BLOCK = REGISTRUM.block("gunpowder_block", GunpowderBlock::new)
@@ -4888,16 +3365,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_GUNPOWDER, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .requires(Items.GUNPOWDER, 9)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.GUNPOWDER))
-                .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Items.GUNPOWDER, 9)
-                .requires(ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ctx.get()))
-                .save(provider, of("gunpowder_from_gunpowder_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::gunpowerBlock)
         .register();
 
     public static final BlockEntry<RottenFleshBlock> ROTTEN_FLESH_BLOCK = REGISTRUM.block("rotten_flesh_block", RottenFleshBlock::new)
@@ -4906,19 +3374,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_ROTTEN_FLESH, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .requires(Items.ROTTEN_FLESH, 9)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.ROTTEN_FLESH))
-                .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Items.ROTTEN_FLESH, 9)
-                .requires(ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ctx.get()))
-                .save(provider, of("rotten_flesh_from_rotten_flesh_block"));
-            SimpleCookingRecipeBuilder.smelting(Ingredient.of(ctx.get()), RecipeCategory.MISC, Items.NETHERRACK, 0.0F, 200)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ctx.get()))
-                .save(provider);
-        })
+        .recipe(RegistrumBlockRecipeLoader::rottenFleshBlock)
         .register();
 
     public static final BlockEntry<FlintBlock> FLINT_BLOCK = REGISTRUM.block("flint_block", FlintBlock::new)
@@ -4927,56 +3383,21 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_FLINT, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .requires(Items.FLINT, 9)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.FLINT))
-                .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Items.FLINT, 9)
-                .requires(ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(ctx.get()))
-                .save(provider, of("flint_from_flint_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::flintBlock)
         .register();
 
     public static final BlockEntry<Block> POLISHED_FLINT_BLOCK = REGISTRUM.block("polished_flint_block", Block::new)
         .initialProperties(FLINT_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .pattern("AA")
-                .pattern("AA")
-                .define('A', FLINT_BLOCK)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(FLINT_BLOCK))
-                .save(provider, of("shaped/polished_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(FLINT_BLOCK))
-                .save(provider, of("stonecutting/polished_flint_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::polishedFlintBlock)
         .register();
 
     public static final BlockEntry<Block> CUT_FLINT_BLOCK = REGISTRUM.block("cut_flint_block", Block::new)
         .initialProperties(FLINT_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .pattern("AA")
-                .pattern("AA")
-                .define('A', POLISHED_FLINT_BLOCK)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(POLISHED_FLINT_BLOCK))
-                .save(provider, of("shaped/cut_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_block_from_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(POLISHED_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(POLISHED_FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_block_from_polished_flint_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFlintBlock)
         .register();
 
     public static final BlockEntry<SlabBlock> CUT_FLINT_SLAB_BLOCK = REGISTRUM.block("cut_flint_slab", SlabBlock::new)
@@ -4988,25 +3409,7 @@ public class ModBlocks {
         .item()
         .tag(ItemTags.SLABS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
-                .pattern("AAA")
-                .define('A', CUT_FLINT_BLOCK)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(CUT_FLINT_BLOCK))
-                .save(provider, of("shaped/cut_flint_slab"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_slab_from_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(POLISHED_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(POLISHED_FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_slab_from_polished_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(CUT_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(CUT_FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_slab_from_cut_flint_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFlintSlabBlock)
         .register();
 
     public static final BlockEntry<StairBlock> CUT_FLINT_STAIRS_BLOCK = REGISTRUM.block(
@@ -5021,27 +3424,7 @@ public class ModBlocks {
         .item()
         .tag(ItemTags.STAIRS)
         .build()
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
-                .pattern("A  ")
-                .pattern("AA ")
-                .pattern("AAA")
-                .define('A', CUT_FLINT_BLOCK)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(CUT_FLINT_BLOCK))
-                .save(provider, of("shaped/cut_flint_stairs"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_stairs_from_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(POLISHED_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(POLISHED_FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_stairs_from_polished_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(CUT_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(CUT_FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_stairs_from_cut_flint_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFlintStairsBlock)
         .register();
 
     public static final BlockEntry<RotatedPillarBlock> CUT_FLINT_PILLAR_BLOCK = REGISTRUM.block(
@@ -5054,26 +3437,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.axisBlock(ctx.get(), of("block/cut_flint_pillar"), of("block/cut_flint_pillar_top"));
         })
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
-                .pattern("A")
-                .pattern("A")
-                .define('A', CUT_FLINT_BLOCK)
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(CUT_FLINT_BLOCK))
-                .save(provider, of("shaped/cut_flint_pillar"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_pillar_from_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(POLISHED_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(POLISHED_FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_pillar_from_polished_flint_block"));
-
-            SingleItemRecipeBuilder.stonecutting(Ingredient.of(CUT_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
-                .unlockedBy("hasitem", AnvilCraftDatagen.has(CUT_FLINT_BLOCK))
-                .save(provider, of("stonecutting/cut_flint_pillar_from_cut_flint_block"));
-        })
+        .recipe(RegistrumBlockRecipeLoader::cutFlintPillarBlock)
         .register();
 
     static {
@@ -5128,15 +3492,7 @@ public class ModBlocks {
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-            .pattern("BCR")
-            .pattern("III")
-            .define('B', ModItems.CIRCUIT_BOARD)
-            .define('C', Items.CLOCK)
-            .define('I', Items.IRON_INGOT)
-            .define('R', Items.REDSTONE_TORCH)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::pulseGenerator)
         .register();
 
     public static final BlockEntry<AdvancedComparatorBlock> ADVANCED_COMPARATOR = REGISTRUM.block(
@@ -5148,16 +3504,7 @@ public class ModBlocks {
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
-        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
-            .pattern(" R ")
-            .pattern("CBC")
-            .pattern("III")
-            .define('B', ModItems.CIRCUIT_BOARD)
-            .define('C', Items.COMPARATOR)
-            .define('I', Items.IRON_INGOT)
-            .define('R', Items.REDSTONE_TORCH)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
-            .save(provider))
+        .recipe(RegistrumBlockRecipeLoader::advancedComparator)
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRUM.block(
@@ -5175,14 +3522,7 @@ public class ModBlocks {
         .item()
         .tag(ModItemTags.PLATES, ModItemTags.COPPER_PLATES)
         .build()
-        .recipe((ctx, provider) -> {
-            ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(Items.COPPER_INGOT);
-            ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 1)
-                .pattern("AA")
-                .define('A', Items.COPPER_INGOT)
-                .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
-                .save(provider, AnvilCraft.of("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
-        })
+        .recipe(RegistrumBlockRecipeLoader::copperPressurePlate)
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE =

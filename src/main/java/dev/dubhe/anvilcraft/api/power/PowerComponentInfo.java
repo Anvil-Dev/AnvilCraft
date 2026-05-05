@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.power;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -40,7 +40,7 @@ public record PowerComponentInfo(
             .fieldOf("type")
             .forGetter(PowerComponentInfo::type)
     ).apply(ins, PowerComponentInfo::new));
-    public static final StreamCodec<ByteBuf, PowerComponentInfo> STREAM_CODEC = CodecUtil.composite(
+    public static final StreamCodec<ByteBuf, PowerComponentInfo> STREAM_CODEC = StreamCodecUtil.composite(
         BlockPos.STREAM_CODEC,
         PowerComponentInfo::pos,
         ByteBufCodecs.VAR_INT,
@@ -53,7 +53,7 @@ public record PowerComponentInfo(
         PowerComponentInfo::consumes,
         ByteBufCodecs.VAR_INT,
         PowerComponentInfo::consumes,
-        CodecUtil.enumStreamCodec(PowerComponentType.class),
+        StreamCodecUtil.enumStreamCodec(PowerComponentType.class),
         PowerComponentInfo::type,
         PowerComponentInfo::new
     );

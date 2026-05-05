@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -33,7 +33,7 @@ public class InjectedBlockEntityTooltipProvider extends ITooltipProvider.BlockEn
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        if (Util.jadePresent.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
+        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         return cast(value).map(ITooltipProviderExtension::anvilcraft$getTooltip).orElse(List.of());
     }
 

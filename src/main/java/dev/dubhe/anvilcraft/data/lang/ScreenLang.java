@@ -40,8 +40,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");
         provider.add("screen.anvilcraft.slot.disable.tooltip", "Use item clicks to set filter");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_curse_count", "Removed curses: %1$s / %2$s");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Removed repair cost: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.will_remove", "Will remove:");
+        provider.add("screen.anvilcraft.royal_grindstone.curse_count", "Curses: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.repair_cost", "Repair cost: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.gold_cost", "Gold cost: %1$s");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
         provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");

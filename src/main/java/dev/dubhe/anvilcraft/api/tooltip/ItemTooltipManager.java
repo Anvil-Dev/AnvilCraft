@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -8,8 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.ListUtil;
-import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -246,6 +247,14 @@ public class ItemTooltipManager {
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
+        if (stack.has(ModComponents.STORED_ENERGY)) {
+            propertyTooltip(
+                "stored_energy",
+                tooltip,
+                ChatFormatting.GRAY,
+                UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
+            );
+        }
         if (stack.has(ModComponents.MULTIPHASE)) {
             if (AnvilCraftClient.CONFIG.showMultiphaseStoredId) {
                 propertyTooltip(
@@ -319,7 +328,7 @@ public class ItemTooltipManager {
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
 
-    private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color) {
+    private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color, Object... args) {
         int i = 0;
         for (int j = 0; j < tooltip.size(); j++) {
             if (tooltip.get(j).getContents() instanceof TranslatableContents t && t.getKey().contains("enchantment")
@@ -335,7 +344,7 @@ public class ItemTooltipManager {
         }
         tooltip.add(
             1 + i,
-            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName)).withStyle(color)
+            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName), args).withStyle(color)
         );
     }
 

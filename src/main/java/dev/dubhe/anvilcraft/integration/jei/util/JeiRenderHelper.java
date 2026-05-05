@@ -1,8 +1,12 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class JeiRenderHelper {
     // Animation
@@ -69,5 +73,30 @@ public class JeiRenderHelper {
         return helper.drawableBuilder(JeiTextureConstants.EXPLOSION, 0, 0, 32, 32)
             .setTextureSize(32, 32)
             .build();
+    }
+
+    public static void renderBlockWithSlot(
+        GuiGraphics graphics,
+        IDrawable slot,
+        BlockState state,
+        float x,
+        float y,
+        float z,
+        RenderSupport.BlockRenderFunction function
+    ) {
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(x, y, z - 1);
+        slot.draw(graphics);
+        RenderSupport.renderBlock(
+            graphics,
+            state,
+            9,
+            5.5F,
+            z,
+            11.5F,
+            function
+        );
+        pose.popPose();
     }
 }
