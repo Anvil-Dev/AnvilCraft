@@ -1,0 +1,17 @@
+{
+    DataVersion: 3955,
+    size: [3, 2, 1],
+    data: [
+        {pos: [0, 0, 0], state: "anvilcraft:crushing_table{waterlogged:false}"},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "anvilcraft:crushing_table{waterlogged:false}"},
+        {pos: [0, 2, 0], state: "minecraft:anvil{facing:west}"},
+        {pos: [2, 1, 0], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "anvilcraft:crushing_table{waterlogged:false}",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:anvil{facing:west}"
+    ]
+}

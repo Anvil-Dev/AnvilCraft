@@ -1,0 +1,21 @@
+{
+    DataVersion: 3955,
+    size: [3, 3, 2],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:redstone_torch{lit:true}"},
+        {pos: [0, 0, 1], state: "minecraft:redstone_block"},
+        {pos: [1, 0, 1], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:redstone_torch{lit:false}"},
+        {pos: [2, 0, 1], state: "minecraft:redstone_block"},
+        {pos: [2, 1, 1], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 2, 1], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:redstone_block",
+        "minecraft:redstone_torch{lit:true}",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:redstone_torch{lit:false}",
+        "minecraft:anvil{facing:west}"
+    ]
+}

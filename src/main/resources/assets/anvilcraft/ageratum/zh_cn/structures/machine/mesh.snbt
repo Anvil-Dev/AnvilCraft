@@ -1,0 +1,41 @@
+{
+    DataVersion: 3955,
+    size: [5, 5, 1],
+    data: [
+        {pos: [0, 0, 0], state: "anvilcraft:chute{enabled:true,facing:east}", nbt: {Cooldown: 0, Inventory: {FilterEnabled: 0b, Inventory: [{Disabled: 0b, IsEmptySlot: 1b, Slot: 0, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 1, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 2, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 3, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 4, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 5, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 6, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 7, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 8, SlotFilterEnabled: 0b, SlotLimit: 64}], Size: 9}, id: "anvilcraft:chute"}},
+        {pos: [1, 0, 0], state: "minecraft:chest{facing:north,type:left,waterlogged:false}", nbt: {Items: [], id: "minecraft:chest"}},
+        {pos: [2, 0, 0], state: "minecraft:chest{facing:north,type:right,waterlogged:false}", nbt: {Items: [], id: "minecraft:chest"}},
+        {pos: [0, 1, 0], state: "minecraft:scaffolding{bottom:false,distance:0,waterlogged:false}"},
+        {pos: [1, 1, 0], state: "anvilcraft:magnetic_chute{enabled:true,facing:up}", nbt: {Cooldown: 0, Inventory: {FilterEnabled: 0b, Inventory: [{Disabled: 0b, IsEmptySlot: 1b, Slot: 0, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 1, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 2, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 3, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 4, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 5, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 6, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 7, SlotFilterEnabled: 0b, SlotLimit: 64}, {Disabled: 0b, IsEmptySlot: 1b, Slot: 8, SlotFilterEnabled: 0b, SlotLimit: 64}], Size: 9}, id: "anvilcraft:magnetic_chute"}},
+        {pos: [2, 1, 0], state: "minecraft:smooth_stone_slab{type:top,waterlogged:false}"},
+        {pos: [3, 1, 0], state: "minecraft:smooth_stone"},
+        {pos: [0, 2, 0], state: "minecraft:damaged_anvil{facing:west}"},
+        {pos: [1, 2, 0], state: "anvilcraft:simple_chute{enabled:true,facing:west,tall:false,waterlogged:false}", nbt: {Cooldown: 0, Inventory: {Items: [], Size: 1}, id: "anvilcraft:simple_chute"}},
+        {pos: [2, 2, 0], state: "minecraft:comparator{facing:west,mode:compare,powered:false}", nbt: {OutputSignal: 0, id: "minecraft:comparator"}},
+        {pos: [3, 2, 0], state: "minecraft:repeater{delay:4,facing:west,locked:false,powered:false}"},
+        {pos: [4, 2, 0], state: "minecraft:smooth_stone"},
+        {pos: [4, 3, 0], state: "minecraft:redstone_torch{lit:true}"},
+        {pos: [1, 4, 0], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [2, 4, 0], state: "minecraft:sticky_piston{extended:false,facing:west}"},
+        {pos: [3, 4, 0], state: "anvilcraft:pulse_generator{facing:east,powered:false}", nbt: {ExtraData: {Inputting: 1b, OutputMode: 0b, SignalDuration: 3, StartMode: 2b, State: 0b, WaitingTime: 5}, id: "anvilcraft:pulse_generator"}},
+        {pos: [4, 4, 0], state: "minecraft:smooth_stone"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:smooth_stone",
+        "minecraft:sticky_piston{extended:false,facing:west}",
+        "minecraft:scaffolding{bottom:false,distance:0,waterlogged:false}",
+        "minecraft:smooth_stone_slab{type:top,waterlogged:false}",
+        "minecraft:damaged_anvil{facing:west}",
+        "minecraft:repeater{delay:4,facing:west,locked:false,powered:false}",
+        "minecraft:redstone_torch{lit:true}",
+        "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}",
+        "anvilcraft:chute{enabled:true,facing:east}",
+        "minecraft:chest{facing:north,type:left,waterlogged:false}",
+        "minecraft:chest{facing:north,type:right,waterlogged:false}",
+        "anvilcraft:magnetic_chute{enabled:true,facing:up}",
+        "anvilcraft:simple_chute{enabled:true,facing:west,tall:false,waterlogged:false}",
+        "minecraft:comparator{facing:west,mode:compare,powered:false}",
+        "anvilcraft:pulse_generator{facing:east,powered:false}"
+    ]
+}

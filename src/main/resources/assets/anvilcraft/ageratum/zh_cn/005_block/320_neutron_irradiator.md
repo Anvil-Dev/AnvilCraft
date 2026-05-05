@@ -1,0 +1,36 @@
+---
+navigation:
+  title: "§5中子辐照器"
+  icon: "anvilcraft:neutron_irradiator"
+  parent: anvilcraft_guideme:block.md
+items:
+  - anvilcraft:neutron_irradiator
+---
+
+# 中子辐照器
+
+<row halign="center">
+<item id="anvilcraft:neutron_irradiator"/>
+</row>
+
+<gradient start="#eeeeee" end="#aaddff">负重力与超重力达成了微妙的平衡</gradient>
+
+# 合成
+
+<recipe id="anvilcraft:neutron_irradiator"/>
+
+# 功能
+
+- 搭配炼药锅执行*中子辐照*
+
+# 特性
+
+- 防火防炸防凋零
+
+# 中子辐照
+
+<row halign="center">
+<recipe id="anvilcraft:neutron_irradiation/plutonium_nugget"/>
+</row>
+
+> 如果不小心把[<translate key="block.anvilcraft.uranium_block"/>](../002_material/301_uranium.md)丢进去加工会引发大爆炸

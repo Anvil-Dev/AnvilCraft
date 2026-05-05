@@ -1,0 +1,19 @@
+{
+    DataVersion: 3955,
+    size: [3, 3, 1],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:vault{facing:north,ominous:false,vault_state:inactive}", nbt: {config: {key_item: {count: 1, id: "minecraft:trial_key"}}, id: "minecraft:vault", server_data: {rewarded_players: [[I; 1352608033, 1844921338, -1250103810, -2097243544]], state_updating_resumes_at: 63207L}, shared_data: {}}},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:vault{facing:north,ominous:false,vault_state:inactive}", nbt: {config: {key_item: {count: 1, id: "minecraft:trial_key"}}, id: "minecraft:vault", server_data: {state_updating_resumes_at: 63208L}, shared_data: {}}},
+        {pos: [0, 1, 0], state: "anvilcraft:lead_block"},
+        {pos: [2, 1, 0], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 3, 0], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "anvilcraft:lead_block",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:anvil{facing:west}",
+        "minecraft:vault{facing:north,ominous:false,vault_state:inactive}"
+    ]
+}
