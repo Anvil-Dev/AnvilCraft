@@ -44,6 +44,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -264,8 +266,13 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     }
 
     private static void devourSingleBlockInternalLogic(
-        ServerLevel level, @Nullable Block anvil, BlockPos devourBlockPos, List<BlockPos> filteredBlockPosList,
-        @Nullable List<IItemHandler> itemHandlerList, Vec3 center
+        ServerLevel level,
+        Player player,
+        @Nullable Block anvil,
+        BlockPos devourBlockPos,
+        List<BlockPos> filteredBlockPosList,
+        @Nullable List<ResourceHandler<ItemResource>> itemHandlerList,
+        Vec3 center
     ) {
         AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
         final boolean insertEnabled = itemHandlerList != null && !itemHandlerList.isEmpty();
@@ -306,12 +313,12 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 case TranscendenceAnvilBlock ignore -> BreakBlockUtil.dropFortune5(level, devourBlockPos);
                 case null, default -> BreakBlockUtil.drop(level, devourBlockPos);
             };
-            IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
+            ResourceHandler<ItemResource> source = level.getCapability(Capabilities.Item.BLOCK, devourBlockPos, null);
             boolean skipContentTransfer = source == null;
             for (ItemStack itemStack : dropList) {
                 skipContentTransfer |= ItemHandlerUtil.isEmptyContainer(itemStack);
                 if (insertEnabled) {
-                    for (IItemHandler target : itemHandlerList) {
+                    for (ResourceHandler<ItemResource> target : itemHandlerList) {
                         itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
                     }
                 }

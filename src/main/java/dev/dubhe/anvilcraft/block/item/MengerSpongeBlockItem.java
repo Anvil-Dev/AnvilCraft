@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.item;
 
-import dev.dubhe.anvilcraft.block.ObsidianCauldron;
+import dev.dubhe.anvilcraft.block.ObsidianCauldronBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -22,7 +22,7 @@ public class MengerSpongeBlockItem extends BlockItem {
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof AbstractCauldronBlock abstractCauldronBlock) {
-            if (!(abstractCauldronBlock instanceof ObsidianCauldron)) {
+            if (!(abstractCauldronBlock instanceof ObsidianCauldronBlock)) {
                 level.setBlockAndUpdate(pos, Blocks.CAULDRON.defaultBlockState());
                 return InteractionResult.SUCCESS;
             }

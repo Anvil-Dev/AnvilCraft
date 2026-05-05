@@ -1,38 +1,38 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import lombok.Getter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.List;
 import java.util.Optional;
 
 @Getter
 @SuppressWarnings("unused")
-public class FilteredItemStackHandler extends ItemStackHandler {
-
-    public static final Codec<FilteredItemStackHandler> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-            Codec.BOOL.fieldOf("filterEnabled").forGetter(o -> o.filterEnabled),
-            CodecUtil.createOptionalCodec(ItemStack.CODEC)
-                .listOf()
-                .fieldOf("filteredItems")
-                .forGetter(o -> o.filteredItems.stream()
-                    .map(it -> it.isEmpty() ? Optional.<ItemStack>empty() : Optional.of(it))
-                    .toList()),
-            Codec.BOOL.listOf().fieldOf("disabled").forGetter(o -> o.disabled),
-            Codec.INT.listOf().fieldOf("slotLimits").forGetter(o -> o.slotLimits))
-        .apply(ins, FilteredItemStackHandler::new));
+public class FilteredItemStackHandler extends ItemStacksResourceHandler {
+    public static final MapCodec<FilteredItemStackHandler> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        Codec.BOOL.fieldOf("filterEnabled").forGetter(FilteredItemStackHandler::isFilterEnabled),
+        CodecUtil.createOptionalCodec(ItemStack.CODEC)
+            .listOf()
+            .fieldOf("filteredItems")
+            .forGetter(o -> o.filteredItems.stream()
+                .map(it -> Optional.of(it).filter(ItemStack::isEmpty))
+                .toList()),
+        Codec.BOOL.listOf().fieldOf("disabled").forGetter(FilteredItemStackHandler::getDisabled),
+        Codec.INT.listOf().fieldOf("slotLimits").forGetter(FilteredItemStackHandler::getSlotLimits)
+    ).apply(ins, FilteredItemStackHandler::new));
 
     private boolean filterEnabled = false;
     private NonNullList<ItemStack> filteredItems;
@@ -77,8 +77,8 @@ public class FilteredItemStackHandler extends ItemStackHandler {
         this.filteredItems.clear();
         this.filterEnabled = filterEnabled;
         if (this.filterEnabled) {
-            for (int i = 0; i < this.getSlots(); i++) {
-                ItemStack stack = this.getStackInSlot(i);
+            for (int i = 0; i < this.size(); i++) {
+                ItemStack stack = this.getStackFrom(this.getResource(i), this.getAmountAsInt(i));
                 if (stack.isEmpty()) continue;
                 this.setFilter(i, stack);
             }
@@ -86,17 +86,17 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        if (!this.filterEnabled) return !this.isSlotDisabled(slot);
-        return !this.isSlotDisabled(slot) && this.isFiltered(slot, stack);
+    public boolean isValid(int index, ItemResource resource) {
+        if (!this.filterEnabled) return !this.isSlotDisabled(index);
+        return !this.isSlotDisabled(index) && this.isFiltered(index, resource.toStack());
     }
 
     @Override
-    public void setStackInSlot(int slot, ItemStack stack) {
-        if (!filterEnabled && !stack.isEmpty()) {
-            this.setSlotDisabled(slot, false);
+    public void set(int index, ItemResource resource, int amount) {
+        if (!filterEnabled && !resource.isEmpty()) {
+            this.setSlotDisabled(index, false);
         }
-        super.setStackInSlot(slot, stack);
+        super.set(index, resource, amount);
     }
 
     /**
@@ -106,14 +106,9 @@ public class FilteredItemStackHandler extends ItemStackHandler {
      * @return 指定槽位是否被禁用
      */
     public boolean isSlotDisabled(int slot) {
-        if (!this.filterEnabled) {
-            return this.disabled.get(slot);
-        } else {
-            return this.disabled.get(slot)
-                || (getStackInSlot(slot).isEmpty()
-                && this.filteredItems.get(slot).isEmpty()
-            );
-        }
+        if (!this.filterEnabled) return this.disabled.get(slot);
+        return this.disabled.get(slot)
+            || (this.getResource(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
     }
 
     /**
@@ -210,76 +205,71 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     }
 
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag compoundTag = new CompoundTag();
-        compoundTag.putBoolean("FilterEnabled", this.filterEnabled);
-        ListTag inventory = new ListTag();
-        int slots = this.getSlots();
-        compoundTag.putInt("Size", slots);
+    public void serialize(ValueOutput output) {
+        output.putBoolean("FilterEnabled", this.filterEnabled);
+        int slots = this.size();
+        output.putInt("Size", slots);
+        ValueOutput.ValueOutputList inventory = output.childrenList("");
         for (int slot = 0; slot < slots; slot++) {
-            CompoundTag inventoryEntry = new CompoundTag();
+            ValueOutput inventoryEntry = inventory.addChild();
+
             inventoryEntry.putInt("Slot", slot);
-            ItemStack stack = this.getStackInSlot(slot);
+
+            ItemStack stack = this.getStackFrom(this.getResource(slot), this.getAmountAsInt(slot));
             inventoryEntry.putBoolean("IsEmptySlot", stack.isEmpty());
-            if (!stack.isEmpty()) {
-                Tag itemTag = stack.save(provider);
-                inventoryEntry.put("SlotItem", itemTag);
-            }
+            if (!stack.isEmpty()) inventoryEntry.store("SlotItem", ItemStack.OPTIONAL_CODEC, stack);
 
             ItemStack filtering = this.getFilter(slot);
-
             inventoryEntry.putBoolean("SlotFilterEnabled", !filtering.isEmpty());
             if (!filtering.isEmpty()) {
-                Tag filterItemTag = filtering.save(provider);
-                inventoryEntry.put("SlotFilterItem", filterItemTag);
+                inventoryEntry.store("SlotFilterItem", ItemStack.OPTIONAL_CODEC, stack);
             }
 
             inventoryEntry.putBoolean("Disabled", this.disabled.get(slot));
-            inventoryEntry.putInt("SlotLimit", this.getSlotLimit(slot));
 
-            inventory.add(inventoryEntry);
+            inventoryEntry.putInt("SlotLimit", this.getSlotLimit(slot));
         }
-        compoundTag.put("Inventory", inventory);
-        return compoundTag;
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        if (!tag.contains("Inventory")) return;
-        this.filterEnabled = tag.getBoolean("FilterEnabled");
-        ListTag inventory = (ListTag) tag.get("Inventory");
-        int size = tag.getInt("Size");
-        for (Tag entry : inventory) {
-            CompoundTag inventoryEntry = (CompoundTag) entry;
-            int slot = inventoryEntry.getInt("Slot");
-            boolean isEmptySlot = inventoryEntry.getBoolean("IsEmptySlot");
+    public void deserialize(ValueInput input) {
+        Optional<ValueInput.ValueInputList> inventoryOp = input.childrenList("Inventory");
+        if (inventoryOp.isEmpty()) return;
+        this.filterEnabled = input.getBooleanOr("FilterEnabled", false);
+        ValueInput.ValueInputList inventory = inventoryOp.get();
+        int size = input.getIntOr("Size", -1);
+        if (size < 0) return;
+        for (ValueInput entry : inventory) {
+            int slot = entry.getIntOr("Slot", -1);
+            if (slot < 0) continue;
+
+            boolean isEmptySlot = entry.getBooleanOr("IsEmptySlot", true);
             if (!isEmptySlot) {
-                CompoundTag itemTag = inventoryEntry.getCompound("SlotItem");
-                this.stacks.set(slot, ItemStack.parseOptional(provider, itemTag));
+                entry.read("SlotItem", ItemStack.OPTIONAL_CODEC).ifPresent(stack -> this.stacks.set(slot, stack));
             }
-            boolean slotFilterEnabled = inventoryEntry.getBoolean("SlotFilterEnabled");
+
+            boolean slotFilterEnabled = entry.getBooleanOr("SlotFilterEnabled", false);
             if (slotFilterEnabled) {
-                CompoundTag filterItemTag = inventoryEntry.getCompound("SlotFilterItem");
-                this.filteredItems.set(slot, ItemStack.parseOptional(provider, filterItemTag));
+                entry.read("SlotFilterItem", ItemStack.OPTIONAL_CODEC).ifPresent(stack -> this.filteredItems.set(slot, stack));
             }
-            this.disabled.set(slot, inventoryEntry.getBoolean("Disabled"));
-            if (inventoryEntry.contains("SlotLimit")) {
-                this.slotLimits.set(slot, inventoryEntry.getInt("SlotLimit"));
-            } else {
-                this.slotLimits.set(slot, IFilterBlockEntity.DEFAULT_SLOT_LIMIT);
-            }
+
+            this.disabled.set(slot, entry.getBooleanOr("Disabled", false));
+
+            this.slotLimits.set(slot, entry.getIntOr("SlotLimit", IFilterBlockEntity.DEFAULT_SLOT_LIMIT));
         }
     }
 
-    public CompoundTag serializeFiltering() {
-        return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow();
+    public void serializeFiltering(ValueOutput output) {
+        output.store((CompoundTag) CODEC.codec().encodeStart(NbtOps.INSTANCE, this).getOrThrow());
     }
 
-    public void deserializeFiltering(CompoundTag tag) {
-        FilteredItemStackHandler handler =
-            CODEC.decode(NbtOps.INSTANCE, tag).getOrThrow().getFirst();
-        if (this.getSlots() != handler.getSlots()) throw new IllegalArgumentException("Depository size mismatch");
-        this.filterEnabled = tag.getBoolean("filterEnabled");
+    public void deserializeFiltering(ValueInput input) {
+        @SuppressWarnings("deprecation")
+        Optional<FilteredItemStackHandler> handlerOp = input.read(CODEC);
+        if (handlerOp.isEmpty()) return;
+        FilteredItemStackHandler handler = handlerOp.get();
+        if (this.size() != handler.size()) throw new IllegalArgumentException("Depository size mismatch");
+        this.filterEnabled = input.getBooleanOr("filterEnabled", false);
         int size = handler.filteredItems.size();
         this.filteredItems = NonNullList.of(ItemStack.EMPTY, handler.filteredItems.toArray(new ItemStack[size]));
         this.disabled = handler.disabled;

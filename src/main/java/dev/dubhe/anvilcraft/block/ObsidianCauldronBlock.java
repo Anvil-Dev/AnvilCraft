@@ -9,14 +9,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ObsidianCauldron extends BetterAbstractCauldronBlock implements IHammerRemovable {
-    public ObsidianCauldron(Properties properties) {
+public class ObsidianCauldronBlock extends BetterAbstractCauldronBlock implements IHammerRemovable {
+    public ObsidianCauldronBlock(Properties properties) {
         super(properties, CauldronInteraction.EMPTY);
     }
 
     @Override
     protected MapCodec<? extends AbstractCauldronBlock> codec() {
-        return simpleCodec(ObsidianCauldron::new);
+        return simpleCodec(ObsidianCauldronBlock::new);
     }
 
     @Override

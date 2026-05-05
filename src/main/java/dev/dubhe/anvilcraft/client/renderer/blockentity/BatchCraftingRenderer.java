@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
-public class BatchCraftingBERenderer extends BaseShowItemRenderer<BaseBatchCraftingBlockEntity, BaseShowItemRenderState> {
-    public BatchCraftingBERenderer(BlockEntityRendererProvider.Context context) {
+public class BatchCraftingRenderer extends BaseShowItemRenderer<BaseBatchCraftingBlockEntity, BaseShowItemRenderState> {
+    public BatchCraftingRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 

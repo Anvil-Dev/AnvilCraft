@@ -1,46 +1,62 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class InputRefusingItemHandlerWrapper implements IItemHandler {
-    private final IItemHandler delegate;
+public class InputRefusingItemHandlerWrapper implements ResourceHandler<ItemResource> {
+    private final ResourceHandler<ItemResource> delegate;
 
-    public InputRefusingItemHandlerWrapper(IItemHandler delegate) {
+    public InputRefusingItemHandlerWrapper(ResourceHandler<ItemResource> delegate) {
         this.delegate = delegate;
     }
 
-    @Override
-    public int getSlots() {
-        return delegate.getSlots();
+    public static ResourceHandler<ItemResource> wrap(ResourceHandler<ItemResource> ih) {
+        return new InputRefusingItemHandlerWrapper(ih);
     }
 
     @Override
-    public ItemStack getStackInSlot(int i) {
-        return delegate.getStackInSlot(i);
+    public int size() {
+        return this.delegate.size();
     }
 
     @Override
-    public ItemStack insertItem(int i, ItemStack itemStack, boolean b) {
-        return itemStack;
+    public ItemResource getResource(int index) {
+        return this.delegate.getResource(index);
     }
 
     @Override
-    public ItemStack extractItem(int i, int i1, boolean b) {
-        return delegate.extractItem(i, i1, b);
+    public long getAmountAsLong(int index) {
+        return this.delegate.getAmountAsLong(index);
     }
 
     @Override
-    public int getSlotLimit(int i) {
-        return delegate.getSlotLimit(i);
+    public long getCapacityAsLong(int index, ItemResource resource) {
+        return this.delegate.getCapacityAsLong(index, resource);
     }
 
     @Override
-    public boolean isItemValid(int i, ItemStack itemStack) {
+    public boolean isValid(int index, ItemResource resource) {
         return false;
     }
 
-    public static IItemHandler wrap(IItemHandler ih) {
-        return new InputRefusingItemHandlerWrapper(ih);
+    @Override
+    public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        return 0;
+    }
+
+    @Override
+    public int insert(ItemResource resource, int amount, TransactionContext transaction) {
+        return 0;
+    }
+
+    @Override
+    public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        return this.delegate.extract(index, resource, amount, transaction);
+    }
+
+    @Override
+    public int extract(ItemResource resource, int amount, TransactionContext transaction) {
+        return this.delegate.extract(resource, amount, transaction);
     }
 }

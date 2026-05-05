@@ -87,7 +87,7 @@ import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
-import dev.dubhe.anvilcraft.block.ObsidianCauldron;
+import dev.dubhe.anvilcraft.block.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
@@ -208,7 +208,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
-import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -2822,7 +2821,7 @@ public class ModBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
-    public static final BlockEntry<ObsidianCauldron> OBSIDIAN_CAULDRON = REGISTRUM.block("obsidian_cauldron", ObsidianCauldron::new)
+    public static final BlockEntry<ObsidianCauldronBlock> OBSIDIAN_CAULDRON = REGISTRUM.block("obsidian_cauldron", ObsidianCauldronBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(it -> it.pushReaction(PushReaction.BLOCK))
         .blockstate(DataGenUtil::noExtraModelOrState)

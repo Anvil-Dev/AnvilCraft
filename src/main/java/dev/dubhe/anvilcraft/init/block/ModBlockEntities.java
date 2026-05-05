@@ -59,7 +59,7 @@ import dev.dubhe.anvilcraft.block.entity.nesting.OverNestingShulkerBoxBlockEntit
 import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
@@ -83,12 +83,12 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRUM.blockEntity(
         "batch_crafter",
         BatchCrafterBlockEntity::new
-    ).renderer(() -> BatchCraftingBERenderer::new).validBlock(ModBlocks.BATCH_CRAFTER).register();
+    ).renderer(() -> BatchCraftingRenderer::new).validBlock(ModBlocks.BATCH_CRAFTER).register();
 
     public static final BlockEntityEntry<BatchCutterBlockEntity> BATCH_CUTTER = REGISTRUM.blockEntity(
         "batch_cutter",
         BatchCutterBlockEntity::new
-    ).renderer(() -> BatchCraftingBERenderer::new).validBlock(ModBlocks.BATCH_CUTTER).register();
+    ).renderer(() -> BatchCraftingRenderer::new).validBlock(ModBlocks.BATCH_CUTTER).register();
 
     public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRUM.blockEntity(
         "item_collector",
