@@ -16,6 +16,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -27,6 +28,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +42,12 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
     public ActiveSilencerBlock(Properties properties) {
         super(properties);
         registerDefaultState(getStateDefinition().any().setValue(POWERED, false));
-    }
+    };
+
+    public static VoxelShape SHAPE = Shapes.or(
+        Block.box(0, 0, 0, 16, 8, 16),
+        Block.box(2, 8, 2, 14, 16, 14)
+    );
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
@@ -128,5 +137,14 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
+        return SHAPE;
     }
 }
