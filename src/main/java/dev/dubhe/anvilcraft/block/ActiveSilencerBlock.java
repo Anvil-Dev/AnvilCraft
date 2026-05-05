@@ -44,7 +44,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         registerDefaultState(getStateDefinition().any().setValue(POWERED, false));
     }
 
-    public static VoxelShape SHAPE = Shapes.or(
+    private static final VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 16, 8, 16),
         Block.box(2, 8, 2, 14, 16, 14),
         Block.box(6, 8, 0, 10, 12, 16),
