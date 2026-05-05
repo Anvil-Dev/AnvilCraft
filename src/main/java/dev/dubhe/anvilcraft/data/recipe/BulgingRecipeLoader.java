@@ -44,7 +44,9 @@ public class BulgingRecipeLoader {
 
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
+            .consume(1000)
             .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
+            .produce(1000)
             .requires(ModItems.LIME_POWDER, 4)
             .requires(ModBlocks.CINERITE)
             .save(provider, AnvilCraft.of("bulging/cement_cauldron"));

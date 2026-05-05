@@ -13,7 +13,7 @@ public class PollableItemHandler extends ItemStackHandler {
         return slot == getEmptyOrSmallerSlot(stack);
     }
 
-    private int getEmptyOrSmallerSlot(ItemStack stack) {
+    protected int getEmptyOrSmallerSlot(ItemStack stack) {
         int slotCount = this.getSlots();
         int slot = -1;
         int countInSlot = Integer.MAX_VALUE;

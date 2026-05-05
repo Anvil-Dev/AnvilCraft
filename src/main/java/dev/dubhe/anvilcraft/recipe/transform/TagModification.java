@@ -5,7 +5,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
@@ -170,7 +170,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
         };
 
         public static final Codec<ModifyOperation> CODEC = StringRepresentable.fromEnum(ModifyOperation::values);
-        public static final StreamCodec<RegistryFriendlyByteBuf, ModifyOperation> STREAM_CODEC = CodecUtil.enumStreamCodec(
+        public static final StreamCodec<RegistryFriendlyByteBuf, ModifyOperation> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(
             ModifyOperation.class
         );
 

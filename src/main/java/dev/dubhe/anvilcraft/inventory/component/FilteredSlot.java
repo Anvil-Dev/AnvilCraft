@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory.component;
 
-import dev.anvilcraft.lib.v2.recipe.component.ItemIngredientPredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import lombok.Setter;

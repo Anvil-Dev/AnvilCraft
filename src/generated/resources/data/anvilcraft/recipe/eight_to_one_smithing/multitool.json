@@ -36,42 +36,42 @@
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 0
+          "input": "input.0"
         },
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 1
+          "input": "input.1"
         },
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 2
+          "input": "input.2"
         },
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 3
+          "input": "input.3"
         },
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 4
+          "input": "input.4"
         },
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 5
+          "input": "input.5"
         },
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 6
+          "input": "input.6"
         },
         {
           "type": "anvilcraft:item_enchantments",
           "component": "minecraft:enchantments",
-          "input": 7
+          "input": "input.7"
         }
       ]
     }

@@ -1,11 +1,11 @@
 {
   "type": "anvilcraft:time_warp",
-  "consume": -250,
   "ingredients": [
     {
       "count": 16,
       "items": "#c:foods/raw_mutton"
     }
   ],
+  "produce": 250,
   "transform": "anvilcraft:oil"
 }

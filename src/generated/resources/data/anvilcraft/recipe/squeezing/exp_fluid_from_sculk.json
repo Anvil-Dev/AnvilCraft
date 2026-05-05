@@ -7,10 +7,10 @@
     "inverted": true
   },
   "chance": 0.1,
-  "consume": -250,
   "ingredient": {
     "blocks": "minecraft:sculk"
   },
+  "produce": 250,
   "result": {
     "block": "minecraft:air"
   },

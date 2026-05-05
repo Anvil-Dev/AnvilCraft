@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
+import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
@@ -213,6 +214,16 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EnergyWeaponMakeRecipe>> ENERGY_WEAPON_MAKE_SERIALIZER =
         RECIPE_SERIALIZERS.register("energy_weapon_make", EnergyWeaponMakeRecipe.Serializer::new);
 
+    public static final DeferredHolder<RecipeType<?>, RecipeType<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT =
+        registerType("anvil_collision");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT_SERIALIZER =
+        RECIPE_SERIALIZERS.register("anvil_collision", AnvilCollisionCraftRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<PortalConversionRecipe>> PORTAL_CONVERSION_TYPE =
+        registerType("portal_conversion");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PortalConversionRecipe>> PORTAL_CONVERSION_SERIALIZER =
+        RECIPE_SERIALIZERS.register("portal_conversion", PortalConversionRecipe.Serializer::new);
+
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return RECIPE_TYPES.register(name, () -> new RecipeType<>() {
             @Override
@@ -221,11 +232,6 @@ public class ModRecipeTypes {
             }
         });
     }
-
-    public static final DeferredHolder<RecipeType<?>, RecipeType<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT =
-        registerType("anvil_collision");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT_SERIALIZER =
-        RECIPE_SERIALIZERS.register("anvil_collision", AnvilCollisionCraftRecipe.Serializer::new);
 
     public static void register(IEventBus bus) {
         RECIPE_TYPES.register(bus);

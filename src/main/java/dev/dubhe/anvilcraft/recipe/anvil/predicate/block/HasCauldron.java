@@ -3,9 +3,9 @@ package dev.dubhe.anvilcraft.recipe.anvil.predicate.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
@@ -33,8 +33,9 @@ import java.util.Optional;
  * <p>用于检查指定位置是否存在特定炼药锅的谓词条件，并在配方完成后处理炼药锅中的流体</p>
  *
  * @param fluid     流体ID
- * @param consume   消耗量（负数表示产生）
+ * @param consume   消耗量
  * @param transform 转换后的流体ID
+ * @param produce   产生量
  * @param chance    转换成功的概率
  */
 public record HasCauldron(
@@ -42,6 +43,7 @@ public record HasCauldron(
     ResourceLocation fluid,
     int consume,
     ResourceLocation transform,
+    int produce,
     float chance
 ) implements IRecipePredicate<HasCauldron> {
     /**
@@ -61,6 +63,7 @@ public record HasCauldron(
      * @param fluid     流体ID
      * @param consume   消耗量
      * @param transform 转换后的流体ID
+     * @param produce   产生量
      * @param chance    转换成功的概率
      */
     public HasCauldron {
@@ -73,7 +76,7 @@ public record HasCauldron(
      * @return HasCauldron实例
      */
     public static HasCauldron empty(Vec3 offset) {
-        return new HasCauldron(offset, EMPTY, 0, NULL, 1.0f);
+        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0f);
     }
 
     @Override
@@ -107,9 +110,10 @@ public record HasCauldron(
                 Tuple<IntegerProperty, Integer> fluidLevel = optionalCur.get();
                 int currentLevel = fluidLevel.getB();
                 IntegerProperty maxLevel = fluidLevel.getA();
-                if (HasCauldron.layer2Mb(maxLevel, currentLevel) < this.consume) return false;
-                // 如果要产生流体，而之前的流体不被消耗完 否决
-                if (HasCauldron.isNotEmpty(this.transform()) && HasCauldron.layer2Mb(maxLevel, currentLevel) > this.consume) return false;
+                int currentMb = HasCauldron.layer2Mb(maxLevel, currentLevel);
+                if (currentMb < this.consume) return false;
+                // 如果要产生流体，而之前的流体不被消耗完 否决（需要完全消耗源流体以便替换为目标流体）
+                if (HasCauldron.isNotEmpty(this.transform()) && currentMb != this.consume) return false;
                 // 因为产生了不同的流体，因此不用进行剩余容量是否存在的判断
             }
             // 不消耗流体
@@ -128,7 +132,14 @@ public record HasCauldron(
                     int max = optionalTarget.map(tuple -> tuple.getA().max).orElse(0);
                     Optional<Tuple<IntegerProperty, Integer>> optionalCur = HasCauldron.getFluidLevel(curState);
                     int cur = optionalCur.map(Tuple::getB).orElse(0);
-                    if (cur >= max) return false;
+                    // 当存在 produce 时，要求当前已有量 + produce 不超过最大层数
+                    if (this.produce > 0) {
+                        int targetMaxMb = optionalTarget.map(tuple -> HasCauldron.layer2Mb(tuple.getA(), tuple.getA().max)).orElse(1000);
+                        int curMb = optionalCur.map(tuple -> HasCauldron.layer2Mb(tuple.getA(), tuple.getB())).orElse(0);
+                        if (curMb + this.produce > targetMaxMb) return false;
+                    } else {
+                        if (cur >= max) return false;
+                    }
                 }
             }
         }
@@ -145,31 +156,71 @@ public record HasCauldron(
         Block emptyCauldron = Blocks.CAULDRON;
         Block fluidCauldron = this.getFluidCauldron();
         Block transformCauldron = this.getTransformCauldron();
-        Block targetCauldron = HasCauldron.isNotEmpty(this.transform()) ? transformCauldron : fluidCauldron;
-        BlockState targetState = targetCauldron.defaultBlockState();
-        Optional<Tuple<IntegerProperty, Integer>> optionalCur = HasCauldron.getFluidLevel(curState);
-        Optional<Tuple<IntegerProperty, Integer>> optionalTarget = HasCauldron.getFluidLevel(targetState);
-        int cur;
-        if (!curState.is(emptyCauldron) && (curState.is(fluidCauldron) || curState.is(transformCauldron))) {
-            cur = HasCauldron.layer2Mb(
-                optionalCur.map(Tuple::getA).orElse(IntegerProperty.create("level", 0, 1)),
-                optionalCur.map(Tuple::getB).orElse(1)
+        // 计算源流体和目标流体的当前毫升数（mB）
+        Optional<Tuple<IntegerProperty, Integer>> optionalCurSource = HasCauldron.getFluidLevel(curState);
+        int sourceMb = 0;
+        if (curState.is(fluidCauldron) && !curState.is(emptyCauldron)) {
+            sourceMb = HasCauldron.layer2Mb(
+                optionalCurSource.map(Tuple::getA).orElse(IntegerProperty.create("level", 0, 1)),
+                optionalCurSource.map(Tuple::getB).orElse(1)
             );
-        } else {
-            cur = 0;
         }
-        int target = cur - this.consume();
-        if (target <= 0) {
-            targetState = emptyCauldron.defaultBlockState();
+        int targetCurMb = 0;
+        Optional<Tuple<IntegerProperty, Integer>> optionalCurTarget;
+        if (curState.is(transformCauldron) && !curState.is(emptyCauldron)) {
+            optionalCurTarget = HasCauldron.getFluidLevel(curState);
+            targetCurMb = HasCauldron.layer2Mb(
+                optionalCurTarget.map(Tuple::getA).orElse(IntegerProperty.create("level", 0, 1)),
+                optionalCurTarget.map(Tuple::getB).orElse(1)
+            );
+        }
+
+        int remainingSourceMb = Math.max(0, sourceMb - Math.max(0, this.consume));
+        int producedMb = Math.max(0, this.produce);
+
+        // 决定最终状态：优先显示 transform（目标流体）如果有产生量或已有目标量
+        BlockState resultState = emptyCauldron.defaultBlockState();
+        if (HasCauldron.isNotEmpty(this.transform())) {
+            // 计算目标锅默认的层级信息
+            BlockState defaultTarget = transformCauldron.defaultBlockState();
+            Optional<Tuple<IntegerProperty, Integer>> optionalTarget = HasCauldron.getFluidLevel(defaultTarget);
+            int targetMaxMb = optionalTarget.map(tuple -> HasCauldron.layer2Mb(tuple.getA(), tuple.getA().max)).orElse(1000);
+            int finalTargetMb = Math.min(targetMaxMb, targetCurMb + producedMb);
+
+            if (finalTargetMb > 0) {
+                resultState = transformCauldron.defaultBlockState();
+                if (optionalTarget.isPresent()) {
+                    IntegerProperty prop = optionalTarget.get().getA();
+                    int layer = HasCauldron.mb2Layer(prop, Math.clamp(finalTargetMb, 1, HasCauldron.layer2Mb(prop, prop.max)));
+                    resultState = resultState.setValue(prop, layer);
+                }
+            } else if (remainingSourceMb > 0) {
+                // 没有目标流体，但还有剩余源流体，则保留源流体
+                BlockState defaultSource = fluidCauldron.defaultBlockState();
+                Optional<Tuple<IntegerProperty, Integer>> optSourceProp = HasCauldron.getFluidLevel(defaultSource);
+                resultState = fluidCauldron.defaultBlockState();
+                if (optSourceProp.isPresent()) {
+                    IntegerProperty prop = optSourceProp.get().getA();
+                    int layer = HasCauldron.mb2Layer(prop, Math.clamp(remainingSourceMb, 1, HasCauldron.layer2Mb(prop, prop.max)));
+                    resultState = resultState.setValue(prop, layer);
+                }
+            }
         } else {
-            IntegerProperty property = optionalTarget.map(Tuple::getA).orElse(IntegerProperty.create("level", 0, 1));
-            Integer max = optionalTarget.map(tuple -> tuple.getA().max).orElse(1);
-            target = HasCauldron.mb2Layer(property, Math.clamp(target, 1, HasCauldron.layer2Mb(property, max)));
-            if (optionalTarget.isPresent()) {
-                targetState = targetState.setValue(property, target);
+            // 没有 transform，结果保持为源流体的减少/增加后的状态
+            int finalSourceMb = Math.max(0, sourceMb - Math.max(0, this.consume) + Math.max(0, this.produce));
+            if (finalSourceMb > 0) {
+                BlockState defaultSource = fluidCauldron.defaultBlockState();
+                Optional<Tuple<IntegerProperty, Integer>> optSourceProp = HasCauldron.getFluidLevel(defaultSource);
+                resultState = fluidCauldron.defaultBlockState();
+                if (optSourceProp.isPresent()) {
+                    IntegerProperty prop = optSourceProp.get().getA();
+                    int layer = HasCauldron.mb2Layer(prop, Math.clamp(finalSourceMb, 1, HasCauldron.layer2Mb(prop, prop.max)));
+                    resultState = resultState.setValue(prop, layer);
+                }
             }
         }
-        cache.setBlock(blockPos, targetState);
+
+        cache.setBlock(blockPos, resultState);
         context.putAcceptor(BlockCache.BLOCK_CACHE.location(), BlockCache.DEFAULT_ACCEPTOR);
     }
 
@@ -268,6 +319,9 @@ public record HasCauldron(
                 ResourceLocation.CODEC
                     .optionalFieldOf("transform", NULL)
                     .forGetter(HasCauldron::transform),
+                Codec.INT
+                    .optionalFieldOf("produce", 0)
+                    .forGetter(HasCauldron::produce),
                 Codec.FLOAT
                     .optionalFieldOf("chance", 1.0f)
                     .forGetter(HasCauldron::chance)
@@ -278,7 +332,7 @@ public record HasCauldron(
          * 流编解码器
          */
         public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = StreamCodec.composite(
-            CodecUtil.VEC3_STREAM_CODEC,
+            StreamCodecUtil.VEC3,
             HasCauldron::offset,
             ResourceLocation.STREAM_CODEC,
             HasCauldron::fluid,
@@ -286,6 +340,8 @@ public record HasCauldron(
             HasCauldron::consume,
             ResourceLocation.STREAM_CODEC,
             HasCauldron::transform,
+            ByteBufCodecs.INT,
+            HasCauldron::produce,
             ByteBufCodecs.FLOAT,
             HasCauldron::chance,
             HasCauldron::new
@@ -310,6 +366,7 @@ public record HasCauldron(
         private ResourceLocation fluid = HasCauldron.EMPTY;
         private int consume = 0;
         private ResourceLocation transform = HasCauldron.NULL;
+        private int produce = 0;
         private float chance = 1;
 
         /**
@@ -434,7 +491,7 @@ public record HasCauldron(
          * @return 构建器实例
          */
         public Builder produce(int produce) {
-            this.consume = -produce;
+            this.produce = produce;
             return this;
         }
 
@@ -455,7 +512,7 @@ public record HasCauldron(
          * @return HasCauldron实例
          */
         public HasCauldron build() {
-            return new HasCauldron(this.offset, this.fluid, this.consume, this.transform, this.chance);
+            return new HasCauldron(this.offset, this.fluid, this.consume, this.transform, this.produce, this.chance);
         }
     }
 }

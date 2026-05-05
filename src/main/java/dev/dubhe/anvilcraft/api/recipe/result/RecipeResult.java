@@ -6,7 +6,8 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.ApplyData;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.ChangeDataType;
@@ -32,7 +33,7 @@ import java.util.List;
 
 public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modifiers) {
     public static final MapCodec<RecipeResult> DIRECT_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        CodecUtil.ITEM_CODEC
+        CodecUtil.ITEM
             .fieldOf("result")
             .forGetter(RecipeResult::result),
         IResultModifier.CODEC
@@ -40,13 +41,13 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
             .optionalFieldOf("modifiers", List.of())
             .forGetter(RecipeResult::modifiers)
     ).apply(ins, RecipeResult::new));
-    public static final Codec<RecipeResult> INLINE_CODEC = CodecUtil.ITEM_CODEC.xmap(RecipeResult::new, RecipeResult::result);
+    public static final Codec<RecipeResult> INLINE_CODEC = CodecUtil.ITEM.xmap(RecipeResult::new, RecipeResult::result);
     public static final Codec<RecipeResult> CODEC = Codec.either(RecipeResult.DIRECT_CODEC.codec(), RecipeResult.INLINE_CODEC).xmap(
         Either::unwrap,
         result -> result.modifiers.isEmpty() ? Either.right(result) : Either.left(result)
     );
     public static final MapCodec<List<RecipeResult>> LIST_DIRECT_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        CodecUtil.ITEM_CODEC
+        CodecUtil.ITEM
             .listOf()
             .fieldOf("items")
             .forGetter(items -> Lists.transform(items, RecipeResult::result)),
@@ -70,7 +71,7 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
             }
         );
     public static final StreamCodec<RegistryFriendlyByteBuf, RecipeResult> STREAM_CODEC = StreamCodec.composite(
-        CodecUtil.ITEM_STREAM_CODEC,
+        StreamCodecUtil.ITEM,
         RecipeResult::result,
         IResultModifier.STREAM_CODEC.apply(ByteBufCodecs.list()),
         RecipeResult::modifiers,

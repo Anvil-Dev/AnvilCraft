@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
@@ -113,9 +113,14 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     public static class Serializer implements RecipeSerializer<JewelCraftingRecipe> {
 
         private static final MapCodec<JewelCraftingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            ICondition.LIST_CODEC.optionalFieldOf("neoforge:conditions", new ArrayList<>()).forGetter(JewelCraftingRecipe::getConditions),
-            CodecUtil.createIngredientListCodec("ingredients", 256, "jewel_crafting").forGetter(JewelCraftingRecipe::getIngredients),
-            ItemStack.CODEC.fieldOf("result").forGetter(JewelCraftingRecipe::getResult)
+            ICondition.LIST_CODEC
+                .optionalFieldOf("neoforge:conditions", new ArrayList<>())
+                .forGetter(JewelCraftingRecipe::getConditions),
+            CodecUtil.createIngredientListCodec("ingredients", 256, "jewel_crafting")
+                .forGetter(JewelCraftingRecipe::getIngredients),
+            ItemStack.CODEC
+                .fieldOf("result")
+                .forGetter(JewelCraftingRecipe::getResult)
         ).apply(ins, JewelCraftingRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> STREAM_CODEC = StreamCodec.of(

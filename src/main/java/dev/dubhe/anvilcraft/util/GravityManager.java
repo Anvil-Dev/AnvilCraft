@@ -67,15 +67,6 @@ public class GravityManager {
         }
     }
 
-    // 特殊物质定义不同引力类型
-    public enum GravityType {
-        NORMAL, // 正常重力 1
-        ANTI_GRAVITY, // 反转重力 -1
-        MICRO_ANTI_GRAVITY, // 略有失重感 -0.005
-        LOW_GRAVITY // 低重力 0.5
-
-    }
-
     public static GravityType getGravityType(Entity entity) {
         if (entity instanceof ItemEntity itemEntity) {
             var item = itemEntity.getItem();
@@ -124,16 +115,8 @@ public class GravityManager {
             return Vec3.ZERO;
         }
 
-        // 获取实体引力类型
-        GravityType type = getGravityType(entity);
-
-        // 根据类型修正向量方向/大小
-        return switch (type) {
-            case ANTI_GRAVITY -> gravityVector.reverse();
-            case MICRO_ANTI_GRAVITY -> gravityVector.scale(-0.005);
-            case LOW_GRAVITY -> gravityVector.scale(0.5);
-            default -> gravityVector;
-        };
+        // 根据实体引力类型修正向量方向/大小
+        return gravityVector.scale(GravityManager.getGravityType(entity).getScalar());
     }
 
     // 得到含维度的总体重力向量（仅用于下落方块方块）

@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.api.heat.collector;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
-import dev.dubhe.anvilcraft.util.Util;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap;
 import net.minecraft.ChatFormatting;

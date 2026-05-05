@@ -1,6 +1,5 @@
 {
   "type": "anvilcraft:super_heating",
-  "consume": -1000,
   "ingredients": [
     {
       "count": 4,
@@ -10,5 +9,6 @@
       "items": "anvilcraft:lime_powder"
     }
   ],
+  "produce": 1000,
   "transform": "minecraft:lava"
 }

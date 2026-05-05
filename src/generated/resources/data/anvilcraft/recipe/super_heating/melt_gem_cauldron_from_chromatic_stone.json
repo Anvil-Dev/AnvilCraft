@@ -1,10 +1,10 @@
 {
   "type": "anvilcraft:super_heating",
-  "consume": -1000,
   "ingredients": [
     {
       "items": "anvilcraft:chromatic_stone"
     }
   ],
+  "produce": 1000,
   "transform": "anvilcraft:melt_gem"
 }

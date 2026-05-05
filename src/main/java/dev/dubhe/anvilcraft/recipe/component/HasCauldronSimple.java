@@ -17,17 +17,19 @@ import net.minecraft.world.phys.Vec3;
  * <p>该类用于定义配方中对炼药锅的要求，包括所需流体、消耗量和转换后的流体</p>
  *
  * @param fluid     流体ID
- * @param consume   消耗量（负数表示产生）
+ * @param consume   消耗量
  * @param transform 转换后的流体ID
+ * @param produce   产生量
  * @param chance    转换成功的概率
  */
-public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLocation transform, float chance) {
+public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLocation transform, int produce, float chance) {
     /**
      * 构造一个简单的炼药锅条件
      *
      * @param fluid     流体ID
      * @param consume   消耗量
      * @param transform 转换后的流体ID
+     * @param produce   产生量
      * @param chance    转换成功的概率
      */
     public HasCauldronSimple {
@@ -47,6 +49,9 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
             ResourceLocation.CODEC
                 .optionalFieldOf("transform", HasCauldron.NULL)
                 .forGetter(HasCauldronSimple::transform),
+            Codec.INT
+                .optionalFieldOf("produce", 0)
+                .forGetter(HasCauldronSimple::produce),
             Codec.FLOAT
                 .optionalFieldOf("chance", 1.0f)
                 .forGetter(HasCauldronSimple::chance)
@@ -60,7 +65,7 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
      * @return HasCauldron谓词
      */
     public HasCauldron toHasCauldron(Vec3 offset) {
-        return new HasCauldron(offset, fluid, consume, transform, chance);
+        return new HasCauldron(offset, fluid, consume, transform, produce, chance);
     }
 
     /**
@@ -91,6 +96,8 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
         HasCauldronSimple::consume,
         ResourceLocation.STREAM_CODEC,
         HasCauldronSimple::transform,
+        ByteBufCodecs.INT,
+        HasCauldronSimple::produce,
         ByteBufCodecs.FLOAT,
         HasCauldronSimple::chance,
         HasCauldronSimple::new
@@ -122,6 +129,7 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
         private ResourceLocation fluid = HasCauldron.EMPTY;
         private int consume = 0;
         private ResourceLocation transform = HasCauldron.NULL;
+        private int produce = 0;
         private float chance = 1f;
 
         /**
@@ -179,6 +187,17 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
         }
 
         /**
+         * 设置产生量
+         *
+         * @param produce 产生量
+         * @return 构建器实例
+         */
+        public Builder produce(int produce) {
+            this.produce = produce;
+            return this;
+        }
+
+        /**
          * 设置转换成功的概率
          *
          * @param chance 转换成功的概率
@@ -195,7 +214,7 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
          * @return HasCauldronSimple实例
          */
         public HasCauldronSimple build() {
-            return new HasCauldronSimple(fluid, consume, transform, chance);
+            return new HasCauldronSimple(fluid, consume, transform, produce, chance);
         }
     }
 }

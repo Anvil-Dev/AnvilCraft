@@ -3,12 +3,12 @@ package dev.dubhe.anvilcraft.recipe.anvil;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.component.ChanceItemStack;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.util.CollectionUtil;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
-import dev.dubhe.anvilcraft.util.CollectionUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Getter;
@@ -146,8 +146,8 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
     }
 
     public static class Builder extends AbstractRecipeBuilder<StampingUniqueItemsRecipe> {
-        protected NonNullList<Ingredient> ingredients = NonNullList.create();
-        protected List<ChanceItemStack> results = new ArrayList<>();
+        protected final NonNullList<Ingredient> ingredients = NonNullList.create();
+        protected final List<ChanceItemStack> results = new ArrayList<>();
         @Getter
         protected boolean generated = false;
 
