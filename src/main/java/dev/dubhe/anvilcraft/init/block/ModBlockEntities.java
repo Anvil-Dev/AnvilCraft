@@ -60,7 +60,7 @@ import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxB
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
@@ -358,7 +358,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilBlockEntity> CELESTIAL_FORGING_ANVIL = REGISTRUM
         .blockEntity("celestial_forging_anvil", CelestialForgingAnvilBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL)
-        .renderer(() -> CelestialForgingAnvilBlockEntityRenderer::new)
+        .renderer(() -> CFARenderer::new)
         .register();
 
     public static final BlockEntityEntry<FishTankBlockEntity> FISH_TANK = REGISTRUM

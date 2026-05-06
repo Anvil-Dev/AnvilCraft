@@ -1,19 +1,22 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PowerGeneratorRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.ModelIdentifier;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
-public class CreativeGeneratorRenderer extends PowerProducerRenderer<CreativeGeneratorBlockEntity> {
-    public static final ModelIdentifier MODEL = ModelIdentifier.standalone(
-        AnvilCraft.of("block/creative_generator_cube")
+public class CreativeGeneratorRenderer extends PowerProducerRenderer<CreativeGeneratorBlockEntity, PowerGeneratorRenderState> {
+    public static final StandaloneModelKey<BlockStateModel> CUBE = new StandaloneModelKey<>(
+        () -> "AnvilCraft: Creative Generator Cube Model"
     );
 
-    /**
-     * 创造发电机渲染
-     */
-    public CreativeGeneratorRenderer(BlockEntityRendererProvider.Context context) {
+    public CreativeGeneratorRenderer(BlockEntityRendererProvider.Context ignored) {
+    }
+
+    @Override
+    public PowerGeneratorRenderState createRenderState() {
+        return new PowerGeneratorRenderState();
     }
 
     @Override
@@ -22,7 +25,7 @@ public class CreativeGeneratorRenderer extends PowerProducerRenderer<CreativeGen
     }
 
     @Override
-    protected ModelIdentifier getModel() {
-        return MODEL;
+    protected StandaloneModelKey<BlockStateModel> getModel() {
+        return CUBE;
     }
 }

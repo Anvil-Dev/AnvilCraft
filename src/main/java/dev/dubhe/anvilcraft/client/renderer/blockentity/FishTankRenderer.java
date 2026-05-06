@@ -6,9 +6,8 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.client.event.ClientTickRecorder;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FishTankRenderState;
-import net.minecraft.client.Minecraft;
+import dev.dubhe.anvilcraft.client.support.BlockEntityRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
@@ -21,7 +20,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
@@ -65,20 +63,12 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
     ) {
         super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         state.setIgnited(be.isIgnited());
-        Minecraft mc = Minecraft.getInstance();
         for (ItemStack stack : ItemHandlerUtil.getNonEmptyItemsFromHandler(be.getItemHandler())) {
             ItemClusterRenderState cluster = new ItemClusterRenderState();
             cluster.extractItemGroupRenderState(null, stack, this.resolver);
             state.getStacks().put(stack, cluster);
         }
-        state.setFire(new BlockModelRenderState());
-        mc.getModelManager().getStandaloneModel(FishTankRenderer.FIRE).collectParts(
-            mc.level,
-            be.getBlockPos(),
-            be.getBlockState(),
-            RandomSource.create(),
-            state.getFire().setupModel(new Matrix4f(), false)
-        );
+        state.setFire(BlockEntityRendererSupport.initialize(FishTankRenderer.FIRE, be));
     }
 
     @Override
