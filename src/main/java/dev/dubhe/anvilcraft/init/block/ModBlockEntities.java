@@ -66,12 +66,12 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
@@ -352,7 +352,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<LargeFluidTankBlockEntity> LARGE_FLUID_TANK = REGISTRUM
         .blockEntity("large_fluid_tank", LargeFluidTankBlockEntity::new)
         .validBlocks(ModBlocks.LARGE_FLUID_TANK)
-        .renderer(() -> LargeFluidTankBlockEntityRenderer::new)
+        .renderer(() -> LargeFluidTankRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilBlockEntity> CELESTIAL_FORGING_ANVIL = REGISTRUM
@@ -364,7 +364,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<FishTankBlockEntity> FISH_TANK = REGISTRUM
         .blockEntity("fish_tank", FishTankBlockEntity::new)
         .validBlocks(ModBlocks.FISH_TANK)
-        .renderer(() -> FishTankBlockEntityRenderer::new)
+        .renderer(() -> FishTankRenderer::new)
         .register();
 
     public static void register() {

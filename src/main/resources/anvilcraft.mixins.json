@@ -93,6 +93,7 @@
     "MouseHandlerMixin",
     "SectionCompilerMixin",
     "SoundEngineMixin",
+    "accessor.FluidStateModelSetAccessor",
     "accessor.MultiPlayerGameModeAccessor",
     "accessor.ScreenAccessor",
     "compat.EmbChunkBuilderMeshingTaskMixin",

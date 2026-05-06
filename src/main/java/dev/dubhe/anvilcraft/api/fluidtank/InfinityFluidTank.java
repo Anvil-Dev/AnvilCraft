@@ -1,82 +1,109 @@
 package dev.dubhe.anvilcraft.api.fluidtank;
 
+import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import java.util.function.Predicate;
-
-public class InfinityFluidTank extends FluidTank {
-    @Setter
-    @Getter
-    private boolean isInfinity;
-
-    public InfinityFluidTank(int capacity, Predicate<FluidStack> validator) {
-        this(capacity, validator, true);
-    }
-
-    public InfinityFluidTank(int capacity, Predicate<FluidStack> validator, boolean isInfinity) {
-        super(capacity, validator);
-        this.isInfinity = isInfinity;
-    }
+@Getter
+@Setter
+public class InfinityFluidTank extends FluidStacksResourceHandler {
+    private boolean infinity;
 
     public InfinityFluidTank(int capacity) {
-        this(capacity, true);
+        this(1, capacity, false);
     }
 
-    public InfinityFluidTank(int capacity, boolean isInfinity) {
-        super(capacity);
-        this.isInfinity = isInfinity;
+    public InfinityFluidTank(int capacity, boolean infinity) {
+        this(1, capacity, infinity);
     }
 
-    public FluidTank readFromNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
-        super.readFromNBT(lookupProvider, nbt);
-        this.isInfinity = nbt.getBoolean("Infinity");
-        return this;
+    public InfinityFluidTank(int size, int capacity, boolean infinity) {
+        super(size, capacity);
+        this.infinity = infinity;
     }
 
-    public CompoundTag writeToNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
-        super.writeToNBT(lookupProvider, nbt);
-        nbt.putBoolean("Infinity", this.isInfinity);
-        return nbt;
+    public InfinityFluidTank(NonNullList<FluidStack> stacks, int capacity, boolean infinity) {
+        super(stacks, capacity);
+        this.infinity = infinity;
     }
 
     @Override
-    public FluidTank setCapacity(int capacity) {
-        super.setCapacity(capacity);
-        if (this.isInfinity && !this.fluid.isEmpty()) this.fluid.setAmount(this.capacity);
-        return this;
+    protected int getCapacity(int index, FluidResource resource) {
+        if (this.isInfinity()) return Integer.MAX_VALUE;
+        return super.getCapacity(index, resource);
     }
 
-    @Override
-    public int fill(FluidStack resource, IFluidHandler.FluidAction action) {
-        if (!this.isInfinity) return super.fill(resource, action);
-
-        if (resource.isEmpty() || !this.isFluidValid(resource)) return 0;
-
-        if (!this.fluid.isEmpty() && !FluidStack.isSameFluidSameComponents(this.fluid, resource)) return 0;
-
-        if (!action.simulate() && this.fluid.isEmpty()) {
-            this.fluid = resource.copyWithAmount(this.capacity);
-            this.onContentsChanged();
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+        for (int i = 0; i < this.size(); i++) {
+            FluidResource resource = this.getResource(i);
+            if (this.infinity && !resource.isEmpty()) {
+                this.stacks.set(i, this.getStackFrom(resource, capacity));
+            }
         }
-        return resource.getAmount();
-
     }
 
     @Override
-    public FluidStack drain(int maxDrain, IFluidHandler.FluidAction action) {
-        if (!this.isInfinity) return super.drain(maxDrain, action);
+    public int extract(FluidResource resource, int amount, TransactionContext transaction) {
+        if (!this.infinity) return super.extract(resource, amount, transaction);
 
-        return this.isEmpty() ? FluidStack.EMPTY : this.fluid.copyWithAmount(maxDrain);
+        for (int i = 0; i < this.size(); i++) {
+            int extracted = this.extract(i, resource, amount, transaction);
+            if (extracted == amount) return amount;
+        }
+        return 0;
     }
 
     @Override
-    public int getSpace() {
-        return isInfinity ? Integer.MAX_VALUE : super.getSpace();
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        if (!this.infinity) return super.extract(index, resource, amount, transaction);
+
+        return this.getResource(index).isEmpty() ? 0 : amount;
+    }
+
+    @Override
+    public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+        if (!this.infinity) return super.insert(resource, amount, transaction);
+
+        for (int i = 0; i < this.size(); i++) {
+            int inserted = this.insert(i, resource, amount, transaction);
+            if (inserted == amount) return amount;
+        }
+        return 0;
+    }
+
+    @Override
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        if (!this.infinity) return super.insert(index, resource, amount, transaction);
+
+        if (resource.isEmpty() || !this.isValid(index, resource)) return 0;
+
+        FluidResource resourceIn = this.getResource(0);
+        if (!resourceIn.isEmpty() && !resourceIn.equals(resource)) return 0;
+
+        if (resourceIn.isEmpty()) {
+            ((StacksResourceHandlerAccessor) this).getSnapshotJournals().get(index).updateSnapshots(transaction);
+            this.stacks.set(index, this.getStackFrom(resource, this.getCapacity(index, resource)));
+        }
+        return amount;
+    }
+
+    @Override
+    public void serialize(ValueOutput output) {
+        super.serialize(output);
+        output.putBoolean("Infinity", this.infinity);
+    }
+
+    @Override
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+        this.infinity = input.getBooleanOr("Infinity", false);
     }
 }

@@ -18,67 +18,50 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import dev.dubhe.anvilcraft.mixin.accessor.FluidStateModelSetAccessor;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.block.FluidStateModelSet;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import org.joml.Vector3f;
 
 public final class FluidRenderHelper {
     public static final FluidRenderHelper INSTANCE = new FluidRenderHelper();
 
-    public void renderFluidBox(
-        FluidStack fluid,
-        float minX,
-        float minY,
-        float minZ,
-        float maxX,
-        float maxY,
-        float maxZ,
-        MultiBufferSource buffer,
-        PoseStack ms,
-        int light,
-        boolean renderBottom,
-        boolean invertGasses
-    ) {
-        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, getFluidBuilder(buffer), ms, light, renderBottom, invertGasses);
+    public static FluidModel getModel(FluidStateModelSet set, Fluid fluid) {
+        FluidStateModelSetAccessor accessor = (FluidStateModelSetAccessor) set;
+        return accessor.getModelByFluid().getOrDefault(fluid, accessor.getMissingModel());
     }
 
     public void renderFluidBox(
-        FluidStack fluid,
+        TextureAtlasSprite sprite,
+        FluidResource fluid,
         float minX,
         float minY,
         float minZ,
         float maxX,
         float maxY,
         float maxZ,
+        int color,
         VertexConsumer builder,
-        PoseStack ms,
+        PoseStack.Pose pose,
         int light,
         boolean renderBottom,
         boolean invertGasses
     ) {
-        var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
-        final TextureAtlasSprite fluidTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-            .apply(renderProps.getStillTexture(fluid));
-        final int color = renderProps.getTintColor(fluid);
-
         int blockLightIn = (light >> 4) & 0xF;
         int luminosity = Math.max(blockLightIn, fluid.getFluidType().getLightLevel());
         light = (light & 0xF00000) | luminosity << 4;
 
-        Vec3 center = new Vec3(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2, minZ + (maxZ - minZ) / 2);
-        ms.pushPose();
+        Vector3f center = new Vector3f(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2, minZ + (maxZ - minZ) / 2);
         if (invertGasses && fluid.getFluidType().isLighterThanAir()) {
-            ms.translate(center.x, center.y, center.z);
-            ms.mulPose(Axis.XP.rotationDegrees(180));
-            ms.translate(-center.x, -center.y, -center.z);
+            pose.translate(center.x, center.y, center.z);
+            pose.rotate(Axis.XP.rotationDegrees(180));
+            pose.translate(-center.x, -center.y, -center.z);
         }
 
         for (Direction side : Direction.values()) {
@@ -90,46 +73,51 @@ public final class FluidRenderHelper {
                 if (side.getAxis() == Direction.Axis.X) {
                     renderStillTiledFace(
                         side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
-                        builder, ms, light, color, fluidTexture
+                        builder, pose, light, color, sprite
                     );
                 } else {
                     renderStillTiledFace(
                         side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
-                        builder, ms, light, color, fluidTexture
+                        builder, pose, light, color, sprite
                     );
                 }
             } else {
                 renderStillTiledFace(
                     side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
-                    builder, ms, light, color, fluidTexture
+                    builder, pose, light, color, sprite
                 );
             }
         }
-
-        ms.popPose();
-    }
-
-    public static VertexConsumer getFluidBuilder(MultiBufferSource buffer) {
-        return buffer.getBuffer(RenderType.TRANSLUCENT);
     }
 
     public static void renderStillTiledFace(
         Direction dir, float left, float down, float right, float up,
-        float depth, VertexConsumer builder, PoseStack ms, int light, int color, TextureAtlasSprite texture
+        float depth, VertexConsumer builder, PoseStack.Pose pose, int light, int color, TextureAtlasSprite texture
     ) {
-        renderTiledFace(dir, left, down, right, up, depth, builder, ms, light, color, texture, 1);
+        renderTiledFace(dir, left, down, right, up, depth, builder, pose, light, color, texture, 1);
     }
 
     public static void renderTiledFace(
-        Direction dir, float left, float down, float right, float up,
-        float depth, VertexConsumer builder, PoseStack ms, int light, int color, TextureAtlasSprite texture,
+        Direction dir,
+        float left,
+        float down,
+        float right,
+        float up,
+        float depth,
+        VertexConsumer builder,
+        PoseStack.Pose pose,
+        int light,
+        int color,
+        TextureAtlasSprite texture,
         float textureScale
     ) {
         boolean positive = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE;
         boolean horizontal = dir.getAxis().isHorizontal();
         boolean x = dir.getAxis() == Direction.Axis.X;
 
-        float shrink = texture.uvShrinkRatio() * 0.25F * textureScale;
+        float widthSize = (float) texture.contents().width() / (texture.getU1() - texture.getU0());
+        float heightSize = (float) texture.contents().height() / (texture.getV1() - texture.getV0());
+        float shrink = 4.0F / Math.max(heightSize, widthSize) * 0.25F * textureScale;
         float centerU = texture.getU0() + (texture.getU1() - texture.getU0()) * 0.5F * textureScale;
         float centerV = texture.getV0() + (texture.getV1() - texture.getV0()) * 0.5F * textureScale;
 
@@ -169,44 +157,42 @@ public final class FluidRenderHelper {
 
                 if (horizontal) {
                     if (x) {
-                        putVertex(builder, ms, depth, y2, positive ? x2 : x1, color, u1, v1, dir, light);
-                        putVertex(builder, ms, depth, y1, positive ? x2 : x1, color, u1, v2, dir, light);
-                        putVertex(builder, ms, depth, y1, positive ? x1 : x2, color, u2, v2, dir, light);
-                        putVertex(builder, ms, depth, y2, positive ? x1 : x2, color, u2, v1, dir, light);
+                        putVertex(builder, pose, depth, y2, positive ? x2 : x1, color, u1, v1, dir, light);
+                        putVertex(builder, pose, depth, y1, positive ? x2 : x1, color, u1, v2, dir, light);
+                        putVertex(builder, pose, depth, y1, positive ? x1 : x2, color, u2, v2, dir, light);
+                        putVertex(builder, pose, depth, y2, positive ? x1 : x2, color, u2, v1, dir, light);
                     } else {
-                        putVertex(builder, ms, positive ? x1 : x2, y2, depth, color, u1, v1, dir, light);
-                        putVertex(builder, ms, positive ? x1 : x2, y1, depth, color, u1, v2, dir, light);
-                        putVertex(builder, ms, positive ? x2 : x1, y1, depth, color, u2, v2, dir, light);
-                        putVertex(builder, ms, positive ? x2 : x1, y2, depth, color, u2, v1, dir, light);
+                        putVertex(builder, pose, positive ? x1 : x2, y2, depth, color, u1, v1, dir, light);
+                        putVertex(builder, pose, positive ? x1 : x2, y1, depth, color, u1, v2, dir, light);
+                        putVertex(builder, pose, positive ? x2 : x1, y1, depth, color, u2, v2, dir, light);
+                        putVertex(builder, pose, positive ? x2 : x1, y2, depth, color, u2, v1, dir, light);
                     }
                 } else {
-                    putVertex(builder, ms, x1, depth, positive ? y1 : y2, color, u1, v1, dir, light);
-                    putVertex(builder, ms, x1, depth, positive ? y2 : y1, color, u1, v2, dir, light);
-                    putVertex(builder, ms, x2, depth, positive ? y2 : y1, color, u2, v2, dir, light);
-                    putVertex(builder, ms, x2, depth, positive ? y1 : y2, color, u2, v1, dir, light);
+                    putVertex(builder, pose, x1, depth, positive ? y1 : y2, color, u1, v1, dir, light);
+                    putVertex(builder, pose, x1, depth, positive ? y2 : y1, color, u1, v2, dir, light);
+                    putVertex(builder, pose, x2, depth, positive ? y2 : y1, color, u2, v2, dir, light);
+                    putVertex(builder, pose, x2, depth, positive ? y1 : y2, color, u2, v1, dir, light);
                 }
             }
         }
     }
 
     private static void putVertex(
-        VertexConsumer builder, PoseStack ms, float x, float y, float z, int color, float u,
+        VertexConsumer builder, PoseStack.Pose pose, float x, float y, float z, int color, float u,
         float v, Direction face, int light
     ) {
 
-        Vec3i normal = face.getNormal();
-        PoseStack.Pose peek = ms.last();
+        Vec3i normal = face.getUnitVec3i();
         int a = color >> 24 & 0xff;
         int r = color >> 16 & 0xff;
         int g = color >> 8 & 0xff;
         int b = color & 0xff;
 
-        builder.addVertex(peek.pose(), x, y, z)
+        builder.addVertex(pose.pose(), x, y, z)
             .setColor(r, g, b, a)
             .setUv(u, v)
             .setLight(light)
-            .setNormal(peek.copy(), normal.getX(), normal.getY(), normal.getZ())
-        ;
+            .setNormal(pose.copy(), normal.getX(), normal.getY(), normal.getZ());
     }
 }
 

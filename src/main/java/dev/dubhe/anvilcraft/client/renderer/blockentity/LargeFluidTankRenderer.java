@@ -15,17 +15,17 @@
 
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class FluidTankBlockEntityRenderer extends BaseFluidHandlerHolderRenderer<FluidTankBlockEntity, FluidHandlerRenderState> {
-    private static final float TANK_W = 1 / 16F + 0.001F; // avoiding Z-fighting
+public class LargeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<LargeFluidTankBlockEntity, FluidHandlerRenderState> {
+    private static final float TANK_W = 4 / 16F + 0.001F; // avoiding Z-fighting
 
-    public FluidTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
+    public LargeFluidTankRenderer(BlockEntityRendererProvider.Context ignored) {
     }
 
     @Override
@@ -35,12 +35,12 @@ public class FluidTankBlockEntityRenderer extends BaseFluidHandlerHolderRenderer
 
     @Override
     protected void updateTankW(
-        FluidTankBlockEntity be,
+        LargeFluidTankBlockEntity be,
         FluidHandlerRenderState state,
         float partialTicks,
         Vec3 cameraPosition,
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        state.setTankW(TANK_W);
+        state.setTankW(-1, -1, -1, 2, 2, 2, TANK_W);
     }
 }

@@ -11,21 +11,26 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.IFluidTank;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
     protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false);
-    protected boolean isBigger = false;
+    protected boolean bigger = false;
 
     public LargeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -39,49 +44,50 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     }
 
     protected void checkInfinity() {
-        if (this.tank.getCapacity() == LargeFluidTankBlockEntity.BIG_CAPACITY && this.tank.getSpace() <= 0) this.tank.setInfinity(true);
+        FluidResource resource = this.tank.getResource(0);
+        int capacity = this.tank.getCapacityAsInt(0, resource);
+        if (capacity != LargeFluidTankBlockEntity.BIG_CAPACITY) return;
+        if (capacity - this.tank.getAmountAsInt(0) > 0) return;
+        this.tank.setInfinity(true);
     }
 
     public void onFormed() {
-        this.isBigger = true;
+        this.bigger = true;
         this.tank.setCapacity(BIG_CAPACITY);
     }
 
     public void onUnformed() {
-        this.isBigger = false;
+        this.bigger = false;
         this.tank.setInfinity(false);
         this.tank.setCapacity(CAPACITY);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putBoolean("bigger", this.isBigger);
-        CompoundTag tankNbt = tank.writeToNBT(provider, new CompoundTag());
-        if (!tankNbt.isEmpty()) {
-            tag.put("tank", tankNbt);
-        }
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putBoolean("bigger", this.bigger);
+        this.tank.serialize(output.child("tank"));
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.isBigger = tag.getBoolean("bigger");
-        if (this.isBigger) {
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.tank.deserialize(input.childOrEmpty("tank"));
+        this.bigger = input.getBooleanOr("bigger", false);
+        if (this.bigger) {
             this.onFormed();
         } else {
             this.onUnformed();
         }
-        tank.readFromNBT(provider, tag.getCompound("tank"));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("bigger", this.isBigger);
-        CompoundTag fluidTag = new CompoundTag();
-        tank.writeToNBT(registries, fluidTag);
-        tag.put("tank", fluidTag);
+        tag.putBoolean("bigger", this.bigger);
+        TagValueOutput fluidTag = TagValueOutput.createWithContext(new ProblemReporter.Collector(this.problemPath()), registries);
+        this.tank.serialize(fluidTag);
+        tag.put("tank", fluidTag.buildResult());
         return tag;
     }
 
@@ -92,27 +98,14 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         this.checkInfinity();
-        return FluidUtil.interactWithFluidHandler(player, hand, this.getFluidHandler());
+        return FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.getFluidHandler());
     }
 
-    public IFluidTank getTank() {
-        return getMainPart().tank;
+    public FluidStacksResourceHandler getTank() {
+        return this.tank;
     }
 
-    public IFluidHandler getFluidHandler() {
-        return getMainPart().tank;
-    }
-
-    public boolean isMainPart() {
-        LargeFluidTankBlock block = ModBlocks.LARGE_FLUID_TANK.get();
-        return block.isMainPart(this.getBlockState());
-    }
-
-    public LargeFluidTankBlockEntity getMainPart() {
-        LargeFluidTankBlock block = ModBlocks.LARGE_FLUID_TANK.get();
-        BlockPos mainPartPos = block.getMainPartPos(this.getBlockPos(), this.getBlockState());
-        if (this.getLevel() == null) return this;
-        BlockEntity mainPart = this.getLevel().getBlockEntity(mainPartPos);
-        return mainPart instanceof LargeFluidTankBlockEntity ? (LargeFluidTankBlockEntity) mainPart : this;
+    public ResourceHandler<FluidResource> getFluidHandler() {
+        return this.tank;
     }
 }

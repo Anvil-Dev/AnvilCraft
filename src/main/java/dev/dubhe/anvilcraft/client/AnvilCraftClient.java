@@ -16,9 +16,8 @@ import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -51,6 +50,7 @@ public class AnvilCraftClient {
         modBus.addListener(ModModelLayers::register);
         modBus.addListener(ModModelLayers::createModel);
         modBus.addListener(ModTooltipComponents::register);
+        modBus.addListener(ModFluids::registerFluidModel);
         modBus.addListener(AnvilCraftClient::clientSetup);
         InspectionSupport.initializeClient();
     }
@@ -81,16 +81,13 @@ public class AnvilCraftClient {
 
     public static class ItemExtensionImpl implements IClientItemExtensions {
         @Override
-        public HumanoidModel<?> getHumanoidArmorModel(
-            LivingEntity livingEntity,
-            ItemStack itemStack,
-            EquipmentSlot equipmentSlot,
-            HumanoidModel<?> original
+        public Model<?> getHumanoidArmorModel(
+            ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original
         ) {
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
                 return ModModelLayers.getIonocraftBackpackModel();
             }
-            return IClientItemExtensions.super.getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
+            return IClientItemExtensions.super.getHumanoidArmorModel(itemStack, layerType, original);
         }
     }
 }

@@ -9,6 +9,9 @@ import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
@@ -20,6 +23,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.event.EventHooks;
@@ -290,7 +294,7 @@ public class ModFluids {
                 new ModClientFluidTypeExtensionImpl(
                     AnvilCraft.of("block/%s_cement".formatted(color)),
                     AnvilCraft.of("block/%s_cement".formatted(color)),
-                    ColorUtil.mulValue(((DyeItem) color.dyeItem()).getDyeColor().getTextColor(), 0.6F),
+                    ColorUtil.mulValue(color.dyeItem().getDefaultInstance().get(DataComponents.DYE).getTextColor(), 0.6F),
                     1.0F
                 ), CEMENT_TYPES.get(color)
             );
@@ -311,4 +315,38 @@ public class ModFluids {
         );
     }
 
+    public static void registerFluidModel(RegisterFluidModelsEvent event) {
+        event.register(new FluidModel.Unbaked(
+            new Material(AnvilCraft.of("block/exp_fluid")),
+            new Material(AnvilCraft.of("block/exp_fluid_flow")),
+            null,
+            null
+        ), ModFluids.EXP_FLUID, ModFluids.FLOWING_EXP_FLUID);
+        event.register(new FluidModel.Unbaked(
+            new Material(AnvilCraft.of("block/oil")),
+            new Material(AnvilCraft.of("block/oil_flow")),
+            null,
+            null
+        ), ModFluids.OIL, ModFluids.FLOWING_OIL);
+        for (Color color : Color.values()) {
+            event.register(new FluidModel.Unbaked(
+                new Material(AnvilCraft.of("block/%s_cement".formatted(color))),
+                new Material(AnvilCraft.of("block/%s_cement".formatted(color))),
+                null,
+                null
+            ), ModFluids.SOURCE_CEMENTS.get(color), ModFluids.FLOWING_CEMENTS.get(color));
+        }
+        event.register(new FluidModel.Unbaked(
+            new Material(AnvilCraft.of("block/melt_gem")),
+            new Material(AnvilCraft.of("block/melt_gem_flow")),
+            null,
+            null
+        ), ModFluids.MELT_GEM, ModFluids.FLOWING_MELT_GEM);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/powder_snow")),
+            new Material(Identifier.withDefaultNamespace("block/powder_snow")),
+            null,
+            null
+        ), ModFluids.POWDER_SNOW);
+    }
 }

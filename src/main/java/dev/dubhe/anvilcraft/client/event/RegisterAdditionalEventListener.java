@@ -2,12 +2,12 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class RegisterAdditionalEventListener {
@@ -16,7 +16,7 @@ public class RegisterAdditionalEventListener {
      * 注册模型
      */
     @SubscribeEvent
-    public static void registerModels(ModelEvent.RegisterAdditional event) {
+    public static void registerModels(ModelEvent.RegisterStandalone event) {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_block")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head")));
@@ -27,15 +27,16 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/void_energy_collector_head")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/laser")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/axis")));
-        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/advanced_comparator_indicator")));
+        event.register(
+            AdvancedComparatorRenderer.INDICATOR,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/advanced_comparator_indicator"))
+        );
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3")));
-        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4")));
-    }
-
-    @SubscribeEvent
-    public static void registerModelParts(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(AdvancedComparatorRenderer.INDICATOR_LAYER, AdvancedComparatorRenderer::createLayer);
+        event.register(
+            FishTankRenderer.FIRE,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
+        );
     }
 }
