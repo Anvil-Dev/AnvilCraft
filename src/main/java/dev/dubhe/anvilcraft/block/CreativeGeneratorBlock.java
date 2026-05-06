@@ -25,7 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 4, 16);

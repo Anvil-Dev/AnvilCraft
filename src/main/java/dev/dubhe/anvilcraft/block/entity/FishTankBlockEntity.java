@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -125,6 +126,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.level, pos.getCenter());
+    }
+
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         this.fluidHandler.serialize(output.child("Fluid"));
@@ -133,7 +139,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     @Override
-    protected void loadAdditional(ValueInput input) {
+    public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.fluidHandler.deserialize(input.childOrEmpty("Fluid"));
         this.itemHandler.deserialize(input.childOrEmpty("Items"));

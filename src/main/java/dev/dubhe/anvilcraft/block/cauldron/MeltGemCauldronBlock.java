@@ -1,12 +1,13 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cauldron;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.better.BetterAbstractCauldronBlock;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -15,31 +16,14 @@ import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class MeltGemCauldron extends BetterAbstractCauldronBlock implements IHammerRemovable {
-    public MeltGemCauldron(Properties properties) {
+public class MeltGemCauldronBlock extends BaseCauldronBlock implements IHammerRemovable {
+    public MeltGemCauldronBlock(Properties properties) {
         super(properties, ModInteractionMap.MELT_GEM);
     }
 
     @Override
-    public ItemInteractionResult useItemOn(
-        ItemStack stack,
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Player player,
-        InteractionHand hand,
-        BlockHitResult hitResult
-    ) {
-        CauldronInteraction interaction = this.interactions.map().get(stack.getItem());
-        if (interaction == null) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        }
-        return interaction.interact(state, level, pos, player, hand, stack);
-    }
-
-    @Override
     protected MapCodec<? extends AbstractCauldronBlock> codec() {
-        return simpleCodec(MeltGemCauldron::new);
+        return simpleCodec(MeltGemCauldronBlock::new);
     }
 
     @Override
@@ -53,7 +37,7 @@ public class MeltGemCauldron extends BetterAbstractCauldronBlock implements IHam
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return 3;
     }
 }

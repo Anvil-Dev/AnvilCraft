@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class WhiteHoleBlock extends Block implements EntityBlock {
     public static final VoxelShape MODEL = Block.box(4, 4, 4, 12, 12, 12);

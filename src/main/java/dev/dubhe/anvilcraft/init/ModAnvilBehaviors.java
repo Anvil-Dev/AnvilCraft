@@ -21,7 +21,7 @@ import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
-import dev.dubhe.anvilcraft.block.CementCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;

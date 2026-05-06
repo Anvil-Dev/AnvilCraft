@@ -43,7 +43,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class InductionLightBlock extends BetterBaseEntityBlock implements IHammerRemovable, SimpleWaterloggedBlock {
     public static final VoxelShape SHAPE_X = Block.box(0, 6, 6, 16, 10, 10);

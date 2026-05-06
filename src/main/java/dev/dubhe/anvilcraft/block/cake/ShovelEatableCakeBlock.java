@@ -1,11 +1,8 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cake;
 
-import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,10 +14,8 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
 
-import java.util.function.Function;
-
-public class AbstractCakeBlock extends Block {
-    public AbstractCakeBlock(Properties properties) {
+public class ShovelEatableCakeBlock extends Block {
+    public ShovelEatableCakeBlock(Properties properties) {
         super(properties.pushReaction(PushReaction.NORMAL));
     }
 
@@ -37,7 +32,7 @@ public class AbstractCakeBlock extends Block {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -47,40 +42,39 @@ public class AbstractCakeBlock extends Block {
         BlockHitResult hitResult
     ) {
         ItemStack itemStack = player.getItemInHand(hand);
-        if (!(itemStack.getItem().canPerformAction(itemStack, ItemAbilities.SHOVEL_DIG))) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!(itemStack.getItem().canPerformAction(itemStack, ItemAbilities.SHOVEL_DOUSE))) {
+            return InteractionResult.PASS;
         }
         if (level.isClientSide()) {
-            if (eat(level, pos, player, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter()).consumesAction()) {
-                return ItemInteractionResult.SUCCESS;
+            if (eat(level, pos, player, getFoodLevel(), getSaturationLevel()).consumesAction()) {
+                return InteractionResult.SUCCESS;
             }
 
             if (itemStack.isEmpty()) {
-                return ItemInteractionResult.CONSUME;
+                return InteractionResult.CONSUME;
             }
         } else {
-            ItemInteractionResult itemInteractionResult =
-                eat(level, pos, player, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter());
-            if (itemInteractionResult == ItemInteractionResult.SUCCESS) itemStack.hurtAndBreak(1, player, PlayerUtil.handToSlot(hand));
-            return itemInteractionResult;
+            InteractionResult result = eat(level, pos, player, getFoodLevel(), getSaturationLevel());
+            if (result == InteractionResult.SUCCESS) itemStack.hurtAndBreak(1, player, hand.asEquipmentSlot());
+            return result;
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
-    private static <T> T eat(
+    private static InteractionResult eat(
         LevelAccessor level,
         BlockPos pos,
         Player player,
         int foodLevel,
-        float saturationLevel,
-        Function<InteractionResult, T> converter) {
+        float saturationLevel
+    ) {
         if (!player.canEat(false)) {
-            return converter.apply(InteractionResult.PASS);
+            return InteractionResult.PASS;
         } else {
             player.getFoodData().eat(foodLevel, saturationLevel);
             level.removeBlock(pos, false);
             level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
-            return converter.apply(InteractionResult.SUCCESS);
+            return InteractionResult.SUCCESS;
         }
     }
 

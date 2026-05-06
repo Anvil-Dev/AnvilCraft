@@ -25,7 +25,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE = Shapes.or(Block.box(0, 2, 0, 16, 16, 16), Block.box(1, 0, 1, 15, 2, 15));

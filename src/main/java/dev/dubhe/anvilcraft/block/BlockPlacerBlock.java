@@ -41,8 +41,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -114,13 +116,14 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
-        boolean movedByPiston) {
+        Block block,
+        net.minecraft.world.level.redstone.@Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
         if (!level.isClientSide()) {
             checkIfTriggered(level, state, pos);
         }
@@ -233,12 +236,15 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         BlockPos inputPos = blockPos.relative(direction.getOpposite());
         // 获取放置方块类型
         ItemStack placeItem = null;
-        IItemHandler itemHandler = ItemHandlerUtil.getSourceItemHandlerRecursive(this, inputPos, direction, level);
+        ResourceHandler<ItemResource> itemHandler = ItemHandlerUtil.getSourceItemHandlerRecursive(this, inputPos, direction, level);
         int slot;
-        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
-            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
-            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
-                placeItem = blockItemStack;
+        for (slot = 0; itemHandler != null && slot < itemHandler.size(); slot++) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource resource = itemHandler.getResource(slot);
+                if (resource.isEmpty() || !(resource.getItem() instanceof BlockItem)) continue;
+                int extracted = itemHandler.extract(slot, resource, 1, transaction);
+                if (extracted != 1) continue;
+                placeItem = resource.toStack(1);
                 break;
             }
         }
@@ -302,10 +308,17 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                 itemEntity.setItem(new ItemStack(Items.BUCKET, count));
             }
         } else {
-            if (itemHandler.getStackInSlot(slot).is(Items.POWDER_SNOW_BUCKET)) {
-                itemHandler.insertItem(slot, new ItemStack(Items.BUCKET), false);
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource resource = itemHandler.getResource(slot);
+                int extracted = itemHandler.extract(slot, resource, 1, transaction);
+                if (extracted <= 0) return;
+                transaction.commit();
+                if (resource.is(Items.POWDER_SNOW_BUCKET)) {
+                    int inserted = itemHandler.insert(slot, ItemResource.of(Items.BUCKET), 1, transaction);
+                    if (inserted <= 0) return;
+                    transaction.commit();
+                }
             }
-            itemHandler.extractItem(slot, 1, false);
         }
     }
 

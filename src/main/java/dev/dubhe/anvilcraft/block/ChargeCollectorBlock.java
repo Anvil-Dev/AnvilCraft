@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static VoxelShape SHAPE = Shapes.or(

@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehavior, IHammerRemovable, IController {
 
@@ -47,7 +47,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -65,7 +65,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
             }
 
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override

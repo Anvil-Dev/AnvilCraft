@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BatchCrafterBlock extends BaseBatchCraftingBlock {
     public BatchCrafterBlock(Properties properties) {
@@ -63,7 +63,7 @@ public class BatchCrafterBlock extends BaseBatchCraftingBlock {
             );
             PacketDistributor.sendToPlayer(serverPlayer, new SlotFilterChangePacket(i, entity.getFilter(i)));
         }
-        return InteractionResult.SUCCESS_NO_ITEM_USED;
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable
@@ -79,7 +79,7 @@ public class BatchCrafterBlock extends BaseBatchCraftingBlock {
         return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.BATCH_CRAFTER.get(),
-            (level1, pos, blockState, blockEntity) -> blockEntity.tick(level1, pos)
+            (level1, pos, _, be) -> be.tick(level1, pos)
         );
     }
 

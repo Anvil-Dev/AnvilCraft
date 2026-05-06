@@ -35,18 +35,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     public static final VoxelShape EAST_SHAPE = Block.box(0, 0, 0, 8, 16, 16);
     public static final VoxelShape UP_SHAPE = Block.box(0, 0, 0, 16, 8, 16);
     public static final VoxelShape DOWN_SHAPE = Block.box(0, 8, 0, 16, 16, 16);
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
 
     public BlockDevourerBlock(Properties properties) {
@@ -124,12 +124,12 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (!level.isClientSide()) {
@@ -198,7 +198,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     ) {
         BlockPos outputPos = devourerPos.relative(devourerDirection.getOpposite());
         BlockPos devourCenterPos = devourerPos.relative(devourerDirection);
-        final List<IItemHandler> itemHandlerList = ItemHandlerUtil.getTargetItemHandlerList(
+        final List<ResourceHandler<ItemResource>> itemHandlerList = ItemHandlerUtil.getTargetItemHandlerList(
             outputPos,
             devourerDirection,
             level
@@ -267,7 +267,6 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
 
     private static void devourSingleBlockInternalLogic(
         ServerLevel level,
-        Player player,
         @Nullable Block anvil,
         BlockPos devourBlockPos,
         List<BlockPos> filteredBlockPosList,
@@ -285,7 +284,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (
             !(anvil instanceof FrostAnvilBlock)
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-            && level.random.nextDouble() > 0.05
+            && level.getRandom().nextDouble() > 0.05
         ) {
             level.destroyBlock(devourBlockPos, false);
             return;
@@ -319,7 +318,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 skipContentTransfer |= ItemHandlerUtil.isEmptyContainer(itemStack);
                 if (insertEnabled) {
                     for (ResourceHandler<ItemResource> target : itemHandlerList) {
-                        itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
+                        itemStack = ItemUtil.insertItemReturnRemaining(target, itemStack, false, null);
                     }
                 }
                 if (itemStack.isEmpty() && ItemHandlerUtil.isEmptyContainer(source)) continue;
@@ -356,7 +355,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
      */
     private static void transferLecternContents(
         ServerLevel level,
-        @Nullable List<IItemHandler> itemHandlerList,
+        @Nullable List<ResourceHandler<ItemResource>> itemHandlerList,
         Vec3 center,
         LecternBlockEntity lectern,
         boolean insertEnabled,
@@ -365,8 +364,8 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         ItemStack bookStack = lectern.getBook();
         if (insertEnabled) {
             assert itemHandlerList != null;
-            for (IItemHandler target : itemHandlerList) {
-                bookStack = ItemHandlerHelper.insertItem(target, bookStack, false);
+            for (ResourceHandler<ItemResource> target : itemHandlerList) {
+                bookStack = ItemUtil.insertItemReturnRemaining(target, bookStack, false, null);
                 lectern.setBook(bookStack);
             }
         }

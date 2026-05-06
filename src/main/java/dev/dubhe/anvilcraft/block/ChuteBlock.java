@@ -41,7 +41,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -51,12 +50,12 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.stream.Stream;
 
 public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
     public static final VoxelShape AABB =
@@ -173,8 +172,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;

@@ -40,7 +40,7 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,

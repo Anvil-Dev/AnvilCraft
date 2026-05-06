@@ -22,12 +22,11 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, HammerRotateBehavior, IMoveableEntityBlock {
     public static final VoxelShape UP_MODEL =
@@ -42,7 +41,7 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
         Shapes.or(Block.box(12, 0, 0, 16, 16, 16), Block.box(2, 2, 2, 12, 14, 14), Block.box(0, 4, 4, 2, 12, 12));
     public static final VoxelShape EAST_MODEL =
         Shapes.or(Block.box(0, 0, 0, 4, 16, 16), Block.box(4, 2, 2, 14, 14, 14), Block.box(14, 4, 4, 16, 12, 12));
-    public static final DirectionProperty FACING = DirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
 
     /**
      * 方块状态注册

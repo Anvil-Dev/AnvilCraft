@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
@@ -31,22 +32,23 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
-    public static final DirectionProperty FACING = DirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
@@ -67,8 +69,8 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
-        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof BatchCrafterBlockEntity crafterBlockEntity) {
             return crafterBlockEntity.getRedstoneSignal();
         }
@@ -117,10 +119,11 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
         if (state.is(newState.getBlock())) return;
         if (level.getBlockEntity(pos) instanceof IItemHandlerHolder holder) {
             Vec3 vec3 = pos.getCenter();
-            IItemHandler handler = holder.getItemHandler();
+            ResourceHandler<ItemResource> handler = holder.getItemHandler();
             for (int slot = 0; slot < handler.getSlots(); slot++) {
                 Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, handler.getStackInSlot(slot));
             }
+            ItemHandlerUtil.dropAllToPos();
             level.updateNeighbourForOutputSignal(pos, this);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
@@ -147,8 +150,8 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
-        return false;
+    protected boolean propagatesSkylightDown(BlockState state) {
+        return true;
     }
 
     @Override

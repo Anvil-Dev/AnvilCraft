@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block implements IMultiPartBlockModelHolder {
     public AbstractMultiPartBlock(Properties properties) {

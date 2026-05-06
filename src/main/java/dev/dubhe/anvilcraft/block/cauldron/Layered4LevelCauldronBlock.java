@@ -1,9 +1,13 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cauldron;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.cauldron.CauldronInteractions;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Block;
@@ -12,23 +16,27 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Optional;
 
-public class Layered4LevelCauldronBlock extends AbstractCauldronBlock {
-    public static final MapCodec<Layered4LevelCauldronBlock> CODEC = RecordCodecBuilder.mapCodec(
-        ins -> ins.group(
-                propertiesCodec(),
-                CauldronInteraction.CODEC.fieldOf("interactions").forGetter(block -> block.interactions)
-            )
-            .apply(ins, Layered4LevelCauldronBlock::new)
-    );
+public class Layered4LevelCauldronBlock extends BaseCauldronBlock {
+    public static final MapCodec<Layered4LevelCauldronBlock> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        propertiesCodec(),
+        CauldronInteractions.CODEC
+            .fieldOf("interactions")
+            .forGetter(block -> block.interactions)
+    ).apply(ins, Layered4LevelCauldronBlock::new));
 
     public static final int MAX_LEVEL = 4;
-
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 1, MAX_LEVEL);
 
-    public Layered4LevelCauldronBlock(Properties properties, CauldronInteraction.InteractionMap interactions) {
+    public Layered4LevelCauldronBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 1));
+    }
+
+    public Layered4LevelCauldronBlock(Properties properties, CauldronInteraction.Dispatcher interactions) {
         super(properties, interactions);
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 1));
     }
@@ -56,7 +64,7 @@ public class Layered4LevelCauldronBlock extends AbstractCauldronBlock {
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return state.getValue(LEVEL);
     }
 
@@ -75,4 +83,22 @@ public class Layered4LevelCauldronBlock extends AbstractCauldronBlock {
     public BlockState fullFilled() {
         return this.defaultBlockState().setValue(LEVEL, MAX_LEVEL);
     }
+
+    // Shapes
+
+    @Override
+    protected VoxelShape getEntityInsideCollisionShape(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
+        return switch (state.getValue(LEVEL)) {
+            case 1 -> LEVEL1;
+            case 2 -> LEVEL2;
+            case 3 -> LEVEL3;
+            case 4 -> LEVEL4;
+            case null, default -> throw new IllegalStateException("Unexpected value " + state.getValue(LEVEL) + ". How did you get here?");
+        };
+    }
+
+    protected static final VoxelShape LEVEL1 = Block.box(2, 4, 2, 14, 6, 14);
+    protected static final VoxelShape LEVEL2 = Block.box(2, 4, 2, 14, 9, 14);
+    protected static final VoxelShape LEVEL3 = Block.box(2, 4, 2, 14, 12, 14);
+    protected static final VoxelShape LEVEL4 = Block.box(2, 4, 2, 14, 15, 14);
 }

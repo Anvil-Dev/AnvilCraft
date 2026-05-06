@@ -32,7 +32,7 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashSet;

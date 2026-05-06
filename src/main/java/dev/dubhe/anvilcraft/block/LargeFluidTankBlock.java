@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
@@ -86,7 +86,7 @@ public class LargeFluidTankBlock
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -105,7 +105,7 @@ public class LargeFluidTankBlock
                 }
             }
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
 
     }
 
@@ -115,10 +115,9 @@ public class LargeFluidTankBlock
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
-
     @Override
     public Block getBlock() {
         return this;

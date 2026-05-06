@@ -13,25 +13,29 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BlockComparatorBlock extends HorizontalDirectionalBlock implements HammerRotateBehavior, IHammerRemovable {
 
     public static final MapCodec<BlockComparatorBlock> CODEC = simpleCodec(BlockComparatorBlock::new);
 
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty PRECISE = BooleanProperty.create("precise");
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -92,12 +96,12 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        BlockState newState = level.getBlockState(pos);
         if (level.isClientSide() || (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))) return;
         if (state.getValue(POWERED)) {
             this.updateNeighborsInFront(level, pos, state);
         }
-
     }
 
     @Override
@@ -108,7 +112,7 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
             BlockState newState = state.cycle(PRECISE);
             level.setBlock(pos, newState.setValue(POWERED, checkBlocks(level, pos, newState)), 2);
             this.updateNeighborsInFront(level, pos, state);
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
     }
 
@@ -120,20 +124,22 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    public BlockState updateShape(
-        BlockState blockState,
-        Direction direction,
-        BlockState blockState2,
-        LevelAccessor level,
+    protected BlockState updateShape(
+        BlockState state,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        BlockPos pos2
+        Direction directionToNeighbour,
+        BlockPos neighbourPos,
+        BlockState neighbourState,
+        RandomSource random
     ) {
-        Direction facing = blockState.getValue(FACING);
-        if (direction.getAxis() == Direction.Axis.Y || direction.getAxis() == facing.getAxis()) return blockState;
-        if (!level.isClientSide() && !level.getBlockTicks().hasScheduledTick(pos, this)) {
-            level.scheduleTick(pos, this, 2);
+        Direction facing = state.getValue(FACING);
+        if (directionToNeighbour.getAxis() == Direction.Axis.Y || directionToNeighbour.getAxis() == facing.getAxis()) return state;
+        if (!level.isClientSide() && !ticks.getBlockTicks().hasScheduledTick(pos, this)) {
+            ticks.scheduleTick(pos, this, 2);
         }
-        return blockState;
+        return state;
     }
 
     @Override
@@ -146,10 +152,11 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
     }
 
     protected void updateNeighborsInFront(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(FACING);
+        Direction direction = state.getValue(FACING).getOpposite();
         BlockPos blockpos = pos.relative(direction.getOpposite());
-        level.neighborChanged(blockpos, this, pos);
-        level.updateNeighborsAtExceptFromFacing(blockpos, this, direction);
+        Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, direction, null);
+        level.neighborChanged(blockpos, this, orientation);
+        level.updateNeighborsAtExceptFromFacing(blockpos, this, direction, orientation);
     }
 
     @Override

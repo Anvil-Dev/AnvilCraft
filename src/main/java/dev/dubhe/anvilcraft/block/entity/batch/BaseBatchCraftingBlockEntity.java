@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
@@ -11,7 +12,6 @@ import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseMachineBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -22,41 +22,46 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
 public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntity
     implements IFilterBlockEntity, IPowerConsumer, IDiskCloneable, IHasDisplayItem {
 
+    @Getter
     protected final int inputPower = 4;
+    @Getter
     @Setter
     protected PowerGrid grid;
 
-    @Getter(AccessLevel.NONE)
     protected final PollableFilteredItemStackHandler handler = this.constructHandler();
 
+    @Getter
     protected @Nullable ItemStack displayingStack;
 
-    @Getter(AccessLevel.NONE)
     protected boolean poweredBefore = false;
-    @Getter(AccessLevel.NONE)
     protected int cooldown = 0;
 
+    @Getter
     protected final int id;
 
     public BaseBatchCraftingBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState, int id) {
@@ -71,30 +76,31 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
         BlockState state = level.getBlockState(pos);
         level.updateNeighbourForOutputSignal(pos, state.getBlock());
         boolean powered = state.getValue(BaseBatchCraftingBlock.POWERED);
+        if (level.isClientSide()) return;
         this.cooldown = Math.max(0, this.cooldown - 1);
         if (powered && !this.poweredBefore && !level.isClientSide() && this.cooldown == 0) {
-            if (this.craft(level)) this.cooldown = this.getCooldownDuration();
+            if (this.craft(Util.cast(level))) this.cooldown = this.getCooldownDuration();
         }
         this.poweredBefore = powered;
     }
 
     protected abstract int getCooldownDuration();
 
-    protected boolean canCraft() {
-        if (this.grid == null || !this.grid.isWorking()) return false;
-        if (!this.handler.isFilterEnabled()) return true;
-        for (int i = 0; i < this.handler.getSlots(); i++) {
-            if (this.handler.getStackInSlot(i).isEmpty() && !this.handler.getFilter(i).isEmpty()) return false;
+    protected boolean cantCraft() {
+        if (this.grid == null || !this.grid.isWorking()) return true;
+        if (!this.handler.isFilterEnabled()) return false;
+        for (int i = 0; i < this.handler.size(); i++) {
+            if (this.handler.getResource(i).isEmpty() && !this.handler.getFilter(i).isEmpty()) return true;
         }
-        return true;
+        return false;
     }
 
-    public abstract boolean craft(Level level);
+    public abstract boolean craft(ServerLevel level);
 
     protected boolean ejectItems(ItemStack result, List<ItemStack> craftRemaining, Direction direction) {
-        IItemHandler cap = Objects.requireNonNull(getLevel()).getCapability(
-            Capabilities.ItemHandler.BLOCK,
-            getBlockPos().relative(direction),
+        ResourceHandler<ItemResource> cap = Objects.requireNonNull(this.getLevel()).getCapability(
+            Capabilities.Item.BLOCK,
+            this.getBlockPos().relative(direction),
             direction.getOpposite()
         );
         if (cap != null) {
@@ -102,20 +108,20 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
             ItemStack remained = ItemHandlerUtil.insertItem(cap, result, true);
             if (!remained.isEmpty()) return true;
             remained = ItemHandlerUtil.insertItem(cap, result, false);
-            ejectItem(remained);
+            this.ejectItem(remained);
             for (ItemStack stack : craftRemaining) {
                 remained = ItemHandlerUtil.insertItem(cap, stack, false);
-                ejectItem(remained);
+                this.ejectItem(remained);
             }
         } else {
             // 尝试向世界喷出物品
-            Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+            Vec3 center = this.getBlockPos().relative(this.getDirection()).getCenter();
             AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
-            if (!getLevel().noCollision(aabb)) return true;
+            if (!this.getLevel().noCollision(aabb)) return true;
 
-            ejectItem(result);
+            this.ejectItem(result);
             for (ItemStack stack : craftRemaining) {
-                ejectItem(stack);
+                this.ejectItem(stack);
             }
         }
         return false;
@@ -151,6 +157,11 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
         level.addFreshEntity(itemEntity);
     }
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.level, pos.getCenter());
+    }
+
     @Nullable
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
@@ -163,30 +174,24 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.handler.deserializeNBT(provider, tag.getCompound("Inventory"));
-        this.poweredBefore = tag.getBoolean("PoweredBefore");
-        this.cooldown = tag.getInt("Cooldown");
-        if (!tag.getBoolean("HasDisplayItemStack") || !tag.contains("ResultItemStack")) return;
-        CompoundTag rawResult = tag.getCompound("ResultItemStack");
-        this.displayingStack = rawResult.contains("id")
-                               ? ItemStack.parse(provider, rawResult).orElse(ItemStack.EMPTY)
-                               : ItemStack.EMPTY;
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        this.handler.serialize(output.child("Inventory"));
+        output.putBoolean("PoweredBefore", this.poweredBefore);
+        output.putInt("Cooldown", this.cooldown);
+        boolean displaying = this.displayingStack != null && !this.displayingStack.isEmpty();
+        output.putBoolean("HasDisplayItemStack", displaying);
+        if (displaying) output.store("ResultItemStack", ItemStack.OPTIONAL_CODEC, this.displayingStack);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("Inventory", this.handler.serializeNBT(provider));
-        tag.putBoolean("PoweredBefore", this.poweredBefore);
-        tag.putInt("Cooldown", this.cooldown);
-        boolean displaying = this.displayingStack != null && !this.displayingStack.isEmpty();
-        tag.putBoolean("HasDisplayItemStack", displaying);
-        if (displaying) {
-            CompoundTag rawResult = (CompoundTag) this.displayingStack.save(provider);
-            tag.put("ResultItemStack", rawResult);
-        }
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.handler.deserialize(input.childOrEmpty("Inventory"));
+        this.poweredBefore = input.getBooleanOr("PoweredBefore", false);
+        this.cooldown = input.getIntOr("Cooldown", 0);
+        if (!input.getBooleanOr("HasDisplayItemStack", false)) return;
+        this.displayingStack = input.read("ResultItemStack", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
     }
 
     @Override
@@ -215,36 +220,35 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     public int getRedstoneSignal() {
         int strength = 0;
         List<Integer> itemIdxList = new IntArrayList();
-        for (int index = 0; index < this.handler.getSlots(); index++) {
-            ItemStack itemStack = this.handler.getStackInSlot(index);
+        for (int index = 0; index < this.handler.size(); index++) {
             if (this.handler.isSlotDisabled(index) && this.handler.getFilter(index).isEmpty()) { // 槽位为未设置过滤的已禁用槽位
                 strength++;
-            } else if (!itemStack.isEmpty()) { // 槽位上有物品
+            } else if (!this.handler.getResource(index).isEmpty()) { // 槽位上有物品
                 strength++;
                 itemIdxList.add(index);
             }
         }
-        if (strength < this.handler.getSlots()) return strength;
+        if (strength < this.handler.size()) return strength;
 
         // 找到数量最少的序号
         int minIdx = itemIdxList.stream()
-            .min(Comparator.comparingInt(idx -> this.handler.getStackInSlot(idx).getCount()))
+            .min(Comparator.comparingInt(this.handler::getAmountAsInt))
             .orElse(-1);
         // 不存在说明全是锁住的格子 -> 15
         if (minIdx == -1) return 15;
 
         // 考虑这个物品的堆叠上限，计算满堆比例
-        ItemStack stack = this.handler.getStackInSlot(minIdx);
-        int maxStack = stack.getMaxStackSize();
-        int count = stack.getCount();
-        if (maxStack <= 1) {
+        ItemResource resource = this.handler.getResource(minIdx);
+        int count = this.handler.getAmountAsInt(minIdx);
+        int maxSize = this.handler.getCapacityAsInt(minIdx, resource);
+        if (maxSize <= 1) {
             return 15;
-        } else if (maxStack == 2) {
+        } else if (maxSize == 2) {
             return count == 1 ? 9 : 15;
         }
 
         int range = 6;
-        return count == 1 ? 9 : 9 + ((count - 2) * (range - 1) + (maxStack - 2)) / (maxStack - 2);
+        return count == 1 ? 9 : 9 + ((count - 2) * (range - 1) + (maxSize - 2)) / (maxSize - 2);
     }
 
     @Override
@@ -263,7 +267,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     }
 
     @Override
-    public IItemHandler getItemHandler() {
+    public ResourceHandler<ItemResource> getItemHandler() {
         return this.handler;
     }
 
@@ -273,16 +277,15 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
-        tag.put("Filtering", handler.serializeFiltering());
+    public void storeDiskData(ValueOutput output) {
+        this.handler.serializeFiltering(output.child("Filtering"));
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
-        handler.deserializeFiltering(data.getCompound("Filtering"));
-        this.setChanged();
-        if (level != null && !level.isClientSide()) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+    public void applyDiskData(ValueInput input) {
+        this.handler.deserializeFiltering(input.childOrEmpty("Filtering"));
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
         }
     }
 

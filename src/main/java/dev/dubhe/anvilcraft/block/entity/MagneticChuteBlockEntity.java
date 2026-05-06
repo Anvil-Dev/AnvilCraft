@@ -14,9 +14,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     public MagneticChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
@@ -39,7 +38,7 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Override
-    protected DirectionProperty getFacingProperty() {
+    protected EnumProperty<Direction> getFacingProperty() {
         return MagneticChuteBlock.FACING;
     }
 

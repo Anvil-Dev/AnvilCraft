@@ -1,17 +1,17 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cauldron;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.better.BetterAbstractCauldronBlock;
+import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ObsidianCauldronBlock extends BetterAbstractCauldronBlock implements IHammerRemovable {
+public class ObsidianCauldronBlock extends BaseCauldronBlock implements IHammerRemovable {
     public ObsidianCauldronBlock(Properties properties) {
-        super(properties, CauldronInteraction.EMPTY);
+        super(properties, ModInteractionMap.OBSIDIAN);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ObsidianCauldronBlock extends BetterAbstractCauldronBlock implement
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return 3;
     }
 }

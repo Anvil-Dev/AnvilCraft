@@ -29,10 +29,6 @@ public class PlayerUtil {
         return result.get();
     }
 
-    public static EquipmentSlot handToSlot(InteractionHand hand) {
-        return hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
-    }
-
     /**
      * 搜索切比雪夫距离内的玩家们
      *

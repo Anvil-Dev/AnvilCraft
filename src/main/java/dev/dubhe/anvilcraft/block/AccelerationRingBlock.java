@@ -26,21 +26,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
-public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3PartHalf, DirectionProperty, Direction>
+public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>
     implements MultiPartBlockEntity<DirectionCube3x3PartHalf, AccelerationRingBlock>, IHammerRemovable, IHammerChangeable {
     public static final EnumProperty<DirectionCube3x3PartHalf> HALF = EnumProperty.create("half", DirectionCube3x3PartHalf.class);
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
 
@@ -65,7 +65,7 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
     }
 
     @Override
-    public DirectionProperty getAdditionalProperty() {
+    public EnumProperty<Direction> getAdditionalProperty() {
         return FACING;
     }
 
@@ -91,12 +91,12 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         boolean isSignal = Arrays.stream(getParts())
@@ -140,7 +140,7 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 

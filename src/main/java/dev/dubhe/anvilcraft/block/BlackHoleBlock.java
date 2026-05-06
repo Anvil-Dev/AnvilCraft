@@ -10,10 +10,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BlackHoleBlock extends Block implements EntityBlock {
     public static final VoxelShape MODEL = Block.box(4, 4, 4, 12, 12, 12);
+
+    public BlackHoleBlock(Properties properties) {
+        super(properties.forceSolidOn());
+    }
 
     @Override
     public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
@@ -23,21 +27,6 @@ public class BlackHoleBlock extends Block implements EntityBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-    }
-
-    @Override
-    public void neighborChanged(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
-        boolean movedByPiston
-    ) {
-    }
-
-    public BlackHoleBlock(Properties properties) {
-        super(properties.forceSolidOn());
     }
 
     @Nullable

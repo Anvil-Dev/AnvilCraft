@@ -18,7 +18,7 @@ public abstract class BetterBlock extends Block {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,

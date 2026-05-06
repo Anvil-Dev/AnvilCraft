@@ -1,40 +1,67 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cauldron;
 
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 
 public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHammerRemovable, IIgnitableCauldron {
     public FireCauldronBlock(Properties properties) {
-        super(properties, CauldronInteraction.EMPTY);
+        super(properties);
     }
 
     @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (this.isEntityInsideContent(state, pos, entity)) {
-            entity.lavaHurt();
+    protected void entityInside(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Entity entity,
+        InsideBlockEffectApplier effectApplier,
+        boolean isPrecise
+    ) {
+        if (level.isClientSide()) {
+            if (entity.hurtClient(level.damageSources().inFire())) {
+                level.playSound(
+                    null,
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    SoundEvents.GENERIC_BURN,
+                    entity.getSoundSource(),
+                    0.4F,
+                    2.0F + entity.getRandom().nextFloat() * 0.4F
+                );
+            }
+        } else {
+            if (entity.hurtServer(Util.cast(level), level.damageSources().inFire(), 4.0F)) {
+                level.playSound(
+                    null,
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    SoundEvents.GENERIC_BURN,
+                    entity.getSoundSource(),
+                    0.4F,
+                    2.0F + entity.getRandom().nextFloat() * 0.4F
+                );
+            }
         }
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        return new ItemStack(Items.CAULDRON);
     }
 
     @Override
@@ -49,8 +76,8 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {

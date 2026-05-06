@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.Layered4LevelCauldronBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;

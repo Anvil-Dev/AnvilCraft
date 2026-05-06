@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.item;
 
-import dev.dubhe.anvilcraft.block.ObsidianCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;

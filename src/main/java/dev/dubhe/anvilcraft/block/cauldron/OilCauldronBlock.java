@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cauldron;
 
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
@@ -8,19 +8,14 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.BlockHitResult;
 
 public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHammerRemovable, IIgnitableCauldron {
     public OilCauldronBlock(Properties properties) {
@@ -32,9 +27,15 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     }
 
     @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    protected void entityInside(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Entity entity,
+        InsideBlockEffectApplier effectApplier,
+        boolean isPrecise
+    ) {
         if (level.isClientSide()) return;
-        if (!this.isEntityInsideContent(state, pos, entity)) return;
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
             ignite(level, pos, state);
             return;
@@ -51,23 +52,6 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     }
 
     @Override
-    public ItemInteractionResult useItemOn(
-        ItemStack stack,
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Player player,
-        InteractionHand hand,
-        BlockHitResult hitResult
-    ) {
-        CauldronInteraction interaction = this.interactions.map().get(stack.getItem());
-        if (interaction == null) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        }
-        return interaction.interact(state, level, pos, player, hand, stack);
-    }
-
-    @Override
     public boolean isIgnited(BlockCache cache, BlockPos pos) {
         return false;
     }
@@ -75,11 +59,8 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     @Override
     public void setIgnited(BlockCache cache, BlockPos pos, boolean ignited) {
         if (!ignited) return;
-        cache.setBlock(
-            pos,
-            ModBlocks.FIRE_CAULDRON.getDefaultState()
-                .setValue(FireCauldronBlock.LEVEL, cache.getBlockState(pos).getValue(OilCauldronBlock.LEVEL))
-        );
+        int level = cache.getBlockState(pos).getValue(OilCauldronBlock.LEVEL);
+        cache.setBlock(pos, ModBlocks.FIRE_CAULDRON.getDefaultState().setValue(FireCauldronBlock.LEVEL, level));
     }
 
     @Override

@@ -202,7 +202,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 

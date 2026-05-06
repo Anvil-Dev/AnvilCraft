@@ -9,8 +9,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -106,7 +108,14 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    protected void entityInside(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Entity entity,
+        InsideBlockEffectApplier effectApplier,
+        boolean isPrecise
+    ) {
         if (level.isClientSide()) {
             return;
         }
@@ -127,7 +136,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -145,7 +154,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
                 }
                 level.setBlockAndUpdate(pos, blockState);
                 level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             } else if (stack.is(ModItems.MAGNET_INGOT)) {
                 stack.consume(1, player);
                 BlockState blockState = ModBlocks.MAGNET_BLOCK.get().defaultBlockState();
@@ -154,7 +163,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
                 }
                 level.setBlockAndUpdate(pos, blockState);
                 level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -17,7 +18,14 @@ public class ExpFluidBlock extends LiquidBlock {
     }
 
     @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    protected void entityInside(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Entity entity,
+        InsideBlockEffectApplier effectApplier,
+        boolean isPrecise
+    ) {
         if (level.isClientSide()) return;
         if (!level.getFluidState(pos).isSource()) return;
         if (entity instanceof Player player) {

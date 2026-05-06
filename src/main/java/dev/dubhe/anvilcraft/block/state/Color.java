@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Accessors(fluent = true)
 public enum Color implements StringRepresentable {

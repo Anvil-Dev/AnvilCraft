@@ -53,7 +53,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements Fallable, IHammerRemovable {
     public static final SoundType SOUND_TYPE = new DeferredSoundType(
@@ -244,10 +244,9 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
-
     /**
      * 落地
      */

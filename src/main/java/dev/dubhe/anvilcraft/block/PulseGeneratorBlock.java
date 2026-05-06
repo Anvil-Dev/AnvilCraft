@@ -40,7 +40,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.TickPriority;
 import net.neoforged.neoforge.event.EventHooks;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -289,7 +289,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -298,7 +298,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof PulseGeneratorBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
                 return Util.interactionResultConverter()

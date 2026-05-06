@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.BlockGetter;
@@ -21,7 +22,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.Objects;
@@ -108,7 +109,14 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
     }
 
     @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    protected void entityInside(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Entity entity,
+        InsideBlockEffectApplier effectApplier,
+        boolean isPrecise
+    ) {
         if (level.isClientSide()) return;
         if (entity instanceof ItemEntity) {
             AABB railBox = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
@@ -136,6 +144,6 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
                 }
             }
         }
-        super.entityInside(state, level, pos, entity);
+        super.entityInside(state, level, pos, entity, effectApplier, isPrecise);
     }
 }

@@ -26,7 +26,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHalf>
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {

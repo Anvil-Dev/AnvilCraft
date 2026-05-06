@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.block.cauldron.OilCauldronBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

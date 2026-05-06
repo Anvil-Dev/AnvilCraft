@@ -22,12 +22,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -76,7 +75,7 @@ public abstract class BaseChuteBlockEntity
 
     protected abstract boolean validateBlockState(BlockState state);
 
-    protected abstract DirectionProperty getFacingProperty();
+    protected abstract EnumProperty<Direction> getFacingProperty();
 
     protected abstract Direction getOutputDirection();
 

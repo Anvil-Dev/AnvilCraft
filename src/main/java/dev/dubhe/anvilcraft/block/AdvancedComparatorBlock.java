@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity.Mode;
@@ -18,7 +17,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
@@ -38,12 +36,14 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.event.EventHooks;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -107,7 +107,14 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
         level.scheduleTick(pos, this, getDelay());
     }
 
@@ -133,15 +140,16 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            super.onRemove(state, level, pos, newState, false);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        if (!state.is(level.getBlockState(pos).getBlock())) {
+            super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         }
         Direction facing = state.getValue(FACING);
         BlockPos front = pos.relative(facing.getOpposite());
         if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) return;
-        level.neighborChanged(front, this, pos);
-        level.updateNeighborsAtExceptFromFacing(front, this, facing);
+        Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, facing.getOpposite(), null);
+        level.neighborChanged(front, this, orientation);
+        level.updateNeighborsAtExceptFromFacing(front, this, facing, orientation);
     }
 
     public void update(Level level, BlockPos pos, BlockState state) {
@@ -180,13 +188,13 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         BlockState blockstate = level.getBlockState(blockpos);
         int i = level.getSignal(blockpos, direction);
         if (blockstate.hasAnalogOutputSignal()) {
-            i = blockstate.getAnalogOutputSignal(level, blockpos);
+            i = blockstate.getAnalogOutputSignal(level, blockpos, direction);
         } else if (i < 15 && blockstate.isRedstoneConductor(level, blockpos)) {
             blockpos = blockpos.relative(direction);
             blockstate = level.getBlockState(blockpos);
             ItemFrame itemframe = getItemFrame(level, direction, blockpos);
             int j = Integer.MIN_VALUE;
-            if (blockstate.hasAnalogOutputSignal()) j = Math.max(j, blockstate.getAnalogOutputSignal(level, blockpos));
+            if (blockstate.hasAnalogOutputSignal()) j = Math.max(j, blockstate.getAnalogOutputSignal(level, blockpos, direction));
             if (itemframe != null) j = Math.max(j, itemframe.getAnalogOutput());
             if (j != Integer.MIN_VALUE) {
                 i = j;
@@ -207,7 +215,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
                 pos.getY() + 1,
                 pos.getZ() + 1
             ),
-            (frame) -> frame != null && frame.getDirection() == facing
+            (frame) -> frame.getDirection() == facing
         );
         if (!list.isEmpty()) return list.getFirst();
         return null;
@@ -243,8 +251,9 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
                 .setValue(AdvancedComparatorBlock.INPUT, inputtingSignal > 0)
                 .setValue(AdvancedComparatorBlock.POWER, inputtingSignal)
                 .setValue(AdvancedComparatorBlock.MODE, mode));
-        level.neighborChanged(neighbourPos, state.getBlock(), pos);
-        level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite());
+        Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, direction, null);
+        level.neighborChanged(neighbourPos, state.getBlock(), orientation);
+        level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite(), orientation);
     }
 
     @Override
@@ -280,7 +289,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -289,11 +298,10 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof AdvancedComparatorBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
-                return Util.interactionResultConverter()
-                    .apply(be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult));
+                return be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult);
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

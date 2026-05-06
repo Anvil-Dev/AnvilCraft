@@ -42,7 +42,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -89,7 +89,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -105,14 +105,14 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
                     propelPistonBlockEntity.addEnergy(4000);
                     stack.consume(1, player);
                     player.addItem(ModItems.CAPACITOR_EMPTY.asStack());
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
             } else if (stack.is(ModItems.SUPER_CAPACITOR)) {
                 if (storedEnergy < 20000) {
                     propelPistonBlockEntity.updateStoredEnergy(80000);
                     stack.consume(1, player);
                     player.addItem(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
             }
         }
@@ -125,8 +125,8 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.hasNeighborSignal(pos)) {

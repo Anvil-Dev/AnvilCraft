@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -29,7 +28,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, IRecipeResultOffsetBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final VoxelShape REDUCE_AABB = Shapes.or(
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),

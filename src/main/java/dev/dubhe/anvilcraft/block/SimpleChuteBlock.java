@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -45,12 +44,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class SimpleChuteBlock
     extends BaseEntityBlock
     implements SimpleWaterloggedBlock, IHammerChangeable, IHammerRemovable {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty TALL = BooleanProperty.create("tall");
@@ -101,8 +100,8 @@ public class SimpleChuteBlock
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;

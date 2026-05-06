@@ -24,13 +24,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class RubyLaserBlock extends BaseLaserBlock implements IHammerRemovable, HammerRotateBehavior {
     public static final VoxelShape UP_MODEL =
@@ -45,7 +44,7 @@ public class RubyLaserBlock extends BaseLaserBlock implements IHammerRemovable, 
         Shapes.or(Block.box(3, 4, 4, 13, 12, 12), Block.box(0, 5, 5, 3, 11, 11), Block.box(13, 3, 3, 16, 13, 13));
     public static final VoxelShape EAST_MODEL =
         Shapes.or(Block.box(3, 4, 4, 13, 12, 12), Block.box(13, 5, 5, 16, 11, 11), Block.box(0, 3, 3, 3, 13, 13));
-    public static final DirectionProperty FACING = DirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
 

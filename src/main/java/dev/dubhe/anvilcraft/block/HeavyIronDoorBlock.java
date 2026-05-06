@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
     public HeavyIronDoorBlock(Properties properties) {
@@ -46,7 +46,7 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -67,7 +67,7 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
                 level.getRandom().nextFloat() * 0.1F + 0.9F
             );
             level.gameEvent(player, this.isOpen(state) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         return ItemInteractionResult.FAIL;
     }

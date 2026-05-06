@@ -1,14 +1,14 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cake;
 
-public class CakeBlock extends AbstractCakeBlock {
+public class BerryCakeBlock extends ShovelEatableCakeBlock {
 
-    public CakeBlock(Properties properties) {
+    public BerryCakeBlock(Properties properties) {
         super(properties);
     }
 
     @Override
     public int getFoodLevel() {
-        return 10;
+        return 14;
     }
 
     @Override

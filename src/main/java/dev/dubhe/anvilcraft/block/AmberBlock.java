@@ -7,11 +7,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import org.jspecify.annotations.Nullable;
 
 public class AmberBlock extends HorizontalDirectionalBlock {
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 
     public AmberBlock(Properties properties) {
         super(properties);

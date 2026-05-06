@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init.block;
 
+import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -9,25 +10,25 @@ import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.AmberBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
-import dev.dubhe.anvilcraft.block.BerryCakeBlock;
-import dev.dubhe.anvilcraft.block.BerryCreamBlock;
+import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
+import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
-import dev.dubhe.anvilcraft.block.CakeBaseBlock;
-import dev.dubhe.anvilcraft.block.CakeBlock;
-import dev.dubhe.anvilcraft.block.CementCauldronBlock;
+import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
+import dev.dubhe.anvilcraft.block.cake.CakeBlock;
+import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
-import dev.dubhe.anvilcraft.block.ChocolateCakeBlock;
-import dev.dubhe.anvilcraft.block.ChocolateCreamBlock;
+import dev.dubhe.anvilcraft.block.cake.ChocolateCakeBlock;
+import dev.dubhe.anvilcraft.block.cake.ChocolateCreamBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.ConfinementChamberBlock;
 import dev.dubhe.anvilcraft.block.ControllableSandBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
-import dev.dubhe.anvilcraft.block.CreamBlock;
+import dev.dubhe.anvilcraft.block.cake.CreamBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.CrushingTableBlock;
 import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
@@ -41,9 +42,9 @@ import dev.dubhe.anvilcraft.block.EmberMetalStairBlock;
 import dev.dubhe.anvilcraft.block.EmberSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.EndDustBlock;
 import dev.dubhe.anvilcraft.block.ExpFluidBlock;
-import dev.dubhe.anvilcraft.block.ExpFluidCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.ExpFluidCauldronBlock;
 import dev.dubhe.anvilcraft.block.FerriteCoreMagnetBlock;
-import dev.dubhe.anvilcraft.block.FireCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.block.FlintBlock;
 import dev.dubhe.anvilcraft.block.FluidTankBlock;
@@ -65,7 +66,7 @@ import dev.dubhe.anvilcraft.block.HeavyIronTrapdoorBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
-import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
@@ -74,21 +75,21 @@ import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.LaserReceiverBlock;
-import dev.dubhe.anvilcraft.block.LavaCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.LevitationPowderBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.block.MagnetoElectricCoreBlock;
-import dev.dubhe.anvilcraft.block.MeltGemCauldron;
+import dev.dubhe.anvilcraft.block.cauldron.MeltGemCauldronBlock;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
-import dev.dubhe.anvilcraft.block.ObsidianCauldronBlock;
-import dev.dubhe.anvilcraft.block.OilCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
@@ -199,6 +200,10 @@ import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -208,6 +213,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -227,7 +233,6 @@ import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -237,9 +242,6 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.function.Supplier;
@@ -629,8 +631,8 @@ public class ModBlocks {
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(TeslaTowerItem::new)
-        .model((ctx, provider) -> {
-            provider.blockItem(ctx, "_overall");
+        .model(() -> (ctx, generator) -> {
+            generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_overall"));
         })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -664,7 +666,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .defaultLoot()
         .item(HeliostatsItem::new)
-        .model((a, b) -> {
+        .model(() -> (a, b) -> {
         })
         .build()
         .recipe(RegistrumBlockRecipeLoader::heliostats)
@@ -682,7 +684,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx, "_0"))
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_0")))
         .build()
         .recipe(RegistrumBlockRecipeLoader::loadMonitor)
         .register();
@@ -702,7 +704,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::powerConverterSmall)
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -722,7 +724,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::powerConverterMiddle)
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -742,7 +744,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::powerConverterBig)
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -898,12 +900,74 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::itemDetector)
-        .blockstate((ctx, provider) -> {
-            provider.horizontalBlock(
-                ctx.get(),
-                state -> DangerUtil.genModModelFile("block/item_detector" + (state.getValue(ItemDetectorBlock.POWERED) ? "_on" : "")).get(),
-                0
-            );
+        .blockstate(() -> (ctx, generator) -> {
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                ctx.get()
+            ).with(PropertyDispatch.initial(ItemDetectorBlock.FACING, ItemDetectorBlock.POWERED).select(
+                Direction.SOUTH,
+                false,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R0))
+                        .build()
+                )
+            ).select(
+                Direction.WEST,
+                false,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R90))
+                        .build()
+                )
+            ).select(
+                Direction.NORTH,
+                false,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R180))
+                        .build()
+                )
+            ).select(
+                Direction.EAST,
+                false,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R270))
+                        .build()
+                )
+            ).select(
+                Direction.SOUTH,
+                true,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R0))
+                        .build()
+                )
+            ).select(
+                Direction.WEST,
+                true,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R90))
+                        .build()
+                )
+            ).select(
+                Direction.NORTH,
+                true,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R180))
+                        .build()
+                )
+            ).select(
+                Direction.EAST,
+                true,
+                new MultiVariant(
+                    WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R270))
+                        .build()
+                )
+            )));
         })
         .simpleItem()
         .register();
@@ -2804,7 +2868,7 @@ public class ModBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
-    public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRUM.block("melt_gem_cauldron", MeltGemCauldron::new)
+    public static final BlockEntry<MeltGemCauldronBlock> MELT_GEM_CAULDRON = REGISTRUM.block("melt_gem_cauldron", MeltGemCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
         .properties(p -> p.lightLevel(s -> 15))
         .blockstate(DataGenUtil::noExtraModelOrState)

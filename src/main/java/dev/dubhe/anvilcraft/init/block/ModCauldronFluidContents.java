@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.Layered4LevelCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;

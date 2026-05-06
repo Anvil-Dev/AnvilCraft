@@ -34,7 +34,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, IHammerChangeable {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -159,7 +159,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -189,7 +189,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                                 .2F,
                                 1F + level.getRandom().nextFloat()
                             );
-                            return ItemInteractionResult.SUCCESS;
+                            return InteractionResult.SUCCESS;
                         }
                     }
                 } else if (charger.containsValidItem(stack)) {
@@ -198,7 +198,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                         int countDiff = stack.getCount() - (result.isEmpty() ? 0 : result.getCount());
                         ItemStack toInsert = stack.split(countDiff);
                         charger.getFilteredItemStackHandler().insertItem(0, toInsert, false);
-                        return ItemInteractionResult.SUCCESS;
+                        return InteractionResult.SUCCESS;
                     }
                 }
             }

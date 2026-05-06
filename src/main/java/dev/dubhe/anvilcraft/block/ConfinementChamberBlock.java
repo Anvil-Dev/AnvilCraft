@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
 
     // Unimplemented for current version
     /*@Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
             ItemStack stack,
             BlockState state,
             Level level,
@@ -102,7 +102,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -115,7 +115,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
             if (stack.is(ModItems.CHARGED_NEUTRONIUM_INGOT)) {
                 level.setBlockAndUpdate(pos, ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK.getDefaultState());
                 stack.consume(1, player);
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

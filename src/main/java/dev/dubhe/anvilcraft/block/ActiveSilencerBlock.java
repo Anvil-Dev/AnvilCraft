@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -12,7 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -26,9 +24,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -66,15 +65,15 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         level.setBlockAndUpdate(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)));
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -83,22 +82,19 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof ActiveSilencerBlockEntity asbe
                 && player.getItemInHand(hand).is(ModItems.DISK.get())
             ) {
-                return Util.interactionResultConverter()
-                    .apply(
-                        asbe.useDisk(
-                            level,
-                            serverPlayer,
-                            hand,
-                            serverPlayer.getItemInHand(hand),
-                            hitResult
-                        )
-                    );
+                return asbe.useDisk(
+                    level,
+                    serverPlayer,
+                    hand,
+                    serverPlayer.getItemInHand(hand),
+                    hitResult
+                );
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

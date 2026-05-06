@@ -1,6 +1,6 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.cake;
 
-public class BerryCreamBlock extends AbstractCakeBlock {
+public class BerryCreamBlock extends ShovelEatableCakeBlock {
 
     public BerryCreamBlock(Properties properties) {
         super(properties);

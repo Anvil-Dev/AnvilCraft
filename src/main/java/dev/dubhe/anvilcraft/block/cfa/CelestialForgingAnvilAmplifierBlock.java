@@ -18,20 +18,19 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class CelestialForgingAnvilAmplifierBlock
-    extends FlexibleMultiPartBlock<DirectionCube232PartHalf, DirectionProperty, Direction>
+    extends FlexibleMultiPartBlock<DirectionCube232PartHalf, EnumProperty<Direction>, Direction>
     implements IHammerChangeable, IHammerRemovable {
     public static final EnumProperty<DirectionCube232PartHalf> HALF = EnumProperty.create("half", DirectionCube232PartHalf.class);
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final VoxelShape NORTH_TIP = ShapeUtil.merge(
         new AABB(0, 0, 0, 16, 4, 16),
         new AABB(5, 5, 5, 10, 10, 10)
@@ -171,7 +170,7 @@ public class CelestialForgingAnvilAmplifierBlock
     }
 
     @Override
-    public DirectionProperty getAdditionalProperty() {
+    public EnumProperty<Direction> getAdditionalProperty() {
         return FACING;
     }
 
@@ -214,10 +213,9 @@ public class CelestialForgingAnvilAmplifierBlock
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
-
     // region VoxelShapes
     // E
 }

@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
-import dev.dubhe.anvilcraft.block.FireCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;

@@ -41,7 +41,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class TeslaTowerBlock
     extends SimpleMultiPartBlock<Vertical4PartHalf>
@@ -213,7 +213,7 @@ public class TeslaTowerBlock
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -222,7 +222,7 @@ public class TeslaTowerBlock
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof TeslaTowerBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
                 return Util.interactionResultConverter()

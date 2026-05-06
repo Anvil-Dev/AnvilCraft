@@ -44,7 +44,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -56,7 +56,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         if (stack.is(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem())) {
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override

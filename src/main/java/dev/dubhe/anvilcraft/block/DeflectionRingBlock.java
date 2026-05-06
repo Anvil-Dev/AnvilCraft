@@ -27,20 +27,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
-public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3PartHalf, DirectionProperty, Direction>
+public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>
     implements MultiPartBlockEntity<DirectionCube3x3PartHalf, DeflectionRingBlock>, IHammerRemovable, IHammerChangeable {
     public static final EnumProperty<DirectionCube3x3PartHalf> HALF = EnumProperty.create("half", DirectionCube3x3PartHalf.class);
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
 
@@ -65,7 +64,7 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    public DirectionProperty getAdditionalProperty() {
+    public EnumProperty<Direction> getAdditionalProperty() {
         return FACING;
     }
 
