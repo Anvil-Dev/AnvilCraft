@@ -21,11 +21,15 @@ items:
 <recipe id="anvilcraft:jewel_crafting/ominous_bottle"/>
 <recipe id="anvilcraft:jewel_crafting/heavy_core"/>
 <recipe id="anvilcraft:jewel_crafting/enchanted_golden_apple"/>
+</row>
+
+<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/trial_key"/>
 <recipe id="anvilcraft:jewel_crafting/ominous_trial_key"/>
 <recipe id="anvilcraft:jewel_crafting/totem_of_undying"/>
+</row>
 
-<Row>
+<row>
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns"/>
 > 所有旗帜图案都可以通过这个配方来仿制
 </row>
@@ -44,7 +48,6 @@ items:
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates"/>
 > 所有盔甲纹饰锻造模板都可以通过这个配方来仿制
 </row>
-</Row>
 
 # 特性
 

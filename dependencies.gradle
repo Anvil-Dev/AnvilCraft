@@ -8,6 +8,7 @@ dependencies {
 
     // Ageratum 藿香
     implementation(libs.ageratum)
+    jarJar(libs.ageratum)
 
     // JEI
     compileOnlyApi(libs.jei.common.api) { transitive = false }

@@ -127,7 +127,7 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BulgingRecipe>> BULGING_SERIALIZER =
         RECIPE_SERIALIZERS.register("bulging", BulgingRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION =
+    public static final DeferredHolder<RecipeType<?>, RecipeType<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION_TYPE =
         registerType("neutron_irradiation");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION_SERIALIZER =
         RECIPE_SERIALIZERS.register("neutron_irradiation", NeutronIrradiationRecipe.Serializer::new);
