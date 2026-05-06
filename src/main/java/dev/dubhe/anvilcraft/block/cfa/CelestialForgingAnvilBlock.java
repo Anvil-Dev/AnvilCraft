@@ -165,6 +165,7 @@ public class CelestialForgingAnvilBlock
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF);
@@ -176,7 +177,7 @@ public class CelestialForgingAnvilBlock
             return PropelPiston.createTickerHelper(
                 type,
                 ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
+                (_, _, _, be) -> be.tick()
             );
         }
         return null;
@@ -199,7 +200,7 @@ public class CelestialForgingAnvilBlock
 
     @Override
     public Identifier getDefinitionId() {
-        return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.location();
+        return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.identifier();
     }
 
     @Override

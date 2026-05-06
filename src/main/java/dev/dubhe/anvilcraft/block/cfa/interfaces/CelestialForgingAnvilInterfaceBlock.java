@@ -46,6 +46,7 @@ public abstract class CelestialForgingAnvilInterfaceBlock
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
+
     @Override
     protected abstract void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder);
 

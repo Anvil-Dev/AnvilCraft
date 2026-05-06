@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.heatable;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -9,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -46,9 +48,16 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!entity.isSteppingCarefully()
-            && entity instanceof LivingEntity) {
-            entity.hurt(level.damageSources().hotFloor(), this.steppingDamage);
+        if (
+            !entity.isSteppingCarefully()
+            && entity instanceof LivingEntity
+        ) {
+            DamageSource source = level.damageSources().hotFloor();
+            if (level.isClientSide()) {
+                entity.hurtClient(source);
+            } else {
+                entity.hurtServer(Util.cast(level), source, this.steppingDamage);
+            }
         }
         super.stepOn(level, pos, state, entity);
     }
@@ -78,20 +87,20 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
                 }
             },
             posx -> {
-                if (posx.equals(pos)) return true;
+                if (posx.equals(pos)) return BlockPos.TraversalNodeStatus.SKIP;
                 BlockState state = level.getBlockState(posx);
                 FluidState fluidState = level.getFluidState(posx);
-                if (!fluidState.is(Fluids.WATER)) return false;
+                if (!fluidState.is(Fluids.WATER)) return BlockPos.TraversalNodeStatus.SKIP;
                 if (
                     state.getBlock() instanceof BucketPickup bucketpickup
                     && !bucketpickup.pickupBlock(null, level, posx, state).isEmpty()
                 ) {
-                    return true;
+                    return BlockPos.TraversalNodeStatus.ACCEPT;
                 }
 
                 if (state.getBlock() instanceof LiquidBlock) {
                     level.setBlock(posx, Blocks.AIR.defaultBlockState(), 3);
-                    return true;
+                    return BlockPos.TraversalNodeStatus.ACCEPT;
                 }
 
                 if (
@@ -100,15 +109,15 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
                     && !state.is(Blocks.SEAGRASS)
                     && !state.is(Blocks.TALL_SEAGRASS)
                 ) {
-                    return false;
+                    return BlockPos.TraversalNodeStatus.SKIP;
                 }
 
                 BlockEntity blockentity = state.hasBlockEntity() ? level.getBlockEntity(posx) : null;
                 dropResources(state, level, posx, blockentity);
                 level.setBlock(posx, Blocks.AIR.defaultBlockState(), 3);
 
-                return true;
+                return BlockPos.TraversalNodeStatus.ACCEPT;
             }
-        ) > 1;
+        ) > 0;
     }
 }

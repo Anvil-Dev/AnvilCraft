@@ -77,7 +77,7 @@ public class ResinBlockItem extends HasMobBlockItem {
                 mob.setPersistenceRequired();
             }
         }
-        entity.moveTo(pos.getCenter());
+        entity.moveOrInterpolateTo(pos.getCenter());
         level.addFreshEntity(entity);
         RandomSource random = level.getRandom();
         ItemStack back = new ItemStack(ModItems.RESIN.asItem(), random.nextInt(1, 4));
@@ -106,7 +106,7 @@ public class ResinBlockItem extends HasMobBlockItem {
         }
         Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
         if (entity == null) return stack;
-        entity.moveTo(pos.getCenter());
+        entity.moveOrInterpolateTo(pos.getCenter());
         level.addFreshEntity(entity);
         RandomSource random = level.getRandom();
         return new ItemStack(ModItems.RESIN.asItem(), random.nextInt(1, 4));

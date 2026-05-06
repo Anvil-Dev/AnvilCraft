@@ -47,7 +47,7 @@ public class FlexibleMultiPartBlockItem<
     }
 
     public int getMaxOffsetDistance(BlockState state, Direction clickedFace) {
-        Vec3i normal = clickedFace.getOpposite().getNormal();
+        Vec3i normal = clickedFace.getOpposite().getUnitVec3i();
         int i = 0;
         for (P part : this.block.getParts()) {
             int x = part.getOffsetX(state.getValue(block.getAdditionalProperty())) * normal.getX()

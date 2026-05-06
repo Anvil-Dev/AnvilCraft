@@ -14,7 +14,7 @@ public interface ICursed extends IItemExtension, IAbnormal {
         player.addEffect(IAbnormal.makeEffectInstance(MobEffects.WEAKNESS, 1));
         int count = this.getItemCount(player);
         if (count > 8) {
-            player.addEffect(IAbnormal.makeEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 1));
+            player.addEffect(IAbnormal.makeEffectInstance(MobEffects.SLOWNESS, 1));
         }
         if (count > 64) {
             player.addEffect(IAbnormal.makeEffectInstance(MobEffects.HUNGER, 1));

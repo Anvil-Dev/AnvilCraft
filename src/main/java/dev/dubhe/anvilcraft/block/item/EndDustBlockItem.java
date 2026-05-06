@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -20,7 +19,7 @@ public class EndDustBlockItem extends BlockItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(
+    public InteractionResult use(
         Level level, Player player, InteractionHand usedHand) {
         BlockPos blockPos = level.clip(new ClipContext(
                 player.getEyePosition(1F),
@@ -31,12 +30,12 @@ public class EndDustBlockItem extends BlockItem {
             .getBlockPos();
         ItemStack itemStack = player.getItemInHand(usedHand);
 
-        if (!(level.getBlockState(blockPos).is(BlockTags.REPLACEABLE))) return InteractionResultHolder.fail(itemStack);
+        if (!(level.getBlockState(blockPos).is(BlockTags.REPLACEABLE))) return InteractionResult.FAIL;
         BlockHitResult blockHitResult =
             new BlockHitResult(blockPos.getCenter(), player.getDirection(), blockPos, false);
         BlockPlaceContext blockPlaceContext = new BlockPlaceContext(level, player, usedHand, itemStack, blockHitResult);
-        if (!this.canPlace(blockPlaceContext, this.getBlock().defaultBlockState())) return InteractionResultHolder.fail(itemStack);
-        if (this.place(blockPlaceContext) == InteractionResult.FAIL) return InteractionResultHolder.fail(itemStack);
-        return InteractionResultHolder.success(itemStack);
+        if (!this.canPlace(blockPlaceContext, this.getBlock().defaultBlockState())) return InteractionResult.FAIL;
+        if (this.place(blockPlaceContext) == InteractionResult.FAIL) return InteractionResult.FAIL;
+        return InteractionResult.SUCCESS;
     }
 }

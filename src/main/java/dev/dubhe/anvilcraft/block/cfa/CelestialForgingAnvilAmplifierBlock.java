@@ -216,6 +216,4 @@ public class CelestialForgingAnvilAmplifierBlock
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
-    // region VoxelShapes
-    // E
 }

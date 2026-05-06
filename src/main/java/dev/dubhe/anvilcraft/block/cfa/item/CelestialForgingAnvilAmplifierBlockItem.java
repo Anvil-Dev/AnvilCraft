@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public class CelestialForgingAnvilAmplifierBlockItem
     extends FlexibleMultiPartBlockItem<DirectionCube232PartHalf, EnumProperty<Direction>, Direction> {

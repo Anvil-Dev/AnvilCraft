@@ -40,7 +40,7 @@ public class SimpleMultiPartBlockItem<P extends Enum<P> & ISimpleMultiPartBlockS
     }
 
     public int getMaxOffsetDistance(Direction clickedFace) {
-        Vec3i normal = clickedFace.getOpposite().getNormal();
+        Vec3i normal = clickedFace.getOpposite().getUnitVec3i();
         int i = 0;
         for (P part : this.block.getParts()) {
             int x = part.getOffsetX() * normal.getX()

@@ -13,11 +13,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.TntBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -28,14 +28,14 @@ public abstract class HeatableBlock extends Block {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         Direction[] directions = Direction.values();
         if (HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) == HeatTier.NORMAL) return;
         for (Direction direction : directions) {
-            if (level.getBlockState(pos.relative(direction)).is(Blocks.TNT)) {
-                TntBlock.explode(level, pos.relative(direction));
+            BlockState tnt = level.getBlockState(pos.relative(direction));
+            if (tnt.is(Blocks.TNT)) {
+                tnt.onCaughtFire(level, pos.relative(direction), direction.getOpposite(), null);
                 level.removeBlock(pos.relative(direction), false);
             }
         }
@@ -47,7 +47,7 @@ public abstract class HeatableBlock extends Block {
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState ignored, BlockEntityType<T> ignored1) {
         if (level.isClientSide()) return null;
         if (!this.hasBlockEntity()) return null;
-        return (level1, pos, it, it1) -> HeatableBlockEntity.tick(level1, pos);
+        return (level1, pos, _, _) -> HeatableBlockEntity.tick(level1, pos);
     }
 
     public Optional<BlockState> getPrevTier(Level level, BlockPos pos, BlockState state) {
@@ -61,7 +61,7 @@ public abstract class HeatableBlock extends Block {
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (!this.hasBlockEntity()) return 0;
         return Util.castSafely(level.getBlockEntity(pos), HeatableBlockEntity.class)
             .map(HeatableBlockEntity::getSignal)
@@ -87,21 +87,23 @@ public abstract class HeatableBlock extends Block {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        if (level.getBlockState(neighborPos).is(Blocks.TNT)
-            && HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) != HeatTier.NORMAL
-        ) {
-            TntBlock.explode(level, neighborPos);
-            level.removeBlock(neighborPos, false);
+        if (HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) == HeatTier.NORMAL) return;
+        for (Direction direction : orientation.getDirections()) {
+            BlockPos neighbourPos = pos.relative(direction);
+            BlockState tnt = level.getBlockState(neighbourPos);
+            if (tnt.is(Blocks.TNT)) {
+                tnt.onCaughtFire(level, neighbourPos, direction.getOpposite(), null);
+                level.removeBlock(neighbourPos, false);
+            }
         }
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
     }
 }
