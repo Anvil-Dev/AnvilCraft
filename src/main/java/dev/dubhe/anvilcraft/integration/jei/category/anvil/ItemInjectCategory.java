@@ -153,7 +153,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.ITEM_INJECT,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_INJECT_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_INJECT.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

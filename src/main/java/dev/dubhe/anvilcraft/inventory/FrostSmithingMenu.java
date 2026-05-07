@@ -56,8 +56,8 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
         super(type, containerId, playerInventory, access);
         this.level = playerInventory.player.level();
         this.recipes = ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
-            .addAll(this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.PERMUTATION_TYPE.get()))
-            .addAll(this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.DEFORMATION_TYPE.get()))
+            .addAll(this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.PERMUTATION.get()))
+            .addAll(this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.DEFORMATION.get()))
             .build();
     }
 
@@ -152,7 +152,7 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
         FrostSmithingRecipeInput input = this.createRecipeInput();
 
         List<RecipeHolder<PermutationRecipe>> permuts = this.level.getRecipeManager()
-            .getRecipesFor(ModRecipeTypes.PERMUTATION_TYPE.get(), input, this.level);
+            .getRecipesFor(ModRecipeTypes.PERMUTATION.get(), input, this.level);
         if (!permuts.isEmpty()) {
             RecipeHolder<PermutationRecipe> holder = permuts.getFirst();
             this.results = holder.value().inputs(input.input());
@@ -173,7 +173,7 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
         }
 
         List<RecipeHolder<DeformationRecipe>> deforms = this.level.getRecipeManager()
-            .getRecipesFor(ModRecipeTypes.DEFORMATION_TYPE.get(), input, this.level);
+            .getRecipesFor(ModRecipeTypes.DEFORMATION.get(), input, this.level);
         if (!deforms.isEmpty()) {
             RecipeHolder<DeformationRecipe> holder = deforms.getFirst();
             this.results = holder.value().inputs(input.input());

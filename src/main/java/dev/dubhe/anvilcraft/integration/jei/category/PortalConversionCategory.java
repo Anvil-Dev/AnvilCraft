@@ -165,7 +165,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.PORTAL_CONVERSION,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.PORTAL_CONVERSION_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.PORTAL_CONVERSION.get())
         );
     }
 

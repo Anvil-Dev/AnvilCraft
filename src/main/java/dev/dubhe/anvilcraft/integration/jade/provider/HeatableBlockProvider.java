@@ -24,7 +24,7 @@ public enum HeatableBlockProvider implements IBlockComponentProvider, IServerDat
         if (serverData.contains("duration")) {
             tooltip.add(Component.translatable(
                 "tooltip.anvilcraft.heat.duration",
-                FormattingUtil.toFormattedTime(serverData.getInt("duration"), 5)));
+                FormattingUtil.toFormattedTime(serverData.getIntOr("duration", 0), 5)));
         }
     }
 

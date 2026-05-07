@@ -5,6 +5,8 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,14 +21,14 @@ public class CrabTrapBlockEntity extends BlockEntity implements IItemHandlerHold
     private final ItemStackHandler itemHandler = new ItemStackHandler(9);
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("Inventory", itemHandler.serializeNBT(provider));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("Inventory", CompoundTag.CODEC, itemHandler.serializeNBT(provider));
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        itemHandler.deserializeNBT(provider, input.read("Inventory", CompoundTag.CODEC).orElse(new CompoundTag()));
     }
 }

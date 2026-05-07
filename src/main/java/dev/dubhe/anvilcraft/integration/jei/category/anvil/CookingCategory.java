@@ -77,7 +77,7 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-            AnvilCraftJeiPlugin.COOKING, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.COOKING_TYPE.get()));
+            AnvilCraftJeiPlugin.COOKING, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.COOKING.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

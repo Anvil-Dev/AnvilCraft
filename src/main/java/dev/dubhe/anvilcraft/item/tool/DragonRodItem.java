@@ -130,7 +130,7 @@ public class DragonRodItem extends Item {
             if (devouringState.isAir()) continue;
             if (!BlockDevourerBlock.canDevour(devouringState)) continue;
             if (devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-                && level.random.nextDouble() > 0.05) {
+                && level.getRandom().nextDouble() > 0.05) {
                 level.destroyBlock(devouringPos, false);
                 continue;
             }

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 @Getter
 public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
+    public static final RecipeSerializer<UnpackRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(UnpackRecipe::new);
 
     /**
      * 构造一个解包配方
@@ -52,13 +54,13 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
     }
 
     @Override
-    public RecipeSerializer<UnpackRecipe> getSerializer() {
-        return ModRecipeTypes.UNPACK_SERIALIZERS.get();
+    public RecipeType<UnpackRecipe> getType() {
+        return ModRecipeTypes.UNPACK.get();
     }
 
     @Override
-    public RecipeType<UnpackRecipe> getType() {
-        return ModRecipeTypes.UNPACK_TYPE.get();
+    public RecipeSerializer<UnpackRecipe> getSerializer() {
+        return ModRecipeSerializers.UNPACK.get();
     }
 
     /**
@@ -68,16 +70,6 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 解包配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<UnpackRecipe> {
-        @Override
-        protected UnpackRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new UnpackRecipe(itemIngredients, results);
-        }
     }
 
     /**

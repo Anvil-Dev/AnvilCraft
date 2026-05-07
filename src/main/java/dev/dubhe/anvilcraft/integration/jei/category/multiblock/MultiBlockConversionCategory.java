@@ -125,7 +125,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK_CONVERSION_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK_CONVERSION.get())
         );
     }
 

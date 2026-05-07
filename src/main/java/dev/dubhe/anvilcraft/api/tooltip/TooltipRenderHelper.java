@@ -98,7 +98,7 @@ public class TooltipRenderHelper {
 
         for (ClientTooltipComponent component : components) {
             width = Math.max(component.getWidth(font), width);
-            height += component.getHeight();
+            height += component.getHeight(font);
         }
 
         Vector2ic vector2ic = tooltipPositioner.positionTooltip(thiz.guiWidth(), thiz.guiHeight(), x, y, width, height);
@@ -121,13 +121,13 @@ public class TooltipRenderHelper {
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
             component.renderText(font, vx, q, thiz.pose().last().pose(), thiz.bufferSource());
-            q += component.getHeight() + (i == 0 ? 2 : 0);
+            q += component.getHeight(font) + (i == 0 ? 2 : 0);
         }
 
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
             component.renderImage(font, vx, q, thiz);
-            q += component.getHeight() + (i == 0 ? 2 : 0);
+            q += component.getHeight(font) + (i == 0 ? 2 : 0);
         }
 
         thiz.pose().popPose();

@@ -89,7 +89,7 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.STAMPING_UNIQUE_ITEMS_TYPE.get();
+        return ModRecipeTypes.STAMPING_UNIQUE_ITEMS.get();
     }
 
     @Override

@@ -46,7 +46,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
         this.anvilcraft$wasAttracted(state, level, pos);
     }
 

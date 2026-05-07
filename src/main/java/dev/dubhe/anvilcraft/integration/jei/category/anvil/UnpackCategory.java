@@ -78,7 +78,7 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.UNPACK,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.UNPACK_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.UNPACK.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

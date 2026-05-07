@@ -280,7 +280,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             }
         }
 
-        level.playSound(null, belowPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.55F, level.random.nextFloat() * 0.1F + 0.55F);
+        level.playSound(null, belowPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.55F, level.getRandom().nextFloat() * 0.1F + 0.55F);
     }
 
     @Override

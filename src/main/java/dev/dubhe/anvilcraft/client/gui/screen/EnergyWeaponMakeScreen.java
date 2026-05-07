@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.inventory.component.FilteredSlot;
 import dev.dubhe.anvilcraft.network.multiple.EnergyWeaponMakePackets;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
@@ -70,8 +71,8 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     @Override
     protected void init() {
         super.init();
-        this.imageHeight = 175;
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.getImageHeight() = 175;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
 
         this.addRenderableWidget(new TexturedButton(
@@ -183,7 +184,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         if (slot instanceof FilteredSlot filtered) {
             if (filtered.isFilterEmpty()) return;
             if (stack.isEmpty()) {
-                int seed = slot.x + slot.y * this.imageWidth;
+                int seed = slot.x + slot.y * this.getImageWidth();
                 ItemStack[] stacks = filtered.getFilter().getItems();
                 stack = stacks[(int) ((System.currentTimeMillis() / 1000) % stacks.length)];
                 guiGraphics.renderItem(stack, slot.x, slot.y, seed);
@@ -196,7 +197,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
 
                 return;
             } else if (stack.getCount() < filtered.getFilter().count()) {
-                int seed = slot.x + slot.y * this.imageWidth;
+                int seed = slot.x + slot.y * this.getImageWidth();
                 if (slot.isFake()) {
                     guiGraphics.renderFakeItem(stack, slot.x, slot.y, seed);
                 } else {
@@ -215,7 +216,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
 
         if (this.menu.canScroll()) {
             int left = this.leftPos + 64;
@@ -243,9 +244,9 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            if (this.insideScrollbar(mouseX, mouseY)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
+        if (event.button() == 0) {
+            if (this.insideScrollbar(event.x(), event.y())) {
                 this.scrollable.scrolling();
                 return true;
             }
@@ -253,7 +254,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
                 int x = this.leftPos + 7 + 18 * (i % 3);
                 int y = this.topPos + 24 + 18 * ((i - this.head) / 3);
 
-                if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
+                if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
                 if (this.menu.getSelectedIndex() == i) {
                     this.menu.setSelectedIndex(-1);
                     PacketDistributor.sendToServer(new EnergyWeaponMakePackets.Select(-1));
@@ -264,27 +265,27 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, handled);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0 && this.scrollable.isScrolling()) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.scrollable.isScrolling()) {
             this.scrollable.notScrolling();
             return true;
         }
 
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.scrollable.isScrolling()) {
             int top = this.topPos + 24;
-            this.scrollable.scrollOnDrag(12, mouseY, top, top + 36);
+            this.scrollable.scrollOnDrag(12, event.y(), top, top + 36);
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override

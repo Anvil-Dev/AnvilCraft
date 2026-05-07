@@ -123,7 +123,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
              */
             private int getExperienceAmount(Level level) {
                 int xp = this.getExperience();
-                return xp > 0 ? xp + level.random.nextInt(xp) : 0;
+                return xp > 0 ? xp + level.getRandom().nextInt(xp) : 0;
             }
 
             /**

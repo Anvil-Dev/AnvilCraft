@@ -183,7 +183,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.SQUEEZING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SQUEEZING_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SQUEEZING.get())
         );
     }
 

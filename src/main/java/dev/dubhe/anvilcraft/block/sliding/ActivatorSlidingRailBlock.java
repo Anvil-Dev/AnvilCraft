@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -158,7 +159,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
                 BlockState state1 = level.getBlockState(pos1);
                 if (!(state1.getBlock() instanceof ActivatorSlidingRailBlock other)) continue;
                 if (state1.getOptionalValue(FACING).map(Direction::getAxis).filter(axis::equals).isEmpty()) continue;
-                level.neighborChanged(pos1, other, pos);
+                level.neighborChanged(pos1, other, Orientation.random(level.getRandom()));
             }
         }
     }
@@ -181,7 +182,8 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean isMoving) {
+        if (orientation == null) return;
         this.updatePower(level, pos, state, fromPos);
         Optional<ActivatorSlidingRailBlockEntity> beOp = level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get());
         if (!fromPos.equals(pos.above())) return;
@@ -198,7 +200,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
             this.updateAbove(level, pos);
             return;
         }
-        super.neighborChanged(state, level, pos, block, fromPos, isMoving);
+        super.neighborChanged(state, level, pos, block, orientation, isMoving);
     }
 
     @Override
@@ -295,12 +297,12 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         BlockPos abovePos = pos.above();
         BlockState aboveState = level.getBlockState(abovePos);
         aboveState.onNeighborChange(level, abovePos, pos);
-        level.neighborChanged(aboveState, abovePos, this, pos, false);
+        level.neighborChanged(aboveState, abovePos, this, Orientation.random(level.getRandom()), false);
         if (!aboveState.isRedstoneConductor(level, abovePos)) return;
         for (Direction dir : UPDATE_SIDES) {
             BlockPos neighborPos = abovePos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
-            level.neighborChanged(neighborState, neighborPos, aboveState.getBlock(), abovePos, false);
+            level.neighborChanged(neighborState, neighborPos, aboveState.getBlock(), Orientation.random(level.getRandom()), false);
         }
     }
 

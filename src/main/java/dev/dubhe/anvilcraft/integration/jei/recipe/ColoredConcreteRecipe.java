@@ -16,7 +16,7 @@ import java.util.Locale;
 public record ColoredConcreteRecipe(Color color, List<ItemIngredientPredicate> ingredients, ChanceItemStack result) {
     public static ImmutableList<ColoredConcreteRecipe> getAllRecipes() {
         ImmutableList.Builder<ColoredConcreteRecipe> builder = ImmutableList.builder();
-        for (BulgingRecipe recipe : JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.BULGING_TYPE.get())) {
+        for (BulgingRecipe recipe : JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.BULGING.get())) {
             if (recipe.getResultItems().isEmpty()) continue;
             ChanceItemStack result = recipe.getResultItems().getFirst();
             if (!result.stack().is(ModItemTags.REINFORCED_CONCRETE)) continue;

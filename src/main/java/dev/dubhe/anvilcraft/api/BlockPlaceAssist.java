@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
@@ -29,8 +30,8 @@ public class BlockPlaceAssist {
         Vec3 centerToHit = hit.subtract(Vec3.atLowerCornerOf(pos).add(.5F, .5F, .5F));
         return Arrays.stream(Direction.values())
             .filter(includeDirection)
-            .map(dir -> Pair.of(dir, Vec3.atLowerCornerOf(dir.getNormal()).distanceTo(centerToHit)))
-            .sorted(Comparator.comparingDouble(Pair::getSecond))
+            .map(dir -> Pair.of(dir, Vec3.atLowerCornerOf(new Vec3i(dir.getStepX(), dir.getStepY(), dir.getStepZ())).distanceTo(centerToHit)))
+            .sorted(Comparator.comparingDouble(pair -> pair.getSecond()))
             .map(Pair::getFirst)
             .collect(Collectors.toList());
     }

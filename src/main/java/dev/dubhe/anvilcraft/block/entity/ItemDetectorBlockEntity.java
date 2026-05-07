@@ -16,6 +16,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -118,29 +120,29 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.setRange(tag.getInt("Range"));
-        if (tag.contains("FilterMode")) this.filterMode = Mode.valueOf(tag.getString("FilterMode"));
-        if (tag.contains("Filter")) filter.deserializeNBT(registries, tag.getCompound("Filter"));
-        if (tag.contains("OutputSignal")) this.outputSignal = tag.getInt("OutputSignal");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.setRange(input.getIntOr("Range", 0));
+        if (input.getIntOr("FilterMode", 0).isPresent()) this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
+        if (input.getIntOr("Filter", 0).isPresent()) filter.deserializeNBT(registries, input.read("Filter", CompoundTag.CODEC).orElse(new CompoundTag()));
+        if (input.getIntOr("OutputSignal", 0).isPresent()) this.outputSignal = input.getIntOr("OutputSignal", 0);
         this.recalcDetectionRange();
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("Range", this.range);
-        tag.putString("FilterMode", this.filterMode.toString());
-        tag.put("Filter", this.filter.serializeNBT(registries));
-        tag.putInt("OutputSignal", this.outputSignal);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Range", this.range);
+        output.putString("FilterMode", this.filterMode.toString());
+        output.store("Filter", CompoundTag.CODEC, this.filter.serializeNBT(registries));
+        output.putInt("OutputSignal", this.outputSignal);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         if (!this.rangeChanged) return new CompoundTag();
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putInt("Range", this.range);
+        output.putInt("Range", this.range);
         this.rangeChanged = false;
         return tag;
     }
@@ -334,19 +336,19 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    public void storeDiskData(CompoundTag data) {
+    public void storeDiskData(ValueOutput output) {
         if (this.level == null) return;
-        data.putInt("Range", this.range);
-        data.putString("FilterMode", this.filterMode.toString());
-        data.put("Filter", this.filter.serializeNBT(this.level.registryAccess()));
+        output.putInt("Range", this.range);
+        output.putString("FilterMode", this.filterMode.toString());
+        output.store("Filter", CompoundTag.CODEC, this.filter.serializeNBT(this.level.registryAccess()));
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
+    public void applyDiskData(ValueInput input) {
         if (this.level == null) return;
-        this.setRange(data.getInt("Range"));
-        this.filterMode = Mode.valueOf(data.getString("FilterMode"));
-        filter.deserializeNBT(this.level.registryAccess(), data.getCompound("Filter"));
+        this.setRange(input.getIntOr("Range", 0));
+        this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
+        filter.deserializeNBT(this.level.registryAccess(), input.read("Filter", CompoundTag.CODEC).orElse(new CompoundTag()));
         this.recalcDetectionRange();
     }
 

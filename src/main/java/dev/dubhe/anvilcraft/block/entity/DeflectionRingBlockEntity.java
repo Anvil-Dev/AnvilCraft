@@ -20,6 +20,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -123,17 +125,17 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putDouble("lastEntitySpeed", lastEntitySpeed);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putDouble("lastEntitySpeed", lastEntitySpeed);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+    public void loadAdditional(ValueInput input) {
         if (tag.contains("lastEntitySpeed")) {
-            this.lastEntitySpeed = tag.getDouble("entity");
+            this.lastEntitySpeed = input.getDoubleOr("entity", 0.0);
         }
-        super.loadAdditional(tag, provider);
+        super.loadAdditional(input);
     }
 
     @Override

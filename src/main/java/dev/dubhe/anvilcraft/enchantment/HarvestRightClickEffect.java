@@ -98,7 +98,7 @@ public record HarvestRightClickEffect(int range) implements EnchantmentEntityEff
                     int age = blockState.getValue(SweetBerryBushBlock.AGE);
                     boolean isMaxAge = age == SweetBerryBushBlock.MAX_AGE;
                     if (age > 1) {
-                        int i = 1 + level.random.nextInt(2);
+                        int i = 1 + level.getRandom().nextInt(2);
                         Block.popResource(level, blockPos, new ItemStack(Items.SWEET_BERRIES, i + (isMaxAge ? 1 : 0)));
                         level.playSound(
                             null,
@@ -106,7 +106,7 @@ public record HarvestRightClickEffect(int range) implements EnchantmentEntityEff
                             SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES,
                             SoundSource.BLOCKS,
                             1,
-                            0.8F + level.random.nextFloat() * 0.4F
+                            0.8F + level.getRandom().nextFloat() * 0.4F
                         );
                         BlockState blockState1 = blockState.setValue(SweetBerryBushBlock.AGE, 1);
                         level.setBlock(blockPos, blockState1, 2);

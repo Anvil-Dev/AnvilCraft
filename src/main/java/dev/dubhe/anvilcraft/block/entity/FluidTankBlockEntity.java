@@ -4,6 +4,8 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -39,34 +41,34 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putBoolean("bigger", this.isBigger);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putBoolean("bigger", this.isBigger);
         CompoundTag tankNbt = tank.writeToNBT(provider, new CompoundTag());
         if (!tankNbt.isEmpty()) {
-            tag.put("tank", tankNbt);
+            output.store("tank", CompoundTag.CODEC, tankNbt);
         }
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.isBigger = tag.getBoolean("bigger");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.isBigger = input.getBooleanOr("bigger", false);
         if (this.isBigger) {
             this.onFormed();
         } else {
             this.onUnformed();
         }
-        tank.readFromNBT(provider, tag.getCompound("tank"));
+        tank.readFromNBT(provider, input.read("tank", CompoundTag.CODEC).orElse(new CompoundTag()));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("bigger", this.isBigger);
+        output.putBoolean("bigger", this.isBigger);
         CompoundTag fluidTag = new CompoundTag();
         tank.writeToNBT(registries, fluidTag);
-        tag.put("tank", fluidTag);
+        output.store("tank", CompoundTag.CODEC, fluidTag);
         return tag;
     }
 

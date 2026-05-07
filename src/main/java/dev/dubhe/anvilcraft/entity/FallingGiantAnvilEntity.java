@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityDimensions;
@@ -44,15 +46,15 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag data) {
+    protected void addAdditionalSaveData(ValueOutput data) {
         super.addAdditionalSaveData(data);
         data.putFloat("anvilcraft$FallDistance", this.fallDistance);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag data) {
+    protected void readAdditionalSaveData(ValueInput data) {
         super.readAdditionalSaveData(data);
-        this.fallDistance = data.getFloat("anvilcraft$fallDistance");
+        this.fallDistance = data.getFloatOr("anvilcraft$fallDistance", 0.0f);
     }
 
     public static FallingGiantAnvilEntity fall(Level level, BlockPos pos, BlockState blockState, boolean updateBlock) {
@@ -94,9 +96,9 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                 if (!this.onGround()) {
                     if (!this.level().isClientSide()
                         && (this.time > 100
-                        && (blockPos.getY() <= this.level().getMinBuildHeight()
+                        && (blockPos.getY() <= this.level().getMinY()
                         || blockPos.getY()
-                        > this.level().getMaxBuildHeight())
+                        > this.level().getMaxY())
                         || this.time > 600)) {
                         if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                             this.spawnAtLocation(block);
@@ -135,13 +137,10 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                             }
 
                             if (this.level().setBlock(blockPos, this.blockState, 3)) {
-                                ((ServerLevel) this.level())
-                                    .getChunkSource()
-                                    .chunkMap
-                                    .broadcast(
-                                        this,
-                                        new ClientboundBlockUpdatePacket(
-                                            blockPos, this.level().getBlockState(blockPos)));
+                                PacketDistributor.sendToPlayersTrackingEntity(
+                                    this,
+                                    new ClientboundBlockUpdatePacket(
+                                        blockPos, this.level().getBlockState(blockPos)));
                                 this.discard();
                                 if (block instanceof GiantAnvilBlock block1) {
                                     block1.onLand(

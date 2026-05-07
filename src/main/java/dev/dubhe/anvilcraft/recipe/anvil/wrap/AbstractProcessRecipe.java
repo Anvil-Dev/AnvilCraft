@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.InWorldRecipe;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
@@ -10,6 +9,7 @@ import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlock;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlockIngredient;
 import dev.anvilcraft.lib.v2.recipe.predicate.item.HasItemIngredient;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullBiFunction;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
@@ -22,13 +22,12 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -167,53 +166,26 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         return this.property.getProduceHeat();
     }
 
-    /**
-     * 抽象序列化器类
-     *
-     * @param <T> 配方类型
-     */
-    public abstract static class AbstractSerializer<T extends AbstractProcessRecipe<T>> implements RecipeSerializer<T> {
-        /**
-         * 编解码器
-         */
-        protected final MapCodec<T> codec = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ItemIngredientPredicate.CODEC.listOf()
-                .optionalFieldOf("ingredients", List.of())
-                .forGetter(T::getInputItems),
-            ChanceItemStack.CODEC.listOf()
-                .optionalFieldOf("results", List.of())
-                .forGetter(T::getResultItems)
-        ).apply(instance, this::of));
-
-        /**
-         * 流编解码器
-         */
-        protected final StreamCodec<RegistryFriendlyByteBuf, T> streamCodec = StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            T::getInputItems,
-            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            T::getResultItems,
-            this::of
+    protected static <T extends AbstractProcessRecipe<T>> RecipeSerializer<T> makeSerializer(
+        NonNullBiFunction<List<ItemIngredientPredicate>, List<ChanceItemStack>, T> factory
+    ) {
+        return new RecipeSerializer<>(
+            RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ItemIngredientPredicate.CODEC.listOf()
+                    .optionalFieldOf("ingredients", List.of())
+                    .forGetter(AbstractProcessRecipe::getInputItems),
+                ChanceItemStack.CODEC.listOf()
+                    .optionalFieldOf("results", List.of())
+                    .forGetter(AbstractProcessRecipe::getResultItems)
+            ).apply(instance, factory)),
+            StreamCodec.composite(
+                ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                AbstractProcessRecipe::getInputItems,
+                ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                AbstractProcessRecipe::getResultItems,
+                factory
+            )
         );
-
-        /**
-         * 创建配方实例
-         *
-         * @param itemIngredients 物品原料列表
-         * @param results         结果列表
-         * @return 配方实例
-         */
-        protected abstract T of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results);
-
-        @Override
-        public MapCodec<T> codec() {
-            return this.codec;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
-            return this.streamCodec;
-        }
     }
 
     /**
@@ -248,6 +220,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 添加原料
          *
          * @param ingredient 原料
+         *
          * @return 构建器实例
          */
         public B requires(ItemIngredientPredicate ingredient) {
@@ -260,6 +233,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param ingredient 原料标签
          * @param count      数量
+         *
          * @return 构建器实例
          */
         public B requires(TagKey<Item> ingredient, int count) {
@@ -271,6 +245,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 添加原料（标签形式，默认数量为1）
          *
          * @param ingredient 原料标签
+         *
          * @return 构建器实例
          */
         public B requires(TagKey<Item> ingredient) {
@@ -281,9 +256,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 添加原料（物品堆栈形式）
          *
          * @param ingredient 原料物品堆栈
+         *
          * @return 构建器实例
          */
-        public B requires(ItemStack ingredient) {
+        public B requires(ItemStackTemplate ingredient) {
             this.itemIngredients.add(ItemIngredientPredicate.Builder.item().of(ingredient).build());
             return this.getThis();
         }
@@ -293,6 +269,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param ingredient 原料物品
          * @param count      数量
+         *
          * @return 构建器实例
          */
         public B requires(ItemLike ingredient, int count) {
@@ -303,6 +280,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 添加原料（物品形式，默认数量为1）
          *
          * @param ingredient 原料物品
+         *
          * @return 构建器实例
          */
         public B requires(ItemLike ingredient) {
@@ -314,9 +292,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param result 结果物品堆栈
          * @param count  数量提供器
+         *
          * @return 构建器实例
          */
-        public B result(ItemStack result, NumberProvider count) {
+        public B result(ItemStackTemplate result, NumberProvider count) {
             this.results.add(ChanceItemStack.of(result, count));
             return this.getThis();
         }
@@ -326,20 +305,22 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param result 结果物品堆栈
          * @param chance 概率
+         *
          * @return 构建器实例
          */
-        public B result(ItemStack result, float chance) {
-            return this.result(result, BinomialDistributionGenerator.binomial(result.getCount(), chance));
+        public B result(ItemStackTemplate result, float chance) {
+            return this.result(result, BinomialDistributionGenerator.binomial(result.count(), chance));
         }
 
         /**
          * 添加结果（物品堆栈形式，默认数量）
          *
          * @param result 结果物品堆栈
+         *
          * @return 构建器实例
          */
-        public B result(ItemStack result) {
-            return this.result(result, ConstantValue.exactly(result.getCount()));
+        public B result(ItemStackTemplate result) {
+            return this.result(result, ConstantValue.exactly(result.count()));
         }
 
         /**
@@ -347,6 +328,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param result 结果物品
          * @param count  数量提供器
+         *
          * @return 构建器实例
          */
         public B result(ItemLike result, NumberProvider count) {
@@ -360,6 +342,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * @param result 结果物品
          * @param count  数量
          * @param chance 概率
+         *
          * @return 构建器实例
          */
         public B result(ItemLike result, int count, float chance) {
@@ -371,6 +354,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param result 结果物品
          * @param count  数量
+         *
          * @return 构建器实例
          */
         public B result(ItemLike result, int count) {
@@ -382,6 +366,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param result 结果物品
          * @param chance 概率
+         *
          * @return 构建器实例
          */
         public B result(ItemLike result, float chance) {
@@ -392,6 +377,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 添加结果（物品形式，默认数量为1）
          *
          * @param result 结果物品
+         *
          * @return 构建器实例
          */
         public B result(ItemLike result) {
@@ -399,8 +385,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         }
 
         @Override
-        public Item getResult() {
-            return results.isEmpty() ? Items.ANVIL : results.getFirst().getItem();
+        public ItemStackTemplate getResult() {
+            return this.results.isEmpty() ? new ItemStackTemplate(Items.ANVIL) : this.results.getFirst().stack();
         }
     }
 
@@ -419,6 +405,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @param itemIngredients 物品原料列表
          * @param results         结果列表
+         *
          * @return 配方实例
          */
         protected abstract T of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results);
@@ -527,6 +514,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 添加额外结果
          *
          * @param outcome 额外结果
+         *
          * @return 属性实例
          */
         public Property addOutcome(IRecipeOutcome<?> outcome) {
@@ -538,6 +526,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置物品输入偏移量
          *
          * @param itemInputOffset 物品输入偏移量
+         *
          * @return 属性实例
          */
         public Property setItemInputOffset(Vec3 itemInputOffset) {
@@ -549,6 +538,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置物品输入范围
          *
          * @param itemInputRange 物品输入范围
+         *
          * @return 属性实例
          */
         public Property setItemInputRange(Vec3 itemInputRange) {
@@ -560,6 +550,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置输入物品列表
          *
          * @param inputItems 输入物品列表
+         *
          * @return 属性实例
          */
         public Property setInputItems(List<ItemIngredientPredicate> inputItems) {
@@ -571,6 +562,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置输入物品列表（可变参数形式）
          *
          * @param inputItems 输入物品数组
+         *
          * @return 属性实例
          */
         public Property setInputItems(ItemIngredientPredicate... inputItems) {
@@ -581,6 +573,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置物品输出偏移量
          *
          * @param itemOutputOffset 物品输出偏移量
+         *
          * @return 属性实例
          */
         public Property setItemOutputOffset(Vec3 itemOutputOffset) {
@@ -592,6 +585,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置结果物品列表
          *
          * @param resultItems 结果物品列表
+         *
          * @return 属性实例
          */
         public Property setResultItems(List<ChanceItemStack> resultItems) {
@@ -603,6 +597,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置结果物品列表（可变参数形式）
          *
          * @param resultItems 结果物品数组
+         *
          * @return 属性实例
          */
         public Property setResultItems(ChanceItemStack... resultItems) {
@@ -613,6 +608,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置方块输入偏移量
          *
          * @param blockInputOffset 方块输入偏移量
+         *
          * @return 属性实例
          */
         public Property setBlockInputOffset(Vec3i blockInputOffset) {
@@ -624,6 +620,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置输入方块列表
          *
          * @param inputBlocks 输入方块列表
+         *
          * @return 属性实例
          */
         public Property setInputBlocks(List<BlockStatePredicate> inputBlocks) {
@@ -635,6 +632,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置输入方块列表（可变参数形式）
          *
          * @param inputBlocks 输入方块数组
+         *
          * @return 属性实例
          */
         public Property setInputBlocks(BlockStatePredicate... inputBlocks) {
@@ -645,6 +643,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置是否消耗输入方块
          *
          * @param consumeInputBlocks 是否消耗输入方块
+         *
          * @return 属性实例
          */
         public Property setConsumeInputBlocks(boolean consumeInputBlocks) {
@@ -656,6 +655,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置方块输出偏移量
          *
          * @param blockOutputOffset 方块输出偏移量
+         *
          * @return 属性实例
          */
         public Property setBlockOutputOffset(Vec3i blockOutputOffset) {
@@ -667,6 +667,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置结果方块列表
          *
          * @param resultBlocks 结果方块列表
+         *
          * @return 属性实例
          */
         public Property setResultBlocks(List<ChanceBlockState> resultBlocks) {
@@ -678,6 +679,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置结果方块列表（可变参数形式）
          *
          * @param resultBlocks 结果方块数组
+         *
          * @return 属性实例
          */
         public Property setResultBlocks(ChanceBlockState... resultBlocks) {
@@ -688,6 +690,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置炼药锅偏移量
          *
          * @param cauldronOffset 炼药锅偏移量
+         *
          * @return 属性实例
          */
         public Property setCauldronOffset(Vec3i cauldronOffset) {
@@ -699,6 +702,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置炼药锅条件
          *
          * @param hasCauldron 炼药锅条件
+         *
          * @return 属性实例
          */
         public Property setHasCauldron(HasCauldronSimple hasCauldron) {
@@ -710,6 +714,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置铁砧条件
          *
          * @param hasAnvil 铁砧条件
+         *
          * @return 属性实例
          */
         public Property setHasAnvil(HasAnvil hasAnvil) {
@@ -721,6 +726,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置产热信息
          *
          * @param produceHeat 产热信息
+         *
          * @return 属性实例
          */
         public Property setProduceHeat(ProduceHeat produceHeat) {
@@ -732,6 +738,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 设置优先级
          *
          * @param priority 优先级
+         *
          * @return 属性实例
          */
         public Property setPriority(int priority) {
@@ -744,16 +751,16 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @return 图标物品堆栈
          */
-        private ItemStack getIcon() {
-            ItemStack icon = null;
+        private ItemStackTemplate getIcon() {
+            ItemStackTemplate icon = null;
             if (this.resultItems != null && !this.resultItems.isEmpty()) {
                 icon = this.resultItems.getFirst().stack();
             }
             if (icon == null && this.resultBlocks != null && !this.resultBlocks.isEmpty()) {
                 Item item = this.resultBlocks.getFirst().state().getBlock().asItem();
-                if (item != Items.AIR) icon = item.getDefaultInstance();
+                if (item != Items.AIR) icon = new ItemStackTemplate(item);
             }
-            if (icon == null) icon = Items.ANVIL.getDefaultInstance();
+            if (icon == null) icon = new ItemStackTemplate(Items.ANVIL);
             return icon;
         }
 

@@ -4,6 +4,8 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -37,15 +39,15 @@ public class ActivatorSlidingRailBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("ShouldPower", this.shouldPower.ordinal());
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("ShouldPower", this.shouldPower.ordinal());
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.shouldPower = TriState.values()[tag.getInt("ShouldPower")];
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.shouldPower = TriState.values()[input.getIntOr("ShouldPower", 0)];
     }
 
     public boolean shouldPower() {

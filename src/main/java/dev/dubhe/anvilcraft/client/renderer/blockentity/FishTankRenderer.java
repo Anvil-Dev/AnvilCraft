@@ -91,7 +91,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             state.getStacks(),
             pose,
             submitNodeCollector,
-            this.random,
+            this.getRandom(),
             state.getFill(),
             state.lightCoords
         );

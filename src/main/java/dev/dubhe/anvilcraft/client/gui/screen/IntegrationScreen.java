@@ -74,8 +74,7 @@ public class IntegrationScreen extends Screen {
 
     @Override
     protected void init() {
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
+        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
         this.layout.addTitleHeader(TITLE, this.font);
         this.integrationList = this.layout.addToContents(new IntegrationList());
         LinearLayout linearlayout = this.layout.addToFooter(LinearLayout.horizontal().spacing(8));

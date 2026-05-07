@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,17 +35,17 @@ public class TimeCountedPressurePlateBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("tick", this.tick);
-        tag.putInt("NeedTick", this.needTick);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("tick", this.tick);
+        output.putInt("NeedTick", this.needTick);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.tick = tag.getInt("tick");
-        this.needTick = tag.getInt("NeedTick");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.tick = input.getIntOr("tick", 0);
+        this.needTick = input.getIntOr("NeedTick", 0);
     }
 
     public int getSignalStrength() {

@@ -253,7 +253,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK.get())
         );
     }
 

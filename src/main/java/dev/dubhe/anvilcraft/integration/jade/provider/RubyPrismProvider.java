@@ -18,7 +18,7 @@ public enum RubyPrismProvider implements IBlockComponentProvider, IServerDataPro
     public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
         CompoundTag serverData = blockAccessor.getServerData();
         if (serverData.contains("laser_level")) {
-            int laserLevel = serverData.getInt("laser_level");
+            int laserLevel = serverData.getIntOr("laser_level", 0);
             tooltip.add(Component.translatable("tooltip.anvilcraft.jade.ruby_prism.power", laserLevel));
         }
     }

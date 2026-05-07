@@ -12,6 +12,10 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -69,23 +73,24 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
 
     @Override
     public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
-        CompoundTag data = this.constructDataNbt();
-        BlockItem.setBlockEntityData(stack, this.getType(), data);
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        output.store(this.constructDataNbt());
+        BlockItem.setBlockEntityData(stack, this.getType(), output);
         stack.applyComponents(this.collectComponents());
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         CompoundTag data = this.constructDataNbt();
         data.putInt("InputSignal", this.inputtingSignal);
-        tag.put("ExtraData", data);
+        output.store("ExtraData", CompoundTag.CODEC, data);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        CompoundTag data = tag.getCompound("ExtraData");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag data = input.read("ExtraData", CompoundTag.CODEC).orElse(new CompoundTag());
         this.readDataNbt(data);
         if ((this.compareMode == Mode.HYSTERESIS && this.inputtingSignal >= this.highLimit)
             || (this.compareMode == Mode.WINDOW && this.inputtingSignal <= this.highLimit)) {
@@ -107,23 +112,23 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     }
 
     public AdvancedComparatorBlockEntity readDataNbt(CompoundTag data) {
-        this.compareMode = Mode.fromIndex(data.getByte("CompareMode"));
-        this.outputInvert = data.getBoolean("OutputMode");
-        this.redstoneControl = data.getBoolean("RedstoneControl");
-        this.highLimit = data.getInt("HighLimit");
-        this.lowLimit = data.getInt("LowLimit");
-        this.inputtingSignal = data.getInt("InputSignal");
+        this.compareMode = Mode.fromIndex(data.getByteOr("CompareMode", (byte)0));
+        this.outputInvert = data.getBooleanOr("OutputMode", false);
+        this.redstoneControl = data.getBooleanOr("RedstoneControl", false);
+        this.highLimit = data.getIntOr("HighLimit", 0);
+        this.lowLimit = data.getIntOr("LowLimit", 0);
+        this.inputtingSignal = data.getIntOr("InputSignal", 0);
         return this;
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
-        tag.put("Data", this.constructDataNbt());
+    public void storeDiskData(ValueOutput output) {
+        output.store("Data", CompoundTag.CODEC, this.constructDataNbt());
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
-        this.readDataNbt(data.getCompound("Data"));
+    public void applyDiskData(ValueInput input) {
+        this.readDataNbt(input.read("Data", CompoundTag.CODEC).orElse(new CompoundTag()));
         if (this.getLevel() == null) return;
         Util.castSafely(this.getBlockState().getBlock(), AdvancedComparatorBlock.class)
             .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos(), this.getBlockState()));

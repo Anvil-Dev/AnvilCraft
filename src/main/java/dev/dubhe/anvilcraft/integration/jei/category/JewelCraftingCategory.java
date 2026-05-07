@@ -101,7 +101,7 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.JEWEL_CRAFTING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

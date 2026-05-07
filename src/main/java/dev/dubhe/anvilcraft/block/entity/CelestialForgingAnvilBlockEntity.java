@@ -5,6 +5,8 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -33,21 +35,21 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putBoolean("amplified", this.isAmplify);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putBoolean("amplified", this.isAmplify);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.isAmplify = tag.getBoolean("amplified");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.isAmplify = input.getBooleanOr("amplified", false);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("amplified", this.isAmplify);
+        output.putBoolean("amplified", this.isAmplify);
         return tag;
     }
 

@@ -50,7 +50,7 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.CHARGER_CHARGING_TYPE.get();
+        return ModRecipeTypes.CHARGER_CHARGING.get();
     }
 
     @Override

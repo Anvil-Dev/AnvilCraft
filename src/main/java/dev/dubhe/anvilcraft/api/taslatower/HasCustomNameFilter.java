@@ -9,6 +9,11 @@ public class HasCustomNameFilter extends TeslaFilter {
     private final String id = "HasCustomNameFilter";
 
     @Override
+    public String getId() {
+        return "HasCustomNameFilter";
+    }
+
+    @Override
     public boolean match(LivingEntity entity, String arg) {
         return entity.getCustomName() != null;
     }

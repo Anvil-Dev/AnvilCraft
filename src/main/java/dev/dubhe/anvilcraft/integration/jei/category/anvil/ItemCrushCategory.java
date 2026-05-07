@@ -74,7 +74,7 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.ITEM_CRUSH,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

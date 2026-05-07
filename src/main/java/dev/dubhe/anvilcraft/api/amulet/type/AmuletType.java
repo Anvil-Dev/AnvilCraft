@@ -111,7 +111,7 @@ public class AmuletType {
         public Builder obtainByMurder(TagKey<EntityType<?>> tag) {
             return this.obtain((player, source) -> Optional.ofNullable(source.getEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))
-                .map(e -> e.getType().is(tag))
+                .map(e -> e.getType().builtInRegistryHolder().is(tag))
                 .orElse(false));
         }
 
@@ -138,7 +138,7 @@ public class AmuletType {
         public Builder obtainByDirectMurder(TagKey<EntityType<?>> tag) {
             return this.obtain((player, source) -> Optional.ofNullable(source.getDirectEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))
-                .map(e -> e.getType().is(tag))
+                .map(e -> e.getType().builtInRegistryHolder().is(tag))
                 .orElse(false));
         }
 
@@ -196,7 +196,7 @@ public class AmuletType {
         public Builder obtainByMurderOr(TagKey<EntityType<?>> tag) {
             return this.obtainOr((player, source) -> Optional.ofNullable(source.getEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))
-                .map(e -> e.getType().is(tag))
+                .map(e -> e.getType().builtInRegistryHolder().is(tag))
                 .orElse(false));
         }
 
@@ -223,7 +223,7 @@ public class AmuletType {
         public Builder obtainByDirectMurderOr(TagKey<EntityType<?>> tag) {
             return this.obtainOr((player, source) -> Optional.ofNullable(source.getDirectEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))
-                .map(e -> e.getType().is(tag))
+                .map(e -> e.getType().builtInRegistryHolder().is(tag))
                 .orElse(false));
         }
 

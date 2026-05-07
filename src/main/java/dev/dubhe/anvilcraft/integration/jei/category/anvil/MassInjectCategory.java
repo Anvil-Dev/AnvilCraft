@@ -142,7 +142,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     public static void registerRecipes(IRecipeRegistration registration) {
         List<RecipeHolder<MassInjectRecipe>> recipes =
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MASS_INJECT_TYPE.get());
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MASS_INJECT.get());
         recipes.sort(Comparator.comparingInt(recipe -> recipe.value().getMass()));
         registration.addRecipes(AnvilCraftJeiPlugin.MASS_INJECT, recipes.reversed());
     }

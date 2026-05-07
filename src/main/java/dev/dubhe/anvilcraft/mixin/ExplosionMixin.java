@@ -96,7 +96,7 @@ abstract class ExplosionMixin implements IExplosionExtension {
         Block block = level.getBlockState(pos).getBlock();
         ArrayList<BlockTransform> blockTransforms = new ArrayList<>(this.anvilcraft$blockTransformMap.get(block));
         if (blockTransforms.isEmpty()) return;
-        BlockTransform blockTransform = blockTransforms.get(level.random.nextInt(blockTransforms.size()));
+        BlockTransform blockTransform = blockTransforms.get(level.getRandom().nextInt(blockTransforms.size()));
         if (anvilcraft$counterMap.getOrDefault(blockTransform, 0) >= blockTransform.maxCount()) return;
         if (anvilcraft$processedPosSet.contains(pos)) return;
         isExplosionBlockTransformed.set(blockTransform.progress(level, pos));

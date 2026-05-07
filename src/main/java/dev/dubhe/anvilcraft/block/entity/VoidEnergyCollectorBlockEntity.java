@@ -11,6 +11,8 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -79,21 +81,21 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.cooldownCount = tag.getInt("cooldownCount");
-        this.decayCooldownCount = tag.getInt("decayCooldownCount");
-        this.blockCount = tag.getInt("blockCount");
-        this.power = tag.getInt("power");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.cooldownCount = input.getIntOr("cooldownCount", 0);
+        this.decayCooldownCount = input.getIntOr("decayCooldownCount", 0);
+        this.blockCount = input.getIntOr("blockCount", 0);
+        this.power = input.getIntOr("power", 0);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        tag.putInt("cooldownCount", this.cooldownCount);
-        tag.putInt("decayCooldownCount", this.decayCooldownCount);
-        tag.putInt("blockCount", this.blockCount);
-        tag.putInt("power", this.power);
+    public void saveAdditional(ValueOutput output) {
+        super.loadAdditional(input);
+        output.putInt("cooldownCount", this.cooldownCount);
+        output.putInt("decayCooldownCount", this.decayCooldownCount);
+        output.putInt("blockCount", this.blockCount);
+        output.putInt("power", this.power);
     }
 
     private static int getPowerFromBlockCount(int count) {
@@ -127,8 +129,8 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     public static boolean isOutOfBuildLimits(Level level, BlockPos pos) {
-        int minHeight = level.getMinBuildHeight();
-        int maxHeight = level.getMaxBuildHeight();
+        int minHeight = level.getMinY();
+        int maxHeight = level.getMaxY();
         int y = pos.getY();
         return y < minHeight || y >= maxHeight;
     }

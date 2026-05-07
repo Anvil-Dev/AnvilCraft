@@ -59,7 +59,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         MenuType<EmberSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(type, containerId, playerInventory, access);
         this.level = playerInventory.player.level();
-        this.recipes = this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get());
+        this.recipes = this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get());
     }
 
     @Override
@@ -210,7 +210,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         }
         MultipleToOneSmithingRecipeInput input = this.createRecipeInput();
         List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> list =
-            this.level.getRecipeManager().getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get(), input, this.level);
+            this.level.getRecipeManager().getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(), input, this.level);
         if (list.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
         } else {

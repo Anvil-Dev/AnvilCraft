@@ -15,6 +15,8 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -62,15 +64,15 @@ public class ActiveSilencerBlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
             .getOrThrow()
             .getFirst());
@@ -151,16 +153,13 @@ public class ActiveSilencerBlockEntity
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
-        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
-        tag.put("MutedSound", t);
+    public void storeDiskData(ValueOutput output) {
+        output.store("MutedSound", CODEC, new ArrayList<>(mutedSound));
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
-        mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
-            .getOrThrow()
-            .getFirst());
+    public void applyDiskData(ValueInput input) {
+        input.read("MutedSound", CODEC).ifPresent(mutedSound::addAll);
         this.setChanged();
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);

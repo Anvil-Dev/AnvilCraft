@@ -116,7 +116,7 @@ public class LivingEntityEventListener {
             RecipeManager manager = Objects.requireNonNull(level.getServer()).getRecipeManager();
             // 注意：matches并不能匹配到生物符合而物品不符合达的目标生物
             List<RecipeHolder<MobTransformWithItemRecipe>> listRecipeHolder =
-                manager.getAllRecipesFor(ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM_TYPE.get());
+                manager.getAllRecipesFor(ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM.get());
             if (listRecipeHolder.isEmpty()) return;
             for (RecipeHolder<MobTransformWithItemRecipe> holder : listRecipeHolder) {
                 MobTransformWithItemRecipe recipe = holder.value();

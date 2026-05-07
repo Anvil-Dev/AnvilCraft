@@ -58,7 +58,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.JEWEL_CRAFTING_TYPE.get();
+        return ModRecipeTypes.JEWEL_CRAFTING.get();
     }
 
     @Override

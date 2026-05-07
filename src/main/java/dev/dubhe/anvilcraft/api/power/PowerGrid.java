@@ -109,7 +109,7 @@ public class PowerGrid {
      */
     protected void tick() {
         if (this.level.getGameTime() % GRID_TICK != 0) return;
-        if (this.isMarkedRemoval()) return;
+        if (this.markedRemoval) return;
         if (this.flush()) return;
         if (this.isWorking()) {
             int remainder = this.generate - this.consume;

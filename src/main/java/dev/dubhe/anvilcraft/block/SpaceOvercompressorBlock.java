@@ -47,7 +47,7 @@ public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements I
     @Override
     public void setData(Level level, BlockPos pos, CompoundTag nbt) {
         BlockEntity entity = level.getBlockEntity(pos);
-        long mass = nbt.getLong("storedMass");
+        long mass = nbt.getLongOr("storedMass", 0L);
         if (entity instanceof SpaceOvercompressorBlockEntity s) {
             s.injectMass(mass - s.getStoredMass());
         }

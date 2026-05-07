@@ -30,7 +30,7 @@ public class PowerGridSupport {
      */
     public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, Vec3 camera) {
         if (Minecraft.getInstance().level == null) return;
-        String level = Minecraft.getInstance().level.dimension().location().toString();
+        String level = Minecraft.getInstance().level.dimension().identifier().toString();
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
         for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
             if (!grid.shouldRender(camera)) continue;
@@ -50,7 +50,7 @@ public class PowerGridSupport {
             ModRenderTargets.getBloomTarget().clear(Minecraft.ON_OSX);
             ModRenderTargets.getBloomTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
         }
-        String level = Minecraft.getInstance().level.dimension().location().toString();
+        String level = Minecraft.getInstance().level.dimension().identifier().toString();
 
         VertexConsumer consumer1 = bufferSource.getBuffer(ModRenderTypes.LINE_BLOOM);
         for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
@@ -65,7 +65,7 @@ public class PowerGridSupport {
         if (RenderState.isEnhancedRenderingAvailable() && RenderState.isBloomEffectEnabled()) return;
         if (!AnvilCraftClient.CONFIG.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
-        String level = Minecraft.getInstance().level.dimension().location().toString();
+        String level = Minecraft.getInstance().level.dimension().identifier().toString();
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.LINES);
         for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
             if (!grid.shouldRender(camera)) continue;

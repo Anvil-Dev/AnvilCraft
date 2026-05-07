@@ -11,6 +11,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -96,17 +98,17 @@ public abstract class BaseChuteBlockEntity
     public abstract AbstractContainerMenu createMenu(int i, Inventory inventory, Player player);
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putInt("Cooldown", cooldown);
-        tag.put("Inventory", itemHandler.serializeNBT(provider));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Cooldown", cooldown);
+        output.store("Inventory", CompoundTag.CODEC, itemHandler.serializeNBT(provider));
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        cooldown = tag.getInt("Cooldown");
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        cooldown = input.getIntOr("Cooldown", 0);
+        itemHandler.deserializeNBT(provider, input.read("Inventory", CompoundTag.CODEC).orElse(new CompoundTag()));
     }
 
     /**
@@ -271,13 +273,13 @@ public abstract class BaseChuteBlockEntity
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
-        tag.put("Filtering", itemHandler.serializeFiltering());
+    public void storeDiskData(ValueOutput output) {
+        output.store("Filtering", CompoundTag.CODEC, itemHandler.serializeFiltering());
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
-        itemHandler.deserializeFiltering(data.getCompound("Filtering"));
+    public void applyDiskData(ValueInput input) {
+        itemHandler.deserializeFiltering(input.read("Filtering", CompoundTag.CODEC).orElse(new CompoundTag()));
         this.setChanged();
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);

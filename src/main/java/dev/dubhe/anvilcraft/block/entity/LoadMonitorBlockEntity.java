@@ -9,6 +9,8 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -26,15 +28,15 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        tag.putInt("Cooldown", cooldown);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        output.putInt("Cooldown", cooldown);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        cooldown = tag.getInt("Cooldown");
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        cooldown = input.getIntOr("Cooldown", 0);
     }
 
     @Override

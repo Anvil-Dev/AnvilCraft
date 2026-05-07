@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.inventory.FrostGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.FrostGrindstoneSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -66,7 +67,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
@@ -119,7 +120,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     }
 
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
 
         if (this.scrollable.canScroll()) {
             int left = this.leftPos + 122;
@@ -147,9 +148,9 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            if (this.insideScrollbar(mouseX, mouseY)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
+        if (event.button() == 0) {
+            if (this.insideScrollbar(event.x(), event.y())) {
                 this.scrollable.scrolling();
                 return true;
             }
@@ -157,7 +158,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
                 int x = this.leftPos + 65 + 18 * (i % 3);
                 int y = this.topPos + 23 + 18 * ((i - this.head) / 3);
 
-                if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
+                if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
                 if (this.menu.getSelectedIndexes().contains(i)) {
                     this.menu.unselect(i);
                     PacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, false));
@@ -169,27 +170,27 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, handled);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0 && this.scrollable.isScrolling()) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.scrollable.isScrolling()) {
             this.scrollable.notScrolling();
             return true;
         }
 
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.scrollable.isScrolling()) {
             int top = this.topPos + 23;
-            this.scrollable.scrollOnDrag(12, mouseY, top, top + 36);
+            this.scrollable.scrollOnDrag(12, event.y(), top, top + 36);
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override

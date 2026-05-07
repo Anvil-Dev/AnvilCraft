@@ -143,7 +143,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.CHARGER_CHARGING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.CHARGER_CHARGING_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.CHARGER_CHARGING.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

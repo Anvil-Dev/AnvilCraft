@@ -10,6 +10,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -37,15 +39,15 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.tickCount = tag.getInt("tickCount");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.tickCount = input.getIntOr("tickCount", 0);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        tag.putInt("tickCount", this.tickCount);
+    public void saveAdditional(ValueOutput output) {
+        super.loadAdditional(input);
+        output.putInt("tickCount", this.tickCount);
     }
 
     /**
@@ -57,7 +59,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         if (this.tickCount != 0) return;
         if (!(this.level instanceof ServerLevel serverLevel)) return;
         BlockState aroundState = getAroundBlock();
-        if (this.level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > this.level.getMinBuildHeight() + 8) {
+        if (this.level.getMinY() > getBlockPos().getY() || getBlockPos().getY() > this.level.getMinY() + 8) {
             return;
         }
         BlockState aboveState = this.level.getBlockState(getBlockPos().above());
@@ -81,7 +83,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
                         .stream()
                         .filter(r -> r.value()
                             .getDimension()
-                            .equals(this.level.dimension().location())
+                            .equals(this.level.dimension().identifier())
                         )
                         .filter(r -> r.value().getFromBlock().test(this.level, aboveState, null))
                         .toList();

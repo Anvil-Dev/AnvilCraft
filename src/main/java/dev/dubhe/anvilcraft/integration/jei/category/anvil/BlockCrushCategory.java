@@ -159,7 +159,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.BLOCK_CRUSH,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_CRUSH_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_CRUSH.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

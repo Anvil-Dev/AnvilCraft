@@ -153,7 +153,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
         }
 
         if (this.isCritArrow()) {
-            long k = this.random.nextInt((int) Math.ceil(j / 2.0) + 2);
+            long k = this.getRandom().nextInt((int) Math.ceil(j / 2.0) + 2);
             j = Math.min(k + (long) j, 2147483647L);
         }
 
@@ -191,7 +191,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
                 }
             }
 
-            this.playSound(SoundEvents.ARROW_HIT, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+            this.playSound(SoundEvents.ARROW_HIT, 1.0F, 1.2F / (this.getRandom().nextFloat() * 0.2F + 0.9F));
             if (this.getPierceLevel() <= 0) {
                 this.discard();
             }

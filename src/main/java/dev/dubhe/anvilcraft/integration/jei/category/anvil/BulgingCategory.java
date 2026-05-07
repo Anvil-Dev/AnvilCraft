@@ -137,7 +137,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
             if (recipe.isConsumeFluid()) {
                 PoseStack pose = guiGraphics.pose();
                 pose.pushPose();
-                pose.scale(0.8F, 0.8F, 1.0F);
+                pose.scale(0.8f, 0.8f, 1.0f);
                 guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     Component.translatable(
@@ -154,7 +154,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
             } else if (recipe.isProduceFluid()) {
                 PoseStack pose = guiGraphics.pose();
                 pose.pushPose();
-                pose.scale(0.8F, 0.8F, 1.0F);
+                pose.scale(0.8f, 0.8f, 1.0f);
                 guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     Component.translatable(
@@ -228,7 +228,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<BulgingRecipe>> holders = JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BULGING_TYPE.get());
+        List<RecipeHolder<BulgingRecipe>> holders = JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BULGING.get());
         holders.removeIf(holder -> holder.id().getPath().startsWith("concrete/"));
         registration.addRecipes(AnvilCraftJeiPlugin.BULGING, holders);
     }

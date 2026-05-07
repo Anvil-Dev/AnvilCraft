@@ -170,7 +170,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.BLOCK_COMPRESS,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_COMPRESS_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_COMPRESS.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

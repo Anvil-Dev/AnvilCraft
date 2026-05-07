@@ -29,11 +29,11 @@ public enum ItemDetectorProvider implements IBlockComponentProvider, IServerData
         if (!shiftKeyDown) return;
         CompoundTag serverData = blockAccessor.getServerData();
         if (serverData.contains("Range")) {
-            int range = serverData.getInt("Range");
+            int range = serverData.getIntOr("Range", 0);
             tooltip.add(Component.translatable("tooltip.anvilcraft.jade.item_detector", range));
         }
         if (serverData.contains("FilterMode")) {
-            int ordinal = serverData.getInt("FilterMode");
+            int ordinal = serverData.getIntOr("FilterMode", 0);
             if (ordinal >= 0 && ordinal < Mode.values().length) {
                 Mode filterMode = Mode.values()[ordinal];
                 tooltip.add(Component.translatable("screen.anvilcraft.button.filter_mode",

@@ -48,7 +48,7 @@ public class JewelCraftingRecipeCache {
      * @param recipeManager 配方管理器
      */
     public void buildJewelCraftingCache(RecipeManager recipeManager) {
-        jewelCraftingCache = recipeManager.getAllRecipesFor(ModRecipeTypes.JEWEL_CRAFTING_TYPE.get())
+        jewelCraftingCache = recipeManager.getAllRecipesFor(ModRecipeTypes.JEWEL_CRAFTING.get())
             .stream()
             .map(it -> Map.entry(it.value().result.getItem(), it))
             .collect(Util.toMap());

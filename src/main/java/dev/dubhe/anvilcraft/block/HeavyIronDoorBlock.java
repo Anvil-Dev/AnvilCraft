@@ -30,7 +30,7 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos blockpos = context.getClickedPos();
         Level level = context.getLevel();
-        if (blockpos.getY() < level.getMaxBuildHeight() - 1 && level.getBlockState(blockpos.above()).canBeReplaced(context)) {
+        if (blockpos.getY() < level.getMaxY() - 1 && level.getBlockState(blockpos.above()).canBeReplaced(context)) {
             boolean flag = level.getBestNeighborSignal(blockpos) >= 15
                 || level.getBestNeighborSignal(blockpos.above()) >= 15;
             return this.defaultBlockState()

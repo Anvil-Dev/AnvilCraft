@@ -63,7 +63,7 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 

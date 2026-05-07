@@ -54,7 +54,7 @@ public class PowerGridManager {
             Set<PowerGrid> grids = getGridSet(entry.getKey());
             Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
             grids.forEach(powerGrid -> {
-                if (powerGrid.isMarkedRemoval() || !powerGrid.isInRange(component)) return;
+                if (powerGrid.markedRemoval || !powerGrid.isInRange(component)) return;
                 if (grid.get() == null) {
                     grid.set(powerGrid);
                 } else {
@@ -73,7 +73,7 @@ public class PowerGridManager {
         for (Set<PowerGrid> grids : gridMap.values()) {
             Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
             grids.forEach(powerGrid -> {
-                if (powerGrid.isEmpty() || powerGrid.isMarkedRemoval()) {
+                if (powerGrid.isEmpty() || powerGrid.markedRemoval) {
                     remove.add(powerGrid);
                 }
                 powerGrid.tick();

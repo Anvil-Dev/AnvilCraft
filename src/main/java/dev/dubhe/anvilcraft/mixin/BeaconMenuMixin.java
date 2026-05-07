@@ -80,7 +80,7 @@ public abstract class BeaconMenuMixin {
         int k;
         int i = 0;
         int j = 1;
-        while (j <= 4 && (k = y - j) >= level.getMinBuildHeight()) {
+        while (j <= 4 && (k = y - j) >= level.getMinY()) {
             boolean bl = true;
             block1:
             for (int l = x - j; l <= x + j && bl; ++l) {

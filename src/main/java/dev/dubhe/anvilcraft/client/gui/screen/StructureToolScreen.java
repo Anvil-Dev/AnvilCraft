@@ -94,8 +94,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     @Override
     protected void init() {
         super.init();
-        int offsetX = (this.width - this.imageWidth) / 2;
-        int offsetY = (this.height - this.imageHeight) / 2;
+        int offsetX = (this.width - this.getImageWidth()) / 2;
+        int offsetY = (this.height - this.getImageHeight()) / 2;
 
         dataGenButton = addRenderableWidget(new TexturedButton(
             offsetX + 122,
@@ -109,23 +109,23 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             button -> {
                 Recipe<?> recipe = toRecipe();
                 if (recipe instanceof IDatagen datagenRecipe) {
-                    minecraft.keyboardHandler.setClipboard(datagenRecipe.toDatagen());
-                    minecraft.player.displayClientMessage(
+                    this.minecraft.keyboardHandler.setClipboard(datagenRecipe.toDatagen());
+                    this.minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.copied_to_clipboard"),
                         false
                     );
                 } else {
-                    minecraft.player.displayClientMessage(
+                    this.minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.code_gen_filed").withStyle(ChatFormatting.RED),
                         false
                     );
-                    minecraft.player.displayClientMessage(
+                    this.minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.code_gen_check").withStyle(ChatFormatting.RED),
                         false
                     );
                 }
 
-                minecraft.player.closeContainer();
+                this.minecraft.player.closeContainer();
             }
         ));
         kubejsButton = addRenderableWidget(new TexturedButton(
@@ -151,12 +151,12 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             button -> {
                 Recipe<?> recipe = toRecipe();
                 if (recipe == null) {
-                    minecraft.player.displayClientMessage(
+                    this.minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.code_gen_filed")
                             .withStyle(ChatFormatting.RED),
                         false
                     );
-                    minecraft.player.displayClientMessage(
+                    this.minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.code_gen_check")
                             .withStyle(ChatFormatting.RED),
                         false
@@ -169,7 +169,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                 };
                 String pathString = getFilePath(defaultName, "*.json");
                 if (pathString == null) {
-                    minecraft.player.displayClientMessage(Component.translatable("message.anvilcraft.no_file_selected")
+                    this.minecraft.player.displayClientMessage(Component.translatable("message.anvilcraft.no_file_selected")
                             .withStyle(ChatFormatting.RED),
                         false
                     );
@@ -185,19 +185,19 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                         StandardCharsets.UTF_8,
                         StandardOpenOption.CREATE,
                         StandardOpenOption.WRITE);
-                    minecraft.player.displayClientMessage(
+                    this.minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.file_saved", pathString),
                         false
                     );
                 } catch (IOException e) {
                     AnvilCraft.LOGGER.error("Error occurred when saving file {}: {}", path, e);
-                    minecraft.player.displayClientMessage(
+                    this.minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.file_save_failed", pathString, e.getMessage())
                             .withStyle(ChatFormatting.RED),
                         false
                     );
                 }
-                minecraft.player.closeContainer();
+                this.minecraft.player.closeContainer();
             }
         ));
     }
@@ -212,7 +212,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         if (structureData != null && level != null) {
             pose.pushPose();
 
-            pose.translate((this.width - this.imageWidth) / 2F, (this.height - this.imageHeight) / 2F, 0);
+            pose.translate((this.width - this.getImageWidth()) / 2F, (this.height - this.getImageHeight()) / 2F, 0);
             pose.scale(0.75F, 0.75F, 0.75F);
 
             guiGraphics.drawString(
@@ -244,7 +244,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         // button text render
         pose.pushPose();
 
-        pose.translate((this.width - this.imageWidth) / 2F, (this.height - this.imageHeight) / 2F, 0);
+        pose.translate((this.width - this.getImageWidth()) / 2F, (this.height - this.getImageHeight()) / 2F, 0);
         pose.scale(0.7F, 0.7F, 0.7F);
 
         guiGraphics.drawString(
@@ -273,9 +273,9 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        int i = (this.width - this.getImageWidth()) / 2;
+        int j = (this.height - this.getImageHeight()) / 2;
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Nullable

@@ -9,6 +9,11 @@ public class IsFriendlyFilter extends TeslaFilter {
     private final String id = "IsFriendlyFilter";
 
     @Override
+    public String getId() {
+        return "IsFriendlyFilter";
+    }
+
+    @Override
     public boolean match(LivingEntity entity, String arg) {
         return entity.getType().getCategory().isFriendly();
     }

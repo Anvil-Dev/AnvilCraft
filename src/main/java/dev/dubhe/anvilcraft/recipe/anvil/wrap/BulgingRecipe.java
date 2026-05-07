@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
@@ -30,6 +31,28 @@ import java.util.List;
  */
 @Getter
 public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
+    public static final RecipeSerializer<BulgingRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemIngredientPredicate.CODEC.listOf()
+                .fieldOf("ingredients")
+                .forGetter(BulgingRecipe::getInputItems),
+            ChanceItemStack.CODEC.listOf()
+                .fieldOf("results")
+                .forGetter(BulgingRecipe::getResultItems),
+            HasCauldronSimple.CODEC
+                .forGetter(BulgingRecipe::getHasCauldron)
+        ).apply(instance, BulgingRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            BulgingRecipe::getInputItems,
+            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            BulgingRecipe::getResultItems,
+            HasCauldronSimple.STREAM_CODEC,
+            BulgingRecipe::getHasCauldron,
+            BulgingRecipe::new
+        )
+    );
+
     /**
      * 构造一个膨发配方
      *
@@ -55,13 +78,13 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
     }
 
     @Override
-    public RecipeSerializer<BulgingRecipe> getSerializer() {
-        return ModRecipeTypes.BULGING_SERIALIZER.get();
+    public RecipeType<BulgingRecipe> getType() {
+        return ModRecipeTypes.BULGING.get();
     }
 
     @Override
-    public RecipeType<BulgingRecipe> getType() {
-        return ModRecipeTypes.BULGING_TYPE.get();
+    public RecipeSerializer<BulgingRecipe> getSerializer() {
+        return ModRecipeSerializers.BULGING.get();
     }
 
     /**
@@ -103,48 +126,6 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
     }
 
     /**
-     * 膨发配方序列化器
-     */
-    public static class Serializer implements RecipeSerializer<BulgingRecipe> {
-        /**
-         * 编解码器
-         */
-        public static final MapCodec<BulgingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ItemIngredientPredicate.CODEC.listOf()
-                .fieldOf("ingredients")
-                .forGetter(BulgingRecipe::getInputItems),
-            ChanceItemStack.CODEC.listOf()
-                .fieldOf("results")
-                .forGetter(BulgingRecipe::getResultItems),
-            HasCauldronSimple.CODEC
-                .forGetter(BulgingRecipe::getHasCauldron)
-        ).apply(instance, BulgingRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        public static final StreamCodec<RegistryFriendlyByteBuf, BulgingRecipe> STREAM_CODEC = StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            BulgingRecipe::getInputItems,
-            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            BulgingRecipe::getResultItems,
-            HasCauldronSimple.STREAM_CODEC,
-            BulgingRecipe::getHasCauldron,
-            BulgingRecipe::new
-        );
-
-        @Override
-        public MapCodec<BulgingRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, BulgingRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
-    }
-
-    /**
      * 膨发配方构建器
      */
     public static class Builder extends SimpleAbstractBuilder<BulgingRecipe, Builder> {
@@ -157,6 +138,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
          * 设置炼药锅流体
          *
          * @param fluid 流体ID
+         *
          * @return 构建器实例
          */
         public Builder cauldron(Identifier fluid) {
@@ -168,6 +150,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
          * 设置炼药锅方块
          *
          * @param cauldron 炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder cauldron(Block cauldron) {
@@ -179,6 +162,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
          * 设置转换后的流体
          *
          * @param transform 转换后的流体ID
+         *
          * @return 构建器实例
          */
         public Builder transform(Identifier transform) {
@@ -190,6 +174,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
          * 设置转换后的炼药锅方块
          *
          * @param transform 转换后的炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder transform(Block transform) {
@@ -201,6 +186,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
          * 设置是否产生流体
          *
          * @param produce 是否产生流体
+         *
          * @return 构建器实例
          */
         public Builder produce(int produce) {
@@ -213,6 +199,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
          * 设置是否消耗流体
          *
          * @param consume 消耗流体
+         *
          * @return 构建器实例
          */
         public Builder consume(int consume) {

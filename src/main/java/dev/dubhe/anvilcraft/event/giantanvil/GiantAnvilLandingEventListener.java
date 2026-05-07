@@ -85,7 +85,7 @@ public class GiantAnvilLandingEventListener {
         MultiblockInput input = new MultiblockInput(blocks, size);
         if (overCompressorDetected) {
             level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.MULTIBLOCK_TYPE.get(), input, level)
+                .getRecipeFor(ModRecipeTypes.MULTIBLOCK.get(), input, level)
                 .ifPresent(recipe -> {
                     ItemStack result = recipe.value().getResult().copy();
                     for (int y = 0; y < size; y++) {
@@ -105,7 +105,7 @@ public class GiantAnvilLandingEventListener {
             return;
         }
         level.getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION_TYPE.get(), input, level)
+            .getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION.get(), input, level)
             .ifPresent(recipe -> {
                 MultiblockConversionRecipe value = recipe.value();
                 Rotation rotation = value.getMatchedRotation();

@@ -12,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -179,19 +181,15 @@ public class SlidingBlockEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
-        SlidingBlockSection.CODEC.encode(this.section, NbtOps.INSTANCE, new CompoundTag())
-            .ifSuccess(tag -> compound.put("SlidingBlocks", tag));
-        Direction.CODEC.encode(this.moveDirection, NbtOps.INSTANCE, EndTag.INSTANCE)
-            .ifSuccess(tag -> compound.put("MovingDirection", tag));
+    protected void addAdditionalSaveData(ValueOutput compound) {
+        compound.store("SlidingBlocks", SlidingBlockSection.CODEC, this.section);
+        compound.store("MovingDirection", Direction.CODEC, this.moveDirection);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
-        SlidingBlockSection.CODEC.decode(NbtOps.INSTANCE, compound.getCompound("SlidingBlocks"))
-            .ifSuccess(data -> this.section = data.getFirst());
-        Direction.CODEC.decode(NbtOps.INSTANCE, Objects.requireNonNull(compound.get("MovingDirection")))
-            .ifSuccess(data -> this.moveDirection = data.getFirst());
+    protected void readAdditionalSaveData(ValueInput compound) {
+        compound.read("SlidingBlocks", SlidingBlockSection.CODEC).ifPresent(data -> this.section = data);
+        compound.read("MovingDirection", Direction.CODEC).ifPresent(data -> this.moveDirection = data);
     }
 
     @Override

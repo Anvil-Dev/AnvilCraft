@@ -76,7 +76,7 @@ public class StampingCategory extends AbstractProgressCategory<StampingRecipe> {
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.STAMPING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.STAMPING_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.STAMPING.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

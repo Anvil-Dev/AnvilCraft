@@ -52,7 +52,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
      * @param blockPos 位置
      */
     public static void impact(Level level, BlockPos blockPos) {
-        int minY = level.getMinBuildHeight();
+        int minY = level.getMinY();
 
         level.destroyBlock(blockPos, false);
         level.destroyBlock(blockPos.above(), false);

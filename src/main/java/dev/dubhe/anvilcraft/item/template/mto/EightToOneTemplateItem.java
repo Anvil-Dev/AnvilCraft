@@ -89,7 +89,7 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
                 List<Holder<Enchantment>> enchantments = itemEnchantments.keySet().stream().toList();
                 int count = Math.min(4, enchantments.size());
                 for (int i = 0; i < count; i++) {
-                    int randomIndex = level.random.nextIntBetweenInclusive(0, enchantments.size() - 1);
+                    int randomIndex = level.getRandom().nextIntBetweenInclusive(0, enchantments.size() - 1);
                     Holder<Enchantment> randomEnchantment = enchantments.get(randomIndex);
                     boolean selected = false;
                     for (ResourceKey<Enchantment> enchantmentResourceKey : enchantmentMappings.keySet()) {
@@ -100,7 +100,7 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
                         }
                     }
                     if (!selected) {
-                        randomIndex = level.random.nextIntBetweenInclusive(0, otherTemplate.size() - 1);
+                        randomIndex = level.getRandom().nextIntBetweenInclusive(0, otherTemplate.size() - 1);
                         result.add(otherTemplate.get(randomIndex));
                     }
                 }

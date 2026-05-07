@@ -89,7 +89,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         this.left = this.addRenderableWidget(new TexturedButton(
             this.leftPos + 102,

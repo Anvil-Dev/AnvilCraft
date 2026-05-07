@@ -11,6 +11,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -112,15 +114,15 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.storedEnergy = tag.getInt("storedEnergy");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.storedEnergy = input.getIntOr("storedEnergy", 0);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("storedEnergy", Math.min(this.storedEnergy, 80000));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("storedEnergy", Math.min(this.storedEnergy, 80000));
     }
 
     @Override

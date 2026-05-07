@@ -85,7 +85,7 @@ public record MobTransformRecipe(
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.MOB_TRANSFORM_TYPE.get();
+        return ModRecipeTypes.MOB_TRANSFORM.get();
     }
 
     private EntityType<?> getResult(RandomSource rand) {

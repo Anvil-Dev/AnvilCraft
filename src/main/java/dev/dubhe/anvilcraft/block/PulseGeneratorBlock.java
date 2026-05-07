@@ -92,7 +92,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, Orientation orientation, boolean isMoving) {
         this.update(level, pos, () -> state);
     }
 
@@ -124,8 +124,8 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         Direction facing = state.getValue(FACING);
         BlockPos front = pos.relative(facing.getOpposite());
         if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) return;
-        level.neighborChanged(front, this, pos);
-        level.updateNeighborsAtExceptFromFacing(front, this, facing);
+        level.neighborChanged(front, this, Orientation.random(level.getRandom()));
+        level.updateNeighborsAtExceptFromFacing(front, this, facing, Orientation.random(level.getRandom()));
     }
 
     public void update(Level level, BlockPos pos, Supplier<BlockState> stateGetter) {
@@ -229,8 +229,8 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         level.setBlockAndUpdate(pos, newState);
         // noinspection deprecation
         generator.setBlockState(newState);
-        level.neighborChanged(neighbourPos, state.getBlock(), pos);
-        level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite());
+        level.neighborChanged(neighbourPos, state.getBlock(), Orientation.random(level.getRandom()));
+        level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite(), Orientation.random(level.getRandom()));
         if (generator.getSignalDuration() == 0) {
             level.scheduleTick(pos, this, 1, TickPriority.LOW);
         }

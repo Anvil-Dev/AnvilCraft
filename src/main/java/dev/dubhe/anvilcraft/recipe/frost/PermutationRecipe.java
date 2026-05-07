@@ -43,7 +43,7 @@ public record PermutationRecipe(
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.PERMUTATION_TYPE.get();
+        return ModRecipeTypes.PERMUTATION.get();
     }
 
     public static class Serializer implements RecipeSerializer<PermutationRecipe> {

@@ -29,6 +29,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -155,13 +158,10 @@ public final class SlidingBlockSection {
             state = Block.updateFromNeighbourShapes(state, level, pos);
             if (!level.setBlock(pos, state, Block.UPDATE_ALL)) continue;
             Optional.ofNullable(level.getBlockEntity(pos))
-                .ifPresent(entity1 -> entity1.loadCustomOnly(info.entityData(), level.registryAccess()));
-            level.neighborChanged(pos, state.getBlock(), pos);
+                .ifPresent(entity1 -> entity1.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), info.entityData())));
+            level.neighborChanged(pos, state.getBlock(), Orientation.random(level.getRandom()));
 
-            ((ServerLevel) level)
-                .getChunkSource()
-                .chunkMap
-                .broadcast(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
+            PacketDistributor.sendToPlayersTrackingEntity(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
         }
         entity.discard();
     }

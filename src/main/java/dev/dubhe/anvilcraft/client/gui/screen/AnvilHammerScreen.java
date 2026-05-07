@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.util.FullBrightLevelProxy;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -229,13 +230,13 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.closingAnimationStarted) return true;
         float screenCenterX = this.width / 2F;
         float screenCenterY = this.height / 2F;
         Vector2f cursorVec2 = new Vector2f(
-            (float) mouseX - screenCenterX,
-            (float) mouseY - screenCenterY
+            (float) event.x() - screenCenterX,
+            (float) event.y() - screenCenterY
         );
         if (cursorVec2.length() < IGNORE_CURSOR_MOVE_LENGTH) {
             return true;
@@ -256,7 +257,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 this.targetAngle = it.angle;
                 this.currentBlockState = it.state;
             });
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @SuppressWarnings("unused")
@@ -669,7 +670,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         if (shouldRender() && !this.closingAnimationStarted) {
             IMouseHandlerExtension.of(this.minecraft.mouseHandler).anvilcraft$grabMouseWithScreen();
             this.displayTime = System.currentTimeMillis();
@@ -677,7 +678,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         } else {
             this.minecraft.setScreen(null);
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override

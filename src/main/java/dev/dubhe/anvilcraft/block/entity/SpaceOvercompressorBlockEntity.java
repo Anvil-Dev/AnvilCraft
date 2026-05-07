@@ -8,6 +8,8 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -43,15 +45,15 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
     private final ItemStackHandler itemHandler = new ItemStackHandler(9);
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         tag.putLong("storedMass", this.storedMass);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.storedMass = tag.getLong("storedMass");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.storedMass = tag.getLongOr("storedMass", 0L);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class SimplePowerGrid {
 
     public SimplePowerGrid(PowerGrid grid) {
         this.id = grid.hashCode();
-        this.level = grid.getLevel().dimension().location().toString();
+        this.level = grid.getLevel().dimension().identifier().toString();
         this.pos = grid.getPos();
         Set<IPowerComponent> powerComponents = new HashSet<>();
         powerComponents.addAll(grid.storages);

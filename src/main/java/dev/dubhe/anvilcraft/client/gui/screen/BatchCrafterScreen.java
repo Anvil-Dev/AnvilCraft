@@ -47,7 +47,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
@@ -122,12 +122,12 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
 
     @Override
     public int getOffsetX() {
-        return this.leftPos = (this.width - this.imageWidth) / 2;
+        return this.leftPos = (this.width - this.getImageWidth()) / 2;
     }
 
     @Override
     public int getOffsetY() {
-        return this.topPos = (this.height - this.imageHeight) / 2;
+        return this.topPos = (this.height - this.getImageHeight()) / 2;
     }
 
     @Override

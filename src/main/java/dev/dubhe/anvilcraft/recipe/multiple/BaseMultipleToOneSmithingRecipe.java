@@ -118,7 +118,7 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get();
+        return ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get();
     }
 
     @Override

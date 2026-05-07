@@ -265,7 +265,7 @@ public abstract class EntityMixin implements IEntityExtension {
         EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(
             this.level,
             instance,
-            new PortalType(portal.builtInRegistryHolder().key().location())
+            new PortalType(portal.builtInRegistryHolder().key().identifier())
         ));
         if (event.isCanceled()) return instance;
         return original.call(event.getEntity(), transition);

@@ -154,7 +154,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             if (recipe.isConsumeFluid()) {
                 PoseStack pose = guiGraphics.pose();
                 pose.pushPose();
-                pose.scale(0.8F, 0.8F, 1.0F);
+                pose.scale(0.8f, 0.8f, 1.0f);
                 guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     Component.translatable(
@@ -169,7 +169,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             } else if (recipe.isProduceFluid()) {
                 PoseStack pose = guiGraphics.pose();
                 pose.pushPose();
-                pose.scale(0.8F, 0.8F, 1.0F);
+                pose.scale(0.8f, 0.8f, 1.0f);
                 guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     Component.translatable(
@@ -238,7 +238,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.TIME_WARP,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.TIME_WARP_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.TIME_WARP.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

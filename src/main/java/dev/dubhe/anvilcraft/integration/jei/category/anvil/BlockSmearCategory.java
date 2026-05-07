@@ -182,7 +182,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.BLOCK_SMEAR,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_SMEAR_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_SMEAR.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

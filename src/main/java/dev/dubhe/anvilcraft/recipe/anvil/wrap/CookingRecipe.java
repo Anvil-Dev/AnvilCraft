@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
@@ -22,6 +23,8 @@ import java.util.List;
  */
 @Getter
 public class CookingRecipe extends AbstractProcessRecipe<CookingRecipe> {
+    public static final RecipeSerializer<CookingRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(CookingRecipe::new);
+
     /**
      * 构造一个烹饪配方
      *
@@ -52,13 +55,13 @@ public class CookingRecipe extends AbstractProcessRecipe<CookingRecipe> {
     }
 
     @Override
-    public RecipeSerializer<CookingRecipe> getSerializer() {
-        return ModRecipeTypes.COOKING_SERIALIZER.get();
+    public RecipeType<CookingRecipe> getType() {
+        return ModRecipeTypes.COOKING.get();
     }
 
     @Override
-    public RecipeType<CookingRecipe> getType() {
-        return ModRecipeTypes.COOKING_TYPE.get();
+    public RecipeSerializer<CookingRecipe> getSerializer() {
+        return ModRecipeSerializers.COOKING.get();
     }
 
     /**
@@ -68,16 +71,6 @@ public class CookingRecipe extends AbstractProcessRecipe<CookingRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 烹饪配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<CookingRecipe> {
-        @Override
-        protected CookingRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new CookingRecipe(itemIngredients, results);
-        }
     }
 
     /**

@@ -10,6 +10,11 @@ public class IsPlayerFilter extends TeslaFilter {
     private final String id = "IsPlayerFilter";
 
     @Override
+    public String getId() {
+        return "IsPlayerFilter";
+    }
+
+    @Override
     public boolean match(LivingEntity entity, String arg) {
         return entity instanceof Player;
     }

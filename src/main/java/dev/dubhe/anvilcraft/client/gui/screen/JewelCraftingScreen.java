@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -31,15 +32,15 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        int i = (this.width - this.getImageWidth()) / 2;
+        int j = (this.height - this.getImageHeight()) / 2;
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
@@ -124,12 +125,12 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    public boolean keyPressed(int key, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         if (key == GLFW.GLFW_KEY_SPACE) {
             // 处理空格键快速填充配方逻辑
             this.menu.autoFill();
             return true;
         }
-        return super.keyPressed(key, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 }

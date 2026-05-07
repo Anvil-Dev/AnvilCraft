@@ -91,12 +91,12 @@ public class FilterOnlyContainer implements Container {
     }
 
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        this.size = nbt.contains("Size", Tag.TAG_INT) ? nbt.getInt("Size") : filterList.size();
+        this.size = nbt.contains("Size", Tag.TAG_INT) ? nbt.getIntOr("Size", 0) : filterList.size();
         this.filterList = NonNullList.withSize(this.size, ItemStack.EMPTY);
-        ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
+        ListTag tagList = nbt.getListOrEmpty("Items");
         for (int i = 0; i < tagList.size(); i++) {
             CompoundTag itemTags = tagList.getCompound(i);
-            int slot = itemTags.getInt("Slot");
+            int slot = itemTags.getIntOr("Slot", 0);
             if (slot >= 0 && slot < filterList.size()) {
                 ItemStack.parse(provider, itemTags).ifPresent(stack -> filterList.set(slot, stack));
             }

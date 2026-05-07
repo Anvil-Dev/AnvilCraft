@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.EmberGrindstoneSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -67,7 +68,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
@@ -140,14 +141,14 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             textColor = 0xff6060;
         }
 
-        int k = this.imageWidth - 1 - this.font.width(component) - 2;
-        guiGraphics.fill(k - 2, 65, this.imageWidth - 1, 76, 0x4F000000);
+        int k = this.getImageWidth() - 1 - this.font.width(component) - 2;
+        guiGraphics.fill(k - 2, 65, this.getImageWidth() - 1, 76, 0x4F000000);
         guiGraphics.drawString(this.font, component, k, 66, textColor);
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
         RenderSupport.renderItemWithTransparency(
             Items.BOOK.getDefaultInstance(),
             guiGraphics.pose(),
@@ -182,9 +183,9 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            if (this.insideScrollbar(mouseX, mouseY)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
+        if (event.button() == 0) {
+            if (this.insideScrollbar(event.x(), event.y())) {
                 this.scrollable.scrolling();
                 return true;
             }
@@ -192,7 +193,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
                 int x = this.leftPos + 65 + 18 * (i % 3);
                 int y = this.topPos + 23 + 18 * ((i - this.head) / 3);
 
-                if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
+                if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
                 if (this.menu.getSelectedIndex() == i) {
                     this.menu.setSelectedEnchantment(-1);
                     PacketDistributor.sendToServer(new EmberGrindstoneSyncPacket(-1));
@@ -203,27 +204,27 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, handled);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0 && this.scrollable.isScrolling()) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.scrollable.isScrolling()) {
             this.scrollable.notScrolling();
             return true;
         }
 
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.scrollable.isScrolling()) {
             int top = this.topPos + 23;
-            this.scrollable.scrollOnDrag(12, mouseY, top, top + 36);
+            this.scrollable.scrollOnDrag(12, event.y(), top, top + 36);
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override

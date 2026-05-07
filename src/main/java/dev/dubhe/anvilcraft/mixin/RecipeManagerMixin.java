@@ -68,7 +68,7 @@ abstract class RecipeManagerMixin {
     ) {
         jewelsCache.get().buildRecipes()
             .ifPresent(recipeHolders -> {
-                byTypeBuilder.putAll(ModRecipeTypes.JEWEL_CRAFTING_TYPE.get(), recipeHolders);
+                byTypeBuilder.putAll(ModRecipeTypes.JEWEL_CRAFTING.get(), recipeHolders);
                 for (RecipeHolder<JewelCraftingRecipe> holder : recipeHolders) {
                     byNameBuilder.put(holder.id(), holder);
                 }

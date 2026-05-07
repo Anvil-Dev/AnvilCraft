@@ -10,6 +10,11 @@ public class IsPetFilter extends TeslaFilter {
     private final String id = "IsPetFilter";
 
     @Override
+    public String getId() {
+        return "IsPetFilter";
+    }
+
+    @Override
     public boolean match(LivingEntity entity, String arg) {
         return entity instanceof TamableAnimal tamableAnimal && tamableAnimal.getOwner() != null;
     }

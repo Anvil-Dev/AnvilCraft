@@ -46,7 +46,7 @@ public record EnergyWeaponMakeRecipe(
     
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.ENERGY_WEAPON_MAKE_TYPE.get();
+        return ModRecipeTypes.ENERGY_WEAPON_MAKE.get();
     }
 
     @Override

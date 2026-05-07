@@ -191,7 +191,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
     public void setData(Level level, BlockPos pos, CompoundTag nbt) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-            int data = nbt.getInt("storedEnergyData");
+            int data = nbt.getIntOr("storedEnergyData", 0);
             propelPistonBlockEntity.updateStoredEnergy(data);
         }
     }
@@ -208,7 +208,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
                 level.setBlockAndUpdate(pos, state.setValue(MOVING, false));
                 return false;
             }
-            level.playSound(null, pos, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.25F + 0.6F);
+            level.playSound(null, pos, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5F, level.getRandom().nextFloat() * 0.25F + 0.6F);
         }
         net.neoforged.neoforge.event.EventHooks.onPistonMovePost(level, pos, direction, (id == 0));
         level.scheduleTick(pos.relative(direction), this, 6);

@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -94,13 +96,13 @@ public class MagnetizedNodeEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+    protected void readAdditionalSaveData(ValueInput compoundTag) {
         this.blockPos = NbtUtils.readBlockPos(compoundTag, "BlockPos").orElse(BlockPos.ZERO);
-        this.blockState = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), compoundTag.getCompound("BlockState"));
+        this.blockState = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), compoundTag.getCompoundOrEmpty("BlockState"));
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+    protected void addAdditionalSaveData(ValueOutput compoundTag) {
         compoundTag.put("BlockState", NbtUtils.writeBlockState(this.blockState));
         compoundTag.put("BlockPos", NbtUtils.writeBlockPos(this.blockPos));
     }

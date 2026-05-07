@@ -26,7 +26,7 @@ public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> r
     public static ImmutableList<MeshRecipeGroup> getAllRecipesGrouped() {
         maxRows = 1;
 
-        List<MeshRecipe> recipes = JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.MESH_TYPE.get());
+        List<MeshRecipe> recipes = JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.MESH.get());
         Multimap<ItemIngredientPredicate, MeshRecipe> ingredientGrouper = ArrayListMultimap.create();
 
         for (MeshRecipe recipe : recipes) {

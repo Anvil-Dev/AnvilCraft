@@ -128,7 +128,7 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.MOB_TRANSFORM_WITH_ITEM,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM.get())
         );
     }
 

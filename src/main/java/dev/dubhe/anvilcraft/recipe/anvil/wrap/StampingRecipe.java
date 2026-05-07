@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
@@ -20,6 +21,8 @@ import java.util.List;
  */
 @Getter
 public class StampingRecipe extends AbstractProcessRecipe<StampingRecipe> {
+    public static final RecipeSerializer<StampingRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(StampingRecipe::new);
+
     /**
      * 构造一个冲压配方
      *
@@ -47,13 +50,13 @@ public class StampingRecipe extends AbstractProcessRecipe<StampingRecipe> {
     }
 
     @Override
-    public RecipeSerializer<StampingRecipe> getSerializer() {
-        return ModRecipeTypes.STAMPING_SERIALIZER.get();
+    public RecipeType<StampingRecipe> getType() {
+        return ModRecipeTypes.STAMPING.get();
     }
 
     @Override
-    public RecipeType<StampingRecipe> getType() {
-        return ModRecipeTypes.STAMPING_TYPE.get();
+    public RecipeSerializer<StampingRecipe> getSerializer() {
+        return ModRecipeSerializers.STAMPING.get();
     }
 
     /**
@@ -63,16 +66,6 @@ public class StampingRecipe extends AbstractProcessRecipe<StampingRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 冲压配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<StampingRecipe> {
-        @Override
-        protected StampingRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new StampingRecipe(itemIngredients, results);
-        }
     }
 
     /**

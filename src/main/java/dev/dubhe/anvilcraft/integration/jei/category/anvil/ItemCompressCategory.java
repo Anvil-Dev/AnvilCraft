@@ -67,7 +67,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-            AnvilCraftJeiPlugin.ITEM_COMPRESS, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_COMPRESS_TYPE.get()));
+            AnvilCraftJeiPlugin.ITEM_COMPRESS, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_COMPRESS.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

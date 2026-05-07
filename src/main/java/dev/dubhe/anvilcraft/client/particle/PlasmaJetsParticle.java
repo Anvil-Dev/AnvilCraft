@@ -27,8 +27,8 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
         this.rCol = 1;
         this.gCol = 1;
         this.bCol = 1;
-        this.quadSize = 0.1F * (this.random.nextFloat() * this.random.nextFloat() * 2.0F + 1.0F);
-        this.lifetime = (int) (16.0 / ((double) this.random.nextFloat() * 0.8 + 0.2)) + 2;
+        this.quadSize = 0.1F * (this.getRandom().nextFloat() * this.getRandom().nextFloat() * 2.0F + 1.0F);
+        this.lifetime = (int) (16.0 / ((double) this.getRandom().nextFloat() * 0.8 + 0.2)) + 2;
         this.setSpriteFromAge(sprites);
     }
 

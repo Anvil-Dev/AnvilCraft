@@ -44,7 +44,7 @@ public record DeformationRecipe(
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.DEFORMATION_TYPE.get();
+        return ModRecipeTypes.DEFORMATION.get();
     }
 
     public static class Serializer implements RecipeSerializer<DeformationRecipe> {

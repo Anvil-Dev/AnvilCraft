@@ -115,7 +115,7 @@ public record MobTransformWithItemRecipe(
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM_TYPE.get();
+        return ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM.get();
     }
 
     @Nullable

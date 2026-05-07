@@ -31,7 +31,7 @@ public record DiskData(CompoundTag tag) implements TooltipProvider {
 
     @Override
     public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
-        Optional<String> storedType = this.tag.getString("StoredFrom");
+        Optional<String> storedType = this.tag.getStringOr("StoredFrom", "");
         if (storedType.isEmpty()) return;
         Identifier storedFrom = Identifier.parse(storedType.get());
         Component name = Component.translatable("block." + storedFrom.toLanguageKey());

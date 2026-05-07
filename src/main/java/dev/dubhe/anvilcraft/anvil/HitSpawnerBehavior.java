@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.mixin.accessor.BaseSpawnerAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -63,12 +65,13 @@ public class HitSpawnerBehavior implements IAnvilBehavior {
     ) {
         for (int i = 0; i < accessor.getSpawnCount(); ++i) {
             CompoundTag compoundTag = spawnData.getEntityToSpawn();
-            Optional<EntityType<?>> optional = EntityType.by(compoundTag);
+            Optional<EntityType<?>> optional = EntityType.by(
+                TagValueInput.create(ProblemReporter.DISCARDING, serverLevel.registryAccess(), compoundTag));
             if (optional.isEmpty()) {
                 return;
             }
 
-            ListTag listTag = compoundTag.getList("Pos", 6);
+            ListTag listTag = compoundTag.getListOrEmpty("Pos");
             int size = listTag.size();
             double x;
             double y;

@@ -34,7 +34,7 @@ public class AnvilHurtVillagerEventListener {
         Level level = event.getLevel();
         if (level.isClientSide()) return;
         if (entity instanceof Villager villager) {
-            final RandomSource random = level.random;
+            final RandomSource random = level.getRandom();
 
             villager.releasePoi(MemoryModuleType.HOME);
             villager.releasePoi(MemoryModuleType.JOB_SITE);
@@ -59,7 +59,7 @@ public class AnvilHurtVillagerEventListener {
             final BlockPos pos = event.getPos();
             final VillagerType type = VillagerType.byBiome(level.getBiome(pos));
             VillagerProfession profession = VillagerProfession.NONE;
-            RandomSource random = level.random;
+            RandomSource random = level.getRandom();
             double chance = random.nextDouble();
             if (chance < 0.15) {
                 profession = VillagerProfession.NITWIT;

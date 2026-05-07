@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
@@ -12,11 +12,10 @@ import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -30,6 +29,34 @@ import java.util.function.Consumer;
  */
 @Getter
 public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
+    public static final RecipeSerializer<SqueezingRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BlockStatePredicate.CODEC
+                .fieldOf("ingredient")
+                .forGetter(SqueezingRecipe::getFirstInputBlock),
+            ChanceBlockState.CODEC
+                .codec()
+                .fieldOf("result")
+                .forGetter(SqueezingRecipe::getFirstResultBlock),
+            HasCauldronSimple.CODEC
+                .forGetter(SqueezingRecipe::getHasCauldron),
+            HasAnvil.CODEC.codec()
+                .optionalFieldOf("anvil", HasAnvil.DEFAULT)
+                .forGetter(SqueezingRecipe::getHasAnvil)
+        ).apply(instance, SqueezingRecipe::new)),
+        StreamCodec.composite(
+            BlockStatePredicate.STREAM_CODEC,
+            SqueezingRecipe::getFirstInputBlock,
+            ChanceBlockState.STREAM_CODEC,
+            SqueezingRecipe::getFirstResultBlock,
+            HasCauldronSimple.STREAM_CODEC,
+            SqueezingRecipe::getHasCauldron,
+            HasAnvil.STREAM_CODEC,
+            SqueezingRecipe::getHasAnvil,
+            SqueezingRecipe::new
+        )
+    );
+
     /**
      * 构造一个压榨配方
      *
@@ -57,13 +84,13 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
     }
 
     @Override
-    public RecipeSerializer<SqueezingRecipe> getSerializer() {
-        return ModRecipeTypes.SQUEEZING_SERIALIZER.get();
+    public RecipeType<SqueezingRecipe> getType() {
+        return ModRecipeTypes.SQUEEZING.get();
     }
 
     @Override
-    public RecipeType<SqueezingRecipe> getType() {
-        return ModRecipeTypes.SQUEEZING_TYPE.get();
+    public RecipeSerializer<SqueezingRecipe> getSerializer() {
+        return ModRecipeSerializers.SQUEEZING.get();
     }
 
     /**
@@ -83,54 +110,6 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
         return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
-    }
-
-    /**
-     * 压榨配方序列化器
-     */
-    public static class Serializer implements RecipeSerializer<SqueezingRecipe> {
-        /**
-         * 编解码器
-         */
-        public static final MapCodec<SqueezingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            BlockStatePredicate.CODEC
-                .fieldOf("ingredient")
-                .forGetter(SqueezingRecipe::getFirstInputBlock),
-            ChanceBlockState.CODEC
-                .codec()
-                .fieldOf("result")
-                .forGetter(SqueezingRecipe::getFirstResultBlock),
-            HasCauldronSimple.CODEC
-                .forGetter(SqueezingRecipe::getHasCauldron),
-            HasAnvil.CODEC.codec()
-                .optionalFieldOf("anvil", HasAnvil.DEFAULT)
-                .forGetter(SqueezingRecipe::getHasAnvil)
-        ).apply(instance, SqueezingRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        public static final StreamCodec<RegistryFriendlyByteBuf, SqueezingRecipe> STREAM_CODEC = StreamCodec.composite(
-            BlockStatePredicate.STREAM_CODEC,
-            SqueezingRecipe::getFirstInputBlock,
-            ChanceBlockState.STREAM_CODEC,
-            SqueezingRecipe::getFirstResultBlock,
-            HasCauldronSimple.STREAM_CODEC,
-            SqueezingRecipe::getHasCauldron,
-            HasAnvil.STREAM_CODEC,
-            SqueezingRecipe::getHasAnvil,
-            SqueezingRecipe::new
-        );
-
-        @Override
-        public MapCodec<SqueezingRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, SqueezingRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
     }
 
     /**
@@ -161,6 +140,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 添加原料方块
          *
          * @param ingredient 原料方块谓词
+         *
          * @return 构建器实例
          */
         public Builder requires(BlockStatePredicate ingredient) {
@@ -172,6 +152,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 添加原料方块
          *
          * @param ingredient 原料方块
+         *
          * @return 构建器实例
          */
         public Builder requires(Block ingredient) {
@@ -182,6 +163,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 添加原料方块（标签形式）
          *
          * @param ingredient 原料方块标签
+         *
          * @return 构建器实例
          */
         public Builder requires(TagKey<Block> ingredient) {
@@ -192,6 +174,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 添加结果方块
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder result(ChanceBlockState result) {
@@ -204,6 +187,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          *
          * @param result 结果方块
          * @param chance 概率
+         *
          * @return 构建器实例
          */
         public Builder result(Block result, float chance) {
@@ -214,6 +198,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 添加结果方块（默认概率为1.0F）
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder result(Block result) {
@@ -224,6 +209,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置炼药锅流体
          *
          * @param fluid 流体ID
+         *
          * @return 构建器实例
          */
         public Builder cauldron(Identifier fluid) {
@@ -235,6 +221,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置炼药锅方块
          *
          * @param cauldron 炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder cauldron(Block cauldron) {
@@ -246,6 +233,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置转换后的流体
          *
          * @param transform 转换后的流体ID
+         *
          * @return 构建器实例
          */
         public Builder transform(Identifier transform) {
@@ -257,6 +245,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置转换后的炼药锅方块
          *
          * @param transform 转换后的炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder transform(Block transform) {
@@ -268,6 +257,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置是否产生流体
          *
          * @param produce 是否产生流体
+         *
          * @return 构建器实例
          */
         public Builder produce(int produce) {
@@ -280,6 +270,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置是否消耗流体
          *
          * @param consume 是否消耗流体
+         *
          * @return 构建器实例
          */
         public Builder consume(int consume) {
@@ -292,6 +283,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置转换成功的概率
          *
          * @param chance 转换成功的概率
+         *
          * @return 构建器实例
          */
         public Builder chance(float chance) {
@@ -314,6 +306,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置铁砧条件
          *
          * @param anvil 铁砧方块
+         *
          * @return 构建器实例
          */
         public Builder anvil(Block anvil) {
@@ -325,6 +318,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置铁砧条件
          *
          * @param anvil 铁砧方块标签
+         *
          * @return 构建器实例
          */
         public Builder anvil(TagKey<Block> anvil) {
@@ -336,6 +330,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          * 设置铁砧条件
          *
          * @param consumer 铁砧条件谓词消费者
+         *
          * @return 构建器实例
          */
         public Builder anvil(Consumer<BlockStatePredicate.Builder> consumer) {
@@ -380,7 +375,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
         }
 
         @Override
-        public Item getResult() {
+        public ItemStackTemplate getResult() {
             return WrapUtils.getItem(this.result);
         }
     }

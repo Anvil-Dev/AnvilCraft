@@ -19,6 +19,8 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -102,7 +104,7 @@ public class ChargerBlockEntity extends BlockEntity
         SingleRecipeInput input = new SingleRecipeInput(stack);
         if (level != null) {
             Optional<RecipeHolder<ChargerChargingRecipe>> x = level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.CHARGER_CHARGING_TYPE.get(), input, level);
+                .getRecipeFor(ModRecipeTypes.CHARGER_CHARGING.get(), input, level);
             if (x.isPresent()) {
                 if (x.get().value().power == 0) return false;
                 return isCharger == x.get().value().power < 0;
@@ -116,7 +118,7 @@ public class ChargerBlockEntity extends BlockEntity
         SingleRecipeInput input = new SingleRecipeInput(stack);
         if (level != null) {
             Optional<RecipeHolder<ChargerChargingRecipe>> x = level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.CHARGER_CHARGING_TYPE.get(), input, level);
+                .getRecipeFor(ModRecipeTypes.CHARGER_CHARGING.get(), input, level);
             if (x.isPresent()) {
                 return x.get().value();
             }
@@ -210,19 +212,19 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putInt("TimeLeft", timeLeft);
-        tag.put("Depository", itemHandler.serializeNBT(provider));
-        tag.putBoolean("Mode", isCharger);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("TimeLeft", timeLeft);
+        output.store("Depository", CompoundTag.CODEC, itemHandler.serializeNBT(provider));
+        output.putBoolean("Mode", isCharger);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        timeLeft = tag.getInt("TimeLeft");
-        itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
-        isCharger = tag.getBoolean("Mode");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        timeLeft = input.getIntOr("TimeLeft", 0);
+        itemHandler.deserializeNBT(provider, input.read("Depository", CompoundTag.CODEC).orElse(new CompoundTag()));
+        isCharger = input.getBooleanOr("Mode", false);
     }
 
     @Override

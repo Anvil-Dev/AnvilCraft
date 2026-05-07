@@ -44,7 +44,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     public PulseGeneratorScreen(PulseGeneratorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.minecraft = Minecraft.getInstance();
-        this.imageHeight = 77;
+        this.getImageHeight() = 77;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     protected void init() {
         super.init();
         this.clearWidgets();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         final SwitchableButton startMode = new SwitchableButton(
             this.leftPos + 28,
@@ -137,14 +137,14 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + 63,
             this.topPos + 38,
             32, 9,
-            minecraft.font,
+            this.minecraft.font,
             () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getWaitingTime(), 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
         this.signalDuration = new TextWidget(
             this.leftPos + 115,
             this.topPos + 38,
             32, 9,
-            minecraft.font,
+            this.minecraft.font,
             () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getSignalDuration(), 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
         startMode.setCurrent(this.menu.getBlockEntity().getStartMode().index());
@@ -174,7 +174,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 128);
+        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 128);
     }
 
     @Override

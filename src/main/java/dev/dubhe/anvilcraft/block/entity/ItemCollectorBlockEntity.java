@@ -16,6 +16,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -137,21 +139,21 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
-        this.cooldown.fromIndex(tag.getInt("Cooldown"));
-        this.rangeRadius.fromIndex(tag.getInt("RangeRadius"));
-        this.cd = tag.getInt("cd");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.itemHandler.deserializeNBT(provider, input.read("Inventory", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.cooldown.fromIndex(input.getIntOr("Cooldown", 0));
+        this.rangeRadius.fromIndex(input.getIntOr("RangeRadius", 0));
+        this.cd = input.getIntOr("cd", 0);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
-        tag.putInt("Cooldown", this.cooldown.index());
-        tag.putInt("RangeRadius", this.rangeRadius.index());
-        tag.putInt("cd", this.cd);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("Inventory", CompoundTag.CODEC, this.itemHandler.serializeNBT(provider));
+        output.putInt("Cooldown", this.cooldown.index());
+        output.putInt("RangeRadius", this.rangeRadius.index());
+        output.putInt("cd", this.cd);
     }
 
     @Nullable
@@ -170,9 +172,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
-        tag.putInt("Cooldown", this.cooldown.index());
-        tag.putInt("RangeRadius", this.rangeRadius.index());
+        output.store("Inventory", CompoundTag.CODEC, this.itemHandler.serializeNBT(provider));
+        output.putInt("Cooldown", this.cooldown.index());
+        output.putInt("RangeRadius", this.rangeRadius.index());
         return tag;
     }
 
@@ -275,23 +277,23 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
+    public void storeDiskData(ValueOutput output) {
         if (this.level == null) return;
         RegistryAccess provider = this.level.registryAccess();
-        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
-        tag.putInt("Cooldown", this.cooldown.index());
-        tag.putInt("RangeRadius", this.rangeRadius.index());
-        tag.putInt("cd", this.cd);
+        output.store("Inventory", CompoundTag.CODEC, this.itemHandler.serializeNBT(provider));
+        output.putInt("Cooldown", this.cooldown.index());
+        output.putInt("RangeRadius", this.rangeRadius.index());
+        output.putInt("cd", this.cd);
     }
 
     @Override
-    public void applyDiskData(CompoundTag tag) {
+    public void applyDiskData(ValueInput input) {
         if (this.level == null) return;
         RegistryAccess provider = this.level.registryAccess();
-        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
-        this.cooldown.fromIndex(tag.getInt("Cooldown"));
-        this.rangeRadius.fromIndex(tag.getInt("RangeRadius"));
-        this.cd = tag.getInt("cd");
+        this.itemHandler.deserializeNBT(provider, input.read("Inventory", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.cooldown.fromIndex(input.getIntOr("Cooldown", 0));
+        this.rangeRadius.fromIndex(input.getIntOr("RangeRadius", 0));
+        this.cd = input.getIntOr("cd", 0);
         this.setChanged();
         Vec3 center = this.getPos().getCenter();
         MinecraftServer server = level.getServer();

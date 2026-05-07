@@ -10,6 +10,8 @@ import dev.dubhe.anvilcraft.network.TeslaRemoveFilterPacket;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -99,12 +101,12 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         assert this.minecraft != null;
-        if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
-            return this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers);
+        if (this.minecraft.options.keyInventory.matches(event.key(), event.scancode())) {
+            return this.getFocused() != null && this.getFocused().keyPressed(event.key(), event.scancode(), event.modifiers());
         } else {
-            return super.keyPressed(keyCode, scanCode, modifiers);
+            return super.keyPressed(event);
         }
     }
 
@@ -178,14 +180,14 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     public TeslaTowerScreen(TeslaTowerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.menu = menu;
-        this.imageWidth = 256;
-        this.imageHeight = 166;
+        this.getImageWidth() = 256;
+        this.getImageHeight() = 166;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         int buttonTop = topPos + 35;
         for (int l = 0; l < 8; ++l) {
@@ -283,8 +285,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int leftPos = (this.width - this.imageWidth) / 2;
-        int topPos = (this.height - this.imageHeight) / 2;
+        int leftPos = (this.width - this.getImageWidth()) / 2;
+        int topPos = (this.height - this.getImageHeight()) / 2;
         if (mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
             if (this.filteredFilters.size() > 8) {
                 this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - scrollY, 0, this.filteredFilters.size() - 7);
@@ -304,56 +306,56 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
      * 鼠标拖动事件
      */
     @SuppressWarnings("DuplicatedCode")
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        int leftPos = (this.width - this.imageWidth) / 2;
-        int topPos = (this.height - this.imageHeight) / 2;
-        if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos)) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        int leftPos = (this.width - this.getImageWidth()) / 2;
+        int topPos = (this.height - this.getImageHeight()) / 2;
+        if (mouseInLeftSlider(event.x(), event.y(), leftPos, topPos)) {
             int i = filteredFilters.size();
             if (this.isDraggingLeft) {
                 int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                 int k = j + SCROLL_BAR_HEIGHT;
                 int dragMax = i - 7;
-                float scroll = (float) ((mouseY - j - 13.5F) / ((k - j) - 27.0F));
+                float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
                 scroll = scroll * dragMax + 0.5F;
                 this.leftScrollOff = Mth.clamp((int) scroll, 0, dragMax);
                 return true;
             } else {
-                return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+                return super.mouseDragged(event, dragX, dragY);
             }
         } else {
-            if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos)) {
+            if (mouseInRightSlider(event.x(), event.y(), leftPos, topPos)) {
                 int i = whiteFilters.size();
                 if (this.isDraggingRight) {
                     int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                     int k = j + SCROLL_BAR_HEIGHT;
                     int dragMax = i - 7;
-                    float scroll = (float) ((mouseY - j - 13.5F) / ((k - j) - 27.0F));
+                    float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
                     scroll = scroll * dragMax + 0.5F;
                     this.rightScrollOff = Mth.clamp((int) scroll, 0, dragMax);
                     return true;
                 } else {
-                    return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+                    return super.mouseDragged(event, dragX, dragY);
                 }
             }
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     /**
      * 鼠标点击
      */
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         isDraggingLeft = false;
         isDraggingRight = false;
-        int leftPos = (this.width - this.imageWidth) / 2;
-        int topPos = (this.height - this.imageHeight) / 2;
-        if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos) && filteredFilters.size() > 8) {
+        int leftPos = (this.width - this.getImageWidth()) / 2;
+        int topPos = (this.height - this.getImageHeight()) / 2;
+        if (mouseInLeftSlider(event.x(), event.y(), leftPos, topPos) && filteredFilters.size() > 8) {
             this.isDraggingLeft = true;
         }
-        if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos) && whiteFilters.size() > 8) {
+        if (mouseInRightSlider(event.x(), event.y(), leftPos, topPos) && whiteFilters.size() > 8) {
             this.isDraggingRight = true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, handled);
     }
 
     private void renderScroller(GuiGraphics guiGraphics, int posX, int posY, int totalCount, int scrollOff) {
@@ -373,8 +375,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
      * 渲染
      */
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        int leftPos = (this.width - this.imageWidth) / 2;
-        int topPos = (this.height - this.imageHeight) / 2;
+        int leftPos = (this.width - this.getImageWidth()) / 2;
+        int topPos = (this.height - this.getImageHeight()) / 2;
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, filteredFilters.size(), leftScrollOff);
@@ -402,9 +404,9 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        int i = (this.width - this.getImageWidth()) / 2;
+        int j = (this.height - this.getImageHeight()) / 2;
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override

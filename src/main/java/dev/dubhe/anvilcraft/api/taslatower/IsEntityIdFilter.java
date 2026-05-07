@@ -9,6 +9,11 @@ public class IsEntityIdFilter extends TeslaFilter {
     private final String id = "IsEntityIdFilter";
 
     @Override
+    public String getId() {
+        return "IsEntityIdFilter";
+    }
+
+    @Override
     public boolean match(LivingEntity entity, String arg) {
         return entity.getType().getDescriptionId().equals(arg);
     }

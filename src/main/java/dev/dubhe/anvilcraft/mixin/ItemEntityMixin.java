@@ -105,8 +105,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void voidResistant(CallbackInfo ci) {
         if (!this.getItem().is(ModItemTags.VOID_RESISTANT) && !this.getItem().has(ModComponents.ETERNAL)) return;
-        if (this.getY() < this.level().getMinBuildHeight() + 5) {
-            double dy = (this.level().getMinBuildHeight() + 4 - this.getY()) * 0.01;
+        if (this.getY() < this.level().getMinY() + 5) {
+            double dy = (this.level().getMinY() + 4 - this.getY()) * 0.01;
             dy += this.getDeltaMovement().y * -0.1;
             this.addDeltaMovement(new Vec3(0, 0.04 + dy, 0));
         }

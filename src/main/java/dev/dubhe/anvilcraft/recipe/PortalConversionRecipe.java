@@ -102,7 +102,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.PORTAL_CONVERSION_TYPE.get();
+        return ModRecipeTypes.PORTAL_CONVERSION.get();
     }
 
     @Override
@@ -148,7 +148,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
 
         @SuppressWarnings("deprecation")
         public <T extends Block & Portal> Builder type(T portal) {
-            this.typeId = portal.builtInRegistryHolder().key().location();
+            this.typeId = portal.builtInRegistryHolder().key().identifier();
             return this;
         }
 

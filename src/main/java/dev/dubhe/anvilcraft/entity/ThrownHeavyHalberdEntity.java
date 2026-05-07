@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import net.minecraft.core.HolderSet;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -83,7 +85,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
 
         Entity entity = this.getOwner();
         int i = this.entityData.get(ID_LOYALTY);
-        if (i > 0 && (this.dealtDamage || this.isNoPhysics() || this.getY() <= this.level().getMinBuildHeight()) && entity != null) {
+        if (i > 0 && (this.dealtDamage || this.isNoPhysics() || this.getY() <= this.level().getMinY()) && entity != null) {
             if (!this.isAcceptableReturnOwner()) {
                 if (!this.level().isClientSide() && this.pickup == AbstractArrow.Pickup.ALLOWED) {
                     this.spawnAtLocation(this.getPickupItem(), 0.1F);
@@ -177,7 +179,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
             null,
             vec3,
             level.getBlockState(hitResult.getBlockPos()),
-            item -> this.kill()
+            item -> this.kill((ServerLevel) this.level())
         );
     }
 
@@ -210,14 +212,14 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
     @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
+    public void readAdditionalSaveData(ValueInput compound) {
         super.readAdditionalSaveData(compound);
-        this.dealtDamage = compound.getBoolean("DealtDamage");
+        this.dealtDamage = compound.getBooleanOr("DealtDamage", false);
         this.entityData.set(ID_LOYALTY, this.getLoyaltyFromItem(this.getPickupItemStackOrigin()));
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
+    public void addAdditionalSaveData(ValueOutput compound) {
         super.addAdditionalSaveData(compound);
         compound.putBoolean("DealtDamage", this.dealtDamage);
     }

@@ -91,7 +91,7 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 }
 
                                 if (this.level().setBlock(blockPos, this.blockState, 3)) {
-                                    ((ServerLevel) this.level()).getChunkSource().chunkMap.broadcast(
+                                    PacketDistributor.sendToPlayersTrackingEntity(
                                         this,
                                         new ClientboundBlockUpdatePacket(
                                             blockPos,

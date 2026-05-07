@@ -9,6 +9,11 @@ public class IsOnVehicleFilter extends TeslaFilter {
     private final String id = "IsOnVehicleFilter";
 
     @Override
+    public String getId() {
+        return "IsOnVehicleFilter";
+    }
+
+    @Override
     public boolean match(LivingEntity entity, String arg) {
         return entity.getVehicle() != null;
     }

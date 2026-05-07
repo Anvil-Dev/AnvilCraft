@@ -50,7 +50,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
      * @param mass       质量值
      */
     public MassInjectRecipe(Ingredient ingredient, int mass) {
-        super(ModRecipeTypes.MASS_INJECT_TYPE.get(),
+        super(ModRecipeTypes.MASS_INJECT.get(),
             ModRecipeTypes.MASS_INJECT_SERIALIZER.get(),
             "mass_inject",
             ingredient,
@@ -107,7 +107,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
      */
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.MASS_INJECT_TYPE.get();
+        return ModRecipeTypes.MASS_INJECT.get();
     }
 
     /**

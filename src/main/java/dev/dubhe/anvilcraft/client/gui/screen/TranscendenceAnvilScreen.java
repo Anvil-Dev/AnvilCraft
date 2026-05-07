@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
@@ -37,7 +38,7 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
@@ -48,8 +49,8 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
 
     @Override
     protected void subInit() {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
+        int i = (this.width - this.getImageWidth()) / 2;
+        int j = (this.height - this.getImageHeight()) / 2;
         this.name = new EditBox(this.font, i + 62, j + 24, 103, 12, Component.translatable("container.repair"));
         this.name.setCanLoseFocus(false);
         this.name.setTextColor(-1);
@@ -71,14 +72,14 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == 256 && this.minecraft != null && this.minecraft.player != null) {
             this.minecraft.player.closeContainer();
         }
-        if (this.name.keyPressed(keyCode, scanCode, modifiers) || this.name.canConsumeInput()) {
+        if (this.name.keyPressed(event.key(), event.scancode(), event.modifiers()) || this.name.canConsumeInput()) {
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     private void onNameChanged(String name) {
@@ -112,8 +113,8 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
                 }
             }
             if (component != null) {
-                int k = this.imageWidth - 8 - this.font.width(component) - 2;
-                guiGraphics.fill(k - 2, 67, this.imageWidth - 8, 79, 0x4F000000);
+                int k = this.getImageWidth() - 8 - this.font.width(component) - 2;
+                guiGraphics.fill(k - 2, 67, this.getImageWidth() - 8, 79, 0x4F000000);
                 guiGraphics.drawString(this.font, component, k, 69, j);
             }
         }

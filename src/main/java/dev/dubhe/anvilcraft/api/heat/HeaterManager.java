@@ -154,7 +154,7 @@ public class HeaterManager {
                         neighbourPos = neighbourPos.relative(direction);
                         neighbourState = this.level.getBlockState(neighbourPos);
                         if (neighbourState.getWeakChanges(this.level, neighbourPos)) {
-                            this.level.neighborChanged(neighbourState, neighbourPos, deltaBlock, pos, false);
+                            this.level.neighborChanged(neighbourState, neighbourPos, deltaBlock, Orientation.random(this.level.getRandom()), false);
                         }
                     }
                 }
@@ -192,7 +192,7 @@ public class HeaterManager {
                         neighbourPos = neighbourPos.relative(direction);
                         neighbourState = this.level.getBlockState(neighbourPos);
                         if (neighbourState.getWeakChanges(this.level, neighbourPos)) {
-                            this.level.neighborChanged(neighbourState, neighbourPos, prevState.getBlock(), pos, false);
+                            this.level.neighborChanged(neighbourState, neighbourPos, prevState.getBlock(), Orientation.random(this.level.getRandom()), false);
                         }
                     }
                 }

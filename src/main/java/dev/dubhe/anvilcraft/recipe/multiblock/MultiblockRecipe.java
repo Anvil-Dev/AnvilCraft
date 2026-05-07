@@ -66,7 +66,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
 
     @Override
     public RecipeType<MultiblockRecipe> getType() {
-        return ModRecipeTypes.MULTIBLOCK_TYPE.get();
+        return ModRecipeTypes.MULTIBLOCK.get();
     }
 
     @Override

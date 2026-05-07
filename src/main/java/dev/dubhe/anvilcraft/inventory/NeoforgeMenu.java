@@ -16,7 +16,7 @@ public class NeoforgeMenu extends AnvilMenu {
     protected void onTake(Player player, ItemStack stack) {
         super.onTake(player, stack);
         this.access.execute((level, pos) -> {
-            if (level.random.nextDouble() < 0.01) {
+            if (level.getRandom().nextDouble() < 0.01) {
                 NeoforgeBlock.damage(level, pos);
             }
         });

@@ -11,6 +11,8 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -108,8 +110,8 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                     && (
                         this.time > 100
                         && (
-                            blockPos.getY() <= this.level().getMinBuildHeight()
-                            || blockPos.getY() > this.level().getMaxBuildHeight()
+                            blockPos.getY() <= this.level().getMinY()
+                            || blockPos.getY() > this.level().getMaxY()
                         )
                         || this.time > 600
                     )
@@ -225,16 +227,16 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
+    protected void addAdditionalSaveData(ValueOutput compound) {
         super.addAdditionalSaveData(compound);
         compound.putBoolean("Ghost", this.isGhostEntity);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
+    protected void readAdditionalSaveData(ValueInput compound) {
         super.readAdditionalSaveData(compound);
         if (compound.contains("Ghost")) {
-            this.isGhostEntity = compound.getBoolean("Ghost");
+            this.isGhostEntity = compound.getBooleanOr("Ghost", false);
         } else {
             this.isGhostEntity = true;
         }
@@ -256,7 +258,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
             NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(this, this.getOnPos(), this.level(), entity, f));
         });
         boolean isAnvil = this.blockState.is(BlockTags.ANVIL);
-        if (isAnvil && f > 0.0F && this.random.nextFloat() < 0.05F + (float) dist * 0.05F) {
+        if (isAnvil && f > 0.0F && this.getRandom().nextFloat() < 0.05F + (float) dist * 0.05F) {
             BlockState blockState = AnvilBlock.damage(this.blockState);
             if (blockState == null) {
                 this.cancelDrop = true;

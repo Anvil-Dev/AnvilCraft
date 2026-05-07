@@ -29,8 +29,8 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
         CompoundTag serverData = accessor.getServerData();
         if (serverData.contains("generate") && serverData.contains("consume")) {
             IElementHelper elementHelper = IElementHelper.get();
-            int generate = serverData.getInt("generate");
-            int consume = serverData.getInt("consume");
+            int generate = serverData.getIntOr("generate", 0);
+            int consume = serverData.getIntOr("consume", 0);
 
             int color;
             float percent = (float) consume / generate;

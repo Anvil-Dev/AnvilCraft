@@ -12,6 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -131,12 +132,12 @@ public class WrapUtils {
      * @param result ChanceBlockState
      * @return 物品
      */
-    public static Item getItem(ChanceBlockState result) {
+    public static ItemStackTemplate getItem(ChanceBlockState result) {
         BlockState state = result.state();
-        if (state.isEmpty() || state.isAir()) return Items.ANVIL;
+        if (state.isEmpty() || state.isAir()) return new ItemStackTemplate(Items.ANVIL);
         Item item = state.getBlock().asItem();
         if (item == Items.AIR) item = Items.ANVIL;
-        return item;
+        return new ItemStackTemplate(item);
     }
 
     /**
@@ -147,28 +148,7 @@ public class WrapUtils {
      */
     public static Item getItem(List<ChanceBlockState> results) {
         if (results.isEmpty()) return Items.ANVIL;
-        return WrapUtils.getItem(results.getFirst());
-    }
-
-    /**
-     * 根据ChanceBlockState获取物品堆栈
-     *
-     * @param result ChanceBlockState
-     * @return 物品堆栈
-     */
-    public static ItemStack getItemStack(ChanceBlockState result) {
-        return WrapUtils.getItem(result).getDefaultInstance();
-    }
-
-    /**
-     * 根据ChanceBlockState列表获取物品堆栈
-     *
-     * @param results ChanceBlockState列表
-     * @return 物品堆栈
-     */
-    public static ItemStack getItemStack(List<ChanceBlockState> results) {
-        if (results.isEmpty()) return Items.ANVIL.getDefaultInstance();
-        return WrapUtils.getItem(results.getFirst()).getDefaultInstance();
+        return WrapUtils.getItem(results.getFirst()).item().value();
     }
 
     /**

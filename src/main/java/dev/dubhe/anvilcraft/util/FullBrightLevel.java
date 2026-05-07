@@ -68,6 +68,6 @@ public class FullBrightLevel implements BlockAndTintGetter {
 
     @Override
     public int getMinBuildHeight() {
-        return delegate.getMinBuildHeight();
+        return delegate.getMinY();
     }
 }

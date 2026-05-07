@@ -65,7 +65,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
     @Override
     public RecipeType<?> getType() {
-        return ModRecipeTypes.MULTIBLOCK_CONVERSION_TYPE.get();
+        return ModRecipeTypes.MULTIBLOCK_CONVERSION.get();
     }
 
     @Override

@@ -37,7 +37,7 @@ public class MassInjectBehavior implements IAnvilBehavior {
             new AABB(hitBlockPos.above()),
             i -> !i.getItem().isEmpty());
         for (ItemEntity itemEntity : itemEntities) {
-            Optional<MassInjectRecipe> opt = manager.getRecipeFor(ModRecipeTypes.MASS_INJECT_TYPE.get(),
+            Optional<MassInjectRecipe> opt = manager.getRecipeFor(ModRecipeTypes.MASS_INJECT.get(),
                     new SingleRecipeInput(itemEntity.getItem()),
                     level)
                 .map(RecipeHolder::value);

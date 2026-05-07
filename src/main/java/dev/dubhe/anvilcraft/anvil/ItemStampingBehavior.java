@@ -38,7 +38,7 @@ public class ItemStampingBehavior implements IAnvilBehavior {
         AnvilEvent.OnLand event
     ) {
         return ItemStampingBehavior.itemProcess(
-            ModRecipeTypes.STAMPING_UNIQUE_ITEMS_TYPE.get(),
+            ModRecipeTypes.STAMPING_UNIQUE_ITEMS.get(),
             level,
             hitBlockPos,
             hitBlockPos.getCenter().add(0, 0.25, 0)

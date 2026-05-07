@@ -163,7 +163,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
                 BlockState state1 = level.getBlockState(pos1);
                 if (!(state1.getBlock() instanceof PoweredSlidingRailBlock other)) continue;
                 if (state1.getOptionalValue(FACING).map(Direction::getAxis).filter(axis::equals).isEmpty()) continue;
-                level.neighborChanged(pos1, other, pos);
+                level.neighborChanged(pos1, other, Orientation.random(level.getRandom()));
             }
         }
         return powered;
@@ -175,7 +175,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, Orientation orientation, boolean isMoving) {
         boolean powered = this.updatePower(level, pos, state, fromPos);
         pushAbove:
         if (powered) {

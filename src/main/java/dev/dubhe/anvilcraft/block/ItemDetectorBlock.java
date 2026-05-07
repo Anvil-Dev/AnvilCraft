@@ -137,7 +137,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(direction.getOpposite()), false).isCanceled()) {
             return;
         }
-        level.neighborChanged(blockpos, this, pos);
+        level.neighborChanged(blockpos, this, Orientation.random(level.getRandom()));
         level.updateNeighborsAtExceptFromFacing(blockpos, this, direction);
     }
 

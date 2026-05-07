@@ -26,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -103,13 +105,14 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         if (this.targetEntityUUID != null) {
-            tag.putUUID("TargetEntityUUID", this.targetEntityUUID);
+            output.putLong("TargetEntityUUIDMost", this.targetEntityUUID.getMostSignificantBits());
+            output.putLong("TargetEntityUUIDLeast", this.targetEntityUUID.getLeastSignificantBits());
         }
         if (this.targetLightningRod != null) {
-            tag.putIntArray(
+            output.putIntArray(
                 "TargetLightningRod",
                 new int[]{
                     this.targetLightningRod.getX(),
@@ -118,32 +121,34 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 }
             );
         }
-        int index = 0;
-        for (Pair<TeslaFilter, String> entry : this.whiteList) {
-            tag.putString(entry.first().getId() + "_-_" + index, entry.second());
-            index++;
+        output.putInt("WhiteListSize", this.whiteList.size());
+        for (int i = 0; i < this.whiteList.size(); i++) {
+            Pair<TeslaFilter, String> entry = this.whiteList.get(i);
+            output.putString("WhiteListId" + i, entry.first().getId());
+            output.putString("WhiteListArg" + i, entry.second());
         }
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("TargetEntityUUID")) {
-            this.targetEntityUUID = tag.getUUID("TargetEntityUUID");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        if (input.getLong("TargetEntityUUIDMost").isPresent()) {
+            this.targetEntityUUID = new java.util.UUID(input.getLongOr("TargetEntityUUIDMost", 0L), input.getLongOr("TargetEntityUUIDLeast", 0L));
         } else {
             this.targetEntityUUID = null;
         }
-        if (tag.contains("TargetLightningRod")) {
-            int[] arr = tag.getIntArray("TargetLightningRod");
+        if (input.getIntArray("TargetLightningRod").isPresent()) {
+            int[] arr = input.getIntArray("TargetLightningRod").orElse(new int[0]);
             this.targetLightningRod = new BlockPos(arr[0], arr[1], arr[2]);
         } else {
             this.targetLightningRod = null;
         }
         this.whiteList.clear();
-        for (String key : tag.getAllKeys()) {
-            if (key.split("_-_").length != 2) continue;
-            String id = key.split("_-_")[0];
-            this.whiteList.add(Pair.of(TeslaFilter.getFilter(id), tag.getString(key)));
+        int size = input.getIntOr("WhiteListSize", 0);
+        for (int i = 0; i < size; i++) {
+            String id = input.getStringOr("WhiteListId" + i, "");
+            String arg = input.getStringOr("WhiteListArg" + i, "");
+            this.whiteList.add(Pair.of(TeslaFilter.getFilter(id), arg));
         }
     }
 
@@ -315,7 +320,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
+    public void storeDiskData(ValueOutput output) {
         ListTag filters = new ListTag();
         for (var entry : this.whiteList) {
             CompoundTag entryTag = new CompoundTag();
@@ -323,16 +328,18 @@ public class TeslaTowerBlockEntity extends BlockEntity
             entryTag.putString("arg", entry.right());
             filters.add(entryTag);
         }
-        tag.put("Filters", filters);
+        output.store("Filters", ListTag.CODEC, filters);
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
+    public void applyDiskData(ValueInput input) {
         ArrayList<Pair<TeslaFilter, String>> filters = new ArrayList<>();
-        for (Tag tag : data.getList("Filters", Tag.TAG_COMPOUND)) {
-            if (!(tag instanceof CompoundTag filter)) continue;
-            filters.add(Pair.of(TeslaFilter.getFilter(filter.getString("id")), filter.getString("arg")));
-        }
+        input.read("Filters", ListTag.CODEC).ifPresent(list -> {
+            for (Tag tag : list) {
+                if (!(tag instanceof CompoundTag filter)) continue;
+                filters.add(Pair.of(TeslaFilter.getFilter(filter.getStringOr("id", "")), filter.getStringOr("arg", "")));
+            }
+        });
         this.handleSync(filters);
     }
 }

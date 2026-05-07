@@ -53,15 +53,15 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        int i = (this.width - this.getImageWidth()) / 2;
+        int j = (this.height - this.getImageHeight()) / 2;
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         // filter mode
         this.cycleFilterModeButton = new CycleFilterModeButton(

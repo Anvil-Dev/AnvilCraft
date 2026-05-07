@@ -10,6 +10,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Nameable;
@@ -37,20 +39,20 @@ public abstract class BaseNestingShulkerBoxBlockEntity extends BlockEntity imple
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         this.items.deserializeNBT(registries, tag);
         if (tag.contains("CustomName", Tag.OBJECT_HEADER)) {
-            this.name = parseCustomNameSafe(tag.getString("CustomName"), registries);
+            this.name = parseCustomNameSafe(input.getStringOr("CustomName", ""), registries);
         }
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         tag.merge(this.items.serializeNBT(registries));
         if (this.name != null) {
-            tag.putString("CustomName", Component.Serializer.toJson(this.name, registries));
+            output.putString("CustomName", Component.Serializer.toJson(this.name, registries));
         }
     }
 

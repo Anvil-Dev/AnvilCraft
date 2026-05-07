@@ -160,9 +160,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         if (!tag.contains("Ix")) return;
-        int x = tag.getInt("Ix");
-        int y = tag.getInt("Iy");
-        int z = tag.getInt("Iz");
+        int x = tag.getIntOr("Ix", 0);
+        int y = tag.getIntOr("Iy", 0);
+        int z = tag.getIntOr("Iz", 0);
         irritatePos = new BlockPos(x, y, z);
     }
 

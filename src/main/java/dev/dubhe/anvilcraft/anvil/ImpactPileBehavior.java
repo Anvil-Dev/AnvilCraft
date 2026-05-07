@@ -14,7 +14,7 @@ public class ImpactPileBehavior implements IAnvilBehavior {
         BlockState belowState = level.getBlockState(hitBlockPos.below());
         if (
             event.getFallDistance() + 1 >= 20
-                && (level.getMinBuildHeight() <= hitBlockPos.getY() && hitBlockPos.getY() <= level.getMinBuildHeight() + 8)
+                && (level.getMinY() <= hitBlockPos.getY() && hitBlockPos.getY() <= level.getMinY() + 8)
                 && (belowState.is(Blocks.DEEPSLATE) || belowState.is(Blocks.BEDROCK))
         ) {
             ImpactPileBlock.impact(level, hitBlockPos);

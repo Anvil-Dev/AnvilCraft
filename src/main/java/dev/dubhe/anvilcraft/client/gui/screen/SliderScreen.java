@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -26,17 +27,17 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     public SliderScreen(SliderMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 77;
+        this.getImageWidth() = 176;
+        this.getImageHeight() = 77;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
-        int offsetX = (this.width - this.imageWidth) / 2;
-        int offsetY = (this.height - this.imageHeight) / 2;
+        int offsetX = (this.width - this.getImageWidth()) / 2;
+        int offsetY = (this.height - this.getImageHeight()) / 2;
         this.value = new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));
         this.slider = new Slider(8 + offsetX, 31 + offsetY, -14, 14, 160 - 16, this::update);
         this.value.setCanLoseFocus(true);
@@ -153,30 +154,30 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            slider.onClick(mouseX, mouseY);
+    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
+        if (event.button() == 0) {
+            slider.onClick(event.x(), event.y());
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, handled);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        this.slider.onDrag(mouseX, mouseY, dragX, dragY);
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        this.slider.onDrag(event.x(), event.y(), dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         this.slider.onReleased();
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int offsetX = (this.width - this.imageWidth) / 2;
-        int offsetY = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, offsetX, offsetY, 0, 0, this.imageWidth, this.imageHeight, 256, 128);
+        int offsetX = (this.width - this.getImageWidth()) / 2;
+        int offsetY = (this.height - this.getImageHeight()) / 2;
+        guiGraphics.blit(BACKGROUND, offsetX, offsetY, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 128);
     }
 
     private void update(int value) {

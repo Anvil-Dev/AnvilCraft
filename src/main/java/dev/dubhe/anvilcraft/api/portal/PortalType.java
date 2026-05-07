@@ -40,7 +40,7 @@ public class PortalType {
 
     @SuppressWarnings("deprecation")
     public <T extends Block & Portal> PortalType(T portal) {
-        this.id = portal.builtInRegistryHolder().key().location();
+        this.id = portal.builtInRegistryHolder().key().identifier();
         this.portal = portal;
     }
 

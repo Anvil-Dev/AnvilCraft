@@ -10,6 +10,11 @@ public class IsBabyFriendlyFilter extends TeslaFilter {
     private final String id = "IsBabyFriendlyFilter";
 
     @Override
+    public String getId() {
+        return "IsBabyFriendlyFilter";
+    }
+
+    @Override
     public boolean match(LivingEntity entity, String arg) {
         return entity.getType().getCategory().isFriendly() && entity instanceof Animal animal && animal.isBaby();
     }

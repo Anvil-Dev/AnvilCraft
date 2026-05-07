@@ -103,17 +103,17 @@ public class Multiphases extends BetterSavedData {
     @Override
     public void read(CompoundTag nbt, HolderLookup.Provider registries) {
         this.multiphases.clear();
-        for (Tag tag : nbt.getList("Multiphases", Tag.TAG_COMPOUND)) {
+        for (Tag tag : nbt.getListOrEmpty("Multiphases")) {
             if (!(tag instanceof CompoundTag multiphaseNbt)) throw new IllegalStateException("'" + tag + "' is not a valid compound tag!");
             multiphaseNbt = DataFixers.fixData(FIXER_ID, CURRENT_VERSION, multiphaseNbt, registries);
-            var id = multiphaseNbt.getUUID("id");
+            var id = new java.util.UUID(multiphaseNbt.getLongOr("id" + "Most", 0L), multiphaseNbt.getLongOr("id" + "Least", 0L));
             Multiphase.CODEC.compressedDecode(registries.createSerializationContext(NbtOps.INSTANCE), multiphaseNbt.get("content"))
                 .ifSuccess(multiphase -> this.multiphases.put(id, multiphase));
         }
-        for (Tag tag : nbt.getList("Recovers", Tag.TAG_COMPOUND)) {
+        for (Tag tag : nbt.getListOrEmpty("Recovers")) {
             if (!(tag instanceof CompoundTag multiphaseNbt)) throw new IllegalStateException("'" + tag + "' is not a valid compound tag!");
             multiphaseNbt = DataFixers.fixData(FIXER_ID, CURRENT_VERSION, multiphaseNbt, registries);
-            var id = multiphaseNbt.getUUID("id");
+            var id = new java.util.UUID(multiphaseNbt.getLongOr("id" + "Most", 0L), multiphaseNbt.getLongOr("id" + "Least", 0L));
             Multiphase.CODEC.compressedDecode(registries.createSerializationContext(NbtOps.INSTANCE), multiphaseNbt.get("content"))
                 .ifSuccess(multiphase -> this.multiphases.put(id, multiphase));
         }
@@ -124,7 +124,7 @@ public class Multiphases extends BetterSavedData {
         ListTag multiphases = new ListTag();
         for (UUID id : this.multiphases.keySet()) {
             CompoundTag multiphase = new CompoundTag();
-            multiphase.putUUID("id", id);
+            multiphase.putLong("id" + "Most", id.getMostSignificantBits()); multiphase.putLong("id" + "Least", id.getLeastSignificantBits());
             multiphase.put(
                 "content",
                 CodecUtil.encodeStart(

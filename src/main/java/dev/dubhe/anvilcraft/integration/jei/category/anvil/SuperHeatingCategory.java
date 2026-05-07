@@ -95,7 +95,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
         if (recipe.isConsumeFluid()) {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
-            pose.scale(0.8F, 0.8F, 1.0F);
+            pose.scale(0.8f, 0.8f, 1.0f);
             guiGraphics.drawString(
                 Minecraft.getInstance().font,
                 Component.translatable(
@@ -112,7 +112,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
         } else if (recipe.isProduceFluid()) {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
-            pose.scale(0.8F, 0.8F, 1.0F);
+            pose.scale(0.8f, 0.8f, 1.0f);
             guiGraphics.drawString(
                 Minecraft.getInstance().font,
                 Component.translatable(
@@ -167,7 +167,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.SUPER_HEATING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SUPER_HEATING_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SUPER_HEATING.get())
         );
     }
 

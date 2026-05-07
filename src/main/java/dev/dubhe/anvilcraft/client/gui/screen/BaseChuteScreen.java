@@ -61,9 +61,9 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        int i = (this.width - this.getImageWidth()) / 2;
+        int j = (this.height - this.getImageHeight()) / 2;
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
@@ -136,12 +136,12 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
 
     @Override
     public int getOffsetX() {
-        return (this.width - this.imageWidth) / 2;
+        return (this.width - this.getImageWidth()) / 2;
     }
 
     @Override
     public int getOffsetY() {
-        return (this.height - this.imageHeight) / 2;
+        return (this.height - this.getImageHeight()) / 2;
     }
     
     @Override

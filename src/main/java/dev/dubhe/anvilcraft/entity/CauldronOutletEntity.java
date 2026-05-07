@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
@@ -197,8 +199,8 @@ public class CauldronOutletEntity extends Entity {
             entity.setDeltaMovement(motion);
             entity.anvilcraft$setIsAdsorbable(true);
             if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
-                serverLevel.getChunkSource().broadcast(entity, new ClientboundTeleportEntityPacket(entity));
-                serverLevel.getChunkSource().broadcast(entity, new ClientboundSetEntityMotionPacket(entity));
+                PacketDistributor.sendToPlayersTrackingEntity(entity, new ClientboundTeleportEntityPacket(entity));
+                PacketDistributor.sendToPlayersTrackingEntity(entity, new ClientboundSetEntityMotionPacket(entity));
             }
         });
     }
@@ -275,15 +277,15 @@ public class CauldronOutletEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+    protected void readAdditionalSaveData(ValueInput compoundTag) {
         this.setCauldronPos(NbtUtils.readBlockPos(compoundTag, "CauldronPos").orElse(BlockPos.ZERO));
-        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getInt("AttachedDirection")));
+        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getIntOr("AttachedDirection", 0)));
         this.setCauldronState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK),
-            compoundTag.getCompound("CauldronState")));
+            compoundTag.getCompoundOrEmpty("CauldronState")));
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+    protected void addAdditionalSaveData(ValueOutput compoundTag) {
         compoundTag.put("CauldronState", NbtUtils.writeBlockState(this.getCauldronState()));
         compoundTag.put("CauldronPos", NbtUtils.writeBlockPos(this.getCauldronPos()));
         compoundTag.putInt("AttachedDirection", this.getAttachedDirection().get3DDataValue());
