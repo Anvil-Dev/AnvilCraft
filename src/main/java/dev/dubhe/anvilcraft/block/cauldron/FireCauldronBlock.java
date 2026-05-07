@@ -16,9 +16,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.redstone.Orientation;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
 public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHammerRemovable, IIgnitableCauldron {
@@ -106,5 +108,18 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
     @Override
     public Fluid getFluid(BlockCache cache, BlockPos pos) {
         return ModFluids.OIL.get();
+    }
+
+    @Override
+    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+        BlockState state = cache.getBlockState(pos);
+        int newLevel = state.getValue(LEVEL) - 1;
+        if (newLevel > 0) {
+            state = state.setValue(LEVEL, newLevel);
+        } else {
+            state = Blocks.CAULDRON.defaultBlockState();
+        }
+        cache.setBlock(pos, state);
+        return true;
     }
 }

@@ -78,4 +78,12 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
         return cauldron.isIgnited(cache, pos) && cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
     }
+
+    public static boolean tryConsumeOnce(Level level, BlockPos pos) {
+        BlockCache cache = new BlockCache(level);
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+        if (!cauldron.consumeOnce(cache, pos)) return false;
+        cache.accept();
+        return true;
+    }
 }

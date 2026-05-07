@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -29,9 +30,11 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("item/crab_claw_holding_item"))
         );
         event.register(
+            HeliostatsRenderer.HEAD,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heliostats_head"))
         );
         event.register(
+            HeliostatsRenderer.HEAD_SUNFLOWER,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heliostats_head_sunflower"))
         );
         event.register(

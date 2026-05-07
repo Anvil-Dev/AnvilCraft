@@ -258,7 +258,10 @@ public record HasCauldron(
         }
         cache = new BlockCache(ctx.getLevel());
         if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
-            if (cauldron.isIgnited(cache, pos) != ignited) cauldron.setIgnited(cache, pos, ignited);
+            if (cauldron.isIgnited(cache, pos) != ignited) {
+                cauldron.setIgnited(cache, pos, ignited);
+                cache.accept();
+            }
         }
     }
 

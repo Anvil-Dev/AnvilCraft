@@ -58,7 +58,7 @@ public class LaserBlockRenderer implements BlockEntityRenderer<BaseLaserBlockEnt
     }
 
     @Override
-    public boolean shouldRenderOffScreen(BaseLaserBlockEntity blockEntity) {
+    public boolean shouldRenderOffScreen() {
         return true;
     }
 }

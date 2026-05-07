@@ -8,7 +8,6 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -46,8 +45,11 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
 public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable, IIgnitableCauldron {
@@ -236,5 +238,16 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     @Override
     public Fluid getFluid(BlockCache cache, BlockPos pos) {
         return Util.<FishTankBlockEntity>cast(cache.getBlockEntity(pos)).getFluidHandler().getResource(0).getFluid();
+    }
+
+    @Override
+    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+        FluidStacksResourceHandler handler = Util.<FishTankBlockEntity>cast(cache.getBlockEntity(pos)).getFluidHandler();
+        try (Transaction transaction = Transaction.openRoot()) {
+            int extracted = handler.extract(0, handler.getResource(0), 250, transaction);
+            if (extracted < 250) return false;
+            transaction.commit();
+            return true;
+        }
     }
 }

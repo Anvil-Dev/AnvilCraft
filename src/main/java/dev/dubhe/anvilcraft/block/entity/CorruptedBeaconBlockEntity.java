@@ -20,18 +20,19 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.animal.horse.SkeletonHorse;
-import net.minecraft.world.entity.animal.horse.ZombieHorse;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.equine.SkeletonHorse;
+import net.minecraft.world.entity.animal.equine.ZombieHorse;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BeaconBeamOwner;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,9 +43,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class CorruptedBeaconBlockEntity extends BlockEntity {
-    List<BeaconBeamSection> beamSections = Lists.newArrayList();
-    private List<BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
+public class CorruptedBeaconBlockEntity extends BlockEntity implements BeaconBeamOwner {
+    List<BeaconBeamOwner.Section> beamSections = Lists.newArrayList();
+    private List<BeaconBeamOwner.Section> checkingBeamSections = Lists.newArrayList();
     @Getter
     int levels;
     private int lastCheckY;
@@ -85,7 +86,9 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         }
 
         // 获取当前正在检查的光柱段
-        BeaconBeamSection beamSection = blockEntity.checkingBeamSections.isEmpty() ? null : blockEntity.checkingBeamSections.getLast();
+        BeaconBeamOwner.Section beamSection = blockEntity.checkingBeamSections.isEmpty()
+                                              ? null
+                                              : blockEntity.checkingBeamSections.getLast();
         // 获取地表高度
         int height = level.getHeight(Heightmap.Types.WORLD_SURFACE, posX, posZ);
 
@@ -97,20 +100,20 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             if (colorMultiplier != null) {
                 // 如果当前检查的光柱段为空或只有一段，则创建新的光柱段
                 if (blockEntity.checkingBeamSections.size() <= 1) {
-                    beamSection = new BeaconBeamSection(0xDF101010);
+                    beamSection = new BeaconBeamOwner.Section(0xDF101010);
                     blockEntity.checkingBeamSections.add(beamSection);
                 } else if (beamSection != null) {
                     // 根据颜色是否相同决定是增加高度还是创建新的光柱段
-                    if (colorMultiplier == beamSection.color) {
+                    if (colorMultiplier == beamSection.getColor()) {
                         beamSection.increaseHeight();
                     } else {
-                        beamSection = new BeaconBeamSection(FastColor.ARGB32.average(beamSection.color, colorMultiplier));
+                        beamSection = new BeaconBeamOwner.Section(ARGB.average(beamSection.getColor(), colorMultiplier));
                         blockEntity.checkingBeamSections.add(beamSection);
                     }
                 }
             } else {
                 // 如果当前方块会阻挡光柱且不是基岩，则清空光柱段
-                if (beamSection == null || blockstate.getLightBlock(level, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
+                if (beamSection == null || blockstate.getLightEmission(level, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
                     blockEntity.checkingBeamSections.clear();
                     blockEntity.lastCheckY = height;
                     break;
@@ -141,7 +144,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
 
         // 如果已完成光柱检查
         if (blockEntity.lastCheckY >= height) {
-            blockEntity.lastCheckY = level.getMinBuildHeight() - 1;
+            blockEntity.lastCheckY = level.getMinY() - 1;
             blockEntity.beamSections = blockEntity.checkingBeamSections;
             if (!level.isClientSide()) {
                 boolean lastHasLevel = lastLevel > 0;
@@ -179,7 +182,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         int k;
         int i = 0;
         int j = 1;
-        while (j <= 4 && (k = y - j) >= level.getMinBuildHeight()) {
+        while (j <= 4 && (k = y - j) >= level.getMinY()) {
             boolean bl = true;
             block1:
             for (int l = x - j; l <= x + j && bl; ++l) {
@@ -213,12 +216,12 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         boolean noItemFlag = true;
         if (optionalRecipeHolder2.isPresent()) {
             MobTransformWithItemRecipe recipe = optionalRecipeHolder2.get().value();
-            result = recipe.apply(level.random, livingEntity, level);
+            result = recipe.apply(level.getRandom(), livingEntity, level);
             if (result != null) noItemFlag = false;
         }
         if (noItemFlag && optionalRecipeHolder.isPresent()) {
             MobTransformRecipe recipe = optionalRecipeHolder.get().value();
-            result = recipe.apply(level.random, livingEntity, level);
+            result = recipe.apply(level.getRandom(), livingEntity, level);
         }
         if (result == null) return;
         Entity vehicle = null;
@@ -254,7 +257,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
-    public List<BeaconBeamSection> getBeamSections() {
+    public List<BeaconBeamOwner.Section> getBeamSections() {
         return this.levels == 0 ? ImmutableList.of() : this.beamSections;
     }
 
@@ -270,21 +273,6 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        this.lastCheckY = level.getMinBuildHeight() - 1;
-    }
-
-    @Getter
-    public static class BeaconBeamSection {
-        final int color;
-        private int height;
-
-        public BeaconBeamSection(int color) {
-            this.color = color;
-            this.height = 1;
-        }
-
-        protected void increaseHeight() {
-            this.height++;
-        }
+        this.lastCheckY = level.getMinY() - 1;
     }
 }

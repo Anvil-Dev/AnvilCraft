@@ -22,10 +22,10 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class FluidTankBlockEntityRenderer extends BaseFluidHandlerHolderRenderer<FluidTankBlockEntity, FluidHandlerRenderState> {
+public class FluidTankRenderer extends BaseFluidHandlerHolderRenderer<FluidTankBlockEntity, FluidHandlerRenderState> {
     private static final float TANK_W = 1 / 16F + 0.001F; // avoiding Z-fighting
 
-    public FluidTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
+    public FluidTankRenderer(BlockEntityRendererProvider.Context ignored) {
     }
 
     @Override

@@ -62,251 +62,269 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRender
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 public class ModBlockEntities {
-    public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRUM.blockEntity(
-        "batch_crafter",
-        BatchCrafterBlockEntity::new
-    ).renderer(() -> BatchCraftingRenderer::new).validBlock(ModBlocks.BATCH_CRAFTER).register();
+    public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRUM
+        .blockEntity("batch_crafter", BatchCrafterBlockEntity::new)
+        .renderer(() -> BatchCraftingRenderer::new)
+        .validBlock(ModBlocks.BATCH_CRAFTER)
+        .register();
 
-    public static final BlockEntityEntry<BatchCutterBlockEntity> BATCH_CUTTER = REGISTRUM.blockEntity(
-        "batch_cutter",
-        BatchCutterBlockEntity::new
-    ).renderer(() -> BatchCraftingRenderer::new).validBlock(ModBlocks.BATCH_CUTTER).register();
+    public static final BlockEntityEntry<BatchCutterBlockEntity> BATCH_CUTTER = REGISTRUM
+        .blockEntity("batch_cutter", BatchCutterBlockEntity::new)
+        .renderer(() -> BatchCraftingRenderer::new)
+        .validBlock(ModBlocks.BATCH_CUTTER)
+        .register();
 
-    public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRUM.blockEntity(
-        "item_collector",
-        ItemCollectorBlockEntity::new
-    ).validBlock(ModBlocks.ITEM_COLLECTOR).register();
+    public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRUM
+        .blockEntity("item_collector", ItemCollectorBlockEntity::new)
+        .validBlock(ModBlocks.ITEM_COLLECTOR)
+        .register();
 
-    public static final BlockEntityEntry<ItemDetectorBlockEntity> ITEM_DETECTOR = REGISTRUM.blockEntity(
-        "item_detector",
-        ItemDetectorBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.ITEM_DETECTOR).register();
+    public static final BlockEntityEntry<ItemDetectorBlockEntity> ITEM_DETECTOR = REGISTRUM
+        .blockEntity("item_detector", ItemDetectorBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.ITEM_DETECTOR)
+        .register();
 
-    public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRUM.blockEntity("chute", ChuteBlockEntity::createBlockEntity)
+    public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRUM
+        .blockEntity("chute", ChuteBlockEntity::createBlockEntity)
         .onRegister(ChuteBlockEntity::onBlockEntityRegister)
         .validBlock(ModBlocks.CHUTE)
         .register();
 
-    public static final BlockEntityEntry<MagneticChuteBlockEntity> MAGNETIC_CHUTE = REGISTRUM.blockEntity(
-        "magnetic_chute",
-        MagneticChuteBlockEntity::new
-    ).validBlock(ModBlocks.MAGNETIC_CHUTE).register();
+    public static final BlockEntityEntry<MagneticChuteBlockEntity> MAGNETIC_CHUTE = REGISTRUM
+        .blockEntity("magnetic_chute", MagneticChuteBlockEntity::new)
+        .validBlock(ModBlocks.MAGNETIC_CHUTE)
+        .register();
 
-    public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRUM.blockEntity(
-        "simple_chute",
-        SimpleChuteBlockEntity::new
-    ).validBlock(ModBlocks.SIMPLE_CHUTE).register();
+    public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRUM
+        .blockEntity("simple_chute", SimpleChuteBlockEntity::new)
+        .validBlock(ModBlocks.SIMPLE_CHUTE)
+        .register();
 
-    public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRUM.blockEntity("crab_trap", CrabTrapBlockEntity::new)
+    public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRUM
+        .blockEntity("crab_trap", CrabTrapBlockEntity::new)
         .validBlock(ModBlocks.CRAB_TRAP)
         .register();
 
-    public static final BlockEntityEntry<CorruptedBeaconBlockEntity> CORRUPTED_BEACON = REGISTRUM.blockEntity(
-        "corrupted_beacon",
-        CorruptedBeaconBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.CORRUPTED_BEACON).renderer(() -> CorruptedBeaconRenderer::new).register();
+    public static final BlockEntityEntry<CorruptedBeaconBlockEntity> CORRUPTED_BEACON = REGISTRUM
+        .blockEntity("corrupted_beacon", CorruptedBeaconBlockEntity::createBlockEntity)
+        .renderer(() -> CorruptedBeaconRenderer::new)
+        .validBlock(ModBlocks.CORRUPTED_BEACON)
+        .register();
 
-    public static final BlockEntityEntry<CreativeGeneratorBlockEntity> CREATIVE_GENERATOR = REGISTRUM.blockEntity(
-        "creative_generator",
-        CreativeGeneratorBlockEntity::createBlockEntity
-    ).renderer(() -> CreativeGeneratorRenderer::new).validBlock(ModBlocks.CREATIVE_GENERATOR).register();
+    public static final BlockEntityEntry<CreativeGeneratorBlockEntity> CREATIVE_GENERATOR = REGISTRUM
+        .blockEntity("creative_generator", CreativeGeneratorBlockEntity::createBlockEntity)
+        .renderer(() -> CreativeGeneratorRenderer::new)
+        .validBlock(ModBlocks.CREATIVE_GENERATOR)
+        .register();
 
-    public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRUM.blockEntity("heater", HeaterBlockEntity::createBlockEntity)
+    public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRUM
+        .blockEntity("heater", HeaterBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.HEATER)
         .register();
 
-    public static final BlockEntityEntry<TransmissionPoleBlockEntity> TRANSMISSION_POLE = REGISTRUM.blockEntity(
-        "transmission_pole",
-        TransmissionPoleBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.TRANSMISSION_POLE).register();
+    public static final BlockEntityEntry<TransmissionPoleBlockEntity> TRANSMISSION_POLE = REGISTRUM
+        .blockEntity("transmission_pole", TransmissionPoleBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.TRANSMISSION_POLE)
+        .register();
 
-    public static final BlockEntityEntry<ChargeCollectorBlockEntity> CHARGE_COLLECTOR = REGISTRUM.blockEntity(
-        "charge_collector",
-        ChargeCollectorBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.CHARGE_COLLECTOR).renderer(() -> ChargeCollectorRenderer::new).register();
+    public static final BlockEntityEntry<ChargeCollectorBlockEntity> CHARGE_COLLECTOR = REGISTRUM
+        .blockEntity("charge_collector", ChargeCollectorBlockEntity::createBlockEntity)
+        .renderer(() -> ChargeCollectorRenderer::new)
+        .validBlock(ModBlocks.CHARGE_COLLECTOR)
+        .register();
 
-    public static final BlockEntityEntry<MobAmberBlockEntity> MOB_AMBER_BLOCK = REGISTRUM.blockEntity(
-        "mob_amber_block",
-        MobAmberBlockEntity::createBlockEntity
-    ).renderer(() -> HasMobBlockRenderer::new).validBlock(ModBlocks.MOB_AMBER_BLOCK).register();
+    public static final BlockEntityEntry<MobAmberBlockEntity> MOB_AMBER_BLOCK = REGISTRUM
+        .blockEntity("mob_amber_block", MobAmberBlockEntity::createBlockEntity)
+        .renderer(() -> HasMobBlockRenderer::new)
+        .validBlock(ModBlocks.MOB_AMBER_BLOCK)
+        .register();
 
-    public static final BlockEntityEntry<ResentfulAmberBlockEntity> RESENTFUL_AMBER_BLOCK = REGISTRUM.blockEntity(
-        "resentful_amber_block",
-        ResentfulAmberBlockEntity::createBlockEntity
-    ).renderer(() -> HasMobBlockRenderer::new).validBlock(ModBlocks.RESENTFUL_AMBER_BLOCK).register();
+    public static final BlockEntityEntry<ResentfulAmberBlockEntity> RESENTFUL_AMBER_BLOCK = REGISTRUM
+        .blockEntity("resentful_amber_block", ResentfulAmberBlockEntity::createBlockEntity)
+        .renderer(() -> HasMobBlockRenderer::new)
+        .validBlock(ModBlocks.RESENTFUL_AMBER_BLOCK)
+        .register();
 
-    public static final BlockEntityEntry<PowerConverterBlockEntity> POWER_CONVERTER = REGISTRUM.blockEntity(
-        "power_converter",
-        PowerConverterBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.POWER_CONVERTER_SMALL, ModBlocks.POWER_CONVERTER_MIDDLE, ModBlocks.POWER_CONVERTER_BIG).register();
+    public static final BlockEntityEntry<PowerConverterBlockEntity> POWER_CONVERTER = REGISTRUM
+        .blockEntity("power_converter", PowerConverterBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.POWER_CONVERTER_SMALL, ModBlocks.POWER_CONVERTER_MIDDLE, ModBlocks.POWER_CONVERTER_BIG)
+        .register();
 
-    public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRUM.blockEntity(
-        "remote_transmission_pole",
-        RemoteTransmissionPoleBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE).register();
+    public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRUM
+        .blockEntity("remote_transmission_pole", RemoteTransmissionPoleBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.REMOTE_TRANSMISSION_POLE)
+        .register();
 
-    public static final BlockEntityEntry<LoadMonitorBlockEntity> LOAD_MONITOR = REGISTRUM.blockEntity(
-        "load_monitor",
-        LoadMonitorBlockEntity::new
-    ).validBlock(ModBlocks.LOAD_MONITOR).register();
+    public static final BlockEntityEntry<LoadMonitorBlockEntity> LOAD_MONITOR = REGISTRUM
+        .blockEntity("load_monitor", LoadMonitorBlockEntity::new)
+        .validBlock(ModBlocks.LOAD_MONITOR)
+        .register();
 
-    public static final BlockEntityEntry<InductionLightBlockEntity> INDUCTION_LIGHT = REGISTRUM.blockEntity(
-        "induction_light",
-        InductionLightBlockEntity::new
-    ).validBlock(ModBlocks.INDUCTION_LIGHT).register();
+    public static final BlockEntityEntry<InductionLightBlockEntity> INDUCTION_LIGHT = REGISTRUM
+        .blockEntity("induction_light", InductionLightBlockEntity::new)
+        .validBlock(ModBlocks.INDUCTION_LIGHT)
+        .register();
 
-    public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRUM.blockEntity(
-        "overseer",
-        OverseerBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.OVERSEER_BLOCK).register();
+    public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRUM
+        .blockEntity("overseer", OverseerBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.OVERSEER_BLOCK)
+        .register();
 
-    public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRUM.blockEntity("charger", ChargerBlockEntity::new)
-        .renderer(() -> ChargerBlockRenderer::new)
+    public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRUM
+        .blockEntity("charger", ChargerBlockEntity::new)
+        .renderer(() -> ChargerRenderer::new)
         .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
         .register();
 
-    public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRUM.blockEntity(
-        "active_silencer",
-        ActiveSilencerBlockEntity::new
-    ).validBlocks(ModBlocks.ACTIVE_SILENCER).register();
+    public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRUM
+        .blockEntity("active_silencer", ActiveSilencerBlockEntity::new)
+        .validBlocks(ModBlocks.ACTIVE_SILENCER)
+        .register();
 
-    public static final BlockEntityEntry<RubyPrismBlockEntity> RUBY_PRISM = REGISTRUM.blockEntity(
-        "ruby_prism",
-        RubyPrismBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.RUBY_PRISM).renderer(() -> LaserBlockRenderer::new).register();
-    public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRUM.blockEntity(
-        "ruby_laser",
-        RubyLaserBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.RUBY_LASER).renderer(() -> LaserBlockRenderer::new).register();
+    public static final BlockEntityEntry<RubyPrismBlockEntity> RUBY_PRISM = REGISTRUM
+        .blockEntity("ruby_prism", RubyPrismBlockEntity::createBlockEntity)
+        .renderer(() -> LaserBlockRenderer::new)
+        .validBlock(ModBlocks.RUBY_PRISM)
+        .register();
+    public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRUM
+        .blockEntity("ruby_laser", RubyLaserBlockEntity::createBlockEntity)
+        .renderer(() -> LaserBlockRenderer::new)
+        .validBlock(ModBlocks.RUBY_LASER)
+        .register();
 
-    public static final BlockEntityEntry<HeatCollectorBlockEntity> HEAT_COLLECTOR = REGISTRUM.blockEntity(
-        "heat_collector",
-        HeatCollectorBlockEntity::createBlockEntity
-    ).renderer(() -> HeatCollectorRenderer::new).validBlock(ModBlocks.HEAT_COLLECTOR).register();
+    public static final BlockEntityEntry<HeatCollectorBlockEntity> HEAT_COLLECTOR = REGISTRUM
+        .blockEntity("heat_collector", HeatCollectorBlockEntity::createBlockEntity)
+        .renderer(() -> HeatCollectorRenderer::new)
+        .validBlock(ModBlocks.HEAT_COLLECTOR)
+        .register();
 
-    public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRUM.blockEntity(
-        "mineral_fountain",
-        MineralFountainBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.MINERAL_FOUNTAIN).register();
+    public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRUM
+        .blockEntity("mineral_fountain", MineralFountainBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.MINERAL_FOUNTAIN)
+        .register();
 
-    public static final BlockEntityEntry<HeliostatsBlockEntity> HELIOSTATS = REGISTRUM.blockEntity(
-        "heliostats",
-        HeliostatsBlockEntity::new
-    ).validBlocks(ModBlocks.HELIOSTATS).renderer(() -> HeliostatsRenderer::new).register();
+    public static final BlockEntityEntry<HeliostatsBlockEntity> HELIOSTATS = REGISTRUM
+        .blockEntity("heliostats", HeliostatsBlockEntity::new)
+        .renderer(() -> HeliostatsRenderer::new)
+        .validBlocks(ModBlocks.HELIOSTATS)
+        .register();
 
-    public static final BlockEntityEntry<TeslaTowerBlockEntity> TESLA_TOWER = REGISTRUM.blockEntity(
-        "tesla_tower",
-        TeslaTowerBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.TESLA_TOWER).renderer(() -> TeslaTowerRenderer::new).register();
+    public static final BlockEntityEntry<TeslaTowerBlockEntity> TESLA_TOWER = REGISTRUM
+        .blockEntity("tesla_tower", TeslaTowerBlockEntity::createBlockEntity)
+        .renderer(() -> TeslaTowerRenderer::new)
+        .validBlocks(ModBlocks.TESLA_TOWER)
+        .register();
 
-    public static final BlockEntityEntry<SpaceOvercompressorBlockEntity> SPACE_OVERCOMPRESSOR = REGISTRUM.blockEntity(
-        "space_overcompressor",
-        SpaceOvercompressorBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.SPACE_OVERCOMPRESSOR).register();
+    public static final BlockEntityEntry<SpaceOvercompressorBlockEntity> SPACE_OVERCOMPRESSOR = REGISTRUM
+        .blockEntity("space_overcompressor", SpaceOvercompressorBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.SPACE_OVERCOMPRESSOR)
+        .register();
 
-    public static final BlockEntityEntry<BlackHoleBlockEntity> BLACK_HOLE = REGISTRUM.blockEntity(
-        "black_hole",
-        BlackHoleBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.BLACK_HOLE).register();
+    public static final BlockEntityEntry<BlackHoleBlockEntity> BLACK_HOLE = REGISTRUM
+        .blockEntity("black_hole", BlackHoleBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.BLACK_HOLE)
+        .register();
 
-    public static final BlockEntityEntry<WhiteHoleBlockEntity> WHITE_HOLE = REGISTRUM.blockEntity(
-        "white_hole",
-        WhiteHoleBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.WHITE_HOLE).register();
+    public static final BlockEntityEntry<WhiteHoleBlockEntity> WHITE_HOLE = REGISTRUM
+        .blockEntity("white_hole", WhiteHoleBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.WHITE_HOLE)
+        .register();
 
-    public static final BlockEntityEntry<TimeCountedPressurePlateBlockEntity> TIME_COUNTED_PRESSURE_PLATE = REGISTRUM.blockEntity(
-        "time_counted_pressure_plate",
-        TimeCountedPressurePlateBlockEntity::createBlockEntity
-    ).validBlocks(
-        ModBlocks.COPPER_PRESSURE_PLATE,
-        ModBlocks.EXPOSED_COPPER_PRESSURE_PLATE,
-        ModBlocks.WEATHERED_COPPER_PRESSURE_PLATE,
-        ModBlocks.OXIDIZED_COPPER_PRESSURE_PLATE
-    ).register();
+    public static final BlockEntityEntry<TimeCountedPressurePlateBlockEntity> TIME_COUNTED_PRESSURE_PLATE = REGISTRUM
+        .blockEntity("time_counted_pressure_plate", TimeCountedPressurePlateBlockEntity::createBlockEntity)
+        .validBlocks(
+            ModBlocks.COPPER_PRESSURE_PLATE,
+            ModBlocks.EXPOSED_COPPER_PRESSURE_PLATE,
+            ModBlocks.WEATHERED_COPPER_PRESSURE_PLATE,
+            ModBlocks.OXIDIZED_COPPER_PRESSURE_PLATE
+        )
+        .register();
 
-    public static final BlockEntityEntry<AccelerationRingBlockEntity> ACCELERATION_RING = REGISTRUM.blockEntity(
-        "acceleration_ring",
-        AccelerationRingBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.ACCELERATION_RING).register();
+    public static final BlockEntityEntry<AccelerationRingBlockEntity> ACCELERATION_RING = REGISTRUM
+        .blockEntity("acceleration_ring", AccelerationRingBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.ACCELERATION_RING)
+        .register();
 
-    public static final BlockEntityEntry<DeflectionRingBlockEntity> DEFLECTION_RING = REGISTRUM.blockEntity(
-        "deflection_ring",
-        DeflectionRingBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.DEFLECTION_RING).register();
+    public static final BlockEntityEntry<DeflectionRingBlockEntity> DEFLECTION_RING = REGISTRUM
+        .blockEntity("deflection_ring", DeflectionRingBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.DEFLECTION_RING)
+        .register();
 
-    public static final BlockEntityEntry<ConfinementChamberBlockEntity> CONFINEMENT_CHAMBER = REGISTRUM.blockEntity(
-        "confinement_chamber",
-        ConfinementChamberBlockEntity::createBlockEntity
-    ).renderer(() -> ConfinementChamberRenderer::new).validBlocks(ModBlocks.CONFINEMENT_CHAMBER).register();
+    public static final BlockEntityEntry<ConfinementChamberBlockEntity> CONFINEMENT_CHAMBER = REGISTRUM
+        .blockEntity("confinement_chamber", ConfinementChamberBlockEntity::createBlockEntity)
+        .renderer(() -> ConfinementChamberRenderer::new)
+        .validBlocks(ModBlocks.CONFINEMENT_CHAMBER)
+        .register();
 
-    public static final BlockEntityEntry<VoidEnergyCollectorBlockEntity> VOID_ENERGY_COLLECTOR = REGISTRUM.blockEntity(
-        "void_energy_collector",
-        VoidEnergyCollectorBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.VOID_ENERGY_COLLECTOR).renderer(() -> VoidEnergyCollectorRenderer::new).register();
+    public static final BlockEntityEntry<VoidEnergyCollectorBlockEntity> VOID_ENERGY_COLLECTOR = REGISTRUM
+        .blockEntity("void_energy_collector", VoidEnergyCollectorBlockEntity::createBlockEntity)
+        .renderer(() -> VoidEnergyCollectorRenderer::new)
+        .validBlocks(ModBlocks.VOID_ENERGY_COLLECTOR)
+        .register();
 
-    public static final BlockEntityEntry<PulseGeneratorBlockEntity> PULSE_GENERATOR = REGISTRUM.blockEntity(
-        "pulse_generator",
-        PulseGeneratorBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.PULSE_GENERATOR).register();
+    public static final BlockEntityEntry<PulseGeneratorBlockEntity> PULSE_GENERATOR = REGISTRUM
+        .blockEntity("pulse_generator", PulseGeneratorBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.PULSE_GENERATOR)
+        .register();
 
-    public static final BlockEntityEntry<AdvancedComparatorBlockEntity> ADVANCED_COMPARATOR = REGISTRUM.blockEntity(
-        "advanced_comparator",
-        AdvancedComparatorBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.ADVANCED_COMPARATOR).renderer(() -> AdvancedComparatorRenderer::new).register();
+    public static final BlockEntityEntry<AdvancedComparatorBlockEntity> ADVANCED_COMPARATOR = REGISTRUM
+        .blockEntity("advanced_comparator", AdvancedComparatorBlockEntity::createBlockEntity)
+        .renderer(() -> AdvancedComparatorRenderer::new)
+        .validBlocks(ModBlocks.ADVANCED_COMPARATOR)
+        .register();
 
-    public static final BlockEntityEntry<HeatedBlockEntity> HEATED_BLOCK = REGISTRUM.blockEntity(
-        "heated_block",
-        HeatedBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.HEATED_NETHERITE_BLOCK, ModBlocks.HEATED_TUNGSTEN_BLOCK).register();
-    public static final BlockEntityEntry<RedhotBlockEntity> REDHOT_BLOCK = REGISTRUM.blockEntity(
-        "redhot_block",
-        RedhotBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.REDHOT_NETHERITE_BLOCK, ModBlocks.REDHOT_TUNGSTEN_BLOCK).register();
-    public static final BlockEntityEntry<GlowingBlockEntity> GLOWING_BLOCK = REGISTRUM.blockEntity(
-        "glowing_block",
-        GlowingBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.GLOWING_NETHERITE_BLOCK, ModBlocks.GLOWING_TUNGSTEN_BLOCK).register();
-    public static final BlockEntityEntry<IncandescentBlockEntity> INCANDESCENT_BLOCK = REGISTRUM.blockEntity(
-        "incandescent_block",
-        IncandescentBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.INCANDESCENT_NETHERITE_BLOCK, ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK).register();
-    public static final BlockEntityEntry<OverheatedBlockEntity> OVERHEATED_BLOCK = REGISTRUM.blockEntity(
-        "overheated_block",
-        OverheatedBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK).register();
+    public static final BlockEntityEntry<HeatedBlockEntity> HEATED_BLOCK = REGISTRUM
+        .blockEntity("heated_block", HeatedBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.HEATED_NETHERITE_BLOCK, ModBlocks.HEATED_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<RedhotBlockEntity> REDHOT_BLOCK = REGISTRUM
+        .blockEntity("redhot_block", RedhotBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.REDHOT_NETHERITE_BLOCK, ModBlocks.REDHOT_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<GlowingBlockEntity> GLOWING_BLOCK = REGISTRUM
+        .blockEntity("glowing_block", GlowingBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.GLOWING_NETHERITE_BLOCK, ModBlocks.GLOWING_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<IncandescentBlockEntity> INCANDESCENT_BLOCK = REGISTRUM
+        .blockEntity("incandescent_block", IncandescentBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.INCANDESCENT_NETHERITE_BLOCK, ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK)
+        .register();
+    public static final BlockEntityEntry<OverheatedBlockEntity> OVERHEATED_BLOCK = REGISTRUM
+        .blockEntity("overheated_block", OverheatedBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK)
+        .register();
 
-    public static final BlockEntityEntry<PlasmaJetsBlockEntity> PLASMA_JETS = REGISTRUM.blockEntity(
-        "plasma_jets",
-        PlasmaJetsBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.PLASMA_JETS).renderer(() -> PlasmaJetsRenderer::new).register();
+    public static final BlockEntityEntry<PlasmaJetsBlockEntity> PLASMA_JETS = REGISTRUM
+        .blockEntity("plasma_jets", PlasmaJetsBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.PLASMA_JETS)
+        .register();
 
-    public static final BlockEntityEntry<DetectorSlidingRailBlockEntity> DETECTOR_SLIDING_RAIL = REGISTRUM.blockEntity(
-        "detector_sliding_rail",
-        DetectorSlidingRailBlockEntity::new
-    ).validBlocks(ModBlocks.DETECTOR_SLIDING_RAIL).register();
+    public static final BlockEntityEntry<DetectorSlidingRailBlockEntity> DETECTOR_SLIDING_RAIL = REGISTRUM
+        .blockEntity("detector_sliding_rail", DetectorSlidingRailBlockEntity::new)
+        .validBlocks(ModBlocks.DETECTOR_SLIDING_RAIL)
+        .register();
 
-    public static final BlockEntityEntry<ActivatorSlidingRailBlockEntity> ACTIVATOR_SLIDING_RAIL = REGISTRUM.blockEntity(
-        "activator_sliding_rail",
-        ActivatorSlidingRailBlockEntity::new
-    ).validBlocks(ModBlocks.ACTIVATOR_SLIDING_RAIL).register();
+    public static final BlockEntityEntry<ActivatorSlidingRailBlockEntity> ACTIVATOR_SLIDING_RAIL = REGISTRUM
+        .blockEntity("activator_sliding_rail", ActivatorSlidingRailBlockEntity::new)
+        .validBlocks(ModBlocks.ACTIVATOR_SLIDING_RAIL)
+        .register();
 
     public static final BlockEntityEntry<PropelPistonBlockEntity> PROPEL_PISTON = REGISTRUM
         .blockEntity("propel_piston", PropelPistonBlockEntity::new)
@@ -346,7 +364,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<FluidTankBlockEntity> FLUID_TANK = REGISTRUM
         .blockEntity("fluid_tank", FluidTankBlockEntity::new)
         .validBlocks(ModBlocks.FLUID_TANK)
-        .renderer(() -> FluidTankBlockEntityRenderer::new)
+        .renderer(() -> FluidTankRenderer::new)
         .register();
 
     public static final BlockEntityEntry<LargeFluidTankBlockEntity> LARGE_FLUID_TANK = REGISTRUM

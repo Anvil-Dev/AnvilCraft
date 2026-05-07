@@ -14,8 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 
-public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntity, BaseShowItemRenderState> {
-    public ChargerBlockRenderer(BlockEntityRendererProvider.Context context) {
+public class ChargerRenderer extends BaseShowItemRenderer<ChargerBlockEntity, BaseShowItemRenderState> {
+    public ChargerRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
