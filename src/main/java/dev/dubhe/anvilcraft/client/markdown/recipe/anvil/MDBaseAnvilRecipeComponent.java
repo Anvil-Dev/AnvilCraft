@@ -14,7 +14,7 @@ import java.util.List;
 
 public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
     public static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/backgrounds.png");
+        ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/256back.png");
 
     public static final int BLOCK_Y = 64;
     public static final int INPUT_BLOCK_X = 128;

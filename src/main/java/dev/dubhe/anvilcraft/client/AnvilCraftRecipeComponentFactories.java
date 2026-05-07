@@ -4,6 +4,7 @@ import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MD
 import dev.anvilcraft.resource.ageratum.client.registries.AgeratumRegistries;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDAnvilCollisionCraftRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDChargerChargingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDJewelCraftingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCompressRecipeComponent;
@@ -153,6 +154,14 @@ public class AnvilCraftRecipeComponentFactories {
         "anvil_collision", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.ANVIL_COLLISION_CRAFT.get(),
             MDAnvilCollisionCraftRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        CHARGER_CHARGING = RECIPE_COMPONENT_FACTORIES.register(
+        "charger_charging", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.CHARGER_CHARGING_TYPE.get(),
+            MDChargerChargingRecipeComponent::new
         )
     );
 

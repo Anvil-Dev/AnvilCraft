@@ -51,7 +51,7 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
     public static final int INFO_Y_OFFSET = 10;
 
     public static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/backgrounds.png");
+        ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/256back.png");
     public static final ResourceLocation EXPLOSION =
         ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/jei/explosion.png");
 
