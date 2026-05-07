@@ -28,7 +28,6 @@ public class MDSuperHeatingRecipeComponent extends MDBaseAnvilRecipeComponent {
     @Getter
     private final List<BlockState> inputBlockStates;
 
-    @Getter
     @Nullable
     private final BlockState outputCauldron;
 
@@ -47,7 +46,7 @@ public class MDSuperHeatingRecipeComponent extends MDBaseAnvilRecipeComponent {
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         super.renderRecipe(context, mouseX, mouseY);
         if (outputCauldron != null) {
-            AgeratumUtil.renderBlock(context.graphics(), outputCauldron, 90, 29, 10);
+            AgeratumUtil.renderBlock(context, outputCauldron, mouseX, mouseY, 90, 29, 10);
         }
     }
 

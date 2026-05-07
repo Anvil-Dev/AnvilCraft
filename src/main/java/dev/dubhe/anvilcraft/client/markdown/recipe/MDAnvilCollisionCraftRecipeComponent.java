@@ -1,23 +1,18 @@
 package dev.dubhe.anvilcraft.client.markdown.recipe;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
-import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
-import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
@@ -48,7 +43,7 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
 
     public static final int INFO_X = 12;
     public static final int INFO_Y = 100;
-    public static final int INFO_Y_OFFSET = 10;
+    public static final int INFO_Y_OFFSET = 8;
 
     public static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/256back.png");
@@ -82,10 +77,8 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
             );
         }
         // 被撞击的方块
-        Ingredient hitBlock = Ingredient.of(
-            recipe.hitBlock().getBlocks().stream().map(
-                blockHolder -> new ItemStack(blockHolder.value())
-            )
+        Ingredient hitBlock = Ingredient.of(recipe.hitBlock().getBlocks().stream()
+            .map(blockHolder -> new ItemStack(blockHolder.value()))
         );
         AgeratumUtil.renderItemWithoutSlot(context, hitBlock, mouseX, mouseY, HIT_BLOCK_X, HIT_BLOCK_Y);
 
@@ -94,7 +87,7 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
         // 输出物品
         if (!recipe.outputItems().isEmpty()) {
             AgeratumUtil.renderArrow(guiGraphics, OUTPUT_ARROW_X, OUTPUT_ARROW_Y);
-            AgeratumUtil.renderChanceItemStacks(context, recipe.outputItems(), mouseX, mouseY, OUTPUT_ITEM_X, OUTPUT_ITEM_Y);
+            AgeratumUtil.renderItems(context, recipe.outputItems(), mouseX, mouseY, OUTPUT_ITEM_X, OUTPUT_ITEM_Y);
         }
 
         // 转换方块
@@ -102,41 +95,27 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
             List<BlockTransform> blockTransforms = recipe.transformBlocks();
 
             for (BlockTransform blockTransform : blockTransforms) {
-                BlockStatePredicate inputBlock = blockTransform.inputBlock();
-                List<BlockState> inputBlockState = inputBlock.constructStatesForRender();
-                BlockState inputBlockRenderedState = inputBlockState.get(
-                    RecipeUtil.getDisplayIndex(inputBlockState.size())
-                );
-                AgeratumUtil.renderBlock(guiGraphics, inputBlockRenderedState, TRANSFORM_X, TRANSFORM_INPUT_Y, 20);
-
-                ChanceBlockState outputBlock = blockTransform.outputBlock();
-                BlockState outputBlockState = outputBlock.state();
-                AgeratumUtil.renderBlock(guiGraphics, outputBlockState, TRANSFORM_X, TRANSFORM_OUTPUT_Y, 20);
-
-                AgeratumUtil.renderArrow(guiGraphics,  TRANSFORM_ARROW_X, TRANSFORM_ARROW_Y, 90);
-
-                pose.pushPose();
-                pose.translate(TRANSFORM_INFO_X, TRANSFORM_INFO_Y, 0);
-                pose.scale(0.8f, 0.8f, 1.0f);
-                guiGraphics.drawString(
-                    Minecraft.getInstance().font,
+                AgeratumUtil.renderBlock(context, blockTransform.inputBlock(), mouseX, mouseY, TRANSFORM_X, TRANSFORM_INPUT_Y, 20);
+                AgeratumUtil.renderArrow(guiGraphics, TRANSFORM_ARROW_X, TRANSFORM_ARROW_Y, 90);
+                AgeratumUtil.renderBlock(context, blockTransform.outputBlock(), mouseX, mouseY, TRANSFORM_X, TRANSFORM_OUTPUT_Y, 20);
+                AgeratumUtil.renderText(
+                    guiGraphics,
                     Component.translatable("gui.anvilcraft.category.anvil_collision.maxcount", blockTransform.maxCount()),
-                    0, 0, 0xFF000000, false
+                    TRANSFORM_INFO_X, TRANSFORM_INFO_Y
                 );
-                pose.popPose();
             }
         }
 
-        // 添加消耗/速度的信息
-        pose.pushPose();
-        pose.translate(INFO_X, INFO_Y, 0);
-        pose.scale(0.8f, 0.8f, 1.0f);
-        guiGraphics.drawString(Minecraft.getInstance().font,
+        AgeratumUtil.renderText(
+            guiGraphics,
             Component.translatable("gui.anvilcraft.category.anvil_collision.consume", recipe.consume()),
-            0, 0, 0xFF000000, false);
-        guiGraphics.drawString(Minecraft.getInstance().font,
+            INFO_X, INFO_Y
+        );
+
+        AgeratumUtil.renderText(
+            guiGraphics,
             Component.translatable("gui.anvilcraft.category.anvil_collision.speed", recipe.speed()),
-            0, INFO_Y_OFFSET, 0xFF000000, false);
-        pose.popPose();
+            INFO_X, INFO_Y + INFO_Y_OFFSET
+        );
     }
 }

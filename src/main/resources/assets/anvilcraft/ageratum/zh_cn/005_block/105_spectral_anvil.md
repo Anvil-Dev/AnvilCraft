@@ -22,6 +22,19 @@ items:
 - [<translate key="block.anvilcraft.ember_anvil"/>](223_ember_anvil.md)：100%
 - [<translate key="block.anvilcraft.transcendence_anvil"/>](311_transcendence_anvil.md)：100%
 
+<row>
+<recipe id="anvilcraft:portal_conversion/anvil"/>
+<recipe id="anvilcraft:portal_conversion/chipped_anvil"/>
+<recipe id="anvilcraft:portal_conversion/damaged_anvil"/>
+</row>
+
+<row>
+<recipe id="anvilcraft:portal_conversion/royal_anvil"/>
+<recipe id="anvilcraft:portal_conversion/frost_anvil"/>
+<recipe id="anvilcraft:portal_conversion/ember_anvil"/>
+<recipe id="anvilcraft:portal_conversion/transcendence_anvil"/>
+</row>
+
 # 特性
 - 不会受到重力影响
 - 可被活塞推动

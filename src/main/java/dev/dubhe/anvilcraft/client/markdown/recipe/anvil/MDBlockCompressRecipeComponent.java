@@ -29,7 +29,7 @@ public class MDBlockCompressRecipeComponent extends MDBaseAnvilRecipeComponent {
             List<BlockState> states = inputBlocks.get(i).constructStatesForRender();
             if (!states.isEmpty()) {
                 BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
-                AgeratumUtil.renderBlock(context.graphics(), blockState, INPUT_BLOCK_X, BLOCK_Y + i * AgeratumUtil.BLOCK_SIZE, 0);
+                AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, INPUT_BLOCK_X, BLOCK_Y + i * AgeratumUtil.BLOCK_SIZE, 0);
             }
         }
     }

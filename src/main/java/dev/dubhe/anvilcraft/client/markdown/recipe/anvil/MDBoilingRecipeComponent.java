@@ -13,10 +13,12 @@ import java.util.List;
 
 public class MDBoilingRecipeComponent extends MDBaseAnvilRecipeComponent {
     @Getter
-    @Nullable private final List<ItemIngredientPredicate> ingredients;
+    @Nullable
+    private final List<ItemIngredientPredicate> ingredients;
 
     @Getter
-    @Nullable private final List<ChanceItemStack> resultItems;
+    @Nullable
+    private final List<ChanceItemStack> resultItems;
 
     @Getter
     private final List<BlockState> inputBlockStates;

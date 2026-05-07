@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.MDAnvilCollisionCraftRecipeCo
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDChargerChargingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDJewelCraftingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDPortalConversionRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCompressRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBoilingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBulgingRecipeComponent;
@@ -162,6 +163,14 @@ public class AnvilCraftRecipeComponentFactories {
         "charger_charging", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.CHARGER_CHARGING_TYPE.get(),
             MDChargerChargingRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        PORTAL_CONVERSION = RECIPE_COMPONENT_FACTORIES.register(
+        "portal_conversion", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.PORTAL_CONVERSION_TYPE.get(),
+            MDPortalConversionRecipeComponent::new
         )
     );
 

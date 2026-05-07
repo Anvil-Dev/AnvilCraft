@@ -43,18 +43,19 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         GuiGraphics g = context.graphics();
-        AgeratumUtil.renderItemPredicates(context, getIngredients(), mouseX, mouseY, 40, 46);
+        AgeratumUtil.renderItems(context, getIngredients(), mouseX, mouseY, 40, 46);
         if (!getIngredients().isEmpty()) {
             AgeratumUtil.renderArrow(g, 86, 40);
         }
-        AgeratumUtil.renderBlock(g, Blocks.ANVIL.defaultBlockState(), INPUT_BLOCK_X, BLOCK_Y - 2 * AgeratumUtil.BLOCK_SIZE, 100);
+        int anvilY = BLOCK_Y - 2 * AgeratumUtil.BLOCK_SIZE;
+        AgeratumUtil.renderBlock(context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, INPUT_BLOCK_X, anvilY, 100);
         for (int i = 0; i < getInputBlockStates().size(); i++) {
             BlockState inputBlock = getInputBlockStates().get(i);
             int y = BLOCK_Y + i * AgeratumUtil.BLOCK_SIZE;
-            AgeratumUtil.renderBlock(g, inputBlock, INPUT_BLOCK_X, y, (getInputBlockStates().size() - i) * 3);
+            AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, INPUT_BLOCK_X, y, (getInputBlockStates().size() - i) * 3);
         }
         AgeratumUtil.renderArrow(g, 138, 40);
-        AgeratumUtil.renderChanceItemStacks(context, getResultItems(), mouseX, mouseY, 194, 46);
-        AgeratumUtil.renderBlock(g, getOutputBlockState(), OUTPUT_BLOCK_X, BLOCK_Y, 0);
+        AgeratumUtil.renderItems(context, getResultItems(), mouseX, mouseY, 194, 46);
+        AgeratumUtil.renderBlock(context, getOutputBlockState(), mouseX, mouseY, OUTPUT_BLOCK_X, BLOCK_Y, 0);
     }
 }

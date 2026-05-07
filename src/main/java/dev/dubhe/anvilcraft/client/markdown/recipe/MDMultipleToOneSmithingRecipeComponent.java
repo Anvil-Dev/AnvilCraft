@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.client.markdown.recipe;
 
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
-import dev.anvilcraft.resource.ageratum.Ageratum;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -16,8 +16,8 @@ public class MDMultipleToOneSmithingRecipeComponent extends MDRecipeComponent {
     public static final int[] INPUT_X = {0, 0, -1, 1, -1, 1, -1, 1};
     public static final int[] INPUT_Y = {-1, 1, 0, 0, -1, -1, 1, 1};
     public static final int INPUT_SIZE = 19;
-    public static final ResourceLocation TEXTURE = Ageratum.location("textures/gui/component/ember_smithing_table.png");
-
+    public static final ResourceLocation TEXTURE =
+        ResourceLocation.fromNamespaceAndPath(AnvilCraft.MOD_ID, "textures/gui/ageratum/ember_smithing_table.png");
     private final BaseMultipleToOneSmithingRecipe recipe;
 
     public MDMultipleToOneSmithingRecipeComponent(BaseMultipleToOneSmithingRecipe recipe, boolean enableAlignCenter) {

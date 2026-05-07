@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.markdown.recipe.anvil;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
@@ -9,7 +8,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
@@ -56,40 +54,24 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
         super.renderRecipe(context, mouseX, mouseY);
         GuiGraphics graphics = context.graphics();
         if (outputCauldron != null) {
-            AgeratumUtil.renderBlock(graphics, outputCauldron, 90, 29, 10);
+            AgeratumUtil.renderBlock(context, outputCauldron, mouseX, mouseY, 90, 29, 10);
         }
 
         Block material = recipe.getHasCauldron().getFluidCauldron();
         if (recipe.isConsumeFluid()) {
-            PoseStack pose = graphics.pose();
-            pose.pushPose();
-            pose.translate(INFO_X, INFO_Y, 100);
-            graphics.drawString(
-                Minecraft.getInstance().font,
+            AgeratumUtil.renderText(graphics,
                 Component.translatable(
                     "gui.anvilcraft.category.time_warp.consume_fluid",
                     recipe.getHasCauldron().consume(),
                     material.getName()),
-                0,
-                0,
-                0xFF000000,
-                false);
-            pose.popPose();
+                INFO_X, INFO_Y);
         } else if (recipe.isProduceFluid()) {
-            PoseStack pose = graphics.pose();
-            pose.pushPose();
-            pose.translate(INFO_X, INFO_Y, 100);
-            graphics.drawString(
-                Minecraft.getInstance().font,
+            AgeratumUtil.renderText(graphics,
                 Component.translatable(
                     "gui.anvilcraft.category.time_warp.produce_fluid",
                     -recipe.getHasCauldron().consume(),
                     recipe.getHasCauldron().getTransformCauldron().getName()),
-                0,
-                0,
-                0xFF000000,
-                false);
-            pose.popPose();
+                INFO_X, INFO_Y);
         }
     }
 
