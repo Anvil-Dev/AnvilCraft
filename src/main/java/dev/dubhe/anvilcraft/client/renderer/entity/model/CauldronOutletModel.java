@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.entity.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -9,20 +9,20 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.util.Unit;
 
-public class CauldronOutletModel {
+public class CauldronOutletModel extends Model<Unit> {
     private final ModelPart outlet;
 
     public CauldronOutletModel(ModelPart root) {
+        super(root, RenderTypes::entityCutout);
         this.outlet = root.getChild("outlet");
     }
 
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-        Identifier.fromNamespaceAndPath(
-            "anvilcraft",
-            "cauldron_outlet"
-        ), "main"
+        AnvilCraft.of("cauldron_outlet"),
+        "main"
     );
 
     public static LayerDefinition createBodyLayer() {
@@ -51,9 +51,5 @@ public class CauldronOutletModel {
         );
 
         return LayerDefinition.create(meshdefinition, 16, 16);
-    }
-
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
-        this.outlet.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }

@@ -55,13 +55,12 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
             && !be.getNormalVector3f().equals(new Vector3f())
             && !be.getNormalVector3f().equals(new Vector3f(Float.NaN))
         ) {
-            state.setRotation(new Quaternionf().rotateY(
+            state.addRotation(new Quaternionf().rotateY(
                 this.getHorizontalAngle(be.getNormalVector3f().x, be.getNormalVector3f().z)
-            ).rotateX(
+            ));
+            state.addRotation(new Quaternionf().rotateX(
                 (float) Math.atan(Math.hypot(be.getNormalVector3f().z, be.getNormalVector3f().x) / be.getNormalVector3f().y)
             ));
-        } else {
-            state.setRotation(new Quaternionf());
         }
     }
 
@@ -88,7 +87,9 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
     ) {
         pose.pushPose();
         pose.translate(0.5, 1.3, 0.5);
-        pose.mulPose(state.getRotation());
+        for (Quaternionf rotation : state.getRotation()) {
+            pose.mulPose(rotation);
+        }
         state.getHead().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.popPose();
     }

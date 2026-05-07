@@ -3,23 +3,28 @@ package dev.dubhe.anvilcraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.CauldronOutletModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.state.CauldronOutletRenderState;
+import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Unit;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
+import org.joml.Quaternionf;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity> {
+public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity, CauldronOutletRenderState> {
+    public static final Identifier TEXTURE = SharedTextures.texture("block/cauldron_outlet");
     private final CauldronOutletModel model;
 
     public CauldronOutletRenderer(EntityRendererProvider.Context context) {
@@ -28,16 +33,13 @@ public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity>
     }
 
     @Override
-    public void render(
-        CauldronOutletEntity entity,
-        float entityYaw,
-        float partialTicks,
-        PoseStack poseStack,
-        MultiBufferSource buffer,
-        int packedLight
-    ) {
-        poseStack.pushPose();
+    public CauldronOutletRenderState createRenderState() {
+        return new CauldronOutletRenderState();
+    }
 
+    @Override
+    public void extractRenderState(CauldronOutletEntity entity, CauldronOutletRenderState state, float partialTicks) {
+        super.extractRenderState(entity, state, partialTicks);
         // 视觉平滑移动处理
         BlockPos currentPos = entity.getCauldronPos();
         PistonMovingBlockEntity targetPiston = null;
@@ -71,55 +73,71 @@ public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity>
         // 找到了关联活塞，进行视觉修正
         if (targetPiston != null) {
             // 获取平滑移动进度
-            float xoff = targetPiston.getXOff(partialTicks);
-            float yoff = targetPiston.getYOff(partialTicks);
-            float zoff = targetPiston.getZOff(partialTicks);
+            float xo = targetPiston.getXOff(partialTicks);
+            float yo = targetPiston.getYOff(partialTicks);
+            float zo = targetPiston.getZOff(partialTicks);
 
             // 计算位移差值：目标位置 - 当前位置 + 动画偏移
-            double dx = (pistonPos.getX() - currentPos.getX()) + xoff;
-            double dy = (pistonPos.getY() - currentPos.getY()) + yoff;
-            double dz = (pistonPos.getZ() - currentPos.getZ()) + zoff;
+            double dx = (pistonPos.getX() - currentPos.getX()) + xo;
+            double dy = (pistonPos.getY() - currentPos.getY()) + yo;
+            double dz = (pistonPos.getZ() - currentPos.getZ()) + zo;
 
-            poseStack.translate(dx, dy, dz);
+            state.setDx(dx);
+            state.setDy(dy);
+            state.setDz(dz);
         }
 
         // 不同方向的模型渲染
         Direction direction = entity.getAttachedDirection();
         switch (direction) {
             case DOWN -> {
-                poseStack.translate(0.0, 0.125, 0.0);
-                poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+                state.setDy(state.getDy() + 0.125);
+                state.addRotation(Axis.ZP.rotationDegrees(180));
             }
             case SOUTH -> {
-                poseStack.translate(0.0, 0.18375, 0.0);
-                poseStack.mulPose(Axis.YN.rotationDegrees(90));
-                poseStack.mulPose(Axis.ZP.rotationDegrees(-120));
+                state.setDy(state.getDy() + 0.18375);
+                state.addRotation(Axis.YN.rotationDegrees(90));
+                state.addRotation(Axis.ZP.rotationDegrees(-120));
             }
             case WEST -> {
-                poseStack.translate(0.0, 0.18375, 0.0);
-                poseStack.mulPose(Axis.ZP.rotationDegrees(120));
+                state.setDy(state.getDy() + 0.18375);
+                state.addRotation(Axis.ZP.rotationDegrees(120));
             }
             case EAST -> {
-                poseStack.translate(0.0, 0.18375, 0.0);
-                poseStack.mulPose(Axis.ZP.rotationDegrees(-120));
+                state.setDy(state.getDy() + 0.18375);
+                state.addRotation(Axis.ZP.rotationDegrees(-120));
             }
             default -> {
-                poseStack.translate(0.0, 0.18375, 0.0);
-                poseStack.mulPose(Axis.YN.rotationDegrees(90));
-                poseStack.mulPose(Axis.ZP.rotationDegrees(120));
+                state.setDy(state.getDy() + 0.18375);
+                state.addRotation(Axis.YN.rotationDegrees(90));
+                state.addRotation(Axis.ZP.rotationDegrees(120));
             }
         }
-        poseStack.scale(0.73F, 0.73F, 0.73F);
-
-        var consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(getTextureLocation(entity)));
-        this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
-
-        poseStack.popPose();
-        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
     }
 
     @Override
-    public Identifier getTextureLocation(CauldronOutletEntity entity) {
-        return Identifier.fromNamespaceAndPath("anvilcraft", "textures/block/cauldron_outlet.png");
+    public void submit(
+        CauldronOutletRenderState state,
+        PoseStack pose,
+        SubmitNodeCollector collector,
+        CameraRenderState camera
+    ) {
+        pose.pushPose();
+        pose.translate(state.getDx(), state.getDy(), state.getDz());
+        for (Quaternionf rotation : state.getRotation()) {
+            pose.mulPose(rotation);
+        }
+        pose.scale(0.73F, 0.73F, 0.73F);
+        collector.submitModel(
+            this.model,
+            Unit.INSTANCE,
+            pose,
+            TEXTURE,
+            state.lightCoords,
+            OverlayTexture.NO_OVERLAY,
+            state.outlineColor,
+            null
+        );
+        pose.popPose();
     }
 }

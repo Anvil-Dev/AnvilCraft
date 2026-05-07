@@ -2,76 +2,50 @@ package dev.dubhe.anvilcraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.entity.state.FallingBlockRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
-public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlockEntity> {
-    private final BlockRenderDispatcher dispatcher;
-
+public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlockEntity, FallingBlockRenderState> {
     /**
      * 上升方块渲染器
      */
     public AscendingBlockRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.shadowRadius = 0.5F;
-        this.dispatcher = context.getBlockRenderDispatcher();
     }
 
-    @Override
-    public void render(
-        AnimateAscendingBlockEntity entity,
-        float entityYaw,
-        float partialTicks,
-        PoseStack poseStack,
-        MultiBufferSource buffer,
-        int packedLight
-    ) {
-        BlockState blockState = entity.getBlockState();
-        if (blockState.getRenderShape() == RenderShape.MODEL) {
-            Level level = entity.level();
-            if (blockState != level.getBlockState(entity.blockPosition())
-                && blockState.getRenderShape() != RenderShape.INVISIBLE) {
-                poseStack.pushPose();
-                BlockPos blockPos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
-                poseStack.translate(-0.5, 0.0, -0.5);
-                // noinspection DataFlowIssue,deprecation
-                this.dispatcher
-                    .getModelRenderer()
-                    .tesselateBlock(
-                        level,
-                        this.dispatcher.getBlockModel(blockState),
-                        blockState,
-                        blockPos,
-                        poseStack,
-                        buffer.getBuffer(ItemBlockRenderTypes.getMovingBlockRenderType(blockState)),
-                        false,
-                        RandomSource.create(),
-                        blockState.getSeed(entity.getStartPos()),
-                        OverlayTexture.NO_OVERLAY,
-                        ModelData.EMPTY,
-                        null
-                );
-                poseStack.popPose();
-                super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
-            }
+    public FallingBlockRenderState createRenderState() {
+        return new FallingBlockRenderState();
+    }
+
+    public void extractRenderState(AnimateAscendingBlockEntity entity, FallingBlockRenderState state, float partialTicks) {
+        super.extractRenderState(entity, state, partialTicks);
+        BlockPos pos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
+        state.movingBlockRenderState.randomSeedPos = entity.getStartPos();
+        state.movingBlockRenderState.blockPos = pos;
+        state.movingBlockRenderState.blockState = entity.getBlockState();
+        if (entity.level() instanceof ClientLevel clientLevel) {
+            state.movingBlockRenderState.biome = clientLevel.getBiome(pos);
+            state.movingBlockRenderState.cardinalLighting = clientLevel.cardinalLighting();
+            state.movingBlockRenderState.lightEngine = clientLevel.getLightEngine();
         }
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public Identifier getTextureLocation(AnimateAscendingBlockEntity entity) {
-        return TextureAtlas.LOCATION_BLOCKS;
+    public void submit(FallingBlockRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        BlockState blockState = state.movingBlockRenderState.blockState;
+        if (blockState.getRenderShape() == RenderShape.MODEL) {
+            pose.pushPose();
+            pose.translate(-0.5, 0.0, -0.5);
+            collector.submitMovingBlock(pose, state.movingBlockRenderState);
+            pose.popPose();
+            super.submit(state, pose, collector, camera);
+        }
     }
 }
