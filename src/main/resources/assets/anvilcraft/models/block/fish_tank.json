@@ -1,7 +1,8 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/template_cauldron_full",
+	"parent": "minecraft:block/cube_all",
+    "render_type": "minecraft:translucent",
 	"textures": {
 		"0": "anvilcraft:block/fish_tank_bottom",
 		"1": "anvilcraft:block/fish_tank_inner",
