@@ -17,7 +17,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
-    <structure id="../ac_assets/structure/machine/mesh.snbt"/>
+    <structure id="../structures/machine/mesh.snbt"/>
     <BlockAnnotation x="3" y="4" z="0" color="#ff0000">
         设置为循环模式：每间隔 5gt 发出长度 3gt 的信号；驱动活塞运行
     </BlockAnnotation>

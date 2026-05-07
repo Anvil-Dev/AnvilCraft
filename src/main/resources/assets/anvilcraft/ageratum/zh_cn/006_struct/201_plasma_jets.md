@@ -17,7 +17,7 @@ navigation:
 
 ## 结构
 
-<structure id="../ac_assets/structure/plasma_jets.snbt"/>
+<structure id="../structures/plasma_jets.snbt"/>
 
 - 需要[燃烧的炼药锅](../002_material/201_oil.md)
 - 炼药锅底部有工作的[<translate key="block.anvilcraft.heater"/>](../005_block/100_heater.md)

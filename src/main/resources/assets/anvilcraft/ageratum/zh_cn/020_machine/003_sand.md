@@ -17,7 +17,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
-    <structure id="../ac_assets/structure/machine/sand.snbt"/>
+    <structure id="../structures/machine/sand.snbt"/>
     <BlockAnnotation x="1" y="6" z="2" color="#ff0000">
         设置为循环模式：每间隔 10gt 发出长度 5gt 的信号
     </BlockAnnotation>

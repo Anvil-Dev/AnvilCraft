@@ -24,7 +24,7 @@ navigation:
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
     <IsometricCamera yaw="30" pitch="30" />
-    <structure id="../ac_assets/structure/machine/tree.snbt"/>
+    <structure id="../structures/machine/tree.snbt"/>
     <BlockAnnotation x="4" y="1" z="3" color="#ffffff">
         设置收集半径: 8
     </BlockAnnotation>

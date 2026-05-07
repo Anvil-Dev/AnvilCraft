@@ -1,6 +1,6 @@
 {
     DataVersion: 3955,
-    size: [3, 3, 1],
+    size: [3, 4, 1],
     data: [
         {pos: [0, 0, 0], state: "minecraft:vault{facing:north,ominous:false,vault_state:inactive}", nbt: {config: {key_item: {count: 1, id: "minecraft:trial_key"}}, id: "minecraft:vault", server_data: {rewarded_players: [[I; 1352608033, 1844921338, -1250103810, -2097243544]], state_updating_resumes_at: 63207L}, shared_data: {}}},
         {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},

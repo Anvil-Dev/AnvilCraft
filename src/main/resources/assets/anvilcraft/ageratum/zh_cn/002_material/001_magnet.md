@@ -28,7 +28,7 @@ items:
 </tip>
 
 默认的雷击转化磁铁块范围如下
-<structure id="../ac_assets/structure/lightning_convert_magnets.snbt"/>
+<structure id="../structures/lightning_convert_magnets.snbt"/>
 
 <row halign="center">
 <recipe id="anvilcraft:magnet_ingot_from_hollow_block"/>

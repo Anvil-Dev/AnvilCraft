@@ -50,7 +50,7 @@ items:
 
 ## 产矿
 
-<structure id="../ac_assets/structure/mineral_fountain/raw_mineral.snbt"/>
+<structure id="../structures/mineral_fountain/raw_mineral.snbt"/>
 
 - 如果[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)的四面都是**同种粗矿块**，
   则将上方<translate key="block.minecraft.deepslate"/>转化为对应的**深层矿**
@@ -70,7 +70,7 @@ items:
 
 ## 产熔岩
 
-<structure id="../ac_assets/structure/mineral_fountain/lava.snbt"/>
+<structure id="../structures/mineral_fountain/lava.snbt"/>
 
 - 四周被**熔岩**环绕的[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)可以生成**熔岩**
 
@@ -78,7 +78,7 @@ items:
 
 ## 加热
 
-<structure id="../ac_assets/structure/mineral_fountain/heat.snbt"/>
+<structure id="../structures/mineral_fountain/heat.snbt"/>
 
 - 四周被**熔岩**环绕的[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)可以将 [可加热方块](../001_feature/101_heated_block.md)
   加热到<color=#aa2222>红热等级</color>
@@ -87,7 +87,7 @@ items:
 
 ## 产火山灰
 
-<structure id="../ac_assets/structure/mineral_fountain/cinerite.snbt"/>
+<structure id="../structures/mineral_fountain/cinerite.snbt"/>
 
 - 其他结构都不满足时，[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)在上方生成<translate key="block.anvilcraft.cinerite"/>，可将其用于[筛矿](../007_recipe/001_basic_minerals.md)
 

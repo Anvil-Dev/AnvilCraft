@@ -41,7 +41,7 @@ items:
 
 [<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)砸中<translate key="block.minecraft.crafting_table"/>时，对下方多方块结构进行转化，生成新的方块
 
-<structure id="../ac_assets/structure/mutiblock_convert.snbt"/>
+<structure id="../structures/mutiblock_convert.snbt"/>
 
 <tip>
 如果觉得<translate key="block.minecraft.crafting_table"/>不好看，可以试试[<translate key="block.anvilcraft.transparent_crafting_table"/>](210_giant_anvil.md)
@@ -71,7 +71,7 @@ items:
 - **邻块**决定撼地的工作模式
 - **角块**决定模式的工作类型
 
-<structure id="../ac_assets/structure/giant_anvil_shocking.snbt"/>
+<structure id="../structures/giant_anvil_shocking.snbt"/>
 
 [//]: # (    <DiamondAnnotation pos="0.5 0.5 0.5" color="#ff0000">)
 

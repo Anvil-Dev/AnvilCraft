@@ -17,7 +17,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
-    <structure id="../ac_assets/structure/machine/stone.snbt"/>
+    <structure id="../structures/machine/stone.snbt"/>
 </GameScene>
 
 <Column>

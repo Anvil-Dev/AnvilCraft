@@ -13,7 +13,7 @@ navigation:
 
 ## 层数补全
 
-<structure id="../ac_assets/structure/lava_cauldron.snbt"/>
+<structure id="../structures/lava_cauldron.snbt"/>
 
 补全原版缺失的<translate key="item.minecraft.cauldron"/>层数
 

@@ -14,7 +14,7 @@ navigation:
 # 特性
 
 
-<structure id="../ac_assets/structure/vault.snbt"/>
+<structure id="../structures/vault.snbt"/>
 
 - 使用<translate key="block.anvilcraft.lead_block"/>让<translate key="block.minecraft.vault"/>忘记自己曾被打开
 

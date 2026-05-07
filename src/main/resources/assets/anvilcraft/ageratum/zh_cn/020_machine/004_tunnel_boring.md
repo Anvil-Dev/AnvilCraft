@@ -23,7 +23,7 @@ navigation:
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
     <IsometricCamera yaw="185" pitch="10" />
-    <structure id="../ac_assets/structure/machine/tunnel_boring_3x.snbt"/>
+    <structure id="../structures/machine/tunnel_boring_3x.snbt"/>
     <DiamondAnnotation pos="4.5 1.5 0.5" color="#ffffff">
         放置 存储矿车
     </DiamondAnnotation>
@@ -59,7 +59,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
-    <structure id="../ac_assets/structure/machine/tunnel_boring_7x.snbt"/>
+    <structure id="../structures/machine/tunnel_boring_7x.snbt"/>
     <IsometricCamera yaw="185" pitch="10" />
     <DiamondAnnotation pos="5.5 1.5 0.5" color="#ffffff">
         放置 存储矿车

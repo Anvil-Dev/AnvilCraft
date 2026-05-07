@@ -16,7 +16,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="2">
-    <structure id="../ac_assets/structure/break.snbt"/>
+    <structure id="../structures/break.snbt"/>
     <ItemEntity pos="1.5 0.5 0.5" id="minecraft:cobblestone"></ItemEntity>
 </GameScene>
 
@@ -30,7 +30,7 @@ navigation:
 # 单方块处理：方块粉碎
 
 <row halign="center">
-<GameScene zoom="2"><structure id="../ac_assets/structure/block_crush.snbt"/></GameScene>
+<GameScene zoom="2"><structure id="../structures/block_crush.snbt"/></GameScene>
 
 - <translate key="block.minecraft.cobblestone"/> → <translate key="block.minecraft.gravel"/> → <translate key="block.minecraft.sand"/>
 - <translate key="block.minecraft.polished_granite"/> → <translate key="block.minecraft.granite"/> → <translate key="block.minecraft.red_sand"/>
@@ -43,7 +43,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="2">
-    <structure id="../ac_assets/structure/press.snbt"/>
+    <structure id="../structures/press.snbt"/>
 </GameScene>
 
 - 苔藓块 + 泥土 → 草方块
@@ -60,7 +60,7 @@ navigation:
 # 双方块处理：方块涂抹
 
 <row halign="center">
-<GameScene zoom="2"><structure id="../ac_assets/structure/smear.snbt"/></GameScene>
+<GameScene zoom="2"><structure id="../structures/smear.snbt"/></GameScene>
 
 <Column>
 上方的方块不消耗
@@ -76,7 +76,7 @@ navigation:
 转化方块，并在炼药锅中生成资源
 
 <row halign="center">
-<structure id="../ac_assets/structure/squeeze.snbt"/>
+<structure id="../structures/squeeze.snbt"/>
 
 - 湿海绵 → 海绵 + 水
 - 苔藓块 → 覆地苔藓 + 水

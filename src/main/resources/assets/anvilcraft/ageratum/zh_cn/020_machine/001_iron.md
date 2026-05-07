@@ -22,7 +22,7 @@ navigation:
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
     <IsometricCamera yaw="210" pitch="80" />
-    <structure id="../ac_assets/structure/machine/iron.snbt"/>
+    <structure id="../structures/machine/iron.snbt"/>
     <DiamondAnnotation pos="1.5 1.5 3.5" color="#ffff00">
         在此安置铁傀儡，玻璃板会限制其移动
     </DiamondAnnotation>

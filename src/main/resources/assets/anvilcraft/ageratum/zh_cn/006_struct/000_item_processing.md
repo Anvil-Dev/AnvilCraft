@@ -70,7 +70,7 @@ items:
 下方是<translate key="item.minecraft.iron_trapdoor"/>时，执行**物品分解**操作，原料置于铁活版门上，产物出现在铁活版门下
 
 <row halign="center">
-<structure id="../ac_assets/structure/unpack.snbt"/>
+<structure id="../structures/unpack.snbt"/>
 
 
 - 如果物品有1→n的合成配方则会被执行，例如1铁锭→9铁粒
@@ -110,7 +110,7 @@ items:
 下方是装水<translate key="item.minecraft.cauldron"/>时，执行**物品膨发**操作，原料和产物都在锅中，消耗一层水
 
 <row halign="center">
-<structure id="../ac_assets/structure/bulging.snbt"/>
+<structure id="../structures/bulging.snbt"/>
 
 - 铜制方块→锈蚀铜制方块
 - 泥土→黏土
@@ -127,7 +127,7 @@ items:
 下方是<translate key="item.minecraft.cauldron"/>和<translate key="item.minecraft.campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
 
 <row halign="center">
-<structure id="../ac_assets/structure/cooking.snbt"/>
+<structure id="../structures/cooking.snbt"/>
 
 - 自动兼容所有烟熏炉配方和营火配方，此时不需要水
 

@@ -19,7 +19,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
-    <structure id="../ac_assets/structure/machine/crush.snbt"/>
+    <structure id="../structures/machine/crush.snbt"/>
     <IsometricCamera yaw="200" pitch="45" />
     <BlockAnnotation x="3" y="5" z="1" color="#ff0000">
         设置为循环模式：每间隔 8gt 发出长度 8gt 的信号

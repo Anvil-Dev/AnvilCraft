@@ -13,7 +13,7 @@ navigation:
 
 ## 炼药锅交互
 
-<structure id="../ac_assets/structure/dispenser.snbt"/>
+<structure id="../structures/dispenser.snbt"/>
 
 <translate key="block.minecraft.dispenser"/>现在可以使用水瓶、空瓶、熔岩桶、细雪桶、水桶、空桶与<translate key="item.minecraft.cauldron"/>交互
 

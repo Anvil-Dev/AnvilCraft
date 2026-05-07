@@ -19,7 +19,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
-    <structure id="../ac_assets/structure/machine/piezoelectric_crystal_0.snbt"/>
+    <structure id="../structures/machine/piezoelectric_crystal_0.snbt"/>
     <BlockAnnotation x="4" y="3" z="1" color="#ff0000">
         设置为循环模式：每间隔 5gt 输出信号 5gt ，控制铁砧下落
     </BlockAnnotation>
@@ -50,7 +50,7 @@ navigation:
 
 <row halign="center">
 <GameScene zoom="3" background="#888888" interactive={true}>
-    <structure id="../ac_assets/structure/machine/piezoelectric_crystal_1.snbt"/>
+    <structure id="../structures/machine/piezoelectric_crystal_1.snbt"/>
     <BlockAnnotation x="6" y="9" z="2" color="#ff0000">
         设置为循环模式：每间隔 1gt 输出信号 9gt
     </BlockAnnotation>

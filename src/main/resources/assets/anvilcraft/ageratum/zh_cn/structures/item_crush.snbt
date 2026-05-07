@@ -1,6 +1,6 @@
 {
     DataVersion: 3955,
-    size: [3, 2, 1],
+    size: [3, 3, 1],
     data: [
         {pos: [0, 0, 0], state: "anvilcraft:crushing_table{waterlogged:false}"},
         {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},

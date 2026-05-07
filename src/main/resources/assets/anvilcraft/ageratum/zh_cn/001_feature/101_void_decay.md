@@ -29,5 +29,5 @@ navigation:
    - 锌、锡、铅矿石
    - 各种虫蚀石
 
-<structure id="../ac_assets/structure/void_decay.snbt"/>
+<structure id="../structures/void_decay.snbt"/>
 
