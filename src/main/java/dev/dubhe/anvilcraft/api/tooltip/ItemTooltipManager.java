@@ -1,27 +1,17 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
-import dev.anvilcraft.lib.v2.util.ListUtil;
-import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 
 import java.util.Collections;
 import java.util.List;
@@ -245,67 +235,16 @@ public class ItemTooltipManager {
      *
      * @param stack   需要添加工具提示的物品堆叠
      * @param tooltip 提示内容
+     * @param flags   工具提示标识
      */
-    public static void addTooltip(ItemStack stack, List<Component> tooltip) {
+    public static void addTooltip(ItemStack stack, List<Component> tooltip, TooltipFlag flags) {
         final Item item = stack.getItem();
-        if (stack.has(ModComponents.STORED_ENERGY)) {
-            propertyTooltip(
-                "stored_energy",
-                tooltip,
-                ChatFormatting.GRAY,
-                UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
-            );
-        }
-        if (stack.has(ModComponents.MULTIPHASE)) {
-            if (AnvilCraftClient.CONFIG.showMultiphaseStoredId) {
-                propertyTooltip(
-                    "multiphase.id",
-                    tooltip,
-                    0xDD91FA,
-                    stack.get(ModComponents.MULTIPHASE).id().toString()
-                );
-            }
-            propertyTooltip(
-                "multiphase",
-                tooltip,
-                0xDD91FA,
-                ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName()
-            );
-        }
-        if (stack.has(ModComponents.PROVIDENCE)) {
-            if (Screen.hasShiftDown()) {
-                propertyTooltip("providence.shifting", tooltip, 0xFFCB62, ComponentUtils.formatList(
-                    List.of(
-                        Component.translatable("enchantment.minecraft.fortune"),
-                        Component.translatable("enchantment.minecraft.looting"),
-                        Component.translatable("enchantment.anvilcraft.beheading"),
-                        Component.translatable("enchantment.minecraft.thorns"),
-                        Component.translatable("enchantment.minecraft.luck_of_the_sea")
-                    ), ComponentUtils.DEFAULT_NO_STYLE_SEPARATOR));
-            } else {
-                propertyTooltip(
-                    "providence", tooltip, 0xFFCB62,
-                    Minecraft.getInstance().options.keyShift.getKey().getDisplayName());
-            }
-        }
-        if (stack.has(ModComponents.ETERNAL)) {
-            propertyTooltip("eternal", tooltip, 0xD3C5F6);
-        }
-        if (stack.has(ModComponents.FEROCIOUS)) {
-            propertyTooltip("ferocious", tooltip, 0xDD1212);
-        }
-        if (stack.has(ModComponents.MERCILESS)) {
-            propertyTooltip("merciless", tooltip, 0xB4F0F6);
-        }
-        if (stack.has(ModComponents.FIRE_REFORGING)) {
-            propertyTooltip("fire_reforging", tooltip, ChatFormatting.GOLD);
-        }
         if (NORMAL.containsKey(item)) {
-            tooltip.add(1, getItemTooltip(item));
+            tooltip.add(1, ItemTooltipManager.getItemTooltip(item));
         }
         if (SHIFT.containsKey(item)) {
-            if (Screen.hasShiftDown()) {
-                tooltip.add(1, getItemTooltip(item));
+            if (flags.hasShiftDown()) {
+                tooltip.add(1, ItemTooltipManager.getItemTooltip(item));
             } else {
                 tooltip.add(1, Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
             }
@@ -321,71 +260,11 @@ public class ItemTooltipManager {
     }
 
     private static Component getItemTooltip(Item item) {
-        return Component.translatable(getTranslationKey(item)).withStyle(ChatFormatting.GRAY);
+        return Component.translatable(ItemTooltipManager.getTranslationKey(item)).withStyle(ChatFormatting.GRAY);
     }
 
     public static String getTranslationKey(Item item) {
         Identifier key = BuiltInRegistries.ITEM.getKey(item);
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
-    }
-
-    private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color, Object... args) {
-        int i = 0;
-        for (int j = 0; j < tooltip.size(); j++) {
-            if (tooltip.get(j).getContents() instanceof TranslatableContents t && t.getKey().contains("enchantment")
-                && ListUtil.safelyGet(tooltip, j + 1)
-                .flatMap(tooltipI -> Util.castSafely(tooltipI.getContents(), TranslatableContents.class))
-                .map(TranslatableContents::getKey)
-                .filter(key -> key.contains("enchantment"))
-                .isEmpty()
-            ) {
-                i = j;
-                break;
-            }
-        }
-        tooltip.add(
-            1 + i,
-            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName), args).withStyle(color)
-        );
-    }
-
-    private static void propertyTooltip(String propertyName, List<Component> tooltip, int color) {
-        int i = 0;
-        for (int j = 0; j < tooltip.size(); j++) {
-            if (tooltip.get(j).getContents() instanceof TranslatableContents t && t.getKey().contains("enchantment")
-                && ListUtil.safelyGet(tooltip, j + 1)
-                .flatMap(tooltipI -> Util.castSafely(tooltipI.getContents(), TranslatableContents.class))
-                .map(TranslatableContents::getKey)
-                .filter(key -> key.contains("enchantment"))
-                .isEmpty()
-            ) {
-                i = j;
-                break;
-            }
-        }
-        tooltip.add(
-            1 + i,
-            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName)).withColor(color)
-        );
-    }
-
-    public static void propertyTooltip(DataComponentType<?> type, List<Component> tooltip, int color, Object... args) {
-        int i = 0;
-        for (int j = 0; j < tooltip.size(); j++) {
-            if (tooltip.get(j).getContents() instanceof TranslatableContents t && t.getKey().contains("enchantment")
-                && ListUtil.safelyGet(tooltip, j + 1)
-                .flatMap(tooltipI -> Util.castSafely(tooltipI.getContents(), TranslatableContents.class))
-                .map(TranslatableContents::getKey)
-                .filter(key -> key.contains("enchantment"))
-                .isEmpty()
-            ) {
-                i = j;
-                break;
-            }
-        }
-        tooltip.add(
-            1 + i,
-            Component.translatable("tooltip.anvilcraft.property.%s".formatted(), args).withColor(color)
-        );
     }
 }

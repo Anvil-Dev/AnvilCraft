@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,6 +29,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 
@@ -150,7 +152,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
     }
 
     @Override
-    public void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+    public void renderTooltip(GuiGraphicsExtractor guiGraphics, int screenWidth, int screenHeight) {
     }
 
     @Override

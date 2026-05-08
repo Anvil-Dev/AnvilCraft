@@ -30,7 +30,7 @@ public enum TransformOptions implements StringRepresentable {
             }
             if (newEntity instanceof Mob nm && oldEntity instanceof Mob om) {
                 for (EquipmentSlot value : EquipmentSlot.values()) {
-                    nm.setDropChance(value, om.getEquipmentDropChance(value));
+                    nm.setDropChance(value, om.getDropChances().byEquipment(value));
                 }
             }
 

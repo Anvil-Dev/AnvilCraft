@@ -123,8 +123,8 @@ public class PermutationRecipeLoader {
         Identifier idB
     ) {
         for (String base : bases) {
-            Item inputA = BuiltInRegistries.ITEM.get(idA.withSuffix("_" + base));
-            Item inputB = BuiltInRegistries.ITEM.get(idB.withSuffix("_" + base));
+            Item inputA = BuiltInRegistries.ITEM.getValue(idA.withSuffix("_" + base));
+            Item inputB = BuiltInRegistries.ITEM.getValue(idB.withSuffix("_" + base));
             PermutationRecipe.builder()
                 .material(material)
                 .input(inputA)
@@ -142,8 +142,8 @@ public class PermutationRecipeLoader {
         BiFunction<Item, Item, PermutationRecipe.Builder> builderFactory
     ) {
         for (String base : bases) {
-            Item inputA = BuiltInRegistries.ITEM.get(idA.withSuffix("_" + base));
-            Item inputB = BuiltInRegistries.ITEM.get(idB.withSuffix("_" + base));
+            Item inputA = BuiltInRegistries.ITEM.getValue(idA.withSuffix("_" + base));
+            Item inputB = BuiltInRegistries.ITEM.getValue(idB.withSuffix("_" + base));
             builderFactory.apply(inputA, inputB)
                 .material(material)
                 .save(provider, PermutationRecipeLoader.defaultId(inputA, inputB));

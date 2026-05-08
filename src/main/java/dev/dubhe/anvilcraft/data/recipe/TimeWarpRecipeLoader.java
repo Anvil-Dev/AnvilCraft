@@ -201,13 +201,13 @@ public class TimeWarpRecipeLoader {
             .heat(HeatTier.INCANDESCENT, 6000)
             .requires(ModBlocks.URANIUM_BLOCK)
             .result(ModItems.RAW_URANIUM, 2)
-            .result(ModItems.RAW_LEAD.asStack())
+            .result(ModItems.RAW_LEAD)
             .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_uranium_block"));
         TimeWarpRecipe.builder()
             .heat(HeatTier.INCANDESCENT, 12000)
             .requires(ModBlocks.PLUTONIUM_BLOCK)
             .result(ModItems.RAW_URANIUM, 3)
-            .result(ModItems.RAW_LEAD.asStack())
+            .result(ModItems.RAW_LEAD)
             .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_plutonium_block"));
 
         TimeWarpRecipe.builder()

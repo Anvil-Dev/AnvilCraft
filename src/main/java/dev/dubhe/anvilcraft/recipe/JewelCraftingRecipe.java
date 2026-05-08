@@ -198,9 +198,13 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             return requires(tag, 1);
         }
 
-        public Builder result(ItemLike item) {
-            this.result = new ItemStackTemplate(item.asItem());
+        public Builder result(ItemStackTemplate result) {
+            this.result = result;
             return this;
+        }
+
+        public Builder result(ItemLike result) {
+            return this.result(new ItemStackTemplate(result.asItem()));
         }
 
         @Override

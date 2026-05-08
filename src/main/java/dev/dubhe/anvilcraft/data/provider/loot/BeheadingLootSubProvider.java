@@ -1,14 +1,10 @@
 package dev.dubhe.anvilcraft.data.provider.loot;
 
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
-import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import dev.dubhe.anvilcraft.loot.conditions.MatchDataComponent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderOwner;
-import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
@@ -21,14 +17,13 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.FillPlayerHead;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
-import net.minecraft.world.level.storage.loot.predicates.InvertedLootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiConsumer;
-import org.jspecify.annotations.Nullable;
 
 public class BeheadingLootSubProvider implements LootTableSubProvider {
     private final HolderLookup.Provider provider;
@@ -39,43 +34,50 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
 
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
-        generateBeheading(consumer,
+        this.generateBeheading(
+            consumer,
             ModLootTables.BEHEADING_WITHER_SKELETON,
             Items.WITHER_SKELETON_SKULL,
             0.07F,
             0.02F
         );
-        generateBeheading(consumer,
+        this.generateBeheading(
+            consumer,
             ModLootTables.BEHEADING_ZOMBIE,
             Items.ZOMBIE_HEAD,
             0.01F,
             0.01F
         );
-        generateBeheading(consumer,
+        this.generateBeheading(
+            consumer,
             ModLootTables.BEHEADING_SKELETON,
             Items.SKELETON_SKULL,
             0.01F,
             0.01F
         );
-        generateBeheading(consumer,
+        this.generateBeheading(
+            consumer,
             ModLootTables.BEHEADING_CREEPER,
             Items.CREEPER_HEAD,
             0.01F,
             0.01F
         );
-        generateBeheading(consumer,
+        this.generateBeheading(
+            consumer,
             ModLootTables.BEHEADING_PIGLIN,
             Items.PIGLIN_HEAD,
             0.01F,
             0.01F
         );
-        generateBeheading(consumer,
+        this.generateBeheading(
+            consumer,
             ModLootTables.BEHEADING_ENDER_DRAGON,
             Items.DRAGON_HEAD,
             1.0F,
             0.0F
         );
-        generateBeheading(consumer,
+        this.generateBeheading(
+            consumer,
             ModLootTables.BEHEADING_PLAYER,
             Items.PLAYER_HEAD,
             1.0F,
@@ -129,10 +131,7 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
                 LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
                 new DummyHolder(ModEnchantments.BEHEADING_KEY)
             ))
-            .when(LootItemKilledByPlayerCondition.killedByPlayer())
-            .when(InvertedLootItemCondition.invert(MatchDataComponent.component(
-                DataComponentPredicate.builder().expect(ModComponents.MERCILESS, Merciless.DEFAULT)
-            )));
+            .when(LootItemKilledByPlayerCondition.killedByPlayer());
     }
 
     private LootPool.Builder generatePool(
@@ -145,10 +144,7 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
                 LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
                 new DummyHolder(ModEnchantments.BEHEADING_KEY)
             ))
-            .when(LootItemKilledByPlayerCondition.killedByPlayer())
-            .when(InvertedLootItemCondition.invert(MatchDataComponent.component(
-                DataComponentPredicate.builder().expect(ModComponents.MERCILESS, Merciless.DEFAULT)
-            )));
+            .when(LootItemKilledByPlayerCondition.killedByPlayer());
     }
 
     private static class DummyHolder extends Holder.Reference<Enchantment> {

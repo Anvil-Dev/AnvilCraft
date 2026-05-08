@@ -4,16 +4,15 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagBuilder;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 public class FluidTagLoader {
 
-    private static ResourceKey<Fluid> findResourceKey(Fluid item) {
-        return ResourceKey.create(Registries.FLUID, BuiltInRegistries.FLUID.getKey(item));
+    private static Identifier findId(Fluid item) {
+        return BuiltInRegistries.FLUID.getKey(item);
     }
 
     /**
@@ -22,27 +21,27 @@ public class FluidTagLoader {
      * @param provider 提供器
      */
     public static void init(RegistrumTagsProvider<Fluid> provider) {
-        provider.addTag(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)
-            .add(findResourceKey(Fluids.WATER))
-            .add(findResourceKey(Fluids.FLOWING_WATER))
-            .add(findResourceKey(Fluids.LAVA))
-            .add(findResourceKey(Fluids.FLOWING_LAVA))
-            .add(ModFluids.OIL.getKey())
-            .add(ModFluids.FLOWING_OIL.getKey())
-            .add(ModFluids.MELT_GEM.getKey())
-            .add(ModFluids.FLOWING_MELT_GEM.getKey())
-            .add(ModFluids.EXP_FLUID.getKey())
-            .addTag(ModFluidTags.CEMENT);
-        provider.addTag(ModFluidTags.OIL)
-            .add(findResourceKey(ModFluids.OIL.get()))
-            .add(findResourceKey(ModFluids.FLOWING_OIL.get()));
-        provider.addTag(ModFluidTags.EXPERIENCE)
-            .add(findResourceKey(ModFluids.EXP_FLUID.get()))
-            .add(findResourceKey(ModFluids.FLOWING_EXP_FLUID.get()));
-        TagsProvider.TagAppender<Fluid> appender = provider.addTag(ModFluidTags.CEMENT);
-        ModFluids.SOURCE_CEMENTS.forEach((color, cement) -> appender.add(findResourceKey(cement.get())));
-        ModFluids.FLOWING_CEMENTS.forEach((color, cement) -> appender.add(findResourceKey(cement.get())));
-        provider.addTag(ModFluidTags.IGNITABLE)
-            .add(findResourceKey(ModFluids.OIL.get()));
+        provider.rawBuilder(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)
+            .addElement(findId(Fluids.WATER))
+            .addElement(findId(Fluids.FLOWING_WATER))
+            .addElement(findId(Fluids.LAVA))
+            .addElement(findId(Fluids.FLOWING_LAVA))
+            .addElement(ModFluids.OIL.getId())
+            .addElement(ModFluids.FLOWING_OIL.getId())
+            .addElement(ModFluids.MELT_GEM.getId())
+            .addElement(ModFluids.FLOWING_MELT_GEM.getId())
+            .addElement(ModFluids.EXP_FLUID.getId())
+            .addTag(ModFluidTags.CEMENT.location());
+        provider.rawBuilder(ModFluidTags.OIL)
+            .addElement(ModFluids.OIL.getId())
+            .addElement(ModFluids.FLOWING_OIL.getId());
+        provider.rawBuilder(ModFluidTags.EXPERIENCE)
+            .addElement(ModFluids.EXP_FLUID.getId())
+            .addElement(ModFluids.FLOWING_EXP_FLUID.getId());
+        TagBuilder builder = provider.rawBuilder(ModFluidTags.CEMENT);
+        ModFluids.SOURCE_CEMENTS.forEach((_, cement) -> builder.addElement(cement.getId()));
+        ModFluids.FLOWING_CEMENTS.forEach((_, cement) -> builder.addElement(cement.getId()));
+        provider.rawBuilder(ModFluidTags.IGNITABLE)
+            .addElement(ModFluids.OIL.getId());
     }
 }

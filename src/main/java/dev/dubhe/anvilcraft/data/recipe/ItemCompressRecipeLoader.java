@@ -20,7 +20,6 @@ import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import net.minecraft.advancements.criterion.DataComponentMatchers;
 import net.minecraft.core.component.DataComponentExactPredicate;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -33,7 +32,7 @@ public class ItemCompressRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         ItemCompressRecipe.builder()
             .requires(Items.BONE, 3)
-            .result(new ItemStack(Items.BONE_BLOCK))
+            .result(Items.BONE_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()

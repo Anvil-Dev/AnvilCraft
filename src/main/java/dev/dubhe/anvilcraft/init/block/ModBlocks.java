@@ -2255,7 +2255,7 @@ public class ModBlocks {
         .item(EndDustBlockItem::new)
         .build()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
-        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL, ModBlockTags.VOID_DECAY_PRODUCTS)
         .register();
 
     public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM.block("arrow", ArrowBlock::new)
@@ -2686,7 +2686,13 @@ public class ModBlocks {
         .tag(Tags.Items.ORES, ModItemTags.ZINC_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_ZINC.get())))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ORES_ZINC, Tags.Blocks.ORES, Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            ModBlockTags.ORES_ZINC,
+            Tags.Blocks.ORES,
+            Tags.Blocks.ORES_IN_GROUND_DEEPSLATE,
+            ModBlockTags.VOID_DECAY_PRODUCTS
+        )
         .register();
 
     public static final BlockEntry<Block> DEEPSLATE_TIN_ORE = REGISTRUM.block("deepslate_tin_ore", Block::new)
@@ -2695,7 +2701,13 @@ public class ModBlocks {
         .tag(Tags.Items.ORES, ModItemTags.TIN_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_TIN.get())))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ORES_TIN, Tags.Blocks.ORES, Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            ModBlockTags.ORES_TIN,
+            Tags.Blocks.ORES,
+            Tags.Blocks.ORES_IN_GROUND_DEEPSLATE,
+            ModBlockTags.VOID_DECAY_PRODUCTS
+        )
         .register();
 
     public static final BlockEntry<Block> DEEPSLATE_TITANIUM_ORE = REGISTRUM.block("deepslate_titanium_ore", Block::new)
@@ -2722,7 +2734,13 @@ public class ModBlocks {
         .tag(Tags.Items.ORES, ModItemTags.LEAD_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.RAW_LEAD.get())))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ORES_LEAD, Tags.Blocks.ORES, Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            ModBlockTags.ORES_LEAD,
+            Tags.Blocks.ORES,
+            Tags.Blocks.ORES_IN_GROUND_DEEPSLATE,
+            ModBlockTags.VOID_DECAY_PRODUCTS
+        )
         .register();
 
     public static final BlockEntry<Block> DEEPSLATE_SILVER_ORE = REGISTRUM.block("deepslate_silver_ore", Block::new)
@@ -2754,7 +2772,8 @@ public class ModBlocks {
             BlockTags.NEEDS_DIAMOND_TOOL,
             ModBlockTags.ORES_VOID_MATTER,
             Tags.Blocks.ORES,
-            Tags.Blocks.ORES_IN_GROUND_DEEPSLATE
+            Tags.Blocks.ORES_IN_GROUND_DEEPSLATE,
+            ModBlockTags.VOID_DECAY_PRODUCTS
         )
         .register();
 
@@ -3441,7 +3460,7 @@ public class ModBlocks {
 
     public static final BlockEntry<FlintBlock> FLINT_BLOCK = REGISTRUM.block("flint_block", FlintBlock::new)
         .initialProperties(() -> Blocks.QUARTZ_BLOCK)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_FLINT, Tags.Blocks.STORAGE_BLOCKS)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_FLINT, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.VOID_DECAY_PRODUCTS)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_FLINT, Tags.Items.STORAGE_BLOCKS)
         .build()

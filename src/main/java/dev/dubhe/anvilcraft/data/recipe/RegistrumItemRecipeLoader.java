@@ -613,9 +613,9 @@ public class RegistrumItemRecipeLoader {
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
         return (ctx, provider) -> {
-            JewelCraftingRecipe.Builder builder = JewelCraftingRecipe.builder()
+            JewelCraftingRecipe.Builder builder = JewelCraftingRecipe.builder(provider.getItems())
                 .requires(ModItems.SILVER_INGOT, 1)
-                .result(new ItemStack(ctx.get()));
+                .result(ctx.get());
             builderConsumer.accept(builder);
             builder.save(provider);
         };

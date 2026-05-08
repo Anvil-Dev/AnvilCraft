@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.tooltip.providers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -20,7 +21,7 @@ public interface IHandHeldItemTooltipProvider {
         double camZ
     );
 
-    void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight);
+    void renderTooltip(GuiGraphicsExtractor guiGraphics, int screenWidth, int screenHeight);
 
     int priority();
 }

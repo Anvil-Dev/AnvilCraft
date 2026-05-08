@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -65,26 +66,26 @@ public class HudTooltipManager {
     }
 
     public void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {
-        affectRangeProviders.add(affectRangeProvider);
+        this.affectRangeProviders.add(affectRangeProvider);
     }
 
     public void registerBlockTooltip(ITooltipProvider.BlockTooltipProvider provider) {
-        blockProviders.add(provider);
+        this.blockProviders.add(provider);
     }
 
     public void registerBlockEntityTooltip(ITooltipProvider.BlockEntityTooltipProvider provider) {
-        blockEntityProviders.add(provider);
+        this.blockEntityProviders.add(provider);
     }
 
     public void registerHandHeldItemTooltip(IHandHeldItemTooltipProvider provider) {
-        handItemProviders.add(provider);
+        this.handItemProviders.add(provider);
     }
 
     /**
      * 渲染方块的tooltip
      */
     public void renderTooltip(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         Level level,
         BlockPos pos,
         BlockState state,
@@ -117,7 +118,7 @@ public class HudTooltipManager {
      * 渲染方块实体的tooltip
      */
     public void renderTooltip(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         BlockEntity entity,
         float partialTick,
         int screenWidth,
@@ -164,7 +165,7 @@ public class HudTooltipManager {
      * 渲染手持物品Hud Tooltip
      */
     public void renderHandItemHudTooltip(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         ItemStack itemStack,
         float partialTick,
         int screenWidth,

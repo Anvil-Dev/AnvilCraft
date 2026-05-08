@@ -38,14 +38,12 @@ import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
-import dev.dubhe.anvilcraft.init.loot.ModLootItemConditions;
 import dev.dubhe.anvilcraft.init.loot.ModLootItemFunctions;
 import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
-import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import lombok.Getter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Unit;
@@ -104,7 +102,6 @@ public class AnvilCraft {
         ModEnchantmentEffectComponents.register(modEventBus);
         ModEnchantmentEffects.register(modEventBus);
         ModLootItemFunctions.LOOT_FUNCTION_TYPES.register(modEventBus);
-        ModLootItemConditions.LOOT_CONDITION_TYPES.register(modEventBus);
         ModLootModifiers.register(modEventBus);
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
@@ -161,7 +158,7 @@ public class AnvilCraft {
     }
 
     public static void addItemTooltips(ItemTooltipEvent event) {
-        ItemTooltipManager.addTooltip(event.getItemStack(), event.getToolTip());
+        ItemTooltipManager.addTooltip(event.getItemStack(), event.getToolTip(), event.getFlags());
     }
 
     public static void addReloadListeners(AddServerReloadListenersEvent event) {
@@ -178,7 +175,6 @@ public class AnvilCraft {
     public static void loadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
             ModDispenserBehavior.register();
-            ModInteractionMap.initInteractionMap();
             if (Util.isLoaded("apothic_enchanting")) {
                 LOGGER.info(
                     "Apothic Enchanting found. Set royalAnvilBeyondMaxLevel, "

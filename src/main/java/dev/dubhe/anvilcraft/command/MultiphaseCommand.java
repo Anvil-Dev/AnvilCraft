@@ -111,9 +111,8 @@ public class MultiphaseCommand {
                         Component.literal(command).withStyle(
                             Style.EMPTY
                                 .withColor(ChatFormatting.GREEN)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                                .withHoverEvent(new HoverEvent(
-                                    HoverEvent.Action.SHOW_TEXT,
+                                .withClickEvent(new ClickEvent.SuggestCommand(command))
+                                .withHoverEvent(new HoverEvent.ShowText(
                                     Component.translatable("command.anvilcraft.multiphase.remove.success.hovering")
                                 ))
                         )

@@ -126,7 +126,7 @@ public class DeformationRecipeLoader {
     ) {
         var builder = DeformationRecipe.builder();
         for (String base : bases) {
-            Item input = BuiltInRegistries.ITEM.get(id.withSuffix("_" + base));
+            Item input = BuiltInRegistries.ITEM.getValue(id.withSuffix("_" + base));
             builder.input(RecipeResult.simple(input));
         }
         builder.save(provider, id.withSuffix("_" + suffix).getPath());

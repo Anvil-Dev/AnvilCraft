@@ -17,7 +17,6 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -108,7 +107,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     }
 
     public static BlockPredicateWithState of(String blockName) {
-        return of(BuiltInRegistries.BLOCK.get(Identifier.parse(blockName)));
+        return of(BuiltInRegistries.BLOCK.getValue(Identifier.parse(blockName)));
     }
 
     @Override

@@ -41,11 +41,9 @@ public class MultiBlockCommand {
             BlockPos mainPartPos = multiPartBlock.getMainPartPos(pos, blockState);
             MutableComponent component = ComponentUtils.wrapInSquareBrackets(
                 Component.translatable("chat.coordinates", mainPartPos.getX(), mainPartPos.getY(), mainPartPos.getZ())
-            ).withStyle((style) -> style.withClickEvent(new ClickEvent(
-                ClickEvent.Action.COPY_TO_CLIPBOARD,
+            ).withStyle((style) -> style.withClickEvent(new ClickEvent.CopyToClipboard(
                 "%s %s %s".formatted(mainPartPos.getX(), mainPartPos.getY(), mainPartPos.getZ())
-            )).withHoverEvent(new HoverEvent(
-                HoverEvent.Action.SHOW_TEXT,
+            )).withHoverEvent(new HoverEvent.ShowText(
                 Component.translatable("chat.copy.click")
             )).withColor(ChatFormatting.GREEN));
             source.sendSuccess(() -> Component.translatable("command.anvilcraft.multiBlock.multi_block_pos").append(component), true);

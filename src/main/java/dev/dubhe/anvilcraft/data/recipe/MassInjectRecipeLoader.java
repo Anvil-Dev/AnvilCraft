@@ -81,10 +81,10 @@ public class MassInjectRecipeLoader {
     }
 
     private static void addTag(RegistrumRecipeProvider provider, TagKey<Item> tag, int mass) {
-        MassInjectRecipe.builder().requires(tag).mass(mass).save(provider);
+        MassInjectRecipe.builder(provider.getItems()).requires(tag).mass(mass).save(provider);
     }
 
     private static void addItem(RegistrumRecipeProvider provider, ItemLike item, int mass) {
-        MassInjectRecipe.builder().requires(item).mass(mass).save(provider);
+        MassInjectRecipe.builder(provider.getItems()).requires(item).mass(mass).save(provider);
     }
 }

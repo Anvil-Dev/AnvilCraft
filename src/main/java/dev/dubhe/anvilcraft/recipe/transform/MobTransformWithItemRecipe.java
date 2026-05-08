@@ -249,7 +249,7 @@ public record MobTransformWithItemRecipe(
         EntityType<?> type,
         ItemLike itemInput,
         EntityType<?> specialResult,
-        ItemStack itemResult
+        ItemStackTemplate itemResult
     ) {
         ItemIngredientPredicate item = ItemIngredientPredicate.Builder.item()
             .of(itemInput)
