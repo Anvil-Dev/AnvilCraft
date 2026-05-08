@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -86,13 +86,13 @@ public class ColorUtil {
     }
 
     public static int lerpColor(float ratio, int from, int to) {
-        int r1 = FastColor.ARGB32.red(from);
-        int g1 = FastColor.ARGB32.green(from);
-        int b1 = FastColor.ARGB32.blue(from);
-        int r2 = FastColor.ARGB32.red(to);
-        int g2 = FastColor.ARGB32.green(to);
-        int b2 = FastColor.ARGB32.blue(to);
-        return FastColor.ARGB32.color(
+        int r1 = ARGB.red(from);
+        int g1 = ARGB.green(from);
+        int b1 = ARGB.blue(from);
+        int r2 = ARGB.red(to);
+        int g2 = ARGB.green(to);
+        int b2 = ARGB.blue(to);
+        return ARGB.color(
             255,
             (int) Mth.lerp(ratio, r1, r2),
             (int) Mth.lerp(ratio, g1, g2),

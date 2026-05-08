@@ -133,10 +133,9 @@ public class DataGenUtil {
     }
 
     public static <E extends Block> void simple(DataGenContext<Block, E> context, RegistrumBlockModelGenerator generator) {
-        generator.simpleBlock(
-            context.get(),
-            DangerUtil.genConfiguredModel("block/" + context.getId().getPath()).get()
-        );
+        generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(context.get())
+            .with(PropertyDispatch.initial()
+                .generate(() -> DangerUtil.genConfiguredModel("block/" + context.getId().getPath()))));
     }
 
     public static LootItemCondition.Builder hasSilkTouch(HolderLookup.Provider registries) {

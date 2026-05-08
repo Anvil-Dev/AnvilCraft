@@ -203,6 +203,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -242,9 +243,6 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.function.Supplier;
@@ -978,7 +976,7 @@ public class ModBlocks {
     public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRUM.block("impact_pile", ImpactPileBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
-        .blockstate((context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/impact_pile").get()))
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/impact_pile")))
         .recipe(RegistrumBlockRecipeLoader::impactPile)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -1090,9 +1088,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
         .properties(p -> p.noLootTable().isValidSpawn(Blocks::never))
         .simpleItem()
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/mineral_fountain").get()
+            DangerUtil.genConfiguredModel("block/mineral_fountain")
         ))
         .register();
 
@@ -1106,7 +1104,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
         .properties(properties -> properties.stacksTo(16))
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .register();
 
@@ -1114,17 +1112,18 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
-        .blockstate((ctx, provider) -> {
-            provider.getVariantBuilder(ctx.get()).forAllStates(blockState -> switch (blockState.getValue(SlidingRailBlock.AXIS)) {
-                case X -> new ConfiguredModel[]{
-                    ConfiguredModel.builder().modelFile(DangerUtil.genModModelFile("block/sliding_rail").get()).rotationY(90).buildLast()
-                };
-                case Z -> DangerUtil.genConfiguredModel("block/sliding_rail").get();
-                case Y -> DangerUtil.genConfiguredModel("block/sliding_rail_cross").get();
-            });
+        .blockstate(() -> (ctx, generator) -> {
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(SlidingRailBlock.AXIS)
+                    .select(Direction.Axis.X, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(DangerUtil.genModModelFile("block/sliding_rail")).withYRot(Quadrant.R90))
+                        .build()))
+                    .select(Direction.Axis.Z, DangerUtil.genConfiguredModel("block/sliding_rail"))
+                    .select(Direction.Axis.Y, DangerUtil.genConfiguredModel("block/sliding_rail_cross"))
+                ));
         })
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe(RegistrumBlockRecipeLoader::slidingRail)
         .register();
@@ -1138,7 +1137,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe(RegistrumBlockRecipeLoader::poweredSlidingRail)
         .register();
@@ -1152,7 +1151,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe(RegistrumBlockRecipeLoader::activatorSlidingRail)
         .register();
@@ -1166,7 +1165,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe(RegistrumBlockRecipeLoader::detectorSlidingRail)
         .register();
@@ -1175,11 +1174,11 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate((ctx, provider) -> {
-            provider.simpleBlock(ctx.get(), DangerUtil.genModModelFile("block/sliding_rail_stop").get());
+        .blockstate(() -> (ctx, provider) -> {
+            provider.simpleBlock(ctx.get(), DangerUtil.genModModelFile("block/sliding_rail_stop"));
         })
         .item()
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .recipe(RegistrumBlockRecipeLoader::slidingRailStop)
         .register();
@@ -1421,7 +1420,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate((ctx, provider) -> provider.slabBlock(
+        .blockstate(() -> (ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_royal_steel_block"),
             AnvilCraft.of("block/cut_royal_steel_block")
@@ -1446,7 +1445,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_royal_steel_block")))
+        .blockstate(() -> (ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_royal_steel_block")))
         .item()
         .tag(ItemTags.STAIRS)
         .build()
@@ -1474,9 +1473,9 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_FROST_METAL
         )
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/frost_metal_block").get()
+            DangerUtil.genConfiguredModel("block/frost_metal_block")
         ))
         .item(FrostMetalBlockItem::new)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL, ModItemTags.EXPLOSION_PROOF)
@@ -1502,9 +1501,9 @@ public class ModBlocks {
                 .emissiveRendering(ModBlocks::always)
                 .explosionResistance(1200)
         )
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/cut_frost_metal_block").get()
+            DangerUtil.genConfiguredModel("block/cut_frost_metal_block")
         ))
         .item()
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -1605,9 +1604,9 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.HEATABLE_BLOCKS
         )
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/ember_metal_block").get()
+            DangerUtil.genConfiguredModel("block/ember_metal_block")
         ))
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -1624,9 +1623,9 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/cut_ember_metal_block").get()
+            DangerUtil.genConfiguredModel("block/cut_ember_metal_block")
         ))
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -1707,9 +1706,9 @@ public class ModBlocks {
             ModBlockTags.STORAGE_BLOCKS_TRANSCENDIUM,
             ModBlockTags.COLLISION_IMMUNE
         )
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/transcendium_block").get()
+            DangerUtil.genConfiguredModel("block/transcendium_block")
         ))
         .item()
         .properties(Item.Properties::fireResistant)
@@ -1721,9 +1720,9 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.noOcclusion().strength(5.0F, 1200F))
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/heavy_iron_block").get()
+            DangerUtil.genConfiguredModel("block/heavy_iron_block")
         ))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -1741,7 +1740,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRUM.block("polished_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate((ctx, provider) -> provider.slabBlock(
+        .blockstate(() -> (ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/polished_heavy_iron_block"),
             AnvilCraft.of("block/polished_heavy_iron_block")
@@ -1760,7 +1759,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/polished_heavy_iron_block")))
+        .blockstate(() -> (ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/polished_heavy_iron_block")))
         .item()
         .tag(ItemTags.STAIRS)
         .build()
@@ -1779,7 +1778,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRUM.block("cut_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate((ctx, provider) -> provider.slabBlock(
+        .blockstate(() -> (ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_heavy_iron_block"),
             AnvilCraft.of("block/cut_heavy_iron_block")
@@ -1798,7 +1797,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_heavy_iron_block")))
+        .blockstate(() -> (ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_heavy_iron_block")))
         .item()
         .tag(ItemTags.STAIRS)
         .build()
@@ -1843,7 +1842,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::heavyIronWall)
         .item()
         .tag(ItemTags.WALLS)
-        .model((ctx, provide) -> provide.wallInventory("heavy_iron_wall", AnvilCraft.of("block/heavy_iron_wall")))
+        .model(() -> (ctx, provide) -> provide.wallInventory("heavy_iron_wall", AnvilCraft.of("block/heavy_iron_wall")))
         .build()
         .register();
 
@@ -1858,7 +1857,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::heavyIronDoor)
         .item()
         .tag(ItemTags.DOORS)
-        .model((ctx, prov) -> {
+        .model(() -> (ctx, prov) -> {
             prov.generated(ctx);
         })
         .build()
@@ -1876,7 +1875,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::heavyIronTrapdoor)
         .item()
         .tag(ItemTags.TRAPDOORS)
-        .model((c, p) -> {
+        .model(() -> (c, p) -> {
             p.blockItem(c, "_bottom");
         })
         .build()
@@ -2115,7 +2114,7 @@ public class ModBlocks {
                 .withPool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1.0F))
                     .add(LootItem.lootTableItem(ModBlocks.MOB_AMBER_BLOCK))
-                    .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                    .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                         .include(ModComponents.SAVED_ENTITY)));
             ctx.add(prov, builder);
         })
@@ -2136,7 +2135,7 @@ public class ModBlocks {
                 .withPool(LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1.0F))
                     .add(LootItem.lootTableItem(ModBlocks.RESENTFUL_AMBER_BLOCK))
-                    .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                    .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                         .include(ModComponents.SAVED_ENTITY)));
             ctx.add(prov, builder);
         })
@@ -2150,7 +2149,7 @@ public class ModBlocks {
             .isRedstoneConductor(ModBlocks::never)
             .isSuffocating(ModBlocks::never)
             .isViewBlocking(ModBlocks::never))
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.simpleBlock(ctx.get());
             provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName())).renderType("translucent");
         })
@@ -2168,7 +2167,7 @@ public class ModBlocks {
             .isRedstoneConductor(ModBlocks::never)
             .isSuffocating(ModBlocks::never)
             .isViewBlocking(ModBlocks::never))
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.simpleBlock(ctx.get());
             provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName())).renderType("translucent");
         })
@@ -2186,7 +2185,7 @@ public class ModBlocks {
             .isRedstoneConductor(ModBlocks::never)
             .isSuffocating(ModBlocks::never)
             .isViewBlocking(ModBlocks::never))
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.simpleBlock(ctx.get());
             provider.models().cubeAll(ctx.getName(), provider.modLoc("block/" + ctx.getName())).renderType("translucent");
         })
@@ -2234,9 +2233,13 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.SAND)
         .properties(BlockBehaviour.Properties::noOcclusion)
-        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get())
-            .partialState()
-            .addModels(new ConfiguredModel(provider.models().getExistingFile(ctx.getId().withPrefix("block/")))))
+        .blockstate(() -> (ctx, generator) -> {
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial()
+                    .generate(() -> new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")))
+                        .build()))));
+        })
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::controllableSand)
         .tag(BlockTags.MINEABLE_WITH_SHOVEL, ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)
@@ -2302,7 +2305,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CakeBlock> CAKE_BLOCK = REGISTRUM.block("cake_block", CakeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
-        .blockstate((context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/cake_block").get()))
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/cake_block")))
         .item()
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
         .build()
@@ -2311,9 +2314,9 @@ public class ModBlocks {
 
     public static final BlockEntry<BerryCakeBlock> BERRY_CAKE_BLOCK = REGISTRUM.block("berry_cake_block", BerryCakeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/berry_cake_block").get()
+            DangerUtil.genConfiguredModel("block/berry_cake_block")
         ))
         .item()
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -2326,9 +2329,9 @@ public class ModBlocks {
             ChocolateCakeBlock::new
         )
         .initialProperties(() -> Blocks.CAKE)
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/chocolate_cake_block").get()
+            DangerUtil.genConfiguredModel("block/chocolate_cake_block")
         ))
         .item()
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -2398,7 +2401,7 @@ public class ModBlocks {
         .tag(ItemTags.SLABS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/chocolate_block"), AnvilCraft.of("block/chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::chocolateSlab)
@@ -2413,7 +2416,7 @@ public class ModBlocks {
         .tag(ItemTags.SLABS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/black_chocolate_block"), AnvilCraft.of("block/black_chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::blackChocolateSlab)
@@ -2428,7 +2431,7 @@ public class ModBlocks {
         .tag(ItemTags.SLABS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/white_chocolate_block"), AnvilCraft.of("block/white_chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::whiteChocolateSlab)
@@ -2443,7 +2446,7 @@ public class ModBlocks {
         .tag(ItemTags.STAIRS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.stairsBlock(ctx.get(), AnvilCraft.of("block/chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::chocolateStairs)
@@ -2458,7 +2461,7 @@ public class ModBlocks {
         .tag(ItemTags.STAIRS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.stairsBlock(ctx.get(), AnvilCraft.of("block/black_chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::blackChocolateStairs)
@@ -2473,7 +2476,7 @@ public class ModBlocks {
         .tag(ItemTags.STAIRS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.stairsBlock(ctx.get(), AnvilCraft.of("block/white_chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::whiteChocolateStairs)
@@ -2590,9 +2593,9 @@ public class ModBlocks {
         )
         .lang("Overheated Block of Ember Metal")
         .initialProperties(ModBlocks.EMBER_METAL_BLOCK)
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/overheated_ember_metal_block").get()
+            DangerUtil.genConfiguredModel("block/overheated_ember_metal_block")
         ))
         .item(HeatableBlockItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -2807,9 +2810,9 @@ public class ModBlocks {
         .lang("Block of Void Matter")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/void_matter_block").get()
+            DangerUtil.genConfiguredModel("block/void_matter_block")
         ))
         .recipe(RegistrumBlockRecipeLoader::voidMatterBlock)
         .item()
@@ -2844,9 +2847,9 @@ public class ModBlocks {
         .block("multiphase_matter_block", Block::new)
         .lang("Block of Multiphase Matter")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
-        .blockstate((ctx, provider) -> provider.simpleBlock(
+        .blockstate(() -> (ctx, provider) -> provider.simpleBlock(
             ctx.get(),
-            DangerUtil.genConfiguredModel("block/multiphase_matter_block").get()
+            DangerUtil.genConfiguredModel("block/multiphase_matter_block")
         ))
         .item(MultiphaseMatterBlockItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -2869,9 +2872,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, Tags.Blocks.STORAGE_BLOCKS)
         .properties(properties -> properties.lightLevel(state -> 7).noOcclusion().emissiveRendering(ModBlocks::always))
-        .blockstate((context, provider) -> provider.simpleBlock(
+        .blockstate(() -> (context, provider) -> provider.simpleBlock(
             context.get(),
-            DangerUtil.genConfiguredModel("block/negative_matter_block").get()
+            DangerUtil.genConfiguredModel("block/negative_matter_block")
         ))
         .item()
         .initialProperties(Item.Properties::new)
@@ -2960,26 +2963,26 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate((ctx, provider) -> {
+            .blockstate(() -> (ctx, provider) -> {
                 provider.models()
                     .getBuilder("reinforced_concrete_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all"))
                     .texture("all", "block/reinforced_concrete_" + color);
                 provider.models()
                     .getBuilder("reinforced_concrete_top_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column"))
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_top");
                 provider.models()
                     .getBuilder("reinforced_concrete_bottom_" + color)
-                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column").get())
+                    .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_column"))
                     .texture("end", "block/reinforced_concrete_" + color)
                     .texture("side", "block/reinforced_concrete_" + color + "_bottom");
                 provider.getVariantBuilder(ctx.get())
                     .forAllStates(blockState -> switch (blockState.getValue(ReinforcedConcreteBlock.HALF)) {
-                        case TOP -> DangerUtil.genConfiguredModel("block/reinforced_concrete_top_" + color).get();
-                        case SINGLE -> DangerUtil.genConfiguredModel("block/reinforced_concrete_" + color).get();
-                        case BOTTOM -> DangerUtil.genConfiguredModel("block/reinforced_concrete_bottom_" + color).get();
+                        case TOP -> DangerUtil.genConfiguredModel("block/reinforced_concrete_top_" + color);
+                        case SINGLE -> DangerUtil.genConfiguredModel("block/reinforced_concrete_" + color);
+                        case BOTTOM -> DangerUtil.genConfiguredModel("block/reinforced_concrete_bottom_" + color);
                     });
             })
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
@@ -3002,7 +3005,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate((ctx, provider) -> provider.slabBlock(
+            .blockstate(() -> (ctx, provider) -> provider.slabBlock(
                 ctx.get(),
                 AnvilCraft.of("block/reinforced_concrete_" + color),
                 AnvilCraft.of("block/reinforced_concrete_" + color)
@@ -3032,7 +3035,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color)))
+            .blockstate(() -> (ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color)))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteStair(parent))
             .register();
@@ -3051,11 +3054,11 @@ public class ModBlocks {
         return REGISTRUM.block("reinforced_concrete_" + color + "_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .blockstate((ctx, provider) -> provider.wallBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
+            .blockstate(() -> (ctx, provider) -> provider.wallBlock(ctx.get(), AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
             .item()
-            .model((ctx, provide) -> provide.wallInventory(
+            .model(() -> (ctx, provide) -> provide.wallInventory(
                 "reinforced_concrete_" + color + "_wall",
                 AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")
             ))
@@ -3076,7 +3079,7 @@ public class ModBlocks {
     private static BlockEntry<CementCauldronBlock> registerCementCauldron(Color color) {
         return REGISTRUM.block("%s_cement_cauldron".formatted(color), p -> new CementCauldronBlock(p, color))
             .initialProperties(() -> Blocks.CAULDRON)
-            .blockstate((ctx, provider) -> {
+            .blockstate(() -> (ctx, provider) -> {
                 provider.simpleBlock(
                     ctx.get(),
                     provider.models()
@@ -3110,7 +3113,7 @@ public class ModBlocks {
                 .noCollision()
                 .strength(0.5F)
                 .pushReaction(PushReaction.DESTROY))
-            .blockstate((ctx, provider) -> provider.pressurePlateBlock(
+            .blockstate(() -> (ctx, provider) -> provider.pressurePlateBlock(
                 ctx.get(),
                 Identifier.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath())
             ))
@@ -3202,7 +3205,7 @@ public class ModBlocks {
             .stacksTo(1)
             .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
         )
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .register();
 
@@ -3219,7 +3222,7 @@ public class ModBlocks {
             .stacksTo(1)
             .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
         )
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .register();
 
@@ -3236,7 +3239,7 @@ public class ModBlocks {
             .stacksTo(1)
             .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
         )
-        .model((ctx, provider) -> provider.blockItem(ctx))
+        .model(() -> (ctx, provider) -> provider.blockItem(ctx))
         .build()
         .register();
 
@@ -3313,7 +3316,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::simple)
+        .blockstate(() -> DataGenUtil::simple)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3326,7 +3329,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::simple)
+        .blockstate(() -> DataGenUtil::simple)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3339,7 +3342,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::simple)
+        .blockstate(() -> DataGenUtil::simple)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3352,7 +3355,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::simple)
+        .blockstate(() -> DataGenUtil::simple)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3365,7 +3368,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::simple)
+        .blockstate(() -> DataGenUtil::simple)
         .item(SuperHeavyBlockItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(16))
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3379,7 +3382,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::simple)
+        .blockstate(() -> DataGenUtil::simple)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3389,7 +3392,7 @@ public class ModBlocks {
 
     public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())
-        .blockstate(DataGenUtil::simple)
+        .blockstate(() -> DataGenUtil::simple)
         .properties((properties) -> properties.pushReaction(PushReaction.BLOCK)
             .lightLevel((state) -> 15)
             .noOcclusion()
@@ -3407,32 +3410,37 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.LAPIS_BLOCK)
         .loot(SugarBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_SUGAR, Tags.Blocks.STORAGE_BLOCKS)
-        .blockstate((ctx, provider) -> {
-            BlockModelBuilder sugarBlock = provider.models().cubeAll("sugar_block", of("block/sugar_block"));
-            BlockModelBuilder sugarBlock1 = provider.models().cubeAll("sugar_block1", of("block/sugar_block_1"));
-            BlockModelBuilder sugarBlock2 = provider.models().cubeAll("sugar_block2", of("block/sugar_block_2"));
-            BlockModelBuilder sugarBlock3 = provider.models().cubeAll("sugar_block3", of("block/sugar_block_3"));
-            provider.getVariantBuilder(ctx.get())
-                .partialState()
-                .with(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.ZERO)
-                .modelForState()
-                .modelFile(sugarBlock)
-                .addModel()
-                .partialState()
-                .with(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.ONE)
-                .modelForState()
-                .modelFile(sugarBlock1)
-                .addModel()
-                .partialState()
-                .with(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.TWO)
-                .modelForState()
-                .modelFile(sugarBlock2)
-                .addModel()
-                .partialState()
-                .with(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.THREE)
-                .modelForState()
-                .modelFile(sugarBlock3)
-                .addModel();
+        .blockstate(() -> (ctx, generator) -> {
+            var sugarBlock = generator.getBuilder()
+                .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all"))
+                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block"))
+                .build(ctx.get());
+            var sugarBlock1 = generator.getBuilder()
+                .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all"))
+                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_1"))
+                .build(ctx.get());
+            var sugarBlock2 = generator.getBuilder()
+                .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all"))
+                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_2"))
+                .build(ctx.get());
+            var sugarBlock3 = generator.getBuilder()
+                .parent(DangerUtil.genUncheckedModelFile("minecraft", "block/cube_all"))
+                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_3"))
+                .build(ctx.get());
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(SugarBlock.FRAGMENTATION_DEGREE)
+                    .select(FragmentationDegree.ZERO, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(AnvilCraft.of("block/sugar_block")))
+                        .build()))
+                    .select(FragmentationDegree.ONE, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(AnvilCraft.of("block/sugar_block1")))
+                        .build()))
+                    .select(FragmentationDegree.TWO, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(AnvilCraft.of("block/sugar_block2")))
+                        .build()))
+                    .select(FragmentationDegree.THREE, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(AnvilCraft.of("block/sugar_block3")))
+                        .build()))));
         })
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_SUGAR, Tags.Items.STORAGE_BLOCKS)
@@ -3483,7 +3491,7 @@ public class ModBlocks {
 
     public static final BlockEntry<SlabBlock> CUT_FLINT_SLAB_BLOCK = REGISTRUM.block("cut_flint_slab", SlabBlock::new)
         .initialProperties(FLINT_BLOCK::get)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.slabBlock(ctx.get(), of("block/cut_flint_block"), of("block/cut_flint_block"));
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
@@ -3498,7 +3506,7 @@ public class ModBlocks {
             (properties) -> new StairBlock(FLINT_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(FLINT_BLOCK::get)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.stairsBlock(ctx.get(), of("block/cut_flint_block"));
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
@@ -3515,7 +3523,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .initialProperties(FLINT_BLOCK::get)
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
             provider.axisBlock(ctx.get(), of("block/cut_flint_pillar"), of("block/cut_flint_pillar_top"));
         })
         .recipe(RegistrumBlockRecipeLoader::cutFlintPillarBlock)
@@ -3527,49 +3535,33 @@ public class ModBlocks {
 
     public static final BlockEntry<PulseGeneratorBlock> PULSE_GENERATOR = REGISTRUM.block("pulse_generator", PulseGeneratorBlock::new)
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
-        .blockstate((ctx, provider) -> {
-            ModelFile pulseGenerator = new ModelFile.ExistingModelFile(
-                ctx.getId().withPrefix("block/"),
-                provider.models().existingFileHelper
-            );
-            ModelFile pulseGeneratorOn = new ModelFile.ExistingModelFile(
-                ctx.getId().withPrefix("block/").withSuffix("_on"),
-                provider.models().existingFileHelper
-            );
-
-            provider.getVariantBuilder(ctx.get())
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.SOUTH)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.WEST)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator, 0, 90, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.NORTH)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator, 0, 180, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.EAST)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator, 0, 270, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.SOUTH)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.WEST)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn, 0, 90, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.NORTH)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn, 0, 180, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.EAST)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn, 0, 270, false));
+        .blockstate(() -> (ctx, generator) -> {
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(PulseGeneratorBlock.FACING, PulseGeneratorBlock.POWERED)
+                    .select(Direction.SOUTH, false, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R0))
+                        .build()))
+                    .select(Direction.WEST, false, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R90))
+                        .build()))
+                    .select(Direction.NORTH, false, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R180))
+                        .build()))
+                    .select(Direction.EAST, false, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R270))
+                        .build()))
+                    .select(Direction.SOUTH, true, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/").withSuffix("_on")).withYRot(Quadrant.R0))
+                        .build()))
+                    .select(Direction.WEST, true, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/").withSuffix("_on")).withYRot(Quadrant.R90))
+                        .build()))
+                    .select(Direction.NORTH, true, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/").withSuffix("_on")).withYRot(Quadrant.R180))
+                        .build()))
+                    .select(Direction.EAST, true, new MultiVariant(WeightedList.<Variant>builder()
+                        .add(new Variant(ctx.getId().withPrefix("block/").withSuffix("_on")).withYRot(Quadrant.R270))
+                        .build()))));
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -3581,7 +3573,7 @@ public class ModBlocks {
             AdvancedComparatorBlock::new
         )
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -3599,7 +3591,7 @@ public class ModBlocks {
             .noCollision()
             .strength(0.5F)
             .pushReaction(PushReaction.DESTROY))
-        .blockstate((ctx, provider) -> provider.pressurePlateBlock(ctx.get(), Identifier.withDefaultNamespace("block/copper_block")))
+        .blockstate(() -> (ctx, provider) -> provider.pressurePlateBlock(ctx.get(), Identifier.withDefaultNamespace("block/copper_block")))
         .item()
         .tag(ModItemTags.PLATES, ModItemTags.COPPER_PLATES)
         .build()
@@ -3676,7 +3668,7 @@ public class ModBlocks {
     public static final BlockEntry<BlackHoleBlock> BLACK_HOLE = REGISTRUM.block("black_hole", BlackHoleBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
         })
         .simpleItem()
         .register();
@@ -3684,7 +3676,7 @@ public class ModBlocks {
     public static final BlockEntry<WhiteHoleBlock> WHITE_HOLE = REGISTRUM.block("white_hole", WhiteHoleBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
-        .blockstate((ctx, provider) -> {
+        .blockstate(() -> (ctx, provider) -> {
         })
         .simpleItem()
         .register();

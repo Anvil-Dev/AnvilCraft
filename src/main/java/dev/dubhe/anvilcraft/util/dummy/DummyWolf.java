@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.util.dummy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -22,7 +23,7 @@ public class DummyWolf extends Wolf {
     }
 
     @Override
-    protected AABB getAttackBoundingBox() {
+    protected AABB getAttackBoundingBox(double horizontalExpansion) {
         return new AABB(Vec3.ZERO, Vec3.ZERO);
     }
 
@@ -47,7 +48,7 @@ public class DummyWolf extends Wolf {
     }
 
     @Override
-    public boolean mayInteract(Level level, BlockPos pos) {
+    public boolean mayInteract(ServerLevel level, BlockPos pos) {
         return false;
     }
 }

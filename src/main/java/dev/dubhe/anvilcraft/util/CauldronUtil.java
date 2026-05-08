@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.Optional;
 
@@ -156,8 +155,7 @@ public class CauldronUtil {
     }
 
     /**
-     * 模仿 {@link net.neoforged.neoforge.fluids.capability.IFluidHandler#fill}方法的设定，此方法用于
-     * 向炼药锅中添加内容物。
+     * 此方法用于向炼药锅中添加内容物。
      *
      * @param level           指定的维度
      * @param pos             指定的方块位置
@@ -166,7 +164,6 @@ public class CauldronUtil {
      * @param simulate        本次添加是否为模拟（若为模拟，则不会对维度内的方块状态产生实际影响）
      * @return 成功添加的炼药锅内容物的层数
      * @apiNote 此方法会检查炼药锅内容物的合法性，若无法放入则不会添加。
-     * @see net.neoforged.neoforge.fluids.capability.IFluidHandler#fill
      */
     public static int fill(Level level, BlockPos pos, Block cauldronContent, int fillLevel, boolean simulate) {
         if (fillLevel <= 0) return 0;
@@ -181,8 +178,7 @@ public class CauldronUtil {
     }
 
     /**
-     * 模仿 {@link net.neoforged.neoforge.fluids.capability.IFluidHandler#drain(FluidStack, IFluidHandler.FluidAction)}
-     * 方法的设定，此方法用于从炼药锅中提取内容物。
+     * 此方法用于从炼药锅中提取内容物。
      *
      * @param level           指定的维度
      * @param pos             指定的方块位置
@@ -191,7 +187,6 @@ public class CauldronUtil {
      * @param simulate        本次提取是否为模拟（若为模拟，则不会对维度内的方块状态产生实际影响）
      * @return 提取到的炼药锅内容物的层数
      * @apiNote 此方法会检查炼药锅内容物的合法性，若无法提取则不会提取到内容物。
-     * @see net.neoforged.neoforge.fluids.capability.IFluidHandler#fill
      */
     public static int drain(Level level, BlockPos pos, Block cauldronContent, int drainLevel, boolean simulate) {
         if (drainLevel <= 0) return 0;

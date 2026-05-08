@@ -3,28 +3,31 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.resources.Identifier;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-
-import java.util.function.Supplier;
+import net.minecraft.util.random.WeightedList;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DangerUtil {
 
-    public static Supplier<ConfiguredModel[]> genConfiguredModel(String path) {
-        return () -> new ConfiguredModel[]{new ConfiguredModel(new ModelFile.UncheckedModelFile(AnvilCraft.of(path)))};
+    public static MultiVariant genConfiguredModel(String path) {
+        return new MultiVariant(
+            WeightedList.<Variant>builder()
+                .add(new Variant(AnvilCraft.of(path)))
+                .build()
+        );
     }
 
-    public static Supplier<ModelFile> genModModelFile(String path) {
-        return () -> new ModelFile.UncheckedModelFile(AnvilCraft.of(path));
+    public static Identifier genModModelFile(String path) {
+        return AnvilCraft.of(path);
     }
 
-    public static Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String path) {
-        return () -> new ModelFile.UncheckedModelFile(Identifier.withDefaultNamespace(path));
+    public static Identifier genUncheckedModelFile(String path) {
+        return Identifier.withDefaultNamespace(path);
     }
 
-    public static Supplier<ModelFile.UncheckedModelFile> genUncheckedModelFile(String namespace, String path) {
-        return () -> new ModelFile.UncheckedModelFile(Identifier.fromNamespaceAndPath(namespace, path));
+    public static Identifier genUncheckedModelFile(String namespace, String path) {
+        return Identifier.fromNamespaceAndPath(namespace, path);
     }
 }
