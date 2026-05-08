@@ -27,5 +27,5 @@ items:
 |                             <translate key="item.minecraft.nautilus_shell"/> | 1    |
 | [<translate key="item.anvilcraft.crab_claw"/>](../004_prop/001_crab_claw.md) | 1    |
 |                                                                       失活的珊瑚块 | 4    |
-|                                                                       失活的珊瑚块 | 1    |
+|                                                                       失活的珊瑚扇 | 1    |
 

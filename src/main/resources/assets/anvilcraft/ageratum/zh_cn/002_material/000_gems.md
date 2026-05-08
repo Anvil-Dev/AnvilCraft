@@ -37,7 +37,7 @@ items:
 
 # 熔融宝石
 
-将任意宝石块放入炼药锅进行[高温熔炼]()，即可获取装有熔融宝石的炼药锅
+将任意宝石块放入炼药锅进行[高温熔炼](../005_block/100_heater.md)，即可获取装有熔融宝石的炼药锅
 
 <recipe id="anvilcraft:super_heating/melt_gem_cauldron"/>
 
