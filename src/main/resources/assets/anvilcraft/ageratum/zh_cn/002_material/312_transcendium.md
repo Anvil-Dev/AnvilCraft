@@ -78,7 +78,7 @@ items:
 
 # 相关
 
-- [铁砧锤](../004_tool/000_anvil_hammer.md)
-- [龙杖](../004_tool/101_dragon_rod.md)
+- [铁砧锤](../005_tool/000_anvil_hammer.md)
+- [龙杖](../005_tool/101_dragon_rod.md)
 - [余烬工具](211_ember_metal.md)
-- [共振器](../004_tool/301_resonator.md)
+- [共振器](../005_tool/301_resonator.md)

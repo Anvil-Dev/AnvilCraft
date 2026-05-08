@@ -28,5 +28,5 @@ items:
 
 # 功能
 
-- 可用于制作 [<translate key="block.anvilcraft.controllable_sand"/>](../005_block/003_controllable_sand.md)
+- 可用于制作 [<translate key="block.anvilcraft.controllable_sand"/>](../004_block/003_controllable_sand.md)
 

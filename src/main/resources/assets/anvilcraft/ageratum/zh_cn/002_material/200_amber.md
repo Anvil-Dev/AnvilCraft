@@ -35,4 +35,4 @@ items:
 
 # 相关
 
-- [制作刷怪笼](../007_recipe/210_spawner.md)
+- [制作刷怪笼](../008_recipe/210_spawner.md)

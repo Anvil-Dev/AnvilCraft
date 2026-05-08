@@ -19,12 +19,12 @@ items:
 
 # 获得
 
-- 通过[<translate key="block.anvilcraft.mineral_fountain"/>](../006_struct/130_mineral_fountain.md)生产
+- 通过[<translate key="block.anvilcraft.mineral_fountain"/>](../007_struct/130_mineral_fountain.md)生产
 
 # 功能
 
 - 可用于制作[<translate key="item.anvilcraft.ember_metal_ingot"/>](211_ember_metal.md)
-- 用于[仿制盔甲纹饰锻造模板](../005_block/002_jewelcrafting_table.md)
+- 用于[仿制盔甲纹饰锻造模板](../004_block/002_jewelcrafting_table.md)
 - 用于3倍冶炼金属块
 
 <recipe id="anvilcraft:super_heating/raw/copper_ingot"/>

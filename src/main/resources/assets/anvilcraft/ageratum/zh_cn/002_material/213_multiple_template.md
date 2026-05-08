@@ -17,11 +17,11 @@ items:
 <item id="anvilcraft:eight_to_one_smithing_template"/>
 </row>
 
-用于在[余烬锻造台](../005_block/221_ember_smithing_table.md)合成装备
+用于在[余烬锻造台](../004_block/221_ember_smithing_table.md)合成装备
 
 # 合成
 
-- 使用对应数量的任意不同锻造模板，在[<translate key="block.anvilcraft.stamping_platform"/>](../006_struct/000_item_processing.md)砸合而成
+- 使用对应数量的任意不同锻造模板，在[<translate key="block.anvilcraft.stamping_platform"/>](../007_struct/000_item_processing.md)砸合而成
 
 > 包括升级装备用的锻造模板和盔甲纹饰的锻造模板皆可，多合一锻造模板也算一种锻造模板
 >

@@ -31,16 +31,16 @@ items:
 
 # 首次获取
 
-[冲压晶洞](../004_prop/003_geode.md)有概率获取模组添加的3种宝石
+[冲压晶洞](../006_prop/003_geode.md)有概率获取模组添加的3种宝石
 
 <recipe id="anvilcraft:stamping/geode_gems"/>
 
 # 熔融宝石
 
-将任意宝石块放入炼药锅进行[高温熔炼](../005_block/100_heater.md)，即可获取装有熔融宝石的炼药锅
+将任意宝石块放入炼药锅进行[高温熔炼](../004_block/100_heater.md)，即可获取装有熔融宝石的炼药锅
 
 <recipe id="anvilcraft:super_heating/melt_gem_cauldron"/>
 
 # 量产宝石
 
-拥有[<translate key="block.anvilcraft.corrupted_beacon"/>](../005_block/200_corrupted_beacon.md)后，可以[量产宝石](../007_recipe/204_gem.md)
+拥有[<translate key="block.anvilcraft.corrupted_beacon"/>](../004_block/200_corrupted_beacon.md)后，可以[量产宝石](../008_recipe/204_gem.md)

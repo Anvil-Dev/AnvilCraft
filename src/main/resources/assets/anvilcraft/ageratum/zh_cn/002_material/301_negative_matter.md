@@ -21,7 +21,7 @@ items:
 
 <recipe id="anvilcraft:anvil_collision/anvil_tier_1_and_levitation_powder_block_32"/>
 
-> [铁砧撞击合成](../005_block/215_large_electromagnet.md#铁砧撞击合成)
+> [铁砧撞击合成](../004_block/215_large_electromagnet.md#铁砧撞击合成)
 
 ---
 

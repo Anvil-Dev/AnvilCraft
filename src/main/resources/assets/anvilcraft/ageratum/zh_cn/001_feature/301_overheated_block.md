@@ -19,7 +19,7 @@ items:
 # 前置必修课：
 
 - [热能系统](../001_feature/101_heated_block.md)
-- [铁砧撞击合成](../005_block/215_large_electromagnet.md#铁砧撞击合成)
+- [铁砧撞击合成](../004_block/215_large_electromagnet.md#铁砧撞击合成)
 
 <warning>
 不看前置课程，会看不懂这章

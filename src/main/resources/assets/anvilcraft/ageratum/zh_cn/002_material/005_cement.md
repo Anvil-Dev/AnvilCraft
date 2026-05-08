@@ -20,4 +20,4 @@ items:
 
 # 功能
 
-- 可以用来[合成混凝土](../007_recipe/005_concrete.md)
+- 可以用来[合成混凝土](../008_recipe/005_concrete.md)

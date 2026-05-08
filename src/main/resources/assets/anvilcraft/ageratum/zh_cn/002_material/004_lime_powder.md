@@ -15,7 +15,7 @@ items:
 
 # 获取
 
-[高温熔炼](../005_block/100_heater.md)一些物品获得
+[高温熔炼](../004_block/100_heater.md)一些物品获得
 
 <recipe id="anvilcraft:super_heating/lime_powder/lime_powder_from_crab_claw"/>
 
@@ -25,7 +25,7 @@ items:
 |                           <translate key="block.minecraft.dripstone_block"/> | 4    |
 |                          <translate key="item.minecraft.pointed_dripstone"/> | 1    |
 |                             <translate key="item.minecraft.nautilus_shell"/> | 1    |
-| [<translate key="item.anvilcraft.crab_claw"/>](../004_prop/001_crab_claw.md) | 1    |
+| [<translate key="item.anvilcraft.crab_claw"/>](../006_prop/001_crab_claw.md) | 1    |
 |                                                                       失活的珊瑚块 | 4    |
 |                                                                       失活的珊瑚扇 | 1    |
 

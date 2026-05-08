@@ -28,6 +28,7 @@ items:
 </tip>
 
 默认的雷击转化磁铁块范围如下
+
 <structure id="../structures/lightning_convert_magnets.snbt"/>
 
 <row halign="center">

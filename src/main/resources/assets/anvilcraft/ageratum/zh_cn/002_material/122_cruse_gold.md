@@ -23,11 +23,11 @@ items:
 
 # 获取
 
-在[<translate key="block.anvilcraft.royal_grindstone"/>](../005_block/102_royal_grindstone.md)上使用金锭(块)驱除诅咒附魔或附魔惩罚以获得
+在[<translate key="block.anvilcraft.royal_grindstone"/>](../004_block/102_royal_grindstone.md)上使用金锭(块)驱除诅咒附魔或附魔惩罚以获得
 
 # 功能
 
-- 制作[<translate key="block.anvilcraft.corrupted_beacon"/>](../005_block/200_corrupted_beacon.md)
+- 制作[<translate key="block.anvilcraft.corrupted_beacon"/>](../004_block/200_corrupted_beacon.md)
 - 拿到诅咒金的猪灵会被僵尸化，死亡掉落额外的诅咒金
 
 <row halign="center" valign="center">

@@ -56,5 +56,5 @@ items:
 
 # 相关
 
-- [铁砧锤](../004_tool/000_anvil_hammer.md)
-- [龙杖](../004_tool/101_dragon_rod.md)
+- [铁砧锤](../005_tool/000_anvil_hammer.md)
+- [龙杖](../005_tool/101_dragon_rod.md)
