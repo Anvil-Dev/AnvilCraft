@@ -3,9 +3,6 @@ package dev.dubhe.anvilcraft.entity;
 import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import net.minecraft.core.HolderSet;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -22,12 +19,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -88,7 +87,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         if (i > 0 && (this.dealtDamage || this.isNoPhysics() || this.getY() <= this.level().getMinY()) && entity != null) {
             if (!this.isAcceptableReturnOwner()) {
                 if (!this.level().isClientSide() && this.pickup == AbstractArrow.Pickup.ALLOWED) {
-                    this.spawnAtLocation(this.getPickupItem(), 0.1F);
+                    this.spawnAtLocation(this.level(), this.getPickupItem(), 0.1F);
                 }
 
                 this.discard();

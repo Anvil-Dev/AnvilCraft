@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.util;
 
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -18,6 +18,11 @@ public class FullBrightLevel implements BlockAndTintGetter {
 
     public FullBrightLevel(Level delegate) {
         this.delegate = delegate;
+    }
+
+    @Override
+    public int getLightEmission(BlockPos pos) {
+        return BlockAndTintGetter.super.getLightEmission(pos);
     }
 
     @Override
@@ -67,7 +72,7 @@ public class FullBrightLevel implements BlockAndTintGetter {
     }
 
     @Override
-    public int getMinBuildHeight() {
+    public int getMinY() {
         return delegate.getMinY();
     }
 }

@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.tooltip;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
@@ -69,7 +69,7 @@ public class TooltipRenderHelper {
     /**
      * 渲染带图标的Tooltip
      *
-     * @param thiz      GuiGraphics
+     * @param thiz      GuiGraphicsExtractor
      * @param font      字体
      * @param itemStack 图标物品
      * @param lines     Tooltip内容
@@ -77,7 +77,7 @@ public class TooltipRenderHelper {
      * @param y         y坐标
      */
     public static void renderTooltipWithItemIcon(
-        GuiGraphics thiz,
+        GuiGraphicsExtractor thiz,
         Font font,
         ItemStack itemStack,
         List<Component> lines,
@@ -104,7 +104,7 @@ public class TooltipRenderHelper {
         Vector2ic vector2ic = tooltipPositioner.positionTooltip(thiz.guiWidth(), thiz.guiHeight(), x, y, width, height);
         int vx = vector2ic.x();
         int vy = vector2ic.y();
-        thiz.pose().pushPose();
+        thiz.pose().pushMatrix();
 
         int finalVy = vy;
         int finalWidth = width;
@@ -134,7 +134,7 @@ public class TooltipRenderHelper {
     }
 
     private static void renderTooltipBackground(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         int x,
         int y,
         int width,
@@ -156,7 +156,7 @@ public class TooltipRenderHelper {
     }
 
     private static void renderFrameGradient(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         int x,
         int y,
         int width,
@@ -171,21 +171,21 @@ public class TooltipRenderHelper {
         renderHorizontalLine(guiGraphics, x, y - 1 + height - 1, width, z, bottomColor);
     }
 
-    private static void renderVerticalLine(GuiGraphics guiGraphics, int x, int y, int length, int z, int color) {
+    private static void renderVerticalLine(GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int color) {
         guiGraphics.fill(x, y, x + 1, y + length, z, color);
     }
 
     private static void renderVerticalLineGradient(
-        GuiGraphics guiGraphics, int x, int y, int length, int z, int topColor, int bottomColor) {
+        GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int topColor, int bottomColor) {
         guiGraphics.fillGradient(x, y, x + 1, y + length, z, topColor, bottomColor);
     }
 
-    private static void renderHorizontalLine(GuiGraphics guiGraphics, int x, int y, int length, int z, int color) {
+    private static void renderHorizontalLine(GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int color) {
         guiGraphics.fill(x, y, x + length, y + 1, z, color);
     }
 
     private static void renderRectangle(
-        GuiGraphics guiGraphics, int x, int y, int width, int height, int z, int color) {
+        GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height, int z, int color) {
         guiGraphics.fill(x, y, x + width, y + height, z, color);
     }
 }

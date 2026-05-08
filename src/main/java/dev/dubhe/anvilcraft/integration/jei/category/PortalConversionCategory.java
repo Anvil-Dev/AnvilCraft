@@ -17,12 +17,11 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -50,7 +49,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     }
 
     @Override
-    public RecipeType<RecipeHolder<PortalConversionRecipe>> getRecipeType() {
+    public IRecipeType<RecipeHolder<PortalConversionRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.PORTAL_CONVERSION;
     }
 
