@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasDiffItems;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
@@ -86,6 +87,15 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
      */
     public List<ItemIngredientPredicate> getInputItems() {
         return Objects.requireNonNullElseGet(this.property.getInputItems(), List::of);
+    }
+
+    /**
+     * 获取差异输入物品列表
+     *
+     * @return 输入物品列表
+     */
+    public List<ItemIngredientPredicate> getDiffInputItems() {
+        return Objects.requireNonNullElseGet(this.property.getDiffInputItems(), List::of);
     }
 
     /**
@@ -449,6 +459,11 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         private List<ItemIngredientPredicate> inputItems = null;
 
         /**
+         * 差异输入物品列表
+         */
+        private List<ItemIngredientPredicate> diffInputItems = null;
+
+        /**
          * 物品输出偏移量
          */
         private Vec3 itemOutputOffset = Vec3.ZERO;
@@ -567,6 +582,29 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          */
         public Property setInputItems(ItemIngredientPredicate... inputItems) {
             return this.setInputItems(Arrays.asList(inputItems));
+        }
+
+        /**
+         * 设置差异输入物品列表
+         *
+         * @param diffInputItems 差异输入物品列表
+         *
+         * @return 属性实例
+         */
+        public Property setDiffInputItems(List<ItemIngredientPredicate> diffInputItems) {
+            this.diffInputItems = diffInputItems;
+            return this;
+        }
+
+        /**
+         * 设置差异输入物品列表（可变参数形式）
+         *
+         * @param diffInputItems 差异输入物品数组
+         *
+         * @return 属性实例
+         */
+        public Property setDiffInputItems(ItemIngredientPredicate... diffInputItems) {
+            return this.setDiffInputItems(Arrays.asList(diffInputItems));
         }
 
         /**
@@ -825,6 +863,11 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
             if (this.inputItems != null) {
                 for (ItemIngredientPredicate ingredient : this.inputItems) {
                     predicates.add(HasItemIngredient.fromPredicate(ingredient, this.itemInputOffset, this.itemInputRange));
+                }
+            }
+            if (this.diffInputItems != null) {
+                for (ItemIngredientPredicate ingredient : this.diffInputItems) {
+                    predicates.add(HasDiffItems.fromPredicate(ingredient, this.itemInputOffset, this.itemInputRange));
                 }
             }
             return predicates;

@@ -58,7 +58,6 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         this.modifySpawnerAction = modifySpawnerAction;
     }
 
-    @Contract(" -> new")
     public static Builder builder() {
         return new Builder();
     }

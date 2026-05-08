@@ -10,16 +10,11 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.advancements.criterion.DataComponentMatchers;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
@@ -49,7 +44,7 @@ public class VanillaRecipesWrap {
     public static Multimap<Item, SmeltingRecipe> smeltingRecipes;
     public static List<RecipeHolder<InWorldRecipe>> recipes;
 
-    public static List<RecipeHolder<InWorldRecipe>> init(HolderLookup.Provider registries, Collection<RecipeHolder<?>> recipes) {
+    public static List<RecipeHolder<InWorldRecipe>> init(Collection<RecipeHolder<?>> recipes) {
         VanillaRecipesWrap.shapelessRecipes = Multimaps.synchronizedSetMultimap(HashMultimap.create());
         VanillaRecipesWrap.shapedRecipes = Multimaps.synchronizedSetMultimap(HashMultimap.create());
         VanillaRecipesWrap.blastingRecipes = Multimaps.synchronizedSetMultimap(HashMultimap.create());
@@ -70,11 +65,11 @@ public class VanillaRecipesWrap {
             }
         }
         VanillaRecipesWrap.shapelessRecipes.forEach((_, recipe) -> VanillaRecipesWrap.wrap(recipe));
-        VanillaRecipesWrap.shapedRecipes.forEach((item, recipe) -> VanillaRecipesWrap.wrap(registries, recipe));
-        VanillaRecipesWrap.blastingRecipes.forEach((item, recipe) -> VanillaRecipesWrap.wrap(registries, recipe));
-        VanillaRecipesWrap.smokingRecipes.forEach((item, recipe) -> VanillaRecipesWrap.wrap(registries, recipe));
-        VanillaRecipesWrap.campfireCookingRecipes.forEach((item, recipe) -> VanillaRecipesWrap.wrap(registries, recipe));
-        VanillaRecipesWrap.smeltingRecipes.forEach((item, recipe) -> VanillaRecipesWrap.wrap(registries, recipe));
+        VanillaRecipesWrap.shapedRecipes.forEach((_, recipe) -> VanillaRecipesWrap.wrap(recipe));
+        VanillaRecipesWrap.blastingRecipes.forEach((_, recipe) -> VanillaRecipesWrap.wrap(recipe));
+        VanillaRecipesWrap.smokingRecipes.forEach((_, recipe) -> VanillaRecipesWrap.wrap(recipe));
+        VanillaRecipesWrap.campfireCookingRecipes.forEach((_, recipe) -> VanillaRecipesWrap.wrap(recipe));
+        VanillaRecipesWrap.smeltingRecipes.forEach((_, recipe) -> VanillaRecipesWrap.wrap(recipe));
         return VanillaRecipesWrap.recipes;
     }
 
@@ -94,188 +89,133 @@ public class VanillaRecipesWrap {
         for (Ingredient ingredient : ingredients) {
             if (!ingredient.equals(first)) return;
         }
-        VanillaRecipesWrap.wrapItemCompress(first, result);
+        VanillaRecipesWrap.wrapItemCompress(first, ingredients.size(), result);
     }
 
-    public static void wrap(HolderLookup.Provider registries, @Nullable ShapedRecipe recipe) {
+    public static void wrap(@Nullable ShapedRecipe recipe) {
         if (recipe == null) return;
         if (recipe.getHeight() != recipe.getWidth()) return;
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        final Ingredient first = ingredients.getFirst();
+        List<Optional<Ingredient>> ingredients = recipe.getIngredients();
+        if (ingredients.isEmpty()) return;
+        Optional<Ingredient> firstOp = ingredients.getFirst();
+        if (firstOp.isEmpty()) return;
+        Ingredient first = firstOp.get();
+        if (first.isEmpty() || first.isCustom()) return;
         if (ingredients.size() <= 1) return;
-        ItemStack result = recipe.getResultItem(registries);
+        ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
-        result = result.copy();
         if (!result.is(ModItemTags.COMPRESS_ITEM)) return;
-        for (Ingredient ingredient : ingredients) {
-            if (!ingredient.equals(first)) return;
+        for (Optional<Ingredient> ingredient : ingredients) {
+            if (!ingredient.map(i -> i.equals(first)).orElse(false)) return;
         }
-        ItemCompressRecipe.Builder builder = ItemCompressRecipe.builder();
-        ItemIngredientPredicate.Builder builder1 = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                builder1.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                builder1.of(tag);
-            }
-        }
-        builder.requires(builder1.withCount(ingredients.size()).build());
-        builder.result(result);
-        ItemCompressRecipe itemCompressRecipe = builder.buildRecipe();
-        String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        Identifier location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res));
-        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, location), itemCompressRecipe));
+        VanillaRecipesWrap.wrapItemCompress(first, ingredients.size(), result);
     }
 
-    public static void wrap(HolderLookup.Provider registries, @Nullable BlastingRecipe recipe) {
+    public static void wrap(@Nullable BlastingRecipe recipe) {
         if (recipe == null) return;
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        ItemStack result = recipe.getResultItem(registries);
+        Ingredient input = recipe.input();
+        if (input.isEmpty() || input.isCustom()) return;
+        ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
-        result = result.copy();
-        Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
         boolean boost = true;
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                if (!item.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) boost = false;
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                HolderSet.Named<Item> named = BuiltInRegistries.ITEM.getOrCreateTag(tag);
-                for (Holder<Item> holder : named) {
-                    if (!holder.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) {
-                        boost = false;
-                        break;
-                    }
-                }
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
+        for (Holder<Item> value : input.getValues()) {
+            if (value.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) continue;
+            boost = false;
+            break;
         }
-        result.setCount(result.getCount() * (boost ? 2 : 1));
-        String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        Identifier location = AnvilCraft.of("super_heating_warp_%s_2_%s".formatted(ingredient, res));
-        VanillaRecipesWrap.recipes.add(
-            new RecipeHolder<>(
-                location,
-                SuperHeatingRecipe.builder()
-                    .requires(predicateBuilder.build())
-                    .result(result)
-                    .buildRecipe()
-            )
+        SuperHeatingRecipe superHeating = SuperHeatingRecipe.builder()
+            .requires(new ItemIngredientPredicate(
+                Optional.of(input.getValues()),
+                1,
+                DataComponentMatchers.Builder.components().build()
+            ))
+            .result(result.withCount(result.count() * (boost ? 2 : 1)))
+            .buildRecipe();
+        String ingredient = VanillaRecipesWrap.process(input);
+        String res = VanillaRecipesWrap.process(result);
+        ResourceKey<Recipe<?>> key = ResourceKey.create(
+            Registries.RECIPE,
+            AnvilCraft.of("super_heating_warp_%s_2_%s".formatted(ingredient, res))
         );
+        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(key, superHeating));
     }
 
-    public static void wrap(HolderLookup.Provider registries, @Nullable SmokingRecipe recipe) {
+    public static void wrap(@Nullable SmokingRecipe recipe) {
         if (recipe == null) return;
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        ItemStack result = recipe.getResultItem(registries);
+        Ingredient input = recipe.input();
+        if (input.isEmpty() || input.isCustom()) return;
+        ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
-        result = result.copy();
-        Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
-        }
-        String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        Identifier location = AnvilCraft.of("smoking_warp_%s_2_%s".formatted(ingredient, res));
-        VanillaRecipesWrap.recipes.add(
-            new RecipeHolder<>(
-                location,
-                CookingRecipe.builder()
-                    .requires(predicateBuilder.build())
-                    .result(result)
-                    .buildRecipe()
-            )
+        CookingRecipe cooking = CookingRecipe.builder()
+            .requires(new ItemIngredientPredicate(
+                Optional.of(input.getValues()),
+                1,
+                DataComponentMatchers.Builder.components().build()
+            ))
+            .result(result)
+            .buildRecipe();
+        String ingredient = VanillaRecipesWrap.process(input);
+        String res = VanillaRecipesWrap.process(result);
+        ResourceKey<Recipe<?>> key = ResourceKey.create(
+            Registries.RECIPE,
+            AnvilCraft.of("smoking_warp_%s_2_%s".formatted(ingredient, res))
         );
+        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(key, cooking));
     }
 
-    public static void wrap(HolderLookup.Provider registries, @Nullable CampfireCookingRecipe recipe) {
+    public static void wrap(@Nullable CampfireCookingRecipe recipe) {
         if (recipe == null) return;
-        ItemStack result = recipe.getResultItem(registries);
+        ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
-        result = result.copy();
-        if (VanillaRecipesWrap.smokingRecipes.containsKey(result.getItem())) return;
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
-        }
-        String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        Identifier location = AnvilCraft.of("cooking_warp_%s_2_%s".formatted(ingredient, res));
-        VanillaRecipesWrap.recipes.add(
-            new RecipeHolder<>(
-                location,
-                CookingRecipe.builder()
-                    .requires(predicateBuilder.build())
-                    .result(result)
-                    .buildRecipe()
-            )
+        if (VanillaRecipesWrap.smokingRecipes.containsKey(result.item().value())) return;
+        Ingredient input = recipe.input();
+        if (input.isEmpty() || input.isCustom()) return;
+        CookingRecipe cooking = CookingRecipe.builder()
+            .requires(new ItemIngredientPredicate(
+                Optional.of(input.getValues()),
+                1,
+                DataComponentMatchers.Builder.components().build()
+            ))
+            .result(result)
+            .buildRecipe();
+        String ingredient = VanillaRecipesWrap.process(input);
+        String res = VanillaRecipesWrap.process(result);
+        ResourceKey<Recipe<?>> key = ResourceKey.create(
+            Registries.RECIPE,
+            AnvilCraft.of("smoking_warp_%s_2_%s".formatted(ingredient, res))
         );
+        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(key, cooking));
     }
 
-    public static void wrap(HolderLookup.Provider registries, @Nullable SmeltingRecipe recipe) {
+    public static void wrap(@Nullable SmeltingRecipe recipe) {
         if (recipe == null) return;
-        ItemStack result = recipe.getResultItem(registries);
+        ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
-        result = result.copy();
-        if (VanillaRecipesWrap.smokingRecipes.containsKey(result.getItem())) return;
-        if (VanillaRecipesWrap.blastingRecipes.containsKey(result.getItem())) return;
-        if (VanillaRecipesWrap.campfireCookingRecipes.containsKey(result.getItem())) return;
-        NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
-        }
-        String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        Identifier location = AnvilCraft.of("heating_warp_%s_2_%s".formatted(ingredient, res));
-        VanillaRecipesWrap.recipes.add(
-            new RecipeHolder<>(
-                location,
-                SuperHeatingRecipe.builder()
-                    .requires(predicateBuilder.build())
-                    .result(result)
-                    .buildRecipe()
-            )
+        if (VanillaRecipesWrap.smokingRecipes.containsKey(result.item().value())) return;
+        if (VanillaRecipesWrap.blastingRecipes.containsKey(result.item().value())) return;
+        if (VanillaRecipesWrap.campfireCookingRecipes.containsKey(result.item().value())) return;
+        Ingredient input = recipe.input();
+        if (input.isEmpty() || input.isCustom()) return;
+        SuperHeatingRecipe superHeating = SuperHeatingRecipe.builder()
+            .requires(new ItemIngredientPredicate(
+                Optional.of(input.getValues()),
+                1,
+                DataComponentMatchers.Builder.components().build()
+            ))
+            .result(result)
+            .buildRecipe();
+        String ingredient = VanillaRecipesWrap.process(input);
+        String res = VanillaRecipesWrap.process(result);
+        ResourceKey<Recipe<?>> key = ResourceKey.create(
+            Registries.RECIPE,
+            AnvilCraft.of("heating_warp_%s_2_%s".formatted(ingredient, res))
         );
+        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(key, superHeating));
     }
 
     private static void wrapUnpack(Ingredient first, ItemStackTemplate result) {
@@ -287,43 +227,46 @@ public class VanillaRecipesWrap {
             ))
             .result(result)
             .buildRecipe();
-        String ingredient = BuiltInRegistries.ITEM.getKey(first.getValues().get(0).value())
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
-        String res = result.typeHolder().getKey().identifier()
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
+        String ingredient = VanillaRecipesWrap.process(first);
+        String res = VanillaRecipesWrap.process(result);
         ResourceKey<Recipe<?>> key = ResourceKey.create(
             Registries.RECIPE,
             AnvilCraft.of("unpack_warp_%s_2_%s".formatted(ingredient, res))
         );
-        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, key), recipe));
+        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(key, recipe));
     }
 
-    private static void wrapItemCompress(Ingredient first, ItemStackTemplate result) {
+    private static void wrapItemCompress(Ingredient first, int count, ItemStackTemplate result) {
         if (!result.is(Tags.Items.STORAGE_BLOCKS) && !result.is(ModItemTags.COMPRESS_ITEM)) return;
         ItemCompressRecipe recipe = ItemCompressRecipe.builder()
             .requires(new ItemIngredientPredicate(
                 Optional.of(first.getValues()),
-                1,
+                count,
                 DataComponentMatchers.Builder.components().build()
             ))
             .result(result)
             .buildRecipe();
-        String ingredient = BuiltInRegistries.ITEM.getKey(first.getValues().get(0).value())
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
-        String res = result.typeHolder().getKey().identifier()
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
+        String ingredient = VanillaRecipesWrap.process(first);
+        String res = VanillaRecipesWrap.process(result);
         ResourceKey<Recipe<?>> key = ResourceKey.create(
             Registries.RECIPE,
             AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res))
         );
-        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, key), recipe));
+        VanillaRecipesWrap.recipes.add(new RecipeHolder<>(key, recipe));
+    }
+
+    private static String process(Ingredient ingredient) {
+        return ingredient.getValues().unwrap()
+            .map(TagKey::location, holder -> BuiltInRegistries.ITEM.getKey(holder.getFirst().value()))
+            .toShortString()
+            .replace(':', '_')
+            .replace('/', '_');
+    }
+
+    private static String process(ItemStackTemplate stack) {
+        return stack.typeHolder().getKey().identifier()
+            .toShortString()
+            .replace(':', '_')
+            .replace('/', '_');
     }
 }

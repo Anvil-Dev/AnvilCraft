@@ -46,7 +46,6 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         return this.toBlock.chance().getFloat(RecipeUtil.emptyLootContext(level));
     }
 
-    @Contract(" -> new")
     public static Builder builder() {
         return new Builder();
     }

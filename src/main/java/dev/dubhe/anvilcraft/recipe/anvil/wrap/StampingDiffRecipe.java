@@ -6,7 +6,6 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import lombok.Getter;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -14,30 +13,24 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/**
- * 冲压配方类
- *
- * <p>该配方用于在铁砧下落时冲压物品，需要在铁砧下方放置冲压平台作为触发条件</p>
- */
-@Getter
-public class StampingRecipe extends BaseStampingRecipe<StampingRecipe> {
-    public static final RecipeSerializer<StampingRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(StampingRecipe::new);
+public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
+    public static final RecipeSerializer<StampingDiffRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(StampingDiffRecipe::new);
 
     /**
-     * 构造一个冲压配方
+     * 构造一个差异冲压配方
      *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
+     * @param diffItemIngredients 差异物品原料列表
+     * @param results             结果物品列表
      */
-    public StampingRecipe(
-        List<ItemIngredientPredicate> itemIngredients,
+    public StampingDiffRecipe(
+        List<ItemIngredientPredicate> diffItemIngredients,
         List<ChanceItemStack> results
     ) {
         super(
             new Property()
                 .setItemInputOffset(new Vec3(0.0, -0.125, 0.0))
                 .setItemInputRange(new Vec3(0.75, 0.25, 0.75))
-                .setInputItems(itemIngredients)
+                .setDiffInputItems(diffItemIngredients)
                 .setItemOutputOffset(new Vec3(0.0, -0.375, 0.0))
                 .setResultItems(results)
                 .setBlockInputOffset(new Vec3i(0, -1, 0))
@@ -50,13 +43,13 @@ public class StampingRecipe extends BaseStampingRecipe<StampingRecipe> {
     }
 
     @Override
-    public RecipeType<StampingRecipe> getType() {
-        return ModRecipeTypes.STAMPING.get();
+    public RecipeType<StampingDiffRecipe> getType() {
+        return ModRecipeTypes.STAMPING_DIFF.get();
     }
 
     @Override
-    public RecipeSerializer<StampingRecipe> getSerializer() {
-        return ModRecipeSerializers.STAMPING.get();
+    public RecipeSerializer<StampingDiffRecipe> getSerializer() {
+        return ModRecipeSerializers.STAMPING_DIFF.get();
     }
 
     /**
@@ -68,23 +61,20 @@ public class StampingRecipe extends BaseStampingRecipe<StampingRecipe> {
         return new Builder();
     }
 
-    /**
-     * 冲压配方构建器
-     */
-    public static class Builder extends SimpleAbstractBuilder<StampingRecipe, Builder> {
+    public static class Builder extends SimpleAbstractBuilder<StampingDiffRecipe, Builder> {
         @Override
-        public String getType() {
-            return "stamping";
-        }
-
-        @Override
-        protected StampingRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new StampingRecipe(itemIngredients, results);
+        protected StampingDiffRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
+            return new StampingDiffRecipe(itemIngredients, results);
         }
 
         @Override
         protected Builder getThis() {
             return this;
+        }
+
+        @Override
+        public String getType() {
+            return "stamping_diff";
         }
     }
 }

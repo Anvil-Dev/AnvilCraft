@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
@@ -19,6 +20,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeInput;
@@ -27,21 +29,33 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.conditions.ICondition;
-import org.jetbrains.annotations.Contract;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
+    public static final RecipeSerializer<JewelCraftingRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(ins -> ins.group(
+            ICondition.LIST_CODEC
+                .optionalFieldOf("neoforge:conditions", new ArrayList<>())
+                .forGetter(JewelCraftingRecipe::getConditions),
+            CodecUtil.createIngredientListCodec("ingredients", 256, "jewel_crafting")
+                .forGetter(JewelCraftingRecipe::getIngredients),
+            ItemStackTemplate.CODEC
+                .fieldOf("result")
+                .forGetter(JewelCraftingRecipe::getResult)
+        ).apply(ins, JewelCraftingRecipe::new)),
+        StreamCodec.of(Serializer::encode, Serializer::decode)
+    );
     public final List<ICondition> conditions;
     public final NonNullList<Ingredient> ingredients;
-    public final ItemStack result;
+    public final ItemStackTemplate result;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public Input cache;
     public int cacheTimes;
 
-    public JewelCraftingRecipe(List<ICondition> conditions, NonNullList<Ingredient> ingredients, ItemStack result) {
+    public JewelCraftingRecipe(List<ICondition> conditions, NonNullList<Ingredient> ingredients, ItemStackTemplate result) {
         this.conditions = conditions;
         this.ingredients = ingredients;
         this.result = result;
@@ -51,34 +65,23 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
     }
 
-    @Contract(" -> new")
     public static Builder builder() {
         return new Builder();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<JewelCraftingRecipe> getType() {
         return ModRecipeTypes.JEWEL_CRAFTING.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.JEWEL_CRAFTING_SERIALIZER.get();
+    public RecipeSerializer<JewelCraftingRecipe> getSerializer() {
+        return ModRecipeSerializers.JEWEL_CRAFTING.get();
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return true;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result;
-    }
-
-    @Override
-    public ItemStack assemble(Input input, HolderLookup.Provider registries) {
-        return result.copy();
+    public ItemStack assemble(Input input) {
+        return this.result.create();
     }
 
     @Override
@@ -110,46 +113,20 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
     }
 
-    public static class Serializer implements RecipeSerializer<JewelCraftingRecipe> {
-
-        private static final MapCodec<JewelCraftingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            ICondition.LIST_CODEC
-                .optionalFieldOf("neoforge:conditions", new ArrayList<>())
-                .forGetter(JewelCraftingRecipe::getConditions),
-            CodecUtil.createIngredientListCodec("ingredients", 256, "jewel_crafting")
-                .forGetter(JewelCraftingRecipe::getIngredients),
-            ItemStack.CODEC
-                .fieldOf("result")
-                .forGetter(JewelCraftingRecipe::getResult)
-        ).apply(ins, JewelCraftingRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> STREAM_CODEC = StreamCodec.of(
-            Serializer::encode, Serializer::decode
-        );
-
-        @Override
-        public MapCodec<JewelCraftingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
+    public static class Serializer {
         private static void encode(RegistryFriendlyByteBuf buf, JewelCraftingRecipe recipe) {
             buf.writeVarInt(recipe.ingredients.size());
             for (Ingredient ingredient : recipe.ingredients) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
-            ItemStack.STREAM_CODEC.encode(buf, recipe.result);
+            ItemStackTemplate.STREAM_CODEC.encode(buf, recipe.result);
         }
 
         private static JewelCraftingRecipe decode(RegistryFriendlyByteBuf buf) {
             int size = buf.readVarInt();
-            NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
-            ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
+            NonNullList<Ingredient> ingredients = NonNullList.withSize(size, null);
+            ingredients.replaceAll(_ -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
+            ItemStackTemplate result = ItemStackTemplate.STREAM_CODEC.decode(buf);
             return new JewelCraftingRecipe(new ArrayList<>(), ingredients, result);
         }
     }

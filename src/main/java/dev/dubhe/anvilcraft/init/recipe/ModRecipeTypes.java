@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
@@ -20,6 +19,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
@@ -50,9 +50,7 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<BlockSmearRecipe>> BLOCK_SMEAR = registerType("block_smear");
     public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCompressRecipe>> ITEM_COMPRESS = registerType("item_compress");
     public static final DeferredHolder<RecipeType<?>, RecipeType<StampingRecipe>> STAMPING = registerType("stamping");
-    public static final DeferredHolder<RecipeType<?>, RecipeType<StampingUniqueItemsRecipe>> STAMPING_UNIQUE_ITEMS = registerType(
-        "stamping_unique_items"
-    );
+    public static final DeferredHolder<RecipeType<?>, RecipeType<StampingDiffRecipe>> STAMPING_DIFF = registerType("stamping_diff");
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<SuperHeatingRecipe>> SUPER_HEATING = registerType("super_heating");
     public static final DeferredHolder<RecipeType<?>, RecipeType<ItemInjectRecipe>> ITEM_INJECT = registerType("item_inject");

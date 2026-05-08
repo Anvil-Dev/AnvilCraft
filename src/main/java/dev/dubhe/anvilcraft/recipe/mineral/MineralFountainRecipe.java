@@ -37,7 +37,6 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
         this.toBlock = toBlock;
     }
 
-    @Contract(" -> new")
     public static Builder builder() {
         return new Builder();
     }

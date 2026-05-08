@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.input.ItemProcessInput;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
@@ -38,7 +37,7 @@ public class ItemStampingBehavior implements IAnvilBehavior {
         AnvilEvent.OnLand event
     ) {
         return ItemStampingBehavior.itemProcess(
-            ModRecipeTypes.STAMPING_UNIQUE_ITEMS.get(),
+            ModRecipeTypes.STAMPING_DIFF.get(),
             level,
             hitBlockPos,
             hitBlockPos.getCenter().add(0, 0.25, 0)

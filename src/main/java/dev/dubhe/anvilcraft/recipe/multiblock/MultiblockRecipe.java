@@ -50,7 +50,6 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         this.result = result;
     }
 
-    @Contract(" -> new")
     public static MultiblockBuilder builder() {
         return new MultiblockBuilder();
     }

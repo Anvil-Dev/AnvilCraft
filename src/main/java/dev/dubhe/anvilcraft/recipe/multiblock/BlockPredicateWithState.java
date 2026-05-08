@@ -99,12 +99,10 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         return (T) properties.getOrDefault(property, null);
     }
 
-    @Contract("_ -> new")
     public static BlockPredicateWithState of(Block block) {
         return new BlockPredicateWithState(block);
     }
 
-    @Contract("_ -> new")
     public static BlockPredicateWithState of(Holder<Block> block) {
         return of(block.value());
     }

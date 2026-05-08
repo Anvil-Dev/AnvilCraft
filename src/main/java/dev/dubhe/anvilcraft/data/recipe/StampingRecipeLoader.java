@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -102,15 +102,15 @@ public class StampingRecipeLoader {
             .result(Items.SHULKER_BOX)
             .save(provider, AnvilCraft.of("stamping/shulker_box_from_supercritical_nesting_shulker_box"));
 
-        StampingUniqueItemsRecipe.builderUnique()
+        StampingDiffRecipe.builder()
             .requires(ModItemTags.TEMPLATES, 2)
             .result(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
-        StampingUniqueItemsRecipe.builderUnique()
+        StampingDiffRecipe.builder()
             .requires(ModItemTags.TEMPLATES, 4)
             .result(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
-        StampingUniqueItemsRecipe.builderUnique()
+        StampingDiffRecipe.builder()
             .requires(ModItemTags.TEMPLATES, 8)
             .result(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);

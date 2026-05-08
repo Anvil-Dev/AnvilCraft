@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
@@ -22,6 +21,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
@@ -77,9 +77,9 @@ public class ModRecipeSerializers {
         "stamping",
         () -> StampingRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingUniqueItemsRecipe>> STAMPING_UNIQUE_ITEMS = DF.register(
-        "stamping_unique_items",
-        () -> StampingUniqueItemsRecipe.SERIALIZER
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<StampingDiffRecipe>> STAMPING_DIFF = DF.register(
+        "stamping_diff",
+        () -> StampingDiffRecipe.SERIALIZER
     );
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SuperHeatingRecipe>> SUPER_HEATING = DF.register(
         "super_heating",

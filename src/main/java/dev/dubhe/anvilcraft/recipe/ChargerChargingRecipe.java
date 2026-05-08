@@ -43,7 +43,6 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         this.time = time;
     }
 
-    @Contract(" -> new")
     public static ChargerChargingRecipe.Builder builder() {
         return new ChargerChargingRecipe.Builder();
     }

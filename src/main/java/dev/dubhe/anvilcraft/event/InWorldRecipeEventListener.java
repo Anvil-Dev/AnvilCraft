@@ -26,10 +26,8 @@ public class InWorldRecipeEventListener {
     @SubscribeEvent
     public static void inWorldRecipe(InWorldRecipeManagerEvent.Init event) {
         RecipeManager manager = event.getRecipeManager();
-        List<RecipeHolder<InWorldRecipe>> init = VanillaRecipesWrap.init(
-            manager.anvillib$getRegistries(),
-            manager.getRecipes()
-        );
+        List<RecipeHolder<InWorldRecipe>> init = VanillaRecipesWrap.init(manager.getRecipes());
+        // noinspection deprecation
         new MeshRecipeGeneratingCache(manager.anvillib$getRegistries())
             .buildRecipes()
             .ifPresent(recipeHolders -> {

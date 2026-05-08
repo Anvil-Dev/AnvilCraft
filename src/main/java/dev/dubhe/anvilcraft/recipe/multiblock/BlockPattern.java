@@ -55,7 +55,6 @@ public class BlockPattern {
         symbols = new HashMap<>();
     }
 
-    @Contract(" -> new")
     public static BlockPattern create() {
         return new BlockPattern();
     }
