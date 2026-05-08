@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.enchantment.FellingEffect;
 import dev.dubhe.anvilcraft.enchantment.HarvestLeftClickEffect;
 import dev.dubhe.anvilcraft.enchantment.HarvestRightClickEffect;
 import dev.dubhe.anvilcraft.enchantment.InRangeModifyEffect;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -59,7 +59,7 @@ public class ModEnchantments {
                 new FellingEffect(5),
                 MatchTool.toolMatches(
                     ItemPredicate.Builder.item()
-                        .of(ItemTags.AXES)
+                        .of(itemHolderGetter, ItemTags.AXES)
                 )
             )
         );
@@ -79,11 +79,11 @@ public class ModEnchantments {
             ).withEffect(
                 ModEnchantmentEffectComponents.USE_ON_BLOCK,
                 new HarvestRightClickEffect(5),
-                MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.HOES))
+                MatchTool.toolMatches(ItemPredicate.Builder.item().of(itemHolderGetter, ItemTags.HOES))
             ).withEffect(
                 ModEnchantmentEffectComponents.POST_BREAK_BLOCK,
                 new HarvestLeftClickEffect(5),
-                MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.HOES))
+                MatchTool.toolMatches(ItemPredicate.Builder.item().of(itemHolderGetter, ItemTags.HOES))
             )
         );
         register(
@@ -150,6 +150,6 @@ public class ModEnchantments {
 
     public static void register(
         BootstrapContext<Enchantment> context, ResourceKey<Enchantment> key, Enchantment.Builder builder) {
-        context.register(key, builder.build(key.location()));
+        context.register(key, builder.build(key.identifier()));
     }
 }

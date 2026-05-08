@@ -4,8 +4,9 @@ import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.loot.functions.CurseLootItemFunction;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.NbtPredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.NbtPredicate;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
@@ -39,19 +40,19 @@ public class LootTableEventListener {
     public static void lootTable(LootTableLoadEvent event) {
         Identifier id = event.getName();
         LootTable table = event.getTable();
-        if (Blocks.BUDDING_AMETHYST.getLootTable().location().equals(id)) {
+        if (Blocks.BUDDING_AMETHYST.getLootTable().orElseThrow().identifier().equals(id)) {
             table.addPool(new LootPool.Builder()
                 .add(LootItem.lootTableItem(ModItems.GEODE))
                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                 .build());
         }
-        if (BuiltInLootTables.SPAWN_BONUS_CHEST.location().equals(id)) {
+        if (BuiltInLootTables.SPAWN_BONUS_CHEST.identifier().equals(id)) {
             table.addPool(new LootPool.Builder()
                 .add(LootItem.lootTableItem(ModItems.GEODE))
                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6)))
                 .build());
         }
-        if (BuiltInLootTables.VILLAGE_WEAPONSMITH.location().equals(id)) {
+        if (BuiltInLootTables.VILLAGE_WEAPONSMITH.identifier().equals(id)) {
             table.addPool(LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
                 .add(LootItem.lootTableItem(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
@@ -65,7 +66,7 @@ public class LootTableEventListener {
                     .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 5))))
                 .build());
         }
-        if (EntityType.ZOMBIFIED_PIGLIN.getDefaultLootTable().location().equals(id)) {
+        if (EntityType.ZOMBIFIED_PIGLIN.getDefaultLootTable().orElseThrow().identifier().equals(id)) {
             CompoundTag cursedTag = new CompoundTag();
             cursedTag.putBoolean("anvilcraft:zombificated_by_curse", true);
             CompoundTag attachmentTag = new CompoundTag();
@@ -74,7 +75,7 @@ public class LootTableEventListener {
                 LootItemEntityPropertyCondition.hasProperties(
                     LootContext.EntityTarget.THIS,
                     EntityPredicate.Builder.entity()
-                        .of(EntityType.ZOMBIFIED_PIGLIN)
+                        .of(event.getRegistries().lookupOrThrow(Registries.ENTITY_TYPE), EntityType.ZOMBIFIED_PIGLIN)
                         .nbt(new NbtPredicate(attachmentTag))
                         .build()
                 ).build()
