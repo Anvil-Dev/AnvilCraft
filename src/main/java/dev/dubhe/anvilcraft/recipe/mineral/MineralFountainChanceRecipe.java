@@ -5,33 +5,58 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.Contract;
 
 @Getter
 public class MineralFountainChanceRecipe implements Recipe<MineralFountainChanceRecipe.Input> {
+    private static final MapCodec<MineralFountainChanceRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        Identifier.CODEC
+            .fieldOf("dimension")
+            .forGetter(MineralFountainChanceRecipe::getDimension),
+        BlockStatePredicate.CODEC
+            .fieldOf("from_block")
+            .forGetter(MineralFountainChanceRecipe::getFromBlock),
+        ChanceBlockState.CODEC
+            .fieldOf("to_block")
+            .forGetter(MineralFountainChanceRecipe::getToBlock)
+    ).apply(ins, MineralFountainChanceRecipe::new));
+    private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainChanceRecipe> STREAM_CODEC = StreamCodec.composite(
+        Identifier.STREAM_CODEC,
+        MineralFountainChanceRecipe::getDimension,
+        BlockStatePredicate.STREAM_CODEC,
+        MineralFountainChanceRecipe::getFromBlock,
+        ChanceBlockState.STREAM_CODEC,
+        MineralFountainChanceRecipe::getToBlock,
+        MineralFountainChanceRecipe::new
+    );
+    public static final RecipeSerializer<MineralFountainChanceRecipe> SERIALIZER = new RecipeSerializer<>(
+        MineralFountainChanceRecipe.CODEC,
+        MineralFountainChanceRecipe.STREAM_CODEC
+    );
     private final Identifier dimension;
     private final BlockStatePredicate fromBlock;
     private final ChanceBlockState toBlock;
@@ -51,29 +76,27 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<MineralFountainChanceRecipe> getType() {
         return ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE_SERIALIZER.get();
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return true;
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override
-    public ItemStack assemble(Input input, HolderLookup.Provider provider) {
-        return this.toBlock.state().getBlock().asItem() == Items.AIR
-               ? ItemStack.EMPTY
-               : new ItemStack(this.fromBlock.getStatesCache().getFirst().getBlock());
+    public RecipeSerializer<MineralFountainChanceRecipe> getSerializer() {
+        return ModRecipeSerializers.MINERAL_FOUNTAIN_CHANCE.get();
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
+    public ItemStack assemble(Input input) {
         return this.toBlock.state().getBlock().asItem() == Items.AIR
                ? ItemStack.EMPTY
                : new ItemStack(this.fromBlock.getStatesCache().getFirst().getBlock());
@@ -87,6 +110,16 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
     @Override
     public boolean isSpecial() {
         return true;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "mineral_fountain_chance";
     }
 
     public record Input(Identifier dimension, Block fromBlock) implements RecipeInput {
@@ -103,42 +136,6 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         @Override
         public boolean isEmpty() {
             return false;
-        }
-    }
-
-    public static class Serializer implements RecipeSerializer<MineralFountainChanceRecipe> {
-        private static final MapCodec<MineralFountainChanceRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                Identifier.CODEC
-                    .fieldOf("dimension")
-                    .forGetter(MineralFountainChanceRecipe::getDimension),
-                BlockStatePredicate.CODEC
-                    .fieldOf("from_block")
-                    .forGetter(MineralFountainChanceRecipe::getFromBlock),
-                ChanceBlockState.CODEC
-                    .fieldOf("to_block")
-                    .forGetter(MineralFountainChanceRecipe::getToBlock)
-            )
-            .apply(ins, MineralFountainChanceRecipe::new));
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainChanceRecipe> STREAM_CODEC =
-            StreamCodec.composite(
-                Identifier.STREAM_CODEC,
-                MineralFountainChanceRecipe::getDimension,
-                BlockStatePredicate.STREAM_CODEC,
-                MineralFountainChanceRecipe::getFromBlock,
-                ChanceBlockState.STREAM_CODEC,
-                MineralFountainChanceRecipe::getToBlock,
-                MineralFountainChanceRecipe::new
-            );
-
-        @Override
-        public MapCodec<MineralFountainChanceRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MineralFountainChanceRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
         }
     }
 
@@ -200,7 +197,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         public void save(RecipeOutput recipeOutput) {
             save(
                 recipeOutput,
-                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
+                AnvilCraft.of(getResult().typeHolder().getKey().identifier().getPath())
                     .withPrefix(getType() + "/")
                     .withSuffix("_from_" + this.dimension.getPath())
             );
@@ -225,8 +222,8 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         }
 
         @Override
-        public Item getResult() {
-            return this.toBlock.state().getBlock().asItem();
+        public ItemStackTemplate getResult() {
+            return new ItemStackTemplate(this.toBlock.state().getBlock().asItem());
         }
     }
 }

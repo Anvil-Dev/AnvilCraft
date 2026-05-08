@@ -1,18 +1,17 @@
 package dev.dubhe.anvilcraft.recipe.anvil.collision;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,7 +19,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -51,12 +54,38 @@ public record AnvilCollisionCraftRecipe(
     List<ChanceItemStack> outputItems,
     int speed
 ) implements Recipe<AnvilCollisionCraftRecipe.Input> {
+    public static final RecipeSerializer<AnvilCollisionCraftRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(it -> it.group(
+            BlockStatePredicate.CODEC
+                .fieldOf("anvil")
+                .forGetter(AnvilCollisionCraftRecipe::anvil),
+            Codec.BOOL
+                .fieldOf("consume")
+                .forGetter(AnvilCollisionCraftRecipe::consume),
+            BlockStatePredicate.CODEC
+                .fieldOf("hitBlock")
+                .forGetter(AnvilCollisionCraftRecipe::hitBlock),
+            BlockTransform.CODEC
+                .listOf()
+                .fieldOf("transform_blocks")
+                .forGetter(AnvilCollisionCraftRecipe::transformBlocks),
+            ChanceItemStack.CODEC
+                .listOf()
+                .fieldOf("output_items")
+                .forGetter(AnvilCollisionCraftRecipe::outputItems),
+            Codec.INT
+                .fieldOf("speed")
+                .forGetter(AnvilCollisionCraftRecipe::speed)
+        ).apply(it, AnvilCollisionCraftRecipe::new)),
+        StreamCodec.of(AnvilCollisionCraftRecipe.Serializer::encode, AnvilCollisionCraftRecipe.Serializer::decode)
+    );
 
     /**
      * 判断配方是否匹配给定的输入和世界
      *
      * @param input 输入
      * @param level 世界
+     *
      * @return 是否匹配
      */
     @Override
@@ -67,50 +96,13 @@ public record AnvilCollisionCraftRecipe(
     /**
      * 组装配方结果
      *
-     * @param input    输入
-     * @param provider 数据提供器
+     * @param input 输入
+     *
      * @return 配方结果物品堆
      */
     @Override
-    public ItemStack assemble(Input input, HolderLookup.Provider provider) {
+    public ItemStack assemble(Input input) {
         return ItemStack.EMPTY;
-    }
-
-    /**
-     * 判断配方是否可以在指定尺寸的工作台中制作
-     *
-     * @param i  宽度
-     * @param i1 高度
-     * @return 是否可以制作
-     */
-    @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return false;
-    }
-
-    /**
-     * 获取配方结果物品堆
-     *
-     * @param provider 数据提供器
-     * @return 配方结果物品堆
-     */
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        if (!this.outputItems.isEmpty()) return this.outputItems.getFirst().stack();
-        if (!this.transformBlocks.isEmpty()) {
-            return new ItemStack(this.transformBlocks.getFirst().outputBlock().state().getBlock().asItem());
-        }
-        return ItemStack.EMPTY;
-    }
-
-    /**
-     * 获取配方序列化器
-     *
-     * @return 配方序列化器
-     */
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.ANVIL_COLLISION_CRAFT_SERIALIZER.get();
     }
 
     /**
@@ -119,8 +111,28 @@ public record AnvilCollisionCraftRecipe(
      * @return 配方类型
      */
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<AnvilCollisionCraftRecipe> getType() {
         return ModRecipeTypes.ANVIL_COLLISION_CRAFT.get();
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    /**
+     * 获取配方序列化器
+     *
+     * @return 配方序列化器
+     */
+    @Override
+    public RecipeSerializer<AnvilCollisionCraftRecipe> getSerializer() {
+        return ModRecipeSerializers.ANVIL_COLLISION_CRAFT.get();
     }
 
     /**
@@ -131,6 +143,16 @@ public record AnvilCollisionCraftRecipe(
     @Override
     public boolean isSpecial() {
         return true;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "anvil_collision_craft";
     }
 
     /**
@@ -145,6 +167,7 @@ public record AnvilCollisionCraftRecipe(
          * 获取指定索引的物品堆
          *
          * @param index 索引
+         *
          * @return 物品堆
          */
         @Override
@@ -166,47 +189,7 @@ public record AnvilCollisionCraftRecipe(
     /**
      * 铁砧碰撞工艺配方序列化器类
      */
-    public static class Serializer implements RecipeSerializer<AnvilCollisionCraftRecipe> {
-
-        /**
-         * Map编解码器
-         */
-        private static final MapCodec<AnvilCollisionCraftRecipe> CODEC = RecordCodecBuilder.mapCodec(it -> it.group(
-            BlockStatePredicate.CODEC.fieldOf("anvil").forGetter(AnvilCollisionCraftRecipe::anvil),
-            Codec.BOOL.fieldOf("consume").forGetter(AnvilCollisionCraftRecipe::consume),
-            BlockStatePredicate.CODEC.fieldOf("hitBlock").forGetter(AnvilCollisionCraftRecipe::hitBlock),
-            BlockTransform.CODEC.listOf().fieldOf("transform_blocks").forGetter(AnvilCollisionCraftRecipe::transformBlocks),
-            ChanceItemStack.CODEC.listOf().fieldOf("output_items").forGetter(AnvilCollisionCraftRecipe::outputItems),
-            Codec.INT.fieldOf("speed").forGetter(AnvilCollisionCraftRecipe::speed)
-        ).apply(it, AnvilCollisionCraftRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        public static final StreamCodec<RegistryFriendlyByteBuf, AnvilCollisionCraftRecipe> STREAM_CODEC = StreamCodec.of(
-            AnvilCollisionCraftRecipe.Serializer::encode, AnvilCollisionCraftRecipe.Serializer::decode
-        );
-
-        /**
-         * 获取Map编解码器
-         *
-         * @return Map编解码器
-         */
-        @Override
-        public MapCodec<AnvilCollisionCraftRecipe> codec() {
-            return CODEC;
-        }
-
-        /**
-         * 获取流编解码器
-         *
-         * @return 流编解码器
-         */
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, AnvilCollisionCraftRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-
+    public static class Serializer {
         /**
          * 编码配方到字节缓冲区
          *
@@ -226,6 +209,7 @@ public record AnvilCollisionCraftRecipe(
          * 从字节缓冲区解码配方
          *
          * @param buf 字节缓冲区
+         *
          * @return 配方
          */
         private static AnvilCollisionCraftRecipe decode(RegistryFriendlyByteBuf buf) {
@@ -260,6 +244,7 @@ public record AnvilCollisionCraftRecipe(
          * @param buf        字节缓冲区
          * @param steamCodec 流编解码器
          * @param <T>        列表元素类型
+         *
          * @return 列表
          */
         private static <T> List<T> readList(RegistryFriendlyByteBuf buf, StreamCodec<RegistryFriendlyByteBuf, T> steamCodec) {
@@ -310,6 +295,7 @@ public record AnvilCollisionCraftRecipe(
          * 设置铁砧方块
          *
          * @param anvil 铁砧方块
+         *
          * @return 构建器实例
          */
         public Builder anvil(Block anvil) {
@@ -321,6 +307,7 @@ public record AnvilCollisionCraftRecipe(
          * 设置铁砧方块标签
          *
          * @param anvil 铁砧方块标签
+         *
          * @return 构建器实例
          */
         public Builder anvil(TagKey<Block> anvil) {
@@ -332,6 +319,7 @@ public record AnvilCollisionCraftRecipe(
          * 设置是否消耗铁砧
          *
          * @param consume 是否消耗铁砧
+         *
          * @return 构建器实例
          */
         public Builder consume(boolean consume) {
@@ -343,6 +331,7 @@ public record AnvilCollisionCraftRecipe(
          * 设置碰撞的方块
          *
          * @param hitBlock 碰撞的方块
+         *
          * @return 构建器实例
          */
         public Builder hitBlock(BlockStatePredicate hitBlock) {
@@ -354,6 +343,7 @@ public record AnvilCollisionCraftRecipe(
          * 设置碰撞的方块标签
          *
          * @param blockTagKey 方块标签
+         *
          * @return 构建器实例
          */
         public Builder hitBlock(TagKey<Block> blockTagKey) {
@@ -365,6 +355,7 @@ public record AnvilCollisionCraftRecipe(
          *
          * @param block  方块
          * @param states 方块状态
+         *
          * @return 构建器实例
          */
         public Builder hitBlock(Block block, Map<String, String> states) {
@@ -375,6 +366,7 @@ public record AnvilCollisionCraftRecipe(
          * 设置碰撞的方块
          *
          * @param block 方块
+         *
          * @return 构建器实例
          */
         public Builder hitBlock(Block block) {
@@ -387,6 +379,7 @@ public record AnvilCollisionCraftRecipe(
          * @param inputBlock  输入方块
          * @param outputBlock 输出方块
          * @param maxCount    最大数量
+         *
          * @return 构建器实例
          */
         public Builder transformBlock(
@@ -402,6 +395,7 @@ public record AnvilCollisionCraftRecipe(
          * 添加输出物品
          *
          * @param outputItem 输出物品
+         *
          * @return 构建器实例
          */
         public Builder outputItem(ChanceItemStack outputItem) {
@@ -415,10 +409,11 @@ public record AnvilCollisionCraftRecipe(
          * @param item   物品
          * @param count  数量
          * @param chance 概率
+         *
          * @return 构建器实例
          */
         public Builder outputItem(Item item, int count, float chance) {
-            return outputItem(ChanceItemStack.of(new ItemStack(item, count), chance));
+            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, count), chance));
         }
 
         /**
@@ -426,10 +421,11 @@ public record AnvilCollisionCraftRecipe(
          *
          * @param item  物品
          * @param count 数量
+         *
          * @return 构建器实例
          */
         public Builder outputItem(Item item, int count) {
-            return outputItem(ChanceItemStack.of(new ItemStack(item, count), 1F));
+            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, count), 1F));
         }
 
         /**
@@ -437,20 +433,22 @@ public record AnvilCollisionCraftRecipe(
          *
          * @param item   物品
          * @param chance 概率
+         *
          * @return 构建器实例
          */
         public Builder outputItem(Item item, float chance) {
-            return outputItem(ChanceItemStack.of(new ItemStack(item, 1), chance));
+            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, 1), chance));
         }
 
         /**
          * 添加输出物品
          *
          * @param item 物品
+         *
          * @return 构建器实例
          */
         public Builder outputItem(Item item) {
-            return outputItem(ChanceItemStack.of(new ItemStack(item, 1), 1F));
+            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, 1), 1F));
         }
 
         public Builder speed(int speed) {
@@ -464,11 +462,11 @@ public record AnvilCollisionCraftRecipe(
          * @return 配方结果物品
          */
         @Override
-        public Item getResult() {
+        public ItemStackTemplate getResult() {
             if (anvil.getStatesCache().isEmpty()) {
-                return Blocks.ANVIL.asItem();
+                return new ItemStackTemplate(Blocks.ANVIL.asItem());
             }
-            return anvil.getStatesCache().getFirst().getBlock().asItem();
+            return new ItemStackTemplate(this.anvil.getStatesCache().getFirst().getBlock().asItem());
         }
 
         /**

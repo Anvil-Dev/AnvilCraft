@@ -5,8 +5,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -14,18 +15,25 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.commands.data.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -40,8 +48,28 @@ public record MobTransformRecipe(
     List<TagModification> tagModifications,
     List<TransformOptions> options
 ) implements Recipe<MobTransformInput> {
-    public static final Codec<MobTransformRecipe> CODEC = Serializer.MAP_CODEC.codec();
-
+    public static final MapCodec<MobTransformRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        CodecUtil.ENTITY
+            .fieldOf("input")
+            .forGetter(MobTransformRecipe::input),
+        TransformResult.CODEC
+            .listOf()
+            .fieldOf("results")
+            .forGetter(MobTransformRecipe::results),
+        NumericTagValuePredicate.CODEC
+            .listOf()
+            .optionalFieldOf("tag_predicates", List.of())
+            .forGetter(MobTransformRecipe::predicates),
+        TagModification.CODEC
+            .listOf()
+            .optionalFieldOf("tag_modifications", List.of())
+            .forGetter(MobTransformRecipe::tagModifications),
+        TransformOptions.CODEC
+            .listOf()
+            .optionalFieldOf("transform_options", List.of())
+            .forGetter(MobTransformRecipe::options)
+    ).apply(ins, MobTransformRecipe::new));
+    public static final Codec<MobTransformRecipe> CODEC = MobTransformRecipe.MAP_CODEC.codec();
     public static final StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> STREAM_CODEC = StreamCodec.composite(
         StreamCodecUtil.ENTITY,
         MobTransformRecipe::input,
@@ -55,6 +83,10 @@ public record MobTransformRecipe(
         MobTransformRecipe::options,
         MobTransformRecipe::new
     );
+    public static final RecipeSerializer<MobTransformRecipe> SERIALIZER = new RecipeSerializer<>(
+        MobTransformRecipe.MAP_CODEC,
+        MobTransformRecipe.STREAM_CODEC
+    );
 
     @Override
     public boolean matches(MobTransformInput in, Level level) {
@@ -64,28 +96,28 @@ public record MobTransformRecipe(
     }
 
     @Override
-    public ItemStack assemble(MobTransformInput mobTransformInput, HolderLookup.Provider provider) {
+    public ItemStack assemble(MobTransformInput input) {
         return Items.AIR.getDefaultInstance();
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return true;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return Items.AIR.getDefaultInstance();
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.MOB_TRANSFORM_SERIALIZER.get();
-    }
-
-    @Override
-    public RecipeType<?> getType() {
+    public RecipeType<MobTransformRecipe> getType() {
         return ModRecipeTypes.MOB_TRANSFORM.get();
+    }
+
+    @Override
+    public RecipeSerializer<MobTransformRecipe> getSerializer() {
+        return ModRecipeSerializers.MOB_TRANSFORM.get();
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     private EntityType<?> getResult(RandomSource rand) {
@@ -116,11 +148,12 @@ public record MobTransformRecipe(
         CompoundTag tag = new CompoundTag();
         tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
         Entity newEntity = EntityType.loadEntityRecursive(
-            tag, level, (e) -> {
-                e.moveTo(
-                    livingEntity.position().x,
-                    livingEntity.position().y,
-                    livingEntity.position().z,
+            tag,
+            level,
+            EntitySpawnReason.CONVERSION,
+            e -> {
+                e.moveOrInterpolateTo(
+                    livingEntity.position(),
                     e.getYRot(),
                     e.getXRot()
                 );
@@ -129,11 +162,11 @@ public record MobTransformRecipe(
         );
         if (newEntity == null) return null;
         if (newEntity instanceof Mob mob) {
-            // noinspection deprecation,OverrideOnly
-            mob.finalizeSpawn(
+            EventHooks.finalizeMobSpawn(
+                mob,
                 level,
                 level.getCurrentDifficultyAt(newEntity.blockPosition()),
-                MobSpawnType.NATURAL,
+                EntitySpawnReason.NATURAL,
                 null
             );
         }
@@ -144,12 +177,17 @@ public record MobTransformRecipe(
         ) {
             option.accept(livingEntity, newEntity);
         }
-        CompoundTag compoundTag = newEntity.saveWithoutId(new CompoundTag());
+        RegistryAccess registries = level.registryAccess();
+        ProblemReporter.Collector reporter = new ProblemReporter.Collector(newEntity.problemPath());
+        TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
+        newEntity.saveWithoutId(output);
+        tag = new CompoundTag();
         for (TagModification tagModification : this.tagModifications()) {
-            tagModification.accept(compoundTag);
+            tagModification.accept(tag);
         }
+        output.store(tag);
         UUID uuid = newEntity.getUUID();
-        newEntity.load(compoundTag);
+        newEntity.load(TagValueInput.create(reporter, registries, output.buildResult()));
         newEntity.setUUID(uuid);
         return newEntity;
     }
@@ -163,37 +201,13 @@ public record MobTransformRecipe(
         return true;
     }
 
-    public static final class Serializer implements RecipeSerializer<MobTransformRecipe> {
-        public static final MapCodec<MobTransformRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            CodecUtil.ENTITY
-                .fieldOf("input")
-                .forGetter(MobTransformRecipe::input),
-            TransformResult.CODEC
-                .listOf()
-                .fieldOf("results")
-                .forGetter(MobTransformRecipe::results),
-            NumericTagValuePredicate.CODEC
-                .listOf()
-                .optionalFieldOf("tag_predicates", List.of())
-                .forGetter(MobTransformRecipe::predicates),
-            TagModification.CODEC
-                .listOf()
-                .optionalFieldOf("tag_modifications", List.of())
-                .forGetter(MobTransformRecipe::tagModifications),
-            TransformOptions.CODEC
-                .listOf()
-                .optionalFieldOf("transform_options", List.of())
-                .forGetter(MobTransformRecipe::options)
-        ).apply(ins, MobTransformRecipe::new));
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
 
-        @Override
-        public MapCodec<MobTransformRecipe> codec() {
-            return Serializer.MAP_CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MobTransformRecipe> streamCodec() {
-            return MobTransformRecipe.STREAM_CODEC;
-        }
+    @Override
+    public String group() {
+        return "mob_transform";
     }
 }

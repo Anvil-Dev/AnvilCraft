@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.recipe;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
@@ -12,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,8 +20,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -65,13 +68,23 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(HolderGetter<Item> items) {
+        return new Builder(items);
     }
 
     @Override
     public RecipeType<JewelCraftingRecipe> getType() {
         return ModRecipeTypes.JEWEL_CRAFTING.get();
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override
@@ -98,6 +111,16 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     @Override
     public boolean isSpecial() {
         return true;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "jewel_crafting";
     }
 
     public record Input(ItemStack source, List<ItemStack> items) implements RecipeInput, IItemsInput {
@@ -134,9 +157,14 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<JewelCraftingRecipe> {
+        private final HolderGetter<Item> items;
         private List<ICondition> conditions = new ArrayList<>();
         private NonNullList<Ingredient> ingredients = NonNullList.create();
-        private ItemStack result = ItemStack.EMPTY;
+        private ItemStackTemplate result = new ItemStackTemplate(Items.AIR);
+
+        public Builder(HolderGetter<Item> items) {
+            this.items = items;
+        }
 
         public Builder withCondition(ICondition condition) {
             this.conditions.add(condition);
@@ -163,11 +191,16 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
 
         public Builder requires(TagKey<Item> tag, int count) {
-            return requires(Ingredient.of(tag), count);
+            return requires(Ingredient.of(this.items.getOrThrow(tag)), count);
         }
 
         public Builder requires(TagKey<Item> tag) {
             return requires(tag, 1);
+        }
+
+        public Builder result(ItemLike item) {
+            this.result = new ItemStackTemplate(item.asItem());
+            return this;
         }
 
         @Override
@@ -180,7 +213,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             if (ingredients.isEmpty() || ingredients.size() > 256) {
                 throw new IllegalArgumentException("Recipe ingredients size must in 0-256, RecipeId: " + id);
             }
-            if (result.isEmpty()) {
+            if (result.is(Items.AIR)) {
                 throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }
@@ -191,8 +224,8 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
 
         @Override
-        public Item getResult() {
-            return result.getItem();
+        public ItemStackTemplate getResult() {
+            return this.result;
         }
     }
 

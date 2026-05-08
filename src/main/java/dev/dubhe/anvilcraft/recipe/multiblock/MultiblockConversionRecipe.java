@@ -2,35 +2,62 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Getter
 public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDatagen {
+    private static final MapCodec<MultiblockConversionRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        BlockPattern.CODEC
+            .fieldOf("inputPattern")
+            .forGetter(MultiblockConversionRecipe::getInputPattern),
+        BlockPattern.CODEC
+            .fieldOf("outputPattern")
+            .forGetter(MultiblockConversionRecipe::getOutputPattern),
+        ModifySpawnerAction.CODEC.codec()
+            .optionalFieldOf("modifySpawnerAction")
+            .forGetter(MultiblockConversionRecipe::getModifySpawnerAction)
+    ).apply(ins, MultiblockConversionRecipe::new));
+    private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockConversionRecipe> STREAM_CODEC = StreamCodec.composite(
+        BlockPattern.STREAM_CODEC,
+        MultiblockConversionRecipe::getInputPattern,
+        BlockPattern.STREAM_CODEC,
+        MultiblockConversionRecipe::getOutputPattern,
+        ByteBufCodecs.optional(ModifySpawnerAction.STREAM_CODEC),
+        MultiblockConversionRecipe::getModifySpawnerAction,
+        MultiblockConversionRecipe::new
+    );
+    public static final RecipeSerializer<MultiblockConversionRecipe> SERIALIZER = new RecipeSerializer<>(
+        MultiblockConversionRecipe.CODEC,
+        MultiblockConversionRecipe.STREAM_CODEC
+    );
     private final BlockPattern inputPattern;
     private final BlockPattern outputPattern;
     private final Optional<ModifySpawnerAction> modifySpawnerAction;
@@ -63,23 +90,23 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<MultiblockConversionRecipe> getType() {
         return ModRecipeTypes.MULTIBLOCK_CONVERSION.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.MULTIBLOCK_CONVERSION_SERIALIZER.get();
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return true;
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
+    public RecipeSerializer<MultiblockConversionRecipe> getSerializer() {
+        return ModRecipeSerializers.MULTIBLOCK_CONVERSION.get();
     }
 
     @SuppressWarnings("deprecation")
@@ -165,13 +192,23 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
     }
 
     @Override
-    public ItemStack assemble(MultiblockInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(MultiblockInput input) {
         return ItemStack.EMPTY;
     }
 
     @Override
     public boolean isSpecial() {
         return true;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "multiblock_conversion";
     }
 
     @SuppressWarnings("CodeBlock2Expr")
@@ -326,41 +363,8 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         }
 
         @Override
-        public Item getResult() {
-            return Items.AIR;
-        }
-    }
-
-    public static class Serializer implements RecipeSerializer<MultiblockConversionRecipe> {
-
-        private static final MapCodec<MultiblockConversionRecipe> CODEC =
-            RecordCodecBuilder.mapCodec(ins -> ins.group(
-                    BlockPattern.CODEC.fieldOf("inputPattern").forGetter(MultiblockConversionRecipe::getInputPattern),
-                    BlockPattern.CODEC.fieldOf("outputPattern").forGetter(MultiblockConversionRecipe::getOutputPattern),
-                    ModifySpawnerAction.CODEC.codec().optionalFieldOf("modifySpawnerAction")
-                        .forGetter(MultiblockConversionRecipe::getModifySpawnerAction)
-                )
-                .apply(ins, MultiblockConversionRecipe::new));
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockConversionRecipe> STREAM_CODEC =
-            StreamCodec.composite(
-                BlockPattern.STREAM_CODEC,
-                MultiblockConversionRecipe::getInputPattern,
-                BlockPattern.STREAM_CODEC,
-                MultiblockConversionRecipe::getOutputPattern,
-                ByteBufCodecs.optional(ModifySpawnerAction.STREAM_CODEC),
-                MultiblockConversionRecipe::getModifySpawnerAction,
-                MultiblockConversionRecipe::new
-            );
-
-        @Override
-        public MapCodec<MultiblockConversionRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MultiblockConversionRecipe> streamCodec() {
-            return STREAM_CODEC;
+        public ItemStackTemplate getResult() {
+            return new ItemStackTemplate(Items.AIR);
         }
     }
 }

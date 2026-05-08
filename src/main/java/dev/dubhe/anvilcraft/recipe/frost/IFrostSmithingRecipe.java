@@ -6,17 +6,18 @@ import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
 import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Unmodifiable;
@@ -36,7 +37,7 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
 
     default boolean isInput(ItemStack input) {
         for (RecipeResult result : this.inputs()) {
-            if (input.is(result.result())) return true;
+            if (input.is(result.result().item())) return true;
         }
         return false;
     }
@@ -46,7 +47,7 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
     default @Unmodifiable List<RecipeResult> inputs(ItemStack input) {
         int head;
         for (head = 0; head < this.inputs().size(); head++) {
-            if (input.is(this.inputs().get(head).result())) break;
+            if (input.is(this.inputs().get(head).result().item())) break;
         }
 
         ImmutableList.Builder<RecipeResult> results = ImmutableList.builder();
@@ -56,20 +57,30 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
         return results.build();
     }
 
+    @Override
+    default PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    default RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
     @Deprecated
     @Override
-    default ItemStack assemble(FrostSmithingRecipeInput input, HolderLookup.Provider registries) {
+    default ItemStack assemble(FrostSmithingRecipeInput input) {
         return ItemStack.EMPTY;
     }
 
     default ItemStack assemble(int selected, FrostSmithingRecipeInput inputting, Level level) {
         RecipeResult input = this.inputs(inputting.input()).get(selected);
-        ItemStack result = inputting.input().transmuteCopy(input.result());
-        if (input.result().components().keySet().contains(DataComponents.TOOL)) {
-            result.set(DataComponents.TOOL, input.result().components().get(DataComponents.TOOL));
+        ItemStack result = inputting.input().transmuteCopy(input.result().item().value());
+        if (input.result().components().getPatch(DataComponents.TOOL).isPresent()) {
+            result.set(DataComponents.TOOL, input.result().get(DataComponents.TOOL));
         }
-        if (input.result().components().keySet().contains(DataComponents.ATTRIBUTE_MODIFIERS)) {
-            result.set(DataComponents.ATTRIBUTE_MODIFIERS, input.result().components().get(DataComponents.ATTRIBUTE_MODIFIERS));
+        if (input.result().components().getPatch(DataComponents.ATTRIBUTE_MODIFIERS).isPresent()) {
+            result.set(DataComponents.ATTRIBUTE_MODIFIERS, input.result().get(DataComponents.ATTRIBUTE_MODIFIERS));
         }
         var builder = ResultContext.builder(level.registryAccess(), level.getRandom(), result)
             .slot(RecipeInputSlot.TEMPLATE, inputting.template())
@@ -79,13 +90,8 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
     }
 
     @Override
-    default ItemStack getResultItem(HolderLookup.Provider registries) {
-        return this.inputs().getFirst().result().getDefaultInstance();
-    }
-
-    @Override
-    default boolean canCraftInDimensions(int width, int height) {
-        return true;
+    default boolean showNotification() {
+        return false;
     }
 
     @Override
@@ -107,18 +113,6 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
 
         public B template(ItemIngredientPredicate.Builder templateBuilder) {
             return this.template(templateBuilder.build());
-        }
-
-        public B template(int count, ItemStack template) {
-            return this.template(
-                ItemIngredientPredicate.of(template.getItem())
-                    .withCount(count)
-                    .hasComponents(DataComponentPredicate.allOf(template.getComponents()))
-            );
-        }
-
-        public B template(ItemStack template) {
-            return this.template(1, template);
         }
 
         public B template(int count, ItemLike... templates) {
@@ -144,18 +138,6 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
 
         public B material(ItemIngredientPredicate.Builder materialBuilder) {
             return this.material(materialBuilder.build());
-        }
-
-        public B material(int count, ItemStack material) {
-            return this.material(
-                ItemIngredientPredicate.of(material.getItem())
-                    .withCount(count)
-                    .hasComponents(DataComponentPredicate.allOf(material.getComponents()))
-            );
-        }
-
-        public B material(ItemStack material) {
-            return this.material(1, material);
         }
 
         public B material(int count, ItemLike... materials) {
@@ -226,14 +208,14 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
         }
 
         @Override
-        public Item getResult() {
+        public ItemStackTemplate getResult() {
             return this.inputs.getFirst().result();
         }
 
         @Deprecated
         @Override
         public void save(RecipeOutput output) {
-            this.save(output, BuiltInRegistries.ITEM.getKey(this.inputs.getFirst().result()).withPrefix(this.getType() + "/"));
+            this.save(output, this.inputs.getFirst().result().typeHolder().getKey().identifier().withPrefix(this.getType() + "/"));
         }
     }
 }

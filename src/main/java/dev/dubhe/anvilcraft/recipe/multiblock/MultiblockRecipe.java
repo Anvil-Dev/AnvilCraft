@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import lombok.Getter;
@@ -40,6 +41,10 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         ItemStackTemplate.STREAM_CODEC,
         MultiblockRecipe::getResult,
         MultiblockRecipe::new
+    );
+    public static final RecipeSerializer<MultiblockRecipe> SERIALIZER = new RecipeSerializer<>(
+        MultiblockRecipe.CODEC,
+        MultiblockRecipe.STREAM_CODEC
     );
     public final BlockPattern pattern;
     public final ItemStackTemplate result;
@@ -83,7 +88,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
 
     @Override
     public RecipeSerializer<MultiblockRecipe> getSerializer() {
-        return ModRecipeTypes.MULTIBLOCK_SERIALIZER.get();
+        return ModRecipeSerializers.MULTIBLOCK.get();
     }
 
     @SuppressWarnings("deprecation")

@@ -125,26 +125,20 @@ public class ModRecipeSerializers {
         "mob_transform",
         () -> MobTransformRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformWithItemRecipe>> MOB_TRANSFORM_WITH_ITEM = DF.register(
-        "mob_transform_with_item",
-        () -> MobTransformWithItemRecipe.SERIALIZER
-    );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MobTransformWithItemRecipe>> MOB_TRANSFORM_WITH_ITEM = DF
+        .register("mob_transform_with_item", () -> MobTransformWithItemRecipe.SERIALIZER);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockRecipe>> MULTIBLOCK = DF.register(
         "multiblock",
-        MultiblockRecipe::serializer
+        () -> MultiblockRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION = DF.register(
-        "multiblock_conversion",
-        () -> MultiblockConversionRecipe.SERIALIZER
-    );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION = DF
+        .register("multiblock_conversion", () -> MultiblockConversionRecipe.SERIALIZER);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainRecipe>> MINERAL_FOUNTAIN = DF.register(
         "mineral_fountain",
         () -> MineralFountainRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainChanceRecipe>> MINERAL_FOUNTAIN_CHANCE = DF.register(
-        "mineral_fountain_chance",
-        () -> MineralFountainChanceRecipe.SERIALIZER
-    );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainChanceRecipe>> MINERAL_FOUNTAIN_CHANCE = DF
+        .register("mineral_fountain_chance", () -> MineralFountainChanceRecipe.SERIALIZER);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<JewelCraftingRecipe>> JEWEL_CRAFTING = DF.register(
         "jewel_crafting",
         () -> JewelCraftingRecipe.SERIALIZER
@@ -153,7 +147,7 @@ public class ModRecipeSerializers {
         "canning_food",
         () -> CanningFoodRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PillRecipe>> PILL_RECIPE = DF.register(
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PillRecipe>> PILL = DF.register(
         "pill_recipe",
         () -> PillRecipe.SERIALIZER
     );
@@ -161,15 +155,15 @@ public class ModRecipeSerializers {
         "charger_charging",
         () -> ChargerChargingRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends TwoToOneSmithingRecipe>> _221 = DF.register(
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TwoToOneSmithingRecipe>> _221 = DF.register(
         "two_to_one_smithing",
         () -> TwoToOneSmithingRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends FourToOneSmithingRecipe>> _421 = DF.register(
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FourToOneSmithingRecipe>> _421 = DF.register(
         "four_to_one_smithing",
         () -> FourToOneSmithingRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends EightToOneSmithingRecipe>> _821 = DF.register(
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EightToOneSmithingRecipe>> _821 = DF.register(
         "eight_to_one_smithing",
         () -> EightToOneSmithingRecipe.SERIALIZER
     );
@@ -185,10 +179,8 @@ public class ModRecipeSerializers {
         "energy_weapon_make",
         () -> EnergyWeaponMakeRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT = DF.register(
-        "anvil_collision",
-        () -> AnvilCollisionCraftRecipe.SERIALIZER
-    );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT = DF
+        .register("anvil_collision", () -> AnvilCollisionCraftRecipe.SERIALIZER);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PortalConversionRecipe>> PORTAL_CONVERSION = DF.register(
         "portal_conversion",
         () -> PortalConversionRecipe.SERIALIZER
