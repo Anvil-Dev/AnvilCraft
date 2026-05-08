@@ -46,14 +46,10 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 compileJava.options.encoding = 'UTF-8'
 
-machete {
-    // disable machete locally for faster builds
-    enabled = false
-}
+// disable machete locally for faster builds
+machete.enabled = false
 
-lombok {
-    version = "1.18.44"
-}
+lombok.version = "1.18.44"
 
 allprojects {
     gradle.projectsEvaluated {

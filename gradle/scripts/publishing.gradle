@@ -1,6 +1,6 @@
-artifacts {
-    archives tasks.jar
-    archives tasks.sourcesJar
+tasks.named("assemble") {
+    dependsOn tasks.jar
+    dependsOn tasks.sourcesJar
 }
 
 publishing {

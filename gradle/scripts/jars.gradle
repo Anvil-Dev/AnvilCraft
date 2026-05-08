@@ -19,6 +19,4 @@ jar {
     }
 }
 
-base {
-    archivesName = "${project.name}-${libs.versions.minecraft.get()}"
-}
+base.archivesName = "${project.name}-${libs.versions.minecraft.get()}"

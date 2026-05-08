@@ -11,18 +11,18 @@ def supporters = getConfig("supporters")
 // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
 tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
-            minecraft_version      : libs.versions.minecraft.get(),
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : libs.versions.neoForge.get(),
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : version,
-            mod_description        : mod_description,
-            "contributors"         : contributors,
-            "supporters"           : supporters
+            minecraft_version       : libs.versions.minecraft.get(),
+            minecraft_version_range : minecraft_version_range,
+            neo_version             : libs.versions.neoForge.get(),
+            neo_version_range       : neo_version_range,
+            loader_version_range    : loader_version_range,
+            mod_id                  : mod_id,
+            mod_name                : mod_name,
+            mod_license             : mod_license,
+            mod_version             : version,
+            mod_description         : mod_description,
+            "contributors"          : contributors,
+            "supporters"            : supporters
     ]
     inputs.properties replaceProperties
 
