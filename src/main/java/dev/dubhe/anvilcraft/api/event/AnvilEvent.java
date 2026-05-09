@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
@@ -21,9 +22,9 @@ public class AnvilEvent extends EntityEvent {
 
     @Getter
     public static class OnLand extends AnvilEvent {
-        private final Level level;
+        private final ServerLevel level;
         private final BlockPos pos;
-        private final float fallDistance;
+        private final double fallDistance;
 
         @Setter
         private boolean isAnvilDamage = false;
@@ -36,7 +37,7 @@ public class AnvilEvent extends EntityEvent {
          * @param entity       铁砧
          * @param fallDistance 下落距离
          */
-        public OnLand(Level level, BlockPos pos, FallingBlockEntity entity, float fallDistance) {
+        public OnLand(ServerLevel level, BlockPos pos, FallingBlockEntity entity, double fallDistance) {
             super(entity);
             this.level = level;
             this.pos = pos;
@@ -71,7 +72,7 @@ public class AnvilEvent extends EntityEvent {
 
     @Getter
     public static class GiantOnLand extends AnvilEvent {
-        private final Level level;
+        private final ServerLevel level;
         private final BlockPos pos;
         private final float fallDistance;
         private final FallingGiantAnvilEntity entity;
@@ -87,7 +88,7 @@ public class AnvilEvent extends EntityEvent {
          * @param entity       铁砧
          * @param fallDistance 下落距离
          */
-        public GiantOnLand(Level level, BlockPos pos, FallingGiantAnvilEntity entity, float fallDistance) {
+        public GiantOnLand(ServerLevel level, BlockPos pos, FallingGiantAnvilEntity entity, float fallDistance) {
             super(entity);
             this.level = level;
             this.pos = pos;
@@ -99,7 +100,7 @@ public class AnvilEvent extends EntityEvent {
     @Getter
     public static class HurtEntity extends AnvilEvent {
         private final BlockPos pos;
-        private final Level level;
+        private final ServerLevel level;
         private final Entity hurtedEntity;
         private final float damage;
 
@@ -115,7 +116,7 @@ public class AnvilEvent extends EntityEvent {
         public HurtEntity(
             FallingBlockEntity entity,
             BlockPos pos,
-            Level level,
+            ServerLevel level,
             Entity hurtedEntity,
             float damage
         ) {

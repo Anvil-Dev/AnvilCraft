@@ -16,7 +16,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.BaseSpawner;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,10 +33,10 @@ import java.util.Optional;
 public class HitSpawnerBehavior implements IAnvilBehavior {
     @Override
     public boolean handle(
-        Level level,
+        ServerLevel level,
         BlockPos pos,
         BlockState hitBlockState,
-        float fallDistance,
+        double fallDistance,
         AnvilEvent.OnLand event
     ) {
         if (level instanceof ServerLevel serverLevel) {

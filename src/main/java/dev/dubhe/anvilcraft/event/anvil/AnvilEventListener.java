@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -60,11 +59,9 @@ public class AnvilEventListener {
             IAnvilBehavior.register();
             behaviorRegistered = true;
         }
-        Level level = event.getLevel();
+        ServerLevel level = event.getLevel();
         BlockPos pos = event.getPos();
         final BlockState blockState = level.getBlockState(pos);
-        MinecraftServer server = level.getServer();
-        if (null == server) return;
         TriggerUtil.anvilOnGround(level, pos);
         final BlockPos hitBlockPos = pos.below();
         final BlockState hitBlockState = level.getBlockState(hitBlockPos);
@@ -90,12 +87,11 @@ public class AnvilEventListener {
     }
 
     public static void handleNeoAnvilRecipe(AnvilEvent.OnLand event) {
-        Level level = event.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) return;
+        ServerLevel level = event.getLevel();
         BlockPos pos = event.getPos();
         FallingBlockEntity entity = event.getEntity();
-        InWorldRecipeManager manager = level.getRecipeManager().anvillib$getInWorldRecipeManager();
-        InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
+        InWorldRecipeManager manager = level.recipeAccess().anvillib$getInWorldRecipeManager();
+        InWorldRecipeContext context = new InWorldRecipeContext(level, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
         manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
         boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
         if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
@@ -194,7 +190,7 @@ public class AnvilEventListener {
         if (rate < 0.4) return;
         FallingBlockEntity eventEntity = event.getEntity();
         DamageSource source = entity.level().damageSources().anvil(eventEntity);
-        if (entity.isInvulnerableTo(source)) return;
+        if (entity.isInvulnerableTo(event.getLevel(), source)) return;
         Vec3 pos = entity.position();
         LootParams.Builder builder = new LootParams.Builder(serverLevel)
             .withParameter(LootContextParams.DAMAGE_SOURCE, source)
@@ -260,7 +256,9 @@ public class AnvilEventListener {
             killerOp = Optional.of(killer);
         }
         LootParams lootParams = builder.create(LootContextParamSets.ENTITY);
-        LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(entity.getLootTable());
+        LootTable lootTable = entity.getLootTable()
+            .map(key -> level.getServer().reloadableRegistries().getLootTable(key))
+            .orElse(LootTable.EMPTY);
         AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
         if (rate >= 0.6) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
         if (rate >= 0.8) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);

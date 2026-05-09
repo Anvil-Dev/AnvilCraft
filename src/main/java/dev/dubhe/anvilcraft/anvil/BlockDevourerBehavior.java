@@ -6,14 +6,12 @@ import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockDevourerBehavior implements IAnvilBehavior {
     @Override
-    public boolean handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilEvent.OnLand event) {
-        if (!(level instanceof ServerLevel serverLevel)) return false;
+    public boolean handle(ServerLevel level, BlockPos hitBlockPos, BlockState hitBlockState, double fallDistance, AnvilEvent.OnLand event) {
         BlockDevourerBlock block = (BlockDevourerBlock) hitBlockState.getBlock();
         int range = Math.min((int) fallDistance + 2, 4);
         level.setBlock(hitBlockPos, hitBlockState.setValue(BlockDevourerBlock.TRIGGERED, true), 2);
@@ -25,7 +23,7 @@ public class BlockDevourerBehavior implements IAnvilBehavior {
             return true;
         }
         block.devourBlock(
-            serverLevel,
+            level,
             hitBlockPos,
             hitBlockState.getValue(BlockDevourerBlock.FACING),
             range,

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -20,7 +21,7 @@ import java.util.List;
 // TODO: 临时硬编码解决方案
 public class TranscendiumBehavior implements IAnvilBehavior {
     @Override
-    public boolean handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilEvent.OnLand event) {
+    public boolean handle(ServerLevel level, BlockPos hitBlockPos, BlockState hitBlockState, double fallDistance, AnvilEvent.OnLand event) {
         final RandomSource random = level.getRandom();
         final List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos.above()));
 

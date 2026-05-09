@@ -7,16 +7,16 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Collections;
 
 public class MagnetBlockBehavior implements IAnvilBehavior {
     @Override
-    public boolean handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilEvent.OnLand event) {
+    public boolean handle(ServerLevel level, BlockPos hitBlockPos, BlockState hitBlockState, double fallDistance, AnvilEvent.OnLand event) {
         if (hitBlockState.is(ModBlocks.MAGNET_BLOCK.get())) {
             boolean lit = hitBlockState.getValue(MagnetBlock.LIT);
             level.setBlockAndUpdate(hitBlockPos, ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState().setValue(MagnetBlock.LIT, lit));

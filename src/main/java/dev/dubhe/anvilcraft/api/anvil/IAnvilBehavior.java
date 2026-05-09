@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.anvil;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.NeoForge;
@@ -19,10 +19,10 @@ public interface IAnvilBehavior {
     Map<Predicate<BlockState>, IAnvilBehavior> BEHAVIORS = new LinkedHashMap<>();
 
     boolean handle(
-        Level level,
+        ServerLevel level,
         BlockPos hitBlockPos,
         BlockState hitBlockState,
-        float fallDistance,
+        double fallDistance,
         AnvilEvent.OnLand event
     );
 

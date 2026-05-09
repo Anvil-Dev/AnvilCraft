@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
@@ -14,10 +15,10 @@ import net.minecraft.world.level.block.state.BlockState;
 public class RedstoneEMPBehavior implements IAnvilBehavior {
     @Override
     public boolean handle(
-        Level level,
+        ServerLevel level,
         BlockPos pos,
         BlockState hitBlockState,
-        float fallDistance,
+        double fallDistance,
         AnvilEvent.OnLand event
     ) {
         int radius = AnvilCraft.CONFIG.redstoneEmpRadius;

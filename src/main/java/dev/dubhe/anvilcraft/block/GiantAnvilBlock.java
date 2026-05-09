@@ -247,6 +247,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
+
     /**
      * 落地
      */
@@ -272,11 +273,13 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
                 .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
             level.setBlockAndUpdate(belowPos.offset(part.getOffset()), newState);
         }
-        NeoForge.EVENT_BUS.post(new AnvilEvent.GiantOnLand(level, pos, (FallingGiantAnvilEntity) fallingBlock, fallDistance));
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                BlockPos pos1 = belowPos.offset(new Vec3i(dx, 0, dz));
-                NeoForge.EVENT_BUS.post(new AnvilEvent.OnLand(level, pos1, fallingBlock, fallDistance));
+        if (level instanceof ServerLevel serverLevel) {
+            NeoForge.EVENT_BUS.post(new AnvilEvent.GiantOnLand(serverLevel, pos, (FallingGiantAnvilEntity) fallingBlock, fallDistance));
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    BlockPos pos1 = belowPos.offset(new Vec3i(dx, 0, dz));
+                    NeoForge.EVENT_BUS.post(new AnvilEvent.OnLand(serverLevel, pos1, fallingBlock, fallDistance));
+                }
             }
         }
 
@@ -337,10 +340,11 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         UPDATE_OFFSET.forEach((direction, offsetList) -> offsetList.forEach(offset -> {
             BlockPos updatedPos = bottomCenterPos.offset(offset);
             BlockPos fromPos = updatedPos.relative(direction);
-            level.neighborShapeChanged(direction,
-                level.getBlockState(fromPos),
+            level.neighborShapeChanged(
+                direction,
                 updatedPos,
                 fromPos,
+                level.getBlockState(fromPos),
                 3,
                 512
             );
