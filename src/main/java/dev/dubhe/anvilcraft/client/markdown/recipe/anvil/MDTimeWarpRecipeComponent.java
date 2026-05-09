@@ -53,19 +53,18 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
         super.renderRecipe(context, mouseX, mouseY);
         GuiGraphics graphics = context.graphics();
 
-        Block material = recipe.getHasCauldron().getFluidCauldron();
         if (recipe.isConsumeFluid()) {
             Component text = Component.translatable(
                 "gui.anvilcraft.category.time_warp.consume_fluid",
                 recipe.getHasCauldron().consume(),
-                material.getName()
+                recipe.getHasCauldron().getFluidCauldron().getName()
             );
             AgeratumUtil.renderText(graphics, text, INFO_X, INFO_Y);
         } else if (recipe.isProduceFluid()) {
             Component text = Component.translatable(
                 "gui.anvilcraft.category.time_warp.produce_fluid",
                 recipe.getHasCauldron().produce(),
-                material.getName()
+                recipe.getHasCauldron().getTransformCauldron().getName()
             );
             AgeratumUtil.renderText(graphics, text, INFO_X, INFO_Y);
         }

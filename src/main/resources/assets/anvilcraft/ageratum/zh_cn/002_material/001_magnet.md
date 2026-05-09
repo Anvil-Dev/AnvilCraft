@@ -1,4 +1,4 @@
-    ---
+---
 navigation:
   title: "磁铁"
   icon: "anvilcraft:magnet_ingot"

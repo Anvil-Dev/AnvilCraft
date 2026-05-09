@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "§6能量武器平台
+  title: "§6能量武器平台"
   icon: "anvilcraft:energy_weapon_platform"
   parent: anvilcraft_guideme:tool.md
 items:
