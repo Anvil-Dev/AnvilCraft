@@ -40,12 +40,11 @@ public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlock
 
     public void submit(FallingBlockRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         BlockState blockState = state.movingBlockRenderState.blockState;
-        if (blockState.getRenderShape() == RenderShape.MODEL) {
-            pose.pushPose();
-            pose.translate(-0.5, 0.0, -0.5);
-            collector.submitMovingBlock(pose, state.movingBlockRenderState);
-            pose.popPose();
-            super.submit(state, pose, collector, camera);
-        }
+        if (blockState.getRenderShape() != RenderShape.MODEL) return;
+        pose.pushPose();
+        pose.translate(-0.5, 0.0, -0.5);
+        collector.submitMovingBlock(pose, state.movingBlockRenderState);
+        pose.popPose();
+        super.submit(state, pose, collector, camera);
     }
 }

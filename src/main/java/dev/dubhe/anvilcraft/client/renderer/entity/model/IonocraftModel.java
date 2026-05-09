@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.entity.model;
+package dev.dubhe.anvilcraft.client.renderer.entity.model;
 
 import dev.dubhe.anvilcraft.client.renderer.entity.state.IonocraftRenderState;
 import net.minecraft.client.model.EntityModel;

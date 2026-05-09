@@ -25,5 +25,8 @@
   ],
   "net/minecraft/world/level/block/GrowingPlantBlock": [
     "dev/dubhe/anvilcraft/api/injection/block/IGrowingPlantBlockGetter"
+  ],
+  "net/minecraft/client/renderer/SubmitNodeStorage$ItemSubmit": [
+    "dev/dubhe/anvilcraft/api/injection/IItemSubmitExtension"
   ]
 }

@@ -1,10 +1,12 @@
-package dev.dubhe.anvilcraft.entity.model;
+package dev.dubhe.anvilcraft.client.renderer.entity.model;
 
-import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
+import dev.dubhe.anvilcraft.client.renderer.entity.state.MagnetizedNodeRenderState;
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
+import net.minecraft.client.animation.KeyframeAnimation;
 import net.minecraft.client.animation.KeyframeAnimations;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -12,10 +14,12 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 
-public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity> {
+public class MagnetizedNodeModel extends Model<MagnetizedNodeRenderState> {
     public static final AnimationDefinition ROTATING = AnimationDefinition.Builder.withLength(6F).looping()
-        .addAnimation("rotating",
+        .addAnimation(
+            "rotating",
             new AnimationChannel(AnimationChannel.Targets.ROTATION,
                 new Keyframe(0F, KeyframeAnimations.degreeVec(0F, 0F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
@@ -24,20 +28,26 @@ public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity>
                 new Keyframe(4F, KeyframeAnimations.degreeVec(0F, 720F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
                 new Keyframe(6F, KeyframeAnimations.degreeVec(0F, 1080F, 0F),
-                    AnimationChannel.Interpolations.LINEAR)))
-        .addAnimation("main",
+                    AnimationChannel.Interpolations.LINEAR)
+            )
+        )
+        .addAnimation(
+            "main",
             new AnimationChannel(AnimationChannel.Targets.ROTATION,
                 new Keyframe(0F, KeyframeAnimations.degreeVec(0F, 0F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
                 new Keyframe(3F, KeyframeAnimations.degreeVec(0F, -360F, 0F),
                     AnimationChannel.Interpolations.LINEAR),
                 new Keyframe(6F, KeyframeAnimations.degreeVec(0F, -720F, 0F),
-                    AnimationChannel.Interpolations.LINEAR))).build();
-    private final ModelPart root;
+                    AnimationChannel.Interpolations.LINEAR)
+            )
+        )
+        .build();
+    private final KeyframeAnimation rotating;
 
     public MagnetizedNodeModel(ModelPart root) {
-        super(RenderType::entityTranslucent);
-        this.root = root;
+        super(root, RenderTypes::entityTranslucent);
+        this.rotating = ROTATING.bake(root);
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -76,20 +86,8 @@ public class MagnetizedNodeModel extends HierarchicalModel<MagnetizedNodeEntity>
     }
 
     @Override
-    public void setupAnim(
-        MagnetizedNodeEntity entity,
-        float limbSwing,
-        float limbSwingAmount,
-        float ageInTicks,
-        float netHeadYaw,
-        float headPitch
-    ) {
-        this.root().getAllParts().forEach(ModelPart::resetPose);
-        animate(entity.rotatingState, ROTATING, ageInTicks, 1.0F);
-    }
-
-    @Override
-    public ModelPart root() {
-        return this.root;
+    public void setupAnim(MagnetizedNodeRenderState state) {
+        super.setupAnim(state);
+        this.rotating.apply(state.getRotation(), state.ageInTicks);
     }
 }

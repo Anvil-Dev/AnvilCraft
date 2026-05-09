@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.entity.model;
+package dev.dubhe.anvilcraft.client.renderer.entity.model;
 
 import lombok.Getter;
 import net.minecraft.client.model.HumanoidModel;

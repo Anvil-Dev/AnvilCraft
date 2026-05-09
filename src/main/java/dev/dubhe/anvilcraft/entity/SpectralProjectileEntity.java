@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.mixin.accessor.AbstractArrowAccessor;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -28,11 +31,11 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
-
 import org.jspecify.annotations.Nullable;
 
-public class SpectralProjectileEntity extends AbstractArrow {
+import java.util.List;
 
+public class SpectralProjectileEntity extends AbstractArrow {
     private static final EntityDataAccessor<ItemStack> AS_ITEM_STACK = SynchedEntityData.defineId(
         SpectralProjectileEntity.class, EntityDataSerializers.ITEM_STACK);
 
@@ -100,8 +103,9 @@ public class SpectralProjectileEntity extends AbstractArrow {
         }
         this.setNoGravity(true);
         this.pickup = Pickup.DISALLOWED;
-        this.life++;
-        if (this.life > 200) this.discard();
+        AbstractArrowAccessor arrow = Util.cast(this);
+        arrow.setLife(arrow.getLife() + 1);
+        if (arrow.getLife() > 200) this.discard();
         super.tick();
     }
 
@@ -110,24 +114,23 @@ public class SpectralProjectileEntity extends AbstractArrow {
         // super.onHitEntity(result);
         Entity entity = result.getEntity();
 
-        double d0 = getBaseDamage();
+        AbstractArrowAccessor arrow = Util.cast(this);
+        double d0 = arrow.getBaseDamage();
         ItemStack asStack = this.getAsItemStack();
 
-        Entity entity1 = this.getOwner();
-        DamageSource damagesource = this.damageSources().arrow(this, (entity1 != null ? entity1 : this));
+        Entity currentOwner = this.getOwner();
+        DamageSource damagesource = this.damageSources().arrow(this, (currentOwner != null ? currentOwner : this));
         DamageSource meleeSource =
-            entity1 instanceof Player p1
-            ? entity1.damageSources().playerAttack(p1)
+            currentOwner instanceof Player p1
+            ? currentOwner.damageSources().playerAttack(p1)
             : (
-                entity1 instanceof LivingEntity livingEntity
-                ? entity1.damageSources().mobAttack(livingEntity)
+                currentOwner instanceof LivingEntity livingEntity
+                ? currentOwner.damageSources().mobAttack(livingEntity)
                 : damagesource
             );
 
-        // noinspection ConstantValue
         if (this.getWeaponItem() != null) {
-            Level var9 = this.level();
-            if (var9 instanceof ServerLevel serverlevel) {
+            if (this.level() instanceof ServerLevel serverlevel) {
                 d0 = EnchantmentHelper.modifyDamage(serverlevel, asStack, entity, meleeSource, (float) d0);
                 int power = this.getWeaponItem()
                     .getEnchantmentLevel(
@@ -140,16 +143,16 @@ public class SpectralProjectileEntity extends AbstractArrow {
 
         float j = (float) Mth.clamp(d0, 0.0, 2.147483647E9);
         if (this.getPierceLevel() > 0) {
-            if (this.piercingIgnoreEntityIds == null) {
-                this.piercingIgnoreEntityIds = new IntOpenHashSet(5);
+            if (arrow.getPiercingIgnoreEntityIds() == null) {
+                arrow.setPiercingIgnoreEntityIds(new IntOpenHashSet(5));
             }
 
-            if (this.piercingIgnoreEntityIds.size() >= this.getPierceLevel() + 1) {
+            if (arrow.getPiercingIgnoreEntityIds().size() >= this.getPierceLevel() + 1) {
                 this.discard();
                 return;
             }
 
-            this.piercingIgnoreEntityIds.add(entity.getId());
+            arrow.getPiercingIgnoreEntityIds().add(entity.getId());
         }
 
         if (this.isCritArrow()) {
@@ -157,7 +160,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
             j = Math.min(k + (long) j, 2147483647L);
         }
 
-        if (entity1 instanceof LivingEntity livingentity1) {
+        if (currentOwner instanceof LivingEntity livingentity1) {
             livingentity1.setLastHurtMob(entity);
         }
 
@@ -167,27 +170,37 @@ public class SpectralProjectileEntity extends AbstractArrow {
             entity.igniteForSeconds(5.0F);
         }
 
-        if (entity.hurt(damagesource, j)) {
+        // noinspection deprecation
+        if (entity.hurtOrSimulate(damagesource, j)) {
             if (flag) {
                 return;
             }
 
-            if (entity instanceof LivingEntity livingentity) {
+            if (entity instanceof LivingEntity mob) {
                 if (!this.level().isClientSide() && this.getPierceLevel() <= 0) {
-                    livingentity.setArrowCount(livingentity.getArrowCount() + 1);
+                    mob.setArrowCount(mob.getArrowCount() + 1);
                 }
 
-                this.doKnockback(livingentity, damagesource);
-                Level var13 = this.level();
-                if (var13 instanceof ServerLevel serverlevel1) {
-                    EnchantmentHelper.doPostAttackEffectsWithItemSource(serverlevel1, livingentity, damagesource, this.getWeaponItem());
+                this.doKnockback(mob, damagesource);
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, mob, damagesource, this.getWeaponItem());
                 }
 
-                this.doPostHurtEffects(livingentity);
-                if (livingentity != entity1 && livingentity instanceof Player && entity1 instanceof ServerPlayer && !this.isSilent()) {
-                    ((ServerPlayer) entity1).connection.send(
-                        new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F)
-                    );
+                this.doPostHurtEffects(mob);
+                if (mob != currentOwner && mob instanceof Player && currentOwner instanceof ServerPlayer ownerP && !this.isSilent()) {
+                    ownerP.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND, 0.0F));
+                }
+
+                if (!entity.isAlive() && arrow.getPiercedAndKilledEntities() != null) {
+                    arrow.getPiercedAndKilledEntities().add(mob);
+                }
+
+                if (!this.level().isClientSide() && currentOwner instanceof ServerPlayer player) {
+                    if (arrow.getPiercedAndKilledEntities() != null) {
+                        CriteriaTriggers.KILLED_BY_ARROW.trigger(player, arrow.getPiercedAndKilledEntities(), arrow.getFiredFromWeapon());
+                    } else if (!entity.isAlive()) {
+                        CriteriaTriggers.KILLED_BY_ARROW.trigger(player, List.of(entity), arrow.getFiredFromWeapon());
+                    }
                 }
             }
 
@@ -197,7 +210,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
             }
         } else {
             entity.setRemainingFireTicks(i);
-            this.deflect(ProjectileDeflection.NONE, entity, this.getOwner(), false);
+            this.deflect(ProjectileDeflection.NONE, entity, this.owner, false);
             this.setDeltaMovement(this.getDeltaMovement().scale(0.2));
             if (!this.level().isClientSide() && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
                 if (this.pickup == AbstractArrow.Pickup.ALLOWED) {

@@ -1,12 +1,11 @@
 package dev.dubhe.anvilcraft.entity;
 
-import com.google.common.collect.ImmutableSet;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
-import net.minecraft.core.HolderSet;
+import dev.dubhe.anvilcraft.mixin.accessor.AbstractArrowAccessor;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -14,27 +13,21 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
 
 public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     private static final EntityDataAccessor<Byte> ID_LOYALTY = SynchedEntityData.defineId(
@@ -67,7 +60,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         this.entityData.set(ID_FOIL, pickupItemStack.hasFoil());
     }
 
-    public abstract Identifier getTextureBase();
+    public abstract String getTextureBase();
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -82,25 +75,29 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
             this.dealtDamage = true;
         }
 
-        Entity entity = this.getOwner();
-        int i = this.entityData.get(ID_LOYALTY);
-        if (i > 0 && (this.dealtDamage || this.isNoPhysics() || this.getY() <= this.level().getMinY()) && entity != null) {
+        Entity currentOwner = this.getOwner();
+        int loyalty = this.entityData.get(ID_LOYALTY);
+        if (loyalty > 0 && (this.dealtDamage || this.isNoPhysics() || this.getY() <= this.level().getMinY()) && currentOwner != null) {
             if (!this.isAcceptableReturnOwner()) {
-                if (!this.level().isClientSide() && this.pickup == AbstractArrow.Pickup.ALLOWED) {
-                    this.spawnAtLocation(this.level(), this.getPickupItem(), 0.1F);
+                if (this.level() instanceof ServerLevel level && this.pickup == AbstractArrow.Pickup.ALLOWED) {
+                    this.spawnAtLocation(level, this.getPickupItem(), 0.1F);
                 }
 
                 this.discard();
             } else {
-                this.setNoPhysics(true);
-                Vec3 vec3 = entity.getEyePosition().subtract(this.position());
-                this.setPosRaw(this.getX(), this.getY() + vec3.y * 0.015 * (double) i, this.getZ());
-                if (this.level().isClientSide()) {
-                    this.yOld = this.getY();
+                if (
+                    !(currentOwner instanceof Player)
+                    && this.position().distanceTo(currentOwner.getEyePosition()) < currentOwner.getBbWidth() + 1.0
+                ) {
+                    this.discard();
+                    return;
                 }
 
-                double d0 = 0.05 * (double) i;
-                this.setDeltaMovement(this.getDeltaMovement().scale(0.95).add(vec3.normalize().scale(d0)));
+                this.setNoPhysics(true);
+                Vec3 vec3 = currentOwner.getEyePosition().subtract(this.position());
+                this.setPosRaw(this.getX(), this.getY() + vec3.y * 0.015 * (double) loyalty, this.getZ());
+                double accel = 0.05 * (double) loyalty;
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.95).add(vec3.normalize().scale(accel)));
                 if (this.clientSideReturnHeavyHalberdTickCount == 0) {
                     this.playSound(SoundEvents.TRIDENT_RETURN, 10.0F, 1.0F);
                 }
@@ -138,7 +135,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     protected void onHitEntity(EntityHitResult result) {
         Entity victim = result.getEntity();
         double speed = this.getDeltaMovement().length();
-        double baseDamage = this.getBaseDamage();
+        AbstractArrowAccessor arrow = Util.cast(this);
+        double baseDamage = arrow.getBaseDamage();
         Entity owner = this.getOwner();
         DamageSource source = this.damageSources().arrow(this, owner != null ? owner : this);
         if (!this.getWeaponItem().isEmpty() && this.level() instanceof ServerLevel serverlevel) {
@@ -148,7 +146,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         float damage = Mth.ceil(Mth.clamp(speed * baseDamage, 0.0, 2.147483647E9));
 
         this.dealtDamage = true;
-        if (victim.hurt(source, damage)) {
+        // noinspection deprecation
+        if (victim.hurtOrSimulate(source, damage)) {
             if (victim.getType() == EntityType.ENDERMAN) {
                 return;
             }
@@ -178,7 +177,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
             null,
             vec3,
             level.getBlockState(hitResult.getBlockPos()),
-            item -> this.kill((ServerLevel) this.level())
+            _ -> this.kill((ServerLevel) this.level())
         );
     }
 
@@ -248,51 +247,5 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     }
 
     public interface Factory<T extends ThrownHeavyHalberdEntity> extends EntityType.EntityFactory<T>, Serializable {
-    }
-
-    public static class HeavyHalberdType<T extends ThrownHeavyHalberdEntity> extends EntityType<T> {
-        public HeavyHalberdType(
-            EntityFactory<T> factory,
-            MobCategory category,
-            boolean serialize,
-            boolean summon,
-            boolean fireImmune,
-            boolean canSpawnFarFromPlayer,
-            ImmutableSet<Block> immuneTo,
-            EntityDimensions dimensions,
-            float spawnDimensionsScale,
-            int clientTrackingRange,
-            int updateInterval,
-            FeatureFlagSet requiredFeatures,
-            Predicate<EntityType<?>> trackDeltasSupplier,
-            ToIntFunction<EntityType<?>> trackingRangeSupplier,
-            ToIntFunction<EntityType<?>> updateIntervalSupplier
-        ) {
-            super(
-                factory,
-                category,
-                serialize,
-                summon,
-                fireImmune,
-                canSpawnFarFromPlayer,
-                immuneTo,
-                dimensions,
-                spawnDimensionsScale,
-                clientTrackingRange,
-                updateInterval,
-                requiredFeatures,
-                trackDeltasSupplier,
-                trackingRangeSupplier,
-                updateIntervalSupplier
-            );
-        }
-
-        @Override
-        public boolean is(HolderSet<EntityType<?>> entityType) {
-            return super.is(entityType)
-                   || (entityType instanceof HolderSet.Direct<EntityType<?>> direct
-                       && direct.size() == 1
-                       && direct.get(0).is(Identifier.withDefaultNamespace("trident")));
-        }
     }
 }

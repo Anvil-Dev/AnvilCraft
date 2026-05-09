@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.state.IonocraftRenderState;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
-import dev.dubhe.anvilcraft.entity.model.IonocraftModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

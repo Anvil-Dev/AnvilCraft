@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.dubhe.anvilcraft.entity.model;
+package dev.dubhe.anvilcraft.client.renderer.entity.state;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 

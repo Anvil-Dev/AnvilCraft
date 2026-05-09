@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.client.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.CauldronOutletModel;
-import dev.dubhe.anvilcraft.entity.model.IonocraftBackpackModel;
-import dev.dubhe.anvilcraft.entity.model.IonocraftModel;
-import dev.dubhe.anvilcraft.entity.model.MagnetizedNodeModel;
-import dev.dubhe.anvilcraft.entity.model.ThrownHeavyHalberdModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftBackpackModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.MagnetizedNodeModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.ThrownHeavyHalberdModel;
 import lombok.Getter;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
