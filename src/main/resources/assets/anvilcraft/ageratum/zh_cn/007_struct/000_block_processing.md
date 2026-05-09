@@ -7,10 +7,10 @@ navigation:
 
 # 铁砧：方块加工
 
-让<translate key="item.minecraft.anvil"/>落在不同的方块上可以触发不同的效果，本条目的后续页面将会依次介绍：
+让<translate key="block.minecraft.anvil"/>落在不同的方块上可以触发不同的效果，本条目的后续页面将会依次介绍：
 
 <warning>
-<translate key="item.minecraft.anvil"/>从高度不低于2格的砸落时，有概率损坏
+<translate key="block.minecraft.anvil"/>从高度不低于2格的砸落时，有概率损坏
 </warning>
 
 <tip>
@@ -62,13 +62,12 @@ navigation:
 <row halign="center">
 <structure id="../structures/smear.snbt"/>
 
-<Column>
-上方的方块不消耗
+- 上方的方块不消耗
 - 苔藓块 + 圆石 → 苔石
 - 苔藓块 + 石砖 → 苔石砖
 - 蜜脾块 + 任意铜制方块 → 对应的涂蜡铜制方块
 - ...
-</Column>
+
 </row>
 
 # 方块 + 炼药锅：方块压榨

@@ -31,8 +31,8 @@ items:
 
 # 食用
 
-|                         方块                         | 饱食度 | 饱和度 |
-|:--------------------------------------------------:|:---:|:---:|
+|                                       方块                                       | 饱食度 | 饱和度 |
+|:------------------------------------------------------------------------------:|:---:|:---:|
 |    [<translate key="block.anvilcraft.cake_base_block"/>](008_large_cake.md)    |  5  |  4  |
 |      [<translate key="block.anvilcraft.cream_block"/>](008_large_cake.md)      |  5  |  2  |
 |   [<translate key="block.anvilcraft.berry_cream_block"/>](008_large_cake.md)   |  8  | 3.2 |
@@ -40,7 +40,7 @@ items:
 |      [<translate key="block.anvilcraft.cake_block"/>](008_large_cake.md)       | 10  |  6  |
 |   [<translate key="block.anvilcraft.berry_cake_block"/>](008_large_cake.md)    | 14  | 8.4 |
 | [<translate key="block.anvilcraft.chocolate_cake_block"/>](008_large_cake.md)  | 20  | 12  |
-|      [<translate key="item.anvilcraft.large_cake"/>](008_large_cake.md)       | 15  | 12  |
+|      [<translate key="block.anvilcraft.large_cake"/>](008_large_cake.md)       | 15  | 12  |
 
 <info>
 原料方块使用铲子加速挖掘

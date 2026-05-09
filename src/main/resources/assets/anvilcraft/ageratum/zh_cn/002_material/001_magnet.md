@@ -1,4 +1,4 @@
----
+    ---
 navigation:
   title: "磁铁"
   icon: "anvilcraft:magnet_ingot"
@@ -58,7 +58,7 @@ items:
 - 反复激活，可以将铁砧抬起再砸下
 
 # 电磁效应
-具有发电能力后，可利用[<translate key="item.anvilcraft.charger"/>](../003_power/102_power_charge.md)，
+具有发电能力后，可利用[<translate key="block.anvilcraft.charger"/>](../003_power/102_power_charge.md)，
 将<translate key="item.minecraft.iron_ingot"/>充能为[<translate key="item.anvilcraft.magnet_ingot"/>](001_magnet.md)
 
 <recipe id="anvilcraft:charger_charging/magnet_ingot"/>

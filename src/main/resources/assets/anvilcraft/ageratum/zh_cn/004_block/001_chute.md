@@ -17,8 +17,8 @@ items:
 - [<translate key="block.anvilcraft.chute"/>](001_chute.md)是一种特殊的漏斗，有9格容量，一次性输送一组物品
 - 既可以将物品输入容器，也可以将物品丢出至世界上
 - 打开gui可以:
-    - 查看库存、改变输出方向和设置过滤
-    - 在槽位中使用滚轮可以设置物品上限
+  - 查看库存、改变输出方向和设置过滤
+  - 在槽位中使用滚轮可以设置物品上限
 
 > 可以通过 [<translate key="item.anvilcraft.filter"/>](../006_prop/003_filter.md) 设置更多过滤
 

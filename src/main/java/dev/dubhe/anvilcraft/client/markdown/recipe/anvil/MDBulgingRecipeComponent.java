@@ -32,8 +32,7 @@ public class MDBulgingRecipeComponent extends MDBaseAnvilRecipeComponent {
         ingredients = recipe.getInputItems();
         resultItems = recipe.getResultItems();
         inputBlockStates = List.of(
-            getInputCauldron(recipe),
-            Blocks.SCAFFOLDING.defaultBlockState()
+            getInputCauldron(recipe)
         );
         outputBlockState = !resultItems.isEmpty() ? Blocks.AIR.defaultBlockState() : getResultCauldron(recipe);
     }

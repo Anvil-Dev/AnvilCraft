@@ -12,9 +12,13 @@ items:
 
 让<translate key="block.minecraft.anvil"/>落在特定方块上就可以加工该方块顶部或内部的物品，不同的特定方块有不同的处理，本条目的后续页面依次介绍
 
-> 注意：<translate key="block.minecraft.anvil"/>从高度不低于2格的砸落时，有概率损坏
+<warning>
+注意：<translate key="block.minecraft.anvil"/>从高度不低于2格的砸落时，有概率损坏
+</warning>
 
-> 在此之前，了解[<translate key="block.anvilcraft.magnet_block"/>](../002_material/001_magnet.md)会让你更方便地加工
+<tip>
+查看此页面之前，了解[<translate key="block.anvilcraft.magnet_block"/>](../002_material/001_magnet.md)会让你更方便地加工
+</tip>
 
 <row halign="center">
 <recipe id="anvilcraft:stamping_platform"/>
@@ -67,7 +71,7 @@ items:
 
 # 分解
 
-下方是<translate key="item.minecraft.iron_trapdoor"/>时，执行**物品分解**操作，原料置于铁活版门上，产物出现在铁活版门下
+下方是<translate key="block.minecraft.iron_trapdoor"/>时，执行**物品分解**操作，原料置于铁活版门上，产物出现在铁活版门下
 
 <row halign="center">
 <structure id="../structures/unpack.snbt"/>
@@ -124,7 +128,7 @@ items:
 
 # 烹饪
 
-下方是<translate key="item.minecraft.cauldron"/>和<translate key="item.minecraft.campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
+下方是<translate key="item.minecraft.cauldron"/>和<translate key="block.minecraft.campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
 
 <row halign="center">
 <structure id="../structures/cooking.snbt"/>

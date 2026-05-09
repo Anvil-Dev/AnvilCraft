@@ -45,8 +45,8 @@ items:
 
 <recipe id="anvilcraft:powered_sliding_rail"/>
 
-- <color=#cccc44>未收到红石信号</color>时，与[<translate key="block.anvilcraft.sliding_rail_stop"/>](001_sliding_rail.md)表现一致
-- <color=#cccc44>收到红石信号</color>时，
+- <color=#999922>未收到红石信号</color>时，与[<translate key="block.anvilcraft.sliding_rail_stop"/>](001_sliding_rail.md)表现一致
+- <color=#999922>收到红石信号</color>时，
   - 令上方的*实体*和*方块*沿朝向滑动
   - 当[<translate key="block.anvilcraft.powered_sliding_rail"/>](001_sliding_rail.md)背后是[<translate key="block.anvilcraft.sliding_rail_stop"/>](001_sliding_rail.md)时，[<translate key="block.anvilcraft.sliding_rail_stop"/>](001_sliding_rail.md)上的*实体*和*方块*会被转移至[<translate key="block.anvilcraft.powered_sliding_rail"/>](001_sliding_rail.md)，并向前移动
 ## 特性
@@ -61,8 +61,8 @@ items:
 
 <recipe id="anvilcraft:activator_sliding_rail"/>
 
-- <color=#cccc44>未收到红石信号</color>时，与[<translate key="block.anvilcraft.sliding_rail"/>](001_sliding_rail.md)表现一致
-- <color=#cccc44>收到红石信号</color>时：
+- <color=#999922>未收到红石信号</color>时，与[<translate key="block.anvilcraft.sliding_rail"/>](001_sliding_rail.md)表现一致
+- <color=#999922>收到红石信号</color>时：
   - 使有滑行的*方块*经过，使其在上方停顿一下，并对其发出脉冲信号
   - 如上方存在静止的*方块*，则持续对其发出信号
 
