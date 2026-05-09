@@ -47,6 +47,12 @@ items:
 
 ---
 
+# 水泥
+
+<recipe id="anvilcraft:bulging/cement_cauldron"/>
+
+- 制作出的水泥默认为灰色，向锅中投入染料并砸击可改变颜色
+
 # 混凝土工艺
 
 - 向水泥锅中，投入 4 * <translate key="block.minecraft.gravel"/> + 4 * <translate key="block.minecraft.sand"/>并砸击，可以获得 16 * 混凝土，颜色由水泥决定。

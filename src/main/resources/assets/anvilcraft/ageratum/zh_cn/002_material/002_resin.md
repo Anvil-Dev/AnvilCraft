@@ -9,6 +9,7 @@ items:
   - anvilcraft:resin
   - anvilcraft:hardend_resin
   - anvilcraft:circuit_board
+  - anvilcraft:processor
 ---
 
 # 树脂

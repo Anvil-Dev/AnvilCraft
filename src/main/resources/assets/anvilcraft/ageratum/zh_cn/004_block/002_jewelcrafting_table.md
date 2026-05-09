@@ -16,6 +16,10 @@ items:
 - 玩家可以使用珠宝加工台**仿制**特定物品
 - 放入需要仿制的物品和对应的材料，就能仿制出一个附带<color=#660000>消失诅咒</color>的仿制品
 
+<tip>
+放入需要仿制的物品后，按下[空格]可以自动填充材料
+</tip>
+
 <row halign="center">
 <recipe id="anvilcraft:jewel_crafting/elytra"/>
 <recipe id="anvilcraft:jewel_crafting/ominous_bottle"/>

@@ -15,7 +15,7 @@ items:
 
 - [<translate key="block.anvilcraft.transcendence_anvil"/>](311_transcendence_anvil.md)永远不会损坏，
 - 具有[<translate key="block.anvilcraft.ember_anvil"/>](223_ember_anvil.md)的一切锻造能力
-- 合并附魔时，**无视**附魔等级上限
+- 合并附魔时，**无视**附魔等级上限，铁砧惩罚增长更缓慢，每次+1
 
 ---
 
