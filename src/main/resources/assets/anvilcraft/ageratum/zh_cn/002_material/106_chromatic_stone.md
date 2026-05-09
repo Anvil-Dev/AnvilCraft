@@ -10,11 +10,10 @@ items:
 
 # 熔融宝石
 
-<item id="anvilcraft:melt_gem_bucket"/>
+<recipe id="anvilcraft:super_heating/melt_gem_cauldron_from_gem_block"/>
 
 将任意[宝石块](000_gems.md)放入炼药锅进行[高温熔炼](../004_block/100_heater.md)，即可获取装有熔融宝石的炼药锅
 
-<recipe id="anvilcraft:super_heating/melt_gem_cauldron"/>
 
 ## 特性
 
@@ -23,15 +22,13 @@ items:
 
 # 异彩石
 
-<item id="anvilcraft:chromatic_stone"/>
+<recipe id="anvilcraft:time_warp/chromatic_stone"/>
 
 - 使熔融宝石与水接触获得
 - 拥有<translate key="block.anvilcraft.corrupted_beacon"/>后，进行如下合成
 
-<recipe id="anvilcraft:time_warp/chromatic_stone"/>
-
 ## 用途
 
-- 粉碎后随机产出1*宝石 + 3*<translate key="item.minecraft.quartz"/>
-
 <recipe id="anvilcraft:super_heating/melt_gem_cauldron_from_chromatic_stone"/>
+
+- 粉碎后随机产出1*宝石 + 3*<translate key="item.minecraft.quartz"/>

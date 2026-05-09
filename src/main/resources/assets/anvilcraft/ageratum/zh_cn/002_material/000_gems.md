@@ -26,7 +26,6 @@ items:
 <item id="anvilcraft:topaz_block"/>
 <item id="anvilcraft:sapphire_block"/>
 <item id="anvilcraft:ruby_block"/>
-<item id="anvilcraft:melt_gem_bucket"/>
 </row>
 
 # 宝石

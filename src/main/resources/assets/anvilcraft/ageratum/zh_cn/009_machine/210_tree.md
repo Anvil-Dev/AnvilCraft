@@ -14,7 +14,7 @@ navigation:
 建造这样一台**巨型铁砧树场**，原木就能源源不断进入箱子，并且不消耗骨粉
 
 1. 使用[<translate key="block.anvilcraft.induction_light"/>](../004_block/101_induction_light.md)加快大树的生长
-2. 使用[<translate key="block.anvilcraft.giant_anvil"/>](../004_block/210_giant_anvil.md)撼地的冲击破破坏大树
+2. 使用[<translate key="block.anvilcraft.giant_anvil"/>](../004_block/210_giant_anvil.md)撼地的冲击波破坏大树
 3. 使用[<translate key="block.anvilcraft.item_collector"/>](../004_block/101_item_collector.md)范围收集掉落物
 
 ## 图示
