@@ -10,39 +10,19 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.block.state.Color;
-import dev.dubhe.anvilcraft.client.model.FlightTimeProperty;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
-import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.DiskItem;
-import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberAnvilHammerItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalAxeItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalHeavyHalberdItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalHoeItem;
 import dev.dubhe.anvilcraft.item.EmberMetalIngotItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalPickaxeItem;
-import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystShovelItem;
-import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystSwordItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalResonatorItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalShovelItem;
-import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalSwordItem;
 import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
 import dev.dubhe.anvilcraft.item.EmptySuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.EnergyWeaponPlatformItem;
 import dev.dubhe.anvilcraft.item.ExpGemItem;
 import dev.dubhe.anvilcraft.item.FilterItem;
-import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalAxeItem;
-import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalHeavyHalberdItem;
-import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalHoeItem;
-import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalPickaxeItem;
-import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalResonatorItem;
-import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalShovelItem;
-import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalSwordItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdCoreItem;
@@ -51,25 +31,14 @@ import dev.dubhe.anvilcraft.item.IonoCraftItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
-import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.PillBoxItem;
 import dev.dubhe.anvilcraft.item.RecoveryPearl;
 import dev.dubhe.anvilcraft.item.ResonatorCoreItem;
-import dev.dubhe.anvilcraft.item.tool.royal.RoyalAnvilHammerItem;
-import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelAxeItem;
-import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelHoeItem;
-import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelPickaxeItem;
-import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelShovelItem;
 import dev.dubhe.anvilcraft.item.RoyalSteelIngotItem;
-import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelSwordItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
-import dev.dubhe.anvilcraft.item.tool.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.item.StructureToolItem;
 import dev.dubhe.anvilcraft.item.SuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
-import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceAnvilHammerItem;
-import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceHeavyHalberdItem;
-import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
@@ -79,7 +48,6 @@ import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
-import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.RoyalSteelUpgradeTemplateItem;
@@ -89,20 +57,48 @@ import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.EightToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.FourToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.TwoToOneTemplateItem;
-import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystPickaxeItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystAxeItem;
 import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystHoeItem;
+import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystPickaxeItem;
+import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystShovelItem;
+import dev.dubhe.anvilcraft.item.tool.amethyst.AmethystSwordItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberAnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalAxeItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalHeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalHoeItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalPickaxeItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalShovelItem;
+import dev.dubhe.anvilcraft.item.tool.ember.EmberMetalSwordItem;
+import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalAxeItem;
+import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalHeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalHoeItem;
+import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalPickaxeItem;
+import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalShovelItem;
+import dev.dubhe.anvilcraft.item.tool.frost.FrostMetalSwordItem;
+import dev.dubhe.anvilcraft.item.tool.royal.RoyalAnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelAxeItem;
+import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelHoeItem;
+import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelPickaxeItem;
+import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelShovelItem;
+import dev.dubhe.anvilcraft.item.tool.royal.RoyalSteelSwordItem;
+import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceAnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceHeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
-import dev.dubhe.anvilcraft.util.DataGenUtil;
+import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -156,7 +152,7 @@ public class ModItems {
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.FORTUNE, 3))
         .recipe(RegistrumItemRecipeLoader.pickaxe(
             Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getProvider())
+            (ctx, provider) -> enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getRegistries())
         ))
         .model(() -> (ctx, provider) -> provider.generateFlatItem(
             ctx.get(),
@@ -168,7 +164,7 @@ public class ModItems {
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.FELLING_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.axe(
             Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getProvider())
+            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getRegistries())
         ))
         .model(() -> (ctx, provider) -> provider.generateFlatItem(
             ctx.get(),
@@ -192,7 +188,7 @@ public class ModItems {
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.BEHEADING_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.sword(
             Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getProvider())
+            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getRegistries())
         ))
         .model(() -> (ctx, provider) -> provider.generateFlatItem(
             ctx.get(),
@@ -212,7 +208,8 @@ public class ModItems {
         ))
         .tag(ItemTags.SHOVELS)
         .register();
-    public static final ItemEntry<RoyalSteelPickaxeItem> ROYAL_STEEL_PICKAXE = REGISTRUM.item("royal_steel_pickaxe", RoyalSteelPickaxeItem::new)
+    public static final ItemEntry<RoyalSteelPickaxeItem> ROYAL_STEEL_PICKAXE = REGISTRUM
+        .item("royal_steel_pickaxe", RoyalSteelPickaxeItem::new)
         .recipe(RegistrumItemRecipeLoader::royalSteelPickaxe)
         .properties(properties -> properties.durability(1561))
         .model(() -> (ctx, provider) -> provider.generateFlatItem(
@@ -435,7 +432,7 @@ public class ModItems {
         ItemTags.DURABILITY_ENCHANTABLE,
         ItemTags.MACE_ENCHANTABLE,
         ItemTags.TRIDENT_ENCHANTABLE,
-        ItemTags.SWORD_ENCHANTABLE,
+        ItemTags.SWEEPING_ENCHANTABLE,
         ModItemTags.HEAVY_HALBERD,
         ModItemTags.EXPLOSION_PROOF
     ).model(DataGenUtil::noExtraModelOrState).register();
@@ -446,7 +443,7 @@ public class ModItems {
         ItemTags.DURABILITY_ENCHANTABLE,
         ItemTags.MACE_ENCHANTABLE,
         ItemTags.TRIDENT_ENCHANTABLE,
-        ItemTags.SWORD_ENCHANTABLE,
+        ItemTags.SWEEPING_ENCHANTABLE,
         ModItemTags.HEAVY_HALBERD,
         ModItemTags.EXPLOSION_PROOF
     ).model(DataGenUtil::noExtraModelOrState).register();
@@ -524,14 +521,14 @@ public class ModItems {
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.CROSSBOW_ENCHANTABLE
         )
-        .model(DataGenUtil::noExtraModelOrState)
+        .model(DataGenUtil::energyWeapon)
         .register();
 
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
-        .model(DataGenUtil::noExtraModelOrState)
+        .model(DataGenUtil::energyWeapon)
         .register();
 
     public static final ItemEntry<? extends IonoCraftItem> IONOCRAFT = REGISTRUM.item("ionocraft", IonoCraftItem::new)
@@ -545,24 +542,7 @@ public class ModItems {
             .humanoidArmor(ArmorMaterials.IRON, ArmorType.CHESTPLATE)
             .enchantable(15)
         )
-        .model(() -> (ctx, generator) -> {
-            Item item = ctx.get();
-            ItemModel.Unbaked normal = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item));
-            ItemModel.Unbaked off = ItemModelUtils.plainModel(generator.createFlatItemModel(item, "_off", ModelTemplates.FLAT_ITEM));
-            generator.itemModelOutput.accept(
-                item,
-                ItemModelUtils.conditional(
-                    ItemModelUtils.hasComponent(ModComponents.FLIGHT_TIME),
-                    ItemModelUtils.rangeSelect(
-                        new FlightTimeProperty(),
-                        1.0F,
-                        normal,
-                        ItemModelUtils.override(off, 1.0F)
-                    ),
-                    normal
-                )
-            );
-        })
+        .model(DataGenUtil::ionocraftBackpack)
         .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();

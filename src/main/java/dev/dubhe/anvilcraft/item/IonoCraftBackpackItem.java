@@ -8,15 +8,8 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.FlightTime;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.core.Holder;
-import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,20 +17,13 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -62,13 +48,12 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
 
     public IonoCraftBackpackItem(Properties properties) {
-        super(properties.component(ModComponents.FLIGHT_TIME, FlightTime.EMPTY));
+        super(
+            properties
+                .repairable(ModItems.TIN_INGOT.asItem())
+                .component(ModComponents.FLIGHT_TIME, FlightTime.EMPTY)
+        );
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
-    }
-
-    @Override
-    public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
-        return repair.is(ModItems.TIN_INGOT);
     }
 
     @Override
@@ -79,16 +64,6 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
             AnvilCraft.of("flight_time"),
             ModItemProperties.FLIGHT_TIME
         );
-    }
-
-    @Override
-    public Holder<SoundEvent> getEquipSound() {
-        return SoundEvents.ARMOR_EQUIP_IRON;
-    }
-
-    @Override
-    public EquipmentSlot getEquipmentSlot() {
-        return EquipmentSlot.CHEST;
     }
 
     @Override
@@ -106,7 +81,7 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     }
 
     public static int getFlightTime(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.FLIGHT_TIME, FlightTime.EMPTY).time();
+        return stack.getOrDefault(ModComponents.FLIGHT_TIME, FlightTime.EMPTY).value();
     }
 
     public static void addFlightTime(ItemStack stack, int time) {

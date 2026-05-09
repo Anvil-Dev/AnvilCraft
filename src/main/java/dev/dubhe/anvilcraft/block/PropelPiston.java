@@ -12,12 +12,13 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -40,12 +41,17 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlock, IHammerRemovable, IHammerChangeable {
     public static final BooleanProperty EXHAUSTED = BooleanProperty.create("exhausted");
     public static final BooleanProperty MOVING = BooleanProperty.create("moving");
@@ -169,7 +175,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        Integer energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy();
+        Integer energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
             propelPistonBlockEntity.updateStoredEnergy(energy);
@@ -177,23 +183,15 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
     }
 
     @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("storedEnergyData", propelPistonBlockEntity.getStoredEnergy());
-            return tag;
-        }
-        return new CompoundTag();
+    public void storeData(Level level, BlockPos pos, ValueOutput output) {
+        if (!(level.getBlockEntity(pos) instanceof PropelPistonBlockEntity be)) return;
+        output.putInt("storedEnergyData", be.getStoredEnergy());
     }
 
     @Override
-    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-            int data = nbt.getIntOr("storedEnergyData", 0);
-            propelPistonBlockEntity.updateStoredEnergy(data);
-        }
+    public void loadData(Level level, BlockPos pos, ValueInput input) {
+        if (!(level.getBlockEntity(pos) instanceof PropelPistonBlockEntity be)) return;
+        be.updateStoredEnergy(input.getIntOr("storedEnergyData", 0));
     }
 
     @Override
@@ -270,14 +268,14 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
                 blockPos3 = blockPos3.relative(facing);
                 map.remove(blockPos3);
                 BlockState blockState8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, facing);
-                CompoundTag nbt = new CompoundTag();
+                TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(log), level.registryAccess());
                 if (list1.get(k).getBlock() instanceof IMoveableEntityBlock block) {
-                    nbt = block.clearData(level, blockPos3.relative(facing.getOpposite()));
+                    block.storeData(level, blockPos3.relative(facing.getOpposite()), output);
                 }
                 level.setBlock(blockPos3, blockState8, 68);
                 BlockEntity blockEntity = MovingPistonBlock.newMovingBlockEntity(blockPos3, blockState8, list1.get(k), facing, true, false);
                 if (blockEntity instanceof IPistonMovingBlockEntityExtension entity) {
-                    entity.anvillib$setData(nbt);
+                    entity.anvillib$setData(output.buildResult());
                 }
                 level.setBlockEntity(blockEntity);
                 blockStates[i++] = blockState5;

@@ -11,8 +11,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -22,6 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.piston.PistonStructureResolver;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
@@ -54,7 +54,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         }
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
-            new ChunkPos(getBlockPos()),
+            ChunkPos.containing(getBlockPos()),
             new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), storedEnergy)
         );
     }
@@ -139,7 +139,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
-        Integer energy = components.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).energy();
+        Integer energy = components.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         this.updateStoredEnergy(energy);
     }
 

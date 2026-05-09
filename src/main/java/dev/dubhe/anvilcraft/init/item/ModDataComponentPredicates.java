@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.item;
 
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
 import dev.dubhe.anvilcraft.item.property.predicate.ItemEnchCountPredicate;
 import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
@@ -26,6 +27,12 @@ public class ModDataComponentPredicates {
         register(
             "enchantment_count",
             ItemEnchCountPredicate.CODEC.codec()
+        );
+
+    public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<IntegerComponentPredicate>> INT_COMP =
+        register(
+            "integer_component",
+            IntegerComponentPredicate.CODEC.codec()
         );
 
     public static <T extends DataComponentPredicate>
