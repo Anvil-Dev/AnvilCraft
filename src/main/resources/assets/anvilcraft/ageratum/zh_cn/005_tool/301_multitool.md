@@ -24,4 +24,4 @@ items:
 ### 相关
 
 - [手持磁铁](../006_prop/001_hand_magnet.md)
-- [余烬锻造台](../004_block/101_royal_smithing_table.md)
+- [余烬锻造台](../004_block/221_ember_smithing_table.md)
