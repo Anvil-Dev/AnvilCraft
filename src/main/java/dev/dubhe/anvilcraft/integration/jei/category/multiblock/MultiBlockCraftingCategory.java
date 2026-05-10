@@ -23,12 +23,12 @@ import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -94,7 +94,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     }
 
     @Override
-    public RecipeType<RecipeHolder<MultiblockRecipe>> getRecipeType() {
+    public IRecipeHolderType<MultiblockRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING;
     }
 
@@ -140,7 +140,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     public void draw(
         RecipeHolder<MultiblockRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -258,10 +258,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
-        registration.addRecipeCatalyst(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
-        registration.addRecipeCatalyst(Items.CRAFTING_TABLE.getDefaultInstance(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
-        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING, ModBlocks.GIANT_ANVIL.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING, ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING, Items.CRAFTING_TABLE.getDefaultInstance());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING, ModBlocks.SPACE_OVERCOMPRESSOR.asStack());
     }
 
 }

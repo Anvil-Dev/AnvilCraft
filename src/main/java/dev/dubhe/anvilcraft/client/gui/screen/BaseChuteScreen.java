@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import lombok.Getter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -60,20 +60,20 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     abstract boolean shouldSkipDirection(Direction direction);
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
-    public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+    public void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
         super.renderSlot(guiGraphics, slot);
         IFilterScreen.super.renderSlot(guiGraphics, slot);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         super.renderTooltip(guiGraphics, x, y);
         this.renderSlotTooltip(guiGraphics, x, y);
     }
@@ -90,7 +90,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         return components;
     }
 
-    protected void renderSlotTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderSlotTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (this.hoveredSlot == null) return;
         if (!(this.hoveredSlot instanceof SlotItemHandlerWithFilter)) return;
         if (!((SlotItemHandlerWithFilter) this.hoveredSlot).isFilter()) return;

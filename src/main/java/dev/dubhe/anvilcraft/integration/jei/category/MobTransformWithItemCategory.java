@@ -17,12 +17,12 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -61,7 +61,7 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
     }
 
     @Override
-    public RecipeType<RecipeHolder<MobTransformWithItemRecipe>> getRecipeType() {
+    public IRecipeHolderType<MobTransformWithItemRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MOB_TRANSFORM_WITH_ITEM;
     }
 
@@ -133,14 +133,14 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CORRUPTED_BEACON), AnvilCraftJeiPlugin.MOB_TRANSFORM_WITH_ITEM);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MOB_TRANSFORM_WITH_ITEM, new ItemStack(ModBlocks.CORRUPTED_BEACON));
     }
 
     @Override
     public void draw(
         RecipeHolder<MobTransformWithItemRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {

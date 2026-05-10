@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -171,7 +171,7 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (!this.visible) return;
         this.isHovered = this.isInSlider(mouseX, mouseY);
         this.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
@@ -179,7 +179,7 @@ public class Slider extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         double prop = this.getProportion();
         int offsetX = posX + (int) ((length) * prop);
         guiGraphics.blit(SLIDER, offsetX, posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);

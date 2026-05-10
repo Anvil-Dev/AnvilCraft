@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -57,7 +57,7 @@ public class SilencerButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         String searchText = this.parent.getFilterText();
         Identifier soundId = this.parent.getSoundIdAt(this.index, this.variant);
         if (soundId == null) return;
@@ -108,7 +108,7 @@ public class SilencerButton extends Button {
     }
 
     public void renderTexture(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         Identifier texture,
         int x,
         int y,

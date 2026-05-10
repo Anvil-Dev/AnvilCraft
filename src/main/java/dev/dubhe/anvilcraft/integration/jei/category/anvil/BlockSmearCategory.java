@@ -16,11 +16,11 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -50,7 +50,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     }
 
     @Override
-    public RecipeType<RecipeHolder<BlockSmearRecipe>> getRecipeType() {
+    public IRecipeHolderType<BlockSmearRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.BLOCK_SMEAR;
     }
 
@@ -92,7 +92,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     public void draw(
         RecipeHolder<BlockSmearRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         BlockSmearRecipe recipe = recipeHolder.value();

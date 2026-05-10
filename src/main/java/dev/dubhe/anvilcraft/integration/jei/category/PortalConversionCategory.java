@@ -49,7 +49,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     }
 
     @Override
-    public IRecipeType<RecipeHolder<PortalConversionRecipe>> getRecipeType() {
+    public IIRecipeHolderType<PortalConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.PORTAL_CONVERSION;
     }
 
@@ -90,7 +90,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     public void draw(
         RecipeHolder<PortalConversionRecipe> holder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -169,7 +169,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Blocks.END_PORTAL_FRAME), AnvilCraftJeiPlugin.PORTAL_CONVERSION);
-        registration.addRecipeCatalyst(new ItemStack(Blocks.OBSIDIAN), AnvilCraftJeiPlugin.PORTAL_CONVERSION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, new ItemStack(Blocks.END_PORTAL_FRAME));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, new ItemStack(Blocks.OBSIDIAN));
     }
 }

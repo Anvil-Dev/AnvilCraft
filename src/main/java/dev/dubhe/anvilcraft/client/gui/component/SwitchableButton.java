@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -71,7 +71,7 @@ public class SwitchableButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.switchables.get(this.current).render(guiGraphics, mouseX, mouseY, partialTick);
         if (MathUtil.isInRange(mouseX, this.getX(), this.getX() + this.width)
             && MathUtil.isInRange(mouseY, this.getY(), this.getY() + this.height)

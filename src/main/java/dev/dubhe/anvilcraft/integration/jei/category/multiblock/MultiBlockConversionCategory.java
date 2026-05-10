@@ -25,12 +25,12 @@ import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -130,13 +130,13 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION);
-        registration.addRecipeCatalyst(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION);
-        registration.addRecipeCatalyst(new ItemStack(Blocks.CRAFTING_TABLE), AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION, ModBlocks.GIANT_ANVIL.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION, ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION, new ItemStack(Blocks.CRAFTING_TABLE));
     }
 
     @Override
-    public RecipeType<RecipeHolder<MultiblockConversionRecipe>> getRecipeType() {
+    public IRecipeHolderType<MultiblockConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION;
     }
 
@@ -198,7 +198,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     public void draw(
         RecipeHolder<MultiblockConversionRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {

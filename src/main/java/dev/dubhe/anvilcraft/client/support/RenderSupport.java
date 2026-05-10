@@ -17,12 +17,12 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -107,7 +107,7 @@ public class RenderSupport {
     };
 
     public static void renderBlockWithRotationNoTranslate(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         BlockState block,
         BlockRenderFunction fn
     ) {
@@ -154,7 +154,7 @@ public class RenderSupport {
     }
 
     public static void renderBlockWithRotation(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         BlockState block,
         float x,
         float y,
@@ -215,7 +215,7 @@ public class RenderSupport {
     }
 
     public static void renderBlock(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         BlockState block,
         float x,
         float y,
@@ -238,7 +238,7 @@ public class RenderSupport {
 
     public static void renderLevelLike(
         LevelLike level,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         int posX,
         int posY,
         float scaleFactor,
@@ -313,7 +313,7 @@ public class RenderSupport {
 
     public static void renderLevelLike(
         LevelLike level,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         int posX,
         int posY,
         float scale

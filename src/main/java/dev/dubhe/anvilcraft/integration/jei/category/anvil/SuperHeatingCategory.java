@@ -17,12 +17,12 @@ import dev.dubhe.anvilcraft.util.CauldronUtil;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -43,7 +43,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
     }
 
     @Override
-    public RecipeType<RecipeHolder<SuperHeatingRecipe>> getRecipeType() {
+    public IRecipeHolderType<SuperHeatingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.SUPER_HEATING;
     }
 
@@ -51,7 +51,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
     public void draw(
         RecipeHolder<SuperHeatingRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -173,7 +173,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.SUPER_HEATING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SUPER_HEATING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.HEATER), AnvilCraftJeiPlugin.SUPER_HEATING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.SUPER_HEATING, new ItemStack(Items.CAULDRON));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.SUPER_HEATING, new ItemStack(ModBlocks.HEATER));
     }
 }

@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.tooltip;
 import dev.dubhe.anvilcraft.inventory.tooltip.FilterTooltip;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ public class ClientFilterTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(Font font, int x, int y, GuiGraphics guiGraphics) {
+    public void renderImage(Font font, int x, int y, GuiGraphicsExtractor guiGraphics) {
         int i = 0;
         for (ItemStack stack : content.list()) {
             if (i >= 18) break;
@@ -44,7 +44,7 @@ public class ClientFilterTooltip implements ClientTooltipComponent {
         }
     }
 
-    private void renderSlot(int x, int y, GuiGraphics guiGraphics) {
+    private void renderSlot(int x, int y, GuiGraphicsExtractor guiGraphics) {
         guiGraphics.blitSprite(
             Identifier.withDefaultNamespace("container/bundle/slot"),
             x,

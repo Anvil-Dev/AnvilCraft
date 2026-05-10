@@ -93,7 +93,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
         return this.canStickTo(pos, axis, otherPos, otherAxis);
     }
 
-    private boolean canStickTo(BlockPos pos, @Nullable Direction.Axis axis, BlockPos otherPos, @Nullable Direction.Axis otherAxis) {
+    private boolean canStickTo(BlockPos pos, Direction.@Nullable Axis axis, BlockPos otherPos, Direction.@Nullable Axis otherAxis) {
         if (axis == Direction.Axis.Y || otherAxis == Direction.Axis.Y) return true;
         boolean axisIsNotNull = axis != null;
         if (Objects.equals(otherAxis, axis) && axisIsNotNull) {

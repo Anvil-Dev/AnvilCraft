@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -51,7 +51,7 @@ public class TexturedButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if (!this.visible) return;
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         int offsetV = 0;

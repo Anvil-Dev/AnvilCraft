@@ -18,13 +18,13 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
@@ -63,7 +63,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     }
 
     @Override
-    public RecipeType<RecipeHolder<MassInjectRecipe>> getRecipeType() {
+    public IRecipeHolderType<MassInjectRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MASS_INJECT;
     }
 
@@ -105,7 +105,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     public void draw(
         RecipeHolder<MassInjectRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -148,7 +148,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.MASS_INJECT);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MASS_INJECT, ModBlocks.SPACE_OVERCOMPRESSOR.asStack());
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.MASS_INJECT);
     }
 }

@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -75,7 +75,7 @@ public class GuiLayerRegistrationEventListener {
         event.registerAboveAll(AnvilCraft.of("ionocraft_backpack"), IonoCraftBackpackHUD::render);
     }
 
-    public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void render(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         // PoseStack poseStack = guiGraphics.pose();
         // Matrix4f matrix4f = poseStack.last().pose();
         // Tesselator tesselator = Tesselator.getInstance();

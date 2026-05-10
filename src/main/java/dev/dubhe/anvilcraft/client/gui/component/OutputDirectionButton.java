@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -38,7 +38,7 @@ public class OutputDirectionButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
             List<Component> components = new ArrayList<>() {
@@ -63,7 +63,7 @@ public class OutputDirectionButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         Identifier location = switch (direction) {
             case UP -> SharedTextures.BUTTON_U;
             case EAST -> SharedTextures.BUTTON_E;
@@ -76,7 +76,7 @@ public class OutputDirectionButton extends Button {
     }
 
     public void renderTexture(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         Identifier texture,
         int x,
         int y,

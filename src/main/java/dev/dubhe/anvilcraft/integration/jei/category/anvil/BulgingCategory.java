@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -18,12 +19,12 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -63,7 +64,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
     }
 
     @Override
-    public RecipeType<RecipeHolder<BulgingRecipe>> getRecipeType() {
+    public IRecipeHolderType<BulgingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.BULGING;
     }
 
@@ -100,7 +101,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
     public void draw(
         RecipeHolder<BulgingRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         BulgingRecipe recipe = recipeHolder.value();
@@ -235,6 +236,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.BULGING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.BULGING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.BULGING, new ItemStack(Items.CAULDRON));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.BULGING, ModBlocks.FISH_TANK.asStack());
     }
 }

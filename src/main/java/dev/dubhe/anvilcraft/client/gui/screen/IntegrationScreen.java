@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.util.ModEventUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
@@ -92,7 +92,7 @@ public class IntegrationScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
@@ -159,7 +159,7 @@ public class IntegrationScreen extends Screen {
             return this.children;
         }
 
-        protected void renderLabel(GuiGraphics guiGraphics, int x, int y, int width) {
+        protected void renderLabel(GuiGraphicsExtractor guiGraphics, int x, int y, int width) {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
             pose.translate(x, y, 0);
@@ -218,7 +218,7 @@ public class IntegrationScreen extends Screen {
 
         @Override
         public void render(
-            GuiGraphics guiGraphics,
+            GuiGraphicsExtractor guiGraphics,
             int index,
             int top,
             int left,
@@ -283,7 +283,7 @@ public class IntegrationScreen extends Screen {
 
         @Override
         public void render(
-            GuiGraphics guiGraphics,
+            GuiGraphicsExtractor guiGraphics,
             int index,
             int top,
             int left,
@@ -334,7 +334,7 @@ public class IntegrationScreen extends Screen {
 
         @Override
         public void render(
-            GuiGraphics guiGraphics,
+            GuiGraphicsExtractor guiGraphics,
             int index,
             int top,
             int left,
@@ -428,7 +428,7 @@ public class IntegrationScreen extends Screen {
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
             AbstractIntegrationEntry entry = this.getHovered();
             if (entry == null || entry.tooltip == null) return;

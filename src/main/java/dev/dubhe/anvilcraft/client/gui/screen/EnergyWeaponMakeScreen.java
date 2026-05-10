@@ -12,9 +12,9 @@ import dev.dubhe.anvilcraft.network.multiple.EnergyWeaponMakePackets;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FastColor;
@@ -64,7 +64,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
@@ -93,14 +93,14 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
         this.renderSelectingArea(graphics, mouseX, mouseY, partialTick);
         this.renderCantCraftBlink(graphics);
         this.renderTooltip(graphics, mouseX, mouseY);
     }
 
-    protected void renderSelectingArea(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltip = null;
         if (this.menu.getRecipes().isEmpty()) return;
         for (int i = this.head; i < this.head + Math.min(this.menu.getRecipes().size() - this.head, 6); i++) {
@@ -129,7 +129,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         }
     }
 
-    private void renderCantCraftBlink(GuiGraphics graphics) {
+    private void renderCantCraftBlink(GuiGraphicsExtractor graphics) {
         if (this.menu.isCantCraft()) {
             this.menu.setCantCraft(false);
             this.cantCraftBlinkMs = System.currentTimeMillis();
@@ -149,7 +149,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         }
     }
 
-    private void renderSingleCantCraftBlink(GuiGraphics graphics, int index, float alpha) {
+    private void renderSingleCantCraftBlink(GuiGraphicsExtractor graphics, int index, float alpha) {
         int x = this.leftPos + 88 + (index % 3) * 18;
         int y = this.topPos + 24 + (index / 2) * 18;
         graphics.fill(
@@ -163,7 +163,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics graphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
             graphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
@@ -180,7 +180,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphics guiGraphics, ItemStack stack, Slot slot, @Nullable String countString) {
+    protected void renderSlotContents(GuiGraphicsExtractor guiGraphics, ItemStack stack, Slot slot, @Nullable String countString) {
         if (slot instanceof FilteredSlot filtered) {
             if (filtered.isFilterEmpty()) return;
             if (stack.isEmpty()) {
@@ -215,7 +215,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
 
         if (this.menu.canScroll()) {

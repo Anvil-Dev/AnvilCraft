@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import lombok.Getter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -46,18 +46,18 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
-    public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+    public void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
         super.renderSlot(guiGraphics, slot);
         IFilterScreen.super.renderSlot(guiGraphics, slot);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         super.renderTooltip(guiGraphics, x, y);
         this.renderSlotTooltip(guiGraphics, x, y);
     }
@@ -76,7 +76,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
         return components;
     }
 
-    protected void renderSlotTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderSlotTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (this.hoveredSlot == null) return;
         if (!(this.hoveredSlot instanceof SlotItemHandlerWithFilter)) return;
         if (!((SlotItemHandlerWithFilter) this.hoveredSlot).isFilter()) return;

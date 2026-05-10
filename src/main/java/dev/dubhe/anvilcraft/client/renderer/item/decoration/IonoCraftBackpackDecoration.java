@@ -3,13 +3,13 @@ package dev.dubhe.anvilcraft.client.renderer.item.decoration;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.IItemDecorator;
 
 public class IonoCraftBackpackDecoration implements IItemDecorator {
     @Override
-    public boolean render(GuiGraphics guiGraphics, Font font, ItemStack stack, int offsetX, int offsetY) {
+    public boolean render(GuiGraphicsExtractor guiGraphics, Font font, ItemStack stack, int offsetX, int offsetY) {
         int flightTime = IonoCraftBackpackItem.getFlightTime(stack);
         if (flightTime > 0) {
             final int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);

@@ -17,11 +17,11 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -52,7 +52,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     }
 
     @Override
-    public RecipeType<RecipeHolder<NeutronIrradiationRecipe>> getRecipeType() {
+    public IRecipeHolderType<NeutronIrradiationRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.NEUTRON_IRRADIATION;
     }
 
@@ -95,7 +95,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     public void draw(
         RecipeHolder<NeutronIrradiationRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -190,7 +190,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.NEUTRON_IRRADIATION);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.NEUTRON_IRRADIATION);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.NEUTRON_IRRADIATOR), AnvilCraftJeiPlugin.NEUTRON_IRRADIATION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.NEUTRON_IRRADIATION, new ItemStack(Items.CAULDRON));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.NEUTRON_IRRADIATION, new ItemStack(ModBlocks.NEUTRON_IRRADIATOR));
     }
 }

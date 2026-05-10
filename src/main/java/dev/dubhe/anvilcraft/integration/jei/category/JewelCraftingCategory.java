@@ -13,12 +13,12 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.common.gui.elements.DrawableText;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -41,7 +41,7 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     }
 
     @Override
-    public RecipeType<RecipeHolder<JewelCraftingRecipe>> getRecipeType() {
+    public IRecipeHolderType<JewelCraftingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.JEWEL_CRAFTING;
     }
 
@@ -83,7 +83,7 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     public void draw(
         RecipeHolder<JewelCraftingRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -105,6 +105,6 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.JEWEL_CRAFTING_TABLE), AnvilCraftJeiPlugin.JEWEL_CRAFTING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.JEWEL_CRAFTING, new ItemStack(ModBlocks.JEWEL_CRAFTING_TABLE));
     }
 }

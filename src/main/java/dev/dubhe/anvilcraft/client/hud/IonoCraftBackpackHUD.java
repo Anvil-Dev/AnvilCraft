@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -19,7 +19,7 @@ public class IonoCraftBackpackHUD {
     private static final Identifier BATTERY_EMPTY = SharedTextures.textureGui("misc/battery_display/battery_empty");
     private static final Identifier BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
 
-    public static void render(GuiGraphics guiGraphics, DeltaTracker partialTick) {
+    public static void render(GuiGraphicsExtractor guiGraphics, DeltaTracker partialTick) {
         if (!AnvilCraftClient.CONFIG.ionoCraftBackpackHud.enabled) {
             return;
         }

@@ -10,10 +10,10 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,7 +30,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
     }
 
     @Override
-    public RecipeType<RecipeHolder<ItemCompressRecipe>> getRecipeType() {
+    public IRecipeHolderType<ItemCompressRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_COMPRESS;
     }
 
@@ -38,7 +38,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
     public void draw(
         RecipeHolder<ItemCompressRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         final ItemCompressRecipe recipe = recipeHolder.value();
@@ -72,6 +72,6 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.ITEM_COMPRESS);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ITEM_COMPRESS, new ItemStack(Items.CAULDRON));
     }
 }

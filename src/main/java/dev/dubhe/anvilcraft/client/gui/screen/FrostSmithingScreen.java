@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.inventory.FrostSmithingMenu;
 import dev.dubhe.anvilcraft.item.template.frost.DeformationTemplateItem;
 import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
 import dev.dubhe.anvilcraft.network.multiple.FrostSmithingPackets;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
@@ -82,7 +82,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
@@ -178,13 +178,13 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.materialIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
@@ -238,7 +238,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderErrorIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (
             (this.menu.getSlot(0).hasItem() && this.menu.getSlot(2).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
@@ -247,7 +247,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
         }
     }
 
-    private void renderOnboardingTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (
             (this.menu.getSlot(0).hasItem() && this.menu.getSlot(2).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()

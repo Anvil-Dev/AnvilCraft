@@ -17,12 +17,12 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -53,7 +53,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     }
 
     @Override
-    public RecipeType<RecipeHolder<ChargerChargingRecipe>> getRecipeType() {
+    public IRecipeHolderType<ChargerChargingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.CHARGER_CHARGING;
     }
 
@@ -93,7 +93,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     public void draw(
         RecipeHolder<ChargerChargingRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         ChargerChargingRecipe recipe = recipeHolder.value();
@@ -147,7 +147,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CHARGER), AnvilCraftJeiPlugin.CHARGER_CHARGING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.DISCHARGER), AnvilCraftJeiPlugin.CHARGER_CHARGING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.CHARGER_CHARGING, new ItemStack(ModBlocks.CHARGER));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.CHARGER_CHARGING, new ItemStack(ModBlocks.DISCHARGER));
     }
 }

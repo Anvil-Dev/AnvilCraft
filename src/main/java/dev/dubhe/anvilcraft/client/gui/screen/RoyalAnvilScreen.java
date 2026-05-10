@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.core.component.DataComponents;
@@ -93,7 +93,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
         int i = this.menu.getCost();
         if (this.menu.result.noCostInRenaming && this.menu.result.onlyRenaming || i > 0) {
@@ -116,7 +116,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
                                    ? SharedTextures.TEXT_FIELD_DISABLE
@@ -125,12 +125,12 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     }
 
     @Override
-    public void renderFg(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderFg(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.name.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderErrorIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (
             (this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()

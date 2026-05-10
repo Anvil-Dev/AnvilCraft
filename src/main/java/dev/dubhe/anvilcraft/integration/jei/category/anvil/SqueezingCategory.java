@@ -20,11 +20,11 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -56,7 +56,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     }
 
     @Override
-    public RecipeType<RecipeHolder<SqueezingRecipe>> getRecipeType() {
+    public IRecipeHolderType<SqueezingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.SQUEEZING;
     }
 
@@ -136,7 +136,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     public void draw(
         RecipeHolder<SqueezingRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -189,6 +189,6 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SQUEEZING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.SQUEEZING, new ItemStack(Items.CAULDRON));
     }
 }

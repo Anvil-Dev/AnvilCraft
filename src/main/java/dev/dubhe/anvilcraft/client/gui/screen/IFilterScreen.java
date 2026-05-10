@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -142,7 +142,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
      * @param guiGraphics 画布
      * @param slot        槽位
      */
-    default void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+    default void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
         if (!(slot instanceof SlotItemHandlerWithFilter crafterSlot)) return;
         if (!crafterSlot.isFilter()) return;
         if (this.isSlotDisabled(slot.getContainerSlot())) {
@@ -162,7 +162,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
      * @param guiGraphics 画布
      * @param crafterSlot 槽位
      */
-    default void renderDisabledSlot(GuiGraphics guiGraphics, Slot crafterSlot) {
+    default void renderDisabledSlot(GuiGraphicsExtractor guiGraphics, Slot crafterSlot) {
         RenderSystem.enableDepthTest();
         guiGraphics.blit(SharedTextures.DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16, 16, 16);
     }
@@ -174,14 +174,14 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
      * @param slot        槽位
      * @param stack       物品堆叠
      */
-    default void renderFilterItem(GuiGraphics guiGraphics, Slot slot, ItemStack stack) {
+    default void renderFilterItem(GuiGraphicsExtractor guiGraphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
         RenderSupport.renderItemWithTransparency(stack, guiGraphics.pose(), i, j, 0.52F);
         guiGraphics.fill(i, j, i + 16, j + 16, 0x60Ffaaaa);
     }
 
-    default void renderSlotLimit(GuiGraphics guiGraphics, Slot slot) {
+    default void renderSlotLimit(GuiGraphicsExtractor guiGraphics, Slot slot) {
         if (!(slot instanceof SlotItemHandlerWithFilter filterSlot) || !filterSlot.isFilter()) {
             return;
         }

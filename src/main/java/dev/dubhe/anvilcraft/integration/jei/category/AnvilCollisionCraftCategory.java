@@ -25,12 +25,12 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -71,13 +71,13 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     }
 
     @Override
-    public RecipeType<RecipeHolder<AnvilCollisionCraftRecipe>> getRecipeType() {
+    public IRecipeHolderType<AnvilCollisionCraftRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.ANVIL_COLLISION;
     }
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -92,7 +92,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -157,7 +157,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     public void draw(
         RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
@@ -357,11 +357,11 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.ACCELERATION_RING.asStack(), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(ModBlocks.DEFLECTION_RING.asStack(), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.TRANSCENDENCE_ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, ModBlocks.ACCELERATION_RING.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, ModBlocks.DEFLECTION_RING.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(Items.ANVIL));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(ModBlocks.ROYAL_ANVIL));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(ModBlocks.EMBER_ANVIL));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(ModBlocks.TRANSCENDENCE_ANVIL));
     }
 }

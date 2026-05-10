@@ -13,12 +13,12 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -64,7 +64,7 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     }
 
     @Override
-    public RecipeType<RecipeHolder<BaseMultipleToOneSmithingRecipe>> getRecipeType() {
+    public IRecipeHolderType<BaseMultipleToOneSmithingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING;
     }
 
@@ -98,7 +98,7 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     public void draw(
         RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -115,6 +115,6 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_SMITHING_TABLE), AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING, new ItemStack(ModBlocks.EMBER_SMITHING_TABLE));
     }
 }

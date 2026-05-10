@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
@@ -24,7 +24,7 @@ public class AmuletSelectorSupport {
     private static Layout layout = null;
     private static BoxContents contents = null;
 
-    public static void render(GuiGraphics guiGraphics, int x, int y) {
+    public static void render(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (currentHoveringItemStack == null) return;
         int left = x - BACKGROUND_WIDTH / 2;
         int top = y - BACKGROUND_HEIGHT - 5;
@@ -127,7 +127,7 @@ public class AmuletSelectorSupport {
             new boolean[]{false, false, false, false}}
         ) {
             @Override
-            public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
+            public void render(GuiGraphicsExtractor guiGraphics, int x, int y, BoxContents content) {
             }
         },
         NO_AMULET((byte) 0, new boolean[][]{
@@ -137,7 +137,7 @@ public class AmuletSelectorSupport {
             new boolean[]{false, false, false, false}}
         ) {
             @Override
-            public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
+            public void render(GuiGraphicsExtractor guiGraphics, int x, int y, BoxContents content) {
                 PoseStack poseStack = guiGraphics.pose();
                 poseStack.pushPose();
                 poseStack.translate(0, 0, 1000);
@@ -152,7 +152,7 @@ public class AmuletSelectorSupport {
             new boolean[]{false, false, false, false}}
         ) {
             @Override
-            public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
+            public void render(GuiGraphicsExtractor guiGraphics, int x, int y, BoxContents content) {
                 List<ItemStack> amulets = content.amulets();
                 if (amulets.isEmpty()) return;
 
@@ -183,7 +183,7 @@ public class AmuletSelectorSupport {
             new boolean[]{false, false, false, false}}
         ) {
             @Override
-            public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
+            public void render(GuiGraphicsExtractor guiGraphics, int x, int y, BoxContents content) {
                 List<ItemStack> amulets = content.amulets();
                 if (amulets.isEmpty()) return;
 
@@ -214,7 +214,7 @@ public class AmuletSelectorSupport {
             new boolean[]{false, false, false, false}}
         ) {
             @Override
-            public void render(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
+            public void render(GuiGraphicsExtractor guiGraphics, int x, int y, BoxContents content) {
                 List<ItemStack> amulets = content.amulets();
                 if (amulets.size() < 2) return;
 
@@ -264,7 +264,7 @@ public class AmuletSelectorSupport {
             this.alreadyUsed = alreadyUsed;
         }
 
-        void renderTotem(GuiGraphics guiGraphics, int x, int y, BoxContents content) {
+        void renderTotem(GuiGraphicsExtractor guiGraphics, int x, int y, BoxContents content) {
             List<ItemStack> totems = content.totems();
             if (totems.isEmpty()) return;
             int index = 0;
@@ -284,7 +284,7 @@ public class AmuletSelectorSupport {
         }
 
         @SuppressWarnings("UnusedAssignment")
-        void renderSelectionBox(GuiGraphics guiGraphics, int minX, int minY, int maxX, int maxY) {
+        void renderSelectionBox(GuiGraphicsExtractor guiGraphics, int minX, int minY, int maxX, int maxY) {
             maxX -= 9;
             maxY -= 9;
             guiGraphics.blit(SharedTextures.BOX_SELECTION, minX, minY, 9, 9, 0, 0, 9, 9, 18, 18);
@@ -312,7 +312,7 @@ public class AmuletSelectorSupport {
             }
         }
 
-        public abstract void render(GuiGraphics guiGraphics, int x, int y, BoxContents content);
+        public abstract void render(GuiGraphicsExtractor guiGraphics, int x, int y, BoxContents content);
 
         public static Layout layout(BoxContents content) {
             if (content.isEmpty()) {

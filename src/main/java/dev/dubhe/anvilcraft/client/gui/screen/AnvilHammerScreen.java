@@ -27,12 +27,12 @@ import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -261,7 +261,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     @SuppressWarnings("unused")
-    public void renderClosingAnimation(GuiGraphics guiGraphics, int mouseX, int mouseY, float particalTick) {
+    public void renderClosingAnimation(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float particalTick) {
         if (!this.closingAnimationStarted) return;
         float delta = this.displayTime + CLOSING_ANIMATION_T - System.currentTimeMillis();
         float centerX = this.width / 2F;
@@ -358,7 +358,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         poseStack.popPose();
     }
 
-    private void renderProgressAnimation(GuiGraphics guiGraphics, float progress, float centerX, float centerY) {
+    private void renderProgressAnimation(GuiGraphicsExtractor guiGraphics, float progress, float centerX, float centerY) {
         progress = (float) (-Math.pow(progress, 2) + 2 * progress);
         if (progress == 0) return;
         PoseStack poseStack = guiGraphics.pose();
@@ -440,7 +440,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         final float centerX = this.width / 2F;
@@ -524,7 +524,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         RenderSystem.disableBlend();
     }
 
-    private void renderSelection(GuiGraphics guiGraphics) {
+    private void renderSelection(GuiGraphicsExtractor guiGraphics) {
 
         float selectionEffectAngle =
             MathUtil.angle(
@@ -566,7 +566,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     public static void renderSelectionEffect(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         float centerX,
         float centerY,
         int color,
@@ -693,7 +693,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     public static void renderRing(
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         float centerX,
         float centerY,
         int color,

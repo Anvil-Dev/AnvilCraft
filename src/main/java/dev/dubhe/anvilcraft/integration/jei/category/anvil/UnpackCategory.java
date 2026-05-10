@@ -10,10 +10,10 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -33,7 +33,7 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     }
 
     @Override
-    public RecipeType<RecipeHolder<UnpackRecipe>> getRecipeType() {
+    public IRecipeHolderType<UnpackRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.UNPACK;
     }
 
@@ -41,7 +41,7 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public void draw(
         RecipeHolder<UnpackRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
@@ -83,6 +83,6 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.UNPACK);
-        registration.addRecipeCatalyst(new ItemStack(Items.IRON_TRAPDOOR), AnvilCraftJeiPlugin.UNPACK);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.UNPACK, new ItemStack(Items.IRON_TRAPDOOR));
     }
 }

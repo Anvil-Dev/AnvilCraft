@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -25,7 +25,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
@@ -37,20 +37,20 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         renderTooltip(guiGraphics, mouseX, mouseY);
         renderHintItemSlot(guiGraphics);
     }
 
-    private void renderHintItemSlot(GuiGraphics guiGraphics) {
+    private void renderHintItemSlot(GuiGraphicsExtractor guiGraphics) {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(leftPos, topPos, 0);
@@ -71,12 +71,12 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
+    protected void renderSlotHighlight(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
         super.renderSlotHighlight(guiGraphics, slot, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null) {
             ItemStack itemstack = null;
             if (this.hoveredSlot.hasItem()) {
@@ -102,7 +102,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphics guiGraphics, ItemStack itemstack, Slot slot, @Nullable String countString) {
+    protected void renderSlotContents(GuiGraphicsExtractor guiGraphics, ItemStack itemstack, Slot slot, @Nullable String countString) {
         if (slot instanceof JewelInputSlot inputSlot) {
             if (itemstack.getCount() < inputSlot.getHintCount()) {
                 int seed = slot.x + slot.y * imageWidth;

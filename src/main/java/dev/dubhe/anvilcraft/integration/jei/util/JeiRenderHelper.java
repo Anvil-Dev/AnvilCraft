@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class JeiRenderHelper {
@@ -76,7 +76,7 @@ public class JeiRenderHelper {
     }
 
     public static void renderBlockWithSlot(
-        GuiGraphics graphics,
+        GuiGraphicsExtractor graphics,
         IDrawable slot,
         BlockState state,
         float x,

@@ -6,7 +6,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -14,7 +14,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import java.util.List;
 
 public class JeiSlotUtil {
-    public static void drawInputSlots(GuiGraphics guiGraphics, IDrawable slot, int inputSize) {
+    public static void drawInputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int inputSize) {
         if (inputSize == 0) return;
         if (inputSize == 1) {
             slot.draw(guiGraphics, 20, 23);
@@ -45,7 +45,7 @@ public class JeiSlotUtil {
         }
     }
 
-    public static void drawOutputSlots(GuiGraphics guiGraphics, IDrawable slot, int outputSize) {
+    public static void drawOutputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int outputSize) {
         if (outputSize == 0) return;
         if (outputSize == 1) {
             slot.draw(guiGraphics, 124, 23);

@@ -16,11 +16,11 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -56,7 +56,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     }
 
     @Override
-    public RecipeType<RecipeHolder<ItemInjectRecipe>> getRecipeType() {
+    public IRecipeHolderType<ItemInjectRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_INJECT;
     }
 
@@ -96,7 +96,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     public void draw(
         RecipeHolder<ItemInjectRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         ItemInjectRecipe recipe = recipeHolder.value();

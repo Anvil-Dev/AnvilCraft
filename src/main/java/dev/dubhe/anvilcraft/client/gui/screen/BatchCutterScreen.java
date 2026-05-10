@@ -16,7 +16,7 @@ import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -83,7 +83,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
 
         if (this.scrollable.canScroll()) {
@@ -105,11 +105,11 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     }
 
     @Override
-    protected void renderBeforeTooltip(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderBeforeTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderSelectingArea(graphics, mouseX, mouseY, partialTick);
     }
 
-    protected void renderSelectingArea(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltip = null;
         if (!this.scrollable.canScroll() && this.head != 0) this.head = 0;
         if (this.menu.getRecipes().isEmpty()) return;
@@ -141,13 +141,13 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     }
 
     @Override
-    public void renderSlot(GuiGraphics graphics, Slot slot) {
+    public void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
         super.renderSlot(graphics, slot);
         IFilterScreen.super.renderSlot(graphics, slot);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics graphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
             graphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
@@ -178,7 +178,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
         return components;
     }
 
-    protected void renderSlotTooltip(GuiGraphics graphics, int x, int y) {
+    protected void renderSlotTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.hoveredSlot == null) return;
         if (!(this.hoveredSlot instanceof SlotItemHandlerWithFilter slot)) return;
         if (!slot.isFilter()) return;

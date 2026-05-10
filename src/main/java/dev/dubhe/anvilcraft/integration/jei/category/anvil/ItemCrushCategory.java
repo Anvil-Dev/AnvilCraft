@@ -11,10 +11,10 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -30,7 +30,7 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
     }
 
     @Override
-    public RecipeType<RecipeHolder<ItemCrushRecipe>> getRecipeType() {
+    public IRecipeHolderType<ItemCrushRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_CRUSH;
     }
 
@@ -38,7 +38,7 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
     public void draw(
         RecipeHolder<ItemCrushRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         final ItemCrushRecipe recipe = recipeHolder.value();
@@ -79,6 +79,6 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.ITEM_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRUSHING_TABLE), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ITEM_CRUSH, new ItemStack(ModBlocks.CRUSHING_TABLE));
     }
 }

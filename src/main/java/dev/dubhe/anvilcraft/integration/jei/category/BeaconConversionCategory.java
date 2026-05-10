@@ -16,13 +16,13 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Blocks;
@@ -117,7 +117,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
     public void draw(
         BeaconConversionRecipe recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         LevelLike level = cache.get(recipe);
@@ -164,6 +164,6 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.CURSED_GOLD_BLOCK.asStack(), AnvilCraftJeiPlugin.BEACON_CONVERSION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.BEACON_CONVERSION, ModBlocks.CURSED_GOLD_BLOCK.asStack());
     }
 }

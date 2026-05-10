@@ -9,11 +9,11 @@ import dev.dubhe.anvilcraft.network.SilencerRemoveMutedPacket;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,7 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -60,12 +60,12 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private final List<Pair<Identifier, Component>> mutedSounds = new ArrayList<>();
 
     private void onSearchTextChange(String text) {
-        leftScrollOff = 0;
-        filteredSounds.clear();
+        this.leftScrollOff = 0;
+        this.filteredSounds.clear();
         if (text == null || text.isEmpty()) {
             this.filterText = "";
-            filteredSounds.addAll(allSounds);
-            filteredSounds.removeAll(mutedSounds);
+            this.filteredSounds.addAll(this.allSounds);
+            this.filteredSounds.removeAll(this.mutedSounds);
             return;
         } else {
             this.filterText = text;
@@ -73,35 +73,32 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         if (text.startsWith("#")) {
             String search = text.replaceFirst("#", "");
-            allSounds.stream()
+            this.allSounds.stream()
                 .filter(it -> it.left().toString().contains(search))
-                .filter(it ->
-                    mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
-                .forEach(filteredSounds::add);
+                .filter(it -> this.mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                .forEach(this.filteredSounds::add);
         } else {
             if (text.startsWith("~")) {
                 try {
                     Pattern search = Pattern.compile(text.replaceFirst("~", ""));
-                    allSounds.stream()
+                    this.allSounds.stream()
                         .filter(it -> search.matcher(it.left().toString()).matches())
-                        .filter(it -> mutedSounds.stream()
+                        .filter(it -> this.mutedSounds.stream()
                             .noneMatch(it1 -> it1.left().equals(it.first())))
-                        .forEach(filteredSounds::add);
+                        .forEach(this.filteredSounds::add);
                 } catch (Exception ignored) {
                     // intentionally empty
                 }
             }
-            allSounds.stream()
-                .filter(it -> it.right().getString().contains(filterText))
-                .filter(it ->
-                    mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
-                .forEach(filteredSounds::add);
+            this.allSounds.stream()
+                .filter(it -> it.right().getString().contains(this.filterText))
+                .filter(it -> this.mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                .forEach(this.filteredSounds::add);
         }
     }
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        assert this.minecraft != null;
         if (this.minecraft.options.keyInventory.matches(event.key(), event.scancode())) {
             return this.getFocused() != null && this.getFocused().keyPressed(event.key(), event.scancode(), event.modifiers());
         } else {
@@ -110,27 +107,27 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     private void refreshSoundList() {
-        onSearchTextChange(filterText);
+        this.onSearchTextChange(this.filterText);
     }
 
     private void onAllSoundButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
-        actualIndex += leftScrollOff;
-        if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return;
-        Identifier sound = filteredSounds.get(actualIndex).left();
-        addMutedSound(sound);
-        PacketDistributor.sendToServer(new SilencerAddMutedPacket(sound));
-        refreshSoundList();
+        actualIndex += this.leftScrollOff;
+        if (this.filteredSounds.isEmpty() || actualIndex >= this.filteredSounds.size()) return;
+        Identifier sound =this. filteredSounds.get(actualIndex).left();
+        this.addMutedSound(sound);
+        ClientPacketDistributor.sendToServer(new SilencerAddMutedPacket(sound));
+        this.refreshSoundList();
     }
 
     private void onMutedSoundButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
-        actualIndex += rightScrollOff;
-        if (mutedSounds.isEmpty() || actualIndex >= mutedSounds.size()) return;
-        Identifier sound = mutedSounds.get(actualIndex).left();
-        removeMutedSound(sound);
-        PacketDistributor.sendToServer(new SilencerRemoveMutedPacket(sound));
-        refreshSoundList();
+        actualIndex += this.rightScrollOff;
+        if (this.mutedSounds.isEmpty() || actualIndex >= this.mutedSounds.size()) return;
+        Identifier sound = this.mutedSounds.get(actualIndex).left();
+        this.removeMutedSound(sound);
+        ClientPacketDistributor.sendToServer(new SilencerRemoveMutedPacket(sound));
+        this.refreshSoundList();
     }
 
     void addMutedSound(Identifier sound) {
@@ -152,13 +149,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     public Component getSoundTextAt(int index, int variant) {
         int actualIndex = index;
         if (variant == SOUND_FILTERED) {
-            actualIndex += leftScrollOff;
-            if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return Component.empty();
-            return filteredSounds.get(actualIndex).right();
+            actualIndex += this.leftScrollOff;
+            if (this.filteredSounds.isEmpty() || actualIndex >= this.filteredSounds.size()) return Component.empty();
+            return this.filteredSounds.get(actualIndex).right();
         } else {
-            actualIndex += rightScrollOff;
-            if (mutedSounds.isEmpty() || actualIndex >= mutedSounds.size()) return Component.empty();
-            return mutedSounds.get(actualIndex).right();
+            actualIndex += this.rightScrollOff;
+            if (this.mutedSounds.isEmpty() || actualIndex >= this.mutedSounds.size()) return Component.empty();
+            return this.mutedSounds.get(actualIndex).right();
         }
     }
 
@@ -168,13 +165,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     public @Nullable Identifier getSoundIdAt(int index, int variant) {
         int actualIndex = index;
         if (variant == SOUND_FILTERED) {
-            actualIndex += leftScrollOff;
-            if (filteredSounds.isEmpty() || actualIndex >= filteredSounds.size()) return null;
-            return filteredSounds.get(actualIndex).left();
+            actualIndex += this.leftScrollOff;
+            if (this.filteredSounds.isEmpty() || actualIndex >= this.filteredSounds.size()) return null;
+            return this.filteredSounds.get(actualIndex).left();
         } else {
-            actualIndex += rightScrollOff;
-            if (mutedSounds.isEmpty() || actualIndex >= mutedSounds.size()) return null;
-            return mutedSounds.get(actualIndex).left();
+            actualIndex += this.rightScrollOff;
+            if (this.mutedSounds.isEmpty() || actualIndex >= this.mutedSounds.size()) return null;
+            return this.mutedSounds.get(actualIndex).left();
         }
     }
 
@@ -182,10 +179,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
      * 主动消音器gui
      */
     public ActiveSilencerScreen(ActiveSilencerMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+        super(menu, playerInventory, title, 256, 166);
         this.menu = menu;
-        this.getImageWidth() = 256;
-        this.getImageHeight() = 166;
     }
 
     @Override
@@ -202,7 +197,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
                 SOUND_FILTERED,
                 b -> {
                     if (b instanceof SilencerButton silencerButton) {
-                        onAllSoundButtonClick(silencerButton.getIndex());
+                        this.onAllSoundButtonClick(silencerButton.getIndex());
                     }
                 },
                 this,
@@ -220,7 +215,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
                 SOUND_MUTED,
                 b -> {
                     if (b instanceof SilencerButton silencerButton) {
-                        onMutedSoundButtonClick(silencerButton.getIndex());
+                        this.onMutedSoundButtonClick(silencerButton.getIndex());
                     }
                 },
                 this,
@@ -240,11 +235,11 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         SoundManager manager = Minecraft.getInstance().getSoundManager();
         BuiltInRegistries.SOUND_EVENT.stream()
-            .map(it -> Pair.of(it.getLocation(), manager.getSoundEvent(it.getLocation())))
+            .map(it -> Pair.of(it.location(), manager.getSoundEvent(it.location())))
             .filter(it -> it.second() != null)
             .filter(it -> it.second().getSubtitle() != null)
-            .forEach(it -> allSounds.add(Pair.of(it.first(), it.second().getSubtitle())));
-        filteredSounds.addAll(allSounds);
+            .forEach(it -> this.allSounds.add(Pair.of(it.first(), it.second().getSubtitle())));
+        this.filteredSounds.addAll(this.allSounds);
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
@@ -279,12 +274,12 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
-        if (mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
+        if (this.mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
             if (this.filteredSounds.size() > 8) {
                 this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - scrollY, 0, this.filteredSounds.size() - 7);
             }
         } else {
-            if (mouseInRight(mouseX, mouseY, leftPos, topPos)) {
+            if (this.mouseInRight(mouseX, mouseY, leftPos, topPos)) {
                 if (this.mutedSounds.size() > 8) {
                     this.rightScrollOff =
                         (int) Mth.clamp(this.rightScrollOff - scrollY, 0, this.mutedSounds.size() - 7);
@@ -300,8 +295,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
-        if (mouseInLeftSlider(event.x(), event.y(), leftPos, topPos)) {
-            int i = filteredSounds.size();
+        if (this.mouseInLeftSlider(event.x(), event.y(), leftPos, topPos)) {
+            int i = this.filteredSounds.size();
             if (this.isDraggingLeft) {
                 int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                 int k = j + SCROLL_BAR_HEIGHT;
@@ -314,8 +309,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
                 return super.mouseDragged(event, dragX, dragY);
             }
         } else {
-            if (mouseInRightSlider(event.x(), event.y(), leftPos, topPos)) {
-                int i = mutedSounds.size();
+            if (this.mouseInRightSlider(event.x(), event.y(), leftPos, topPos)) {
+                int i = this.mutedSounds.size();
                 if (this.isDraggingRight) {
                     int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                     int k = j + SCROLL_BAR_HEIGHT;
@@ -336,20 +331,20 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
      * 鼠标点击
      */
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
-        isDraggingLeft = false;
-        isDraggingRight = false;
+        this.isDraggingLeft = false;
+        this.isDraggingRight = false;
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
-        if (mouseInLeftSlider(event.x(), event.y(), leftPos, topPos) && filteredSounds.size() > 8) {
+        if (this.mouseInLeftSlider(event.x(), event.y(), leftPos, topPos) && this.filteredSounds.size() > 8) {
             this.isDraggingLeft = true;
         }
-        if (mouseInRightSlider(event.x(), event.y(), leftPos, topPos) && mutedSounds.size() > 8) {
+        if (this.mouseInRightSlider(event.x(), event.y(), leftPos, topPos) && this.mutedSounds.size() > 8) {
             this.isDraggingRight = true;
         }
         return super.mouseClicked(event, handled);
     }
 
-    private void renderScroller(GuiGraphics guiGraphics, int posX, int posY, int totalCount, int scrollOff) {
+    private void renderScroller(GuiGraphicsExtractor guiGraphics, int posX, int posY, int totalCount, int scrollOff) {
         int i = totalCount + 1 - 8;
         if (i > 1) {
             int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
@@ -365,14 +360,14 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /**
      * 渲染
      */
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, filteredSounds.size(), leftScrollOff);
+        this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, this.filteredSounds.size(), this.leftScrollOff);
 
-        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, mutedSounds.size(), rightScrollOff);
+        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, this.mutedSounds.size(), this.rightScrollOff);
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -381,32 +376,32 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
      * 处理静音同步包
      */
     public void handleSync(List<Identifier> sounds) {
-        rightScrollOff = 0;
-        mutedSounds.clear();
+        this.rightScrollOff = 0;
+        this.mutedSounds.clear();
         SoundManager manager = Minecraft.getInstance().getSoundManager();
         for (Identifier sound : sounds) {
             WeighedSoundEvents events = manager.getSoundEvent(sound);
             if (events == null || events.getSubtitle() == null) return;
-            mutedSounds.add(Pair.of(sound, events.getSubtitle()));
+            this.mutedSounds.add(Pair.of(sound, events.getSubtitle()));
         }
-        onSearchTextChange("");
-        menu.handleSync(sounds);
+        this.onSearchTextChange("");
+        this.menu.handleSync(sounds);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         super.renderTooltip(guiGraphics, x, y);
     }
 }

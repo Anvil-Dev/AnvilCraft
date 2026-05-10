@@ -28,7 +28,7 @@ import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -203,7 +203,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         PoseStack pose = guiGraphics.pose();
@@ -264,7 +264,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (this.hoveredSlot != null && this.hoveredSlot.index == SLOT_ID_RESULT && !this.hoveredSlot.hasItem()) {
             guiGraphics.renderComponentTooltip(font, RESULT_SLOT_TOOLTIPS, x, y);
         }
@@ -272,7 +272,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());

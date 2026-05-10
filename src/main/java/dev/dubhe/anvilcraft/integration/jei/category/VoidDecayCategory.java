@@ -20,14 +20,14 @@ import mezz.jei.api.gui.widgets.IScrollGridWidget;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -136,7 +136,7 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
     public void draw(
         VoidDecayRecipe recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         LevelLike level = cache.get(recipe);
@@ -174,6 +174,6 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.VOID_MATTER_BLOCK.asStack(), AnvilCraftJeiPlugin.VOID_DECAY);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.VOID_DECAY, ModBlocks.VOID_MATTER_BLOCK.asStack());
     }
 }

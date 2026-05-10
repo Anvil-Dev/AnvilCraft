@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
@@ -69,7 +69,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
@@ -118,13 +118,13 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
         super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
         this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.materialIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
@@ -142,13 +142,13 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
+    protected void renderErrorIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
         if (!this.menu.canCreateResult()) {
             guiGraphics.blit(SharedTextures.ERROR_SPRITE, x + 123, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 
-    private void renderOnboardingTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    private void renderOnboardingTooltips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
         if (!this.menu.canCreateResult() && this.isHovering(123, 48, 16, 16, mouseX, mouseY)) {
             optional = Optional.of(ERROR_TOOLTIP);

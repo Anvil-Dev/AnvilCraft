@@ -10,10 +10,10 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,7 +32,7 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
     }
 
     @Override
-    public RecipeType<RecipeHolder<CookingRecipe>> getRecipeType() {
+    public IRecipeHolderType<CookingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.COOKING;
     }
 
@@ -40,7 +40,7 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
     public void draw(
         RecipeHolder<CookingRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         final CookingRecipe recipe = recipeHolder.value();
@@ -82,7 +82,7 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.COOKING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.COOKING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAMPFIRE), AnvilCraftJeiPlugin.COOKING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.COOKING, new ItemStack(Items.CAULDRON));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.COOKING, new ItemStack(Items.CAMPFIRE));
     }
 }

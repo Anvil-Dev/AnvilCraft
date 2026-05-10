@@ -16,11 +16,11 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -56,7 +56,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     }
 
     @Override
-    public RecipeType<CementStainingRecipe> getRecipeType() {
+    public IRecipeType<CementStainingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.CEMENT_STAINING;
     }
 
@@ -99,7 +99,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     public void draw(
         CementStainingRecipe recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(anvilTimer);
@@ -154,6 +154,6 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.CEMENT_STAINING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.CEMENT_STAINING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.CEMENT_STAINING, new ItemStack(Items.CAULDRON));
     }
 }

@@ -3,9 +3,9 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,7 +29,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
         if (this.menu.getSlot(2).hasItem()) {
             Component removedText = Component.translatable("screen.anvilcraft.royal_grindstone.will_remove");
@@ -80,12 +80,12 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
-    protected void renderBg(GuiGraphics g, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor g, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
         g.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
@@ -128,7 +128,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         if (!displayResult.isEmpty()) renderMaskedItem(g, displayResult, i + 35, j + 45);
     }
 
-    private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
+    private void renderMaskedItem(GuiGraphicsExtractor g, ItemStack stack, int x, int y) {
         final int maskColor = 0x55777777;
         g.renderItem(stack, x, y, 0);
         g.fill(RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
@@ -154,7 +154,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         );
     }
 
-    private void drawLabel(int x, int y, Component component, GuiGraphics guiGraphics) {
+    private void drawLabel(int x, int y, Component component, GuiGraphicsExtractor guiGraphics) {
         guiGraphics.drawString(
             this.font,
             component,
