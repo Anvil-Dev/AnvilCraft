@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "anvilcraft:block/smart_block_placer_bottom"
+    },
+    "facing=south": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "y": 270
+    }
+  }
+}
