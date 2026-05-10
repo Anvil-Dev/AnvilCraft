@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
-import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -18,8 +16,8 @@ import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -39,10 +37,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -53,18 +51,30 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
-    public static final VoxelShape SHAPE_UP =
-        Shapes.join(Block.box(4, 8, 4, 12, 16, 12), Block.box(0, 0, 0, 16, 8, 16), BooleanOp.OR);
-    public static final VoxelShape SHAPE_DOWN =
-        Shapes.join(Block.box(4, 0, 4, 12, 8, 12), Block.box(0, 8, 0, 16, 16, 16), BooleanOp.OR);
-    public static final VoxelShape SHAPE_W =
-        Shapes.join(Block.box(0, 4, 4, 8, 12, 12), Block.box(8, 0, 0, 16, 16, 16), BooleanOp.OR);
-    public static final VoxelShape SHAPE_E =
-        Shapes.join(Block.box(8, 4, 4, 16, 12, 12), Block.box(0, 0, 0, 8, 16, 16), BooleanOp.OR);
-    public static final VoxelShape SHAPE_S =
-        Shapes.join(Block.box(4, 4, 8, 12, 12, 16), Block.box(0, 0, 0, 16, 16, 8), BooleanOp.OR);
-    public static final VoxelShape SHAPE_N =
-        Shapes.join(Block.box(4, 4, 0, 12, 12, 8), Block.box(0, 0, 8, 16, 16, 16), BooleanOp.OR);
+    public static final VoxelShape SHAPE_UP = Shapes.or(
+        Block.box(4, 8, 4, 12, 16, 12),
+        Block.box(0, 0, 0, 16, 8, 16)
+    );
+    public static final VoxelShape SHAPE_DOWN = Shapes.or(
+        Block.box(4, 0, 4, 12, 8, 12),
+        Block.box(0, 8, 0, 16, 16, 16)
+    );
+    public static final VoxelShape SHAPE_W = Shapes.or(
+        Block.box(0, 4, 4, 8, 12, 12),
+        Block.box(8, 0, 0, 16, 16, 16)
+    );
+    public static final VoxelShape SHAPE_E = Shapes.or(
+        Block.box(8, 4, 4, 16, 12, 12),
+        Block.box(0, 0, 0, 8, 16, 16)
+    );
+    public static final VoxelShape SHAPE_S = Shapes.or(
+        Block.box(4, 4, 8, 12, 12, 16),
+        Block.box(0, 0, 0, 16, 16, 8)
+    );
+    public static final VoxelShape SHAPE_N = Shapes.or(
+        Block.box(4, 4, 0, 12, 12, 8),
+        Block.box(0, 0, 8, 16, 16, 16)
+    );
 
     /**
      * 溜槽方块
@@ -110,18 +120,8 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof BaseChuteBlockEntity entity) {
-                Vec3 vec3 = entity.getBlockPos().getCenter();
-                FilteredItemStackHandler depository = entity.getItemHandler();
-                for (int slot = 0; slot < depository.getSlots(); slot++) {
-                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
-                }
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Override
@@ -130,8 +130,8 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
-        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof MagneticChuteBlockEntity magneticChuteBlockEntity) {
             return magneticChuteBlockEntity.getRedstoneSignal();
         }
@@ -151,7 +151,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             && (neighborState.is(ModBlocks.SIMPLE_CHUTE) || neighborState.is(ModBlocks.CHUTE))
             && neighborState.getValue(FACING_HOPPER) == Direction.DOWN;
         if (cannotPlace) {
-            if (player != null) player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
+            if (player != null) player.sendOverlayMessage(Component.translatable("message.anvilcraft.chute.cannot_place"));
             return null;
         }
         return this.defaultBlockState()
@@ -175,7 +175,14 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
         this.checkPoweredState(level, pos, state);
     }
 
@@ -195,7 +202,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         return createTickerHelper(
             blockEntityType,
             ModBlockEntities.MAGNETIC_CHUTE.get(),
-            ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
+            ((_, _, _, be) -> be.tick()));
     }
 
     @Override

@@ -92,7 +92,10 @@
         <!-- 树遍历器 -->
         <module name="OuterTypeFilename"/>
         <!-- 外部类型文件名检查 -->
-        <module name="RequireThis"/>
+        <module name="RequireThis">
+            <!-- 检查所有实例方法和变量 -->
+            <property name="validateOnlyOverlapping" value="false"/>
+        </module>
         <!-- 需要 THIS -->
         <module name="MatchXpath">
             <!-- XPath匹配 -->
@@ -126,6 +129,11 @@
         </module>
         <module name="AvoidStarImport"/>
         <!-- 避免星号导入 -->
+        <module name="AvoidStaticImport">
+            <!-- 避免静态导入 -->
+            <property name="excludes" value="dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM"/>
+            <!-- 允许AnvilCraft.REGISTRUM静态导入 -->
+        </module>
         <module name="OneTopLevelClass"/>
         <!-- 一个顶级类 -->
         <module name="NoLineWrap">

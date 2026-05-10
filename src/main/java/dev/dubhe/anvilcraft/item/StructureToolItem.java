@@ -10,28 +10,26 @@ import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class StructureToolItem extends Item implements IHandHeldItemTooltipProvider {
     public StructureToolItem(Properties properties) {
@@ -61,13 +59,13 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
         if (data != null) {
             StructureData newData = data.addPos(pos);
             if (player != null) {
-                player.displayClientMessage(
+                player.sendOverlayMessage(
                     Component.translatable(
                         "tooltip.anvilcraft.item.structure_tool.size",
                         newData.getSizeX(),
                         newData.getSizeY(),
-                        newData.getSizeZ()),
-                    true);
+                        newData.getSizeZ())
+                );
             }
             itemstack.set(ModComponents.STRUCTURE_DATA, newData);
             return InteractionResult.SUCCESS;
@@ -76,61 +74,67 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemstack = player.getItemInHand(usedHand);
         if (player.isShiftKeyDown()) {
             if (itemstack.has(ModComponents.STRUCTURE_DATA)) {
                 itemstack.remove(ModComponents.STRUCTURE_DATA);
-                player.displayClientMessage(
-                    Component.translatable("tooltip.anvilcraft.item.structure_tool.data_removed"), true);
-                return InteractionResultHolder.success(itemstack);
+                player.sendOverlayMessage(Component.translatable("tooltip.anvilcraft.item.structure_tool.data_removed"));
+                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
         } else {
             StructureData data = itemstack.get(ModComponents.STRUCTURE_DATA);
             if (data != null && !level.isClientSide()) {
                 if (!data.isCube()) {
-                    player.displayClientMessage(
+                    player.sendSystemMessage(
                         Component.translatable("tooltip.anvilcraft.item.structure_tool.must_cube")
-                            .withStyle(ChatFormatting.RED),
-                        false);
-                    return InteractionResultHolder.fail(itemstack);
+                            .withStyle(ChatFormatting.RED)
+                    );
+                    return InteractionResult.FAIL;
                 }
                 if (!data.isOddCubeWithinSize(15)) {
-                    player.displayClientMessage(
+                    player.sendSystemMessage(
                         Component.translatable("tooltip.anvilcraft.item.structure_tool.must_odd")
-                            .withStyle(ChatFormatting.RED),
-                        false);
-                    return InteractionResultHolder.fail(itemstack);
+                            .withStyle(ChatFormatting.RED)
+                    );
+                    return InteractionResult.FAIL;
                 }
                 if (player instanceof ServerPlayer serverPlayer) {
                     ModMenuTypes.open(
                         serverPlayer,
                         new SimpleMenuProvider(
-                            (invId, inv, p) ->
-                                new StructureToolMenu(ModMenuTypes.STRUCTURE_TOOL.get(), invId, inv),
-                            getDescription()));
+                            (invId, inv, _) -> new StructureToolMenu(ModMenuTypes.STRUCTURE_TOOL.get(), invId, inv),
+                            this.getName(itemstack)
+                        )
+                    );
                     PacketDistributor.sendToPlayer(serverPlayer, new StructureDataSyncPacket(data));
                 }
-                return InteractionResultHolder.success(itemstack);
+                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
         }
         return super.use(level, player, usedHand);
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void appendHoverText(
-        ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        ItemStack stack,
+        TooltipContext context,
+        TooltipDisplay display,
+        Consumer<Component> builder,
+        TooltipFlag tooltipFlag
+    ) {
         StructureData data = stack.get(ModComponents.STRUCTURE_DATA);
         if (data != null) {
-            tooltipComponents.add(Component.translatable(
+            builder.accept(Component.translatable(
                 "tooltip.anvilcraft.item.structure_tool.min_pos", data.minX(), data.minY(), data.minZ()));
-            tooltipComponents.add(Component.translatable(
+            builder.accept(Component.translatable(
                 "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX(), data.maxY(), data.maxZ()));
-            tooltipComponents.add(SHIFT_TO_CLEAR_TOOLTIP);
+            builder.accept(SHIFT_TO_CLEAR_TOOLTIP);
         } else {
-            tooltipComponents.add(DEVELOPER_TOOLTIP);
-            tooltipComponents.add(SELECT_TOOLTIP);
-            tooltipComponents.add(INPUT_TOOLTIP);
+            builder.accept(DEVELOPER_TOOLTIP);
+            builder.accept(SELECT_TOOLTIP);
+            builder.accept(INPUT_TOOLTIP);
         }
     }
 

@@ -1,137 +1,135 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.block.entity.IExtensibleBlockEntity;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.api.itemhandler.SingleStackResourceHandler;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.List;
 import java.util.Objects;
 
-import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItemHandlerList;
-
 @Getter
-public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
-    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder, IExtensibleBlockEntity<ChuteBlockEntity> {
+    private final SingleStackResourceHandler itemHandler = new SingleStackResourceHandler() {
         @Override
-        public void onContentsChanged(int slot) {
-            setChanged();
+        protected void onContentChanged(ItemStack stack) {
+            SimpleChuteBlockEntity.this.setChanged();
+            SimpleChuteBlockEntity.this.level.sendBlockUpdated(
+                SimpleChuteBlockEntity.this.getBlockPos(),
+                SimpleChuteBlockEntity.this.getBlockState(),
+                SimpleChuteBlockEntity.this.getBlockState(),
+                Block.UPDATE_ALL
+            );
         }
     };
     @Setter
     private int cooldown = 0;
     private long tickedGameTime;
 
-    public SimpleChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
+    public SimpleChuteBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("Cooldown", cooldown);
-        output.store("Inventory", CompoundTag.CODEC, itemHandler.serializeNBT(provider));
+        output.putInt("Cooldown", this.cooldown);
+        this.itemHandler.serialize(output.child("Inventory"));
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        cooldown = input.getIntOr("Cooldown", 0);
-        itemHandler.deserializeNBT(provider, input.read("Inventory", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.cooldown = input.getIntOr("Cooldown", 0);
+        this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
     }
 
     /**
      * tick
      */
-    @SuppressWarnings({"UnreachableCode", "DuplicatedCode"})
     public void tick() {
-        if (level == null) return;
-        if (cooldown > 0) cooldown--;
-        tickedGameTime = level.getGameTime();
-        if (cooldown == 0 && !this.itemHandler.getStackInSlot(0).isEmpty()) {
-            cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
-        }
-        if (cooldown == 1) {
-            BlockPos targetPos = getBlockPos().relative(getOutputDirection());
-            BlockEntity targetBE = level.getBlockEntity(targetPos);
+        if (this.level == null) return;
+        if (this.cooldown > 0) this.cooldown--;
+        this.tickedGameTime = this.level.getGameTime();
+        if (this.cooldown == 0 && !this.itemHandler.getResource(0).isEmpty()) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
+        if (this.cooldown == 1) {
+            BlockPos targetPos = this.getBlockPos().relative(this.getOutputDirection());
+            BlockEntity targetBE = this.level.getBlockEntity(targetPos);
             boolean isTargetEmpty = false;
-            if (targetBE != null) isTargetEmpty = isTargetEmpty(targetBE);
+            if (targetBE != null) isTargetEmpty = this.isTargetEmpty(targetBE);
             // 尝试向朝向容器输出
-            List<IItemHandler> targetList = getTargetItemHandlerList(
+            List<ResourceHandler<ItemResource>> targetList = ItemHandlerUtil.getTargetItemHandlerList(
                 targetPos,
-                getOutputDirection().getOpposite(),
-                level
+                this.getOutputDirection().getOpposite(),
+                this.level
             );
             if (targetList != null && !targetList.isEmpty()) {
-                for (IItemHandler target : targetList) {
-                    boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
-                    if (success) {
-                        // 特判溜槽cd7gt
-                        if (isTargetEmpty) setChuteCD(targetBE);
-                        break;
-                    }
+                for (ResourceHandler<ItemResource> target : targetList) {
+                    boolean success = ItemHandlerUtil.exportToTarget(this.getItemHandler(), 64, (_, _) -> true, target);
+                    if (!success) continue;
+                    // 特判溜槽cd7gt
+                    if (isTargetEmpty) this.setChuteCD(targetBE);
+                    break;
                 }
             } else {
-                Vec3 center = getBlockPos().relative(getDirection()).getCenter();
-                List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
-                    .getEntitiesOfClass(
-                        ItemEntity.class,
-                        new AABB(getBlockPos().relative(getDirection())),
-                        itemEntity -> !itemEntity.getItem().isEmpty()
-                    );
+                Vec3 center = this.getBlockPos().relative(this.getDirection()).getCenter();
+                List<ItemEntity> itemEntities = Objects.requireNonNull(this.getLevel()).getEntitiesOfClass(
+                    ItemEntity.class,
+                    new AABB(this.getBlockPos().relative(this.getDirection())),
+                    itemEntity -> !itemEntity.getItem().isEmpty()
+                );
                 AABB aabb = new AABB(
                     center.add(-0.125, -0.125, -0.125),
                     center.add(0.125, 0.125, 0.125)
                 );
-                if (getLevel().noCollision(aabb)) {
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        ItemStack stack = this.itemHandler.getStackInSlot(i);
-                        if (stack.isEmpty()) {
-                            continue;
-                        }
-                        int sameItemCount = 0;
-                        for (ItemEntity entity : itemEntities) {
-                            if (entity.getItem().getItem() == stack.getItem()) {
-                                sameItemCount += entity.getItem().getCount();
-                            }
-                        }
-                        if (sameItemCount < stack.getItem().getMaxStackSize(stack)) {
-                            ItemStack droppedItemStack = stack.copy();
-                            int droppedItemCount =
-                                Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
-                            droppedItemStack.setCount(droppedItemCount);
-                            stack.setCount(stack.getCount() - droppedItemCount);
-                            if (stack.getCount() == 0) stack = ItemStack.EMPTY;
-                            ItemEntity itemEntity = new ItemEntity(
-                                getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0);
-                            itemEntity.setDefaultPickUpDelay();
-                            getLevel().addFreshEntity(itemEntity);
-                            this.itemHandler.setStackInSlot(i, stack);
-                            break;
-                        }
-
+                if (!this.getLevel().noCollision(aabb)) return;
+                ItemStack stack = this.itemHandler.getStack();
+                if (stack.isEmpty()) return;
+                int sameItemCount = 0;
+                for (ItemEntity entity : itemEntities) {
+                    if (entity.getItem().getItem() == stack.getItem()) {
+                        sameItemCount += entity.getItem().getCount();
                     }
                 }
+                if (sameItemCount >= stack.getMaxStackSize()) return;
+                int dropping = Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
+                ItemStack remaining = stack.copyWithCount(stack.getCount() - dropping);
+                if (remaining.getCount() == 0) remaining = ItemStack.EMPTY;
+                ItemEntity itemEntity = new ItemEntity(
+                    this.getLevel(),
+                    center.x,
+                    center.y,
+                    center.z,
+                    remaining,
+                    0,
+                    0,
+                    0
+                );
+                itemEntity.setDefaultPickUpDelay();
+                this.getLevel().addFreshEntity(itemEntity);
+                this.itemHandler.setStack(remaining);
             }
         }
-        level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
+        this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
     }
 
     public boolean isTargetEmpty(BlockEntity blockEntity) {
@@ -158,8 +156,8 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     private Direction getDirection() {
-        if (getLevel() == null) return Direction.DOWN;
-        BlockState state = getLevel().getBlockState(getBlockPos());
+        if (this.getLevel() == null) return Direction.DOWN;
+        BlockState state = this.getLevel().getBlockState(this.getBlockPos());
         if (state.getBlock() instanceof SimpleChuteBlock) {
             return state.getValue(SimpleChuteBlock.FACING);
         }
@@ -167,25 +165,29 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     public int getRedstoneSignal() {
-        int i = 0;
-        for (int j = 0; j < itemHandler.getSlots(); ++j) {
-            ItemStack itemStack = itemHandler.getStackInSlot(j);
-            if (itemStack.isEmpty()) {
-                continue;
-            }
-            ++i;
-        }
-        return i;
+        return this.itemHandler.getStack().isEmpty() ? 0 : 1;
     }
 
     protected Direction getOutputDirection() {
-        return getDirection();
+        return this.getDirection();
     }
 
     public boolean isEmpty() {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) return false;
-        }
-        return true;
+        return this.itemHandler.getStack().isEmpty();
+    }
+
+    @Override
+    public BlockEntityType<ChuteBlockEntity> getThatType() {
+        return ModBlockEntities.CHUTE.get();
+    }
+
+    @Override
+    public void extend(ChuteBlockEntity newBe) {
+        ItemHandlerUtil.exportToTarget(
+            this.itemHandler,
+            this.itemHandler.getStack().getMaxStackSize(),
+            (_, _) -> true,
+            newBe.getItemHandler()
+        );
     }
 }

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,8 +25,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
-
-import static dev.dubhe.anvilcraft.block.BlockPlacerBlock.ORIENTATION;
 
 public class ItemHandlerUtil {
     public static boolean exportToTarget(
@@ -180,7 +179,7 @@ public class ItemHandlerUtil {
             if (level == null) return null;
             if (
                 level.getBlockState(inputPos).is(source)
-                && level.getBlockState(inputPos).getValue(ORIENTATION).getDirection() == context
+                && level.getBlockState(inputPos).getValue(BlockPlacerBlock.ORIENTATION).getDirection() == context
             ) {
                 i++;
                 inputPos = inputPos.relative(context.getOpposite());

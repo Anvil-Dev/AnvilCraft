@@ -10,12 +10,13 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.IStateListener;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -31,8 +32,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, IHammerChangeable {
@@ -68,22 +71,20 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         return createTickerHelper(
             type,
             ModBlockEntities.CHARGER.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos)
+            (level1, blockPos, _, be) -> be.tick(level1, blockPos)
         );
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        if (level.isClientSide()) {
-            return;
-        }
+        if (level.isClientSide()) return;
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
@@ -104,23 +105,8 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    public void onRemove(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        BlockState newState,
-        boolean movedByPiston
-    ) {
-        if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof ChargerBlockEntity entity) {
-            Vec3 vec3 = entity.getBlockPos().getCenter();
-            FilteredItemStackHandler depository = entity.getFilteredItemStackHandler();
-            for (int slot = 0; slot < depository.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
-            }
-            level.updateNeighbourForOutputSignal(pos, this);
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Override
@@ -152,7 +138,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         return blockEntity instanceof ChargerBlockEntity charger ? charger.getAnalogRedstoneSignal() : 0;
     }
@@ -167,39 +153,41 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (!level.isClientSide()) {
-            if (level.getBlockEntity(pos) instanceof ChargerBlockEntity charger) {
-                // 玩家空手时尝试取出物品
-                if (stack.isEmpty()) {
-                    // 优先从输出槽（槽位2）取物品，如果为空则从输入槽（槽位0）取
-                    for (int slot : new int[]{
-                        2,
-                        0
-                    }) {
-                        ItemStack itemInSlot = charger.getFilteredItemStackHandler().getStackInSlot(slot);
-                        if (!itemInSlot.isEmpty()) {
-                            ItemStack extracted = charger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
-                            player.getInventory().placeItemBackInInventory(extracted);
-                            level.playSound(
-                                null,
-                                pos,
-                                SoundEvents.ITEM_PICKUP,
-                                SoundSource.PLAYERS,
-                                .2F,
-                                1F + level.getRandom().nextFloat()
-                            );
-                            return InteractionResult.SUCCESS;
-                        }
-                    }
-                } else if (charger.containsValidItem(stack)) {
-                    ItemStack result = charger.getFilteredItemStackHandler().insertItem(0, stack, true);
-                    if (result.isEmpty() || result.getCount() < stack.getCount()) {
-                        int countDiff = stack.getCount() - (result.isEmpty() ? 0 : result.getCount());
-                        ItemStack toInsert = stack.split(countDiff);
-                        charger.getFilteredItemStackHandler().insertItem(0, toInsert, false);
-                        return InteractionResult.SUCCESS;
-                    }
+        if (level.isClientSide()) return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        if (!(level.getBlockEntity(pos) instanceof ChargerBlockEntity charger)) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        }
+        // 玩家空手时尝试取出物品
+        FilteredItemStackHandler handler = charger.getFilteredItemStackHandler();
+        ItemResource resource = ItemResource.of(stack);
+        if (stack.isEmpty()) {
+            // 优先从输出槽（槽位2）取物品，如果为空则从输入槽（槽位0）取
+            for (int slot : new int[] {2, 0}) {
+                ItemResource resourceIn = handler.getResource(slot);
+                if (resourceIn.isEmpty()) continue;
+                try (Transaction transaction = Transaction.openRoot()) {
+                    int extracted = handler.extract(slot, resourceIn, Integer.MAX_VALUE, transaction);
+                    if (extracted == 0) continue;
+                    transaction.commit();
+                    player.getInventory().placeItemBackInInventory(resourceIn.toStack(extracted));
+                    level.playSound(
+                        null,
+                        pos,
+                        SoundEvents.ITEM_PICKUP,
+                        SoundSource.PLAYERS,
+                        .2F,
+                        1F + level.getRandom().nextFloat()
+                    );
+                    return InteractionResult.SUCCESS;
                 }
+            }
+        } else if (charger.containsValidItem(resource)) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                int inserted = handler.insert(0, resource, stack.getCount(), transaction);
+                if (inserted == 0) return super.useItemOn(stack, state, level, pos, player, hand, hit);
+                transaction.commit();
+                stack.shrink(inserted);
+                return InteractionResult.SUCCESS;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);

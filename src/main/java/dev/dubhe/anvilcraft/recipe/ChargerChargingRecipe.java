@@ -15,6 +15,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
@@ -39,7 +40,7 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         Ingredient.CODEC
             .fieldOf("ingredient")
             .forGetter(ChargerChargingRecipe::getIngredient),
-        ItemStack.CODEC
+        ItemStackTemplate.CODEC
             .fieldOf("result")
             .forGetter(ChargerChargingRecipe::getResult),
         Codec.INT
@@ -49,20 +50,27 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
             .fieldOf("time")
             .forGetter(ChargerChargingRecipe::getTime)
     ).apply(ins, ChargerChargingRecipe::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ChargerChargingRecipe> STREAM_CODEC = StreamCodec.of(
-        Serializer::encode,
-        Serializer::decode
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChargerChargingRecipe> STREAM_CODEC = StreamCodec.composite(
+        Ingredient.CONTENTS_STREAM_CODEC,
+        ChargerChargingRecipe::getIngredient,
+        ItemStackTemplate.STREAM_CODEC,
+        ChargerChargingRecipe::getResult,
+        ByteBufCodecs.VAR_INT,
+        ChargerChargingRecipe::getPower,
+        ByteBufCodecs.VAR_INT,
+        ChargerChargingRecipe::getTime,
+        ChargerChargingRecipe::new
     );
     public static final RecipeSerializer<ChargerChargingRecipe> SERIALIZER = new RecipeSerializer<>(
         ChargerChargingRecipe.CODEC,
         ChargerChargingRecipe.STREAM_CODEC
     );
     public final Ingredient ingredient;
-    public final ItemStack result;
+    public final ItemStackTemplate result;
     public final int power; // units: kW, positive for discharge and negative for charge
     public final int time; // units: tick
 
-    public ChargerChargingRecipe(Ingredient input, ItemStack result, int power, int time) {
+    public ChargerChargingRecipe(Ingredient input, ItemStackTemplate result, int power, int time) {
         this.ingredient = input;
         this.result = result;
         this.power = power;
@@ -95,12 +103,12 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public ItemStack assemble(SingleRecipeInput input) {
-        return result.copy();
+        return this.result.create();
     }
 
     @Override
     public boolean matches(SingleRecipeInput input, Level level) {
-        return ingredient.test(input.getItem(0));
+        return this.ingredient.test(input.getItem(0));
     }
 
     public Block getProcessingBlock() {
@@ -122,29 +130,12 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         return "charger_charging";
     }
 
-    public static class Serializer {
-        private static void encode(RegistryFriendlyByteBuf buf, ChargerChargingRecipe recipe) {
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buf, recipe.ingredient);
-            ItemStack.STREAM_CODEC.encode(buf, recipe.result);
-            buf.writeVarInt(recipe.power);
-            buf.writeVarInt(recipe.time);
-        }
-
-        private static ChargerChargingRecipe decode(RegistryFriendlyByteBuf buf) {
-            Ingredient ingredient = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
-            ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-            int power = buf.readVarInt();
-            int time = buf.readVarInt();
-            return new ChargerChargingRecipe(ingredient, result, power, time);
-        }
-    }
-
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<ChargerChargingRecipe> {
         private final HolderGetter<Item> items;
         private Ingredient ingredient = null;
-        private ItemStack result = null;
+        private ItemStackTemplate result = null;
         private int power = 0;
         private int time = 0;
 
@@ -152,27 +143,27 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
             this.items = items;
         }
 
-        public ChargerChargingRecipe.Builder requires(ItemLike item) {
+        public Builder requires(ItemLike item) {
             this.ingredient = Ingredient.of(item);
             return this;
         }
 
-        public ChargerChargingRecipe.Builder requires(TagKey<Item> tag) {
+        public Builder requires(TagKey<Item> tag) {
             this.ingredient = Ingredient.of(this.items.getOrThrow(tag));
             return this;
         }
 
-        public ChargerChargingRecipe.Builder result(ItemLike item) {
-            this.result = item.asItem().getDefaultInstance();
+        public Builder result(ItemLike item) {
+            this.result = new ItemStackTemplate(item.asItem());
             return this;
         }
 
-        public ChargerChargingRecipe.Builder power(int power) {
+        public Builder power(int power) {
             this.power = power;
             return this;
         }
 
-        public ChargerChargingRecipe.Builder time(int time) {
+        public Builder time(int time) {
             this.time = time;
             return this;
         }
@@ -205,15 +196,15 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
         @Override
         public ItemStackTemplate getResult() {
-            return new ItemStackTemplate(this.result.getItem());
+            return this.result;
         }
 
         @Override
         public void save(RecipeOutput recipeOutput) {
             save(
                 recipeOutput,
-                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(this.result.getItem()).getPath())
-                    .withPrefix(getType() + "/")
+                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(this.result.item().value()).getPath())
+                    .withPrefix(this.getType() + "/")
             );
         }
     }

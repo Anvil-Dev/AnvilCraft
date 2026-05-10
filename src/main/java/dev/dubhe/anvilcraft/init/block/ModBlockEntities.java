@@ -103,7 +103,6 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRUM
         .blockEntity("chute", ChuteBlockEntity::createBlockEntity)
-        .onRegister(ChuteBlockEntity::onBlockEntityRegister)
         .validBlock(ModBlocks.CHUTE)
         .register();
 

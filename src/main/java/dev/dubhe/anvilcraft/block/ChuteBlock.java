@@ -3,10 +3,8 @@ package dev.dubhe.anvilcraft.block;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -21,7 +19,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +26,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -41,14 +40,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
@@ -144,10 +142,10 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         Direction dir = context.getClickedFace().getOpposite();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) dir = dir.getOpposite();
         Direction facing = dir.getAxis() == Direction.Axis.Y ? Direction.DOWN : dir;
-        BlockState result = getState(context.getLevel(), context.getClickedPos(), facing);
+        BlockState result = this.getState(context.getLevel(), context.getClickedPos(), facing);
         Player player = context.getPlayer();
         if (result == null && player != null) {
-            player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
+            player.sendOverlayMessage(Component.translatable("message.anvilcraft.chute.cannot_place"));
         }
         return result;
     }
@@ -168,29 +166,30 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Override
-    protected void neighborChanged(
+    protected BlockState updateShape(
         BlockState state,
-        Level level,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        Block block,
-        @Nullable Orientation orientation,
-        boolean movedByPiston
+        Direction directionToNeighbour,
+        BlockPos neighbourPos,
+        BlockState neighbourState,
+        RandomSource random
     ) {
-        if (level.isClientSide()) return;
-        BlockState neighborState = level.getBlockState(neighborPos);
-        Block neighborBlock1 = neighborState.getBlock();
-        if (isChuteBlock(neighborBlock) || isChuteBlock(neighborBlock1)) {
-            BlockState newState = getState(level, pos, state.getValue(FACING));
-            if (newState != null && newState != state) level.setBlockAndUpdate(pos, newState);
+        if (level.isClientSide()) return state;
+        Block neighborBlock = neighbourState.getBlock();
+        if (isChuteBlock(neighborBlock)) {
+            BlockState newState = this.getState(level, pos, state.getValue(FACING));
+            if (newState != null && newState != state) state = newState;
         }
-        this.checkPoweredState(level, pos, state);
+        state = this.checkPoweredState(level, pos, state);
+        return state;
     }
 
-    private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
+    private BlockState checkPoweredState(LevelReader level, BlockPos pos, BlockState state) {
         boolean flag = !level.hasNeighborSignal(pos);
-        if (flag != state.getValue(ENABLED)) {
-            level.setBlock(pos, state.setValue(ENABLED, flag), 2);
-        }
+        if (flag == state.getValue(ENABLED)) return state;
+        return state.setValue(ENABLED, flag);
     }
 
     @Override
@@ -219,7 +218,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         return createTickerHelper(
             type,
             ModBlockEntities.CHUTE.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
+            (_, _, _, be) -> be.tick()
         );
     }
 
@@ -278,27 +277,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof ChuteBlockEntity oldEntity) {
-                IItemHandler oldHandler = oldEntity.getItemHandler();
-                if (newState.is(ModBlocks.SIMPLE_CHUTE.get())) {
-                    level.removeBlockEntity(pos);
-                    level.setBlock(pos, newState, 2);
-                    IItemHandler newHandler = null;
-                    if (level.getBlockEntity(pos) instanceof SimpleChuteBlockEntity newEntity) {
-                        newHandler = newEntity.getItemHandler();
-                    }
-                    ItemHandlerUtil.exportToTarget(oldHandler, 64, stack -> true, newHandler);
-                } else level.removeBlockEntity(pos);
-                Vec3 vec3 = oldEntity.getBlockPos().getCenter();
-                for (int slot = 0; slot < oldHandler.getSlots(); slot++) {
-                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, oldHandler.getStackInSlot(slot));
-                }
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Override
@@ -312,8 +292,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
-        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ChuteBlockEntity chuteBlockEntity) {
             return chuteBlockEntity.getRedstoneSignal();
         }
@@ -321,7 +301,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Nullable
-    BlockState getState(Level level, BlockPos pos, Direction facing) {
+    BlockState getState(LevelReader level, BlockPos pos, Direction facing) {
         boolean success = false;
         boolean tall = false;
         BlockState result = this.defaultBlockState()
