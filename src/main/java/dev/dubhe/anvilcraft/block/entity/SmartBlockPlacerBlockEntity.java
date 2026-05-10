@@ -41,6 +41,5 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity {
 
     public void tick(Level level, BlockPos pos, BlockState state) {
         time++;
-        // TODO: 添加智能方块放置逻辑
     }
 }
