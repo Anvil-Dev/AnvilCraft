@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.BaseShowItemRenderState;
+import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -39,8 +40,7 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity, S extends Base
         if (stack == null || stack.isEmpty()) return;
         state.setRotation((be.getLevel().getGameTime() + partialTicks) * 2f);
         state.setDisplay(stack);
-        state.setDisplayState(new ItemClusterRenderState());
-        state.getDisplayState().extractItemGroupRenderState(null, stack, this.resolver);
+        state.setDisplayState(FeatureRendererSupport.initialize(stack, this.resolver));
     }
 
     @Nullable

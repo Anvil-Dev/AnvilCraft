@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.AdvancedComparatorRenderState;
-import dev.dubhe.anvilcraft.client.support.BlockEntityRendererSupport;
+import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -39,7 +39,7 @@ public class AdvancedComparatorRenderer implements BlockEntityRenderer<AdvancedC
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         state.setSignal(be.getBlockState().getValue(AdvancedComparatorBlock.POWER));
-        state.setIndicator(BlockEntityRendererSupport.initialize(AdvancedComparatorRenderer.INDICATOR, be));
+        state.setIndicator(FeatureRendererSupport.initialize(AdvancedComparatorRenderer.INDICATOR, be));
     }
 
     @Override

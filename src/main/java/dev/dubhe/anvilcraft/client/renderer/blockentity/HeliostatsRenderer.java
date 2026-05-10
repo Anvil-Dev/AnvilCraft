@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.HeliostatsRenderState;
-import dev.dubhe.anvilcraft.client.support.BlockEntityRendererSupport;
+import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -49,7 +49,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
-        state.setHead(BlockEntityRendererSupport.initialize(this.getHeadModel(be), be));
+        state.setHead(FeatureRendererSupport.initialize(this.getHeadModel(be), be));
         if (
             be.getWorkResult() != HeliostatsBlockEntity.WorkResult.NO_ROTATION_ANGLE
             && !be.getNormalVector3f().equals(new Vector3f())

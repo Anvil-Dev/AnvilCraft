@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.client.event.ClientTickRecorder;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FishTankRenderState;
-import dev.dubhe.anvilcraft.client.support.BlockEntityRendererSupport;
+import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -64,11 +64,9 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         state.setIgnited(be.isIgnited());
         for (ItemStack stack : ItemHandlerUtil.getNonEmptyItemsFromHandler(be.getItemHandler())) {
-            ItemClusterRenderState cluster = new ItemClusterRenderState();
-            cluster.extractItemGroupRenderState(null, stack, this.resolver);
-            state.getStacks().put(stack, cluster);
+            state.getStacks().put(stack, FeatureRendererSupport.initialize(stack, this.resolver));
         }
-        state.setFire(BlockEntityRendererSupport.initialize(FishTankRenderer.FIRE, be));
+        state.setFire(FeatureRendererSupport.initialize(FishTankRenderer.FIRE, be));
     }
 
     @Override
@@ -91,7 +89,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             state.getStacks(),
             pose,
             submitNodeCollector,
-            this.getRandom(),
+            this.random,
             state.getFill(),
             state.lightCoords
         );

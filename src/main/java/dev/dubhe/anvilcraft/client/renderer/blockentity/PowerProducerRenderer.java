@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PowerGeneratorRenderState;
-import dev.dubhe.anvilcraft.client.support.BlockEntityRendererSupport;
+import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -33,7 +33,7 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         state.setElevation(this.elevation());
         state.setRotation(this.rotation(be, partialTicks));
-        state.setCube(BlockEntityRendererSupport.initialize(this.getModel(), be));
+        state.setCube(FeatureRendererSupport.initialize(this.getModel(), be));
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CFARenderState;
-import dev.dubhe.anvilcraft.client.support.BlockEntityRendererSupport;
+import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -51,12 +51,12 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setAmplified(be.isAmplify());
         if (state.isAmplified()) {
             state.setOffsetY(4.5);
-            state.setBig(BlockEntityRendererSupport.initialize(CFARenderer.RING3, be));
-            state.setSmall(BlockEntityRendererSupport.initialize(CFARenderer.RING2, be));
+            state.setBig(FeatureRendererSupport.initialize(CFARenderer.RING3, be));
+            state.setSmall(FeatureRendererSupport.initialize(CFARenderer.RING2, be));
         } else {
             state.setOffsetY(3.5);
-            state.setBig(BlockEntityRendererSupport.initialize(CFARenderer.RING2, be));
-            state.setSmall(BlockEntityRendererSupport.initialize(CFARenderer.RING1, be));
+            state.setBig(FeatureRendererSupport.initialize(CFARenderer.RING2, be));
+            state.setSmall(FeatureRendererSupport.initialize(CFARenderer.RING1, be));
         }
     }
 
