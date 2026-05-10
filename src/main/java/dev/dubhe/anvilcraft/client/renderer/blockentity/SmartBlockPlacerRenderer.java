@@ -58,20 +58,17 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         
         // 渲染模型
         final VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
-        Minecraft.getInstance()
-            .getBlockRenderer()
-            .getModelRenderer()
-            .renderModel(
-                poseStack.last(),
-                vertexConsumer,
-                state,
-                Minecraft.getInstance().getModelManager().getModel(MODEL),
-                0,
-                0,
-                0,
-                packedLight,
-                packedOverlay
-            );
+        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+            poseStack.last(),
+            vertexConsumer,
+            state,
+            Minecraft.getInstance().getModelManager().getModel(MODEL),
+            0,
+            0,
+            0,
+            packedLight,
+            packedOverlay
+        );
         
         poseStack.popPose();
     }

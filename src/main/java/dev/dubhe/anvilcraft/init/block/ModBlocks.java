@@ -3609,7 +3609,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM.block("smart_block_placer", SmartBlockPlacerBlock::new)
+    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
+        .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(1.5F, 6.0F).noOcclusion())
         .blockstate((ctx, provider) -> {
