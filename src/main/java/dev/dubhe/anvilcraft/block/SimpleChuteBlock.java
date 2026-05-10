@@ -4,8 +4,6 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -13,13 +11,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -33,17 +30,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.items.IItemHandler;
 import org.jspecify.annotations.Nullable;
 
 public class SimpleChuteBlock
@@ -96,54 +91,35 @@ public class SimpleChuteBlock
     }
 
     @Override
-    protected void neighborChanged(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Block block,
-        @Nullable Orientation orientation,
-        boolean movedByPiston
-    ) {
-        if (level.isClientSide()) return;
-        BlockState neighborState = level.getBlockState(neighborPos);
-        Block neighborBlock1 = neighborState.getBlock();
-        if (ChuteBlock.isChuteBlock(neighborBlock) || ChuteBlock.isChuteBlock(neighborBlock1)) {
-            BlockState newState = getState(level, pos, state.getValue(FACING));
-            if (newState != null && newState != state) level.setBlockAndUpdate(pos, newState);
-        }
-        this.checkPoweredState(level, pos, state);
-    }
-
-    private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
-        boolean flag = !level.hasNeighborSignal(pos);
-        if (flag != state.getValue(ENABLED)) {
-            level.setBlock(pos, state.setValue(ENABLED, flag), 2);
-        }
-    }
-
-    @Override
     protected BlockState updateShape(
         BlockState state,
-        Direction facing,
-        BlockState facingState,
-        LevelAccessor level,
-        BlockPos currentPos,
-        BlockPos facingPos
+        LevelReader level,
+        ScheduledTickAccess ticks,
+        BlockPos pos,
+        Direction directionToNeighbour,
+        BlockPos neighbourPos,
+        BlockState neighbourState,
+        RandomSource random
     ) {
-        if (state.getValue(WATERLOGGED)) {
-            level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        if (state.getValue(WATERLOGGED)) ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        if (level.isClientSide()) return state;
+        Block neighbourBlock = neighbourState.getBlock();
+        if (ChuteBlock.isChuteBlock(neighbourBlock)) {
+            BlockState newState = this.getState(level, pos, state.getValue(FACING));
+            if (newState != null && newState != state) state = newState;
         }
-        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
+        state = this.checkPoweredState(level, pos, state);
+        return state;
+    }
+
+    private BlockState checkPoweredState(LevelReader level, BlockPos pos, BlockState state) {
+        boolean flag = !level.hasNeighborSignal(pos);
+        if (flag == state.getValue(ENABLED)) return state;
+        return state.setValue(ENABLED, flag);
     }
 
     @Override
-    public ItemStack getCloneItemStack(
-        BlockState state,
-        HitResult target,
-        LevelReader level,
-        BlockPos pos,
-        Player player
-    ) {
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
         return new ItemStack(ModBlocks.CHUTE);
     }
 
@@ -165,27 +141,8 @@ public class SimpleChuteBlock
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof SimpleChuteBlockEntity oldEntity) {
-                IItemHandler oldHandler = oldEntity.getItemHandler();
-                if (newState.is(ModBlocks.CHUTE.get())) {
-                    level.removeBlockEntity(pos);
-                    level.setBlock(pos, newState, 2);
-                    IItemHandler newHandler = null;
-                    if (level.getBlockEntity(pos) instanceof ChuteBlockEntity newEntity) {
-                        newHandler = newEntity.getItemHandler();
-                    }
-                    ItemHandlerUtil.exportToTarget(oldHandler, 64, stack -> true, newHandler);
-                } else level.removeBlockEntity(pos);
-                Vec3 vec3 = oldEntity.getBlockPos().getCenter();
-                for (int slot = 0; slot < oldHandler.getSlots(); slot++) {
-                    Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, oldHandler.getStackInSlot(slot));
-                }
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Nullable
@@ -196,7 +153,7 @@ public class SimpleChuteBlock
         return createTickerHelper(
             blockEntityType,
             ModBlockEntities.SIMPLE_CHUTE.get(),
-            ((level1, blockPos, blockState, blockEntity) -> blockEntity.tick()));
+            ((_, _, _, be) -> be.tick()));
     }
 
     @Override
@@ -232,8 +189,8 @@ public class SimpleChuteBlock
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
-        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof SimpleChuteBlockEntity chuteBlockEntity) {
             return chuteBlockEntity.getRedstoneSignal();
         }
@@ -275,7 +232,7 @@ public class SimpleChuteBlock
     }
 
     @Nullable
-    BlockState getState(Level level, BlockPos pos, Direction facing) {
+    BlockState getState(LevelReader level, BlockPos pos, Direction facing) {
         boolean success = false;
         boolean tall = false;
         BlockState result = level.getBlockState(pos);

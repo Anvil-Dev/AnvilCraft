@@ -10,23 +10,18 @@ import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -57,14 +52,6 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
-    public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
-        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
-        output.store(this.constructDataNbt());
-        BlockItem.setBlockEntityData(stack, this.getType(), output);
-        stack.applyComponents(this.collectComponents());
-    }
-
-    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         CompoundTag data = this.constructDataNbt();
@@ -79,7 +66,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         this.readDataNbt(data);
         // TODO: 删除if-else和else块内的代码
         if (data.contains("State")) {
-            this.state = State.fromIndex(data.getByteOr("State", (byte)0));
+            this.state = State.fromIndex(data.getByteOr("State", (byte) 0));
         } else if (data.contains("RemainingWaitingTime") && data.contains("RemainingSignalDuration")) {
             int waitingTimeRemaining = data.getIntOr("RemainingWaitingTime", 0);
             int signalDurationRemaining = data.getIntOr("RemainingSignalDuration", 0);
@@ -113,7 +100,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public PulseGeneratorBlockEntity readDataNbt(CompoundTag data) {
-        this.startMode = Mode.fromIndex(data.getByteOr("StartMode", (byte)0));
+        this.startMode = Mode.fromIndex(data.getByteOr("StartMode", (byte) 0));
         this.outputInvert = data.getBooleanOr("OutputMode", false);
         this.isInputtingSignal = data.getBooleanOr("Inputting", false);
         this.waitingTime = data.getIntOr("WaitingTime", 0);
@@ -206,7 +193,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     public void applyMoveData(Level level, BlockPos pos, BlockState state, CompoundTag move) {
         this.readDataNbt(move.getCompoundOrEmpty("Data"));
         this.isInputtingSignal = move.getBooleanOr("Inputting", false);
-        this.state = State.fromIndex(move.getByteOr("State", (byte)0));
+        this.state = State.fromIndex(move.getByteOr("State", (byte) 0));
         switch (this.state) {
             case WAITING -> level.scheduleTick(pos, state.getBlock(), this.getWaitingTime());
             case OUTPUTTING -> level.scheduleTick(pos, state.getBlock(), this.getSignalDuration());

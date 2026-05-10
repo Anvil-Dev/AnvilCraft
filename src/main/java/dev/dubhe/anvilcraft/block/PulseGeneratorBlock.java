@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
@@ -34,6 +33,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -92,7 +94,14 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, Orientation orientation, boolean isMoving) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
         this.update(level, pos, () -> state);
     }
 
@@ -114,12 +123,12 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        if (!state.is(level.getBlockState(pos).getBlock())) {
             if (level instanceof ServerLevel serverLevel) {
                 serverLevel.getBlockTicks().clearArea(new BoundingBox(pos));
             }
-            super.onRemove(state, level, pos, newState, false);
+            super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         }
         Direction facing = state.getValue(FACING);
         BlockPos front = pos.relative(facing.getOpposite());
@@ -230,7 +239,12 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         // noinspection deprecation
         generator.setBlockState(newState);
         level.neighborChanged(neighbourPos, state.getBlock(), Orientation.random(level.getRandom()));
-        level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite(), Orientation.random(level.getRandom()));
+        level.updateNeighborsAtExceptFromFacing(
+            neighbourPos,
+            state.getBlock(),
+            direction.getOpposite(),
+            Orientation.random(level.getRandom())
+        );
         if (generator.getSignalDuration() == 0) {
             level.scheduleTick(pos, this, 1, TickPriority.LOW);
         }
@@ -277,7 +291,8 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         if (be instanceof PulseGeneratorBlockEntity blockEntity && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
             sp.openMenu(
-                blockEntity, buf -> {
+                blockEntity,
+                buf -> {
                     buf.writeBlockPos(pos);
                     buf.writeNbt(blockEntity.constructDataNbt());
                 }
@@ -300,8 +315,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof PulseGeneratorBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
-                return Util.interactionResultConverter()
-                    .apply(be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult));
+                return be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult);
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
@@ -323,17 +337,20 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
-        CompoundTag[] data = new CompoundTag[1];
+    public void storeData(Level level, BlockPos pos, ValueOutput output) {
         level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
-            .ifPresent(be -> data[0] = be.exportMoveData());
-        return data[0];
+            .ifPresent(be -> output.store("Data", CompoundTag.CODEC, be.exportMoveData()));
     }
 
     @Override
-    public void setData(Level level, BlockPos pos, CompoundTag tag) {
+    public void loadData(Level level, BlockPos pos, ValueInput input) {
         level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
-            .ifPresent(be -> be.applyMoveData(level, pos, level.getBlockState(pos), tag));
+            .ifPresent(be -> be.applyMoveData(
+                level,
+                pos,
+                level.getBlockState(pos),
+                input.read("Data", CompoundTag.CODEC).orElse(new CompoundTag())
+            ));
     }
 }
 

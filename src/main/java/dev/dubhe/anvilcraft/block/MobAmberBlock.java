@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jspecify.annotations.Nullable;
 
 public class MobAmberBlock extends HasMobBlock {
@@ -44,6 +45,7 @@ public class MobAmberBlock extends HasMobBlock {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
@@ -71,7 +73,7 @@ public class MobAmberBlock extends HasMobBlock {
         return createTickerHelper(
             type,
             ModBlockEntities.MOB_AMBER_BLOCK.get(),
-            (level1, blockPos, blockState, blockEntity) -> blockEntity.clientTick((ClientLevel) level1, blockPos)
+            (level1, blockPos, _, blockEntity) -> blockEntity.clientTick((ClientLevel) level1, blockPos)
         );
     }
 }
