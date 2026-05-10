@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api.block;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluid;
-import org.jetbrains.annotations.UnknownNullability;
 
 public interface IIgnitableCauldron {
     default boolean isIgnited(BlockCache cache, BlockPos pos) {

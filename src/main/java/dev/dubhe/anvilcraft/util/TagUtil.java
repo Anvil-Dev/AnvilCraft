@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -14,9 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class TagUtil {

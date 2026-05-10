@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.item.property.component;
 
-import com.mojang.datafixers.util.Unit;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;

@@ -13,12 +13,12 @@ import dev.dubhe.anvilcraft.client.gui.screen.IntegrationScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
-import org.jspecify.annotations.Nullable;
 
 public class IntegrationUtil {
     public static Root root = Root.EMPTY;

@@ -7,9 +7,9 @@ import dev.dubhe.anvilcraft.client.renderer.laser.LaserCompiler;
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.phys.AABB;
 
 public class LaserBlockRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
