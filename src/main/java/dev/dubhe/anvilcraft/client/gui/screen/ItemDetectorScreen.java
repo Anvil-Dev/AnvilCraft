@@ -90,7 +90,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             leftPos + 43,
             topPos + 23,
             "minus",
-            (b) -> {
+            b -> {
                 this.menu.getBlockEntity().decreaseRange();
                 PacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
@@ -101,7 +101,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             leftPos + 81,
             topPos + 23,
             "add",
-            (b) -> {
+            b -> {
                 this.menu.getBlockEntity().increaseRange();
                 PacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())

@@ -69,7 +69,7 @@ public class PillRecipeExtension implements ICraftingCategoryExtension<PillRecip
     ) {
         PillRecipe recipe = recipeHolder.value();
         ItemStack itemStack = recipeSlots.stream()
-            .filter((slot) -> slot.getRole() == RecipeIngredientRole.INPUT)
+            .filter(slot -> slot.getRole() == RecipeIngredientRole.INPUT)
             .map(IRecipeSlotView::getDisplayedItemStack)
             .flatMap(Optional::stream)
             .filter(recipe::validatePotion)
@@ -79,10 +79,10 @@ public class PillRecipeExtension implements ICraftingCategoryExtension<PillRecip
             return;
         }
         recipeSlots.stream()
-            .filter((slot) -> slot.getRole() == RecipeIngredientRole.OUTPUT)
-            .forEach((slot) -> {
+            .filter(slot -> slot.getRole() == RecipeIngredientRole.OUTPUT)
+            .forEach(slot -> {
                 if (slot.getRole() == RecipeIngredientRole.OUTPUT) {
-                    slot.getDisplayedItemStack().ifPresent((pill) -> {
+                    slot.getDisplayedItemStack().ifPresent(pill -> {
                         pill.set(DataComponents.POTION_CONTENTS, itemStack.get(DataComponents.POTION_CONTENTS));
                         pill.set(ModComponents.WEAKENING, itemStack.getOrDefault(ModComponents.WEAKENING, false));
                         slot.createDisplayOverrides().addItemStack(pill);

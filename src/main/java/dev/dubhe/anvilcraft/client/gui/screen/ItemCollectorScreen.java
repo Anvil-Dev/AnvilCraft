@@ -88,26 +88,26 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
         ));
         // range - +
         this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 43, this.topPos + 23, "minus", (b) -> {
+            this.leftPos + 43, this.topPos + 23, "minus", b -> {
             this.menu.getBlockEntity().getRangeRadius().previous();
             this.menu.getBlockEntity().getRangeRadius().notifyServer();
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 81, this.topPos + 23, "add", (b) -> {
+            this.leftPos + 81, this.topPos + 23, "add", b -> {
             this.menu.getBlockEntity().getRangeRadius().next();
             this.menu.getBlockEntity().getRangeRadius().notifyServer();
         }
         ));
         // cooldown - +
         this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 43, this.topPos + 37, "minus", (b) -> {
+            this.leftPos + 43, this.topPos + 37, "minus", b -> {
             this.menu.getBlockEntity().getCooldown().previous();
             this.menu.getBlockEntity().getCooldown().notifyServer();
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
-            leftPos + 81, topPos + 37, "add", (b) -> {
+            leftPos + 81, topPos + 37, "add", b -> {
             this.menu.getBlockEntity().getCooldown().next();
             this.menu.getBlockEntity().getCooldown().notifyServer();
         }

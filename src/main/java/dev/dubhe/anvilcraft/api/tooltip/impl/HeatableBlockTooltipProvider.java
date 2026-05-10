@@ -22,7 +22,7 @@ public class HeatableBlockTooltipProvider extends ITooltipProvider.BlockEntityTo
 
     @Override
     public List<Component> tooltip(BlockEntity entity) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return null;
+        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         List<Component> components = new ArrayList<>();
         HeatRecorder.getTier(entity.getLevel(), entity.getBlockPos(), entity.getBlockState())
             .ifPresent(tier -> components.add(ITooltipProvider.withIndentAndMerge(Component.translatable(

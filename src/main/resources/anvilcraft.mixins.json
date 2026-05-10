@@ -96,6 +96,7 @@
     "SoundEngineMixin",
     "SubmitNodeCollectionMixin",
     "accessor.FluidStateModelSetAccessor",
+    "accessor.LevelRendererAccessor",
     "accessor.MultiPlayerGameModeAccessor",
     "accessor.ScreenAccessor",
     "compat.EmbChunkBuilderMeshingTaskMixin",

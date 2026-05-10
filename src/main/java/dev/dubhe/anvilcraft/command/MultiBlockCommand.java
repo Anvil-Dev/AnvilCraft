@@ -41,7 +41,7 @@ public class MultiBlockCommand {
             BlockPos mainPartPos = multiPartBlock.getMainPartPos(pos, blockState);
             MutableComponent component = ComponentUtils.wrapInSquareBrackets(
                 Component.translatable("chat.coordinates", mainPartPos.getX(), mainPartPos.getY(), mainPartPos.getZ())
-            ).withStyle((style) -> style.withClickEvent(new ClickEvent.CopyToClipboard(
+            ).withStyle(style -> style.withClickEvent(new ClickEvent.CopyToClipboard(
                 "%s %s %s".formatted(mainPartPos.getX(), mainPartPos.getY(), mainPartPos.getZ())
             )).withHoverEvent(new HoverEvent.ShowText(
                 Component.translatable("chat.copy.click")

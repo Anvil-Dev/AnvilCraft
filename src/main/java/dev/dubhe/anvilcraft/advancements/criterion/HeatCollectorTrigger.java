@@ -32,7 +32,7 @@ public class HeatCollectorTrigger extends SimpleCriterionTrigger<HeatCollectorTr
         Optional<BlockStatePredicate> collecting,
         Optional<MinMaxBounds.Ints> output
     ) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             BlockStatePredicate.CODEC.optionalFieldOf("collecting").forGetter(TriggerInstance::collecting),
             MinMaxBounds.Ints.CODEC.optionalFieldOf("output").forGetter(TriggerInstance::output)

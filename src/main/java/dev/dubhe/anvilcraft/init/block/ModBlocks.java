@@ -358,7 +358,7 @@ public class ModBlocks {
             .explosionResistance(1200))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -881,7 +881,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .initialProperties(ModBlocks.RUBY_PRISM::get)
-        .properties((properties) -> properties.noOcclusion()
+        .properties(properties -> properties.noOcclusion()
             .isValidSpawn(Blocks::never)
             .isRedstoneConductor(ModBlocks::never)
             .requiresCorrectToolForDrops()
@@ -1190,7 +1190,7 @@ public class ModBlocks {
         .properties(p -> p.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1204,7 +1204,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1215,7 +1215,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1225,14 +1225,14 @@ public class ModBlocks {
         .block("celestial_forging_anvil", CelestialForgingAnvilBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .loot(SimpleMultiPartBlock::loot)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(SimpleMultiPartBlockItem::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
@@ -1242,14 +1242,14 @@ public class ModBlocks {
         .block("celestial_forging_anvil_amplifier", CelestialForgingAnvilAmplifierBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
@@ -1259,7 +1259,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_logistics_interface", CelestialForgingAnvilLogisticsInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
@@ -1274,7 +1274,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
@@ -1289,7 +1289,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
@@ -1317,7 +1317,7 @@ public class ModBlocks {
             MagnetoElectricCoreBlock::new
         )
         .initialProperties(() -> Blocks.COPPER_BLOCK)
-        .properties((properties) -> properties.lightLevel((blockState) -> 6).noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.lightLevel((blockState) -> 6).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::magnetoElectricCoreBlock)
@@ -1339,7 +1339,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<PropelPiston> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPiston::new)
-        .properties((properties) -> {
+        .properties(properties -> {
             return properties.mapColor(MapColor.TERRACOTTA_WHITE).requiresCorrectToolForDrops().strength(1.5F).noOcclusion();
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1429,7 +1429,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_STAIRS = REGISTRUM.block(
             "cut_royal_steel_stairs",
-            (properties) -> new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties)
         )
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -1656,7 +1656,7 @@ public class ModBlocks {
 
     public static final BlockEntry<EmberMetalStairBlock> CUT_EMBER_METAL_STAIRS = REGISTRUM.block(
             "cut_ember_metal_stairs",
-            (properties) -> new EmberMetalStairBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.getDefaultState(), properties)
+            properties -> new EmberMetalStairBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.getDefaultState(), properties)
         )
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -1728,7 +1728,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_STAIRS = REGISTRUM.block(
             "polished_heavy_iron_stairs",
-            (properties) -> new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
@@ -1762,7 +1762,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_STAIRS = REGISTRUM.block(
             "cut_heavy_iron_stairs",
-            (properties) -> new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
@@ -2154,7 +2154,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CINERITE = REGISTRUM.block(
             "cinerite",
-            (b) -> new ColoredFallingBlock(new ColorRGBA(0xDEDEDE), b)
+            b -> new ColoredFallingBlock(new ColorRGBA(0xDEDEDE), b)
         )
         .initialProperties(() -> Blocks.SAND)
         .simpleItem()
@@ -2163,7 +2163,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> QUARTZ_SAND = REGISTRUM.block(
             "quartz_sand",
-            (b) -> new ColoredFallingBlock(new ColorRGBA(0xFFFFCD), b)
+            b -> new ColoredFallingBlock(new ColorRGBA(0xFFFFCD), b)
         )
         .initialProperties(() -> Blocks.SAND)
         .simpleItem()
@@ -2197,7 +2197,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ColoredFallingBlock> NETHER_DUST = REGISTRUM.block(
             "nether_dust",
-            (b) -> new ColoredFallingBlock(new ColorRGBA(0x8B0000), b)
+            b -> new ColoredFallingBlock(new ColorRGBA(0x8B0000), b)
         )
         .simpleItem()
         .initialProperties(() -> Blocks.BLACK_CONCRETE_POWDER)
@@ -2292,7 +2292,7 @@ public class ModBlocks {
             ctx.add(prov, builder);
         })
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
         .build()
         .register();
@@ -2949,7 +2949,7 @@ public class ModBlocks {
     private static BlockEntry<StairBlock> registerReinforcedConcreteStairBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRUM.block(
                 "reinforced_concrete_" + color + "_stair",
-                (properties) -> new StairBlock(parent.getDefaultState(), properties)
+                properties -> new StairBlock(parent.getDefaultState(), properties)
             )
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
@@ -3300,8 +3300,8 @@ public class ModBlocks {
     public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())
         .blockstate(DataGenUtil::simpleBlock)
-        .properties((properties) -> properties.pushReaction(PushReaction.BLOCK)
-            .lightLevel((state) -> 15)
+        .properties(properties -> properties.pushReaction(PushReaction.BLOCK)
+            .lightLevel(state -> 15)
             .noOcclusion()
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
@@ -3413,7 +3413,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StairBlock> CUT_FLINT_STAIRS_BLOCK = REGISTRUM.block(
             "cut_flint_stairs",
-            (properties) -> new StairBlock(FLINT_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(FLINT_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(FLINT_BLOCK::get)
         .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_flint_block")))

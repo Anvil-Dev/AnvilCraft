@@ -388,7 +388,7 @@ public class MultitoolItem extends Item {
     private HitResult calculateHitResult(Player player) {
         return ProjectileUtil.getHitResultOnViewVector(
             player,
-            (entity) -> !entity.isSpectator() && player.isPickable(),
+            entity -> !entity.isSpectator() && player.isPickable(),
             player.blockInteractionRange()
         );
     }

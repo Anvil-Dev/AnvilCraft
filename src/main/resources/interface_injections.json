@@ -28,5 +28,8 @@
   ],
   "net/minecraft/client/renderer/SubmitNodeStorage$ItemSubmit": [
     "dev/dubhe/anvilcraft/api/injection/IItemSubmitExtension"
+  ],
+  "net/minecraft/world/entity/LivingEntity": [
+    "dev/dubhe/anvilcraft/api/injection/entity/ILivingEntityExtension"
   ]
 }

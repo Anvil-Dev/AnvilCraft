@@ -160,7 +160,7 @@ public class ModFoodItems {
 
     public static final ItemEntry<PillItem> PILL = REGISTRUM
         .item("pill", PillItem::new)
-        .properties((properties) -> properties.component(DataComponents.POTION_CONTENTS, PotionContents.EMPTY))
+        .properties(properties -> properties.component(DataComponents.POTION_CONTENTS, PotionContents.EMPTY))
         .recipe((ctx, provider) -> {
             StampingRecipe.builder()
                 .requires(ModItemTags.FLOUR)

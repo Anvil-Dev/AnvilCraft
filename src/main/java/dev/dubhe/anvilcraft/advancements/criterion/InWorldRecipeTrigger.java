@@ -19,13 +19,13 @@ public class InWorldRecipeTrigger extends SimpleCriterionTrigger<InWorldRecipeTr
     }
 
     public void trigger(ServerPlayer player, Identifier recipeType, Identifier id) {
-        this.trigger(player, (instance) -> instance.matches(recipeType, id));
+        this.trigger(player, instance -> instance.matches(recipeType, id));
     }
 
     public record TriggerInstance(
         Optional<ContextAwarePredicate> player, Optional<Identifier> recipeType, Optional<Identifier> id
     ) implements SimpleCriterionTrigger.SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             Identifier.CODEC.optionalFieldOf("recipeType").forGetter(TriggerInstance::recipeType),
             Identifier.CODEC.optionalFieldOf("id").forGetter(TriggerInstance::id)

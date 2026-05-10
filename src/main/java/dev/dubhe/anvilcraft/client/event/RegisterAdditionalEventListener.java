@@ -57,6 +57,7 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/laser"))
         );
         event.register(
+            HammerEffectRenderEventListener.MODEL,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/axis"))
         );
         event.register(

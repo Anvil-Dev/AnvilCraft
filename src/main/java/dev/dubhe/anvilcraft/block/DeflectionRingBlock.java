@@ -174,7 +174,7 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, (state) -> state.cycle(FACING));
+        this.change(blockPos, level, state -> state.cycle(FACING));
         return true;
     }
 

@@ -16,7 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.neoforged.neoforge.common.EffectCures;
+import net.minecraft.world.level.storage.LevelData;
 
 import java.util.Optional;
 
@@ -43,14 +43,19 @@ public class TotemOfRecoveryHandler implements TotemHandler {
                 }
                 deathPos = deathPos.atY(deathPos.getY() + 1);
                 player.setLastDeathLocation(Optional.of(GlobalPos.of(deathDimension, deathPos)));
-                ResourceKey<Level> respawnDimension = player.getRespawnDimension();
-                BlockPos respawnPos = player.getRespawnPosition() == null
-                                      ? player.level().getSharedSpawnPos()
-                                      : player.getRespawnPosition();
+                ServerPlayer.RespawnConfig respawnConfig = player.getRespawnConfig();
+                LevelData.RespawnData respawnData;
+                if (respawnConfig != null) {
+                    respawnData = respawnConfig.respawnData();
+                } else {
+                    respawnData = player.level().getRespawnData();
+                }
+                ResourceKey<Level> respawnDimension = respawnData.dimension();
+                BlockPos respawnPos = respawnData.pos();
                 RecoveryPearl.crossDimensionTeleportTo(respawnDimension, player, respawnPos);
             }
             entity.setHealth(1.0F);
-            entity.removeEffectsCuredBy(EffectCures.PROTECTED_BY_TOTEM);
+            entity.removeAllEffects();
             entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));
             entity.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 100, 1));
             entity.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 800, 0));

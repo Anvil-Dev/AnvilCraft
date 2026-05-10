@@ -23,13 +23,13 @@ public class AnvilLootingTrigger extends SimpleCriterionTrigger<AnvilLootingTrig
 
     public void trigger(ServerPlayer player, Entity entity) {
         LootContext context = EntityPredicate.createContext(player, entity);
-        this.trigger(player, (instance) -> instance.matches(context));
+        this.trigger(player, instance -> instance.matches(context));
     }
 
     public record TriggerInstance(
         Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity
     ) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("entity").forGetter(TriggerInstance::entity)
         ).apply(instance, TriggerInstance::new));

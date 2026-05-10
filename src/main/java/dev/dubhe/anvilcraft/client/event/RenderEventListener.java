@@ -13,11 +13,10 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -37,11 +36,10 @@ import java.util.Optional;
 public class RenderEventListener {
 
     @SubscribeEvent
-    public static void onRenderInspection(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
-        Vec3 camera = event.getCamera().getPosition();
+    public static void onRenderInspection(RenderLevelStageEvent.AfterOpaqueFeatures event) {
+        Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         PoseStack poseStack = event.getPoseStack();
-        DeltaTracker deltaTracker = event.getPartialTick();
+        DeltaTracker deltaTracker = Minecraft.getInstance().getDeltaTracker();
         LevelRenderer renderer = event.getLevelRenderer();
         InspectionSupport.INSTANCE.onRenderInspectionAction(
             poseStack,
@@ -52,30 +50,28 @@ public class RenderEventListener {
     }
 
     @SubscribeEvent
-    public static void onRender(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
+    public static void onRender(RenderLevelStageEvent.AfterOpaqueFeatures event) {
         if (Minecraft.getInstance().options.hideGui) return;
-        Entity entity = event.getCamera().getEntity();
         PoseStack pose = event.getPoseStack();
         MultiBufferSource.BufferSource bufferSource =
             event.getLevelRenderer().renderBuffers.bufferSource();
 
-        Vec3 vec3 = event.getCamera().getPosition();
+        Vec3 vec3 = event.getLevelRenderState().cameraRenderState.pos;
         double camX = vec3.x();
         double camY = vec3.y();
         double camZ = vec3.z();
         PowerGridSupport.renderTransmitterLine(pose, bufferSource, vec3);
 
-        if (!(entity instanceof LivingEntity livingEntity)) return;
-        ItemStack mainHandItem = livingEntity.getItemInHand(InteractionHand.MAIN_HAND);
-        ItemStack offHandItem = livingEntity.getItemInHand(InteractionHand.OFF_HAND);
+        if (!(Minecraft.getInstance().getCameraEntity() instanceof LivingEntity living)) return;
+        ItemStack mainHandItem = living.getItemInHand(InteractionHand.MAIN_HAND);
+        ItemStack offHandItem = living.getItemInHand(InteractionHand.OFF_HAND);
         ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
-        VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderType.lines());
+        VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderTypes.lines());
         if (!handItem.isEmpty()) {
             HudTooltipManager.INSTANCE.renderHandItemLevelTooltip(handItem, pose, vertexConsumer3, camX, camY, camZ);
         }
 
-        if (!(entity instanceof Player player)) return;
+        if (!(living instanceof Player player)) return;
         Optional<BlockHitResult> hitResult = Util.castSafely(Minecraft.getInstance().hitResult, BlockHitResult.class);
         hitResult.ifPresent(hit -> renderDragonRodOutline(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
         if (!AnvilHammerItem.shouldRenderEffect(player)) return;

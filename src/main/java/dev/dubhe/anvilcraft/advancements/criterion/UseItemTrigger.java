@@ -22,11 +22,11 @@ public class UseItemTrigger extends SimpleCriterionTrigger<UseItemTrigger.Trigge
     }
 
     public void trigger(ServerPlayer player, Item item) {
-        this.trigger(player, (instance) -> instance.matches(item));
+        this.trigger(player, instance -> instance.matches(item));
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ItemPredicate> item) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((inst) -> inst.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             EntityPredicate.ADVANCEMENT_CODEC
                 .optionalFieldOf("player")
                 .forGetter(TriggerInstance::player),

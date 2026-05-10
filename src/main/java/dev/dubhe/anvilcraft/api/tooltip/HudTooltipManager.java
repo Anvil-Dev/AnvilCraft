@@ -21,7 +21,6 @@ import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -30,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -93,14 +93,13 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
-        if (state == null) return;
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
         ITooltipProvider.BlockTooltipProvider currentProvider = determineBlockTooltipProvider(level, pos, state);
         if (currentProvider == null) return;
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
-        if (tooltip == null || tooltip.isEmpty()) return;
+        if (tooltip.isEmpty()) return;
         renderTooltipWithItemIcon(
             guiGraphics,
             font,
@@ -124,15 +123,14 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
-        if (entity == null) return;
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
-        ITooltipProvider.BlockEntityTooltipProvider currentProvider = determineBlockEntityTooltipProvider(entity);
+        ITooltipProvider.BlockEntityTooltipProvider currentProvider = this.determineBlockEntityTooltipProvider(entity);
         if (currentProvider == null) return;
         List<Component> tooltip = currentProvider.tooltip(entity);
-        if (tooltip == null || tooltip.isEmpty()) return;
-        renderTooltipWithItemIcon(
+        if (tooltip.isEmpty()) return;
+        TooltipRenderHelper.renderTooltipWithItemIcon(
             guiGraphics,
             font,
             currentProvider.icon(entity),
@@ -156,7 +154,7 @@ public class HudTooltipManager {
         double camY,
         double camZ
     ) {
-        IHandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
+        IHandHeldItemTooltipProvider pv = this.determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) return;
         pv.render(poseStack, consumer, itemStack, camX, camY, camZ);
     }
@@ -171,7 +169,7 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
-        IHandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
+        IHandHeldItemTooltipProvider pv = this.determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) return;
         pv.renderTooltip(guiGraphics, screenWidth, screenHeight);
     }
@@ -187,40 +185,36 @@ public class HudTooltipManager {
         double camY,
         double camZ
     ) {
-        IAffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
+        IAffectRangeProvider currentProvider = this.determineAffectRangeProvider(entity);
         if (currentProvider == null) return;
         VoxelShape shape = currentProvider.affectRange(entity);
-        if (shape == null) return;
         renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00Ffcc);
     }
 
-    private IHandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {
-        if (itemStack == null || itemStack.isEmpty()) return null;
-        return handItemProviders.stream()
+    private @Nullable IHandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {
+        if (itemStack.isEmpty()) return null;
+        return this.handItemProviders.stream()
             .filter(it -> it.accepts(itemStack))
             .min(Comparator.comparingInt(IHandHeldItemTooltipProvider::priority))
             .orElse(null);
     }
 
-    private ITooltipProvider.BlockTooltipProvider determineBlockTooltipProvider(Level level, BlockPos pos, BlockState state) {
-        if (state == null) return null;
-        return blockProviders.stream()
+    private ITooltipProvider.@Nullable BlockTooltipProvider determineBlockTooltipProvider(Level level, BlockPos pos, BlockState state) {
+        return this.blockProviders.stream()
             .filter(it -> it.accepts(level, pos, state))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
             .orElse(null);
     }
 
-    private ITooltipProvider.BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
-        if (entity == null) return null;
-        return blockEntityProviders.stream()
+    private ITooltipProvider.@Nullable BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
+        return this.blockEntityProviders.stream()
             .filter(it -> it.accepts(entity))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
             .orElse(null);
     }
 
-    private IAffectRangeProvider determineAffectRangeProvider(BlockEntity entity) {
-        if (entity == null) return null;
-        return affectRangeProviders.stream()
+    private @Nullable IAffectRangeProvider determineAffectRangeProvider(BlockEntity entity) {
+        return this.affectRangeProviders.stream()
             .filter(it -> it.accepts(entity))
             .min(Comparator.comparingInt(IAffectRangeProvider::priority))
             .orElse(null);

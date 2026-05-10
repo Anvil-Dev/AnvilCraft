@@ -19,11 +19,11 @@ public class DevourerDevourTrigger extends SimpleCriterionTrigger<DevourerDevour
     }
 
     public void trigger(ServerPlayer player, Block block) {
-        this.trigger(player, (instance) -> instance.matches(block));
+        this.trigger(player, instance -> instance.matches(block));
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<BlockPredicate> block) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             BlockPredicate.CODEC.optionalFieldOf("block").forGetter(TriggerInstance::block)
         ).apply(instance, TriggerInstance::new));

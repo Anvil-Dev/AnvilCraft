@@ -19,7 +19,7 @@ public class ModEnchantmentEffectComponents {
 
     public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> USE_ON_BLOCK = register(
         "use_on_block",
-        (it) -> it.persistent(
+        it -> it.persistent(
             ConditionalEffect.codec(
                 EnchantmentEntityEffect.CODEC,
                 ModLootContextParamSets.USE_ON_ITEM
@@ -29,7 +29,7 @@ public class ModEnchantmentEffectComponents {
 
     public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> POST_BREAK_BLOCK = register(
         "post_break_block",
-        (it) -> it.persistent(
+        it -> it.persistent(
             ConditionalEffect.codec(
                 EnchantmentEntityEffect.CODEC,
                 ModLootContextParamSets.POST_BREAK_BLOCK

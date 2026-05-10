@@ -18,14 +18,14 @@ public class AnvilHammerClickBlockTrigger extends SimpleCriterionTrigger<AnvilHa
     }
 
     public void trigger(ServerPlayer player, String type) {
-        this.trigger(player, (instance) -> instance.matches(type));
+        this.trigger(player, instance -> instance.matches(type));
     }
 
     public record TriggerInstance(
         Optional<ContextAwarePredicate> player,
         Optional<String> type
     ) implements SimpleCriterionTrigger.SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             Codec.STRING.optionalFieldOf("type").forGetter(TriggerInstance::type)
         ).apply(instance, TriggerInstance::new));

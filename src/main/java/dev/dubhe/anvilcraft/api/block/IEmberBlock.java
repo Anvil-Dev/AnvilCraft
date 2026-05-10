@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.pathfinder.TraversalNodeStatus;
 
 /**
  * 余烬金属系方块
@@ -50,12 +49,12 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
             },
             (checkedPos) -> {
                 if (checkedPos.equals(pos)) {
-                    return TraversalNodeStatus.CONTINUE;
+                    return BlockPos.TraversalNodeStatus.ACCEPT;
                 } else {
                     BlockState blockState = level.getBlockState(checkedPos);
                     FluidState fluidState = level.getFluidState(checkedPos);
                     if (!fluidState.is(Fluids.WATER)) {
-                        return TraversalNodeStatus.SKIP;
+                        return BlockPos.TraversalNodeStatus.SKIP;
                     } else {
                         Block block = blockState.getBlock();
                         if (block instanceof BucketPickup bucketPickup) {
@@ -63,7 +62,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                                 .pickupBlock(null, level, checkedPos, blockState)
                                 .isEmpty()) {
                                 setCheckBlockState(blockState);
-                                return TraversalNodeStatus.CONTINUE;
+                                return BlockPos.TraversalNodeStatus.ACCEPT;
                             }
                         }
 
@@ -74,7 +73,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                                 && !blockState.is(Blocks.KELP_PLANT)
                                 && !blockState.is(Blocks.SEAGRASS)
                                 && !blockState.is(Blocks.TALL_SEAGRASS)) {
-                                return TraversalNodeStatus.SKIP;
+                                return BlockPos.TraversalNodeStatus.SKIP;
                             }
 
                             BlockEntity blockEntity =
@@ -83,7 +82,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                             level.setBlock(checkedPos, Blocks.AIR.defaultBlockState(), 3);
                         }
                         setCheckBlockState(blockState);
-                        return TraversalNodeStatus.CONTINUE;
+                        return BlockPos.TraversalNodeStatus.ACCEPT;
                     }
                 }
             }

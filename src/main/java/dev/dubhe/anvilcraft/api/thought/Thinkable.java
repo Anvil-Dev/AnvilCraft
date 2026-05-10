@@ -5,14 +5,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforgespi.Environment;
+import net.neoforged.fml.loading.FMLLoader;
 
 import java.util.List;
 
 public interface Thinkable {
     @OnlyIn(Dist.CLIENT)
     default void appendHoverText(List<Component> tooltipComponents) {
-        if (!Environment.get().getDist().isClient()) {
+        if (!FMLLoader.getCurrent().getDist().isClient()) {
             return;
         }
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
@@ -33,8 +33,8 @@ public interface Thinkable {
         int placeholderCount = (int) Math.floor(Math.min(deltaTime, 20 * maxSeconds) / (20 * maxSeconds) * maxPlaceholderCount);
         int blankCount = maxPlaceholderCount - placeholderCount;
         StringBuilder builder = new StringBuilder("[");
-        builder.append("||".repeat(Math.max(0, placeholderCount)));
-        builder.append(" ".repeat(Math.max(0, blankCount)));
+        builder.repeat("||", Math.max(0, placeholderCount));
+        builder.repeat(" ", Math.max(0, blankCount));
         tooltipComponents.add(Component.literal(builder.append("]").toString()).withStyle(ChatFormatting.GRAY));
     }
 

@@ -53,7 +53,7 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
             }
         } else if (e instanceof IPowerComponent) {
             if (e.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
-                overloaded = e.getBlockState().getValues().getOrDefault(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
+                overloaded = e.getBlockState().getValueOrElse(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
             }
             pos = e.getBlockPos();
         } else {

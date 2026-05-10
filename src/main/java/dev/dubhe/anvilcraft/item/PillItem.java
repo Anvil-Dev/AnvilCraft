@@ -43,11 +43,11 @@ public class PillItem extends Item {
     public static void use(ItemStack itemStack, Player player) {
         PotionContents potionContents = itemStack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
         Boolean weakening = itemStack.getOrDefault(ModComponents.WEAKENING, false);
-        potionContents.forEachEffect((effect) -> {
+        potionContents.forEachEffect(effect -> {
             if (weakening) {
                 effect = new MobEffectInstance(
                     effect.getEffect(),
-                    effect.mapDuration((duration) -> duration / 4),
+                    effect.mapDuration(duration -> duration / 4),
                     effect.getAmplifier(),
                     effect.isAmbient(),
                     effect.isVisible()

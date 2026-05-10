@@ -47,7 +47,7 @@ public class TeslaTowerButton extends Button {
             10,
             Component.literal(""),
             onPress,
-            (var) -> parent.getFilterTitle(index, variant).copy()
+            var -> parent.getFilterTitle(index, variant).copy()
         );
         this.height = 15;
         this.width = 112;

@@ -74,7 +74,7 @@ public class ModComponents {
 
     public static final DataComponentType<StoredEnergy> STORED_ENERGY = register(
         "stored_energy",
-        (builder) -> builder.persistent(StoredEnergy.CODEC.codec()).networkSynchronized(StoredEnergy.STREAM_CODEC)
+        builder -> builder.persistent(StoredEnergy.CODEC.codec()).networkSynchronized(StoredEnergy.STREAM_CODEC)
     );
 
     public static final DataComponentType<Unit> FIRE_REFORGING = registerEmpty("reforging");
@@ -138,7 +138,7 @@ public class ModComponents {
 
     public static final DataComponentType<PillBoxContents> PILL_BOX_CONTENTS = register(
         "pill_box_contents",
-        (builder) -> builder.persistent(PillBoxContents.CODEC).networkSynchronized(PillBoxContents.STREAM_CODEC)
+        builder -> builder.persistent(PillBoxContents.CODEC).networkSynchronized(PillBoxContents.STREAM_CODEC)
     );
 
     public static final DataComponentType<OverLimitItemContainerContents> OVER_LIMIT_CONTAINER = register(

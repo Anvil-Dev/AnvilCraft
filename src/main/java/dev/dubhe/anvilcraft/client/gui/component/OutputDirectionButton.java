@@ -21,7 +21,7 @@ public class OutputDirectionButton extends Button {
         "screen.anvilcraft.button.direction", Component.translatable("screen.anvilcraft.button.direction.up"));
 
     public OutputDirectionButton(int x, int y, OnPress onPress, Direction direction) {
-        super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, (var) -> DEFAULT_MESSAGE);
+        super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, var -> DEFAULT_MESSAGE);
         this.direction = direction;
     }
 

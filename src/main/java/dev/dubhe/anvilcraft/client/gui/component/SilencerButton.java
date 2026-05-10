@@ -46,7 +46,7 @@ public class SilencerButton extends Button {
             10,
             Component.literal(""),
             onPress,
-            (var) -> parent.getSoundTextAt(index, variant).copy()
+            var -> parent.getSoundTextAt(index, variant).copy()
         );
         this.height = 15;
         this.width = 112;

@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
 /**
@@ -15,9 +15,9 @@ import net.minecraft.world.level.block.state.properties.Property;
  */
 @SuppressWarnings("unused")
 public interface HammerRotateBehavior extends IHammerChangeable {
-    DirectionProperty FACING_HOPPER = BlockStateProperties.FACING_HOPPER;
-    DirectionProperty FACING = BlockStateProperties.FACING;
-    DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
+    EnumProperty<Direction> FACING_HOPPER = BlockStateProperties.FACING_HOPPER;
+    EnumProperty<Direction> FACING = BlockStateProperties.FACING;
+    EnumProperty<Direction> HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
     HammerRotateBehavior DEFAULT = new HammerRotateBehavior() {
     };
     HammerRotateBehavior EMPTY = new HammerRotateBehavior() {

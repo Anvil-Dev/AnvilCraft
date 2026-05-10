@@ -67,12 +67,12 @@ public class ItemCrushRecipeLoader {
             .group("item_crush")
             .icon(new ItemStackTemplate(ModBlocks.CRUSHING_TABLE.asItem()))
             .hasBlock(0, -1, 0, ModBlocks.CRUSHING_TABLE.getDefaultState())
-            .hasItemIngredient((builder) -> builder
+            .hasItemIngredient(builder -> builder
                 .offset(0, -.125, 0)
                 .range(.75, .75, .75)
                 .of(ModBlocks.CHROMATIC_STONE)
             )
-            .chooseOne((builder) -> builder
+            .chooseOne(builder -> builder
                 .choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)

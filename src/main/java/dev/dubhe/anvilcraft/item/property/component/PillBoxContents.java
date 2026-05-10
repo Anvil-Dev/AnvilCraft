@@ -20,7 +20,7 @@ import java.util.Optional;
 public record PillBoxContents(int index, List<ItemStack> pills) {
     public static final PillBoxContents EMPTY = new PillBoxContents(ImmutableList.of());
 
-    public static final Codec<PillBoxContents> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+    public static final Codec<PillBoxContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         ItemStack.CODEC.listOf().fieldOf("pills").forGetter(PillBoxContents::pills)
     ).apply(instance, PillBoxContents::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, PillBoxContents> STREAM_CODEC = StreamCodec.composite(

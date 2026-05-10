@@ -22,7 +22,7 @@ public class ConvertBeaconTrigger extends SimpleCriterionTrigger<ConvertBeaconTr
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player)
         ).apply(instance, TriggerInstance::new));
 

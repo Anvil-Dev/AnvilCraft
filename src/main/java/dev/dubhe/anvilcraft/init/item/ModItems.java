@@ -492,7 +492,7 @@ public class ModItems {
             ItemTags.FISHING_ENCHANTABLE,
             ItemTags.STRIDER_TEMPT_ITEMS
         )
-        .properties((properties) -> properties.durability(2031).fireResistant())
+        .properties(properties -> properties.durability(2031).fireResistant())
         .model(DataGenUtil::noExtraModelOrState).register();
 
     public static final ItemEntry<EnergyWeaponPlatformItem> ENERGY_WEAPON_PLATFORM = REGISTRUM
@@ -508,7 +508,7 @@ public class ModItems {
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.CROSSBOW_ENCHANTABLE
         )
-        .properties((properties) -> properties.durability(1561))
+        .properties(properties -> properties.durability(1561))
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::spectralSlingshot)
         .register();
@@ -599,7 +599,7 @@ public class ModItems {
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
         .recipe(RegistrumItemRecipeLoader::filter)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .register();
 
     public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRUM.item("crab_claw", CrabClawItem::new)
@@ -607,19 +607,27 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<AmuletBoxItem> AMULET_BOX = REGISTRUM.item("amulet_box", AmuletBoxItem::new)
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1).component(DataComponents.DEATH_PROTECTION, ModDeathProtections.AMULET_BOX))
         .register();
 
     public static final ItemEntry<Item> TOTEM_OF_RECOVERY = REGISTRUM.item("totem_of_recovery", Item::new)
         .lang("Totem of Recovery")
-        .properties((properties) -> properties.stacksTo(1).rarity(Rarity.UNCOMMON))
+        .properties(properties -> properties
+            .stacksTo(1)
+            .rarity(Rarity.UNCOMMON)
+            .component(DataComponents.DEATH_PROTECTION, ModDeathProtections.TOTEM_OF_RECOVERY)
+        )
         .tag(ModItemTags.TOTEM)
         .recipe(RegistrumItemRecipeLoader::totemOfRecovery)
         .register();
 
     public static final ItemEntry<Item> TOTEM_OF_RAGE = REGISTRUM.item("totem_of_rage", Item::new)
         .lang("Totem of Rage")
-        .properties((properties) -> properties.stacksTo(1).rarity(Rarity.UNCOMMON))
+        .properties(properties -> properties
+            .stacksTo(1)
+            .rarity(Rarity.UNCOMMON)
+            .component(DataComponents.DEATH_PROTECTION, ModDeathProtections.TOTEM_OF_RAGE)
+        )
         .tag(ModItemTags.TOTEM)
         .recipe(RegistrumItemRecipeLoader::totemOfRage)
         .register();
@@ -752,7 +760,7 @@ public class ModItems {
     public static final ItemEntry<Item> TIN_CAN = REGISTRUM.item("tin_can", Item::new).register();
 
     public static final ItemEntry<RecoveryPearl> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", RecoveryPearl::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .recipe(RegistrumItemRecipeLoader::recoveryPearl)
         .register();
 
@@ -767,7 +775,7 @@ public class ModItems {
 
     public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRUM
         .item("pill_box", PillBoxItem::new)
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::pillBox)
         .register();
 
@@ -1053,12 +1061,12 @@ public class ModItems {
     public static final ItemEntry<SuperHeavyItem> NEUTRONIUM_INGOT = REGISTRUM.item("neutronium_ingot", SuperHeavyItem::new)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .register();
     public static final ItemEntry<SuperHeavyItem> STABLE_NEUTRONIUM_INGOT = REGISTRUM.item("stable_neutronium_ingot", SuperHeavyItem::new)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::stableNeutroniumIngot)
         .register();
     public static final ItemEntry<SuperHeavyItem> CHARGED_NEUTRONIUM_INGOT = REGISTRUM.item(
@@ -1067,7 +1075,7 @@ public class ModItems {
         )
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .register();
 
     public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item(

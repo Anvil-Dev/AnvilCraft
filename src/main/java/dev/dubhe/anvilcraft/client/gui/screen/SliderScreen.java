@@ -56,7 +56,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            (btn) -> this.slider.setValueWithUpdate(8192));
+            btn -> this.slider.setValueWithUpdate(8192));
         TexturedButton add = new TexturedButton(
             134 + offsetX,
             43 + offsetY,
@@ -66,7 +66,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            (btn) -> this.value.setValue("" + Math.clamp(
+            btn -> this.value.setValue("" + Math.clamp(
                 Integer.parseInt(this.value.getValue()) + slider.getAddValue(Integer.parseInt(this.value.getValue())),
                 -8192,
                 8192
@@ -80,7 +80,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            (btn) -> this.slider.setValueWithUpdate(-8192));
+            btn -> this.slider.setValueWithUpdate(-8192));
         TexturedButton minus = new TexturedButton(
             26 + offsetX,
             43 + offsetY,
@@ -90,7 +90,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            (btn) -> this.value.setValue("" + Math.clamp(
+            btn -> this.value.setValue("" + Math.clamp(
                 Integer.parseInt(this.value.getValue()) - slider.getAddValue(Integer.parseInt(this.value.getValue())),
                 -8192,
                 8192

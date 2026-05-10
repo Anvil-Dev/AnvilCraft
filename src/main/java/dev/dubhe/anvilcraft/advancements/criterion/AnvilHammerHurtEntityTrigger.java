@@ -18,11 +18,11 @@ public class AnvilHammerHurtEntityTrigger extends SimpleCriterionTrigger<AnvilHa
     }
 
     public void trigger(ServerPlayer player, Float damage) {
-        this.trigger(player, (instance) -> instance.matches(damage));
+        this.trigger(player, instance -> instance.matches(damage));
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<Float> damage) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             Codec.FLOAT.optionalFieldOf("damage").forGetter(TriggerInstance::damage)
         ).apply(instance, TriggerInstance::new));

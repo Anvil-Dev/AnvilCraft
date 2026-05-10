@@ -215,7 +215,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
                 pos.getY() + 1,
                 pos.getZ() + 1
             ),
-            (frame) -> frame.getDirection() == facing
+            frame -> frame.getDirection() == facing
         );
         if (!list.isEmpty()) return list.getFirst();
         return null;

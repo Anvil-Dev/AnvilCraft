@@ -193,7 +193,7 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, (state) -> state.cycle(FACING));
+        this.change(blockPos, level, state -> state.cycle(FACING));
         return true;
     }
 
