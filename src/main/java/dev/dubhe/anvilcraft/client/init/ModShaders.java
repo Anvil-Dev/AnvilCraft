@@ -14,10 +14,7 @@ import org.joml.Matrix4f;
 import java.io.IOException;
 
 public class ModShaders {
-    public static final ResourceLocation LASER_BLOOM_LOCATION = ResourceLocation.fromNamespaceAndPath(
-        "anvilcraft",
-        "shaders/post/bloom.json"
-    );
+    public static final ResourceLocation LASER_BLOOM_LOCATION = AnvilCraft.of("shaders/post/bloom.json");
 
     @Getter
     private static PostChain bloomChain;

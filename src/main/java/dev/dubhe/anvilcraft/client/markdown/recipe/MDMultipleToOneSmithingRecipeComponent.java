@@ -16,8 +16,7 @@ public class MDMultipleToOneSmithingRecipeComponent extends MDRecipeComponent {
     public static final int[] INPUT_X = {0, 0, -1, 1, -1, 1, -1, 1};
     public static final int[] INPUT_Y = {-1, 1, 0, 0, -1, -1, 1, 1};
     public static final int INPUT_SIZE = 19;
-    public static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath(AnvilCraft.MOD_ID, "textures/gui/ageratum/ember_smithing_table.png");
+    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/gui/ageratum/ember_smithing_table.png");
     private final BaseMultipleToOneSmithingRecipe recipe;
 
     public MDMultipleToOneSmithingRecipeComponent(BaseMultipleToOneSmithingRecipe recipe, boolean enableAlignCenter) {
