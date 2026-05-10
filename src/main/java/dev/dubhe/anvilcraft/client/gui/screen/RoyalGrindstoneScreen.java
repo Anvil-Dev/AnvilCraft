@@ -29,15 +29,15 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
         if (this.menu.getSlot(2).hasItem()) {
             Component removedText = Component.translatable("screen.anvilcraft.royal_grindstone.will_remove");
             drawLabel(
                 63,
                 11,
                 removedText,
-                guiGraphics
+                graphics
             );
             Component removedRepairCostText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.repair_cost",
@@ -47,7 +47,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
                 63,
                 22,
                 removedRepairCostText,
-                guiGraphics
+                graphics
             );
             Component removedCurseCountText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.curse_count",
@@ -57,7 +57,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
                 63,
                 33,
                 removedCurseCountText,
-                guiGraphics
+                graphics
             );
             Component usedGoldText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.gold_cost",
@@ -67,7 +67,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
                 63,
                 44,
                 usedGoldText,
-                guiGraphics
+                graphics
             );
         }
     }
@@ -80,9 +80,9 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     protected void renderBg(GuiGraphicsExtractor g, float partialTick, int mouseX, int mouseY) {
@@ -154,8 +154,8 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         );
     }
 
-    private void drawLabel(int x, int y, Component component, GuiGraphicsExtractor guiGraphics) {
-        guiGraphics.drawString(
+    private void drawLabel(int x, int y, Component component, GuiGraphicsExtractor graphics) {
+        graphics.drawString(
             this.font,
             component,
             x + 2,

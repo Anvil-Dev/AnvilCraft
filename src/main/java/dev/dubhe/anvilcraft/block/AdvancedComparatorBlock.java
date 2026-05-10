@@ -38,6 +38,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -308,15 +310,19 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
-        return level.getBlockEntity(pos, ModBlockEntities.ADVANCED_COMPARATOR.get())
+    public void storeData(Level level, BlockPos pos, ValueOutput output) {
+        level.getBlockEntity(pos, ModBlockEntities.ADVANCED_COMPARATOR.get())
             .map(AdvancedComparatorBlockEntity::exportMoveData)
-            .orElseGet(CompoundTag::new);
+            .ifPresent(data -> output.store("MoveData", CompoundTag.CODEC, data));
     }
 
     @Override
-    public void setData(Level level, BlockPos pos, CompoundTag tag) {
-        level.getBlockEntity(pos, ModBlockEntities.ADVANCED_COMPARATOR.get())
-            .ifPresent(be -> be.applyMoveData(level, pos, level.getBlockState(pos), tag));
+    public void loadData(Level level, BlockPos pos, ValueInput input) {
+        level.getBlockEntity(pos, ModBlockEntities.ADVANCED_COMPARATOR.get()).ifPresent(be -> be.applyMoveData(
+            level,
+            pos,
+            level.getBlockState(pos),
+            input.read("MoveData", CompoundTag.CODEC).orElse(new CompoundTag())
+        ));
     }
 }

@@ -25,8 +25,8 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
     @Override
@@ -37,21 +37,21 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
+        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        renderTooltip(guiGraphics, mouseX, mouseY);
-        renderHintItemSlot(guiGraphics);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+        renderTooltip(graphics, mouseX, mouseY);
+        renderHintItemSlot(graphics);
     }
 
-    private void renderHintItemSlot(GuiGraphicsExtractor guiGraphics) {
-        PoseStack poseStack = guiGraphics.pose();
+    private void renderHintItemSlot(GuiGraphicsExtractor graphics) {
+        PoseStack poseStack = graphics.pose();
         poseStack.pushPose();
         poseStack.translate(leftPos, topPos, 0);
         for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i <= JewelCraftingMenu.CRAFT_SLOT_END; i++) {
@@ -63,7 +63,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                     int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     ItemStack stack = ingredientItems[index];
                     RenderSupport.renderItemWithTransparency(stack, poseStack, slot.x, slot.y, 0.52F);
-                    guiGraphics.renderItemDecorations(font, stack.copyWithCount(count), slot.x, slot.y);
+                    graphics.renderItemDecorations(font, stack.copyWithCount(count), slot.x, slot.y);
                 }
             }
         }
@@ -71,12 +71,12 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderSlotHighlight(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
-        super.renderSlotHighlight(guiGraphics, slot, mouseX, mouseY, partialTick);
+    protected void renderSlotHighlight(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY, float partialTick) {
+        super.renderSlotHighlight(graphics, slot, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null) {
             ItemStack itemstack = null;
             if (this.hoveredSlot.hasItem()) {
@@ -89,7 +89,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                 }
             }
             if (itemstack != null) {
-                guiGraphics.renderTooltip(
+                graphics.renderTooltip(
                     this.font,
                     this.getTooltipFromContainerItem(itemstack),
                     itemstack.getTooltipImage(),
@@ -102,26 +102,26 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphicsExtractor guiGraphics, ItemStack itemstack, Slot slot, @Nullable String countString) {
+    protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack itemstack, Slot slot, @Nullable String countString) {
         if (slot instanceof JewelInputSlot inputSlot) {
             if (itemstack.getCount() < inputSlot.getHintCount()) {
                 int seed = slot.x + slot.y * imageWidth;
                 if (slot.isFake()) {
-                    guiGraphics.renderFakeItem(itemstack, slot.x, slot.y, seed);
+                    graphics.renderFakeItem(itemstack, slot.x, slot.y, seed);
                 } else {
-                    guiGraphics.renderItem(itemstack, slot.x, slot.y, seed);
+                    graphics.renderItem(itemstack, slot.x, slot.y, seed);
                 }
                 if (!itemstack.isEmpty()) {
-                    guiGraphics.pose().pushPose();
+                    graphics.pose().pushPose();
                     String s = String.valueOf(itemstack.getCount());
-                    guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
-                    guiGraphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
-                    guiGraphics.pose().popPose();
+                    graphics.pose().translate(0.0F, 0.0F, 200.0F);
+                    graphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
+                    graphics.pose().popPose();
                 }
                 return;
             }
         }
-        super.renderSlotContents(guiGraphics, itemstack, slot, countString);
+        super.renderSlotContents(graphics, itemstack, slot, countString);
     }
 
     @Override

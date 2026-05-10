@@ -203,10 +203,10 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
 
-        PoseStack pose = guiGraphics.pose();
+        PoseStack pose = graphics.pose();
         ClientLevel level = Minecraft.getInstance().level;
         // structureData Text render
         if (structureData != null && level != null) {
@@ -215,11 +215,11 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             pose.translate((this.width - this.getImageWidth()) / 2F, (this.height - this.getImageHeight()) / 2F, 0);
             pose.scale(0.75F, 0.75F, 0.75F);
 
-            guiGraphics.drawString(
+            graphics.drawString(
                 font, Component.translatable("screen.anvilcraft.structure_tool.size"), 18, 30, 0xFFFFFFFF, true);
-            guiGraphics.drawString(font, "X: " + structureData.getSizeX(), 24, 40, 0xFFFFFFFF, true);
-            guiGraphics.drawString(font, "Y: " + structureData.getSizeY(), 24, 50, 0xFFFFFFFF, true);
-            guiGraphics.drawString(font, "Z: " + structureData.getSizeZ(), 24, 60, 0xFFFFFFFF, true);
+            graphics.drawString(font, "X: " + structureData.getSizeX(), 24, 40, 0xFFFFFFFF, true);
+            graphics.drawString(font, "Y: " + structureData.getSizeY(), 24, 50, 0xFFFFFFFF, true);
+            graphics.drawString(font, "Z: " + structureData.getSizeZ(), 24, 60, 0xFFFFFFFF, true);
 
             int blockCount = 0;
             for (int x = structureData.minX(); x <= structureData.maxX(); x++) {
@@ -232,7 +232,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                 }
             }
 
-            guiGraphics.drawString(
+            graphics.drawString(
                 font,
                 Component.translatable("screen.anvilcraft.structure_tool.count", blockCount),
                 18,
@@ -247,35 +247,35 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         pose.translate((this.width - this.getImageWidth()) / 2F, (this.height - this.getImageHeight()) / 2F, 0);
         pose.scale(0.7F, 0.7F, 0.7F);
 
-        guiGraphics.drawString(
+        graphics.drawString(
             font,
             Component.translatable("screen.anvilcraft.structure_tool.to_data_gen"),
             177,
             37,
             0xFFFFFFFF,
             true);
-        guiGraphics.drawString(
+        graphics.drawString(
             font, Component.translatable("screen.anvilcraft.structure_tool.to_kubejs"), 177, 60, 0xFFFFFFFF, true);
-        guiGraphics.drawString(
+        graphics.drawString(
             font, Component.translatable("screen.anvilcraft.structure_tool.to_json"), 177, 83, 0xFFFFFFFF, true);
 
         pose.popPose();
-        renderTooltip(guiGraphics, mouseX, mouseY);
+        renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.hoveredSlot != null && this.hoveredSlot.index == SLOT_ID_RESULT && !this.hoveredSlot.hasItem()) {
-            guiGraphics.renderComponentTooltip(font, RESULT_SLOT_TOOLTIPS, x, y);
+            graphics.renderComponentTooltip(font, RESULT_SLOT_TOOLTIPS, x, y);
         }
-        super.renderTooltip(guiGraphics, x, y);
+        super.renderTooltip(graphics, x, y);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
+        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Nullable

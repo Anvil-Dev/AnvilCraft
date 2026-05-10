@@ -47,15 +47,15 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
+        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
@@ -111,17 +111,17 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     }
 
     @Override
-    public void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
-        super.renderSlot(guiGraphics, slot);
+    public void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
+        super.renderSlot(graphics, slot);
         if (slot instanceof FilterOnlySlot && slot.getItem().isEmpty()) {
-            this.renderDisabledSlot(guiGraphics, slot);
+            this.renderDisabledSlot(graphics, slot);
         }
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
-        this.renderSlotTooltip(guiGraphics, x, y);
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+        super.renderTooltip(graphics, x, y);
+        this.renderSlotTooltip(graphics, x, y);
     }
 
     private boolean hoveringNonEmptyFilterSlot() {
@@ -136,9 +136,9 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             .orElse(false);
     }
 
-    protected void renderSlotTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
+    protected void renderSlotTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.hoveringEmptyFilterSlot()) {
-            guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+            graphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
         }
     }
 
@@ -155,9 +155,9 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override

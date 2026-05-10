@@ -358,32 +358,32 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         return super.mouseClicked(event, handled);
     }
 
-    private void renderScroller(GuiGraphicsExtractor guiGraphics, int posX, int posY, int totalCount, int scrollOff) {
+    private void renderScroller(GuiGraphicsExtractor graphics, int posX, int posY, int totalCount, int scrollOff) {
         int i = totalCount + 1 - 8;
         if (i > 1) {
             int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
             int scrollY = (int) (posY + (scrollOff / (float) totalCount) * SCROLL_BAR_HEIGHT);
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
-            guiGraphics.blit(SharedTextures.SMALL_SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(SharedTextures.SMALL_SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
         } else {
-            guiGraphics.blit(SharedTextures.SMALL_SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(SharedTextures.SMALL_SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
         }
     }
 
     /**
      * 渲染
      */
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, filteredFilters.size(), leftScrollOff);
+        super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderScroller(graphics, leftPos + 119, topPos + 35, filteredFilters.size(), leftScrollOff);
 
-        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, whiteFilters.size(), rightScrollOff);
+        this.renderScroller(graphics, leftPos + 245, topPos + 35, whiteFilters.size(), rightScrollOff);
 
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     /**
@@ -398,19 +398,19 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
+        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+        super.renderTooltip(graphics, x, y);
     }
 }

@@ -17,19 +17,15 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
@@ -66,17 +62,9 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag compoundTag = new CompoundTag();
-        this.saveAdditional(compoundTag, registries);
-        return compoundTag;
-    }
-
-    @Override
-    public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
-        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
-        output.store(this.constructDataNbt());
-        BlockItem.setBlockEntityData(stack, this.getType(), output);
-        stack.applyComponents(this.collectComponents());
+        CompoundTag data = this.constructDataNbt();
+        data.putInt("InputSignal", this.inputtingSignal);
+        return data;
     }
 
     @Override
@@ -112,7 +100,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     }
 
     public AdvancedComparatorBlockEntity readDataNbt(CompoundTag data) {
-        this.compareMode = Mode.fromIndex(data.getByteOr("CompareMode", (byte)0));
+        this.compareMode = Mode.fromIndex(data.getByteOr("CompareMode", (byte) 0));
         this.outputInvert = data.getBooleanOr("OutputMode", false);
         this.redstoneControl = data.getBooleanOr("RedstoneControl", false);
         this.highLimit = data.getIntOr("HighLimit", 0);
@@ -151,7 +139,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     public void onLoad() {
         super.onLoad();
         if (this.level == null) return;
-        updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
+        this.updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
     }
 
     @Override
@@ -162,20 +150,20 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
-        if (player.level().getBlockEntity(getBlockPos()) instanceof AdvancedComparatorBlockEntity blockEntity) {
+        if (player.level().getBlockEntity(this.getBlockPos()) instanceof AdvancedComparatorBlockEntity blockEntity) {
             return new AdvancedComparatorMenu(ModMenuTypes.ADVANCED_COMPARATOR.get(), containerId, inventory, blockEntity);
         }
         return null;
     }
 
     public CompoundTag exportMoveData() {
-        return constructDataNbt();
+        return this.constructDataNbt();
     }
 
     public void applyMoveData(Level level, BlockPos pos, BlockState state, CompoundTag nbt) {
-        readDataNbt(nbt);
+        this.readDataNbt(nbt);
         ((AdvancedComparatorBlock) state.getBlock()).update(level, pos, state);
-        setChanged();
+        this.setChanged();
     }
 
     public enum State {

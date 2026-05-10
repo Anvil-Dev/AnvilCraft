@@ -139,49 +139,49 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     /**
      * 渲染槽位
      *
-     * @param guiGraphics 画布
+     * @param graphics 画布
      * @param slot        槽位
      */
-    default void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
+    default void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
         if (!(slot instanceof SlotItemHandlerWithFilter crafterSlot)) return;
         if (!crafterSlot.isFilter()) return;
         if (this.isSlotDisabled(slot.getContainerSlot())) {
-            this.renderDisabledSlot(guiGraphics, crafterSlot);
+            this.renderDisabledSlot(graphics, crafterSlot);
             return;
         }
         ItemStack filter = this.getFilter(slot.getContainerSlot());
         if (!slot.hasItem() && !filter.isEmpty()) {
-            this.renderFilterItem(guiGraphics, slot, filter);
+            this.renderFilterItem(graphics, slot, filter);
         }
-        this.renderSlotLimit(guiGraphics, slot);
+        this.renderSlotLimit(graphics, slot);
     }
 
     /**
      * 渲染禁用的槽位
      *
-     * @param guiGraphics 画布
+     * @param graphics 画布
      * @param crafterSlot 槽位
      */
-    default void renderDisabledSlot(GuiGraphicsExtractor guiGraphics, Slot crafterSlot) {
+    default void renderDisabledSlot(GuiGraphicsExtractor graphics, Slot crafterSlot) {
         RenderSystem.enableDepthTest();
-        guiGraphics.blit(SharedTextures.DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16, 16, 16);
+        graphics.blit(SharedTextures.DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16, 16, 16);
     }
 
     /**
      * 渲染过滤物品
      *
-     * @param guiGraphics 画布
+     * @param graphics 画布
      * @param slot        槽位
      * @param stack       物品堆叠
      */
-    default void renderFilterItem(GuiGraphicsExtractor guiGraphics, Slot slot, ItemStack stack) {
+    default void renderFilterItem(GuiGraphicsExtractor graphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
-        RenderSupport.renderItemWithTransparency(stack, guiGraphics.pose(), i, j, 0.52F);
-        guiGraphics.fill(i, j, i + 16, j + 16, 0x60Ffaaaa);
+        RenderSupport.renderItemWithTransparency(stack, graphics.pose(), i, j, 0.52F);
+        graphics.fill(i, j, i + 16, j + 16, 0x60Ffaaaa);
     }
 
-    default void renderSlotLimit(GuiGraphicsExtractor guiGraphics, Slot slot) {
+    default void renderSlotLimit(GuiGraphicsExtractor graphics, Slot slot) {
         if (!(slot instanceof SlotItemHandlerWithFilter filterSlot) || !filterSlot.isFilter()) {
             return;
         }
@@ -191,15 +191,15 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             return;
         }
         String text = String.valueOf(limit);
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 300);
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 300);
         float scale = 0.6F;
-        guiGraphics.pose().scale(scale, scale, 1.0F);
+        graphics.pose().scale(scale, scale, 1.0F);
         int width = Minecraft.getInstance().font.width(text);
         int height = Minecraft.getInstance().font.lineHeight;
         int x = (int) ((slot.x + 16.25 - width * scale) / scale);
         int y = (int) ((slot.y + 14 - height * 2 * scale + 1) / scale);
-        guiGraphics.drawString(
+        graphics.drawString(
             Minecraft.getInstance().font,
             text,
             x,
@@ -207,7 +207,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             0xFFA0A0,
             true
         );
-        guiGraphics.pose().popPose();
+        graphics.pose().popPose();
     }
 
     default int getOffsetY() {

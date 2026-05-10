@@ -64,8 +64,8 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
     @Override
@@ -180,38 +180,38 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphicsExtractor guiGraphics, ItemStack stack, Slot slot, @Nullable String countString) {
+    protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack stack, Slot slot, @Nullable String countString) {
         if (slot instanceof FilteredSlot filtered) {
             if (filtered.isFilterEmpty()) return;
             if (stack.isEmpty()) {
                 int seed = slot.x + slot.y * this.getImageWidth();
                 ItemStack[] stacks = filtered.getFilter().getItems();
                 stack = stacks[(int) ((System.currentTimeMillis() / 1000) % stacks.length)];
-                guiGraphics.renderItem(stack, slot.x, slot.y, seed);
+                graphics.renderItem(stack, slot.x, slot.y, seed);
 
-                guiGraphics.pose().pushPose();
+                graphics.pose().pushPose();
                 String s = String.valueOf(stack.getCount());
-                guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
-                guiGraphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFF555555, true);
-                guiGraphics.pose().popPose();
+                graphics.pose().translate(0.0F, 0.0F, 200.0F);
+                graphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFF555555, true);
+                graphics.pose().popPose();
 
                 return;
             } else if (stack.getCount() < filtered.getFilter().count()) {
                 int seed = slot.x + slot.y * this.getImageWidth();
                 if (slot.isFake()) {
-                    guiGraphics.renderFakeItem(stack, slot.x, slot.y, seed);
+                    graphics.renderFakeItem(stack, slot.x, slot.y, seed);
                 } else {
-                    guiGraphics.renderItem(stack, slot.x, slot.y, seed);
+                    graphics.renderItem(stack, slot.x, slot.y, seed);
                 }
-                guiGraphics.pose().pushPose();
+                graphics.pose().pushPose();
                 String s = String.valueOf(stack.getCount());
-                guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
-                guiGraphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
-                guiGraphics.pose().popPose();
+                graphics.pose().translate(0.0F, 0.0F, 200.0F);
+                graphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
+                graphics.pose().popPose();
                 return;
             }
         }
-        super.renderSlotContents(guiGraphics, stack, slot, countString);
+        super.renderSlotContents(graphics, stack, slot, countString);
     }
 
     @Override

@@ -56,8 +56,8 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
     @Override
@@ -103,20 +103,20 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderOnboardingTooltips(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
-        this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
-        this.baseIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
-        this.additionalIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
+        super.renderBg(graphics, partialTick, mouseX, mouseY);
+        this.templateIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
+        this.baseIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
+        this.additionalIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
         if (this.armorStandPreview == null) return;
         InventoryScreen.renderEntityInInventory(
-            guiGraphics,
+            graphics,
             this.leftPos + 149,
             this.topPos + 75,
             25,
@@ -153,13 +153,13 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
+    protected void renderErrorIcon(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.hasRecipeError()) {
-            guiGraphics.blit(SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
+            graphics.blit(SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 
-    private void renderOnboardingTooltips(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+    private void renderOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
         if (this.hasRecipeError() && this.isHovering(83, 48, 16, 16, mouseX, mouseY)) {
             optional = Optional.of(ERROR_TOOLTIP);
@@ -185,7 +185,7 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
             }
         }
         optional.ifPresent(
-            component -> guiGraphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
+            component -> graphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
     }
 
     private boolean hasRecipeError() {

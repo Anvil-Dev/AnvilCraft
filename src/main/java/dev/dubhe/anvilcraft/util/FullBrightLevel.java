@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.Nullable;
 
-public class FullBrightLevel implements BlockAndTintGetter {
+public class FullBrightLevel implements LevelRenderer.BrightnessGetter {
 
     private final Level delegate;
 

@@ -29,11 +29,14 @@ public class AdvancedComparatorMenu extends AbstractContainerMenu {
 
     public AdvancedComparatorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(
-            menuType, containerId, inventory,
+            menuType,
+            containerId,
+            inventory,
             Objects.requireNonNull(
                 inventory.player.level().getBlockEntity(extraData.readBlockPos()) instanceof AdvancedComparatorBlockEntity comparator
                     ? comparator.readDataNbt(Objects.requireNonNull(extraData.readNbt())) : null
-            ));
+            )
+        );
     }
 
     @Override
@@ -44,7 +47,7 @@ public class AdvancedComparatorMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.ADVANCED_COMPARATOR.get()
         );

@@ -73,19 +73,19 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderEnchantmentSelectingArea(graphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
-            guiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
+            graphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
         } else if (this.renderingTooltipEnchantedBook != null) {
-            guiGraphics.renderTooltip(
+            graphics.renderTooltip(
                 this.font,
                 this.getTooltipFromContainerItem(this.renderingTooltipEnchantedBook),
                 this.renderingTooltipEnchantedBook.getTooltipImage(),
@@ -96,7 +96,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
     }
 
-    protected void renderEnchantmentSelectingArea(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderEnchantmentSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
         if (this.menu.getEnchantments().isEmpty()) return;
         for (int i = this.head; i < this.head + Math.min(this.menu.getEnchantments().size() - this.head, 6); i++) {
@@ -120,14 +120,14 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
                 selected = true;
             }
 
-            guiGraphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
-            guiGraphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
+            graphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
+            graphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
 
         int cost = this.menu.getCost();
         if (cost <= 0) return;
@@ -142,16 +142,16 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
 
         int k = this.getImageWidth() - 1 - this.font.width(component) - 2;
-        guiGraphics.fill(k - 2, 65, this.getImageWidth() - 1, 76, 0x4F000000);
-        guiGraphics.drawString(this.font, component, k, 66, textColor);
+        graphics.fill(k - 2, 65, this.getImageWidth() - 1, 76, 0x4F000000);
+        graphics.drawString(this.font, component, k, 66, textColor);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
+        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
         RenderSupport.renderItemWithTransparency(
             Items.BOOK.getDefaultInstance(),
-            guiGraphics.pose(),
+            graphics.pose(),
             this.leftPos + 25,
             this.topPos + 42,
             0.5F
@@ -161,7 +161,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             int left = this.leftPos + 122;
             int top = this.topPos + 23;
             int down = top + 36;
-            guiGraphics.blit(
+            graphics.blit(
                 SharedTextures.SWITCH_TABLE_SLIDER,
                 left,
                 top + (int) ((down - top - 12) * this.scrollable.getScrollOffs()),

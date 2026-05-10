@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,7 +23,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private final List<Pair<Identifier, Component>> filteredSounds = new ArrayList<>();
     private final List<Pair<Identifier, Component>> mutedSounds = new ArrayList<>();
 
-    private void onSearchTextChange(String text) {
+    private void onSearchTextChange(@Nullable String text) {
         this.leftScrollOff = 0;
         this.filteredSounds.clear();
         if (text == null || text.isEmpty()) {
@@ -99,8 +100,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (this.minecraft.options.keyInventory.matches(event.key(), event.scancode())) {
-            return this.getFocused() != null && this.getFocused().keyPressed(event.key(), event.scancode(), event.modifiers());
+        if (this.minecraft.options.keyInventory.matches(event)) {
+            return this.getFocused() != null && this.getFocused().keyPressed(event);
         } else {
             return super.keyPressed(event);
         }
@@ -114,7 +115,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int actualIndex = selectedIndex;
         actualIndex += this.leftScrollOff;
         if (this.filteredSounds.isEmpty() || actualIndex >= this.filteredSounds.size()) return;
-        Identifier sound =this. filteredSounds.get(actualIndex).left();
+        Identifier sound = this.filteredSounds.get(actualIndex).left();
         this.addMutedSound(sound);
         ClientPacketDistributor.sendToServer(new SilencerAddMutedPacket(sound));
         this.refreshSoundList();
@@ -344,37 +345,27 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return super.mouseClicked(event, handled);
     }
 
-    private void renderScroller(GuiGraphicsExtractor guiGraphics, int posX, int posY, int totalCount, int scrollOff) {
+    private void extractScroller(GuiGraphicsExtractor graphics, int posX, int posY, int totalCount, int scrollOff) {
         int i = totalCount + 1 - 8;
         if (i > 1) {
             int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
             int scrollY = (int) (posY + (scrollOff / (float) totalCount) * SCROLL_BAR_HEIGHT);
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
-            guiGraphics.blit(SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
         } else {
-            guiGraphics.blit(SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
         }
     }
 
-    /**
-     * 渲染
-     */
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        int leftPos = (this.width - this.getImageWidth()) / 2;
-        int topPos = (this.height - this.getImageHeight()) / 2;
-
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, this.filteredSounds.size(), this.leftScrollOff);
-
-        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, this.mutedSounds.size(), this.rightScrollOff);
-
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    @Override
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractScroller(graphics, this.leftPos + 119, this.topPos + 35, this.filteredSounds.size(), this.leftScrollOff);
+        this.extractScroller(graphics, this.leftPos + 245, this.topPos + 35, this.mutedSounds.size(), this.rightScrollOff);
+        this.extractTooltip(graphics, mouseX, mouseY);
     }
 
-    /**
-     * 处理静音同步包
-     */
     public void handleSync(List<Identifier> sounds) {
         this.rightScrollOff = 0;
         this.mutedSounds.clear();
@@ -389,19 +380,23 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.getImageWidth()) / 2;
-        int j = (this.height - this.getImageHeight()) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
-    }
-
-    @Override
-    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        graphics.blit(
+            RenderPipelines.GUI_OPAQUE_TEXTURED_BACKGROUND,
+            ActiveSilencerScreen.BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
     }
 }

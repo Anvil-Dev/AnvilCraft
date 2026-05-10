@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
 import dev.dubhe.anvilcraft.api.input.IMouseHandlerExtension;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
+import dev.dubhe.anvilcraft.client.gui.state.RotatedBlockRenderState;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -30,6 +31,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -55,6 +57,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -84,7 +87,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private static final int TEXT_COLOR = 0xfdfdfd;
 
     private static final Vector2f ROTATION_START = new Vector2f(0, 1);
-    private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
+    private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
 
     /// Nonlinear, should bigger than 1, 1 means no animation
     private static final float SELECTION_ANIMATION_SPEED_FACTOR = 5.0F;
@@ -112,7 +115,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private final List<BlockState> possibleStates;
     private final Camera camera;
 
-    private final BlockAndTintGetter fullBrightLevel = new FullBrightLevelProxy(this.minecraft.level);
+    private final LevelRenderer.BrightnessGetter fullBrightLevel = new FullBrightLevelProxy(this.minecraft.level);
     private BlockState currentBlockState;
     private final List<SelectionItem> items = new ArrayList<>();
     private long displayTime = System.currentTimeMillis();
@@ -261,7 +264,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     @SuppressWarnings("unused")
-    public void renderClosingAnimation(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float particalTick) {
+    public void renderClosingAnimation(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float particalTick) {
         if (!this.closingAnimationStarted) return;
         float delta = this.displayTime + CLOSING_ANIMATION_T - System.currentTimeMillis();
         float centerX = this.width / 2F;
@@ -270,7 +273,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         if (progress >= 1 || progress <= 0) {
             this.minecraft.setScreen(null);
         }
-        renderProgressAnimation(guiGraphics, progress, centerX, centerY);
+        renderProgressAnimation(graphics, progress, centerX, centerY);
     }
 
     @SuppressWarnings({"SameParameterValue", "deprecation"})
@@ -358,13 +361,13 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         poseStack.popPose();
     }
 
-    private void renderProgressAnimation(GuiGraphicsExtractor guiGraphics, float progress, float centerX, float centerY) {
+    private void renderProgressAnimation(GuiGraphicsExtractor graphics, float progress, float centerX, float centerY) {
         progress = (float) (-Math.pow(progress, 2) + 2 * progress);
         if (progress == 0) return;
-        PoseStack poseStack = guiGraphics.pose();
+        PoseStack poseStack = graphics.pose();
         poseStack.pushPose();
         renderRing(
-            guiGraphics,
+            graphics,
             this.width / 2F,
             this.height / 2F,
             RING_COLOR,
@@ -383,7 +386,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 ).mul(RADIUS * finalProgress)
                     .add(centerX, centerY);
                 renderSelectionEffect(
-                    guiGraphics,
+                    graphics,
                     center.x,
                     center.y,
                     SELECTION_EFFECT_COLOR,
@@ -399,14 +402,21 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             float x = center.x;
             float y = center.y;
             if (value.state.getBlock() instanceof IMultiPartBlockModelHolder) {
-                renderRotatedBlock(
-                    poseStack,
+                graphics.submitPictureInPictureRenderState(new RotatedBlockRenderState(
+                    this.minecraft.level,
+                    this.targetBlockPos,
                     value.modelBlock,
-                    x + 5,
-                    y - 4,
-                    100,
-                    5
-                );
+                    this.minecraft.level.getBiome(this.targetBlockPos),
+                    new Vector3f(this.targetBlockPos.getX(), this.targetBlockPos.getY(), 100),
+                    this.camera.rotation(),
+                    null,
+                    x,
+                    y,
+                    x + 100,
+                    y + 100,
+                    5,
+                    graphics.peekScissorStack()
+                ));
             } else {
                 renderRotatedBlock(
                     poseStack,
@@ -428,7 +438,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             poseStack.scale(coordinateScale, coordinateScale, coordinateScale);
             poseStack.translate(adjustedX, adjustedY, 0);
             poseStack.scale(TEXT_SCALE / coordinateScale, TEXT_SCALE / coordinateScale, TEXT_SCALE / coordinateScale);
-            guiGraphics.drawCenteredString(
+            graphics.drawCenteredString(
                 this.minecraft.font,
                 value.description,
                 0,
@@ -440,7 +450,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         final float centerX = this.width / 2F;
@@ -450,7 +460,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             this.displayTime = System.currentTimeMillis();
             this.closingAnimationStarted = true;
         }
-        renderClosingAnimation(guiGraphics, mouseX, mouseY, partialTick);
+        renderClosingAnimation(graphics, mouseX, mouseY, partialTick);
         if (!shouldRender()) {
             return;
         }
@@ -459,25 +469,25 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             this.animationStarted = true;
             this.displayTime = System.currentTimeMillis();
         }
-        final PoseStack poseStack = guiGraphics.pose();
+        final PoseStack poseStack = graphics.pose();
         float delta = this.displayTime + ANIMATION_T - System.currentTimeMillis();
         if (delta > 0) {
             triggerChunkRebuild();
             float progress = 1 - (delta / ANIMATION_T);
             progress = (float) (-Math.pow(progress, 2) + 2 * progress);
             if (progress == 0) return;
-            renderProgressAnimation(guiGraphics, progress, centerX, centerY);
+            renderProgressAnimation(graphics, progress, centerX, centerY);
             return;
         }
         renderRing(
-            guiGraphics,
+            graphics,
             this.width / 2F,
             this.height / 2F,
             RING_COLOR,
             RING_INNER_DIAMETER,
             RING_OUTER_DIAMETER
         );
-        renderSelection(guiGraphics);
+        renderSelection(graphics);
         for (SelectionItem value : this.items) {
             float x = value.center.x;
             float y = value.center.y;
@@ -511,7 +521,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             poseStack.scale(coordinateScale, coordinateScale, coordinateScale);
             poseStack.translate(adjustedX, adjustedY, 0);
             poseStack.scale(TEXT_SCALE / coordinateScale, TEXT_SCALE / coordinateScale, TEXT_SCALE / coordinateScale);
-            guiGraphics.drawCenteredString(
+            graphics.drawCenteredString(
                 this.minecraft.font,
                 value.description,
                 0,
@@ -524,7 +534,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         RenderSystem.disableBlend();
     }
 
-    private void renderSelection(GuiGraphicsExtractor guiGraphics) {
+    private void renderSelection(GuiGraphicsExtractor graphics) {
 
         float selectionEffectAngle =
             MathUtil.angle(
@@ -548,7 +558,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         Vector2f pos = MathUtil.copy(this.selectionEffectPosFromCenter).mul(1, -1).add(this.centerPos);
 
         renderSelectionEffect(
-            guiGraphics,
+            graphics,
             pos.x,
             pos.y,
             SELECTION_EFFECT_COLOR,
@@ -566,13 +576,13 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     public static void renderSelectionEffect(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         float centerX,
         float centerY,
         int color,
         float radius
     ) {
-        PoseStack poseStack = guiGraphics.pose();
+        PoseStack poseStack = graphics.pose();
         Matrix4f matrix4f = poseStack.last().pose();
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferBuilder = tesselator.begin(
@@ -693,14 +703,14 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     }
 
     public static void renderRing(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         float centerX,
         float centerY,
         int color,
         float innerDiameter,
         float outerDiameter
     ) {
-        PoseStack poseStack = guiGraphics.pose();
+        PoseStack poseStack = graphics.pose();
         Matrix4f matrix4f = poseStack.last().pose();
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferBuilder = tesselator.begin(

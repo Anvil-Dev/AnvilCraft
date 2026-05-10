@@ -149,8 +149,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
@@ -174,10 +174,10 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         int offsetX = (this.width - this.getImageWidth()) / 2;
         int offsetY = (this.height - this.getImageHeight()) / 2;
-        guiGraphics.blit(BACKGROUND, offsetX, offsetY, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 128);
+        graphics.blit(BACKGROUND, offsetX, offsetY, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 128);
     }
 
     private void update(int value) {

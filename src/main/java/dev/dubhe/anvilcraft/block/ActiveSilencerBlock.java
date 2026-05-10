@@ -115,7 +115,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         if (be instanceof ActiveSilencerBlockEntity asbe && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
             ModMenuTypes.open(sp, asbe, pos);
-            PacketDistributor.sendToPlayer(sp, new MutedSoundSyncPacket(new ArrayList<>(asbe.getMutedSound())));
+            PacketDistributor.sendToPlayer(sp, new MutedSoundSyncPacket(new ArrayList<>(asbe.getMuting())));
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;

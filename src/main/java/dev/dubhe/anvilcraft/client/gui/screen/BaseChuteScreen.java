@@ -60,22 +60,22 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     abstract boolean shouldSkipDirection(Direction direction);
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
+        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
     }
 
     @Override
-    public void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
-        super.renderSlot(guiGraphics, slot);
-        IFilterScreen.super.renderSlot(guiGraphics, slot);
+    public void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
+        super.renderSlot(graphics, slot);
+        IFilterScreen.super.renderSlot(graphics, slot);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
-        this.renderSlotTooltip(guiGraphics, x, y);
+    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+        super.renderTooltip(graphics, x, y);
+        this.renderSlotTooltip(graphics, x, y);
     }
 
     @Override
@@ -90,13 +90,13 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         return components;
     }
 
-    protected void renderSlotTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
+    protected void renderSlotTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.hoveredSlot == null) return;
         if (!(this.hoveredSlot instanceof SlotItemHandlerWithFilter)) return;
         if (!((SlotItemHandlerWithFilter) this.hoveredSlot).isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
-        guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+        graphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
     }
 
     @Override

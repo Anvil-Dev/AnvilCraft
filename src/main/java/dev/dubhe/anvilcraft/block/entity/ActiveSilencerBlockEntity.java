@@ -15,8 +15,8 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -29,6 +29,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,7 +40,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -51,7 +51,7 @@ public class ActiveSilencerBlockEntity
         Identifier.CODEC.listOf().fieldOf("mutedSound").codec();
 
     @Getter
-    private final Set<Identifier> mutedSound = new CopyOnWriteArraySet<>();
+    private final Set<Identifier> muting = new CopyOnWriteArraySet<>();
 
     private final AABB range;
 
@@ -60,22 +60,22 @@ public class ActiveSilencerBlockEntity
      */
     public ActiveSilencerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        range = AABB.ofSize(Vec3.atCenterOf(pos), 31, 31, 31);
+        this.range = AABB.ofSize(Vec3.atCenterOf(pos), 31, 31, 31);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
-        tag.put("MutedSound", t);
+        ValueOutput.TypedOutputList<Identifier> muted = output.list("MutedSounds", Identifier.CODEC);
+        for (Identifier sound : this.muting) {
+            muted.add(sound);
+        }
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
-            .getOrThrow()
-            .getFirst());
+        input.listOrEmpty("MutedSounds", Identifier.CODEC).forEach(this.muting::add);
     }
 
     @Nullable
@@ -87,8 +87,11 @@ public class ActiveSilencerBlockEntity
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
-        tag.put("MutedSound", t);
+        ListTag muted = new ListTag();
+        for (Identifier identifier : this.muting) {
+            muted.add(StringTag.valueOf(identifier.toShortString()));
+        }
+        tag.put("MutedSounds", muted);
         return tag;
     }
 
@@ -120,26 +123,26 @@ public class ActiveSilencerBlockEntity
      * 添加声音
      */
     public void addSound(Identifier soundId) {
-        mutedSound.add(soundId);
+        this.muting.add(soundId);
         this.setChanged();
     }
 
     public void removeSound(Identifier soundId) {
-        mutedSound.remove(soundId);
+        this.muting.remove(soundId);
         this.setChanged();
     }
 
     @Override
     public boolean shouldMute(Identifier sound, Vec3 pos) {
         if (getBlockState().getValue(ActiveSilencerBlock.POWERED)) return true;
-        boolean inRange = range.contains(pos);
-        boolean inList = mutedSound.contains(sound);
+        boolean inRange = this.range.contains(pos);
+        boolean inList = this.muting.contains(sound);
         return inRange && inList;
     }
 
     public void sync(List<Identifier> sounds) {
-        this.mutedSound.clear();
-        this.mutedSound.addAll(sounds);
+        this.muting.clear();
+        this.muting.addAll(sounds);
     }
 
     public void sync(Player player, List<Identifier> sounds) {
@@ -148,21 +151,24 @@ public class ActiveSilencerBlockEntity
         NetworkUtil.sendToAllPlayersInDimensionExcluded(
             serverLevel,
             serverPlayer,
-            new SilencerSyncPacket(this.getBlockPos(), List.copyOf(this.mutedSound))
+            new SilencerSyncPacket(this.getBlockPos(), List.copyOf(this.muting))
         );
     }
 
     @Override
     public void storeDiskData(ValueOutput output) {
-        output.store("MutedSound", CODEC, new ArrayList<>(mutedSound));
+        ValueOutput.TypedOutputList<Identifier> muted = output.list("MutedSounds", Identifier.CODEC);
+        for (Identifier identifier : this.muting) {
+            muted.add(identifier);
+        }
     }
 
     @Override
     public void applyDiskData(ValueInput input) {
-        input.read("MutedSound", CODEC).ifPresent(mutedSound::addAll);
+        input.listOrEmpty("MutedSounds", Identifier.CODEC).forEach(this.muting::add);
         this.setChanged();
-        if (level != null && !level.isClientSide()) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
         }
     }
 

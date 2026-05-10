@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ActiveSilencerMenu extends AbstractContainerMenu {
-
     @Getter
     private final ActiveSilencerBlockEntity blockEntity;
 
@@ -30,7 +29,7 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
     public ActiveSilencerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
-        blockEntity = (ActiveSilencerBlockEntity) machine;
+        this.blockEntity = (ActiveSilencerBlockEntity) machine;
         this.level = inventory.player.level();
     }
 
@@ -47,21 +46,21 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.ACTIVE_SILENCER.get()
         );
     }
 
     public void addSound(Identifier soundId) {
-        blockEntity.addSound(soundId);
+        this.blockEntity.addSound(soundId);
     }
 
     public void removeSound(Identifier soundId) {
-        blockEntity.removeSound(soundId);
+        this.blockEntity.removeSound(soundId);
     }
 
     public void handleSync(List<Identifier> sounds) {
-        blockEntity.sync(sounds);
+        this.blockEntity.sync(sounds);
     }
 }

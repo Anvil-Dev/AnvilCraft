@@ -92,8 +92,8 @@ public class IntegrationScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -159,13 +159,13 @@ public class IntegrationScreen extends Screen {
             return this.children;
         }
 
-        protected void renderLabel(GuiGraphicsExtractor guiGraphics, int x, int y, int width) {
-            PoseStack pose = guiGraphics.pose();
+        protected void renderLabel(GuiGraphicsExtractor graphics, int x, int y, int width) {
+            PoseStack pose = graphics.pose();
             pose.pushPose();
             pose.translate(x, y, 0);
             pose.scale(1.25F, 1.25F, 1.0F);
             Minecraft minecraft = Minecraft.getInstance();
-            guiGraphics.drawString(minecraft.font, this.label.getFirst(), 0, 0, -1, false);
+            graphics.drawString(minecraft.font, this.label.getFirst(), 0, 0, -1, false);
             pose.popPose();
             pose.pushPose();
             pose.translate(x + width, y + 2, 0);
@@ -176,7 +176,7 @@ public class IntegrationScreen extends Screen {
                 case NOT_FOUND -> Component.translatable("screen.anvilcraft.integration_screen.not_found").withStyle(ChatFormatting.YELLOW);
             };
             pose.translate(-minecraft.font.width(component), 0, 0);
-            guiGraphics.drawString(minecraft.font, component, 0, 0, -1, false);
+            graphics.drawString(minecraft.font, component, 0, 0, -1, false);
             pose.popPose();
         }
 
@@ -218,7 +218,7 @@ public class IntegrationScreen extends Screen {
 
         @Override
         public void render(
-            GuiGraphicsExtractor guiGraphics,
+            GuiGraphicsExtractor graphics,
             int index,
             int top,
             int left,
@@ -229,9 +229,9 @@ public class IntegrationScreen extends Screen {
             boolean hovering,
             float partialTick
         ) {
-            this.renderLabel(guiGraphics, left, top, width);
+            this.renderLabel(graphics, left, top, width);
             int offsetY = this.hasExtra ? 24 : 36;
-            guiGraphics.drawString(
+            graphics.drawString(
                 Minecraft.getInstance().font,
                 Component.translatable("screen.anvilcraft.integration_screen.target"),
                 left,
@@ -243,10 +243,10 @@ public class IntegrationScreen extends Screen {
                 TexturedButton button = this.targetButtons.get(i - 1);
                 button.setX(left + width - 19 * (i));
                 button.setY(top + offsetY - 9);
-                button.render(guiGraphics, mouseX, mouseY, partialTick);
+                button.render(graphics, mouseX, mouseY, partialTick);
             }
             if (!this.hasExtra) return;
-            guiGraphics.drawString(
+            graphics.drawString(
                 Minecraft.getInstance().font,
                 Component.translatable("screen.anvilcraft.integration_screen.extra"),
                 left,
@@ -258,7 +258,7 @@ public class IntegrationScreen extends Screen {
                 TexturedButton button = this.extraButtons.get(i - 1);
                 button.setX(left + width - 19 * (i));
                 button.setY(top + 48 - 9);
-                button.render(guiGraphics, mouseX, mouseY, partialTick);
+                button.render(graphics, mouseX, mouseY, partialTick);
             }
         }
 
@@ -283,7 +283,7 @@ public class IntegrationScreen extends Screen {
 
         @Override
         public void render(
-            GuiGraphicsExtractor guiGraphics,
+            GuiGraphicsExtractor graphics,
             int index,
             int top,
             int left,
@@ -294,12 +294,12 @@ public class IntegrationScreen extends Screen {
             boolean hovering,
             float partialTick
         ) {
-            PoseStack pose = guiGraphics.pose();
+            PoseStack pose = graphics.pose();
             pose.pushPose();
             pose.translate(left, top, 0);
             pose.scale(SCALE, SCALE, 1.0F);
             int maxWidth = (int) (width / SCALE);
-            guiGraphics.drawWordWrap(Minecraft.getInstance().font, this.note, 0, 0, maxWidth, -1);
+            graphics.drawWordWrap(Minecraft.getInstance().font, this.note, 0, 0, maxWidth, -1);
             pose.popPose();
         }
 
@@ -334,7 +334,7 @@ public class IntegrationScreen extends Screen {
 
         @Override
         public void render(
-            GuiGraphicsExtractor guiGraphics,
+            GuiGraphicsExtractor graphics,
             int index,
             int top,
             int left,
@@ -345,11 +345,11 @@ public class IntegrationScreen extends Screen {
             boolean hovering,
             float partialTick
         ) {
-            PoseStack pose = guiGraphics.pose();
+            PoseStack pose = graphics.pose();
             pose.pushPose();
             pose.translate(left + width / 2.0F, top + height - 36.0F, 0);
             pose.scale(2.0F, 2.0F, 1.0F);
-            guiGraphics.drawCenteredString(
+            graphics.drawCenteredString(
                 Minecraft.getInstance().font,
                 this.label,
                 0,
@@ -428,8 +428,8 @@ public class IntegrationScreen extends Screen {
         }
 
         @Override
-        public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        public void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.renderWidget(graphics, mouseX, mouseY, partialTick);
             AbstractIntegrationEntry entry = this.getHovered();
             if (entry == null || entry.tooltip == null) return;
             entry.renderToolTip();
