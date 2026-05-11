@@ -133,6 +133,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void render(
         SmartBlockPlacerBlockEntity entity,
