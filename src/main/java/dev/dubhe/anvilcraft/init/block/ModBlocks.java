@@ -865,9 +865,9 @@ public class ModBlocks {
                     default -> 0;
                 };
                 
-                // 倒挂时Y轴旋转方向相反
+                // 倒挂时，需要额外旋转180度来修正模型翻转
                 if (upsideDown) {
-                    rotation = (360 - rotation) % 360;
+                    rotation = (rotation + 180) % 360;
                 }
                 
                 return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()

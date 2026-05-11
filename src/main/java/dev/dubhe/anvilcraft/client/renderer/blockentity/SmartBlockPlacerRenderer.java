@@ -30,11 +30,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         AnvilCraft.of("block/smart_block_placer_claw")
     );
 
-    // 客户端动画状态
-    private float clientTicks = 0f;
-    private boolean wasPowered = false;
-    private boolean wasRedstoneSignal = false;
-    private long lastGameTime = 0;
+    // 动画方案（所有实例共用）
     private IAnimationScheme currentAnimationScheme;
 
     @SuppressWarnings("unused")
@@ -119,34 +115,39 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
 
-        // 计算动画时间
+        // 计算动画时间（使用BlockEntity独立的状态）
         boolean isCurrentlyPowered = entity.isPowered();
         boolean hasRedstoneSignal = entity.isHasRedstoneSignal();
         float smoothTicks = 0f;
         
+        float currentAnimationTicks = entity.getClientAnimationTicks();
+        long currentLastGameTime = entity.getClientLastGameTime();
+        boolean currentWasPowered = entity.isClientWasPowered();
+        boolean currentWasRedstoneSignal = entity.isClientWasRedstoneSignal();
+        
         if (isCurrentlyPowered && !hasRedstoneSignal) {
             if (entity.getLevel() == null) {
-                smoothTicks = clientTicks + partialTick;
+                smoothTicks = currentAnimationTicks + partialTick;
             } else {
                 long currentGameTime = entity.getLevel().getGameTime();
-                if (!wasPowered || wasRedstoneSignal) {
-                    clientTicks = 0f;
-                    lastGameTime = currentGameTime;
+                if (!currentWasPowered || currentWasRedstoneSignal) {
+                    currentAnimationTicks = 0f;
+                    currentLastGameTime = currentGameTime;
                 }
-                long tickDelta = currentGameTime - lastGameTime;
+                long tickDelta = currentGameTime - currentLastGameTime;
                 if (tickDelta > 0) {
-                    clientTicks += tickDelta;
-                    lastGameTime = currentGameTime;
+                    currentAnimationTicks += tickDelta;
+                    currentLastGameTime = currentGameTime;
                 }
-                smoothTicks = clientTicks + partialTick;
+                smoothTicks = currentAnimationTicks + partialTick;
             }
         } else {
-            clientTicks = 0f;
-            lastGameTime = 0;
+            currentAnimationTicks = 0f;
+            currentLastGameTime = 0;
         }
         
-        wasPowered = isCurrentlyPowered;
-        wasRedstoneSignal = hasRedstoneSignal;
+        // 更新BlockEntity的动画状态
+        entity.updateClientAnimationState(currentAnimationTicks, currentLastGameTime, isCurrentlyPowered, hasRedstoneSignal);
         
         // 计算动画角度
         float baseSwingAngle = 0f;
@@ -163,14 +164,16 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         
         // 渲染底座
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(baseSwingAngle));
+        // 倒挂时X轴翻转180度，Y轴方向反转，需要使用Axis.YN来保持正常的水平旋转方向
+        poseStack.mulPose((upsideDown ? Axis.YN : Axis.YP).rotationDegrees(baseSwingAngle));
         poseStack.translate(-0.5, 0.0, -0.5);
         renderModel(poseStack, buffer, BASE_MODEL, packedLight, packedOverlay);
         poseStack.popPose();
         
         // 渲染大臂（跟随底座旋转）
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(baseSwingAngle));
+        // 倒挂时X轴翻转180度，Y轴方向反转，需要使用Axis.YN来保持正常的水平旋转方向
+        poseStack.mulPose((upsideDown ? Axis.YN : Axis.YP).rotationDegrees(baseSwingAngle));
         poseStack.mulPose(Axis.XP.rotationDegrees(upperArmAngle));
         poseStack.translate(-0.5, 0.0, -0.5);
         renderModel(poseStack, buffer, UPPERARM_MODEL, packedLight, packedOverlay);
@@ -197,6 +200,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             case EAST -> 270f;
             default -> 0f;
         };
+        // 倒挂时，南北朝向需要额外旋转180度来修正模型翻转
+        if (upsideDown && (facing == Direction.NORTH || facing == Direction.SOUTH)) {
+            rotation = (rotation + 180f) % 360f;
+        }
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
     }
     @SuppressWarnings({"checkstyle:EmptyLineSeparator", "deprecation"})

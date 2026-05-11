@@ -40,6 +40,21 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private final TriStateButton[][] positionButtons = new TriStateButton[5][5];
     private int currentViewLayer = 0;
     private Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
+    
+    // 鼠标拖动状态
+    private boolean isDragging = false;
+    private Boolean dragTargetState = null;
+    
+    // 3D预览窗口
+    private int previewWindowX;
+    private int previewWindowY;
+    private int previewWindowWidth = 112;
+    private int previewWindowHeight = 88;
+    private float previewRotationY = 45f; // 初始旋转角度
+    private boolean isPreviewDragging = false;
+    private int lastMouseX = 0;
+    private long lastTick = 0;
+    private float blockAnimationTick = 0f;
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -58,6 +73,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             currentViewLayer = this.menu.getBlockEntity().getSelectedLayer();
             layerPositions = this.menu.getBlockEntity().getLayerPositions();
         }
+        
+        // 初始化预览窗口位置（根据GUI背景图）
+        previewWindowX = this.leftPos + 136;
+        previewWindowY = this.topPos + 18;
         
         initLayerButtons();
         initPositionButtons();
@@ -171,20 +190,113 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        isDragging = false;
+        dragTargetState = null;
+        isPreviewDragging = false;
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+    
+    private boolean isMouseInPreviewWindow(double mouseX, double mouseY) {
+        return mouseX >= previewWindowX && mouseX < previewWindowX + previewWindowWidth
+            && mouseY >= previewWindowY && mouseY < previewWindowY + previewWindowHeight;
+    }
+    
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (isMouseInPreviewWindow(mouseX, mouseY)) {
+            isPreviewDragging = true;
+            lastMouseX = (int) mouseX;
+            return true;
+        }
+        
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 5; col++) {
+                TriStateButton btn = positionButtons[row][col];
+                if (btn != null && btn.isMouseOver(mouseX, mouseY)) {
+                    isDragging = true;
+                    dragTargetState = !btn.isSelected();
+                    break;
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+    
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (isPreviewDragging) {
+            int deltaX = (int) mouseX - lastMouseX;
+            previewRotationY += deltaX * 0.5f;
+            previewRotationY = Math.max(-60f, Math.min(60f, previewRotationY));
+            lastMouseX = (int) mouseX;
+            return true;
+        }
+        
+        if (isDragging && dragTargetState != null) {
+            for (int row = 0; row < 5; row++) {
+                for (int col = 0; col < 5; col++) {
+                    TriStateButton btn = positionButtons[row][col];
+                    if (btn != null && btn.isMouseOver(mouseX, mouseY)) {
+                        int positionIndex = row * 5 + col;
+                        if (btn.isSelected() != dragTargetState) {
+                            btn.setSelected(dragTargetState);
+                            layerPositions.putIfAbsent(currentViewLayer, new HashSet<>());
+                            Set<Integer> positions = layerPositions.get(currentViewLayer);
+                            if (dragTargetState) {
+                                positions.add(positionIndex);
+                            } else {
+                                positions.remove(positionIndex);
+                            }
+                            PacketDistributor.sendToServer(
+                                new SmartBlockPlacerPositionPacket(currentViewLayer, positionIndex, dragTargetState)
+                            );
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
-
+    
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        // 只渲染标题（方块名称），不渲染"物品栏"文字
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
-
+    
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        
+        // 更新动画
+        long currentTick = System.currentTimeMillis() / 50;
+        if (currentTick != lastTick) {
+            blockAnimationTick += (currentTick - lastTick) * partialTick;
+            lastTick = currentTick;
+        }
+        
+        // 渲染3D预览
+        renderPreview(guiGraphics, partialTick);
+        
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+    
+    private void renderPreview(GuiGraphics guiGraphics, float partialTick) {
+        // 这里后续实现3D渲染
+        // 暂时显示文字提示
+        Component previewText = Component.literal("Preview");
+        guiGraphics.drawString(minecraft.font, previewText, 
+            previewWindowX + previewWindowWidth / 2 - minecraft.font.width(previewText) / 2,
+            previewWindowY + previewWindowHeight / 2 - 4,
+            0xFFFFFFFF, false);
     }
 }
