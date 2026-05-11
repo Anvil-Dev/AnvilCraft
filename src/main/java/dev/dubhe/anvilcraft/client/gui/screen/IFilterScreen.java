@@ -130,7 +130,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             button -> {
                 if (button instanceof EnableFilterButton enableFilterButton) {
                     MachineEnableFilterPacket packet = new MachineEnableFilterPacket(enableFilterButton.next());
-                    PacketDistributor.sendToServer(packet);
+                    ClientPacketDistributor.sendToServer(packet);
                 }
             },
             this::isFilterEnabled);
@@ -142,7 +142,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
      * @param graphics 画布
      * @param slot        槽位
      */
-    default void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
+    default void extractSlot(GuiGraphicsExtractor graphics, Slot slot) {
         if (!(slot instanceof SlotItemHandlerWithFilter crafterSlot)) return;
         if (!crafterSlot.isFilter()) return;
         if (this.isSlotDisabled(slot.getContainerSlot())) {
@@ -228,8 +228,8 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     default void acceptGhost(Slot slot, ItemStack ingredient) {
         if (!this.getFilterMenu().isFilterEnabled()) return;
         int slotIndex = slot.getSlotIndex();
-        PacketDistributor.sendToServer(new SlotDisableChangePacket(slotIndex, false));
-        PacketDistributor.sendToServer(new SlotFilterChangePacket(slotIndex, ingredient.copyWithCount(1)));
+        ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(slotIndex, false));
+        ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(slotIndex, ingredient.copyWithCount(1)));
         this.getFilterMenu().setFilter(slotIndex, ingredient.copyWithCount(1));
     }
 }

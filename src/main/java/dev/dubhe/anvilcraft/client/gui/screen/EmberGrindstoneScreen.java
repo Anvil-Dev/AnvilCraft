@@ -9,19 +9,19 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.EmberGrindstoneSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindstoneMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "ember_grindstone");
@@ -73,25 +73,32 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        this.renderEnchantmentSelectingArea(graphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(graphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.renderEnchantmentSelectingArea(graphics, mouseX, mouseY, a);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
-            graphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
+            graphics.setTooltipForNextFrame(
+                this.font,
+                this.getTooltipFromContainerItem(itemstack),
+                itemstack.getTooltipImage(),
+                itemstack,
+                mouseX,
+                mouseY
+            );
         } else if (this.renderingTooltipEnchantedBook != null) {
-            graphics.renderTooltip(
+            graphics.setTooltipForNextFrame(
                 this.font,
                 this.getTooltipFromContainerItem(this.renderingTooltipEnchantedBook),
                 this.renderingTooltipEnchantedBook.getTooltipImage(),
                 this.renderingTooltipEnchantedBook,
-                x,
-                y
+                mouseX,
+                mouseY
             );
         }
     }
@@ -106,7 +113,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), i).orElse(null);
             if (data == null) continue;
 
-            ItemStack willRender = EnchantedBookItem.createForEnchantment(data.toEnchantmentInst());
+            ItemStack willRender = EnchantmentHelper.createBook(data.toEnchantmentInst());
 
             int offsetV = 0;
             if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
@@ -121,13 +128,13 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             }
 
             graphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
-            graphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
+            graphics.item(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
 
         int cost = this.menu.getCost();
         if (cost <= 0) return;
@@ -143,12 +150,24 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
 
         int k = this.getImageWidth() - 1 - this.font.width(component) - 2;
         graphics.fill(k - 2, 65, this.getImageWidth() - 1, 76, 0x4F000000);
-        graphics.drawString(this.font, component, k, 66, textColor);
+        graphics.text(this.font, component, k, 66, textColor);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        graphics.blit(
+            RenderPipelines.GUI_OPAQUE_TEXTURED_BACKGROUND,
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
         RenderSupport.renderItemWithTransparency(
             Items.BOOK.getDefaultInstance(),
             graphics.pose(),
@@ -176,10 +195,9 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(int width, int height) {
         this.scrollable.calculateScroll(this.head / 3);
-
-        this.init(minecraft, width, height);
+        this.init(width, height);
     }
 
     @Override
@@ -196,10 +214,10 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
                 if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
                 if (this.menu.getSelectedIndex() == i) {
                     this.menu.setSelectedEnchantment(-1);
-                    PacketDistributor.sendToServer(new EmberGrindstoneSyncPacket(-1));
+                    ClientPacketDistributor.sendToServer(new EmberGrindstoneSyncPacket(-1));
                 } else {
                     this.menu.setSelectedEnchantment(i);
-                    PacketDistributor.sendToServer(new EmberGrindstoneSyncPacket(i));
+                    ClientPacketDistributor.sendToServer(new EmberGrindstoneSyncPacket(i));
                 }
             }
         }

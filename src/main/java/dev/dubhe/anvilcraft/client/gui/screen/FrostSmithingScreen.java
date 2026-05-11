@@ -102,7 +102,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             22,
             button -> {
                 this.menu.turn(true);
-                PacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(true));
+                ClientPacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(true));
                 this.updateArmorStandPreview(this.menu.getSlot(3).getItem());
             }
         ));
@@ -117,7 +117,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             22,
             button -> {
                 this.menu.turn(false);
-                PacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(false));
+                ClientPacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(false));
                 this.updateArmorStandPreview(this.menu.getSlot(3).getItem());
             }
         ));

@@ -69,7 +69,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             topPos + 54,
             b -> {
                 if (!(b instanceof CycleFilterModeButton button)) return;
-                PacketDistributor.sendToServer(new MachineCycleFilterModePacket(button.cycle()));
+                ClientPacketDistributor.sendToServer(new MachineCycleFilterModePacket(button.cycle()));
                 this.menu.setFilterMode(button.cycle());
             },
             () -> this.menu.getBlockEntity().getFilterMode()
@@ -92,7 +92,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             "minus",
             b -> {
                 this.menu.getBlockEntity().decreaseRange();
-                PacketDistributor.sendToServer(
+                ClientPacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
                 );
             }
@@ -103,7 +103,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             "add",
             b -> {
                 this.menu.getBlockEntity().increaseRange();
-                PacketDistributor.sendToServer(
+                ClientPacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
                 );
             }
@@ -111,7 +111,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     }
 
     @Override
-    public void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
+    public void extractSlot(GuiGraphicsExtractor graphics, Slot slot) {
         super.renderSlot(graphics, slot);
         if (slot instanceof FilterOnlySlot && slot.getItem().isEmpty()) {
             this.renderDisabledSlot(graphics, slot);
@@ -172,7 +172,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
                 filterStack = filterStack.copy();
             }
             filterSlot.set(filterStack);
-            PacketDistributor.sendToServer(new SlotFilterChangePacket(id, filterStack, false));
+            ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(id, filterStack, false));
             return;
         }
         super.slotClicked(slot, slotId, button, type);
@@ -192,7 +192,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             countAfter = Mth.clamp(countAfter, 1, item.getMaxStackSize());
             ItemStack newItem = item.copyWithCount(countAfter);
             filterSlot.set(newItem);
-            PacketDistributor.sendToServer(new SlotFilterChangePacket(
+            ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(
                 filterSlot.getContainerSlot(),
                 newItem,
                 false

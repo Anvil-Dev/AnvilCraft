@@ -86,7 +86,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
             32,
             btn -> {
                 this.menu.make(Minecraft.getInstance().player);
-                PacketDistributor.sendToServer(new EnergyWeaponMakePackets.Make());
+                ClientPacketDistributor.sendToServer(new EnergyWeaponMakePackets.Make());
                 this.cantCraftBlinkMs = 0;
             }
         ));
@@ -257,10 +257,10 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
                 if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
                 if (this.menu.getSelectedIndex() == i) {
                     this.menu.setSelectedIndex(-1);
-                    PacketDistributor.sendToServer(new EnergyWeaponMakePackets.Select(-1));
+                    ClientPacketDistributor.sendToServer(new EnergyWeaponMakePackets.Select(-1));
                 } else {
                     this.menu.setSelectedIndex(i);
-                    PacketDistributor.sendToServer(new EnergyWeaponMakePackets.Select(i));
+                    ClientPacketDistributor.sendToServer(new EnergyWeaponMakePackets.Select(i));
                 }
             }
         }

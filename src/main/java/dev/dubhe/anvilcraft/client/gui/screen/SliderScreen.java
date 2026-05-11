@@ -126,7 +126,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             return;
         }
         this.slider.setValue(v);
-        PacketDistributor.sendToServer(new SliderUpdatePacket(Math.clamp(v, -8192, 8192)));
+        ClientPacketDistributor.sendToServer(new SliderUpdatePacket(Math.clamp(v, -8192, 8192)));
     }
 
     public void setMin(int min) {
@@ -181,7 +181,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     private void update(int value) {
-        PacketDistributor.sendToServer(new SliderUpdatePacket(value));
+        ClientPacketDistributor.sendToServer(new SliderUpdatePacket(value));
         this.value.setValue(Integer.toString(value));
     }
 }

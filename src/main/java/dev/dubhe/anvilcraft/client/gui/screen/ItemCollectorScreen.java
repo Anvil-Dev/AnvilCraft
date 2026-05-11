@@ -122,9 +122,9 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     @Override
-    public void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
+    public void extractSlot(GuiGraphicsExtractor graphics, Slot slot) {
         super.renderSlot(graphics, slot);
-        IFilterScreen.super.renderSlot(graphics, slot);
+        IFilterScreen.super.extractSlot(graphics, slot);
     }
 
     @Override
@@ -177,15 +177,15 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
                 final ItemStack filter = this.menu.getFilter(realSlotId);
                 if (this.menu.isSlotDisabled(realSlotId)) {
-                    PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
+                    ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
-                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
+                ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
                 slot.set(carriedItem);
             } else if (Screen.hasShiftDown()) {
-                PacketDistributor.sendToServer(new SlotDisableChangePacket(
+                ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
                     carriedItem.isEmpty() && !this.menu.isSlotDisabled(realSlotId)
                 ));
@@ -216,7 +216,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             
             if (newLimit != currentLimit) {
                 this.setSlotLimit(slotIndex, newLimit);
-                PacketDistributor.sendToServer(new SlotFilterMaxStackSizeChangePacket(slotIndex, newLimit));
+                ClientPacketDistributor.sendToServer(new SlotFilterMaxStackSizeChangePacket(slotIndex, newLimit));
                 return true;
             }
         }

@@ -118,17 +118,17 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        this.renderOnboardingTooltips(graphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractOnboardingTooltips(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
-        this.templateIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
-        this.materialIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
-        this.inputIcons.forEach(icon -> icon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos));
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        this.templateIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.materialIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.inputIcons.forEach(icon -> icon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos));
 
         for (int i = 2; i < 10; i++) {
             if (this.isSlotEnabled(i)) continue;
@@ -142,13 +142,12 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphicsExtractor graphics, int x, int y) {
-        if (!this.menu.canCreateResult()) {
-            graphics.blit(SharedTextures.ERROR_SPRITE, x + 123, y + 48, 0, 0, 16, 16, 16, 16);
-        }
+    protected void extractErrorIcon(GuiGraphicsExtractor graphics, int xo, int yo) {
+        if (this.menu.canCreateResult()) return;
+        graphics.blit(SharedTextures.ERROR_SPRITE, xo + 123, yo + 48, 0, 0, 16, 16, 16, 16);
     }
 
-    private void renderOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    private void extractOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
         if (!this.menu.canCreateResult() && this.isHovering(123, 48, 16, 16, mouseX, mouseY)) {
             optional = Optional.of(ERROR_TOOLTIP);
@@ -176,7 +175,6 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
                 }
             }
         }
-        optional.ifPresent(
-            component -> graphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
+        optional.ifPresent(component -> graphics.setTooltipForNextFrame(this.font, this.font.split(component, 115), mouseX, mouseY));
     }
 }

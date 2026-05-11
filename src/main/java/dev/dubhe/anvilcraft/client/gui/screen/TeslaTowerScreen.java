@@ -121,7 +121,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         String id = filteredFilters.get(actualIndex).left().getId();
         String arg = filteredFilters.get(actualIndex).right();
         addWhiteFilter(id, arg);
-        PacketDistributor.sendToServer(new TeslaAddFilterPacket(id, arg));
+        ClientPacketDistributor.sendToServer(new TeslaAddFilterPacket(id, arg));
         refreshFilterList();
     }
 
@@ -132,7 +132,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         String id = whiteFilters.get(actualIndex).left().getId();
         String arg = whiteFilters.get(actualIndex).right();
         removeWhiteFilter(id, arg);
-        PacketDistributor.sendToServer(new TeslaRemoveFilterPacket(id, arg));
+        ClientPacketDistributor.sendToServer(new TeslaRemoveFilterPacket(id, arg));
         refreshFilterList();
     }
 

@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public class EmberSmithingMenu extends ItemCombinerMenu {
@@ -55,54 +56,79 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
      * @param playerInventory 背包
      * @param access          检查
      */
-    public EmberSmithingMenu(
-        MenuType<EmberSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        super(type, containerId, playerInventory, access);
+    public EmberSmithingMenu(MenuType<EmberSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+        super(type, containerId, playerInventory, access, EmberSmithingMenu.createInputSlotDefinitions());
         this.level = playerInventory.player.level();
-        this.recipes = this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get());
+        this.recipes = this.level.recipeAccess().propertySet(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get());
     }
 
-    @Override
-    protected ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
-        return ItemCombinerMenuSlotDefinition.create()
-            .withSlot(0, 8, 48, itemStack -> this.recipes.stream()
-                .anyMatch(recipe -> recipe.value().isTemplateIngredient(itemStack)))
-            .withSlot(1, 80, 36, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && this.recipes.stream()
-                    .anyMatch(recipe -> recipe.value().isTemplateIngredient(this.inputSlots.getItem(0))
-                                        && recipe.value().isMaterialIngredient(itemStack)))
-            .withSlot(2, 80, 18, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(0, itemStack)))
-            .withSlot(3, 80, 54, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(1, itemStack)))
-            .withSlot(4, 62, 36, itemStack ->
-                !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(2, itemStack)))
-            .withSlot(5, 98, 36, itemStack ->
-                !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(3, itemStack)))
-            .withSlot(6, 62, 18, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(4, itemStack)))
-            .withSlot(7, 98, 18, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(5, itemStack)))
-            .withSlot(8, 62, 54, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(6, itemStack)))
-            .withSlot(9, 98, 54, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(7, itemStack)))
-            .withResultSlot(10, 151, 48)
-            .build();
+    protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(
+        Supplier<Container> inputs,
+        Supplier<List<RecipeHolder<BaseMultipleToOneSmithingRecipe>>> recipes
+    ) {
+        return ItemCombinerMenuSlotDefinition.create().withSlot(
+            0,
+            8,
+            48,
+            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack))
+        ).withSlot(
+            1,
+            80,
+            36,
+            itemStack -> !inputs.get().getItem(0).isEmpty() && recipes.get().stream()
+                .anyMatch(recipe -> recipe.value().isTemplateIngredient(inputs.get().getItem(0))
+                                    && recipe.value().isMaterialIngredient(itemStack))
+        ).withSlot(
+            2,
+            80,
+            18,
+            itemStack -> !inputs.get().getItem(0).isEmpty()
+                         && !inputs.get().getItem(1).isEmpty() && recipes.get().stream()
+                .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(0, itemStack))
+        ).withSlot(
+            3,
+            80,
+            54,
+            itemStack -> !inputs.get().getItem(0).isEmpty()
+                         && !inputs.get().getItem(1).isEmpty() && recipes.get().stream()
+                .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(1, itemStack))
+        ).withSlot(
+            4,
+            62,
+            36,
+            itemStack -> !inputs.get().getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE) && !inputs.get().getItem(1).isEmpty()
+                         && recipes.get().stream().anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(2, itemStack))
+        ).withSlot(
+            5,
+            98,
+            36,
+            itemStack -> !inputs.get().getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE) && !inputs.get().getItem(1).isEmpty()
+                         && recipes.get().stream().anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(3, itemStack))
+        ).withSlot(
+            6,
+            62,
+            18,
+            itemStack -> inputs.get().getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && !inputs.get().getItem(1).isEmpty()
+                         && recipes.get().stream().anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(4, itemStack))
+        ).withSlot(
+            7,
+            98,
+            18,
+            itemStack -> inputs.get().getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && !inputs.get().getItem(1).isEmpty()
+                         && recipes.get().stream().anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(5, itemStack))
+        ).withSlot(
+            8,
+            62,
+            54,
+            itemStack -> inputs.get().getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && !inputs.get().getItem(1).isEmpty()
+                         && recipes.get().stream().anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(6, itemStack))
+        ).withSlot(
+            9,
+            98,
+            54,
+            itemStack -> inputs.get().getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE) && !inputs.get().getItem(1).isEmpty()
+                         && recipes.get().stream().anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(7, itemStack))
+        ).withResultSlot(10, 151, 48).build();
     }
 
     @Override

@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
@@ -60,8 +60,8 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
         super.init();
         this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
-        this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
-        this.addRenderableWidget(directionButton);
+        this.directionButton = this.directionButtonSupplier.apply(this.leftPos, this.topPos);
+        this.addRenderableWidget(this.directionButton);
     }
 
     @Contract(pure = true)
@@ -74,24 +74,23 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
                 if (button instanceof OutputDirectionButton button1) {
                     Arrays.stream(skip).forEach(button1::skip);
                     MachineOutputDirectionPacket packet = new MachineOutputDirectionPacket(button1.next());
-                    PacketDistributor.sendToServer(packet);
+                    ClientPacketDistributor.sendToServer(packet);
                 }
             },
             Direction.DOWN);
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        this.renderBeforeTooltip(graphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(graphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractBeforeTooltip(graphics, mouseX, mouseY, a);
     }
 
-    protected void renderBeforeTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractBeforeTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 }

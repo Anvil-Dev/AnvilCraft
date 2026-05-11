@@ -14,20 +14,19 @@ import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -71,20 +70,30 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     @Override
     protected void init() {
         super.init();
-        this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
+        this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(int width, int height) {
         this.scrollable.calculateScroll(this.head / this.scrollable.column());
-
-        this.init(minecraft, width, height);
+        this.init(width, height);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight());
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        graphics.blit(
+            RenderPipelines.GUI_OPAQUE_TEXTURED_BACKGROUND,
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
 
         if (this.scrollable.canScroll()) {
             int left = this.leftPos + 132;
@@ -105,7 +114,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     }
 
     @Override
-    protected void renderBeforeTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractBeforeTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderSelectingArea(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -121,7 +130,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
             RecipeHolder<StonecutterRecipe> recipe = ListUtil.safelyGet(this.menu.getRecipes(), i).orElse(null);
             if (recipe == null) continue;
 
-            ItemStack willRender = recipe.value().getResultItem(this.menu.getLevel().registryAccess());
+            ItemStack willRender = recipe.value().result.create();
 
             int offsetV = 0;
             if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
@@ -136,32 +145,42 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
             }
 
             graphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
-            graphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
+            graphics.item(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
         }
     }
 
     @Override
-    public void renderSlot(GuiGraphicsExtractor graphics, Slot slot) {
-        super.renderSlot(graphics, slot);
-        IFilterScreen.super.renderSlot(graphics, slot);
+    protected void extractSlot(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY) {
+        super.extractSlot(graphics, slot, mouseX, mouseY);
+        IFilterScreen.super.extractSlot(graphics, slot);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
-            graphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
-            this.renderSlotTooltip(graphics, x, y);
+            graphics.setTooltipForNextFrame(
+                this.font,
+                this.getTooltipFromContainerItem(itemstack),
+                itemstack.getTooltipImage(),
+                itemstack,
+                mouseX,
+                mouseY
+            );
+            this.renderSlotTooltip(graphics, mouseX, mouseY);
+            return;
         } else if (this.renderingTooltip != null) {
-            graphics.renderTooltip(
+            graphics.setTooltipForNextFrame(
                 this.font,
                 this.getTooltipFromContainerItem(this.renderingTooltip),
                 this.renderingTooltip.getTooltipImage(),
                 this.renderingTooltip,
-                x,
-                y
+                mouseX,
+                mouseY
             );
+            return;
         }
+        super.extractTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
@@ -184,7 +203,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
         if (!slot.isFilter()) return;
         if (!this.isFilterEnabled()) return;
         if (!this.isSlotDisabled(this.hoveredSlot.getContainerSlot())) return;
-        graphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+        graphics.setTooltipForNextFrame(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
     }
 
     @Override
@@ -203,11 +222,11 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
                 if (this.menu.getEntity().getSelecting() == i) {
                     this.menu.getEntity().setSelecting(0);
                     this.menu.onChanged();
-                    PacketDistributor.sendToServer(new BatchCutterSelectPacket(0, this.menu.getEntity().getPos()));
+                    ClientPacketDistributor.sendToServer(new BatchCutterSelectPacket(0, this.menu.getEntity().getPos()));
                 } else {
                     this.menu.getEntity().setSelecting(i);
                     this.menu.onChanged();
-                    PacketDistributor.sendToServer(new BatchCutterSelectPacket(i, this.menu.getEntity().getPos()));
+                    ClientPacketDistributor.sendToServer(new BatchCutterSelectPacket(i, this.menu.getEntity().getPos()));
                 }
             }
         }
@@ -246,28 +265,28 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     }
 
     @Override
-    protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+    protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
         if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
             ItemStack carriedItem = this.menu.getCarried().copy();
             int realSlotId = slot.getContainerSlot();
             if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
                 if (this.menu.isSlotDisabled(realSlotId)) {
-                    PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
+                    ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
                 ItemStack filter = this.menu.getFilter(realSlotId);
-                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
+                ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
                 slot.set(carriedItem);
-            } else if (Screen.hasShiftDown()) {
-                PacketDistributor.sendToServer(new SlotDisableChangePacket(
+            } else if (this.minecraft.hasShiftDown()) {
+                ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
                     carriedItem.isEmpty() && !this.menu.isSlotDisabled(realSlotId)
                 ));
             }
         }
-        super.slotClicked(slot, slotId, mouseButton, type);
+        super.slotClicked(slot, slotId, buttonNum, containerInput);
     }
 
     @Override
@@ -286,13 +305,13 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
         if (slot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter() && scrollY != 0) {
             int slotIndex = slot.getContainerSlot();
             int currentLimit = this.getSlotLimit(slotIndex);
-            int scrollSpeed = Screen.hasShiftDown() ? 5 : 1;
+            int scrollSpeed = this.minecraft.hasShiftDown() ? 5 : 1;
             int newLimit = currentLimit + (scrollY > 0 ? scrollSpeed : -scrollSpeed);
             newLimit = Mth.clamp(newLimit, 1, 64);
 
             if (newLimit != currentLimit) {
                 this.setSlotLimit(slotIndex, newLimit);
-                PacketDistributor.sendToServer(new SlotFilterMaxStackSizeChangePacket(slotIndex, newLimit));
+                ClientPacketDistributor.sendToServer(new SlotFilterMaxStackSizeChangePacket(slotIndex, newLimit));
                 return true;
             }
         }

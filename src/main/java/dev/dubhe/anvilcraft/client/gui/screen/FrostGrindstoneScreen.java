@@ -161,10 +161,10 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
                 if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
                 if (this.menu.getSelectedIndexes().contains(i)) {
                     this.menu.unselect(i);
-                    PacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, false));
+                    ClientPacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, false));
                 } else {
                     this.menu.select(i);
-                    PacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, true));
+                    ClientPacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, true));
                 }
                 return true;
             }

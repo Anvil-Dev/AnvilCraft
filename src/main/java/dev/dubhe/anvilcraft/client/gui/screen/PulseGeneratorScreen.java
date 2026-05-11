@@ -49,7 +49,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
 
     @Override
     public void onClose() {
-        PacketDistributor.sendToServer(new PulseGeneratorUpdatePacket(
+        ClientPacketDistributor.sendToServer(new PulseGeneratorUpdatePacket(
             this.menu.getBlockEntity().getStartMode().index(),
             this.menu.getBlockEntity().isOutputInvert(),
             this.menu.getBlockEntity().getWaitingTime(),
