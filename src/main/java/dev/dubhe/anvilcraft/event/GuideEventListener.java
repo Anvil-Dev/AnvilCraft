@@ -5,11 +5,12 @@ import dev.anvilcraft.resource.ageratum.client.constants.AgeratumConstants;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.CheckIntegrationLoadedEvent;
 import dev.dubhe.anvilcraft.api.event.GuideBookEvent;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
-@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class GuideEventListener {
     @SubscribeEvent
     public static void onHasGuide(GuideBookEvent.HasGuideBookEvent event) {
