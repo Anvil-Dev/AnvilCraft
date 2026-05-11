@@ -83,7 +83,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
 
         return (level1, pos, state1, entity) -> {
             if (entity instanceof SmartBlockPlacerBlockEntity be) {
-                be.tick(level1, pos, state1);
+                be.tick(level1, pos);
             }
         };
     }

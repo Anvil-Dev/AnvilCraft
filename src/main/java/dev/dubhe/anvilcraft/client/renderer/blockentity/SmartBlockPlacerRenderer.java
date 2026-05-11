@@ -33,11 +33,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     // 客户端本地的 tick 计数器
     private float clientTicks = 0f;
     private boolean wasPowered = false; // 记录上一次的通电状态
+    private boolean wasRedstoneSignal = false; // 记录上一次的红石信号状态
     private long lastGameTime = 0; // 记录上次游戏时间
     
     // 动画方案接口
     private IAnimationScheme currentAnimationScheme;
 
+    @SuppressWarnings("unused")
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
         // 默认使用旋转盘摆动动画方案
         this.currentAnimationScheme = new SwingBaseAnimationScheme();
@@ -92,6 +94,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      *
      * @param scheme 动画方案实现
      */
+    @SuppressWarnings("unused")
     public void setAnimationScheme(IAnimationScheme scheme) {
         this.currentAnimationScheme = scheme;
     }
@@ -164,16 +167,18 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
         // 计算平滑动画时间
         boolean isCurrentlyPowered = entity.isPowered();
+        boolean hasRedstoneSignal = entity.isHasRedstoneSignal();
         float smoothTicks = 0f;
         
-        if (isCurrentlyPowered) {
+        // 通电且没有红石信号时才播放动画
+        if (isCurrentlyPowered && !hasRedstoneSignal) {
             if (entity.getLevel() == null) {
                 smoothTicks = clientTicks + partialTick;
             } else {
                 long currentGameTime = entity.getLevel().getGameTime();
                 
-                // 新通电时重置计数器
-                if (!wasPowered) {
+                // 新通电或红石信号刚消失时重置计数器
+                if (!wasPowered || wasRedstoneSignal) {
                     clientTicks = 0f;
                     lastGameTime = currentGameTime;
                 }
@@ -193,6 +198,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
         
         wasPowered = isCurrentlyPowered;
+        wasRedstoneSignal = hasRedstoneSignal;
         
         // 计算各部件旋转角度
         float baseSwingAngle = 0f;
@@ -236,7 +242,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.popPose();
         poseStack.popPose();
     }
-    @SuppressWarnings("checkstyle:EmptyLineSeparator")
+    @SuppressWarnings({"checkstyle:EmptyLineSeparator", "deprecation"})
     private void renderModel(
         PoseStack poseStack, MultiBufferSource buffer, ModelResourceLocation model, int packedLight, int packedOverlay) {
         final VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
