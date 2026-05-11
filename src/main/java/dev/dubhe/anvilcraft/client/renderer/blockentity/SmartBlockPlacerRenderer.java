@@ -17,66 +17,31 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity> {
-    public static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
+    private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_base")
     );
-    public static final ModelResourceLocation UPPERARM_MODEL = ModelResourceLocation.standalone(
+    private static final ModelResourceLocation UPPERARM_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_upperarm")
     );
-    public static final ModelResourceLocation FOREARM_MODEL = ModelResourceLocation.standalone(
+    private static final ModelResourceLocation FOREARM_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_forearm")
     );
-    public static final ModelResourceLocation CLAW_MODEL = ModelResourceLocation.standalone(
+    private static final ModelResourceLocation CLAW_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_claw")
     );
 
-    // 动画方案（所有实例共用）
-    private IAnimationScheme currentAnimationScheme;
+    private static final SwingBaseAnimationScheme ANIMATION_SCHEME = new SwingBaseAnimationScheme();
 
-    @SuppressWarnings("unused")
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
-        this.currentAnimationScheme = new SwingBaseAnimationScheme();
+        // 不需要初始化，使用静态常量
     }
     
     /**
-     * 动画方案接口 - 支持多种动画策略
+     * 底座摆动动画方案
      */
-    @SuppressWarnings({"checkstyle:RightCurly", "unused"})
-    public interface IAnimationScheme {
-        default float getBaseSwingAngle(float time, boolean isPowered) {
-            return 0f;
-        }
-
-        default float getUpperArmAngle(float time, boolean isPowered) {
-            return 0f;
-        }
-
-        default float getForearmAngle(float time, boolean isPowered) {
-            return 0f;
-        }
-
-        default float getClawAngle(float time, boolean isPowered) {
-            return 0f;
-        }
-    }
-    
-    /**
-     * 设置动画方案
-     *
-     * @param scheme 动画方案实现
-     */
-    @SuppressWarnings("unused")
-    public void setAnimationScheme(IAnimationScheme scheme) {
-        this.currentAnimationScheme = scheme;
-    }
-    
-    /**
-     * 旋转盘摆动动画方案 - 仅底座左右摆动，机械臂跟随
-     */
-    public static class SwingBaseAnimationScheme implements IAnimationScheme {
-        @Override
-        public float getBaseSwingAngle(float ticks, boolean isPowered) {
-            if (!isPowered) return 0f;
+    private static class SwingBaseAnimationScheme {
+        @SuppressWarnings("SameReturnValue")
+        public float getBaseSwingAngle(float ticks) {
             
             // 周期: 140tick (7秒), 角速度: 1.5°/tick
             // 0°→30°→停→30°→-30°→停→-30°→0°→停
@@ -155,11 +120,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float forearmAngle = 0f;
         float clawAngle = 0f;
         
-        if (isCurrentlyPowered && currentAnimationScheme != null) {
-            baseSwingAngle = currentAnimationScheme.getBaseSwingAngle(smoothTicks, isCurrentlyPowered);
-            upperArmAngle = currentAnimationScheme.getUpperArmAngle(smoothTicks, isCurrentlyPowered);
-            forearmAngle = currentAnimationScheme.getForearmAngle(smoothTicks, isCurrentlyPowered);
-            clawAngle = currentAnimationScheme.getClawAngle(smoothTicks, isCurrentlyPowered);
+        if (isCurrentlyPowered) {
+            baseSwingAngle = ANIMATION_SCHEME.getBaseSwingAngle(smoothTicks);
         }
         
         // 渲染底座

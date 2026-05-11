@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,9 +30,9 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4")));
-        event.register(SmartBlockPlacerRenderer.BASE_MODEL);
-        event.register(SmartBlockPlacerRenderer.UPPERARM_MODEL);
-        event.register(SmartBlockPlacerRenderer.FOREARM_MODEL);
-        event.register(SmartBlockPlacerRenderer.CLAW_MODEL);
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_base")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_upperarm")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_forearm")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_claw")));
     }
 }

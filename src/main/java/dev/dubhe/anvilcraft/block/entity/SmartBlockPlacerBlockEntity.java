@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
@@ -24,15 +24,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import dev.dubhe.anvilcraft.block.state.Orientation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
@@ -214,7 +211,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 
                 if (blockItem.getItem() instanceof BlockItem blockItemObj) {
                     // 计算放置方向
-                    Orientation orientation = calculatePlacementOrientation(facing, upsideDown, targetPos, placerPos);
+                    Orientation orientation = calculatePlacementOrientation(facing, upsideDown);
                     
                     // 使用FakePlayer放置方块（支持方块的朝向、特殊放置逻辑）
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
@@ -273,10 +270,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 计算放置方向
      */
-    private Orientation calculatePlacementOrientation(Direction facing, boolean upsideDown, BlockPos targetPos, BlockPos placerPos) {
-        // 根据放置器的朝向和倒挂状态计算放置方向
+    private Orientation calculatePlacementOrientation(Direction facing, boolean upsideDown) {
         if (upsideDown) {
-            // 倒挂状态
             return switch (facing) {
                 case NORTH -> Orientation.SOUTH_UP;
                 case SOUTH -> Orientation.NORTH_UP;
@@ -285,7 +280,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 default -> Orientation.NORTH_UP;
             };
         } else {
-            // 正放状态
             return switch (facing) {
                 case NORTH -> Orientation.NORTH_UP;
                 case SOUTH -> Orientation.SOUTH_UP;
@@ -314,12 +308,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 设置过滤的方块类型
      */
+    @SuppressWarnings("unused")
     public void setFilterBlock(ItemStack block) {
         this.filterBlock = block.copy();
         this.onChanged();
     }
-
-
     public void onChanged() {
         this.setChanged();
         Level level = this.getLevel();

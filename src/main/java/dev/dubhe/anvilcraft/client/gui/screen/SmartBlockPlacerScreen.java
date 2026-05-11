@@ -42,19 +42,15 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
     
     // 鼠标拖动状态
-    private boolean isDragging = false;
     private Boolean dragTargetState = null;
     
     // 3D预览窗口
     private int previewWindowX;
     private int previewWindowY;
-    private int previewWindowWidth = 112;
-    private int previewWindowHeight = 88;
-    private float previewRotationY = 45f; // 初始旋转角度
+    private final int previewWindowWidth = 112;
+    private final int previewWindowHeight = 88;
     private boolean isPreviewDragging = false;
     private int lastMouseX = 0;
-    private long lastTick = 0;
-    private float blockAnimationTick = 0f;
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -191,7 +187,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        isDragging = false;
         dragTargetState = null;
         isPreviewDragging = false;
         return super.mouseReleased(mouseX, mouseY, button);
@@ -214,7 +209,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             for (int col = 0; col < 5; col++) {
                 TriStateButton btn = positionButtons[row][col];
                 if (btn != null && btn.isMouseOver(mouseX, mouseY)) {
-                    isDragging = true;
                     dragTargetState = !btn.isSelected();
                     break;
                 }
@@ -226,14 +220,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (isPreviewDragging) {
-            int deltaX = (int) mouseX - lastMouseX;
-            previewRotationY += deltaX * 0.5f;
-            previewRotationY = Math.max(-60f, Math.min(60f, previewRotationY));
             lastMouseX = (int) mouseX;
             return true;
         }
         
-        if (isDragging && dragTargetState != null) {
+        if (dragTargetState != null) {
             for (int row = 0; row < 5; row++) {
                 for (int col = 0; col < 5; col++) {
                     TriStateButton btn = positionButtons[row][col];
@@ -277,13 +268,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         
-        // 更新动画
-        long currentTick = System.currentTimeMillis() / 50;
-        if (currentTick != lastTick) {
-            blockAnimationTick += (currentTick - lastTick) * partialTick;
-            lastTick = currentTick;
-        }
-        
+
         // 渲染3D预览
         renderPreview(guiGraphics, partialTick);
         
@@ -291,8 +276,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
     
     private void renderPreview(GuiGraphics guiGraphics, float partialTick) {
-        // 这里后续实现3D渲染
-        // 暂时显示文字提示
         Component previewText = Component.literal("Preview");
         guiGraphics.drawString(minecraft.font, previewText, 
             previewWindowX + previewWindowWidth / 2 - minecraft.font.width(previewText) / 2,
