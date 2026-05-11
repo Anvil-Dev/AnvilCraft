@@ -30,62 +30,25 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         AnvilCraft.of("block/smart_block_placer_claw")
     );
 
-    // 客户端本地的 tick 计数器
+    // 客户端动画状态
     private float clientTicks = 0f;
-    private boolean wasPowered = false; // 记录上一次的通电状态
-    private boolean wasRedstoneSignal = false; // 记录上一次的红石信号状态
-    private long lastGameTime = 0; // 记录上次游戏时间
-    
-    // 动画方案接口
+    private boolean wasPowered = false;
+    private boolean wasRedstoneSignal = false;
+    private long lastGameTime = 0;
     private IAnimationScheme currentAnimationScheme;
 
     @SuppressWarnings("unused")
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
-        // 默认使用旋转盘摆动动画方案
         this.currentAnimationScheme = new SwingBaseAnimationScheme();
     }
     
     /**
-     * 动画方案接口
-     * 后续可以实现多种动画方案,如:默认动画、快速动画、平滑动画等
+     * 动画方案接口 - 支持多种动画策略
      */
     public interface IAnimationScheme {
-        /**
-         * 获取底座摆动角度
-         *
-         * @param time 客户端时间
-         * @param isPowered 是否通电
-         * @return 旋转角度(度)
-         */
-        default float getBaseSwingAngle(float time, boolean isPowered) {
-            return 0f;
-        }
-        
-        /**
-         * 获取大臂旋转角度
-         *
-         * @param time 客户端时间
-         * @param isPowered 是否通电
-         * @return 旋转角度(度)
-         */
+        default float getBaseSwingAngle(float time, boolean isPowered) { return 0f; }
         float getUpperArmAngle(float time, boolean isPowered);
-        
-        /**
-         * 获取小臂旋转角度
-         *
-         * @param time 客户端时间
-         * @param isPowered 是否通电
-         * @return 旋转角度(度)
-         */
         float getForearmAngle(float time, boolean isPowered);
-        
-        /**
-         * 获取钳子开合角度
-         *
-         * @param time 客户端时间
-         * @param isPowered 是否通电
-         * @return 旋转角度(度)
-         */
         float getClawAngle(float time, boolean isPowered);
     }
     
@@ -100,24 +63,22 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     }
     
     /**
-     * 旋转盘摆动动画方案
-     * 仅让旋转盘左右摆动，机械臂不动但跟随转动
+     * 旋转盘摆动动画方案 - 仅底座左右摆动，机械臂跟随
      */
     public static class SwingBaseAnimationScheme implements IAnimationScheme {
         @Override
         public float getBaseSwingAngle(float ticks, boolean isPowered) {
             if (!isPowered) return 0f;
             
-            // 动画周期: 0°→30°→停顿→30°→-30°→停顿→-30°→0°→停顿
-            // 总周期: 140 tick (7秒), 角速度: 1.5°/tick
+            // 周期: 140tick (7秒), 角速度: 1.5°/tick
+            // 0°→30°→停→30°→-30°→停→-30°→0°→停
             float t = ticks % 140.0f;
-            
-            if (t < 20.0f) return t * 1.5f;                    // 0-1秒: 0° → 30°
-            if (t < 40.0f) return 30f;                          // 1-2秒: 停在 30°
-            if (t < 80.0f) return 30f - (t - 40.0f) * 1.5f;    // 2-4秒: 30° → -30°
-            if (t < 100.0f) return -30f;                        // 4-5秒: 停在 -30°
-            if (t < 120.0f) return -30f + (t - 100.0f) * 1.5f; // 5-6秒: -30° → 0°
-            return 0f;                                          // 6-7秒: 停在 0°
+            if (t < 20.0f) return t * 1.5f;
+            if (t < 40.0f) return 30f;
+            if (t < 80.0f) return 30f - (t - 40.0f) * 1.5f;
+            if (t < 100.0f) return -30f;
+            if (t < 120.0f) return -30f + (t - 100.0f) * 1.5f;
+            return 0f;
         }
         
         @Override
@@ -147,49 +108,39 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         int packedOverlay
     ) {
         BlockState state = entity.getBlockState();
-        if (!(state.getBlock() instanceof SmartBlockPlacerBlock)) {
-            return;
-        }
+        if (!(state.getBlock() instanceof SmartBlockPlacerBlock)) return;
+        
         Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        
+        // 应用变换：居中 -> 倒置 -> 水平旋转 -> 贴地
         poseStack.pushPose();
-        
-        // 先将整个机械臂平移到方块中心(Y=0.0 让底座贴地)
-        poseStack.translate(0.5, 0.0, 0.5);
-        
-        // 计算底座朝向旋转角度
-        float baseRotation = switch (facing) {
-            case NORTH -> 0f;
-            case WEST -> 90f;
-            case SOUTH -> 180f;
-            case EAST -> 270f;
-            default -> 0f;
-        };
+        poseStack.translate(0.5, 1.5, 0.5);
+        if (upsideDown) {
+            poseStack.mulPose(Axis.XP.rotationDegrees(180f));
+        }
+        applyHorizontalRotation(poseStack, facing, upsideDown);
+        poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
 
-        // 计算平滑动画时间
+        // 计算动画时间
         boolean isCurrentlyPowered = entity.isPowered();
         boolean hasRedstoneSignal = entity.isHasRedstoneSignal();
         float smoothTicks = 0f;
         
-        // 通电且没有红石信号时才播放动画
         if (isCurrentlyPowered && !hasRedstoneSignal) {
             if (entity.getLevel() == null) {
                 smoothTicks = clientTicks + partialTick;
             } else {
                 long currentGameTime = entity.getLevel().getGameTime();
-                
-                // 新通电或红石信号刚消失时重置计数器
                 if (!wasPowered || wasRedstoneSignal) {
                     clientTicks = 0f;
                     lastGameTime = currentGameTime;
                 }
-                
-                // 累加经过的 tick
                 long tickDelta = currentGameTime - lastGameTime;
                 if (tickDelta > 0) {
                     clientTicks += tickDelta;
                     lastGameTime = currentGameTime;
                 }
-                
                 smoothTicks = clientTicks + partialTick;
             }
         } else {
@@ -200,7 +151,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         wasPowered = isCurrentlyPowered;
         wasRedstoneSignal = hasRedstoneSignal;
         
-        // 计算各部件旋转角度
+        // 计算动画角度
         float baseSwingAngle = 0f;
         float upperArmAngle = 0f;
         float forearmAngle = 0f;
@@ -215,25 +166,22 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         
         // 渲染底座
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(baseRotation + baseSwingAngle));
+        poseStack.mulPose(Axis.YP.rotationDegrees(baseSwingAngle));
         poseStack.translate(-0.5, 0.0, -0.5);
         renderModel(poseStack, buffer, BASE_MODEL, packedLight, packedOverlay);
         poseStack.popPose();
         
         // 渲染大臂（跟随底座旋转）
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(baseRotation + baseSwingAngle));
+        poseStack.mulPose(Axis.YP.rotationDegrees(baseSwingAngle));
         poseStack.mulPose(Axis.XP.rotationDegrees(upperArmAngle));
         poseStack.translate(-0.5, 0.0, -0.5);
         renderModel(poseStack, buffer, UPPERARM_MODEL, packedLight, packedOverlay);
         
-        // 渲染小臂
+        // 渲染小臂和钳子
         poseStack.pushPose();
         poseStack.mulPose(Axis.XP.rotationDegrees(forearmAngle));
         renderModel(poseStack, buffer, FOREARM_MODEL, packedLight, packedOverlay);
-        poseStack.popPose();
-        
-        // 渲染钳子
         poseStack.pushPose();
         poseStack.mulPose(Axis.XP.rotationDegrees(clawAngle));
         poseStack.translate(0.0, -0.1, 0.0);
@@ -241,6 +189,18 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.popPose();
         poseStack.popPose();
         poseStack.popPose();
+        poseStack.popPose();
+    }
+    
+    private void applyHorizontalRotation(PoseStack poseStack, Direction facing, boolean upsideDown) {
+        float rotation = switch (facing) {
+            case NORTH -> 0f;
+            case WEST -> 90f;
+            case SOUTH -> 180f;
+            case EAST -> 270f;
+            default -> 0f;
+        };
+        poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
     }
     @SuppressWarnings({"checkstyle:EmptyLineSeparator", "deprecation"})
     private void renderModel(

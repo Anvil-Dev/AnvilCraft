@@ -218,6 +218,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ColoredFallingBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
@@ -851,7 +852,30 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(1.5F, 6.0F).noOcclusion())
         .blockstate((ctx, provider) -> {
-            provider.horizontalBlock(ctx.get(), provider.models().getExistingFile(AnvilCraft.of("block/smart_block_placer_bottom")));
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                var model = provider.models().getExistingFile(AnvilCraft.of("block/smart_block_placer_bottom"));
+                Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+                boolean upsideDown = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
+                
+                int yRotation = switch (facing) {
+                    case NORTH -> 0;
+                    case EAST -> 90;
+                    case SOUTH -> 180;
+                    case WEST -> 270;
+                    default -> 0;
+                };
+                
+                // 倒挂时Y轴旋转方向相反
+                if (upsideDown) {
+                    yRotation = (360 - yRotation) % 360;
+                }
+                
+                return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(upsideDown ? 180 : 0)
+                    .rotationY(yRotation)
+                    .build();
+            });
         })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

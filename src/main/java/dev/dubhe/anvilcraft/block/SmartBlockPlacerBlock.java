@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -28,19 +29,30 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
+    public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
+    
+    // 碰撞箱（地面）
+    private static final VoxelShape SHAPE_FLOOR = Shapes.or(
+        Block.box(0, 0, 0, 16, 4, 16),
+        Block.box(2, 4, 2, 14, 8, 14)
+    );
+    
+    // 碰撞箱（天花板）
+    private static final VoxelShape SHAPE_CEILING = Shapes.or(
+        Block.box(0, 12, 0, 16, 16, 16),
+        Block.box(2, 8, 2, 14, 12, 14)
+    );
+
     public SmartBlockPlacerBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any()
+            .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+            .setValue(UPSIDE_DOWN, false));
     }
 
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
-
-    private static final VoxelShape SHAPE = Shapes.or(
-        Block.box(0, 0, 0, 16, 4, 16),
-        Block.box(2, 4, 2, 14, 8, 14)
-    );
 
     @Override
     protected MapCodec<? extends BetterBaseEntityBlock> codec() {
@@ -49,12 +61,27 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
-        builder.add(HorizontalDirectionalBlock.FACING);
+        builder.add(HorizontalDirectionalBlock.FACING, UPSIDE_DOWN);
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, context.getHorizontalDirection().getOpposite());
+        Direction facing = context.getClickedFace();
+        boolean upsideDown = facing == Direction.DOWN;
+        
+        // 确定水平朝向
+        Direction horizontalFacing;
+        if (facing.getAxis().isVertical()) {
+            // 点击顶面或底面，使用玩家的水平朝向
+            horizontalFacing = context.getHorizontalDirection().getOpposite();
+        } else {
+            // 点击侧面，面向玩家
+            horizontalFacing = facing.getOpposite();
+        }
+        
+        return this.defaultBlockState()
+            .setValue(HorizontalDirectionalBlock.FACING, horizontalFacing)
+            .setValue(UPSIDE_DOWN, upsideDown);
     }
 
     @Override
@@ -64,7 +91,8 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         BlockPos pos,
         CollisionContext context
     ) {
-        return SHAPE;
+        boolean upsideDown = state.getValue(UPSIDE_DOWN);
+        return upsideDown ? SHAPE_CEILING : SHAPE_FLOOR;
     }
 
     @Nullable
