@@ -36,7 +36,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private long lastGameTime = 0; // 记录上次游戏时间
     
     // 动画方案接口
-    private IAnimationScheme currentAnimationScheme = null;
+    private IAnimationScheme currentAnimationScheme;
 
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
         // 默认使用旋转盘摆动动画方案
@@ -167,22 +167,26 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float smoothTicks = 0f;
         
         if (isCurrentlyPowered) {
-            long currentGameTime = entity.getLevel().getGameTime();
-            
-            // 新通电时重置计数器
-            if (!wasPowered) {
-                clientTicks = 0f;
-                lastGameTime = currentGameTime;
+            if (entity.getLevel() == null) {
+                smoothTicks = clientTicks + partialTick;
+            } else {
+                long currentGameTime = entity.getLevel().getGameTime();
+                
+                // 新通电时重置计数器
+                if (!wasPowered) {
+                    clientTicks = 0f;
+                    lastGameTime = currentGameTime;
+                }
+                
+                // 累加经过的 tick
+                long tickDelta = currentGameTime - lastGameTime;
+                if (tickDelta > 0) {
+                    clientTicks += tickDelta;
+                    lastGameTime = currentGameTime;
+                }
+                
+                smoothTicks = clientTicks + partialTick;
             }
-            
-            // 累加经过的 tick
-            long tickDelta = currentGameTime - lastGameTime;
-            if (tickDelta > 0) {
-                clientTicks += tickDelta;
-                lastGameTime = currentGameTime;
-            }
-            
-            smoothTicks = clientTicks + partialTick;
         } else {
             clientTicks = 0f;
             lastGameTime = 0;
