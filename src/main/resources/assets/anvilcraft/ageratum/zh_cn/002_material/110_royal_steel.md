@@ -2,7 +2,6 @@
 navigation:
   title: "§2皇家钢"
   icon: "anvilcraft:royal_steel_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:

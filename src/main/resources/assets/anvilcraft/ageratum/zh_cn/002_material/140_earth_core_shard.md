@@ -2,7 +2,6 @@
 navigation:
   title: "§2地核碎片"
   icon: "anvilcraft:earth_core_shard"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:earth_core_shard
   - anvilcraft:earth_core_shard_block

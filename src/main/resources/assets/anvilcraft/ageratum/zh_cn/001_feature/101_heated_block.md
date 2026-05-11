@@ -2,7 +2,6 @@
 navigation:
   title: "§2热能系统"
   icon: "anvilcraft:redhot_tungsten_block"
-  parent: anvilcraft_guideme:feature.md
 items:
   - anvilcraft:heated_tungsten_block
   - anvilcraft:redhot_tungsten_block

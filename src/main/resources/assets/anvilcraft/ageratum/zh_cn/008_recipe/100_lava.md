@@ -2,7 +2,6 @@
 navigation:
   title: "§2再生熔岩"
   icon: "minecraft:lava_bucket"
-  parent: anvilcraft_guideme:recipe.md
 ---
 
 # 再生熔岩

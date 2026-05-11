@@ -2,7 +2,6 @@
 navigation:
   title: "加工：自动过筛"
   icon: "minecraft:scaffolding"
-  parent: machine.md
 ---
 
 # 加工：自动过筛

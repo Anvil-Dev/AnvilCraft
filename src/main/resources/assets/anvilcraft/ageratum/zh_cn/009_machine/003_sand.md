@@ -2,7 +2,6 @@
 navigation:
   title: "资源：三模沙机"
   icon: "minecraft:sand"
-  parent: machine.md
 ---
 
 # 资源：三模沙机

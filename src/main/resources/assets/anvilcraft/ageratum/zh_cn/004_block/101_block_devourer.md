@@ -2,7 +2,6 @@
 navigation:
   title: "§2方块吞噬器"
   icon: "anvilcraft:block_devourer"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:block_devourer
 ---

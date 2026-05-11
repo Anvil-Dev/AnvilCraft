@@ -2,7 +2,6 @@
 navigation:
   title: "量产混凝土"
   icon: "anvilcraft:reinforced_concrete_white"
-  parent: anvilcraft_guideme:recipe.md
 items:
   - anvilcraft:reinforced_concrete_white
   - anvilcraft:reinforced_concrete_light_gray

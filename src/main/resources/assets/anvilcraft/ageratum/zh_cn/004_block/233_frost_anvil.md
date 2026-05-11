@@ -2,7 +2,6 @@
 navigation:
   title: "§6浮霜铁砧"
   icon: "anvilcraft:frost_anvil"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:frost_anvil
 ---

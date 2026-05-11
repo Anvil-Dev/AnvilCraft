@@ -2,7 +2,6 @@
 navigation:
   title: "磁铁"
   icon: "anvilcraft:magnet_ingot"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:magnet_ingot
   - anvilcraft:magnet_block

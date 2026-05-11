@@ -2,7 +2,6 @@
 navigation:
   title: "§5钚"
   icon: "anvilcraft:plutonium_ingot"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:plutonium_block
   - anvilcraft:plutonium_ingot

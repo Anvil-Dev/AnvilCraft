@@ -2,7 +2,6 @@
 navigation:
   title: "§6虚空能量收集"
   icon: "anvilcraft:void_energy_collector"
-  parent: anvilcraft_guideme:power.md
 items:
   - anvilcraft:void_energy_collector
 ---

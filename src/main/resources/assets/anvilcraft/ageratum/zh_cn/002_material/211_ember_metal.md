@@ -2,7 +2,6 @@
 navigation:
   title: "§6余烬金属"
   icon: "anvilcraft:ember_metal_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:

@@ -2,7 +2,6 @@
 navigation:
   title: "§5重戟"
   icon: "anvilcraft:ember_metal_heavy_halberd"
-  parent: anvilcraft_guideme:tool.md
 categories:
   - tools
 items:

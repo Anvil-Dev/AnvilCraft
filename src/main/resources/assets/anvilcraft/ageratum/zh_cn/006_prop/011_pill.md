@@ -2,7 +2,6 @@
 navigation:
   title: "药片与药盒"
   icon: "anvilcraft:pill"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:pill
   - anvilcraft:pill_box

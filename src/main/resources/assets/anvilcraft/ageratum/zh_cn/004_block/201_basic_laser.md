@@ -2,7 +2,6 @@
 navigation:
   title: "§6激光"
   icon: "anvilcraft:ruby_laser"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:ruby_laser
   - anvilcraft:ruby_prism

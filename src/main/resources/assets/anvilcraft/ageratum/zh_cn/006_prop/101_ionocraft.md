@@ -2,7 +2,6 @@
 navigation:
   title: "§2飘升机"
   icon: "anvilcraft:ionocraft"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:ionocraft
 ---

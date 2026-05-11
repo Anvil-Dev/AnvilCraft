@@ -2,7 +2,6 @@
 navigation:
   title: "更多宝石"
   icon: "anvilcraft:topaz"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:

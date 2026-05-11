@@ -2,7 +2,6 @@
 navigation:
   title: "过滤器"
   icon: "anvilcraft:filter"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:filter
 ---

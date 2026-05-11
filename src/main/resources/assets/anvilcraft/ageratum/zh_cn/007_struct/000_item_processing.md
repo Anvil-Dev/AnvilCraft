@@ -2,7 +2,6 @@
 navigation:
   title: "基本物品处理"
   icon: "minecraft:stone"
-  parent: anvilcraft_guideme:struct.md
 items:
   - anvilcraft:stamping_platform
   - anvilcraft:crushing_table

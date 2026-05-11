@@ -2,7 +2,6 @@
 navigation:
   title: "量产基础矿物"
   icon: "anvilcraft:silver_ingot"
-  parent: anvilcraft_guideme:recipe.md
 ---
 
 # 量产基础矿物

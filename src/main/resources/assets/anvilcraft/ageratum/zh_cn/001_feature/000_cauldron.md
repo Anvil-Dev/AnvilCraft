@@ -2,7 +2,6 @@
 navigation:
   title: "炼药锅增强"
   icon: "minecraft:cauldron"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 炼药锅增强

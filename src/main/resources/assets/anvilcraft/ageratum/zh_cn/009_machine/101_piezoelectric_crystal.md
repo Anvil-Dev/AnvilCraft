@@ -2,7 +2,6 @@
 navigation:
   title: "§2能量：压电晶体发电"
   icon: "anvilcraft:piezoelectric_crystal"
-  parent: machine.md
 ---
 
 # 简易压电发电机

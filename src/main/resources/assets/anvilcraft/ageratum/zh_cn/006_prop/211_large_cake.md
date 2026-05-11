@@ -2,7 +2,6 @@
 navigation:
   title: "§6巨型蛋糕"
   icon: "anvilcraft:large_cake"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:large_cake
   - anvilcraft:cake_base_block

@@ -2,7 +2,6 @@
 navigation:
   title: "紫水晶工具"
   icon: "anvilcraft:amethyst_pickaxe"
-  parent: anvilcraft_guideme:tool.md
 categories:
   - tools
 items:

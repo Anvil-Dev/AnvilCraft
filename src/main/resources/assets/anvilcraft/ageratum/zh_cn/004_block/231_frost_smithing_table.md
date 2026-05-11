@@ -2,7 +2,6 @@
 navigation:
   title: "§6浮霜锻造台"
   icon: "anvilcraft:frost_smithing_table"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:frost_smithing_table
   - anvilcraft:permutation_smithing_template

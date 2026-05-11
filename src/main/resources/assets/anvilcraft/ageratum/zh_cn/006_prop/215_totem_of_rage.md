@@ -2,7 +2,6 @@
 navigation:
   title: "§6狂暴图腾"
   icon: "anvilcraft:totem_of_rage"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:totem_of_rage
 ---

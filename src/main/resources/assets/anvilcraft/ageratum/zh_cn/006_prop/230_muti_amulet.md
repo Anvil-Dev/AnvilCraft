@@ -2,7 +2,6 @@
 navigation:
   title: "§6多合一护符"
   icon: "anvilcraft:gem_amulet"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:gem_amulet
   - anvilcraft:nature_amulet

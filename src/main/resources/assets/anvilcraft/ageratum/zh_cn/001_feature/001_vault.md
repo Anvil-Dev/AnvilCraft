@@ -2,7 +2,6 @@
 navigation:
   title: "重置宝库"
   icon: "minecraft:vault"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 重置宝库

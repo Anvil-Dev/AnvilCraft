@@ -2,7 +2,6 @@
 navigation:
   title: "§6量产钻石"
   icon: "minecraft:diamond"
-  parent: anvilcraft_guideme:recipe.md
 ---
 
 # 熔岩再生

@@ -2,7 +2,6 @@
 navigation:
   title: "§5超温状态"
   icon: "anvilcraft:overheated_ember_metal_block"
-  parent: anvilcraft_guideme:feature.md
 items:
   - anvilcraft:overheated_ember_metal_block
 ---

@@ -2,7 +2,6 @@
 navigation:
   title: "资源：刷铁机"
   icon: "minecraft:iron_ingot"
-  parent: machine.md
 ---
 
 # 资源：刷铁机

@@ -2,7 +2,6 @@
 navigation:
   title: "树脂"
   icon: "anvilcraft:resin"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:

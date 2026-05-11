@@ -2,7 +2,6 @@
 navigation:
   title: "§6量产海洋之心"
   icon: "anvilcraft:sea_heart_shell"
-  parent: anvilcraft_guideme:recipe.md
 items:
   - anvilcraft:sea_heart_shell
   - anvilcraft:sea_heart_shell_shard

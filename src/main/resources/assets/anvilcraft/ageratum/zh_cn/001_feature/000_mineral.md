@@ -2,7 +2,6 @@
 navigation:
   title: "矿物生成"
   icon: "anvilcraft:deepslate_zinc_ore"
-  parent: anvilcraft_guideme:feature.md
 items:
   - anvilcraft:deepslate_zinc_ore
   - anvilcraft:deepslate_tin_ore

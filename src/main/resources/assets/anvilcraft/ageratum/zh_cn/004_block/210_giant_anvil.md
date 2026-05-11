@@ -2,7 +2,6 @@
 navigation:
   title: "§6巨型铁砧"
   icon: "anvilcraft:giant_anvil"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:giant_anvil
   - anvilcraft:transparent_crafting_table

@@ -2,7 +2,6 @@
 navigation:
   title: "§6中子物质"
   icon: "anvilcraft:neutronium_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:

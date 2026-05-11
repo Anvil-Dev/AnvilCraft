@@ -2,7 +2,6 @@
 navigation:
   title: "量产海绵"
   icon: "anvilcraft:sponge_gemmule"
-  parent: anvilcraft_guideme:recipe.md
 items:
   - anvilcraft:sponge_gemmule
 ---

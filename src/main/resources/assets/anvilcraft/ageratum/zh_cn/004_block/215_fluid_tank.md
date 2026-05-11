@@ -2,7 +2,6 @@
 navigation:
   title: "§6流体储罐"
   icon: "anvilcraft:fluid_tank"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:fluid_tank
   - anvilcraft:large_fluid_tank

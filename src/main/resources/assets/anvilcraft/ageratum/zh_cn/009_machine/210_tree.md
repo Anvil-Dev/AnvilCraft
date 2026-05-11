@@ -2,7 +2,6 @@
 navigation:
   title: "§6资源：树厂"
   icon: "minecraft:spruce_sapling"
-  parent: machine.md
 ---
 
 # 简易树厂

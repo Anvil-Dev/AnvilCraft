@@ -2,7 +2,6 @@
 navigation:
   title: "重质铁块"
   icon: "anvilcraft:heavy_iron_block"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:heavy_iron_block
   - anvilcraft:polished_heavy_iron_block

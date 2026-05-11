@@ -2,7 +2,6 @@
 navigation:
   title: "基本方块处理"
   icon: "minecraft:stone"
-  parent: anvilcraft_guideme:struct.md
 ---
 
 # 铁砧：方块加工

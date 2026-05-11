@@ -2,7 +2,6 @@
 navigation:
   title: "§2护符"
   icon: "anvilcraft:emerald_amulet"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:emerald_amulet
   - anvilcraft:topaz_amulet

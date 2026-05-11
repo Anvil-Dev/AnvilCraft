@@ -2,7 +2,6 @@
 navigation:
   title: "水泥"
   icon: "anvilcraft:gray_cement_bucket"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:gray_cement_bucket
 ---

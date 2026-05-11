@@ -2,7 +2,6 @@
 navigation:
   title: "§6量产下界合金"
   icon: "minecraft:netherite_ingot"
-  parent: anvilcraft_guideme:recipe.md
 ---
 
 # 量产下界合金

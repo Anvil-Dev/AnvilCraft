@@ -2,7 +2,6 @@
 navigation:
   title: "铁砧抢夺"
   icon: "minecraft:anvil"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 铁砧抢夺

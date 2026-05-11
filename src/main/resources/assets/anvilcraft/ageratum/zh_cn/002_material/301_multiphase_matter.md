@@ -2,7 +2,6 @@
 navigation:
   title: "§5多相物质"
   icon: "anvilcraft:multiphase_matter"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:multiphase_matter
   - anvilcraft:multiphase_matter_block

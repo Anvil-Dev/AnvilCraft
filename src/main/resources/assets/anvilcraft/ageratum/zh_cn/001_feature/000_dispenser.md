@@ -2,7 +2,6 @@
 navigation:
   title: "发射器增强"
   icon: "minecraft:dispenser"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 <row halign="center">

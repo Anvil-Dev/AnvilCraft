@@ -2,7 +2,6 @@
 navigation:
   title: "§5超限合金"
   icon: "anvilcraft:transcendium_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:

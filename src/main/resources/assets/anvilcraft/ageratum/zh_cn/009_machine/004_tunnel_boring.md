@@ -2,7 +2,6 @@
 navigation:
   title: "资源：盾构机"
   icon: "minecraft:piston"
-  parent: machine.md
 ---
 
 # 资源：盾构机
@@ -11,7 +10,7 @@ navigation:
 
 [<translate key="block.anvilcraft.block_devourer"/>](../004_block/101_block_devourer.md)可以迅速精准的破坏前方一大片的方块，因此可以用来制作*盾构机*
 
-# 简易盾构机（3x3)
+# 简易盾构机(3x3)
 
 在这里给出一种简单的*盾构机*的示例：
 
@@ -33,7 +32,7 @@ navigation:
 
 - 所有 <translate key="block.minecraft.smooth_stone"/> 可替换为 任意完整不透明方块
 
-# 大型盾构机（7x7)
+# 大型盾构机(7x7)
 
 通过控制铁砧下落撞击[<translate key="block.anvilcraft.block_devourer"/>](../004_block/101_block_devourer.md)，可以挖掘更大的隧道
 

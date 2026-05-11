@@ -2,7 +2,6 @@
 navigation:
   title: "§5多用途工具"
   icon: "anvilcraft:multitool"
-  parent: anvilcraft_guideme:tool.md
 categories:
   - tools
 items:

@@ -2,7 +2,6 @@
 navigation:
   title: "牛肉炖蘑菇"
   icon: "anvilcraft:beef_mushroom_stew"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:beef_mushroom_stew
 ---

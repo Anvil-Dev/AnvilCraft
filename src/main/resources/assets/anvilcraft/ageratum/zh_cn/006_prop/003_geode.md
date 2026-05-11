@@ -2,7 +2,6 @@
 navigation:
   title: "晶洞"
   icon: "anvilcraft:geode"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:geode
 ---

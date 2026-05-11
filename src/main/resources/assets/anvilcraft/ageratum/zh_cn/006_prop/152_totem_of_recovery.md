@@ -2,7 +2,6 @@
 navigation:
   title: "§2回溯图腾"
   icon: "anvilcraft:totem_of_recovery"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:totem_of_recovery
 ---

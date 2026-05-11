@@ -2,7 +2,6 @@
 navigation:
   title: "§2虚空物质"
   icon: "anvilcraft:void_matter"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:void_matter
   - anvilcraft:void_matter_block

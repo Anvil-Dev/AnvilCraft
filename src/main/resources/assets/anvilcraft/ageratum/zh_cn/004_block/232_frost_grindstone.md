@@ -2,7 +2,6 @@
 navigation:
   title: "§6浮霜砂轮"
   icon: "anvilcraft:frost_grindstone"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:frost_grindstone
 ---

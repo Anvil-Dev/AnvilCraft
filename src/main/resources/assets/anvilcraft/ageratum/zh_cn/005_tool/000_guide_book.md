@@ -2,7 +2,6 @@
 navigation:
   title: "铁砧工艺指南"
   icon: "anvilcraft:guide_book"
-  parent: anvilcraft_guideme:tool.md
 categories:
   - tools
 items:

@@ -2,7 +2,6 @@
 navigation:
   title: "种子袋"
   icon: "anvilcraft:seeds_pack"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:seeds_pack
 ---

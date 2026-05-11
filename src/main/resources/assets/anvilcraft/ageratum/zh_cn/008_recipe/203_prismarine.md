@@ -2,7 +2,6 @@
 navigation:
   title: "§6再生三叉戟"
   icon: "anvilcraft:prismarine_cluster"
-  parent: anvilcraft_guideme:recipe.md
 items:
   - anvilcraft:prismarine_blade
   - anvilcraft:prismarine_cluster

@@ -2,7 +2,6 @@
 navigation:
   title: "存储经验"
   icon: "anvilcraft:exp_gem"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:exp_gem
   - anvilcraft:exp_gem_block

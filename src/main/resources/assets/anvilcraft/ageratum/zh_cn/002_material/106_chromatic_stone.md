@@ -2,7 +2,6 @@
 navigation:
   title: "§2熔融宝石与异彩石"
   icon: "anvilcraft:chromatic_stone"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:melt_gem_bucket
   - anvilcraft:chromatic_stone

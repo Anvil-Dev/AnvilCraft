@@ -2,7 +2,6 @@
 navigation:
   title: "五毒散"
   icon: "anvilcraft:utusan"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:utusan
 ---

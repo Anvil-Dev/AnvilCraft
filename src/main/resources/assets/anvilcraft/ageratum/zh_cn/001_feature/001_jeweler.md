@@ -2,7 +2,6 @@
 navigation:
   title: "珠宝匠村民"
   icon: "minecraft:emerald"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 珠宝匠村民

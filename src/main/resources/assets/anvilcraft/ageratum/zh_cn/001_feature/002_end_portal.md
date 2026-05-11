@@ -2,7 +2,6 @@
 navigation:
   title: "末地传送门转化"
   icon: "minecraft:end_portal_frame"
-  parent: anvilcraft_guideme:feature.md
 items:
   - anvilcraft:end_dust
 ---

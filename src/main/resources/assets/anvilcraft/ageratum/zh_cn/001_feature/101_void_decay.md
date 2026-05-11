@@ -2,7 +2,6 @@
 navigation:
   title: "§2虚空衰变"
   icon: "anvilcraft:void_matter_block"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 虚空衰变

@@ -2,7 +2,6 @@
 navigation:
   title: "§5共振器"
   icon: "anvilcraft:ember_metal_resonator"
-  parent: anvilcraft_guideme:tool.md
 categories:
   - tools
 items:

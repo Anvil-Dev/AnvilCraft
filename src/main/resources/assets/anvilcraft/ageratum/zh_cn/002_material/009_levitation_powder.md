@@ -2,7 +2,6 @@
 navigation:
   title: "飘浮粉"
   icon: "anvilcraft:levitation_powder"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:levitation_powder
   - anvilcraft:levitation_powder_block

@@ -2,7 +2,6 @@
 navigation:
   title: "加工：自动粉碎"
   icon: "anvilcraft:quartz_sand"
-  parent: machine.md
 ---
 
 # 加工：自动粉碎

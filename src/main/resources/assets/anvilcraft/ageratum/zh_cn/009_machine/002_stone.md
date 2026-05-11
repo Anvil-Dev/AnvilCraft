@@ -2,7 +2,6 @@
 navigation:
   title: "资源：刷石机"
   icon: "minecraft:cobblestone"
-  parent: machine.md
 ---
 
 # 资源：刷石机

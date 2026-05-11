@@ -2,7 +2,6 @@
 navigation:
   title: "红石EMP"
   icon: "minecraft:redstone_block"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 红石EMP

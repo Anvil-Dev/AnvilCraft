@@ -2,7 +2,6 @@
 navigation:
   title: "§6激光采矿"
   icon: "anvilcraft:ruby_laser"
-  parent: anvilcraft_guideme:struct.md
 ---
 
 # 激光采矿

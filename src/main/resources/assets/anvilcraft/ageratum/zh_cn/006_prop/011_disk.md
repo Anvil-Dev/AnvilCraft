@@ -2,7 +2,7 @@
 navigation:
   title: "磁盘"
   icon: "anvilcraft:disk"
-  parent: anvilcraft_guideme:prop.md
+
 items:
   - anvilcraft:disk
 ---

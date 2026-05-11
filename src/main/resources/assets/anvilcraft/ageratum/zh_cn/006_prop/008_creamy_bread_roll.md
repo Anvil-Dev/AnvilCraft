@@ -2,7 +2,6 @@
 navigation:
   title: "奶油面包卷"
   icon: "anvilcraft:creamy_bread_roll"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:creamy_bread_roll
   - anvilcraft:dough

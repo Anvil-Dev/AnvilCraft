@@ -2,7 +2,6 @@
 navigation:
   title: "§6制造刷怪笼"
   icon: "minecraft:spawner"
-  parent: anvilcraft_guideme:recipe.md
 items:
   - anvilcraft:resentful_amber_block
 ---

@@ -2,7 +2,6 @@
 navigation:
   title: "铁砧挖掘"
   icon: "minecraft:anvil"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 铁砧挖掘

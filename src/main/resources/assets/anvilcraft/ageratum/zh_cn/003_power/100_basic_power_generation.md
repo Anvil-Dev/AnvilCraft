@@ -2,7 +2,6 @@
 navigation:
   title: "§2基础发电"
   icon: "anvilcraft:charge_collector"
-  parent: anvilcraft_guideme:power.md
 items:
   - anvilcraft:charge_collector
   - anvilcraft:piezoelectric_crystal

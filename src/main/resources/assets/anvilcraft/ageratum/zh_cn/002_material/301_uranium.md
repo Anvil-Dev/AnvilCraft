@@ -2,7 +2,6 @@
 navigation:
   title: "§5铀"
   icon: "anvilcraft:uranium_ingot"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:uranium_block
   - anvilcraft:uranium_ingot

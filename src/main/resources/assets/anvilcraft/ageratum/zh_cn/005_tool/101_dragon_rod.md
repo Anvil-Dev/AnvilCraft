@@ -2,7 +2,6 @@
 navigation:
   title: "§2龙杖"
   icon: "anvilcraft:dragon_rod"
-  parent: anvilcraft_guideme:tool.md
 categories:
   - tools
 items:

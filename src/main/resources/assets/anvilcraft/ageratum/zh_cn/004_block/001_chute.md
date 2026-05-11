@@ -2,7 +2,6 @@
 navigation:
   title: "溜槽"
   icon: "anvilcraft:chute"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:chute
   - anvilcraft:magnetic_chute

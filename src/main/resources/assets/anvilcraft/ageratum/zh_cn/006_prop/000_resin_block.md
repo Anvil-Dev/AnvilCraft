@@ -2,7 +2,6 @@
 navigation:
   title: "树脂块"
   icon: "anvilcraft:resin_block"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:resin_block
 ---

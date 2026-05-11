@@ -2,7 +2,6 @@
 navigation:
   title: "§5负物质"
   icon: "anvilcraft:negative_matter"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:negative_matter_block
   - anvilcraft:negative_matter

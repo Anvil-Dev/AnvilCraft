@@ -2,7 +2,6 @@
 navigation:
   title: "§5超限铁砧"
   icon: "anvilcraft:transcendence_anvil"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:transcendence_anvil
 ---

@@ -2,7 +2,6 @@
 navigation:
   title: "§2幻灵铁砧"
   icon: "anvilcraft:spectral_anvil"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:spectral_anvil
 ---

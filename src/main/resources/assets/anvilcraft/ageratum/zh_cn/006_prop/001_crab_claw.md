@@ -2,7 +2,6 @@
 navigation:
   title: "蟹钳"
   icon: "anvilcraft:crab_claw"
-  parent: anvilcraft_guideme:prop.md
 categories:
   - tools
 items:

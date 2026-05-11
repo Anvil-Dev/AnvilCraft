@@ -2,7 +2,6 @@
 navigation:
   title: "额外红石元件"
   icon: "minecraft:redstone"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:block_comparator
   - anvilcraft:pulse_generator

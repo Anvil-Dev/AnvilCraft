@@ -2,7 +2,6 @@
 navigation:
   title: "各类巧克力"
   icon: "anvilcraft:chocolate"
-  parent: anvilcraft_guideme:prop.md
 items:
   - anvilcraft:chocolate
   - anvilcraft:chocolate_block
