@@ -857,7 +857,7 @@ public class ModBlocks {
                 Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
                 boolean upsideDown = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
                 
-                int yRotation = switch (facing) {
+                int rotation = switch (facing) {
                     case NORTH -> 0;
                     case EAST -> 90;
                     case SOUTH -> 180;
@@ -867,13 +867,13 @@ public class ModBlocks {
                 
                 // 倒挂时Y轴旋转方向相反
                 if (upsideDown) {
-                    yRotation = (360 - yRotation) % 360;
+                    rotation = (360 - rotation) % 360;
                 }
                 
                 return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()
                     .modelFile(model)
                     .rotationX(upsideDown ? 180 : 0)
-                    .rotationY(yRotation)
+                    .rotationY(rotation)
                     .build();
             });
         })

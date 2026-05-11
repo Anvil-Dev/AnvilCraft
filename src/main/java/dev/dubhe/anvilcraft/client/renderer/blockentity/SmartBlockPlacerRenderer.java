@@ -45,11 +45,23 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     /**
      * 动画方案接口 - 支持多种动画策略
      */
+    @SuppressWarnings("checkstyle:RightCurly")
     public interface IAnimationScheme {
-        default float getBaseSwingAngle(float time, boolean isPowered) { return 0f; }
-        float getUpperArmAngle(float time, boolean isPowered);
-        float getForearmAngle(float time, boolean isPowered);
-        float getClawAngle(float time, boolean isPowered);
+        default float getBaseSwingAngle(float time, boolean isPowered) {
+            return 0f;
+        }
+
+        default float getUpperArmAngle(float time, boolean isPowered) {
+            return 0f;
+        }
+
+        default float getForearmAngle(float time, boolean isPowered) {
+            return 0f;
+        }
+
+        default float getClawAngle(float time, boolean isPowered) {
+            return 0f;
+        }
     }
     
     /**
