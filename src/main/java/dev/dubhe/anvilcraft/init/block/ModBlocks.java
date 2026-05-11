@@ -846,6 +846,17 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::blockDevourer)
         .register();
 
+    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
+        .block("smart_block_placer", SmartBlockPlacerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.strength(1.5F, 6.0F).noOcclusion())
+        .blockstate((ctx, provider) -> {
+            provider.horizontalBlock(ctx.get(), provider.models().getExistingFile(AnvilCraft.of("block/smart_block_placer_bottom")));
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRUM.block("ruby_laser", RubyLaserBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.lightLevel(it -> {
@@ -3607,17 +3618,6 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
-        .register();
-
-    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
-        .block("smart_block_placer", SmartBlockPlacerBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(1.5F, 6.0F).noOcclusion())
-        .blockstate((ctx, provider) -> {
-            provider.horizontalBlock(ctx.get(), provider.models().getExistingFile(AnvilCraft.of("block/smart_block_placer_bottom")));
-        })
-        .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static void register() {

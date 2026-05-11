@@ -31,6 +31,9 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4")));
-        event.register(SmartBlockPlacerRenderer.MODEL);
+        event.register(SmartBlockPlacerRenderer.BASE_MODEL);
+        event.register(SmartBlockPlacerRenderer.UPPERARM_MODEL);
+        event.register(SmartBlockPlacerRenderer.FOREARM_MODEL);
+        event.register(SmartBlockPlacerRenderer.CLAW_MODEL);
     }
 }

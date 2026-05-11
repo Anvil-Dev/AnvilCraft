@@ -75,9 +75,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         BlockState state,
         BlockEntityType<T> type
     ) {
-        if (level.isClientSide) {
-            return null;
-        }
+
         return (level1, pos, state1, entity) -> {
             if (entity instanceof SmartBlockPlacerBlockEntity be) {
                 be.tick(level1, pos, state1);
