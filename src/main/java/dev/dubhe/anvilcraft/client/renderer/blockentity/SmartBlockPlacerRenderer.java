@@ -45,7 +45,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     /**
      * 动画方案接口 - 支持多种动画策略
      */
-    @SuppressWarnings("checkstyle:RightCurly")
+    @SuppressWarnings({"checkstyle:RightCurly", "unused"})
     public interface IAnimationScheme {
         default float getBaseSwingAngle(float time, boolean isPowered) {
             return 0f;
@@ -90,21 +90,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             if (t < 80.0f) return 30f - (t - 40.0f) * 1.5f;
             if (t < 100.0f) return -30f;
             if (t < 120.0f) return -30f + (t - 100.0f) * 1.5f;
-            return 0f;
-        }
-        
-        @Override
-        public float getUpperArmAngle(float time, boolean isPowered) {
-            return 0f;
-        }
-
-        @Override
-        public float getForearmAngle(float time, boolean isPowered) {
-            return 0f;
-        }
-
-        @Override
-        public float getClawAngle(float time, boolean isPowered) {
             return 0f;
         }
     }
