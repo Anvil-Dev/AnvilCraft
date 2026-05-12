@@ -45,11 +45,13 @@ import java.util.Set;
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider {
     private static final int POWER = 16;
     private static final int PLACE_COOLDOWN = 10; // 放置冷却时间（tick），0.5秒
+    private static final int INITIAL_DELAY = 40; // 初始延迟时间（tick），约2秒
     private PowerGrid grid = null;
     private boolean isPowered = false;
     private boolean hasRedstoneSignal = false;
     private int selectedLayer = 0;
     private int placeCooldown = 0;
+    private boolean isWaitingForPlacement = false; // 是否在等待放置（2秒延迟中）
     /**
      * -- GETTER --
      *  获取过滤的方块类型
@@ -68,6 +70,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private long clientLastGameTime = 0;
     private boolean clientWasPowered = false;
     private boolean clientWasRedstoneSignal = false;
+
+    // Getter方法供渲染器使用
+    // 客户端待机动画状态（每个BlockEntity独立）
+    private boolean clientIdleSwinging = false;
+    private float clientIdleSwingProgress = 0f;
+    private float clientIdleSwingDirection = 0f;
+    private long clientIdleLastTriggerTime = 0;
+    private long clientIdleNextTriggerDelay = 0;
     
     /**
      * 更新客户端动画状态（供渲染器调用）
@@ -77,6 +87,52 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.clientLastGameTime = lastGameTime;
         this.clientWasPowered = wasPowered;
         this.clientWasRedstoneSignal = wasRedstoneSignal;
+    }
+    
+    /**
+     * 更新待机动画状态
+     */
+    public void updateIdleAnimationState(float smoothTicks) {
+        if (this.level == null) return;
+        
+        long currentTime = this.level.getGameTime();
+        
+        // 检查是否需要触发新的摆动
+        if (!clientIdleSwinging && currentTime - clientIdleLastTriggerTime >= clientIdleNextTriggerDelay) {
+            // 随机触发摆动
+            clientIdleSwinging = true;
+            clientIdleSwingDirection = (currentTime % 2 == 0) ? 1f : -1f; // 随机方向
+            clientIdleSwingProgress = 0f; // 重置进度
+            clientIdleLastTriggerTime = currentTime;
+            clientIdleNextTriggerDelay = 200 + (currentTime % 201); // 200-400tick后下次触发（10-20秒）
+        }
+        
+        // 如果正在摆动，计算进度（使用游戏时间差 + partialTick实现平滑）
+        if (clientIdleSwinging) {
+            long elapsedTicks = currentTime - clientIdleLastTriggerTime;
+            // 估算partialTick（smoothTicks包含的帧时间）
+            float partialTick = smoothTicks - (float)
+                ((long)
+                    smoothTicks);
+            clientIdleSwingProgress = elapsedTicks + partialTick;
+            
+            // 摆动结束（总时长100tick = 5秒）
+            if (clientIdleSwingProgress >= 100f) {
+                clientIdleSwinging = false;
+                clientIdleSwingProgress = 0f;
+            }
+        }
+    }
+    
+    /**
+     * 重置待机动画状态
+     */
+    public void resetIdleAnimationState() {
+        clientIdleSwinging = false;
+        clientIdleSwingProgress = 0f;
+        clientIdleSwingDirection = 0f;
+        clientIdleLastTriggerTime = 0;
+        clientIdleNextTriggerDelay = 0;
     }
 
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
@@ -102,6 +158,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
         tag.putInt("selectedLayer", selectedLayer);
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
+        tag.putBoolean("isWaitingForPlacement", isWaitingForPlacement);
+        tag.putInt("placeCooldown", placeCooldown);
         // 保存过滤的方块（只在非空时保存）
         if (!filterBlock.isEmpty()) {
             tag.put("filterBlock", filterBlock.save(provider));
@@ -122,6 +180,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.hasRedstoneSignal = tag.getBoolean("hasRedstoneSignal");
         this.selectedLayer = tag.getInt("selectedLayer");
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
+        this.isWaitingForPlacement = tag.getBoolean("isWaitingForPlacement");
+        this.placeCooldown = tag.getInt("placeCooldown");
         // 加载过滤的方块（只在存在时加载）
         if (tag.contains("filterBlock", Tag.TAG_COMPOUND)) {
             this.filterBlock = ItemStack.parse(provider, tag.getCompound("filterBlock")).orElse(ItemStack.EMPTY);
@@ -153,13 +213,37 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.hasRedstoneSignal = level.hasNeighborSignal(pos);
             
             // 方块放置逻辑
-            if (isPowered && !hasRedstoneSignal && placeCooldown <= 0) {
-                placeBlocks(level, pos);
-                placeCooldown = PLACE_COOLDOWN;
-            }
-            
-            if (placeCooldown > 0) {
-                placeCooldown--;
+            if (isPowered && !hasRedstoneSignal) {
+                // 检查是否有需要放置的位置
+                boolean needsPlacement = hasEmptyPositions(level, pos);
+                
+                if (needsPlacement && !isWaitingForPlacement) {
+                    // 需要放置且不在等待中，开始2秒延迟
+                    isWaitingForPlacement = true;
+                    placeCooldown = INITIAL_DELAY;
+                }
+                
+                if (isWaitingForPlacement) {
+                    if (placeCooldown > 0) {
+                        // 等待中，倒计时
+                        placeCooldown--;
+                    } else {
+                        // 延迟结束，执行放置
+                        boolean placed = placeBlocks(level, pos);
+                        if (placed) {
+                            // 放置成功，设置0.5秒冷却继续放置下一个
+                            placeCooldown = PLACE_COOLDOWN;
+                        } else {
+                            // 放置失败（没有物品或所有位置已满），重置等待状态
+                            isWaitingForPlacement = false;
+                            placeCooldown = 0;
+                        }
+                    }
+                }
+            } else {
+                // 断电或有红石信号时，重置所有状态
+                isWaitingForPlacement = false;
+                placeCooldown = 0;
             }
             
             onChanged();
@@ -167,12 +251,43 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
-     * 放置方块（每次只放置一个）
+     * 检查是否有空位需要放置方块
      */
-    private void placeBlocks(Level level, BlockPos placerPos) {
+    private boolean hasEmptyPositions(Level level, BlockPos placerPos) {
         BlockState placerState = level.getBlockState(placerPos);
         Direction facing = placerState.getValue(HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = placerState.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        
+        // 计算基准位置（放置器前方4格，水平方向）
+        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        
+        // 检查所有配置的位置
+        for (Map.Entry<Integer, Set<Integer>> entry : layerPositions.entrySet()) {
+            int layer = entry.getKey();
+            Set<Integer> positions = entry.getValue();
+            
+            for (int position : positions) {
+                int row = position / 5;
+                int col = position % 5;
+                BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer);
+                
+                // 如果有任何一个位置是空的，返回true
+                if (level.isEmptyBlock(targetPos)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 放置方块（每次只放置一个）
+     *
+     * @return 是否成功放置了方块
+     */
+    private boolean placeBlocks(Level level, BlockPos placerPos) {
+        BlockState placerState = level.getBlockState(placerPos);
+        Direction facing = placerState.getValue(HorizontalDirectionalBlock.FACING);
         
         // 计算基准位置（放置器前方4格，水平方向）
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
@@ -191,6 +306,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
         }
         
+        // 如果没有配置任何位置，返回false
+        if (allPositions.isEmpty()) {
+            return false;
+        }
+        
         // 如果索引超出范围，重置
         if (currentPlacementIndex >= allPositions.size()) {
             currentPlacementIndex = 0;
@@ -201,30 +321,34 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int index = (currentPlacementIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
             
-            // 如果目标位置为空，则放置方块
+            // 如果目标位置为空，则尝试放置方块
             if (level.isEmptyBlock(targetPos)) {
                 // 从背面容器提取匹配的方块物品
                 ItemStack blockItem = extractBlockItemFromNearbyContainers(level, placerPos);
                 if (blockItem.isEmpty()) {
-                    return; // 没有找到可用的方块物品
+                    return false; // 没有找到可用的方块物品
                 }
                 
                 if (blockItem.getItem() instanceof BlockItem blockItemObj) {
                     // 计算放置方向
+                    final boolean upsideDown = placerState.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
                     Orientation orientation = calculatePlacementOrientation(facing, upsideDown);
                     
                     // 使用FakePlayer放置方块（支持方块的朝向、特殊放置逻辑）
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
                         level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                        return; // 放置失败
+                        return false; // 放置失败
                     }
                     
                     // 更新进度索引
                     currentPlacementIndex = (index + 1) % allPositions.size();
-                    return; // 每次只放置一个方块
+                    return true; // 成功放置一个方块
                 }
             }
         }
+        
+        // 所有位置都已有方块
+        return false;
     }
     
     /**
@@ -313,6 +437,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.filterBlock = block.copy();
         this.onChanged();
     }
+
     public void onChanged() {
         this.setChanged();
         Level level = this.getLevel();
@@ -358,6 +483,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
         tag.putInt("selectedLayer", selectedLayer);
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
+        tag.putBoolean("isWaitingForPlacement", isWaitingForPlacement);
+        tag.putInt("placeCooldown", placeCooldown);
         // 同步过滤的方块（只在非空时同步）
         if (!filterBlock.isEmpty()) {
             tag.put("filterBlock", filterBlock.save(registries));

@@ -41,16 +41,31 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      */
     private static class SwingBaseAnimationScheme {
         @SuppressWarnings("SameReturnValue")
-        public float getBaseSwingAngle(float ticks) {
+        public float getBaseSwingAngle(float swingProgress, boolean isSwinging, float swingDirection) {
+            // 如果正在摆动，计算角度
+            if (isSwinging) {
+                // 摆动动画：
+                // 0-40tick（0-2秒）：从0°缓慢转到目标角度
+                // 40-60tick（2-3秒）：在目标角度停留1秒
+                // 60-100tick（3-5秒）：从目标角度缓慢回到0°
+                float targetAngle = 25f * swingDirection; // 目标角度±25°
+                
+                if (swingProgress <= 40f) {
+                    // 第一阶段：从0°缓慢转到目标角度（2秒）
+                    float t = swingProgress / 40f;
+                    // 使用缓动函数让运动更平滑
+                    return targetAngle * (float) Math.sin(t * Math.PI / 2);
+                } else if (swingProgress <= 60f) {
+                    // 第二阶段：在目标角度停留1秒
+                    return targetAngle;
+                } else if (swingProgress <= 100f) {
+                    // 第三阶段：从目标角度缓慢回到0°（2秒）
+                    float t = (swingProgress - 60f) / 40f;
+                    // 使用缓动函数让运动更平滑
+                    return targetAngle * (1f - (float) Math.sin(t * Math.PI / 2));
+                }
+            }
             
-            // 周期: 140tick (7秒), 角速度: 1.5°/tick
-            // 0°→30°→停→30°→-30°→停→-30°→0°→停
-            float t = ticks % 140.0f;
-            if (t < 20.0f) return t * 1.5f;
-            if (t < 40.0f) return 30f;
-            if (t < 80.0f) return 30f - (t - 40.0f) * 1.5f;
-            if (t < 100.0f) return -30f;
-            if (t < 120.0f) return -30f + (t - 100.0f) * 1.5f;
             return 0f;
         }
     }
@@ -106,9 +121,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 }
                 smoothTicks = currentAnimationTicks + partialTick;
             }
+            
+            // 更新BlockEntity的待机动画状态
+            entity.updateIdleAnimationState(smoothTicks);
         } else {
             currentAnimationTicks = 0f;
             currentLastGameTime = 0;
+            entity.resetIdleAnimationState();
         }
         
         // 更新BlockEntity的动画状态
@@ -120,8 +139,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float forearmAngle = 0f;
         float clawAngle = 0f;
         
-        if (isCurrentlyPowered) {
-            baseSwingAngle = ANIMATION_SCHEME.getBaseSwingAngle(smoothTicks);
+        // 通电时执行待机动画（随机摆动）
+        if (isCurrentlyPowered && !hasRedstoneSignal) {
+            baseSwingAngle = ANIMATION_SCHEME.getBaseSwingAngle(
+                entity.getClientIdleSwingProgress(),
+                entity.isClientIdleSwinging(),
+                entity.getClientIdleSwingDirection()
+            );
         }
         
         // 渲染底座
