@@ -65,6 +65,7 @@
     "accessor.TargetingConditionsAccessor",
     "accessor.VaultServerDataAccessor",
     "accessor.VillagerAccessor",
+    "accessor.EntityAccessor",
     "invoker.BlockBehaviourInvoker",
     "invoker.BlockItemInvoker",
     "piglin.AbstractPiglinMixin",
