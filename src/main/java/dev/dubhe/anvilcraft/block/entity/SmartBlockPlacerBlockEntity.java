@@ -70,6 +70,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private long clientLastGameTime = 0;
     private boolean clientWasPowered = false;
     private boolean clientWasRedstoneSignal = false;
+    
+    // 每个方块独立的动画偏移量，防止多个方块动画同步
+    private long clientAnimationOffset = 0;
+    private boolean clientAnimationOffsetInitialized = false;
 
     // Getter方法供渲染器使用
     // 客户端待机动画状态（每个BlockEntity独立）
@@ -78,6 +82,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private float clientIdleSwingDirection = 0f;
     private long clientIdleLastTriggerTime = 0;
     private long clientIdleNextTriggerDelay = 0;
+    
+    // 客户端工作状态动画目标
+    private BlockPos clientWorkingTargetPos = null;
+    private BlockPos clientPreviousTargetPos = null; // 前一个目标位置，用于过渡
+    private float clientWorkingAnimationProgress = 0f; // 0-1 表示动画进度
+    private float clientTransitionProgress = 0f; // 过渡进度 0-1
+    
+    // 当前显示的角度（用于平滑过渡）
+    private float clientCurrentBaseAngle = 0f;
+    private float clientCurrentUpperArmAngle = 0f;
+    private float clientCurrentForearmAngle = 0f;
+    private float clientCurrentClawAngle = 0f;
     
     /**
      * 更新客户端动画状态（供渲染器调用）
@@ -90,6 +106,24 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
+     * 初始化动画偏移量（在方块首次创建或重新通电时调用）
+     */
+    public void initAnimationOffset() {
+        if (this.level == null) return;
+        
+        long currentTime = this.level.getGameTime();
+        // 为每个方块设置独立的随机偏移量（0-100tick）
+        // 使用位置哈希和时间组合作为随机种子，确保每个方块都有独特的偏移
+        long seed = this.getBlockPos().asLong() ^ currentTime;
+        this.clientAnimationOffset = Math.abs(seed % 201); // 0-100tick
+        this.clientAnimationOffsetInitialized = true;
+        
+        // 同时重置待机动画的触发时间，使用偏移量
+        this.clientIdleLastTriggerTime = currentTime + this.clientAnimationOffset;
+        this.clientIdleNextTriggerDelay = 120; // 固定120tick (6秒)
+    }
+    
+    /**
      * 更新待机动画状态
      */
     public void updateIdleAnimationState(float smoothTicks) {
@@ -97,14 +131,23 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         long currentTime = this.level.getGameTime();
         
-        // 检查是否需要触发新的摆动
-        if (!clientIdleSwinging && currentTime - clientIdleLastTriggerTime >= clientIdleNextTriggerDelay) {
-            // 随机触发摆动
+        // 确保动画偏移量已初始化
+        if (!clientAnimationOffsetInitialized) {
+            initAnimationOffset();
+        }
+        
+        // 使用偏移后的时间检查是否需要触发新的摆动
+        // 关键：使用固定的offsetTime作为基准，而不是每次都用currentTime
+        long offsetTime = clientIdleLastTriggerTime + clientIdleNextTriggerDelay;
+        
+        if (!clientIdleSwinging && currentTime >= offsetTime) {
+            // 触发摆动
             clientIdleSwinging = true;
             clientIdleSwingDirection = (currentTime % 2 == 0) ? 1f : -1f; // 随机方向
             clientIdleSwingProgress = 0f; // 重置进度
-            clientIdleLastTriggerTime = currentTime;
-            clientIdleNextTriggerDelay = 200 + (currentTime % 201); // 200-400tick后下次触发（10-20秒）
+            clientIdleLastTriggerTime = currentTime; // 记录本次触发时间
+            // 计算下一次触发延迟（固定间隔）
+            clientIdleNextTriggerDelay = 120; // 固定120tick (6秒)
         }
         
         // 如果正在摆动，计算进度（使用游戏时间差 + partialTick实现平滑）
@@ -120,6 +163,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (clientIdleSwingProgress >= 100f) {
                 clientIdleSwinging = false;
                 clientIdleSwingProgress = 0f;
+                // 计算下一次触发时间
+                offsetTime = clientIdleLastTriggerTime + clientIdleNextTriggerDelay;
+                clientIdleLastTriggerTime = offsetTime; // 设置下次触发的基准时间
             }
         }
     }
@@ -133,6 +179,75 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         clientIdleSwingDirection = 0f;
         clientIdleLastTriggerTime = 0;
         clientIdleNextTriggerDelay = 0;
+        clientAnimationOffset = 0;
+        clientAnimationOffsetInitialized = false;
+    }
+    
+    /**
+     * 更新工作状态动画目标（供渲染器调用）
+     */
+    public void updateWorkingTarget(BlockPos targetPos, float animationProgress) {
+        // 如果目标位置改变，保存前一个位置用于过渡
+        if (this.clientWorkingTargetPos != null && !this.clientWorkingTargetPos.equals(targetPos)) {
+            this.clientPreviousTargetPos = this.clientWorkingTargetPos;
+            this.clientTransitionProgress = 0f; // 重置过渡进度
+        }
+        this.clientWorkingTargetPos = targetPos;
+        this.clientWorkingAnimationProgress = animationProgress;
+    }
+    
+    /**
+     * 获取前一个目标位置
+     */
+    public BlockPos getClientPreviousTargetPos() {
+        return clientPreviousTargetPos;
+    }
+    
+    /**
+     * 获取过渡进度
+     */
+    public float getClientTransitionProgress() {
+        return clientTransitionProgress;
+    }
+    
+    /**
+     * 更新过渡进度
+     */
+    public void updateTransitionProgress(float progress) {
+        this.clientTransitionProgress = progress;
+    }
+    
+    /**
+     * 获取当前显示角度
+     */
+    public float getClientCurrentAngle(int index) {
+        return switch (index) {
+            case 0 -> clientCurrentBaseAngle;
+            case 1 -> clientCurrentUpperArmAngle;
+            case 2 -> clientCurrentForearmAngle;
+            case 3 -> clientCurrentClawAngle;
+            default -> 0f;
+        };
+    }
+    
+    /**
+     * 设置当前显示角度
+     */
+    public void setCurrentAngles(float baseAngle, float upperArmAngle, float forearmAngle, float clawAngle) {
+        this.clientCurrentBaseAngle = baseAngle;
+        this.clientCurrentUpperArmAngle = upperArmAngle;
+        this.clientCurrentForearmAngle = forearmAngle;
+        this.clientCurrentClawAngle = clawAngle;
+    }
+    
+    /**
+     * 重置工作状态动画
+     */
+    public void resetWorkingState() {
+        this.clientPreviousTargetPos = null;
+        this.clientWorkingTargetPos = null;
+        this.clientWorkingAnimationProgress = 0f;
+        this.clientTransitionProgress = 0f;
     }
 
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
@@ -208,9 +323,22 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public void tick(Level level, BlockPos pos) {
         if (!level.isClientSide()) {
             // 服务端检测电网通电状态
+            boolean wasPowered = this.isPowered;
+            boolean wasRedstoneSignal = this.hasRedstoneSignal;
             this.isPowered = grid != null && grid.isWorking();
             // 检测红石信号
             this.hasRedstoneSignal = level.hasNeighborSignal(pos);
+            
+            // 如果从"不能工作"变为"可以工作"，重置放置索引
+            // 不能工作的情况：断电 或 有红石信号
+            // 可以工作的情况：通电 且 无红石信号
+            boolean wasAbleToWork = wasPowered && !wasRedstoneSignal;
+            boolean isAbleToWork = this.isPowered && !this.hasRedstoneSignal;
+            
+            if (!wasAbleToWork && isAbleToWork) {
+                currentPlacementIndex = 0;
+                System.out.println("[重置] 恢复工作状态，重置放置索引为0");
+            }
             
             // 方块放置逻辑
             if (isPowered && !hasRedstoneSignal) {
@@ -292,19 +420,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         // 计算基准位置（放置器前方4格，水平方向）
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
         
-        // 构建所有待放置位置的列表
-        List<BlockPos> allPositions = new ArrayList<>();
-        for (Map.Entry<Integer, Set<Integer>> entry : layerPositions.entrySet()) {
-            int layer = entry.getKey();
-            Set<Integer> positions = entry.getValue();
-            
-            for (int position : positions) {
-                int row = position / 5;
-                int col = position % 5;
-                BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer);
-                allPositions.add(targetPos);
-            }
-        }
+        // 构建所有待放置位置的列表，按新顺序排序
+        List<BlockPos> allPositions = buildOrderedPositions(basePos, facing);
         
         // 如果没有配置任何位置，返回false
         if (allPositions.isEmpty()) {
@@ -323,6 +440,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             // 如果目标位置为空，则尝试放置方块
             if (level.isEmptyBlock(targetPos)) {
+                // 调试：输出当前放置的位置信息
+                System.out.println("[实际放置] Index=" + index + ", Pos=" + targetPos + 
+                    ", 相对basePos: dx=" + (targetPos.getX() - basePos.getX()) + 
+                    ", dy=" + (targetPos.getY() - basePos.getY()) + 
+                    ", dz=" + (targetPos.getZ() - basePos.getZ()));
+                
                 // 从背面容器提取匹配的方块物品
                 ItemStack blockItem = extractBlockItemFromNearbyContainers(level, placerPos);
                 if (blockItem.isEmpty()) {
@@ -342,6 +465,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     
                     // 更新进度索引
                     currentPlacementIndex = (index + 1) % allPositions.size();
+                    System.out.println("[实际放置] 成功！下一个index=" + currentPlacementIndex);
                     return true; // 成功放置一个方块
                 }
             }
@@ -349,6 +473,51 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         // 所有位置都已有方块
         return false;
+    }
+    
+    /**
+     * 构建有序的放置位置列表
+     * 顺序：从最下面一层开始，每一层从最远离放置器的位置开始，从左到右，然后逐渐向下
+     */
+    private List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing) {
+        List<BlockPos> positions = new ArrayList<>();
+        
+        // 获取所有layer，按layer升序排序（从最下面开始）
+        List<Integer> sortedLayers = new ArrayList<>(layerPositions.keySet());
+        sortedLayers.sort(Integer::compareTo);
+        
+        for (int layer : sortedLayers) {
+            Set<Integer> layerPositionsSet = layerPositions.get(layer);
+            if (layerPositionsSet == null || layerPositionsSet.isEmpty()) {
+                continue;
+            }
+            
+            // 将该层的所有位置收集起来
+            List<int[]> rowColList = new ArrayList<>();
+            for (int position : layerPositionsSet) {
+                int row = position / 5;
+                int col = position % 5;
+                rowColList.add(new int[]{row, col});
+            }
+            
+            // 排序：先按row升序（从远到近，0→4），再按col升序（从左到右，0→4）
+            rowColList.sort((a, b) -> {
+                if (a[0] != b[0]) {
+                    return Integer.compare(a[0], b[0]); // row升序（0→4，远→近）
+                }
+                return Integer.compare(a[1], b[1]); // col升序（0→4，左→右）
+            });
+            
+            // 按排序后的顺序添加位置
+            for (int[] rowCol : rowColList) {
+                int row = rowCol[0];
+                int col = rowCol[1];
+                BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer);
+                positions.add(targetPos);
+            }
+        }
+        
+        return positions;
     }
     
     /**
