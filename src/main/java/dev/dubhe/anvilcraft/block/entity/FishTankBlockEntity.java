@@ -54,26 +54,52 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
     private static final String TAG_TROPICAL_FISH_DATA = "TropicalFishData";
 
-    private final List<CompoundTag> tropicalFishData = new ArrayList<>();
+    private final List<CompoundTag> tropicalFishData = new ArrayList<>() {
+        @Override
+        public boolean add(CompoundTag tag) {
+            if (this.size() >= MAX_TROPICAL_FISH) return false;
+            setChanged();
+            sendUpdate();
+            return super.add(tag);
+        }
+
+        @Override
+        public CompoundTag removeLast() {
+            setChanged();
+            sendUpdate();
+            return super.removeLast();
+        }
+
+        @Override
+        public void clear() {
+            setChanged();
+            sendUpdate();
+            super.clear();
+        }
+    };
     private final FluidTank fluidHandler = new FluidTank(CAPACITY) {
         @Override
         protected void onContentsChanged() {
             FishTankBlockEntity.this.setChanged();
             if (!FishTankBlockEntity.shouldIgnite(this.getFluid())) FishTankBlockEntity.this.setIgnited(false);
-            Level level = FishTankBlockEntity.this.getLevel();
-            if (level == null) return;
-            level.sendBlockUpdated(
-                FishTankBlockEntity.this.getBlockPos(),
-                FishTankBlockEntity.this.getBlockState(),
-                FishTankBlockEntity.this.getBlockState(),
-                Block.UPDATE_CLIENTS
-            );
-            if (this.isEmpty()) {
+            sendUpdate();
+            if (!isWaterArea(this)) {
                 FishTankBlockEntity.this.dropFish();
-                FishTankBlockEntity.this.updateFishState(level);
+                FishTankBlockEntity.this.updateFishState();
             }
         }
     };
+
+    private void sendUpdate() {
+        if (level == null) return;
+        level.sendBlockUpdated(
+            getBlockPos(),
+            getBlockState(),
+            getBlockState(),
+            Block.UPDATE_CLIENTS
+        );
+    }
+
     /**
      * 0-7 为输出产物，<br>
      * 8-15 为输入物品
@@ -103,14 +129,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         @Override
         protected void onContentsChanged(int slot) {
             FishTankBlockEntity.this.setChanged();
-            Level level = FishTankBlockEntity.this.getLevel();
-            if (level == null) return;
-            level.sendBlockUpdated(
-                FishTankBlockEntity.this.getBlockPos(),
-                FishTankBlockEntity.this.getBlockState(),
-                FishTankBlockEntity.this.getBlockState(),
-                Block.UPDATE_CLIENTS
-            );
+            sendUpdate();
         }
     };
     private boolean ignited = false;
@@ -122,15 +141,13 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     @Override
     public void onLoad() {
         super.onLoad();
-        updateFishState(this.getLevel());
+        updateFishState();
     }
 
     public void setIgnited(boolean ignited) {
         this.ignited = ignited;
         this.setChanged();
-        Level level = this.getLevel();
-        if (level == null) return;
-        level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+        sendUpdate();
     }
 
     @Override
@@ -232,14 +249,14 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     public boolean interactWithFish(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.is(Items.TROPICAL_FISH_BUCKET)) {
-            if (!fluidHandler.isEmpty() && !fluidHandler.getFluid().is(Fluids.WATER)) return false;
+            if (!canPlaceFish(fluidHandler)) return false;
             if (this.isFullOfFish()) return false;
 
             this.tropicalFishData.add(FishTankBlockEntity.bucket2fishData(stack));
             level.playSound(player, this.getBlockPos(), SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
             player.setItemInHand(hand, Items.WATER_BUCKET.getDefaultInstance());
             FluidUtil.interactWithFluidHandler(player, hand, this.fluidHandler);
-            updateFishState(level);
+            updateFishState();
             return true;
         } else if (stack.is(Items.WATER_BUCKET)) {
             if (this.isEmptyOfFish()) return false;
@@ -247,7 +264,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             CompoundTag fishData = this.tropicalFishData.removeLast();
             level.playSound(player, this.getBlockPos(), SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
             player.setItemInHand(hand, FishTankBlockEntity.fishData2bucket(fishData));
-            updateFishState(level);
+            updateFishState();
             return true;
         } else if (stack.is(Items.BUCKET)) {
             if (this.isEmptyOfFish()) return false;
@@ -262,6 +279,14 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         return false;
     }
 
+    public static boolean isWaterArea(FluidTank fluidHandler) {
+        return !fluidHandler.isEmpty() && fluidHandler.getFluid().is(Fluids.WATER);
+    }
+
+    public static boolean canPlaceFish(FluidTank fluidHandler) {
+        return fluidHandler.isEmpty() || fluidHandler.getFluid().is(Fluids.WATER);
+    }
+
     public static boolean isLowerSideArea(BlockHitResult hitResult) {
         Direction dir = hitResult.getDirection();
         if (!dir.getAxis().isHorizontal()) return false;
@@ -269,8 +294,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         return relY < FISH_HEIGHT;
     }
 
-    public void updateFishState(@Nullable Level level) {
+    public void updateFishState() {
         if (level == null) return;
+
         if (this.isEmptyOfFish() && getBlockState().getValue(FishTankBlock.TROPICAL)) {
             level.setBlock(getBlockPos(), getBlockState().setValue(FishTankBlock.TROPICAL, false), 3);
         } else if (!this.isEmptyOfFish() && !getBlockState().getValue(FishTankBlock.TROPICAL)) {
@@ -307,10 +333,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         entityData.putString("id", "minecraft:tropical_fish");
         entityData.putInt("BucketVariantTag", variant);
         return entityData;
-    }
-
-    public int getFishNum() {
-        return this.tropicalFishData.size();
     }
 
     public boolean isFullOfFish() {
