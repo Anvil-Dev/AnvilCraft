@@ -14,6 +14,8 @@ public class EnergyHelper {
     public static void insertEnergy(Level level, BlockPos pos, Direction direction, int amount) {
         EnergyHandler energyStorage = level.getCapability(Capabilities.Energy.BLOCK, pos, direction);
         if (energyStorage == null) return;
-        energyStorage.insert(amount, Transaction.openRoot());
+        Transaction transaction = Transaction.openRoot();
+        energyStorage.insert(amount, transaction);
+        transaction.commit();
     }
 }

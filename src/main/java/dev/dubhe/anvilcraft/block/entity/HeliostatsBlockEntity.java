@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
+import dev.dubhe.anvilcraft.util.Util;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -18,9 +19,12 @@ import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
@@ -133,8 +137,8 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (!blockHitResult.getBlockPos().equals(irritatePos)) {
             return WorkResult.OBSCURED;
         }
-        double sunAngle = level.getSunAngle(1);
-        sunAngle = sunAngle <= Math.PI / 2 * 3 ? sunAngle + Math.PI / 2 : sunAngle - Math.PI / 2 * 3;
+        double sunAngle = Util.getSunAngle(level, this.worldPosition.getBottomCenter());
+        sunAngle = sunAngle <= Math.PI / 2 * 3 ? (sunAngle + Math.PI / 2) : (sunAngle - Math.PI / 2 * 3);
         if (sunAngle > Math.PI) return WorkResult.NO_SUN;
         Vector3f sunVector3f = new Vector3f((float) Math.cos(sunAngle), (float) Math.sin(sunAngle), 0).normalize();
         irritateVector3f = new Vector3f(
@@ -150,19 +154,20 @@ public class HeliostatsBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        if (irritatePos == null) return;
-        tag.putInt("Ix", irritatePos.getX());
-        tag.putInt("Iy", irritatePos.getY());
-        tag.putInt("Iz", irritatePos.getZ());
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Ix", irritatePos.getX());
+        output.putInt("Iy", irritatePos.getY());
+        output.putInt("Iz", irritatePos.getZ());
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        if (!tag.contains("Ix")) return;
-        int x = tag.getIntOr("Ix", 0);
-        int y = tag.getIntOr("Iy", 0);
-        int z = tag.getIntOr("Iz", 0);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        if (input.getInt("Ix").isEmpty()) return;
+        int x = input.getIntOr("Ix", 0);
+        int y = input.getIntOr("Iy", 0);
+        int z = input.getIntOr("Iz", 0);
         irritatePos = new BlockPos(x, y, z);
     }
 
@@ -173,7 +178,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (level == null) return;
         if (level.getGameTime() % (AnvilCraft.CONFIG.heliostatsDetectionInterval + 1) != 0) return;
         if (irritatePos == null && level.isClientSide()) {
-            PacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), irritatePos));
+            ClientPacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), irritatePos));
         }
         workResult = validatePos(irritatePos);
         if (workResult.isWorking()) {

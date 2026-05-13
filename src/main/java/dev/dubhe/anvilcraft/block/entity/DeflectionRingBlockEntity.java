@@ -112,7 +112,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         if (!(level instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
-            new ChunkPos(getBlockPos()),
+            ChunkPos.containing(getBlockPos()),
             new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), lastEntitySpeed)
         );
     }
@@ -130,7 +130,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
     @Override
     public void loadAdditional(ValueInput input) {
-        if (tag.contains("lastEntitySpeed")) {
+        if (input.child("lastEntitySpeed").isPresent()) {
             this.lastEntitySpeed = input.getDoubleOr("entity", 0.0);
         }
         super.loadAdditional(input);
@@ -375,7 +375,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                     .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
         }
-        fallingGiantAnvilEntity.ifPresent(Entity::kill);
+        fallingGiantAnvilEntity.ifPresent(Entity::discard);
     }
 
     @Override

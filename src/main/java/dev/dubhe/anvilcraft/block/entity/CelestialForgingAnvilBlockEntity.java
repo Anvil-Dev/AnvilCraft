@@ -49,7 +49,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        output.putBoolean("amplified", this.isAmplify);
+        tag.putBoolean("amplified", this.isAmplify);
         return tag;
     }
 

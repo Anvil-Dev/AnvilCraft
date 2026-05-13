@@ -89,7 +89,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        super.loadAdditional(input);
+        super.saveAdditional(output);
         output.putInt("cooldownCount", this.cooldownCount);
         output.putInt("decayCooldownCount", this.decayCooldownCount);
         output.putInt("blockCount", this.blockCount);

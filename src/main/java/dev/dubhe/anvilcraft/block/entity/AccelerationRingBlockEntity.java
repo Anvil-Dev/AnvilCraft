@@ -291,7 +291,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
                     .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
         }
-        fallingGiantAnvilEntity.ifPresent(Entity::kill);
+        fallingGiantAnvilEntity.ifPresent(FallingGiantAnvilEntity::discard);
     }
 
     @Override

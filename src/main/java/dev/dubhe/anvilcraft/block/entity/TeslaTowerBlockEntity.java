@@ -84,7 +84,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
     public PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         if (!this.getBlockState().is(ModBlocks.TESLA_TOWER.get())) return PowerComponentType.INVALID;
-        if (this.getBlockState().getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM) return PowerComponentType.INVALID;
+        if (this.getBlockState().getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM)
+            return PowerComponentType.INVALID;
         return PowerComponentType.CONSUMER;
     }
 
@@ -321,24 +322,23 @@ public class TeslaTowerBlockEntity extends BlockEntity
 
     @Override
     public void storeDiskData(ValueOutput output) {
-        ListTag filters = new ListTag();
+        ValueOutput.ValueOutputList filters = output.childrenList("filters");
         for (var entry : this.whiteList) {
-            CompoundTag entryTag = new CompoundTag();
+            ValueOutput entryTag = filters.addChild();
             entryTag.putString("id", entry.first().getId());
             entryTag.putString("arg", entry.right());
-            filters.add(entryTag);
         }
-        output.store("Filters", ListTag.CODEC, filters);
     }
 
     @Override
     public void applyDiskData(ValueInput input) {
+        ValueInput.ValueInputList valueInputs = input.childrenListOrEmpty("filters");
         ArrayList<Pair<TeslaFilter, String>> filters = new ArrayList<>();
-        input.read("Filters", ListTag.CODEC).ifPresent(list -> {
-            for (Tag tag : list) {
-                if (!(tag instanceof CompoundTag filter)) continue;
-                filters.add(Pair.of(TeslaFilter.getFilter(filter.getStringOr("id", "")), filter.getStringOr("arg", "")));
-            }
+        valueInputs.forEach(it -> {
+            Optional<String> id = it.getString("id");
+            Optional<String> arg = it.getString("arg");
+            if (id.isEmpty() || arg.isEmpty()) return;
+            filters.add(Pair.of(TeslaFilter.getFilter(id.get()), arg.get()));
         });
         this.handleSync(filters);
     }

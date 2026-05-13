@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.List;
 
@@ -42,18 +42,18 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
         return new SpaceOvercompressorBlockEntity(type, pos, state);
     }
 
-    private final ItemStackHandler itemHandler = new ItemStackHandler(9);
+    private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(9);
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        tag.putLong("storedMass", this.storedMass);
+        output.putLong("storedMass", this.storedMass);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.storedMass = tag.getLongOr("storedMass", 0L);
+        this.storedMass = input.getLongOr("storedMass", 0L);
     }
 
     @Override

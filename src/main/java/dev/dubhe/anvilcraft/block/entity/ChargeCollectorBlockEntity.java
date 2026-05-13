@@ -158,7 +158,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
         double acceptableChargeCount = num - overflow;
         PacketDistributor.sendToPlayersTrackingChunk(
             (ServerLevel) this.level,
-            new ChunkPos(worldPosition),
+            ChunkPos.containing(worldPosition),
             new ChargeCollectorIncomingChargePacket(
                 srcPos,
                 this.worldPosition,

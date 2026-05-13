@@ -2,8 +2,14 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.timeline.Timeline;
 
 import java.util.Map;
 import java.util.Random;
@@ -48,5 +54,9 @@ public class Util {
 
     public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {
         return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
+    }
+
+    public static float getSunAngle(Level level, Vec3 pos) {
+        return level.environmentAttributes().getValue(EnvironmentAttributes.SUN_ANGLE, pos);
     }
 }

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,7 +40,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -123,9 +125,13 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.setRange(input.getIntOr("Range", 0));
-        if (input.getIntOr("FilterMode", 0).isPresent()) this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
-        if (input.getIntOr("Filter", 0).isPresent()) filter.deserializeNBT(registries, input.read("Filter", CompoundTag.CODEC).orElse(new CompoundTag()));
-        if (input.getIntOr("OutputSignal", 0).isPresent()) this.outputSignal = input.getIntOr("OutputSignal", 0);
+        if (input.getInt("FilterMode").isPresent()) {
+            this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
+        }
+        input.child("Filter").ifPresent(filter::deserialize);
+        if (input.getInt("OutputSignal").isPresent()) {
+            this.outputSignal = input.getIntOr("OutputSignal", 0);
+        }
         this.recalcDetectionRange();
     }
 
@@ -134,7 +140,8 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         super.saveAdditional(output);
         output.putInt("Range", this.range);
         output.putString("FilterMode", this.filterMode.toString());
-        output.store("Filter", CompoundTag.CODEC, this.filter.serializeNBT(registries));
+        ValueOutput child = output.child("Filter");
+        this.filter.serialize(child);
         output.putInt("OutputSignal", this.outputSignal);
     }
 
@@ -142,7 +149,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         if (!this.rangeChanged) return new CompoundTag();
         CompoundTag tag = super.getUpdateTag(registries);
-        output.putInt("Range", this.range);
+        tag.putInt("Range", this.range);
         this.rangeChanged = false;
         return tag;
     }
@@ -211,11 +218,11 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     private int scanContainer(Level level, BlockPos pos, @Nullable Item targetItem) {
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
         if (handler == null) return 0;
         int count = 0;
-        for (int i = 0; i < handler.getSlots(); i++) {
-            ItemStack stack = handler.getStackInSlot(i);
+        for (int i = 0; i < handler.size(); i++) {
+            ItemStack stack = ItemResourceHelper.getStackInSlot(handler, i);
             if (stack.isEmpty()) continue;
             if (targetItem == null || stack.is(targetItem)) count += stack.getCount();
         }
@@ -340,7 +347,8 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         output.putInt("Range", this.range);
         output.putString("FilterMode", this.filterMode.toString());
-        output.store("Filter", CompoundTag.CODEC, this.filter.serializeNBT(this.level.registryAccess()));
+        ValueOutput child = output.child("Filter");
+        this.filter.serialize(child);
     }
 
     @Override
@@ -348,7 +356,8 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         this.setRange(input.getIntOr("Range", 0));
         this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
-        filter.deserializeNBT(this.level.registryAccess(), input.read("Filter", CompoundTag.CODEC).orElse(new CompoundTag()));
+        ValueInput filter1 = input.childOrEmpty("Filter");
+        this.filter.deserialize(filter1);
         this.recalcDetectionRange();
     }
 

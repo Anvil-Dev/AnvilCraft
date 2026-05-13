@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
-import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -29,9 +30,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
@@ -220,18 +221,18 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
         BlockPos downStreamPos = getBlockPos().relative(getFacing().getOpposite());
         if (getLevel() == null) return;
-        IItemHandler cap = getLevel()
+        ResourceHandler<ItemResource> cap = getLevel()
             .getCapability(
-                Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 downStreamPos,
                 getFacing()
             );
         BlockState sourceBlock = this.level.getBlockState(sourceBlockPos);
         drops.forEach(itemStack -> {
             if (cap != null) {
-                ItemStack outItemStack = ItemHandlerHelper.insertItem(cap, itemStack, true);
+                ItemStack outItemStack = ItemHandlerUtil.insertItem(cap, itemStack, true);
                 if (outItemStack.isEmpty()) {
-                    ItemHandlerHelper.insertItem(cap, itemStack, false);
+                    ItemHandlerUtil.insertItem(cap, itemStack, false);
                 } else {
                     this.level.addFreshEntity(new ItemEntity(
                         this.level,
@@ -313,7 +314,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         if (!(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)) return;
         irradiateBlockEntity.onCancelingIrradiation(this);
         if (level.isClientSide()) {
-            CacheableBERenderingPipeline.getInstance().update(this);
+            CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
         }
     }
 
@@ -342,7 +343,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void clearRemoved() {
         super.clearRemoved();
         if (this.level != null && this.level.isClientSide()) {
-            CacheableBERenderingPipeline.getInstance().update(this);
+            CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
         }
     }
 
@@ -356,6 +357,6 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
-        CacheableBERenderingPipeline.getInstance().update(this);
+        CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
     }
 }

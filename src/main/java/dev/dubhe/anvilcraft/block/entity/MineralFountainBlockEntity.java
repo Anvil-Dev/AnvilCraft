@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -44,7 +45,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        super.loadAdditional(input);
+        super.saveAdditional(output);
         output.putInt("tickCount", this.tickCount);
     }
 
@@ -72,12 +73,12 @@ public class MineralFountainBlockEntity extends BlockEntity {
             this.level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.CINERITE.getDefaultState());
         } else {
             MineralFountainRecipe.Input input = new MineralFountainRecipe.Input(aroundState.getBlock(), aboveState.getBlock());
-            this.level.getRecipeManager()
+            RecipeManager recipeManager = serverLevel.getServer().getRecipeManager();
+            recipeManager
                 .getRecipeFor(ModRecipeTypes.MINERAL_FOUNTAIN.get(), input, level)
                 .ifPresent(recipe -> {
-                    var chanceList = this.level
-                        .getRecipeManager()
-                        .getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
+                    var chanceList = recipeManager.recipeMap()
+                        .byType(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
                         .stream()
                         .filter(r -> r.value()
                             .getDimension()

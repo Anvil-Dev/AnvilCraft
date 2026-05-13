@@ -7,23 +7,25 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.IFluidTank;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 16 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
-    protected final FluidTank tank = new FluidTank(CAPACITY);
+    protected final MyFluidStacksResourceHandler tank = new MyFluidStacksResourceHandler();
     protected boolean isBigger = false;
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -44,10 +46,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putBoolean("bigger", this.isBigger);
-        CompoundTag tankNbt = tank.writeToNBT(provider, new CompoundTag());
-        if (!tankNbt.isEmpty()) {
-            output.store("tank", CompoundTag.CODEC, tankNbt);
-        }
+        tank.serialize(output);
     }
 
     @Override
@@ -59,16 +58,16 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         } else {
             this.onUnformed();
         }
-        tank.readFromNBT(provider, input.read("tank", CompoundTag.CODEC).orElse(new CompoundTag()));
+        tank.deserialize(input);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        output.putBoolean("bigger", this.isBigger);
-        CompoundTag fluidTag = new CompoundTag();
-        tank.writeToNBT(registries, fluidTag);
-        output.store("tank", CompoundTag.CODEC, fluidTag);
+        tag.putBoolean("bigger", this.isBigger);
+        TagValueOutput valueOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        tank.serialize(valueOutput);
+        tag.store("tank", CompoundTag.CODEC, valueOutput.buildResult());
         return tag;
     }
 
@@ -78,14 +77,24 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
-        return FluidUtil.interactWithFluidHandler(player, hand, tank);
+        return FluidUtil.interactWithFluidHandler(player, hand, worldPosition, tank);
     }
 
-    public IFluidTank getTank() {
+//    public ResourceHandler<FluidResource> getTank() {
+//        return tank;
+//    }
+
+    public ResourceHandler<FluidResource> getFluidHandler() {
         return tank;
     }
 
-    public IFluidHandler getFluidHandler() {
-        return tank;
+    public static class MyFluidStacksResourceHandler extends FluidStacksResourceHandler {
+        public MyFluidStacksResourceHandler() {
+            super(1, FluidTankBlockEntity.CAPACITY);
+        }
+
+        public void setCapacity(int capacity) {
+            this.capacity = capacity;
+        }
     }
 }

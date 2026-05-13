@@ -13,10 +13,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
     @Setter
+    @Nullable
     private PowerGrid grid;
 
     private int cooldown = 0;
@@ -28,13 +30,13 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        output.putInt("Cooldown", cooldown);
+        cooldown = input.getIntOr("Cooldown", 0);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        cooldown = input.getIntOr("Cooldown", 0);
+        output.putInt("Cooldown", cooldown);
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
+import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -73,6 +74,14 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Override
     public PowerComponentType getComponentType() {
         return this.power > 0 ? PowerComponentType.PRODUCER : PowerComponentType.CONSUMER;
+    }
+
+    @Override
+    public PowerComponentInfo toPowerComponentInfo() {
+        if (power >= 0) {
+            return IPowerProducer.super.toPowerComponentInfo();
+        }
+        return IPowerConsumer.super.toPowerComponentInfo();
     }
 
     @Override

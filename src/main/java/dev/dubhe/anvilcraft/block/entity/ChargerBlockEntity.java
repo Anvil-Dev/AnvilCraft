@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
+import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
@@ -322,6 +323,15 @@ public class ChargerBlockEntity extends BlockEntity
             serverLevel.getChunk(this.getBlockPos()).getPos(),
             new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache)
         );
+    }
+
+    @Override
+    public PowerComponentInfo toPowerComponentInfo() {
+        if (this.isCharger) {
+            return IPowerConsumer.super.toPowerComponentInfo();
+        } else {
+            return IPowerProducer.super.toPowerComponentInfo();
+        }
     }
 
     @Override

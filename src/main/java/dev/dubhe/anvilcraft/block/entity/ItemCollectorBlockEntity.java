@@ -9,13 +9,14 @@ import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -33,10 +34,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -57,12 +62,13 @@ public class ItemCollectorBlockEntity extends BlockEntity
     private PowerGrid grid;
 
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
-        "rangeRadius", thiz -> this.setChanged(),
+        "rangeRadius", _ -> this.setChanged(),
         1,
         2,
         4,
         8
     );
+
     private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>(
         "cooldown",
         thiz -> {
@@ -82,7 +88,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
-        public void onContentsChanged(int slot) {
+        protected void onContentsChanged(int index, ItemStack previousContents) {
             if (level == null || level.isClientSide() || changed) return;
             changed = true;
             Objects.requireNonNull(level.getServer()).execute(() -> {
@@ -141,7 +147,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.itemHandler.deserializeNBT(provider, input.read("Inventory", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
         this.cooldown.fromIndex(input.getIntOr("Cooldown", 0));
         this.rangeRadius.fromIndex(input.getIntOr("RangeRadius", 0));
         this.cd = input.getIntOr("cd", 0);
@@ -150,7 +156,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.store("Inventory", CompoundTag.CODEC, this.itemHandler.serializeNBT(provider));
+        this.itemHandler.serialize(output.child("Inventory"));
         output.putInt("Cooldown", this.cooldown.index());
         output.putInt("RangeRadius", this.rangeRadius.index());
         output.putInt("cd", this.cd);
@@ -170,12 +176,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        output.store("Inventory", CompoundTag.CODEC, this.itemHandler.serializeNBT(provider));
-        output.putInt("Cooldown", this.cooldown.index());
-        output.putInt("RangeRadius", this.rangeRadius.index());
-        return tag;
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.Collector(this.problemPath()), registries);
+        this.saveAdditional(output);
+        return output.buildResult();
     }
 
     public List<ChunkPos> getPoachingMapPositions(int range) {
@@ -244,7 +248,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
             ItemStack itemStack = itemEntity.getItem();
             int slotIndex = 0;
             while (itemStack != ItemStack.EMPTY && slotIndex < 9) {
-                itemStack = itemHandler.insertItem(slotIndex++, itemStack, false);
+                itemStack = ItemResourceHelper.insertInto(itemHandler, slotIndex++, itemStack);
             }
             if (itemStack != ItemStack.EMPTY) {
                 itemEntity.setItem(itemStack);
@@ -268,9 +272,8 @@ public class ItemCollectorBlockEntity extends BlockEntity
      */
     public int getRedstoneSignal() {
         int i = 0;
-        for (int j = 0; j < this.itemHandler.getSlots(); ++j) {
-            ItemStack itemStack = this.itemHandler.getStackInSlot(j);
-            if (itemStack.isEmpty() && !this.itemHandler.isSlotDisabled(j)) continue;
+        for (int j = 0; j < this.itemHandler.size(); ++j) {
+            if (ItemResourceHelper.isSlotEmpty(this.itemHandler, j) && !this.itemHandler.isSlotDisabled(j)) continue;
             ++i;
         }
         return i;
@@ -279,8 +282,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void storeDiskData(ValueOutput output) {
         if (this.level == null) return;
-        RegistryAccess provider = this.level.registryAccess();
-        output.store("Inventory", CompoundTag.CODEC, this.itemHandler.serializeNBT(provider));
+        this.itemHandler.serialize(output.child("Inventory"));
         output.putInt("Cooldown", this.cooldown.index());
         output.putInt("RangeRadius", this.rangeRadius.index());
         output.putInt("cd", this.cd);
@@ -289,8 +291,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void applyDiskData(ValueInput input) {
         if (this.level == null) return;
-        RegistryAccess provider = this.level.registryAccess();
-        this.itemHandler.deserializeNBT(provider, input.read("Inventory", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
         this.cooldown.fromIndex(input.getIntOr("Cooldown", 0));
         this.rangeRadius.fromIndex(input.getIntOr("RangeRadius", 0));
         this.cd = input.getIntOr("cd", 0);

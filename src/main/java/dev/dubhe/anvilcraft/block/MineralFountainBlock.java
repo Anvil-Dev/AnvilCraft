@@ -43,7 +43,7 @@ public class MineralFountainBlock extends BaseEntityBlock {
         return createTickerHelper(
             blockEntityType,
             ModBlockEntities.MINERAL_FOUNTAIN.get(),
-            (level1, pos, state1, entity) -> entity.tick());
+            (_, _, _, entity) -> entity.tick());
     }
 
     @Override
