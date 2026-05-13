@@ -9,12 +9,12 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -25,9 +25,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,70 +33,7 @@ public class RecipeUtil {
     public static final ItemIngredientPredicate EMPTY_ITEM_INGREDIENT = ItemIngredientPredicate.Builder.item().build();
 
     public static LootContext emptyLootContext(ServerLevel level) {
-        return new LootContext.Builder(new LootParams(level, Map.of(), Map.of(), 0)).create(Optional.empty());
-    }
-
-    public static boolean isIngredientsEqual(Ingredient first, Ingredient second) {
-        if (first == second) return true;
-
-        if (!first.isCustom() && !second.isCustom()) {
-            ObjectArrayList<Ingredient.Value> firstValues = new ObjectArrayList<>(first.getValues());
-            ObjectArrayList<Ingredient.Value> secondValues = new ObjectArrayList<>(second.getValues());
-
-            if (firstValues.size() == secondValues.size()) {
-                outer:
-                for (int i = 0; i < firstValues.size(); i++) {
-                    var firstValue = firstValues.get(i);
-
-                    for (int j = 0; j < firstValues.size(); j++) {
-                        if (isValuesEqual(firstValue, secondValues.get(j))) {
-                            firstValues.remove(i);
-                            secondValues.remove(j);
-                            i--;
-
-                            continue outer;
-                        }
-                    }
-                    return false;
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean isValuesEqual(Ingredient.Value firstValue, Ingredient.Value secondValue) {
-        Class<?> firstKlass = firstValue.getClass();
-        Class<?> secondKlass = secondValue.getClass();
-
-        if (firstKlass == secondKlass) {
-            if (firstKlass == Ingredient.ItemValue.class) {
-                return ItemStack.matches(
-                    ((Ingredient.ItemValue) firstValue).item(), ((Ingredient.ItemValue) secondValue).item());
-            } else if (firstKlass == Ingredient.TagValue.class) {
-                return ((Ingredient.TagValue) firstValue).tag() == ((Ingredient.TagValue) secondValue).tag();
-            } else {
-                var firstItems = firstValue.getItems();
-                var secondItems = secondValue.getItems();
-                var len = firstItems.size();
-
-                if (len == secondItems.size()) {
-                    Iterator<ItemStack> firstIter = firstItems.iterator();
-                    Iterator<ItemStack> secondIter = secondItems.iterator();
-
-                    while (firstIter.hasNext()) {
-                        if (!ItemStack.matches(firstIter.next(), secondIter.next())) {
-                            return false;
-                        }
-                    }
-                } else {
-                    return false;
-                }
-                return true;
-            }
-        } else {
-            return false;
-        }
+        return new LootContext.Builder(new LootParams.Builder(level).create(ContextKeySet.EMPTY)).create(Optional.empty());
     }
 
     public static List<Object2IntMap.Entry<Ingredient>> mergeIngredient(List<Ingredient> ingredients) {
@@ -106,7 +41,7 @@ public class RecipeUtil {
         for (Ingredient ingredient : ingredients) {
             boolean flag = false;
             for (Ingredient key : margeIngredients.keySet()) {
-                if (isIngredientsEqual(ingredient, key)) {
+                if (ingredient.equals(key)) {
                     margeIngredients.put(key, margeIngredients.getInt(key) + 1);
                     flag = true;
                 }

@@ -89,7 +89,6 @@
     "ItemInHandRendererMixin",
     "ItemOverridesMixin",
     "ItemSubmitMixin",
-    "MinecraftClientMixin",
     "MouseHandlerMixin",
     "SectionCompilerMixin",
     "SoundEngineMixin",

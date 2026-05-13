@@ -65,7 +65,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
-    public static AABB getAABB(BlockPos pos) {
+    public static @Nullable AABB getAABB(BlockPos pos) {
         return ACCELERATION_AABB_MAP.get(pos);
     }
 
@@ -131,10 +131,12 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         BlockState state = getBlockState();
         if (this.level.isClientSide()) {
             if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
-            if (isWork()) {
-                addSelfToMap();
-                accelerate();
-            } else removeSelfFromMap();
+            if (this.isWork()) {
+                this.addSelfToMap();
+                this.accelerate();
+            } else {
+                this.removeSelfFromMap();
+            }
         }
         if (this.grid == null) return;
         if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
@@ -144,15 +146,15 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         } else if (!this.grid.isWorking() && !state.getValue(AccelerationRingBlock.OVERLOAD)) {
             block.updateState(this.level, getBlockPos(), AccelerationRingBlock.OVERLOAD, true, 3);
         }
-        if (!isWork()) {
-            removeSelfFromMap();
+        if (!this.isWork()) {
+            this.removeSelfFromMap();
             return;
         }
-        addSelfToMap();
+        this.addSelfToMap();
         if (state.getValue(AccelerationRingBlock.FACING).equals(Direction.UP)) {
-            attractGianAnvil();
+            this.attractGianAnvil();
         }
-        accelerate();
+        this.accelerate();
     }
 
     public void accelerate() {
@@ -301,6 +303,6 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
     @Override
     public void setRemoved() {
         super.setRemoved();
-        removeSelfFromMap();
+        this.removeSelfFromMap();
     }
 }

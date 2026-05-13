@@ -34,7 +34,7 @@ abstract class PlayerMixin extends LivingEntity {
 
     // 飘升机背包飞行时无挖掘惩罚
     @ModifyExpressionValue(
-        method = "getDigSpeed",
+        method = "getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)F",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;onGround()Z"
@@ -46,26 +46,25 @@ abstract class PlayerMixin extends LivingEntity {
         return noDiggingPenalty || original;
     }
 
-    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
-    private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        if (value.getEntity() instanceof FallingBlockEntity falling
+    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true, name = "source")
+    private DamageSource modifySource(DamageSource source, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+        if (source.getEntity() instanceof FallingBlockEntity falling
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
             && !this.level().isClientSide()
         ) {
             ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
-            this.lastHurtByPlayer = killer;
-            this.lastHurtByPlayerTime = 1;
+            this.setLastHurtByPlayer(killer, 1);
             killerRef.set(killer);
-            DamageSource source = new DamageSource(
+            DamageSource newSource = new DamageSource(
                 this.level().damageSources().playerAttack(killer).typeHolder(),
-                falling, killer, value.getSourcePosition()
+                falling, killer, source.getSourcePosition()
             );
             if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
                 AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
             }
-            return source;
+            return newSource;
         }
-        return value;
+        return source;
     }
 
     @Inject(method = "die", at = @At("RETURN"))

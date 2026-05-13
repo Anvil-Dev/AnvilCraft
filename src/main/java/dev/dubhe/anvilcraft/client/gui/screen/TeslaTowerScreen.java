@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
+import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.client.gui.component.TeslaTowerButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -21,7 +21,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -380,7 +380,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     /**
      * 处理同步包
      */
-    public void handleSync(List<Pair<TeslaFilter, String>> filters) {
+    public void handleSync(List<Pair<dev.dubhe.anvilcraft.api.teslatower.TeslaFilter, String>> filters) {
         this.rightScrollOff = 0;
         this.whiteFilters.clear();
         this.whiteFilters.addAll(filters);

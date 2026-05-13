@@ -5,15 +5,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.UUID;
 
 public class CodecUtil {
     public static final Codec<AABB> AABB_CODEC = RecordCodecBuilder.create(ins ->
@@ -21,11 +18,6 @@ public class CodecUtil {
             Vec3.CODEC.fieldOf("from").forGetter(AABB::getMinPosition),
             Vec3.CODEC.fieldOf("to").forGetter(AABB::getMaxPosition)
         ).apply(ins, AABB::new)
-    );
-
-    public static final StreamCodec<? super ByteBuf, UUID> UUID_STREAM_CODEC = StreamCodec.of(
-        (buf, uuid) -> buf.writeLong(uuid.getMostSignificantBits()).writeLong(uuid.getLeastSignificantBits()),
-        (buf) -> new UUID(buf.readLong(), buf.readLong())
     );
 
     public static final StreamCodec<? super FriendlyByteBuf, AABB> AABB_STREAM_CODEC = StreamCodec.of(

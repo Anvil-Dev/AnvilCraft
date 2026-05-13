@@ -23,9 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,9 +32,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements IDynamicPowerComponentHolder {
-    @Shadow
-    @Final
-    public MinecraftServer server;
     @Unique
     private DynamicPowerComponent anvilcraft$component;
 
@@ -90,29 +85,30 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
         }
     }
 
-    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
-    private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        if (value.getEntity() instanceof FallingBlockEntity falling
+    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true, name = "source")
+    private DamageSource modifySource(DamageSource source, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+        if (source.getEntity() instanceof FallingBlockEntity falling
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
         ) {
             ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
-            this.lastHurtByPlayer = killer;
-            this.lastHurtByPlayerTime = 1;
+            this.setLastHurtByPlayer(killer, 1);
             killerRef.set(killer);
-            DamageSource source = new DamageSource(
+            DamageSource newSource = new DamageSource(
                 this.level().damageSources().playerAttack(killer).typeHolder(),
-                falling, killer, value.getSourcePosition()
+                falling,
+                killer,
+                source.getSourcePosition()
             );
             if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
                 AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
             }
-            return source;
+            return newSource;
         }
-        return value;
+        return source;
     }
 
     @Inject(method = "die", at = @At("RETURN"))
-    private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
         AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
     }
@@ -120,11 +116,11 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @Override
     public void remove(Entity.RemovalReason reason) {
         super.remove(reason);
-        anvilcraft$component.switchTo(null);
+        this.anvilcraft$component.switchTo(null);
     }
 
     @Override
     public DynamicPowerComponent anvilcraft$getPowerComponent() {
-        return anvilcraft$component;
+        return this.anvilcraft$component;
     }
 }

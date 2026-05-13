@@ -1,26 +1,21 @@
 package dev.dubhe.anvilcraft.saved;
 
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.split.PacketSplitter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.SavedDataStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public abstract class BetterSavedData extends SavedData {
     protected BetterSavedData() {
@@ -29,29 +24,16 @@ public abstract class BetterSavedData extends SavedData {
 
     protected abstract void registerDataFixers();
 
-    public abstract void read(CompoundTag nbt, HolderLookup.Provider registries);
-
-    @Override
-    public abstract CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries);
-
-    protected static <T extends BetterSavedData> T get(String id, Supplier<T> constructor, T clientCopy) {
+    protected static <T extends BetterSavedData> T get(SavedDataType<T> type, T clientCopy) {
         if (Util.isServer()) {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if (server != null) {
-                ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-                // noinspection ConstantConditions - 主世界已加载
-                DimensionDataStorage storage = overworld.getDataStorage();
-                return storage.computeIfAbsent(
-                    new SavedData.Factory<>(constructor, BetterSavedData.getLoader(constructor)),
-                    AnvilCraft.MOD_ID.concat("_").concat(id)
-                );
+                ServerLevel overworld = server.overworld();
+                SavedDataStorage storage = overworld.getDataStorage();
+                return storage.computeIfAbsent(type);
             }
         }
         return clientCopy;
-    }
-
-    private static <T extends BetterSavedData> BiFunction<CompoundTag, HolderLookup.Provider, T> getLoader(Supplier<T> constructor) {
-        return (nbt, registries) -> Util.run(constructor.get(), data -> data.read(nbt, registries));
     }
 
     public void sync2C() {
@@ -76,6 +58,7 @@ public abstract class BetterSavedData extends SavedData {
 
     protected abstract Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess);
 
+    @SuppressWarnings("RedundantRecordConstructor")
     protected record Packet<T extends CustomPacketPayload>(
         CustomPacketPayload.Type<T> type,
         StreamCodec<? super RegistryFriendlyByteBuf, T> codec,

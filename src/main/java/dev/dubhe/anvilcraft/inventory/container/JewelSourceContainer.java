@@ -7,7 +7,7 @@ import lombok.Getter;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class JewelSourceContainer extends SimpleContainer {
     @Getter

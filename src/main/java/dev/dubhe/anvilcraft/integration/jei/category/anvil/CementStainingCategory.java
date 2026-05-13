@@ -27,7 +27,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class CementStainingCategory implements IRecipeCategory<CementStainingRecipe> {
     public static final int WIDTH = 162;

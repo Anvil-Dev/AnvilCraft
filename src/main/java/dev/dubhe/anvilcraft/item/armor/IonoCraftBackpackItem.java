@@ -5,10 +5,10 @@ import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.IInventoryCarriedAware;
 import dev.dubhe.anvilcraft.item.property.component.FlightTime;
+import net.minecraft.network.HashedStack;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -233,7 +233,7 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     }
 
     @Override
-    public void onCarriedUpdate(ItemStack itemStack, ServerPlayer serverPlayer) {
+    public void onCarriedUpdate(HashedStack stack, ServerPlayer serverPlayer) {
         AttributeInstance instance = serverPlayer.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
         if (instance != null && instance.hasModifier(CREATIVE_FLIGHT_ID)) {
             instance.removeModifier(CREATIVE_FLIGHT);

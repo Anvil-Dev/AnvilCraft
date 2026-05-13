@@ -7,6 +7,7 @@ import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.network.registration.ClientNetworkRegistry;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -70,7 +71,7 @@ public class PacketCollector {
         if (this.flow.isServerbound()) {
             NetworkRegistry.handleModdedPayload(Util.cast(this.listener), packet.toVanillaServerbound());
         } else if (this.flow.isClientbound()) {
-            NetworkRegistry.handleModdedPayload(Util.cast(this.listener), packet.toVanillaClientbound());
+            ClientNetworkRegistry.handleModdedPayload(Util.cast(this.listener), packet.toVanillaClientbound());
         }
     }
 }

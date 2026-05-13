@@ -21,7 +21,8 @@ public class TeslaTowerItem extends SimpleMultiPartBlockItem<Vertical4PartHalf> 
         Level level,
         @Nullable Player player,
         ItemStack stack,
-        BlockState state) {
+        BlockState state
+    ) {
         if (!(level.getBlockEntity(pos) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity)) return false;
         if (player == null) return false;
         teslaTowerBlockEntity.initWhiteList(player);

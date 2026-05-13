@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.recipe.data;
 
 import com.mojang.serialization.Codec;
-
 import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
 import dev.dubhe.anvilcraft.init.ModRegistries;
@@ -10,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 自定义数据组件。通常为必需其它数据组件才能正常构建的数据组件。

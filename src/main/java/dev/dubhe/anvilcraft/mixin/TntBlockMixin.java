@@ -5,8 +5,7 @@ import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -33,23 +32,23 @@ abstract class TntBlockMixin extends Block {
         cancellable = true
     )
     private void useItemOn(
-        ItemStack stack,
+        ItemStack itemStack,
         BlockState state,
         Level level,
         BlockPos pos,
         Player player,
         InteractionHand hand,
         BlockHitResult hitResult,
-        CallbackInfoReturnable<ItemInteractionResult> cir
+        CallbackInfoReturnable<InteractionResult> cir
     ) {
-        if (stack.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
+        if (itemStack.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(itemStack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
             onCaughtFire(state, level, pos, hitResult.getDirection(), player);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
-            Item item = stack.getItem();
-            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+            Item item = itemStack.getItem();
+            itemStack.hurtAndBreak(1, player, hand.asEquipmentSlot());
 
             player.awardStat(Stats.ITEM_USED.get(item));
-            cir.setReturnValue(ItemInteractionResult.sidedSuccess(level.isClientSide));
+            cir.setReturnValue(level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER);
         }
     }
 }

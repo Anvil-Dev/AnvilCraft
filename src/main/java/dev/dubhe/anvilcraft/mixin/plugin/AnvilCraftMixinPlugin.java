@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin.plugin;
 
-import net.neoforged.fml.loading.LoadingModList;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.fml.loading.FMLLoader;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -27,9 +27,9 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
         hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
         hasCreate = this.isLoaded("com/simibubi/create/Create.class");
-        hasAE2 = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("ae2"));
+        hasAE2 = FMLLoader.getCurrent().getLoadingModList().getMods().stream().anyMatch(it -> it.getModId().equals("ae2"));
         hasCerbonBetterBeacons = this.isLoaded("com/cerbon/better_beacons/BetterBeacons.class");
-        hasJei = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("jei"));
+        hasJei = FMLLoader.getCurrent().getLoadingModList().getMods().stream().anyMatch(it -> it.getModId().equals("jei"));
         hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
     }
 

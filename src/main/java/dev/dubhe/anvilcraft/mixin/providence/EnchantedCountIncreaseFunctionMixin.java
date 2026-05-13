@@ -32,7 +32,7 @@ public class EnchantedCountIncreaseFunctionMixin {
     )
     private float getMultipleForProvidence(NumberProvider instance, LootContext context, Operation<Float> original) {
         float result = original.call(instance, context);
-        if (!(context.getParamOrNull(LootContextParams.TOOL) instanceof ItemStack stack)
+        if (!(context.getOptionalParameter(LootContextParams.TOOL) instanceof ItemStack stack)
             || !stack.has(ModComponents.PROVIDENCE)
             || !this.enchantment.is(ModEnchantmentTags.PROVIDENCE_BONUS)
         ) {

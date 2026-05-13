@@ -151,7 +151,7 @@ public class MultiphasePackets {
             if (ref == null) {
                 return;
             } else if (ref.isEmpty()) {
-                ref = new MultiphaseRef(stack.getItem().getDescription());
+                ref = new MultiphaseRef(stack.getItem().getName(stack));
                 stack.set(ModComponents.MULTIPHASE, ref);
             }
             PacketDistributor.sendToPlayer(Util.cast(player), new RefSync(this.index, ref.id().optionalGet()));

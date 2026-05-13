@@ -24,7 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeaponMakeMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "energy_weapon_platform");

@@ -62,8 +62,6 @@ public class RecoverStation<T> {
     }
 
     public static <T> MapCodec<RecoverStation<T>> codec(MapCodec<T> codec) {
-        return CodecUtil.evictingQueueMapCodec(
-            RecoverEntry.codec(codec).codec()
-        ).xmap(RecoverStation::new, RecoverStation::getEntries);
+        return CodecUtil.evictingQueueMapCodec(RecoverEntry.codec(codec).codec()).xmap(RecoverStation::new, RecoverStation::getEntries);
     }
 }

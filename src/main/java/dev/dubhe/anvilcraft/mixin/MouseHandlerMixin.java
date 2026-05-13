@@ -7,6 +7,8 @@ import dev.dubhe.anvilcraft.mixin.accessor.MultiPlayerGameModeAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
+import net.minecraft.client.input.InputQuirks;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -41,20 +43,20 @@ public abstract class MouseHandlerMixin implements IMouseHandlerExtension {
     @Override
     public void anvilcraft$grabMouseWithScreen() {
         if (this.minecraft.isWindowActive() && !this.mouseGrabbed) {
-            if (!Minecraft.ON_OSX) {
+            if (!InputQuirks.ON_OSX) {
                 KeyMapping.setAll();
             }
             this.mouseGrabbed = true;
             this.xpos = (double) this.minecraft.getWindow().getScreenWidth() / 2;
             this.ypos = (double) this.minecraft.getWindow().getScreenHeight() / 2;
-            InputConstants.grabOrReleaseMouse(this.minecraft.getWindow().getWindow(), 212995, this.xpos, this.ypos);
+            InputConstants.grabOrReleaseMouse(this.minecraft.getWindow(), 212995, this.xpos, this.ypos);
             this.minecraft.missTime = 10000;
             this.ignoreFirstMove = true;
         }
     }
 
-    @Inject(method = "onPress", at = @At("TAIL"))
-    private void handleResonator(long windowPointer, int button, int action, int modifiers, CallbackInfo ci) {
+    @Inject(method = "onButton", at = @At("TAIL"))
+    private void handleResonator(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
         ClientLevel level = Minecraft.getInstance().level;
         LocalPlayer player = Minecraft.getInstance().player;
         HitResult hitResult = Minecraft.getInstance().hitResult;

@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.animal.feline.CatSoundVariants;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
 import org.objectweb.asm.Opcodes;
@@ -32,7 +32,6 @@ public abstract class PhantomGoalMixin {
             opcode = Opcodes.PUTFIELD
         )
     )
-    @SuppressWarnings("resource")
     private void addAvoidPlayerGoal(Phantom.PhantomSweepAttackGoal instance, boolean value, Operation<Void> original) {
         List<Player> players = this.this$0.level()
             .getEntitiesOfClass(
@@ -41,7 +40,13 @@ public abstract class PhantomGoalMixin {
                 )
             );
         for (Player player : players) {
-            player.makeSound(SoundEvents.CAT_HISS);
+            player.makeSound(
+                CatSoundVariants.pickRandomSoundVariant(this.this$0.level().registryAccess(), this.this$0.level().getRandom())
+                    .value()
+                    .adultSounds()
+                    .hissSound()
+                    .value()
+            );
         }
 
         instance.isScaredOfCat = value || !players.isEmpty();

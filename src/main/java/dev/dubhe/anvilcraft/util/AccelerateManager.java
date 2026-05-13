@@ -1,19 +1,20 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
-import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
+import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,14 +54,15 @@ public class AccelerateManager {
     }
 
     static boolean isPlayerCanBeAccelerated(Player player) {
-        Iterable<ItemStack> armorSlots = player.getArmorSlots();
         boolean hasHammer = false;
         int count = 0;
-        for (ItemStack stack : armorSlots) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (!slot.isArmor()) continue;
+            ItemStack stack = player.getItemBySlot(slot);
             if (stack.getItem() instanceof AnvilHammerItem) {
                 hasHammer = true;
             }
-            if (stack.getItem() instanceof ArmorItem) {
+            if (stack.has(DataComponents.EQUIPPABLE) && stack.get(DataComponents.EQUIPPABLE).slot() == slot) {
                 count++;
             }
         }
@@ -98,7 +100,7 @@ public class AccelerateManager {
             entity.setPos(entity.position().add(fixMovement.multiply(5, 5, 5)));
         }
         deltaMovement = deltaMovement.scale(1.0204081632653061)
-            .add(new Vec3(0.1F, 0.1F, 0.1F).multiply(Vec3.atLowerCornerOf(direction.getNormal())));
+            .add(new Vec3(0.1F, 0.1F, 0.1F).multiply(Vec3.atLowerCornerOf(direction.getUnitVec3i())));
         entity.setDeltaMovement(deltaMovement);
         entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
     }

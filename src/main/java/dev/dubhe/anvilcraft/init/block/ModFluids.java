@@ -237,9 +237,9 @@ public class ModFluids {
         FluidInteractionRegistry.addInteraction(
             MELT_GEM.get().getFluidType(),
             new InteractionInformation(
-                (level, currentPos, relativePos, currentState) ->
+                (level, _, relativePos, _) ->
                     level.getFluidState(relativePos).getFluidType() == Fluids.WATER.getFluidType(),
-                (level, currentPos, relativePos, currentState) -> {
+                (level, currentPos, _, _) -> {
                     Block block;
                     if (level.getFluidState(currentPos).isSource()) {
                         block = ModBlocks.CHROMATIC_STONE.get();
@@ -272,46 +272,18 @@ public class ModFluids {
     }
 
     public static void onRegisterFluidType(RegisterClientExtensionsEvent e) {
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                AnvilCraft.of("block/exp_fluid"),
-                AnvilCraft.of("block/exp_fluid_flow"),
-                0xC1E8A9,
-                1.0F
-            ), EXP_FLUID_TYPE
-        );
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                AnvilCraft.of("block/oil"),
-                AnvilCraft.of("block/oil_flow"),
-                0x1B061F,
-                1.0F
-            ), OIL_TYPE
-        );
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xC1E8A9, 1.0F), EXP_FLUID_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0x1B061F, 1.0F), OIL_TYPE);
         for (Color color : Color.values()) {
             e.registerFluidType(
                 new ModClientFluidTypeExtensionImpl(
-                    AnvilCraft.of("block/%s_cement".formatted(color)),
-                    AnvilCraft.of("block/%s_cement".formatted(color)),
                     ColorUtil.mulValue(color.dyeItem().getDefaultInstance().get(DataComponents.DYE).getTextColor(), 0.6F),
                     1.0F
                 ), CEMENT_TYPES.get(color)
             );
         }
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                AnvilCraft.of("block/melt_gem"),
-                AnvilCraft.of("block/melt_gem_flow"),
-                0xB7EEDE,
-                2.0F
-            ), MELT_GEM_TYPE
-        );
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                Identifier.withDefaultNamespace("block/powder_snow"),
-                Identifier.withDefaultNamespace("block/powder_snow")
-            ), POWDER_SNOW_TYPE
-        );
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xB7EEDE, 2.0F), MELT_GEM_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(), POWDER_SNOW_TYPE);
     }
 
     public static void registerFluidModel(RegisterFluidModelsEvent event) {
