@@ -30,46 +30,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private static final ModelResourceLocation CLAW_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_claw")
     );
+    private static final ModelResourceLocation CLAW_OPEN_MODEL = ModelResourceLocation.standalone(
+        AnvilCraft.of("block/smart_block_placer_claw_open")
+    );
 
-    private static final SwingBaseAnimationScheme ANIMATION_SCHEME = new SwingBaseAnimationScheme();
     private static final WorkingAnimationScheme WORKING_ANIMATION_SCHEME = new WorkingAnimationScheme();
 
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
         // 不需要初始化，使用静态常量
-    }
-    
-    /**
-     * 底座摆动动画方案（待机状态）
-     */
-    private static class SwingBaseAnimationScheme {
-        @SuppressWarnings("SameReturnValue")
-        public float getBaseSwingAngle(float swingProgress, boolean isSwinging, float swingDirection) {
-            // 如果正在摆动，计算角度
-            if (isSwinging) {
-                // 摆动动画：
-                // 0-40tick（0-2秒）：从0°缓慢转到目标角度
-                // 40-60tick（2-3秒）：在目标角度停留1秒
-                // 60-100tick（3-5秒）：从目标角度缓慢回到0°
-                float targetAngle = 25f * swingDirection; // 目标角度±25°
-                
-                if (swingProgress <= 40f) {
-                    // 第一阶段：从0°缓慢转到目标角度（2秒）
-                    float t = swingProgress / 40f;
-                    // 使用缓动函数让运动更平滑
-                    return targetAngle * (float) Math.sin(t * Math.PI / 2);
-                } else if (swingProgress <= 60f) {
-                    // 第二阶段：在目标角度停留1秒
-                    return targetAngle;
-                } else if (swingProgress <= 100f) {
-                    // 第三阶段：从目标角度缓慢回到0°（2秒）
-                    float t = (swingProgress - 60f) / 40f;
-                    // 使用缓动函数让运动更平滑
-                    return targetAngle * (1f - (float) Math.sin(t * Math.PI / 2));
-                }
-            }
-            
-            return 0f;
-        }
     }
     
     /**
@@ -81,6 +49,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         private static final float FOREARM_LENGTH = 2.5f;    // 小臂长度
         private static final float BASE_HEIGHT = 0.0f;       // 底座关节高度（相对于底座模型）
         private static final float CLAW_OFFSET = 0.1f;       // 钳子偏移
+        private static final int ANIMATION_DURATION_TICKS = 20; // 动画总持续时间：20tick = 1秒
+        private static final int FORWARD_DURATION_TICKS = 14; // 正向动画：14tick = 0.7秒
+        private static final int BACKWARD_DURATION_TICKS = 6; // 倒放动画：6tick = 0.3秒
         
         /**
          * 计算机械臂角度以指向目标位置
@@ -100,95 +71,146 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             boolean upsideDown,
             float animationProgress
         ) {
+            // 计算目标角度
+            float[] targetAngles = calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
+            
+            // 计算目标位置的方向向量（用于动态补偿）
+            double dx = targetPos.getX() - placerPos.getX();
+            double dy = targetPos.getY() - placerPos.getY();
+            double dz = targetPos.getZ() - placerPos.getZ();
+            
+            Direction forward = facing;
+            Direction right = facing.getCounterClockWise();
+            double forwardDist = dx * forward.getStepX() + dz * forward.getStepZ();
+            double rightDist = dx * right.getStepX() + dz * right.getStepZ();
+            double verticalDist = dy;
+            float targetHeight = (float) verticalDist - BASE_HEIGHT;
+            
+            // 根据动画进度计算当前角度
+            float baseAngle, upperArmAngle, forearmAngle, clawAngle;
+            
+            if (animationProgress <= 0.2f) {
+                // 阶段1：底盘旋转 + 小臂和钳子指向目标
+                // 大臂不动(0°)，小臂需要补偿角度以指向目标
+                float phase1Progress = animationProgress / 0.2f;
+                
+                baseAngle = targetAngles[0] * phase1Progress;
+                upperArmAngle = 0f; // 大臂不动
+                
+                // 计算补偿角度：当大臂为0时，小臂需要多少度才能让钳子指向目标
+                // 使用简化补偿：小臂角度 = 目标大臂角度 + 目标小臂角度
+                float compensationAngle = targetAngles[1] + targetAngles[2];
+                forearmAngle = compensationAngle * phase1Progress;
+                clawAngle = targetAngles[3] * phase1Progress;
+                
+            } else if (animationProgress <= 0.3f) {
+                // 阶段2：停顿，保持指向目标
+                baseAngle = targetAngles[0];
+                upperArmAngle = 0f;
+                forearmAngle = targetAngles[1] + targetAngles[2]; // 补偿角度
+                clawAngle = targetAngles[3];
+                
+            } else if (animationProgress <= 0.7f) {
+                // 阶段3：大臂推出（延长），小臂持续补偿
+                float phase3Progress = (animationProgress - 0.3f) / 0.4f;
+                
+                baseAngle = targetAngles[0];
+                upperArmAngle = targetAngles[1] * phase3Progress;
+                
+                // 小臂补偿：从“补偿角度”渐变到“目标角度”
+                // 当大臂到位时，小臂也应该是目标角度
+                float startForearmAngle = targetAngles[1] + targetAngles[2]; // 起始补偿角度
+                float endForearmAngle = targetAngles[2]; // 结束目标角度
+                forearmAngle = startForearmAngle + (endForearmAngle - startForearmAngle) * phase3Progress;
+                
+                clawAngle = targetAngles[3];
+                
+            } else {
+                // 阶段4：收回动画
+                float phase4Progress = (animationProgress - 0.7f) / 0.3f;
+                
+                baseAngle = targetAngles[0] * (1f - phase4Progress);
+                upperArmAngle = targetAngles[1] * (1f - phase4Progress);
+                forearmAngle = targetAngles[2] * (1f - phase4Progress);
+                clawAngle = targetAngles[3] * (1f - phase4Progress);
+            }
+            
+            return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
+        }
+        
+        /**
+         * 计算目标角度（不考虑动画进度）
+         */
+        private float[] calculateTargetAngles(
+            net.minecraft.core.BlockPos targetPos,
+            net.minecraft.core.BlockPos placerPos,
+            Direction facing,
+            boolean upsideDown
+        ) {
             // 1. 计算目标位置相对于放置器的偏移
             double dx = targetPos.getX() - placerPos.getX();
             double dy = targetPos.getY() - placerPos.getY();
             double dz = targetPos.getZ() - placerPos.getZ();
             
             // 2. 根据朝向转换到局部坐标系
-            // facing就是放置器的前方（5×5网格在facing方向上）
             Direction forward = facing;
-            Direction right = facing.getCounterClockWise(); // 逆时针方向
+            Direction right = facing.getCounterClockWise();
             
-            // 计算在局部坐标系中的位置（只考虑XZ平面）
+            // 计算在局部坐标系中的位置
             double forwardDist = dx * forward.getStepX() + dz * forward.getStepZ();
             double rightDist = dx * right.getStepX() + dz * right.getStepZ();
-            // 垂直距离：直接使用dy，不需要取反
             double verticalDist = dy;
             
             // 3. 计算底座旋转角度（水平面内）
-            // 计算的是相对于放置器前方的偏移角度
             float baseAngle = (float) Math.toDegrees(Math.atan2(rightDist, forwardDist));
             
             // 4. 计算水平距离
             float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
             
-            // 5. 计算垂直距离（考虑底座高度）
+            // 5. 计算垂直距离
             float targetHeight = (float) verticalDist - BASE_HEIGHT;
             
-            // 6. 计算仰角（从水平面到目标的角度）
+            // 6. 计算仰角
             float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
             
-            // 7. 直接使用逆运动学计算关节角度
-            // 计算实际需要的总长度（3D距离）
+            // 7. 计算机械臂关节角度（逆运动学）
             float distToTarget = (float) Math.sqrt(horizontalDist * horizontalDist + targetHeight * targetHeight);
+            boolean isOverRange = distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH;
             
-            float upperArmAngle;
-            float forearmAngle;
-            
-            // 如果目标超出机械臂最大长度，完全伸直指向目标
-            if (distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH) {
-                // 完全伸直：大臂指向目标方向，小臂伸直
-                upperArmAngle = -30f - horizontalDist * 14f + targetHeight * 10f;
-                forearmAngle = 90f; // 小臂伸直（180° * 0.5 = 90°）
+            float upperArmAngle, forearmAngle;
+            if (isOverRange) {
+                // 超距情况：机械臂完全伸直指向目标
+                upperArmAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist)) - 74f;
+                forearmAngle = 85f;
             } else {
-                // 限制距离在合理范围内，避免除零和无效计算
+                // 正常情况：使用余弦定理计算关节角度
                 float clampedDist = Math.max(0.01f, distToTarget);
                 
-                // 使用余弦定理计算关节角度（基于3D距离）
                 float cosForearm = (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - clampedDist * clampedDist) 
                     / (2 * UPPER_ARM_LENGTH * FOREARM_LENGTH);
+                cosForearm = Math.max(-1.0f, Math.min(1.0f, cosForearm));
+                float forearmAngleFromUpper = (float) Math.toDegrees(Math.acos(cosForearm));
+                
                 float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH) 
                     / (2 * clampedDist * UPPER_ARM_LENGTH);
-                
-                // 限制cos值在[-1, 1]范围内
-                cosForearm = Math.max(-1.0f, Math.min(1.0f, cosForearm));
                 cosUpperArm = Math.max(-1.0f, Math.min(1.0f, cosUpperArm));
-                
-                // 计算角度
-                // forearmAngleFromUpper 是肘关节的内角（0°-180°）
-                // 完全伸直时内角=0°，完全弯曲时内角=180°
-                float forearmAngleFromUpper = (float) Math.toDegrees(Math.acos(cosForearm));
                 float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
                 
-                // 大臂角度：水平距离 + 高度共同影响
-                // 基础：近距离→-30°, 远距离→-100°
-                // 高度修正：目标在上方(targetHeight>0) → 角度增大（更垂直）
-                //          目标在下方(targetHeight<0) → 角度减小（更水平）
-                // 公式：θ = -30 - horizontalDist * 14 + targetHeight * 10
-                upperArmAngle = -30f - horizontalDist * 14f + targetHeight * 10f;
+                float targetAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
                 
-                // 小臂角度：相对于大臂的弯曲角度
-                // 内角 = forearmAngleFromUpper
-                // 小臂需要旋转的角度 = 180° - 内角（让大臂和小臂形成内角）
-                // 偏转减半让动作更柔和
-                forearmAngle = (180f - forearmAngleFromUpper) * 0.5f;
+                upperArmAngle = -(180f - upperArmAngleFromTarget - targetAngle) * 0.6f + 20f;
+                forearmAngle = forearmAngleFromUpper * 0.8f - 10f;
             }
             
-            // 钳子角度：根据仰角调整，让钳子指向目标
-            // 钳子模型有-45°的初始X轴旋转，需要补偿这个角度
-            // 钳子应该垂直向下（相对于小臂末端）指向目标
-            // 当仰角为0（水平）时，钳子应该保持-45°（模型初始角度）
-            // 当仰角为负（目标在下方）时，钳子需要向上旋转（减少负角度）
-            // 当仰角为正（目标在上方）时，钳子需要向下旋转（增加负角度）
-            float clawAngle = 45f - elevationAngle * 0.8f; // 初始-45° - 仰角补偿
+            // 应用距离修正
+            upperArmAngle += horizontalDist <= 2.0f ? -10f : 
+                           (horizontalDist >= 4.0f ? -66f : 
+                           -10f + (-50f) * (horizontalDist - 2.0f) / 2.0f);
             
-            // 应用动画进度插值（从待机位置平滑过渡到目标位置）
-            float easedProgress = easeInOutCubic(animationProgress);
-            baseAngle *= easedProgress;
-            upperArmAngle *= easedProgress;
-            forearmAngle *= easedProgress;
-            clawAngle *= easedProgress;
+            forearmAngle += horizontalDist >= 4.0f ? 40f : 0f;
+            
+            // 钳子角度（随高度变化，超距时额外修正）
+            float clawAngle = 45f - elevationAngle * -0.4f + (isOverRange ? -10f : 0f);
             
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
@@ -199,13 +221,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         private float easeInOutCubic(float t) {
             return t < 0.5f ? 4f * t * t * t : 1f - (float) Math.pow(-2f * t + 2f, 3) / 2f;
         }
-    }
-
-    /**
-     * 缓动函数：让动画更平滑
-     */
-    private float easeInOutCubic(float t) {
-        return t < 0.5f ? 4f * t * t * t : 1f - (float) Math.pow(-2f * t + 2f, 3) / 2f;
+        
+        /**
+         * 获取动画持续时间（tick）
+         */
+        public int getAnimationDurationTicks() {
+            return ANIMATION_DURATION_TICKS;
+        }
     }
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
@@ -233,50 +255,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
 
-        // 计算动画时间（使用BlockEntity独立的状态）
+        // 计算动画时间
         boolean isCurrentlyPowered = entity.isPowered();
         boolean hasRedstoneSignal = entity.isHasRedstoneSignal();
-        float smoothTicks = 0f;
-        
-        float currentAnimationTicks = entity.getClientAnimationTicks();
-        long currentLastGameTime = entity.getClientLastGameTime();
-        boolean currentWasPowered = entity.isClientWasPowered();
-        boolean currentWasRedstoneSignal = entity.isClientWasRedstoneSignal();
-        
-        if (isCurrentlyPowered && !hasRedstoneSignal) {
-            if (entity.getLevel() == null) {
-                smoothTicks = currentAnimationTicks + partialTick;
-            } else {
-                long currentGameTime = entity.getLevel().getGameTime();
-                // 检测是否是刚通电（之前未通电或之前有红石信号）
-                boolean justPowered = !currentWasPowered || currentWasRedstoneSignal;
-                
-                if (justPowered) {
-                    // 刚通电，初始化动画偏移量
-                    entity.initAnimationOffset();
-                    currentAnimationTicks = 0f;
-                    currentLastGameTime = currentGameTime;
-                }
-                
-                long tickDelta = currentGameTime - currentLastGameTime;
-                if (tickDelta > 0) {
-                    currentAnimationTicks += tickDelta;
-                    currentLastGameTime = currentGameTime;
-                }
-                
-                smoothTicks = currentAnimationTicks + partialTick;
-            }
-            
-            // 更新BlockEntity的待机动画状态
-            entity.updateIdleAnimationState(smoothTicks);
-        } else {
-            currentAnimationTicks = 0f;
-            currentLastGameTime = 0;
-            entity.resetIdleAnimationState();
-        }
         
         // 更新BlockEntity的动画状态
-        entity.updateClientAnimationState(currentAnimationTicks, currentLastGameTime, isCurrentlyPowered, hasRedstoneSignal);
+        entity.updateClientAnimationState(isCurrentlyPowered, hasRedstoneSignal);
         
         // 计算动画角度
         float baseSwingAngle = 0f;
@@ -285,95 +269,55 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float clawAngle = 0f;
         
         // 判断是否处于工作状态（正在放置方块）
-        boolean isWorking = entity.isWaitingForPlacement() || entity.getPlaceCooldown() > 0;
+        boolean isWorking = entity.getPlaceCooldown() > 0;
         
-        // 通电且不在工作状态时执行待机动画（随机摆动）
-        if (isCurrentlyPowered && !hasRedstoneSignal && !isWorking) {
-            baseSwingAngle = ANIMATION_SCHEME.getBaseSwingAngle(
-                entity.getClientIdleSwingProgress(),
-                entity.isClientIdleSwinging(),
-                entity.getClientIdleSwingDirection()
-            );
-        } else if (isWorking && entity.getLevel() != null) {
-            // 工作状态下计算机械臂指向目标位置的动画
-            // 获取下一个要放置的位置
-            BlockPos nextTargetPos = getNextTargetPosition(entity, facing, upsideDown);
-            if (nextTargetPos != null) {
-                // 计算动画进度（基于placeCooldown）
-                float animationProgress = 1.0f;
-                if (entity.isWaitingForPlacement()) {
-                    // 等待阶段：从0到1，加入partialTick实现平滑
-                    animationProgress = 1.0f - (float) (entity.getPlaceCooldown() - partialTick) / 40f;
-                    animationProgress = Math.max(0.0f, Math.min(1.0f, animationProgress));
-                } else if (entity.getPlaceCooldown() > 0) {
-                    // 冷却阶段：保持到1
-                    animationProgress = 1.0f;
-                }
-                
-                // 计算目标角度（传入animationProgress进行插值）
-                float[] targetAngles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                    nextTargetPos,
-                    entity.getBlockPos(),
-                    facing,
-                    upsideDown,
-                    animationProgress
-                );
-                
-                // 获取前一个目标位置和过渡进度
-                BlockPos previousTargetPos = entity.getClientPreviousTargetPos();
-                float transitionProgress = entity.getClientTransitionProgress();
-                
-                // 统一使用过渡动画，无论是切换目标还是初次移动
-                if (previousTargetPos != null && transitionProgress < 1.0f) {
-                    // 更新过渡进度（20帧完成过渡，约1秒）
-                    // 加入partialTick实现帧间平滑插值
-                    float frameDelta = (1.0f / 20.0f); // 每tick增加 5%
-                    transitionProgress += frameDelta;
-                    if (transitionProgress > 1.0f) transitionProgress = 1.0f;
-                    entity.updateTransitionProgress(transitionProgress);
-                    
-                    // 计算前一个目标的角度
-                    float[] previousAngles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                        previousTargetPos,
-                        entity.getBlockPos(),
-                        facing,
-                        upsideDown,
-                        1.0f // 前一个目标使用完成状态
-                    );
-                    
-                    // 在前后角度之间插值，加入partialTick平滑
-                    float easedTransition = easeInOutCubic(Math.min(1.0f, transitionProgress));
-                    baseSwingAngle = previousAngles[0] + (targetAngles[0] - previousAngles[0]) * easedTransition;
-                    upperArmAngle = previousAngles[1] + (targetAngles[1] - previousAngles[1]) * easedTransition;
-                    forearmAngle = previousAngles[2] + (targetAngles[2] - previousAngles[2]) * easedTransition;
-                    clawAngle = previousAngles[3] + (targetAngles[3] - previousAngles[3]) * easedTransition;
-                } else if (transitionProgress < 1.0f) {
-                    // 初次移动：从待机位置平滑过渡到目标位置
-                    float frameDelta = (1.0f / 20.0f); // 每tick增加 5%
-                    transitionProgress += frameDelta;
-                    if (transitionProgress > 1.0f) transitionProgress = 1.0f;
-                    entity.updateTransitionProgress(transitionProgress);
-                    
-                    // 待机位置角度（全0）
-                    float easedTransition = easeInOutCubic(Math.min(1.0f, transitionProgress));
-                    baseSwingAngle = targetAngles[0] * easedTransition;
-                    upperArmAngle = targetAngles[1] * easedTransition;
-                    forearmAngle = targetAngles[2] * easedTransition;
-                    clawAngle = targetAngles[3] * easedTransition;
-                } else {
-                    // 过渡完成，直接使用目标角度（已经包含animationProgress的平滑）
-                    baseSwingAngle = targetAngles[0];
-                    upperArmAngle = targetAngles[1];
-                    forearmAngle = targetAngles[2];
-                    clawAngle = targetAngles[3];
-                }
-                
-                // 更新BlockEntity的工作状态
-                entity.updateWorkingTarget(nextTargetPos, animationProgress);
+        if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && entity.getLevel() != null) {
+            // 工作状态下播放1秒动画
+            BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+            
+            // 获取动画进度
+            long currentTime = entity.getLevel().getGameTime();
+            long animStartTime = entity.getClientAnimationStartTime();
+            
+            // 如果动画未开始，初始化
+            if (animStartTime == 0 && targetPos != null) {
+                entity.setClientAnimationStartTime(currentTime);
+                entity.setClientLastTargetPos(targetPos);
+                animStartTime = currentTime;
             }
-        } else {
-            // 不在工作状态，重置
-            entity.resetWorkingState();
+            
+            // 使用缓存的目标位置，确保动画连贯
+            // 即使找不到新目标，也要继续播放当前周期的动画
+            if (animStartTime > 0) {
+                long elapsedTicks = currentTime - animStartTime;
+                
+                // 如果动画已完成（超过1秒），且找到新的目标位置，开始新动画
+                if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() && 
+                    targetPos != null &&
+                    !targetPos.equals(entity.getClientLastTargetPos())) {
+                    entity.setClientAnimationStartTime(currentTime);
+                    entity.setClientLastTargetPos(targetPos);
+                    animStartTime = currentTime;
+                    elapsedTicks = 0;
+                }
+                
+                // 使用缓存的目标位置播放动画
+                BlockPos animTargetPos = entity.getClientLastTargetPos();
+                
+                // 只有当有目标位置时才播放动画
+                if (animTargetPos != null) {
+                    float animationProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks());
+                    
+                    // 计算当前角度
+                    float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                        animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
+                    );
+                    baseSwingAngle = angles[0];
+                    upperArmAngle = angles[1];
+                    forearmAngle = angles[2];
+                    clawAngle = angles[3];
+                }
+            }
         }
         
         // 渲染底座
@@ -407,8 +351,18 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.translate(0.5, 1.3125, 0.375);
         poseStack.mulPose(Axis.XP.rotationDegrees(clawAngle));
         poseStack.translate(-0.5, -1.3125, -0.375);
-        poseStack.translate(0.0, -0.1, 0.0);
-        renderModel(poseStack, buffer, CLAW_MODEL, packedLight, packedOverlay);
+        
+        // 根据方块放置状态切换钳子模型
+        // placeCooldown > 0 表示正在放置方块，使用打开的钳子模型
+        // placeCooldown == 0 表示放置完成，使用闭合的钳子模型
+        ModelResourceLocation currentClawModel = isWorking ? CLAW_OPEN_MODEL : CLAW_MODEL;
+        renderModel(poseStack, buffer, currentClawModel, packedLight, packedOverlay);
+        
+        // 如果正在工作，在钳子开口位置渲染要放置的方块
+        if (isWorking && entity.getLevel() != null) {
+            renderHeldBlock(poseStack, buffer, entity, packedLight, packedOverlay);
+        }
+        
         poseStack.popPose();
         poseStack.popPose();
         poseStack.popPose();
@@ -545,5 +499,48 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             packedLight,
             packedOverlay
         );
+    }
+    
+    /**
+     * 渲染钳子中持有的方块
+     */
+    @SuppressWarnings({"checkstyle:EmptyLineSeparator", "deprecation"})
+    private void renderHeldBlock(
+        PoseStack poseStack, MultiBufferSource buffer, SmartBlockPlacerBlockEntity entity, int packedLight, int packedOverlay) {
+        // 使用 currentHeldBlock 字段（已同步到客户端）来获取要渲染的方块
+        net.minecraft.world.item.ItemStack stack = entity.getCurrentHeldBlock();
+        
+        if (stack.isEmpty() || !(stack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem)) {
+            return;
+        }
+        
+        // 获取方块的BlockState
+        net.minecraft.world.level.block.Block block = blockItem.getBlock();
+        net.minecraft.world.level.block.state.BlockState blockState = block.defaultBlockState();
+        
+        // 渲染方块模型
+        poseStack.pushPose();
+        // 方块在钳子开口位置（相对于钳子旋转中心）
+        poseStack.translate(0.375, 0.9, -0.1);
+        poseStack.scale(0.25f, 0.25f, 0.25f);
+        
+        net.minecraft.client.renderer.block.BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+        net.minecraft.client.resources.model.BakedModel bakedModel = blockRenderer.getBlockModel(blockState);
+        
+        // 根据方块状态选择合适的渲染类型
+        net.minecraft.client.renderer.RenderType renderType = net.minecraft.client.renderer.ItemBlockRenderTypes.getRenderType(blockState, false);
+        
+        // 使用renderModel方法渲染方块
+        blockRenderer.getModelRenderer().renderModel(
+            poseStack.last(),
+            buffer.getBuffer(renderType),
+            blockState,
+            bakedModel,
+            1f, 1f, 1f,
+            packedLight,
+            packedOverlay
+        );
+        
+        poseStack.popPose();
     }
 }

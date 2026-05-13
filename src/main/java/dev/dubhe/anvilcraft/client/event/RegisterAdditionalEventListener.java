@@ -34,5 +34,6 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_upperarm")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_forearm")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_claw")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_claw_open")));
     }
 }

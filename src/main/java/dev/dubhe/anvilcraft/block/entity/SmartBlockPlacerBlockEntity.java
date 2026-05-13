@@ -44,19 +44,14 @@ import java.util.Set;
 @Getter
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider {
     private static final int POWER = 16;
-    private static final int PLACE_COOLDOWN = 10; // 放置冷却时间（tick），0.5秒
-    private static final int INITIAL_DELAY = 40; // 初始延迟时间（tick），约2秒
+    private static final int PLACEMENT_INTERVAL = 20; // 放置间隔（tick），1秒
+    private static final int PLACEMENT_DELAY = 6; // 放置延迟时间（tick），0.7秒（动画进行到“往前戳”时放置）
     private PowerGrid grid = null;
     private boolean isPowered = false;
     private boolean hasRedstoneSignal = false;
     private int selectedLayer = 0;
-    private int placeCooldown = 0;
-    private boolean isWaitingForPlacement = false; // 是否在等待放置（2秒延迟中）
-    /**
-     * -- GETTER --
-     *  获取过滤的方块类型
-     */
-    private ItemStack filterBlock = ItemStack.EMPTY; // 过滤的方块类型（用于GUI配置）
+    private int placeCooldown = 0; // 放置冷却计时器（0=可以放置，>0=冷却中）
+    private ItemStack currentHeldBlock = ItemStack.EMPTY; // 当前钳子中持有的方块（用于客户端渲染）
     private int currentPlacementIndex = 0; // 当前放置进度索引
     /**
      * -- GETTER --
@@ -65,189 +60,62 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>(); // 每个layer对应的位置集合
     
-    // 客户端动画状态（每个BlockEntity独立计算）
-    private float clientAnimationTicks = 0f;
-    private long clientLastGameTime = 0;
-    private boolean clientWasPowered = false;
-    private boolean clientWasRedstoneSignal = false;
-    
-    // 每个方块独立的动画偏移量，防止多个方块动画同步
-    private long clientAnimationOffset = 0;
-    private boolean clientAnimationOffsetInitialized = false;
-
-    // Getter方法供渲染器使用
-    // 客户端待机动画状态（每个BlockEntity独立）
-    private boolean clientIdleSwinging = false;
-    private float clientIdleSwingProgress = 0f;
-    private float clientIdleSwingDirection = 0f;
-    private long clientIdleLastTriggerTime = 0;
-    private long clientIdleNextTriggerDelay = 0;
-    
-    // 客户端工作状态动画目标
-    private BlockPos clientWorkingTargetPos = null;
-    private BlockPos clientPreviousTargetPos = null; // 前一个目标位置，用于过渡
-    private float clientWorkingAnimationProgress = 0f; // 0-1 表示动画进度
-    private float clientTransitionProgress = 0f; // 过渡进度 0-1
-    
-    // 当前显示的角度（用于平滑过渡）
-    private float clientCurrentBaseAngle = 0f;
-    private float clientCurrentUpperArmAngle = 0f;
-    private float clientCurrentForearmAngle = 0f;
-    private float clientCurrentClawAngle = 0f;
+    // 客户端动画状态
+    private long clientAnimationStartTime = 0; // 动画开始时间
+    private BlockPos clientLastTargetPos = null; // 上一个目标位置
+    private int lastPlaceCooldown = 0; // 上一次的placeCooldown值，用于检测新周期
     
     /**
      * 更新客户端动画状态（供渲染器调用）
      */
-    public void updateClientAnimationState(float animationTicks, long lastGameTime, boolean wasPowered, boolean wasRedstoneSignal) {
-        this.clientAnimationTicks = animationTicks;
-        this.clientLastGameTime = lastGameTime;
-        this.clientWasPowered = wasPowered;
-        this.clientWasRedstoneSignal = wasRedstoneSignal;
-    }
-    
-    /**
-     * 初始化动画偏移量（在方块首次创建或重新通电时调用）
-     */
-    public void initAnimationOffset() {
-        if (this.level == null) return;
-        
-        long currentTime = this.level.getGameTime();
-        // 为每个方块设置独立的随机偏移量（0-100tick）
-        // 使用位置哈希和时间组合作为随机种子，确保每个方块都有独特的偏移
-        long seed = this.getBlockPos().asLong() ^ currentTime;
-        this.clientAnimationOffset = Math.abs(seed % 201); // 0-100tick
-        this.clientAnimationOffsetInitialized = true;
-        
-        // 同时重置待机动画的触发时间，使用偏移量
-        this.clientIdleLastTriggerTime = currentTime + this.clientAnimationOffset;
-        this.clientIdleNextTriggerDelay = 120; // 固定120tick (6秒)
-    }
-    
-    /**
-     * 更新待机动画状态
-     */
-    public void updateIdleAnimationState(float smoothTicks) {
-        if (this.level == null) return;
-        
-        long currentTime = this.level.getGameTime();
-        
-        // 确保动画偏移量已初始化
-        if (!clientAnimationOffsetInitialized) {
-            initAnimationOffset();
-        }
-        
-        // 使用偏移后的时间检查是否需要触发新的摆动
-        // 关键：使用固定的offsetTime作为基准，而不是每次都用currentTime
-        long offsetTime = clientIdleLastTriggerTime + clientIdleNextTriggerDelay;
-        
-        if (!clientIdleSwinging && currentTime >= offsetTime) {
-            // 触发摆动
-            clientIdleSwinging = true;
-            clientIdleSwingDirection = (currentTime % 2 == 0) ? 1f : -1f; // 随机方向
-            clientIdleSwingProgress = 0f; // 重置进度
-            clientIdleLastTriggerTime = currentTime; // 记录本次触发时间
-            // 计算下一次触发延迟（固定间隔）
-            clientIdleNextTriggerDelay = 120; // 固定120tick (6秒)
-        }
-        
-        // 如果正在摆动，计算进度（使用游戏时间差 + partialTick实现平滑）
-        if (clientIdleSwinging) {
-            long elapsedTicks = currentTime - clientIdleLastTriggerTime;
-            // 估算partialTick（smoothTicks包含的帧时间）
-            float partialTick = smoothTicks - (float)
-                ((long)
-                    smoothTicks);
-            clientIdleSwingProgress = elapsedTicks + partialTick;
-            
-            // 摆动结束（总时长100tick = 5秒）
-            if (clientIdleSwingProgress >= 100f) {
-                clientIdleSwinging = false;
-                clientIdleSwingProgress = 0f;
-                // 计算下一次触发时间
-                offsetTime = clientIdleLastTriggerTime + clientIdleNextTriggerDelay;
-                clientIdleLastTriggerTime = offsetTime; // 设置下次触发的基准时间
-            }
+    public void updateClientAnimationState(boolean isPowered, boolean hasRedstoneSignal) {
+        // 如果断电或有红石信号，重置动画状态
+        if (!isPowered || hasRedstoneSignal) {
+            clientAnimationStartTime = 0;
+            clientLastTargetPos = null;
         }
     }
     
     /**
-     * 重置待机动画状态
+     * 获取动画开始时间
      */
-    public void resetIdleAnimationState() {
-        clientIdleSwinging = false;
-        clientIdleSwingProgress = 0f;
-        clientIdleSwingDirection = 0f;
-        clientIdleLastTriggerTime = 0;
-        clientIdleNextTriggerDelay = 0;
-        clientAnimationOffset = 0;
-        clientAnimationOffsetInitialized = false;
+    public long getClientAnimationStartTime() {
+        return clientAnimationStartTime;
     }
     
     /**
-     * 更新工作状态动画目标（供渲染器调用）
+     * 设置动画开始时间
      */
-    public void updateWorkingTarget(BlockPos targetPos, float animationProgress) {
-        // 如果目标位置改变，保存前一个位置用于过渡
-        if (this.clientWorkingTargetPos != null && !this.clientWorkingTargetPos.equals(targetPos)) {
-            this.clientPreviousTargetPos = this.clientWorkingTargetPos;
-            this.clientTransitionProgress = 0f; // 重置过渡进度
-        }
-        this.clientWorkingTargetPos = targetPos;
-        this.clientWorkingAnimationProgress = animationProgress;
+    public void setClientAnimationStartTime(long time) {
+        this.clientAnimationStartTime = time;
     }
     
     /**
-     * 获取前一个目标位置
+     * 获取上一个目标位置
      */
-    public BlockPos getClientPreviousTargetPos() {
-        return clientPreviousTargetPos;
+    public BlockPos getClientLastTargetPos() {
+        return clientLastTargetPos;
     }
     
     /**
-     * 获取过渡进度
+     * 设置上一个目标位置
      */
-    public float getClientTransitionProgress() {
-        return clientTransitionProgress;
+    public void setClientLastTargetPos(BlockPos pos) {
+        this.clientLastTargetPos = pos;
     }
     
     /**
-     * 更新过渡进度
+     * 获取上一次的placeCooldown值
      */
-    public void updateTransitionProgress(float progress) {
-        this.clientTransitionProgress = progress;
+    public int getLastPlaceCooldown() {
+        return lastPlaceCooldown;
     }
     
     /**
-     * 获取当前显示角度
+     * 设置上一次的placeCooldown值
      */
-    public float getClientCurrentAngle(int index) {
-        return switch (index) {
-            case 0 -> clientCurrentBaseAngle;
-            case 1 -> clientCurrentUpperArmAngle;
-            case 2 -> clientCurrentForearmAngle;
-            case 3 -> clientCurrentClawAngle;
-            default -> 0f;
-        };
-    }
-    
-    /**
-     * 设置当前显示角度
-     */
-    public void setCurrentAngles(float baseAngle, float upperArmAngle, float forearmAngle, float clawAngle) {
-        this.clientCurrentBaseAngle = baseAngle;
-        this.clientCurrentUpperArmAngle = upperArmAngle;
-        this.clientCurrentForearmAngle = forearmAngle;
-        this.clientCurrentClawAngle = clawAngle;
-    }
-    
-    /**
-     * 重置工作状态动画
-     */
-    public void resetWorkingState() {
-        this.clientPreviousTargetPos = null;
-        this.clientWorkingTargetPos = null;
-        this.clientWorkingAnimationProgress = 0f;
-        this.clientTransitionProgress = 0f;
+    public void setLastPlaceCooldown(int cooldown) {
+        this.lastPlaceCooldown = cooldown;
     }
 
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
@@ -273,11 +141,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
         tag.putInt("selectedLayer", selectedLayer);
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
-        tag.putBoolean("isWaitingForPlacement", isWaitingForPlacement);
         tag.putInt("placeCooldown", placeCooldown);
-        // 保存过滤的方块（只在非空时保存）
-        if (!filterBlock.isEmpty()) {
-            tag.put("filterBlock", filterBlock.save(provider));
+        // 保存当前持有的方块（用于客户端渲染）
+        if (!currentHeldBlock.isEmpty()) {
+            tag.put("currentHeldBlock", currentHeldBlock.save(provider));
         }
         // 保存每个layer的位置集合
         CompoundTag layerTag = new CompoundTag();
@@ -295,13 +162,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.hasRedstoneSignal = tag.getBoolean("hasRedstoneSignal");
         this.selectedLayer = tag.getInt("selectedLayer");
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
-        this.isWaitingForPlacement = tag.getBoolean("isWaitingForPlacement");
         this.placeCooldown = tag.getInt("placeCooldown");
-        // 加载过滤的方块（只在存在时加载）
-        if (tag.contains("filterBlock", Tag.TAG_COMPOUND)) {
-            this.filterBlock = ItemStack.parse(provider, tag.getCompound("filterBlock")).orElse(ItemStack.EMPTY);
+        // 加载当前持有的方块
+        if (tag.contains("currentHeldBlock", Tag.TAG_COMPOUND)) {
+            this.currentHeldBlock = ItemStack.parse(provider, tag.getCompound("currentHeldBlock")).orElse(ItemStack.EMPTY);
         } else {
-            this.filterBlock = ItemStack.EMPTY;
+            this.currentHeldBlock = ItemStack.EMPTY;
         }
         // 加载每个layer的位置集合
         this.layerPositions.clear();
@@ -328,54 +194,76 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.isPowered = grid != null && grid.isWorking();
             // 检测红石信号
             this.hasRedstoneSignal = level.hasNeighborSignal(pos);
-            
-            // 如果从"不能工作"变为"可以工作"，重置放置索引
+                
+            // 如果从“不能工作”变为“可以工作”，重置放置索引
             // 不能工作的情况：断电 或 有红石信号
             // 可以工作的情况：通电 且 无红石信号
             boolean wasAbleToWork = wasPowered && !wasRedstoneSignal;
             boolean isAbleToWork = this.isPowered && !this.hasRedstoneSignal;
-            
+                
             if (!wasAbleToWork && isAbleToWork) {
                 currentPlacementIndex = 0;
-                System.out.println("[重置] 恢复工作状态，重置放置索引为0");
             }
-            
-            // 方块放置逻辑
+                
+            // 方块放置逻辑 - 简化版
+            // 逻辑说明：
+            // 1. placeCooldown = 0: 可以开始新周期
+            // 2. placeCooldown = 20→1: 冷却倒计时，在4时放置方块（动画进行到0.8秒，“往前戳”动作）
+            // 3. 每20tick一个完整周期
+            // 4. 只有当前周期结束后才能开始新周期，中途出现空位不影响正在进行的周期
+            // 5. 即使没有空位，也要让placeCooldown完整倒计时，确保动画播放完成
+            // 动画时序对应：
+            //   0-0.2s (tick 0-4, placeCooldown 20-16): 底盘旋转
+            //   0.2-0.4s (tick 4-8, placeCooldown 16-12): 机械臂移动到位（旋转完成后立即开始）
+            //   0.4-0.8s (tick 8-16, placeCooldown 12-4): 停顿
+            //   0.8s (tick 16, placeCooldown 4): ★ 放置方块（往前戳开始）
+            //   0.8-0.9s (tick 16-18, placeCooldown 4-2): 往前戳动作
+            //   0.9-1.0s (tick 18-20, placeCooldown 2-0): 收回动画
             if (isPowered && !hasRedstoneSignal) {
-                // 检查是否有需要放置的位置
                 boolean needsPlacement = hasEmptyPositions(level, pos);
+                boolean hasBlocksInContainer = hasBlockItemsInContainer(level, pos);
                 
-                if (needsPlacement && !isWaitingForPlacement) {
-                    // 需要放置且不在等待中，开始2秒延迟
-                    isWaitingForPlacement = true;
-                    placeCooldown = INITIAL_DELAY;
-                }
-                
-                if (isWaitingForPlacement) {
-                    if (placeCooldown > 0) {
-                        // 等待中，倒计时
-                        placeCooldown--;
-                    } else {
-                        // 延迟结束，执行放置
-                        boolean placed = placeBlocks(level, pos);
-                        if (placed) {
-                            // 放置成功，设置0.5秒冷却继续放置下一个
-                            placeCooldown = PLACE_COOLDOWN;
-                        } else {
-                            // 放置失败（没有物品或所有位置已满），重置等待状态
-                            isWaitingForPlacement = false;
-                            placeCooldown = 0;
-                        }
+                // 冷却倒计时（先倒计时，再判断是否开始新周期）
+                if (placeCooldown > 0) {
+                    placeCooldown--;
+                    
+                    // 在倒计时到4时（即经过了16tick，0.8秒），执行放置（“往前戳”动作开始）
+                    if (placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
+                        placeBlocks(level, pos);
                     }
+                } else if (needsPlacement && hasBlocksInContainer) {
+                    // 只有在冷却完全结束后，且有空位，且容器中有方块时，才能开始新周期
+                    placeCooldown = PLACEMENT_INTERVAL; // 设置为20，下一个tick开始倒计时
+                    // 预览要放置的方块，用于客户端渲染（不真正提取）
+                    currentHeldBlock = peekBlockItemFromNearbyContainers(level, pos);
+                    onChanged();
                 }
             } else {
-                // 断电或有红石信号时，重置所有状态
-                isWaitingForPlacement = false;
+                // 断电或有红石信号时，重置
                 placeCooldown = 0;
+                currentHeldBlock = ItemStack.EMPTY;
             }
-            
+                
             onChanged();
+        } else {
+            // 客户端tick：更新工作状态动画
+            tickClient(level, pos);
         }
+    }
+        
+    /**
+     * 客户端tick，用于更新动画状态
+     */
+    private void tickClient(Level level, BlockPos pos) {
+        // 检测新周期的开始：placeCooldown从0变为20
+        if (lastPlaceCooldown == 0 && placeCooldown == PLACEMENT_INTERVAL) {
+            // 新周期开始，重置动画状态
+            clientAnimationStartTime = 0;
+            clientLastTargetPos = null;
+        }
+        
+        // 更新lastPlaceCooldown
+        lastPlaceCooldown = placeCooldown;
     }
     
     /**
@@ -406,6 +294,36 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         return false;
+    }
+    
+    /**
+     * 检查容器中是否有方块物品
+     */
+    private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
+        BlockState placerState = level.getBlockState(placerPos);
+        Direction facing = placerState.getValue(HorizontalDirectionalBlock.FACING);
+            
+        // 背面一格的位置（facing的反方向）
+        BlockPos containerPos = placerPos.relative(facing.getOpposite());
+            
+        // 尝试从容器检查物品
+        IItemHandler handler = level.getCapability(
+            Capabilities.ItemHandler.BLOCK,
+            containerPos,
+            null
+        );
+            
+        if (handler != null) {
+            // 查找方块物品
+            for (int slot = 0; slot < handler.getSlots(); slot++) {
+                ItemStack stack = handler.getStackInSlot(slot);
+                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
+                    return true; // 找到方块物品
+                }
+            }
+        }
+            
+        return false; // 没有找到方块物品
     }
     
     /**
@@ -440,15 +358,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             // 如果目标位置为空，则尝试放置方块
             if (level.isEmptyBlock(targetPos)) {
-                // 调试：输出当前放置的位置信息
-                System.out.println("[实际放置] Index=" + index + ", Pos=" + targetPos + 
-                    ", 相对basePos: dx=" + (targetPos.getX() - basePos.getX()) + 
-                    ", dy=" + (targetPos.getY() - basePos.getY()) + 
-                    ", dz=" + (targetPos.getZ() - basePos.getZ()));
-                
                 // 从背面容器提取匹配的方块物品
                 ItemStack blockItem = extractBlockItemFromNearbyContainers(level, placerPos);
                 if (blockItem.isEmpty()) {
+                    // 没有提取到方块，清空持有的方块
+                    currentHeldBlock = ItemStack.EMPTY;
+                    onChanged();
                     return false; // 没有找到可用的方块物品
                 }
                 
@@ -465,7 +380,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     
                     // 更新进度索引
                     currentPlacementIndex = (index + 1) % allPositions.size();
-                    System.out.println("[实际放置] 成功！下一个index=" + currentPlacementIndex);
+                    // 放置完成后清空持有的方块
+                    currentHeldBlock = ItemStack.EMPTY;
+                    onChanged();
                     return true; // 成功放置一个方块
                 }
             }
@@ -521,6 +438,37 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
+     * 从背面一格的容器中预览方块物品（不真正提取）
+     */
+    private ItemStack peekBlockItemFromNearbyContainers(Level level, BlockPos placerPos) {
+        BlockState placerState = level.getBlockState(placerPos);
+        Direction facing = placerState.getValue(HorizontalDirectionalBlock.FACING);
+            
+        // 背面一格的位置（facing的反方向）
+        BlockPos containerPos = placerPos.relative(facing.getOpposite());
+            
+        // 尝试从容器预览物品
+        IItemHandler handler = level.getCapability(
+            Capabilities.ItemHandler.BLOCK,
+            containerPos,
+            null
+        );
+            
+        if (handler != null) {
+            // 查找方块物品
+            for (int slot = 0; slot < handler.getSlots(); slot++) {
+                ItemStack stack = handler.getStackInSlot(slot);
+                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
+                    // 返回副本，不真正提取
+                    return stack.copy();
+                }
+            }
+        }
+            
+        return ItemStack.EMPTY;
+    }
+    
+    /**
      * 从背面一格的容器中提取物块物品
      */
     private ItemStack extractBlockItemFromNearbyContainers(Level level, BlockPos placerPos) {
@@ -542,12 +490,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             for (int slot = 0; slot < handler.getSlots(); slot++) {
                 ItemStack stack = handler.getStackInSlot(slot);
                 if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
-                    // 如果设置了过滤方块，检查是否匹配
-                    if (!filterBlock.isEmpty()) {
-                        if (!ItemStack.isSameItemSameComponents(stack, filterBlock)) {
-                            continue; // 不匹配，跳过
-                        }
-                    }
                     // 提取一个物品
                     ItemStack extracted = handler.extractItem(slot, 1, false);
                     if (!extracted.isEmpty()) {
@@ -597,15 +539,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         return pos;
     }
-    
-    /**
-     * 设置过滤的方块类型
-     */
-    @SuppressWarnings("unused")
-    public void setFilterBlock(ItemStack block) {
-        this.filterBlock = block.copy();
-        this.onChanged();
-    }
 
     public void onChanged() {
         this.setChanged();
@@ -652,11 +585,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
         tag.putInt("selectedLayer", selectedLayer);
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
-        tag.putBoolean("isWaitingForPlacement", isWaitingForPlacement);
         tag.putInt("placeCooldown", placeCooldown);
-        // 同步过滤的方块（只在非空时同步）
-        if (!filterBlock.isEmpty()) {
-            tag.put("filterBlock", filterBlock.save(registries));
+        // 同步当前持有的方块（用于客户端渲染）
+        if (!currentHeldBlock.isEmpty()) {
+            tag.put("currentHeldBlock", currentHeldBlock.save(registries));
         }
         // 同步所有layer的位置配置
         CompoundTag layerTag = new CompoundTag();
