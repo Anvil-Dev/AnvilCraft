@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event.giantanvil.shock;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.TraversalNodeStatus;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
@@ -39,15 +40,15 @@ public abstract class DestroyType {
                         VISIT_LIMIT,
                         Util::acceptDirections,
                         it -> {
-                            if (it.getY() < destroyLayer.getY()) return false;
+                            if (it.getY() < destroyLayer.getY()) return TraversalNodeStatus.SKIP;
                             BlockState state = level.getBlockState(it);
                             if (isFellingApplicableBlock(state)) {
                                 List<ItemStack> itemStack = mode.apply(state, it, context);
                                 level.setBlockAndUpdate(it, Blocks.AIR.defaultBlockState());
                                 DestroyType.dropItems(itemStack, it, level);
-                                return true;
+                                return TraversalNodeStatus.ACCEPT;
                             }
-                            return false;
+                            return TraversalNodeStatus.SKIP;
                         }
                     );
                 }
@@ -90,15 +91,15 @@ public abstract class DestroyType {
                         VISIT_LIMIT,
                         Util::acceptDirections,
                         it -> {
-                            if (it.getY() < destroyLayer.getY()) return false;
+                            if (it.getY() < destroyLayer.getY()) return TraversalNodeStatus.SKIP;
                             BlockState blockState = level.getBlockState(it);
                             if (blockState.is(Blocks.COCOA) && blockState.getValue(CocoaBlock.AGE) == 2) {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
                                 level.setBlockAndUpdate(it, blockState.setValue(CocoaBlock.AGE, 0));
                                 DestroyType.dropItems(itemStack, it, level);
-                                return true;
+                                return TraversalNodeStatus.ACCEPT;
                             }
-                            return blockState.is(BlockTags.JUNGLE_LOGS);
+                            return blockState.is(BlockTags.JUNGLE_LOGS) ? TraversalNodeStatus.ACCEPT : TraversalNodeStatus.SKIP;
                         }
                     );
                 }
@@ -150,7 +151,7 @@ public abstract class DestroyType {
                         VISIT_LIMIT,
                         (it, c) -> c.accept(it.below()),
                         it -> {
-                            if (it.getY() > pos.getY()) return false;
+                            if (it.getY() > pos.getY()) return TraversalNodeStatus.SKIP;
                             BlockState blockState = level.getBlockState(it);
                             if (blockState.is(Blocks.CAVE_VINES) || blockState.is(Blocks.CAVE_VINES_PLANT)) {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
@@ -158,9 +159,9 @@ public abstract class DestroyType {
                                     level.setBlockAndUpdate(it, blockState.setValue(CaveVinesPlantBlock.BERRIES, false));
                                     DestroyType.dropItems(itemStack, it, level);
                                 }
-                                return true;
+                                return TraversalNodeStatus.ACCEPT;
                             }
-                            return false;
+                            return TraversalNodeStatus.SKIP;
                         }
                     );
                 }

@@ -21,7 +21,7 @@ public class UseOnBlockEventListener {
             (ServerLevel) context.getLevel(),
             context.getItemInHand(),
             context.getPlayer(),
-            LivingEntity.getSlotForHand(context.getHand()),
+            context.getHand().asEquipmentSlot(),
             context.getClickedPos().getCenter(),
             context.getLevel().getBlockState(context.getClickedPos())
         );

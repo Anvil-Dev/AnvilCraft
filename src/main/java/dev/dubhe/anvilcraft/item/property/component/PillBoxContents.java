@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
-import dev.dubhe.anvilcraft.item.PillItem;
+import dev.dubhe.anvilcraft.item.food.PillItem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;

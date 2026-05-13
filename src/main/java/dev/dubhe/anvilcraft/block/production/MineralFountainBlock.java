@@ -1,0 +1,87 @@
+package dev.dubhe.anvilcraft.block.production;
+
+import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
+
+public class MineralFountainBlock extends BaseEntityBlock {
+    public MineralFountainBlock(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(MineralFountainBlock::new);
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new MineralFountainBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        if (level.isClientSide()) return null;
+        return createTickerHelper(
+            blockEntityType,
+            ModBlockEntities.MINERAL_FOUNTAIN.get(),
+            (_, _, _, entity) -> entity.tick());
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        setTickCount(level, pos);
+        if (!oldState.is(state.getBlock())) TriggerUtil.mineralFountainCreate(level, pos);
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+    }
+
+    @Override
+    protected BlockState updateShape(
+        BlockState state,
+        LevelReader level,
+        ScheduledTickAccess ticks,
+        BlockPos pos,
+        Direction direction,
+        BlockPos neighborPos,
+        BlockState neighborState,
+        RandomSource random
+    ) {
+        if (level instanceof LevelAccessor levelAccessor) {
+            setTickCount(levelAccessor, pos);
+        }
+        return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
+    }
+
+    private void setTickCount(LevelAccessor level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof MineralFountainBlockEntity) {
+                ((MineralFountainBlockEntity) blockEntity).resetTickCount();
+            }
+        }
+    }
+
+}

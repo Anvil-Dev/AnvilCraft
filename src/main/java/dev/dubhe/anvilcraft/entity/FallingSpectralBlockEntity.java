@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.entity;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
+import dev.dubhe.anvilcraft.block.workstation.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;

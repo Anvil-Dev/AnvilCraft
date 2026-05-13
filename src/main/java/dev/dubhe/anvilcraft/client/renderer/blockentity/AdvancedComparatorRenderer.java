@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.AdvancedComparatorRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;

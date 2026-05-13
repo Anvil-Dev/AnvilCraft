@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
-import dev.dubhe.anvilcraft.block.sliding.ISlidingRail;
+import dev.dubhe.anvilcraft.block.logistics.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
 import lombok.Getter;

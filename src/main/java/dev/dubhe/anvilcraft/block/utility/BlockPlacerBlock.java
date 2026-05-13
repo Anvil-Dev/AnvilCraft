@@ -1,0 +1,377 @@
+package dev.dubhe.anvilcraft.block.utility;
+
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.state.Orientation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SeaPickleBlock;
+import net.minecraft.world.level.block.TurtleEggBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
+
+import java.util.EnumSet;
+import java.util.List;
+
+public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammerChangeable {
+
+    public static final VoxelShape NORTH_UP_SHAPE =
+        Shapes.or(Block.box(0, 13, 4, 16, 16, 16), Block.box(0, 3, 6, 16, 13, 16), Block.box(0, 0, 4, 16, 3, 16));
+    public static final VoxelShape SOUTH_UP_SHAPE =
+        Shapes.or(Block.box(0, 13, 0, 16, 16, 12), Block.box(0, 3, 0, 16, 13, 10), Block.box(0, 0, 0, 16, 3, 12));
+    public static final VoxelShape WEST_UP_SHAPE =
+        Shapes.or(Block.box(4, 13, 0, 16, 16, 16), Block.box(6, 3, 0, 16, 13, 16), Block.box(4, 0, 0, 16, 3, 16));
+    public static final VoxelShape EAST_UP_SHAPE =
+        Shapes.or(Block.box(0, 13, 0, 12, 16, 16), Block.box(0, 3, 0, 10, 13, 16), Block.box(0, 0, 0, 12, 3, 16));
+    public static final VoxelShape UP_NORTH_SHAPE =
+        Shapes.or(Block.box(0, 0, 13, 16, 12, 16), Block.box(0, 0, 3, 16, 10, 13), Block.box(0, 0, 0, 16, 12, 3));
+    public static final VoxelShape UP_SOUTH_SHAPE =
+        Shapes.or(Block.box(0, 0, 13, 16, 12, 16), Block.box(0, 0, 3, 16, 10, 13), Block.box(0, 0, 0, 16, 12, 3));
+    public static final VoxelShape UP_WEST_SHAPE =
+        Shapes.or(Block.box(13, 0, 0, 16, 12, 16), Block.box(3, 0, 0, 13, 10, 16), Block.box(0, 0, 0, 3, 12, 16));
+    public static final VoxelShape UP_EAST_SHAPE =
+        Shapes.or(Block.box(13, 0, 0, 16, 12, 16), Block.box(3, 0, 0, 13, 10, 16), Block.box(0, 0, 0, 3, 12, 16));
+    public static final VoxelShape DOWN_NORTH_SHAPE =
+        Shapes.or(Block.box(0, 4, 13, 16, 16, 16), Block.box(0, 6, 3, 16, 16, 13), Block.box(0, 4, 0, 16, 16, 3));
+    public static final VoxelShape DOWN_SOUTH_SHAPE =
+        Shapes.or(Block.box(0, 4, 13, 16, 16, 16), Block.box(0, 6, 3, 16, 16, 13), Block.box(0, 4, 0, 16, 16, 3));
+    public static final VoxelShape DOWN_WEST_SHAPE =
+        Shapes.or(Block.box(0, 4, 0, 3, 16, 16), Block.box(3, 6, 0, 13, 16, 16), Block.box(13, 4, 0, 16, 16, 16));
+    public static final VoxelShape DOWN_EAST_SHAPE =
+        Shapes.or(Block.box(0, 4, 0, 3, 16, 16), Block.box(3, 6, 0, 13, 16, 16), Block.box(13, 4, 0, 16, 16, 16));
+    public static final EnumProperty<Orientation> ORIENTATION = EnumProperty.create("orientation", Orientation.class);
+    public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
+
+    public BlockPlacerBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition
+            .any()
+            .setValue(ORIENTATION, Orientation.NORTH_UP)
+            .setValue(TRIGGERED, false));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(ORIENTATION).add(TRIGGERED);
+    }
+
+    @Override
+    protected void onPlace(BlockState state,
+                           Level level,
+                           BlockPos pos,
+                           BlockState oldState,
+                           boolean movedByPiston) {
+        if (!level.isClientSide()) {
+            checkIfTriggered(level, state, pos);
+        }
+    }
+
+    @Override
+    public void tick(
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        RandomSource random) {
+        super.tick(state, level, pos, random);
+        if (!state.getValue(TRIGGERED)) return;
+        if (!hasNeighborSignal(level, pos, state.getValue(ORIENTATION).getDirection())) {
+            level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
+        }
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        net.minecraft.world.level.redstone.@Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
+        if (!level.isClientSide()) {
+            checkIfTriggered(level, state, pos);
+        }
+    }
+
+    private void checkIfTriggered(Level level, BlockState blockState, BlockPos blockPos) {
+        boolean triggered = blockState.getValue(TRIGGERED);
+        if (triggered != hasNeighborSignal(level, blockPos, blockState.getValue(ORIENTATION).getDirection())) {
+            BlockState changedState = blockState.setValue(TRIGGERED, !triggered);
+            level.setBlock(blockPos, changedState, 2);
+            if (triggered) {
+                return;
+            }
+            placeBlock(1, level, blockPos, blockState.getValue(ORIENTATION));
+        }
+    }
+
+    public static boolean hasNeighborSignal(Level level, BlockPos pos, Direction ignored) {
+        EnumSet<Direction> directions = EnumSet.allOf(Direction.class);
+        directions.remove(ignored);
+        for (Direction direction : directions) {
+            if (level.hasSignal(pos.relative(direction), direction)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @Override
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context) {
+        return switch (state.getValue(ORIENTATION)) {
+            case NORTH_UP -> NORTH_UP_SHAPE;
+            case SOUTH_UP -> SOUTH_UP_SHAPE;
+            case WEST_UP -> WEST_UP_SHAPE;
+            case EAST_UP -> EAST_UP_SHAPE;
+            case UP_NORTH -> UP_NORTH_SHAPE;
+            case UP_SOUTH -> UP_SOUTH_SHAPE;
+            case UP_WEST -> UP_WEST_SHAPE;
+            case UP_EAST -> UP_EAST_SHAPE;
+            case DOWN_NORTH -> DOWN_NORTH_SHAPE;
+            case DOWN_SOUTH -> DOWN_SOUTH_SHAPE;
+            case DOWN_WEST -> DOWN_WEST_SHAPE;
+            case DOWN_EAST -> DOWN_EAST_SHAPE;
+        };
+    }
+
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+        return false;
+    }
+
+    @Override
+    @Nullable
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Orientation orientation;
+        Direction horizontalDirection = context.getHorizontalDirection();
+        if (context.getNearestLookingDirection() == Direction.UP) {
+            switch (horizontalDirection) {
+                case SOUTH -> orientation = Orientation.UP_SOUTH;
+                case WEST -> orientation = Orientation.UP_WEST;
+                case EAST -> orientation = Orientation.UP_EAST;
+                default -> orientation = Orientation.UP_NORTH;
+            }
+        } else if (context.getNearestLookingDirection() == Direction.DOWN) {
+            switch (horizontalDirection) {
+                case SOUTH -> orientation = Orientation.DOWN_SOUTH;
+                case WEST -> orientation = Orientation.DOWN_WEST;
+                case EAST -> orientation = Orientation.DOWN_EAST;
+                default -> orientation = Orientation.DOWN_NORTH;
+            }
+        } else {
+            switch (horizontalDirection) {
+                case SOUTH -> orientation = Orientation.SOUTH_UP;
+                case WEST -> orientation = Orientation.WEST_UP;
+                case EAST -> orientation = Orientation.EAST_UP;
+                default -> orientation = Orientation.NORTH_UP;
+            }
+        }
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
+            orientation = orientation.opposite();
+        }
+        return defaultBlockState().setValue(ORIENTATION, orientation);
+    }
+
+    /**
+     * 放置方块
+     *
+     * @param distance    放置距离
+     * @param level       放置世界
+     * @param blockPos    放置位置
+     * @param orientation 放置方向
+     */
+    public void placeBlock(int distance, Level level, BlockPos blockPos, Orientation orientation) {
+        // 判断是放置位置是否不能放置方块
+        Direction direction = orientation.getDirection();
+        BlockState blockState = level.getBlockState(blockPos.relative(direction, distance));
+        if (canNotBePlaced(level, blockState)) {
+            // 不能放置方块，方法直接结束
+            return;
+        }
+        BlockPos inputPos = blockPos.relative(direction.getOpposite());
+        // 获取放置方块类型
+        ItemStack placeItem = null;
+        ResourceHandler<ItemResource> itemHandler = ItemHandlerUtil.getSourceItemHandlerRecursive(this, inputPos, direction, level);
+        int slot;
+        for (slot = 0; itemHandler != null && slot < itemHandler.size(); slot++) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource resource = itemHandler.getResource(slot);
+                if (resource.isEmpty() || !(resource.getItem() instanceof BlockItem)) continue;
+                int extracted = itemHandler.extract(slot, resource, 1, transaction);
+                if (extracted != 1) continue;
+                placeItem = resource.toStack(1);
+                break;
+            }
+        }
+
+        ItemEntity itemEntity = null;
+        // 从放置器背后的掉落物中获取物品
+        if (itemHandler == null) {
+            int i = 0;
+            do {
+                if (level.getBlockState(inputPos).is(this)
+                    && level.getBlockState(inputPos).getValue(ORIENTATION).getDirection() == direction
+                ) {
+                    i++;
+                    inputPos = inputPos.relative(direction.getOpposite());
+                } else {
+                    AABB aabb = new AABB(inputPos);
+                    List<ItemEntity> entities =
+                        level.getEntities(
+                            EntityTypeTest.forClass(ItemEntity.class),
+                            aabb,
+                            Entity::isAlive
+                        );
+                    if (entities.isEmpty()) return;
+                    for (ItemEntity entity : entities) {
+                        if (entity.getItem().getItem() instanceof BlockItem) {
+                            itemEntity = entity;
+                            placeItem = entity.getItem();
+                            break;
+                        }
+                    }
+                    if (itemEntity == null) return;
+                }
+            } while (itemEntity == null && i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
+        }
+        if (placeItem == null) return;
+        // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
+        BlockItem blockItem = (BlockItem) placeItem.getItem();
+        boolean isInvalidBlock = blockState.is(Blocks.TURTLE_EGG)
+            || blockState.is(Blocks.SEA_PICKLE)
+            || (blockState.getBlock() instanceof CandleBlock);
+        boolean blockMismatch = blockState.getBlock() != blockItem.getBlock();
+        if (isInvalidBlock && blockMismatch) {
+            return;
+        }
+        BlockPos placePos = blockPos.relative(direction, distance);
+        // 放置方块
+        if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
+            level,
+            placePos,
+            orientation,
+            blockItem,
+            placeItem) == InteractionResult.FAIL
+        ) {
+            return;
+        }
+        // 清除消耗的物品
+        if (itemHandler == null) {
+            int count = itemEntity.getItem().getCount();
+            // 处理细雪桶
+            if (itemEntity.getItem().is(Items.POWDER_SNOW_BUCKET)) {
+                itemEntity.setItem(new ItemStack(Items.BUCKET, count));
+            }
+        } else {
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource resource = itemHandler.getResource(slot);
+                int extracted = itemHandler.extract(slot, resource, 1, transaction);
+                if (extracted <= 0) return;
+                transaction.commit();
+                if (resource.is(Items.POWDER_SNOW_BUCKET)) {
+                    int inserted = itemHandler.insert(slot, ItemResource.of(Items.BUCKET), 1, transaction);
+                    if (inserted <= 0) return;
+                    transaction.commit();
+                }
+            }
+        }
+    }
+
+    /**
+     * 判断当前位置是否不能放置方块
+     *
+     * @param level      放置世界
+     * @param blockState 方块放置器前面方块的方块状态
+     * @return 当前位置是否不能放置方块
+     */
+    private boolean canNotBePlaced(Level level, BlockState blockState) {
+        if (level instanceof ServerLevel) {
+            // 可替换方块
+            if (blockState.is(BlockTags.REPLACEABLE)) {
+                return false;
+            }
+            // 海龟蛋
+            if (blockState.is(Blocks.TURTLE_EGG) && blockState.getValue(TurtleEggBlock.EGGS) < 4) {
+                return false;
+            }
+            // 海泡菜
+            if (blockState.is(Blocks.SEA_PICKLE) && blockState.getValue(SeaPickleBlock.PICKLES) < 4) {
+                return false;
+            }
+            // 蜡烛
+            return !(blockState.getBlock() instanceof CandleBlock) || blockState.getValue(CandleBlock.CANDLES) >= 4;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
+        BlockState state = defaultBlockState();
+        state = state.setValue(
+            ORIENTATION,
+            level.getBlockState(blockPos).getValue(ORIENTATION).next()
+        );
+        level.setBlockAndUpdate(blockPos, state);
+        return true;
+    }
+
+    @Override
+    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+        return ORIENTATION;
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(ORIENTATION, state.getValue(ORIENTATION).rotate(rotation));
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(ORIENTATION, state.getValue(ORIENTATION).mirror(mirror));
+    }
+}

@@ -60,7 +60,7 @@ public class CauldronOutletEventListener {
         CauldronOutletEntity existingMouth = findExistingCauldronMouthAtPosition(level, blockPos, newPosition);
 
         if (existingMouth != null) {
-            existingMouth.kill();
+            existingMouth.discard();
             level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
             return;
         }
@@ -107,7 +107,7 @@ public class CauldronOutletEventListener {
     private static void removeExistingCauldronMouth(Level level, BlockPos cauldronPos) {
         List<CauldronOutletEntity> existingMouths = getCauldronMouths(level, cauldronPos);
         for (CauldronOutletEntity mouth : existingMouths) {
-            mouth.kill();
+            mouth.discard();
         }
     }
 

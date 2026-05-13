@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
-import dev.dubhe.anvilcraft.item.FilterItem;
+import dev.dubhe.anvilcraft.item.utility.FilterItem;
 import dev.dubhe.anvilcraft.network.BatchCutterSelectPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;

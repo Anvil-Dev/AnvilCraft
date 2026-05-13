@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.cfa.item;
 
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
-import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;

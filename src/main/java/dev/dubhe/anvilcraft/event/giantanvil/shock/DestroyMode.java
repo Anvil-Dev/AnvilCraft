@@ -103,7 +103,7 @@ public abstract class DestroyMode {
                         RecipeType.SMELTING,
                         input,
                         ctx.level()
-                    ).map(it1 -> it1.value().assemble(input, ctx.level().registryAccess()))
+                    ).map(it1 -> it1.value().assemble(input))
                     .orElse(it);
                 // if (itemStack.getItem() != Items.AIR && itemStack.getCount() == 0) {
                 //     itemStack.setCount(1);

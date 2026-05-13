@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.event.anvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
+import dev.dubhe.anvilcraft.block.power.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -25,7 +25,7 @@ public class AnvilHitPiezoelectricCrystalBlockEventListener {
         Block block = level.getBlockState(anvilPos.below()).getBlock();
         if (event.getEntity().blockState.is(ModBlocks.GIANT_ANVIL.get())) return;
         if (block instanceof PiezoelectricCrystalBlock piezoelectricCrystalBlock) {
-            piezoelectricCrystalBlock.onHitByAnvil(event.getEntity(), event.getFallDistance(), level, anvilPos.below());
+            piezoelectricCrystalBlock.onHitByAnvil(event.getEntity(), (float) event.getFallDistance(), level, anvilPos.below());
         }
     }
 

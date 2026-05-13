@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.network.UpdatePropelPistonStoredEnergyPacket;
@@ -44,7 +44,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public Direction getFacing() {
-        return getBlockState().getValue(PropelPiston.FACING);
+        return getBlockState().getValue(PropelPistonBlock.FACING);
     }
 
     public void updateStoredEnergy(Integer energy) {
@@ -84,12 +84,12 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
             }
         }
         if (getStoredEnergy() > 0) {
-            level.setBlockAndUpdate(pos, state.setValue(PropelPiston.EXHAUSTED, false));
+            level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, false));
             if (!level.getBlockTicks().hasScheduledTick(pos, state.getBlock())) {
                 checkCanMove(level, pos, state);
             }
         } else {
-            level.setBlockAndUpdate(pos, state.setValue(PropelPiston.EXHAUSTED, true).setValue(PropelPiston.MOVING, false));
+            level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, true).setValue(PropelPistonBlock.MOVING, false));
         }
         super.tick(level);
         resetState();
@@ -98,17 +98,17 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     @Override
     public Set<Direction> getIgnoreFace() {
         Set<Direction> directions = new HashSet<>(List.of(Direction.values()));
-        directions.remove(getBlockState().getValue(PropelPiston.FACING).getOpposite());
+        directions.remove(getBlockState().getValue(PropelPistonBlock.FACING).getOpposite());
         return directions;
     }
 
     private void checkCanMove(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(PropelPiston.FACING);
-        if (state.getValue(PropelPiston.MOVING)) {
+        Direction direction = state.getValue(PropelPistonBlock.FACING);
+        if (state.getValue(PropelPistonBlock.MOVING)) {
             if (new PistonStructureResolver(level, pos, direction, true).resolve()) {
-                level.blockEvent(pos, state.getBlock(), 0, state.getValue(PropelPiston.FACING).get3DDataValue());
+                level.blockEvent(pos, state.getBlock(), 0, state.getValue(PropelPistonBlock.FACING).get3DDataValue());
             } else {
-                level.setBlockAndUpdate(pos, state.setValue(PropelPiston.MOVING, false));
+                level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.MOVING, false));
             }
         }
     }

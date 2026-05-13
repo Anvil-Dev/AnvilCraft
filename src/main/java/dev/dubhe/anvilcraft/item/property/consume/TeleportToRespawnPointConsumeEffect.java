@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.item.property.consume;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModConsumeEffects;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.RecoveryPearl;
+import dev.dubhe.anvilcraft.item.utility.RecoveryPearlItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -61,7 +61,7 @@ public class TeleportToRespawnPointConsumeEffect implements ConsumeEffect {
         }
         ResourceKey<Level> respawnDimension = respawnData.dimension();
         BlockPos respawnPos = respawnData.pos();
-        RecoveryPearl.crossDimensionTeleportTo(respawnDimension, player, respawnPos);
+        RecoveryPearlItem.crossDimensionTeleportTo(respawnDimension, player, respawnPos);
         return true;
     }
 }

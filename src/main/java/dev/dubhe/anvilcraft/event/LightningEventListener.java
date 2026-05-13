@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
-import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
+import static dev.dubhe.anvilcraft.block.storage.MagnetBlock.LIT;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LightningEventListener {

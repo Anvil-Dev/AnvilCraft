@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.block.entity.IExtensibleBlockEntity;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.SingleStackResourceHandler;
-import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
+import dev.dubhe.anvilcraft.block.logistics.chute.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import lombok.Setter;

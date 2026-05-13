@@ -154,7 +154,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         AnvilEvent.OnLand event = new AnvilEvent.OnLand(level, blockPos.above(), dummyAnvilEntity, player.fallDistance);
         NeoForge.EVENT_BUS.post(event);
         level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1F, 1F);
-        itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(InteractionHand.MAIN_HAND));
+        itemStack.hurtAndBreak(1, player, InteractionHand.MAIN_HAND);
         TriggerUtil.anvilHammerClickBlock(level, blockPos, "left_click");
         return true;
     }
@@ -283,7 +283,7 @@ public class AnvilHammerItem extends Item implements Equipable {
 
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        stack.hurtAndBreak(1, attacker, LivingEntity.getSlotForHand(target.getUsedItemHand()));
+        stack.hurtAndBreak(1, attacker, target.getUsedItemHand());
         float damageBonus = calculateFallDamageBonus(attacker.fallDistance);
         Level level = target.level();
         if (level instanceof ServerLevel serverLevel) {

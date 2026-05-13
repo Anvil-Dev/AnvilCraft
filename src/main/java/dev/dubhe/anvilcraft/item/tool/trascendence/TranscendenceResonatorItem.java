@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item.tool.trascendence;
 
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.ModTiers;
+import dev.dubhe.anvilcraft.init.ModTiers;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;

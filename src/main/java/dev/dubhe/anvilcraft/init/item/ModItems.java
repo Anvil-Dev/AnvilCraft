@@ -14,31 +14,31 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
-import dev.dubhe.anvilcraft.item.CapacitorItem;
-import dev.dubhe.anvilcraft.item.CrabClawItem;
-import dev.dubhe.anvilcraft.item.DiskItem;
-import dev.dubhe.anvilcraft.item.EmberMetalIngotItem;
-import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
-import dev.dubhe.anvilcraft.item.EmptySuperCapacitorItem;
-import dev.dubhe.anvilcraft.item.EnergyWeaponPlatformItem;
-import dev.dubhe.anvilcraft.item.ExpGemItem;
-import dev.dubhe.anvilcraft.item.FilterItem;
-import dev.dubhe.anvilcraft.item.GeodeItem;
-import dev.dubhe.anvilcraft.item.GuideBookItem;
-import dev.dubhe.anvilcraft.item.HeavyHalberdCoreItem;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
-import dev.dubhe.anvilcraft.item.IonoCraftItem;
-import dev.dubhe.anvilcraft.item.MagnetItem;
-import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
-import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
-import dev.dubhe.anvilcraft.item.PillBoxItem;
-import dev.dubhe.anvilcraft.item.RecoveryPearl;
-import dev.dubhe.anvilcraft.item.ResonatorCoreItem;
-import dev.dubhe.anvilcraft.item.RoyalSteelIngotItem;
-import dev.dubhe.anvilcraft.item.SeedsPackItem;
-import dev.dubhe.anvilcraft.item.StructureToolItem;
-import dev.dubhe.anvilcraft.item.SuperCapacitorItem;
-import dev.dubhe.anvilcraft.item.TopazItem;
+import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
+import dev.dubhe.anvilcraft.item.utility.CrabClawItem;
+import dev.dubhe.anvilcraft.item.utility.DiskItem;
+import dev.dubhe.anvilcraft.item.ingredients.EmberMetalIngotItem;
+import dev.dubhe.anvilcraft.item.ingredients.EmptyCapacitorItem;
+import dev.dubhe.anvilcraft.item.ingredients.EmptySuperCapacitorItem;
+import dev.dubhe.anvilcraft.item.utility.EnergyWeaponPlatformItem;
+import dev.dubhe.anvilcraft.item.ingredients.ExpGemItem;
+import dev.dubhe.anvilcraft.item.utility.FilterItem;
+import dev.dubhe.anvilcraft.item.utility.GeodeItem;
+import dev.dubhe.anvilcraft.item.utility.GuideBookItem;
+import dev.dubhe.anvilcraft.item.ingredients.HeavyHalberdCoreItem;
+import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.utility.IonoCraftItem;
+import dev.dubhe.anvilcraft.item.utility.MagnetItem;
+import dev.dubhe.anvilcraft.item.ingredients.MultiphaseMatterItem;
+import dev.dubhe.anvilcraft.item.ingredients.MultiphaseTranscendiumItem;
+import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
+import dev.dubhe.anvilcraft.item.utility.RecoveryPearlItem;
+import dev.dubhe.anvilcraft.item.ingredients.ResonatorCoreItem;
+import dev.dubhe.anvilcraft.item.ingredients.RoyalSteelIngotItem;
+import dev.dubhe.anvilcraft.item.utility.SeedsPackItem;
+import dev.dubhe.anvilcraft.item.utility.StructureToolItem;
+import dev.dubhe.anvilcraft.item.ingredients.SuperCapacitorItem;
+import dev.dubhe.anvilcraft.item.ingredients.TopazItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
@@ -759,7 +759,7 @@ public class ModItems {
 
     public static final ItemEntry<Item> TIN_CAN = REGISTRUM.item("tin_can", Item::new).register();
 
-    public static final ItemEntry<RecoveryPearl> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", RecoveryPearl::new)
+    public static final ItemEntry<RecoveryPearlItem> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", RecoveryPearlItem::new)
         .properties(properties -> properties.stacksTo(16))
         .recipe(RegistrumItemRecipeLoader::recoveryPearl)
         .register();

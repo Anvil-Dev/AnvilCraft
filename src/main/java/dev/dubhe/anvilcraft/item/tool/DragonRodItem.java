@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.item.tool;
 
 import com.google.common.collect.Streams;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
-import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
+import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -31,9 +31,11 @@ import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.List;
 import java.util.Objects;
@@ -155,11 +157,11 @@ public class DragonRodItem extends Item {
                     }
                 }
                 // 特判雕纹书架一类
-                IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devouringPos, null);
+                ResourceHandler<ItemResource> source = level.getCapability(Capabilities.ItemHandler.BLOCK, devouringPos, null);
                 if (source != null && dropList.isEmpty()) {
-                    for (IntListIterator it = IntIterators.fromTo(0, source.getSlots()); it.hasNext(); ) {
+                    for (IntListIterator it = IntIterators.fromTo(0, source.size()); it.hasNext(); ) {
                         int slot = it.nextInt();
-                        ItemStack stack = source.getStackInSlot(slot);
+                        ItemStack stack = ItemResourceHelper.getStackInSlot(source, slot);
                         if (stack.isEmpty()) continue;
                         stack = InventoryUtil.insertItem(inventory, stack);
                         if (!stack.isEmpty()) {
@@ -195,7 +197,7 @@ public class DragonRodItem extends Item {
         }
 
         dragonRod.hurtAndBreak(calculateDamage(dragonRod), level, player, item -> {
-            player.onEquippedItemBroken(item, LivingEntity.getSlotForHand(hand));
+            player.onEquippedItemBroken(item, hand);
             EventHooks.onPlayerDestroyItem(player, dragonRod, hand);
         });
     }

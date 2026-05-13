@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.dubhe.anvilcraft.block.BlackHoleBlock;
-import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
+import dev.dubhe.anvilcraft.block.special.BlackHoleBlock;
+import dev.dubhe.anvilcraft.block.special.WhiteHoleBlock;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;

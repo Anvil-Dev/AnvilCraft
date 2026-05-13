@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
+import static dev.dubhe.anvilcraft.block.storage.MagnetBlock.LIT;
 
 @Mixin(DispenserBlock.class)
 public class DispenserBlockMixin {

@@ -228,7 +228,7 @@ public class MultitoolItem extends Item {
             if (!level.isClientSide()) {
                 int i = player.fishing.retrieve(itemstack);
                 ItemStack original = itemstack.copy();
-                itemstack.hurtAndBreak(i, player, LivingEntity.getSlotForHand(usedHand));
+                itemstack.hurtAndBreak(i, player, usedHand);
                 if (itemstack.isEmpty()) {
                     net.neoforged.neoforge.event.EventHooks.onPlayerDestroyItem(player, original, usedHand);
                 }
@@ -274,8 +274,7 @@ public class MultitoolItem extends Item {
             Entity entity = player.getControlledVehicle();
             if (player.isPassenger() && entity instanceof ItemSteerable itemSteerable) {
                 if (entity.getType() == EntityType.PIG && itemSteerable.boost()) {
-                    EquipmentSlot equipmentslot = LivingEntity.getSlotForHand(usedHand);
-                    itemStack.hurtAndBreak(7, player, equipmentslot);
+                    itemStack.hurtAndBreak(7, player, usedHand);
                     return InteractionResultHolder.success(itemStack);
                 }
             }
@@ -290,8 +289,7 @@ public class MultitoolItem extends Item {
             Entity entity = player.getControlledVehicle();
             if (player.isPassenger() && entity instanceof ItemSteerable itemSteerable) {
                 if (entity.getType() == EntityType.STRIDER && itemSteerable.boost()) {
-                    EquipmentSlot equipmentslot = LivingEntity.getSlotForHand(usedHand);
-                    itemStack.hurtAndBreak(1, player, equipmentslot);
+                    itemStack.hurtAndBreak(1, player, usedHand);
                     return InteractionResultHolder.success(itemStack);
                 }
             }
@@ -314,7 +312,7 @@ public class MultitoolItem extends Item {
             level.setBlockAndUpdate(blockpos, blockstate1);
             level.gameEvent(GameEvent.BLOCK_CHANGE, blockpos, GameEvent.Context.of(context.getPlayer(), blockstate1));
             if (player != null) {
-                itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                itemstack.hurtAndBreak(1, player, context.getHand());
             }
 
             return InteractionResult.sidedSuccess(level.isClientSide());
@@ -346,7 +344,7 @@ public class MultitoolItem extends Item {
                 ItemStack itemstack = context.getItemInHand();
                 if (player instanceof ServerPlayer serverPlayer) {
                     CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, blockpos1, itemstack);
-                    itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                    itemstack.hurtAndBreak(1, player, context.getHand());
                 }
 
                 return InteractionResult.sidedSuccess(level.isClientSide());
@@ -365,7 +363,7 @@ public class MultitoolItem extends Item {
             level.setBlock(blockpos, blockstate2, 11);
             level.gameEvent(player, GameEvent.BLOCK_CHANGE, blockpos);
             if (player != null) {
-                context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                context.getItemInHand().hurtAndBreak(1, player, context.getHand());
             }
 
             return InteractionResult.sidedSuccess(level.isClientSide());
@@ -496,7 +494,7 @@ public class MultitoolItem extends Item {
 
                 interactionTarget.gameEvent(GameEvent.SHEAR, player);
                 if (!isClient) {
-                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(usedHand));
+                    stack.hurtAndBreak(1, player, usedHand);
                 }
 
                 return InteractionResult.sidedSuccess(isClient);

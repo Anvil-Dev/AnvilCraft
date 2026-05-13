@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +16,6 @@ import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
@@ -50,7 +50,7 @@ public class ModEnchantmentHelper {
         EquipmentSlot slot,
         Vec3 pos,
         BlockState state,
-        LootContextParamSet paramSet,
+        ContextKeySet paramSet,
         DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> effectType
     ) {
         EnchantmentHelper.runIterationOnItem(stack, (holder, enchantmentLevel) -> {

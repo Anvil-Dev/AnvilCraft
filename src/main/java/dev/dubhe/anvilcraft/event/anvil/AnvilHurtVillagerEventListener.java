@@ -3,17 +3,19 @@ package dev.dubhe.anvilcraft.event.anvil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.VillagerData;
-import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.entity.npc.VillagerType;
-import net.minecraft.world.entity.npc.WanderingTrader;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerData;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerType;
+import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
@@ -43,29 +45,33 @@ public class AnvilHurtVillagerEventListener {
 
             VillagerData villageData = villager.getVillagerData();
 
-            if (villageData.getProfession() == VillagerProfession.NITWIT) {
+            if (villageData.profession().is(VillagerProfession.NITWIT)) {
                 return;
             }
 
             if (random.nextDouble() <= 0.2) {
-                villageData = villageData.setProfession(VillagerProfession.NITWIT);
+                villageData = villageData.withProfession(level.registryAccess(), VillagerProfession.NITWIT);
             } else {
-                villageData = villageData.setProfession(VillagerProfession.NONE).setLevel(1);
+                villageData = villageData
+                    .withProfession(level.registryAccess(), VillagerProfession.NONE)
+                    .withLevel(1);
                 villager.setVillagerXp(0);
             }
             villager.setVillagerData(villageData);
         }
         if (entity instanceof WanderingTrader trader) {
             final BlockPos pos = event.getPos();
-            final VillagerType type = VillagerType.byBiome(level.getBiome(pos));
-            VillagerProfession profession = VillagerProfession.NONE;
+            final ResourceKey<VillagerType> typeKey = VillagerType.byBiome(level.getBiome(pos));
+            final Holder<VillagerType> type = level.registryAccess().getOrThrow(typeKey);
+            ResourceKey<VillagerProfession> professionKey = VillagerProfession.NONE;
             RandomSource random = level.getRandom();
             double chance = random.nextDouble();
             if (chance < 0.15) {
-                profession = VillagerProfession.NITWIT;
+                professionKey = VillagerProfession.NITWIT;
             } else if (chance < 0.25) {
-                profession = VillagerProfession.FARMER;
+                professionKey = VillagerProfession.FARMER;
             }
+            Holder<VillagerProfession> profession = level.registryAccess().getOrThrow(professionKey);
             Villager villager = new Villager(EntityType.VILLAGER, level);
             villager.setPos(trader.position());
             villager.setPose(trader.getPose());
@@ -74,9 +80,9 @@ public class AnvilHurtVillagerEventListener {
             villager.setYHeadRot(trader.getYHeadRot());
             MerchantOffers offers = new MerchantOffers();
             VillagerData villageData = new VillagerData(type, profession, 1);
-            if (profession == VillagerProfession.FARMER) {
+            if (professionKey == VillagerProfession.FARMER) {
                 villager.setVillagerXp(250);
-                villageData = villageData.setLevel(5);
+                villageData = villageData.withLevel(5);
                 villager.setVillagerData(villageData);
                 for (MerchantOffer offer : trader.getOffers()) {
                     offers.add(offer.copy());
@@ -86,8 +92,8 @@ public class AnvilHurtVillagerEventListener {
             trader.remove(Entity.RemovalReason.DISCARDED);
             villager.finalizeSpawn(
                 (ServerLevelAccessor) level,
-                level.getCurrentDifficultyAt(villager.blockPosition()),
-                MobSpawnType.CONVERSION,
+                ((ServerLevel) level).getCurrentDifficultyAt(villager.blockPosition()),
+                EntitySpawnReason.CONVERSION,
                 null
             );
             ((ServerLevel) level).tryAddFreshEntityWithPassengers(villager);

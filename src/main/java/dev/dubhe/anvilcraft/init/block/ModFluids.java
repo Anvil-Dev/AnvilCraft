@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.MeltGemFluid;
+import dev.dubhe.anvilcraft.block.fluid.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.init.item.ModItems;

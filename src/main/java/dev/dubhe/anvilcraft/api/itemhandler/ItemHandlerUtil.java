@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.utility.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

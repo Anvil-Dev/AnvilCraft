@@ -16,6 +16,8 @@ import dev.dubhe.anvilcraft.data.tags.TagsHandler;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.init.entity.ModTradeSets;
+import dev.dubhe.anvilcraft.init.entity.ModVillagerTrades;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.advancements.criterion.ItemPredicate;
@@ -69,6 +71,8 @@ public class AnvilCraftDatagen {
         var genInit = REGISTRUM.getDataGenInitializer();
         genInit.add(Registries.ENCHANTMENT, ModEnchantments::bootstrap);
         genInit.add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap);
+        genInit.add(Registries.VILLAGER_TRADE, ModVillagerTrades::bootstrap);
+        genInit.add(Registries.TRADE_SET, ModTradeSets::bootstrap);
         genInit.add(LibRegistries.DEFINITIONS_KEY, ModMultiblockDefinitions::bootstrap);
 
 

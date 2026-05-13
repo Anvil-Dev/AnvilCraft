@@ -34,7 +34,7 @@ public class PortalEventListener {
         }
         if (entity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) return;
         Map.Entry<BlockState, CompoundTag> result = CompatUtil.PORTAL_DEFAULT_CONVERSION.get(type.getPortal());
-        Optional<RecipeHolder<PortalConversionRecipe>> recipeOp = level.getRecipeManager().getRecipeFor(
+        Optional<RecipeHolder<PortalConversionRecipe>> recipeOp = level.getServer().getRecipeManager().getRecipeFor(
             ModRecipeTypes.PORTAL_CONVERSION.get(),
             new PortalConversionRecipe.Input(type, entity),
             level
