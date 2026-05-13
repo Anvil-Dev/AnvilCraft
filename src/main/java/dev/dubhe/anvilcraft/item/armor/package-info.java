@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.dubhe.anvilcraft.util.function;
+package dev.dubhe.anvilcraft.item.armor;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 

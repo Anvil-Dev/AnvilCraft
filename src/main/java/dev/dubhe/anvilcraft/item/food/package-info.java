@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.item.food;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 
