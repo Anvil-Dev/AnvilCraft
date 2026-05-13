@@ -21,13 +21,13 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static net.minecraft.world.entity.vehicle.Boat.canVehicleCollide;
+import static net.minecraft.world.entity.vehicle.boat.AbstractBoat.canVehicleCollide;
 
 public class IonocraftEntity extends VehicleEntity {
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION = new DynamicPowerComponent.PowerConsumption(16);
@@ -181,8 +181,8 @@ public class IonocraftEntity extends VehicleEntity {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
-        return true;
+    public boolean canBeCollidedWith(@Nullable Entity other) {
+        return super.canBeCollidedWith(other);
     }
 
     @Override

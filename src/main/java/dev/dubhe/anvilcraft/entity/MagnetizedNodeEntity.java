@@ -8,7 +8,9 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -61,7 +63,7 @@ public class MagnetizedNodeEntity extends Entity {
             BlockState currentState = this.level().getBlockState(this.blockPos);
             if (!currentState.is(this.blockState.getBlock())
                 && (!currentState.is(BlockTags.CAULDRONS) || !this.blockState.is(BlockTags.CAULDRONS))) {
-                this.kill();
+                this.discard();
             }
         }
         AABB aabb = new AABB(blockPos.getX() - 0.01,
@@ -90,25 +92,30 @@ public class MagnetizedNodeEntity extends Entity {
     }
 
     @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        return false;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_BLOCK_POS, BlockPos.ZERO).define(DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput compoundTag) {
-        this.blockPos = NbtUtils.readBlockPos(compoundTag, "BlockPos").orElse(BlockPos.ZERO);
-        this.blockState = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), compoundTag.getCompoundOrEmpty("BlockState"));
+        compoundTag.read("block_pos", BlockPos.CODEC).ifPresent(it -> this.blockPos = it);
+        compoundTag.read("block_state",BlockState.CODEC).ifPresent(it -> this.blockState = it);
     }
 
     @Override
     protected void addAdditionalSaveData(ValueOutput compoundTag) {
-        compoundTag.put("BlockState", NbtUtils.writeBlockState(this.blockState));
-        compoundTag.put("BlockPos", NbtUtils.writeBlockPos(this.blockPos));
+        compoundTag.store("block_state", BlockState.CODEC, this.blockState);
+        compoundTag.store("block_pos", BlockPos.CODEC, this.blockPos);
     }
 
     @Override
-    protected AABB makeBoundingBox() {
-        return EntityDimensions.scalable(0.25F, 0.25F).makeBoundingBox(this.position());
+    protected AABB makeBoundingBox(Vec3 pos) {
+        return EntityDimensions.scalable(0.25F, 0.25F).makeBoundingBox(pos);
     }
 
     @Override

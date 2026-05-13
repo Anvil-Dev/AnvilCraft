@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -12,9 +13,11 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,9 +25,12 @@ import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueInputContextHelper;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Set;
 
 public class CauldronOutletEntity extends Entity {
     private static final EntityDataAccessor<BlockPos> DATA_CAULDRON_POS = SynchedEntityData.defineId(
@@ -169,7 +175,7 @@ public class CauldronOutletEntity extends Entity {
             } else {
                 if (!this.wasMoving && this.targetPos == null) {
                     // 如果不在移动状态且没有目标位置，则销毁实体
-                    this.kill();
+                    this.discard();
                 }
                 return;
             }
@@ -194,12 +200,20 @@ public class CauldronOutletEntity extends Entity {
                 attachedDirection.getStepY() * 0.1,
                 attachedDirection.getStepZ() * 0.1
             );
-            entity.moveTo(ejectPos);
+            entity.moveOrInterpolateTo(ejectPos);
             entity.setDeltaMovement(motion);
             entity.anvilcraft$setIsAdsorbable(true);
-            if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
-                PacketDistributor.sendToPlayersTrackingEntity(entity, new ClientboundTeleportEntityPacket(entity));
-                PacketDistributor.sendToPlayersTrackingEntity(entity, new ClientboundSetEntityMotionPacket(entity));
+            if (!this.level().isClientSide() && this.level() instanceof ServerLevel) {
+                PacketDistributingHelper.sendToPlayersTrackingEntity(
+                    entity,
+                    new ClientboundTeleportEntityPacket(
+                        entity.getId(),
+                        PositionMoveRotation.of(this),
+                        Set.of(),
+                        false
+                    )
+                );
+                PacketDistributingHelper.sendToPlayersTrackingEntity(entity, new ClientboundSetEntityMotionPacket(entity));
             }
         });
     }
@@ -245,6 +259,11 @@ public class CauldronOutletEntity extends Entity {
     }
 
     @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        return false;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_CAULDRON_POS, BlockPos.ZERO)
             .define(DATA_ATTACHED_DIRECTION, Direction.UP)
@@ -277,22 +296,21 @@ public class CauldronOutletEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(ValueInput compoundTag) {
-        this.setCauldronPos(NbtUtils.readBlockPos(compoundTag, "CauldronPos").orElse(BlockPos.ZERO));
-        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getIntOr("AttachedDirection", 0)));
-        this.setCauldronState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK),
-            compoundTag.getCompoundOrEmpty("CauldronState")));
+        this.setCauldronPos(compoundTag.read("cauldron_pos", BlockPos.CODEC).orElse(BlockPos.ZERO));
+        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getIntOr("attached_direction", 0)));
+        this.setCauldronState(compoundTag.read("cauldron_state", BlockState.CODEC).orElse(Blocks.AIR.defaultBlockState()));
     }
 
     @Override
     protected void addAdditionalSaveData(ValueOutput compoundTag) {
-        compoundTag.put("CauldronState", NbtUtils.writeBlockState(this.getCauldronState()));
-        compoundTag.put("CauldronPos", NbtUtils.writeBlockPos(this.getCauldronPos()));
-        compoundTag.putInt("AttachedDirection", this.getAttachedDirection().get3DDataValue());
+        compoundTag.store("cauldron_state", BlockState.CODEC, this.getCauldronState());
+        compoundTag.store("cauldron_pos", BlockPos.CODEC, this.getCauldronPos());
+        compoundTag.putInt("attached_direction", this.getAttachedDirection().get3DDataValue());
     }
 
     @Override
-    protected AABB makeBoundingBox() {
-        return EntityDimensions.scalable(0.375F, 0.375F).makeBoundingBox(this.position());
+    protected AABB makeBoundingBox(Vec3 position) {
+        return EntityDimensions.scalable(0.375F, 0.375F).makeBoundingBox(position);
     }
 
     @Override

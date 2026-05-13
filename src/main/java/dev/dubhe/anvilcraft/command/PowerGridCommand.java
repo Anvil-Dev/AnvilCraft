@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.minecraft.commands.Commands.literal;
 
-public class PowergridCommand {
+public class PowerGridCommand {
 
     public static final int SHOW_INFO_LIMIT = 256;
 
@@ -71,7 +71,7 @@ public class PowergridCommand {
         commandRoot.then(
             literal("info").then(
                 Commands.argument("pos", BlockPosArgument.blockPos())
-                    .executes(PowergridCommand::showInfo)
+                    .executes(PowerGridCommand::showInfo)
             ));
         parent.then(commandRoot);
     }

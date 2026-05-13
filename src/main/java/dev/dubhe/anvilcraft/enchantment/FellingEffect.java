@@ -73,9 +73,9 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
                     if (!sourceBlock.equals(blockPos)) {
                         tool.hurtAndBreak(1, level, player, onBreak);
                     }
-                    return true;
+                    return BlockPos.TraversalNodeStatus.ACCEPT;
                 }
-                return sourceBlock.equals(blockPos);
+                return sourceBlock.equals(blockPos) ? BlockPos.TraversalNodeStatus.ACCEPT : BlockPos.TraversalNodeStatus.SKIP;
             }
         );
     }

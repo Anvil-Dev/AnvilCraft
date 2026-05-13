@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -12,13 +14,13 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 
@@ -90,7 +92,7 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 }
 
                                 if (this.level().setBlock(blockPos, this.blockState, 3)) {
-                                    PacketDistributor.sendToPlayersTrackingEntity(
+                                    PacketDistributingHelper.sendToPlayersTrackingEntity(
                                         this,
                                         new ClientboundBlockUpdatePacket(
                                             blockPos,
@@ -104,17 +106,17 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 } else if (
                                     !(this.level().getBlockState(blockPos).getBlock() instanceof Fallable)
                                         && this.position().y - Math.floor(this.position().y) < 0.5
-                                        && this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)
+                                        && this.dropItem && this.level().getServer().getGameRules().get(GameRules.ENTITY_DROPS)
                                 ) {
                                     this.discard();
                                     this.callOnBrokenAfterFall(block, blockPos);
-                                    this.spawnAtLocation(block);
+                                    this.spawnAtLocation((ServerLevel) level(), block);
                                 }
                             } else {
                                 this.discard();
-                                if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                if (this.dropItem && this.level().getServer().getGameRules().get(GameRules.ENTITY_DROPS)) {
                                     this.callOnBrokenAfterFall(block, blockPos);
-                                    this.spawnAtLocation(block);
+                                    this.spawnAtLocation((ServerLevel) level(),block);
                                 }
                             }
                         } else {

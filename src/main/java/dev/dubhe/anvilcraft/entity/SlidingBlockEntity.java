@@ -30,6 +30,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.tuple.Triple;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -80,7 +81,7 @@ public class SlidingBlockEntity extends Entity {
         level.addFreshEntity(entity);
         Util.castSafely(level, ServerLevel.class)
             .ifPresent(it -> PacketDistributor.sendToPlayersTrackingChunk(
-                it, new ChunkPos(pos),
+                it, ChunkPos.containing(pos),
                 new SlidingEntitySyncPacket(entity.getId(), entity.section.blocks(), entity.moveDirection)
             ));
         return entity;
@@ -138,7 +139,7 @@ public class SlidingBlockEntity extends Entity {
         this.moveDirection = moveDirection;
         if (this.level().isClientSide()) return;
         PacketDistributor.sendToPlayersTrackingChunk(
-            (ServerLevel) this.level(), new ChunkPos(this.blockPosition()),
+            (ServerLevel) this.level(), ChunkPos.containing(this.blockPosition()),
             new SlidingEntitySyncPacket(this.getId(), this.section.blocks(), moveDirection)
         );
     }
@@ -168,12 +169,17 @@ public class SlidingBlockEntity extends Entity {
     }
 
     @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        return false;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_START_POS, BlockPos.ZERO);
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
+    public boolean causeFallDamage(double fallDistance, float damageModifier, DamageSource damageSource) {
         return false;
     }
 
@@ -201,17 +207,12 @@ public class SlidingBlockEntity extends Entity {
     }
 
     @Override
-    public boolean onlyOpCanSetNbt() {
-        return true;
-    }
-
-    @Override
     public Vec3 getLookAngle() {
         return Vec3.ZERO.relative(this.moveDirection, 1);
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean canBeCollidedWith(@Nullable Entity other) {
         return true;
     }
 
