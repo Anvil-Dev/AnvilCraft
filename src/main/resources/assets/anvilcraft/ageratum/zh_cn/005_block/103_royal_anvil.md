@@ -2,7 +2,6 @@
 navigation:
   title: "§2皇家铁砧"
   icon: "anvilcraft:royal_anvil"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:royal_anvil
 ---

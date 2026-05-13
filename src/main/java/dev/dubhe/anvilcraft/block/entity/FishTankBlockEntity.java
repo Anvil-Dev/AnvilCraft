@@ -90,16 +90,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
     };
 
-    private void sendUpdate() {
-        if (level == null) return;
-        level.sendBlockUpdated(
-            getBlockPos(),
-            getBlockState(),
-            getBlockState(),
-            Block.UPDATE_CLIENTS
-        );
-    }
-
     /**
      * 0-7 为输出产物，<br>
      * 8-15 为输入物品
@@ -128,6 +118,15 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
         @Override
         protected void onContentsChanged(int slot) {
+            if (slot < 8
+                && getBlockState().getValue(FishTankBlock.OUTLET)
+                && !this.getStackInSlot(slot).isEmpty()) {
+                Direction outletDir = getBlockState().getValue(FishTankBlock.FACING);
+                if (level != null) {
+                    ItemStack stack = this.extractItem(slot, Integer.MAX_VALUE, false);
+                    if (!stack.isEmpty()) Block.popResource(level, getBlockPos().relative(outletDir), stack);
+                }
+            }
             FishTankBlockEntity.this.setChanged();
             sendUpdate();
         }
@@ -148,6 +147,16 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         this.ignited = ignited;
         this.setChanged();
         sendUpdate();
+    }
+
+    private void sendUpdate() {
+        if (level == null) return;
+        level.sendBlockUpdated(
+            getBlockPos(),
+            getBlockState(),
+            getBlockState(),
+            Block.UPDATE_CLIENTS
+        );
     }
 
     @Override

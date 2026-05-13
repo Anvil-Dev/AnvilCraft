@@ -2,7 +2,6 @@
 navigation:
   title: "珠宝加工台"
   icon: "anvilcraft:jewelcrafting_table"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:jewelcrafting_table
 ---

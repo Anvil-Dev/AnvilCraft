@@ -2,7 +2,6 @@
 navigation:
   title: "§2定日镜"
   icon: "anvilcraft:heliostats"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:heliostats
 ---

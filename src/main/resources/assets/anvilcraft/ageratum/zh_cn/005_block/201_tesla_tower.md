@@ -2,7 +2,6 @@
 navigation:
   title: "§6特斯拉塔"
   icon: "anvilcraft:tesla_tower"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:tesla_tower
 ---

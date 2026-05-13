@@ -2,7 +2,6 @@
 navigation:
   title: "主动消音器"
   icon: "anvilcraft:active_silencer"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:active_silencer
 ---

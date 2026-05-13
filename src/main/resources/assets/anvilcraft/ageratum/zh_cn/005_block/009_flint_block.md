@@ -2,7 +2,6 @@
 navigation:
   title: "燧石块"
   icon: "anvilcraft:flint_block"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:flint_block
 ---

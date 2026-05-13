@@ -2,7 +2,6 @@
 navigation:
   title: "§6空间超压器"
   icon: "anvilcraft:space_overcompressor"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:nesting_shulker_box
   - anvilcraft:over_nesting_shulker_box
