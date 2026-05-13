@@ -16,7 +16,6 @@ import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -83,7 +82,6 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
-            RenderPipelines.GUI_OPAQUE_TEXTURED_BACKGROUND,
             BACKGROUND,
             this.leftPos,
             this.topPos,

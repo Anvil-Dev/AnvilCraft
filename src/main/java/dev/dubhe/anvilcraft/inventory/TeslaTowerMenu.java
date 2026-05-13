@@ -29,7 +29,7 @@ public class TeslaTowerMenu extends AbstractContainerMenu {
     public TeslaTowerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
-        blockEntity = (TeslaTowerBlockEntity) machine;
+        this.blockEntity = (TeslaTowerBlockEntity) machine;
         this.level = inventory.player.level();
     }
 
@@ -46,21 +46,21 @@ public class TeslaTowerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.TESLA_TOWER.get()
         );
     }
 
     public void addFilter(String id, String arg) {
-        blockEntity.addFilter(id, arg);
+        this.blockEntity.addFilter(id, arg);
     }
 
     public void removeFilter(String id, String arg) {
-        blockEntity.removeFilter(id, arg);
+        this.blockEntity.removeFilter(id, arg);
     }
 
     public void handleSync(List<Pair<TeslaFilter, String>> filters) {
-        blockEntity.handleSync(filters);
+        this.blockEntity.handleSync(filters);
     }
 }

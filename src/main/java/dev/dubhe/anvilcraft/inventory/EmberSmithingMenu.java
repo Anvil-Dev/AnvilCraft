@@ -25,7 +25,6 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public class EmberSmithingMenu extends ItemCombinerMenu {
@@ -56,64 +55,64 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes = List.copyOf(
             RecipesRecord.RECIPES.byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get())
         );
-        super(type, containerId, playerInventory, access, EmberSmithingMenu.createInputSlotDefinitions(() -> recipes));
+        super(type, containerId, playerInventory, access, EmberSmithingMenu.createInputSlotDefinitions(recipes));
         this.level = playerInventory.player.level();
         this.recipes = recipes;
     }
 
     protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(
-        Supplier<List<RecipeHolder<BaseMultipleToOneSmithingRecipe>>> recipes
+        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes
     ) {
         return ItemCombinerMenuSlotDefinition.create().withSlot(
             0,
             8,
             48,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack))
         ).withSlot(
             1,
             80,
             36,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isMaterialIngredient(stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isMaterialIngredient(stack))
         ).withSlot(
             2,
             80,
             18,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(0, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(0, stack))
         ).withSlot(
             3,
             80,
             54,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(1, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(1, stack))
         ).withSlot(
             4,
             62,
             36,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(2, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(2, stack))
         ).withSlot(
             5,
             98,
             36,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(3, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(3, stack))
         ).withSlot(
             6,
             62,
             18,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(4, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(4, stack))
         ).withSlot(
             7,
             98,
             18,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(5, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(5, stack))
         ).withSlot(
             8,
             62,
             54,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(6, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(6, stack))
         ).withSlot(
             9,
             98,
             54,
-            stack -> recipes.get().stream().anyMatch(recipe -> recipe.value().isInputIngredient(7, stack))
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(7, stack))
         ).withResultSlot(10, 151, 48).build();
     }
 
@@ -241,9 +240,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         ItemStack stack
     ) {
         if (recipe.isTemplateIngredient(stack)) return this.getSlot(0).hasItem();
-        if (recipe.isMaterialIngredient(stack)) {
-            return recipe.isTemplateIngredient(this.getSlot(0).getItem());
-        }
+        if (recipe.isMaterialIngredient(stack)) return recipe.isTemplateIngredient(this.getSlot(0).getItem());
         if (!recipe.isTemplateIngredient(this.getSlot(0).getItem()) || !recipe.isMaterialIngredient(this.getSlot(1).getItem())) {
             return false;
         }

@@ -84,8 +84,9 @@ public class ModMenuTypes {
     public static final MenuEntry<RoyalSmithingMenu> ROYAL_SMITHING = REGISTRUM
         .menu(
             "royal_smithing_table",
-            (type, id, inv) -> new RoyalSmithingMenu(type, id, inv),
-            () -> RoyalSmithingScreen::new)
+            RoyalSmithingMenu::new,
+            () -> RoyalSmithingScreen::new
+        )
         .register();
     public static final MenuEntry<SliderMenu> SLIDER = REGISTRUM
         .menu(

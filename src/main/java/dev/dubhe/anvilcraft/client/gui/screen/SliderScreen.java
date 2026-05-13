@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.network.SliderUpdatePacket;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -14,7 +13,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     public static final Identifier BACKGROUND = SharedTextures.bg("misc", "slider_like");
@@ -26,9 +25,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     private EditBox value;
 
     public SliderScreen(SliderMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title);
-        this.getImageWidth() = 176;
-        this.getImageHeight() = 77;
+        super(menu, inventory, title, 176, 77);
     }
 
     @Override
@@ -56,7 +53,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            btn -> this.slider.setValueWithUpdate(8192));
+            _ -> this.slider.setValueWithUpdate(8192));
         TexturedButton add = new TexturedButton(
             134 + offsetX,
             43 + offsetY,
@@ -66,8 +63,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            btn -> this.value.setValue("" + Math.clamp(
-                Integer.parseInt(this.value.getValue()) + slider.getAddValue(Integer.parseInt(this.value.getValue())),
+            _ -> this.value.setValue("" + Math.clamp(
+                Integer.parseInt(this.value.getValue()) + this.slider.getAddValue(Integer.parseInt(this.value.getValue())),
                 -8192,
                 8192
             )));
@@ -80,7 +77,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            btn -> this.slider.setValueWithUpdate(-8192));
+            _ -> this.slider.setValueWithUpdate(-8192));
         TexturedButton minus = new TexturedButton(
             26 + offsetX,
             43 + offsetY,
@@ -90,8 +87,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            btn -> this.value.setValue("" + Math.clamp(
-                Integer.parseInt(this.value.getValue()) - slider.getAddValue(Integer.parseInt(this.value.getValue())),
+            _ -> this.value.setValue("" + Math.clamp(
+                Integer.parseInt(this.value.getValue()) - this.slider.getAddValue(Integer.parseInt(this.value.getValue())),
                 -8192,
                 8192
             )));
@@ -105,7 +102,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     public void setValue(int value) {
-        if (this.slider != null) slider.setValue(value);
+        if (this.slider != null) this.slider.setValue(value);
         this.value.setValue("" + value);
     }
 
@@ -131,32 +128,32 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     public void setMin(int min) {
         if (this.slider != null) {
-            slider.setMin(min);
+            this.slider.setMin(min);
         }
     }
 
     public void setMax(int max) {
         if (this.slider != null) {
-            slider.setMax(max);
+            this.slider.setMax(max);
         }
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(int width, int height) {
         int lastValue = Integer.parseInt(this.value.getValue());
-        this.init(minecraft, width, height);
+        this.init(width, height);
         this.value.setValue("" + lastValue);
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         if (event.button() == 0) {
-            slider.onClick(event.x(), event.y());
+            this.slider.onClick(event.x(), event.y());
         }
         return super.mouseClicked(event, handled);
     }
@@ -174,10 +171,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        int offsetX = (this.width - this.getImageWidth()) / 2;
-        int offsetY = (this.height - this.getImageHeight()) / 2;
-        graphics.blit(BACKGROUND, offsetX, offsetY, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 128);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 128);
     }
 
     private void update(int value) {

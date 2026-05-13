@@ -14,7 +14,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -387,7 +386,6 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
-            RenderPipelines.GUI_OPAQUE_TEXTURED_BACKGROUND,
             ActiveSilencerScreen.BACKGROUND,
             this.leftPos,
             this.topPos,

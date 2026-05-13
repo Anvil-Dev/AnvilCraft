@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -15,6 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
 
 public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMenu> {
@@ -37,46 +37,49 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.getImageWidth()) / 2;
-        int j = (this.height - this.getImageHeight()) / 2;
-        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        graphics.blit(
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        renderTooltip(graphics, mouseX, mouseY);
-        renderHintItemSlot(graphics);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractHintItemSlot(graphics);
     }
 
-    private void renderHintItemSlot(GuiGraphicsExtractor graphics) {
-        PoseStack poseStack = graphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(leftPos, topPos, 0);
+    private void extractHintItemSlot(GuiGraphicsExtractor graphics) {
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(this.leftPos, this.topPos);
         for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i <= JewelCraftingMenu.CRAFT_SLOT_END; i++) {
-            Slot slot = menu.getSlot(i);
+            Slot slot = this.menu.getSlot(i);
             if (!slot.hasItem() && slot instanceof JewelInputSlot inputSlot) {
                 int count = inputSlot.getHintCount();
                 ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
                     int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     ItemStack stack = ingredientItems[index];
-                    RenderSupport.renderItemWithTransparency(stack, poseStack, slot.x, slot.y, 0.52F);
-                    graphics.renderItemDecorations(font, stack.copyWithCount(count), slot.x, slot.y);
+                    RenderSupport.renderItemWithTransparency(stack, pose, slot.x, slot.y, 0.52F);
+                    graphics.itemDecorations(this.font, stack.copyWithCount(count), slot.x, slot.y);
                 }
             }
         }
-        poseStack.popPose();
+        pose.popMatrix();
     }
 
     @Override
-    protected void renderSlotHighlight(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY, float partialTick) {
-        super.renderSlotHighlight(graphics, slot, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null) {
             ItemStack itemstack = null;
             if (this.hoveredSlot.hasItem()) {
@@ -89,34 +92,35 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
                 }
             }
             if (itemstack != null) {
-                graphics.renderTooltip(
+                graphics.setTooltipForNextFrame(
                     this.font,
                     this.getTooltipFromContainerItem(itemstack),
                     itemstack.getTooltipImage(),
                     itemstack,
-                    x,
-                    y
+                    mouseX,
+                    mouseY
                 );
             }
         }
+        super.extractTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
     protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack itemstack, Slot slot, @Nullable String countString) {
         if (slot instanceof JewelInputSlot inputSlot) {
             if (itemstack.getCount() < inputSlot.getHintCount()) {
-                int seed = slot.x + slot.y * imageWidth;
+                int seed = slot.x + slot.y * this.imageWidth;
                 if (slot.isFake()) {
-                    graphics.renderFakeItem(itemstack, slot.x, slot.y, seed);
+                    graphics.fakeItem(itemstack, slot.x, slot.y, seed);
                 } else {
-                    graphics.renderItem(itemstack, slot.x, slot.y, seed);
+                    graphics.item(itemstack, slot.x, slot.y, seed);
                 }
                 if (!itemstack.isEmpty()) {
-                    graphics.pose().pushPose();
+                    graphics.pose().pushMatrix();
                     String s = String.valueOf(itemstack.getCount());
-                    graphics.pose().translate(0.0F, 0.0F, 200.0F);
-                    graphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
-                    graphics.pose().popPose();
+                    graphics.pose().translate(0.0F, 0.0F);
+                    graphics.text(this.font, s, slot.x + 19 - 2 - this.font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
+                    graphics.pose().popMatrix();
                 }
                 return;
             }
@@ -126,7 +130,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (key == GLFW.GLFW_KEY_SPACE) {
+        if (event.key() == GLFW.GLFW_KEY_SPACE) {
             // 处理空格键快速填充配方逻辑
             this.menu.autoFill();
             return true;

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -16,7 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.Collection;
 import java.util.List;
@@ -146,12 +145,12 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         if (!(slot instanceof SlotItemHandlerWithFilter crafterSlot)) return;
         if (!crafterSlot.isFilter()) return;
         if (this.isSlotDisabled(slot.getContainerSlot())) {
-            this.renderDisabledSlot(graphics, crafterSlot);
+            this.extractDisabledSlot(graphics, crafterSlot);
             return;
         }
         ItemStack filter = this.getFilter(slot.getContainerSlot());
         if (!slot.hasItem() && !filter.isEmpty()) {
-            this.renderFilterItem(graphics, slot, filter);
+            this.extractFilterItem(graphics, slot, filter);
         }
         this.renderSlotLimit(graphics, slot);
     }
@@ -162,9 +161,18 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
      * @param graphics 画布
      * @param crafterSlot 槽位
      */
-    default void renderDisabledSlot(GuiGraphicsExtractor graphics, Slot crafterSlot) {
-        RenderSystem.enableDepthTest();
-        graphics.blit(SharedTextures.DISABLED_SLOT, crafterSlot.x, crafterSlot.y, 0, 0, 16, 16, 16, 16);
+    default void extractDisabledSlot(GuiGraphicsExtractor graphics, Slot crafterSlot) {
+        graphics.blit(
+            SharedTextures.DISABLED_SLOT,
+            crafterSlot.x,
+            crafterSlot.y,
+            0,
+            0,
+            16,
+            16,
+            16,
+            16
+        );
     }
 
     /**
@@ -174,7 +182,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
      * @param slot        槽位
      * @param stack       物品堆叠
      */
-    default void renderFilterItem(GuiGraphicsExtractor graphics, Slot slot, ItemStack stack) {
+    default void extractFilterItem(GuiGraphicsExtractor graphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
         RenderSupport.renderItemWithTransparency(stack, graphics.pose(), i, j, 0.52F);
@@ -191,15 +199,15 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             return;
         }
         String text = String.valueOf(limit);
-        graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, 300);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(0, 0);
         float scale = 0.6F;
-        graphics.pose().scale(scale, scale, 1.0F);
+        graphics.pose().scale(scale, scale);
         int width = Minecraft.getInstance().font.width(text);
         int height = Minecraft.getInstance().font.lineHeight;
         int x = (int) ((slot.x + 16.25 - width * scale) / scale);
         int y = (int) ((slot.y + 14 - height * 2 * scale + 1) / scale);
-        graphics.drawString(
+        graphics.text(
             Minecraft.getInstance().font,
             text,
             x,
@@ -207,7 +215,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             0xFFA0A0,
             true
         );
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
     default int getOffsetY() {

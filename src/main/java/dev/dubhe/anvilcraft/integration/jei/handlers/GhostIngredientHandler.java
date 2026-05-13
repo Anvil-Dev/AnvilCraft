@@ -10,10 +10,12 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.LinkedList;
 import java.util.List;
 
+@NullMarked
 public class GhostIngredientHandler<
     M extends AbstractContainerMenu,
     T extends AbstractContainerScreen<M> & IGhostIngredientScreen
@@ -55,13 +57,13 @@ public class GhostIngredientHandler<
             this.screen = screen;
             this.slotIndex = slotIndex;
             Slot slot = screen.getMenu().slots.get(slotIndex);
-            this.area = new Rect2i(screen.getGuiLeft() + slot.x, screen.getGuiTop() + slot.y, size.x(), size.y());
+            this.area = new Rect2i(screen.getLeftPos() + slot.x, screen.getTopPos() + slot.y, size.x(), size.y());
         }
 
         @Override
         public void accept(I ingredient) {
             if (!(ingredient instanceof ItemStack stack)) return;
-            screen.acceptGhost(screen.getMenu().getSlot(slotIndex), stack);
+            this.screen.acceptGhost(this.screen.getMenu().getSlot(this.slotIndex), stack);
         }
     }
 }

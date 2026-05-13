@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.FrostAnvilMenu;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
@@ -60,18 +59,18 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(int width, int height) {
         String string = this.name.getValue();
-        this.init(minecraft, width, height);
+        this.init(width, height);
         this.name.setValue(string);
     }
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.key() == 256 && this.minecraft != null && this.minecraft.player != null) {
+        if (event.key() == 256 && this.minecraft.player != null) {
             this.minecraft.player.closeContainer();
         }
-        if (this.name.keyPressed(event.key(), event.scancode(), event.modifiers()) || this.name.canConsumeInput()) {
+        if (this.name.keyPressed(event) || this.name.canConsumeInput()) {
             return true;
         }
         return super.keyPressed(event);
@@ -87,14 +86,14 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
             && string.equals(slot.getItem().getHoverName().getString())) {
             string = "";
         }
-        if (this.menu.setItemName(string) && this.minecraft != null && this.minecraft.player != null) {
+        if (this.menu.setItemName(string) && this.minecraft.player != null) {
             this.minecraft.player.connection.send(new ServerboundRenameItemPacket(string));
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.drawString(
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(
             this.font,
             this.title,
             this.titleLabelX,
@@ -117,36 +116,32 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
             if (component != null) {
                 int k = this.getImageWidth() - 8 - this.font.width(component) - 2;
                 graphics.fill(k - 2, 67, this.getImageWidth() - 8, 79, 0x4F000000);
-                graphics.drawString(this.font, component, k, 69, j);
+                graphics.text(this.font, component, k, 69, j);
             }
         }
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
-                                   ? SharedTextures.TEXT_FIELD_DISABLE
-                                   : SharedTextures.TEXT_FIELD;
+                             ? SharedTextures.TEXT_FIELD_DISABLE
+                             : SharedTextures.TEXT_FIELD;
         graphics.blit(texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
+        this.name.extractWidgetRenderState(graphics, mouseX, mouseY, a);
     }
 
     @Override
-    public void renderFg(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        this.name.render(graphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    protected void renderErrorIcon(GuiGraphicsExtractor graphics, int x, int y) {
-        if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
-            && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()) {
+    protected void extractErrorIcon(GuiGraphicsExtractor graphics, int x, int y) {
+        if (
+            (this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
+            && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
+        ) {
             graphics.blit(SharedTextures.ERROR_SPRITE, x + 103, y + 47, 0, 0, 16, 16, 16, 16);
         }
     }
 
     @Override
-    public void slotChanged(
-        AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
+    public void slotChanged(AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
         if (dataSlotIndex == 0) {
             this.name.setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
             this.name.setEditable(!stack.isEmpty());

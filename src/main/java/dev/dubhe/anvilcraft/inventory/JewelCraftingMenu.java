@@ -28,7 +28,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -59,10 +59,10 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         this.player = inventory.player;
 
         // result
-        addSlot(new JewelResultSlot(sourceContainer, craftingContainer, resultContainer, 0, 134, 51));
+        addSlot(new JewelResultSlot(this.sourceContainer, this.craftingContainer, this.resultContainer, 0, 134, 51));
 
         // source
-        addSlot(new Slot(sourceContainer, 0, 80, 19) {
+        addSlot(new Slot(this.sourceContainer, 0, 80, 19) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return RecipeCaches.getAllJewelResultItem().contains(stack.getItem());
@@ -71,12 +71,12 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
         // craft
         for (int i = 0; i < 4; i++) {
-            addSlot(new JewelInputSlot(sourceContainer, craftingContainer, i, 26 + i * 18, 51));
+            addSlot(new JewelInputSlot(this.sourceContainer, this.craftingContainer, i, 26 + i * 18, 51));
         }
 
         // player
-        addPlayerInventory(inventory);
-        addPlayerHotbar(inventory);
+        this.addPlayerInventory(inventory);
+        this.addPlayerHotbar(inventory);
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -112,7 +112,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
         } else if (index >= INV_SLOT_START && index < USE_ROW_SLOT_END) {
-            ItemStack empty = quickMoveInvStack(index, copyOfSourceStack);
+            ItemStack empty = this.quickMoveInvStack(index, copyOfSourceStack);
             if (empty != null) return empty;
         }
 
@@ -135,14 +135,14 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
     protected @Nullable ItemStack quickMoveInvStack(int index, ItemStack copyOfSourceStack) {
         // 从背包里转移物品
-        if (moveItemStackTo(copyOfSourceStack, SOURCE_SLOT, SOURCE_SLOT + 1, false)) {
-            this.slotsChanged(sourceContainer);
-        } else if (moveItemStackTo(copyOfSourceStack, CRAFT_SLOT_START, CRAFT_SLOT_END, false)) {
-            this.slotsChanged(craftingContainer);
-        } else if (index < INV_SLOT_END && !moveItemStackTo(copyOfSourceStack, USE_ROW_SLOT_START, USE_ROW_SLOT_END, false)) {
+        if (this.moveItemStackTo(copyOfSourceStack, SOURCE_SLOT, SOURCE_SLOT + 1, false)) {
+            this.slotsChanged(this.sourceContainer);
+        } else if (this.moveItemStackTo(copyOfSourceStack, CRAFT_SLOT_START, CRAFT_SLOT_END, false)) {
+            this.slotsChanged(this.craftingContainer);
+        } else if (index < INV_SLOT_END && !this.moveItemStackTo(copyOfSourceStack, USE_ROW_SLOT_START, USE_ROW_SLOT_END, false)) {
             // 移到快捷栏
             return ItemStack.EMPTY;
-        } else if (index >= INV_SLOT_END && !moveItemStackTo(copyOfSourceStack, INV_SLOT_START, INV_SLOT_END, false)) {
+        } else if (index >= INV_SLOT_END && !this.moveItemStackTo(copyOfSourceStack, INV_SLOT_START, INV_SLOT_END, false)) {
             // 移动到背包
             return ItemStack.EMPTY;
         }
@@ -151,7 +151,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(access, player, ModBlocks.JEWEL_CRAFTING_TABLE.get());
+        return stillValid(this.access, player, ModBlocks.JEWEL_CRAFTING_TABLE.get());
     }
 
     @Override
@@ -162,7 +162,14 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                 inputSlot.updateIngredient();
             }
         }
-        access.execute((level, pos) -> changedCraftingSlots(this, level, player, sourceContainer, craftingContainer, resultContainer));
+        this.access.execute((level, _) -> changedCraftingSlots(
+            this,
+            level,
+            this.player,
+            this.sourceContainer,
+            this.craftingContainer,
+            this.resultContainer
+        ));
     }
 
     private static void changedCraftingSlots(
@@ -181,8 +188,8 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                 JewelCraftingRecipe recipe = recipeHolder.value();
                 var input = new JewelCraftingRecipe.Input(sourceContainer.getItem(0), craftingContainer.getItems());
                 if (recipe.matches(input, level)) {
-                    if (resultContainer.setRecipeUsed(level, serverPlayer, recipeHolder)) {
-                        ItemStack result = recipe.assemble(input, level.registryAccess());
+                    if (resultContainer.setRecipeUsed(serverPlayer, recipeHolder)) {
+                        ItemStack result = recipe.assemble(input);
                         if (result.isItemEnabled(level.enabledFeatures())) {
                             itemStack = result;
                             ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
@@ -208,21 +215,21 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
      * 当玩家按下空格键时调用此方法
      */
     public void autoFill() {
-        if (player.level().isClientSide()) {
-            PacketDistributor.sendToServer(new JewelCraftingAutoFillPacket());
+        if (this.player.level().isClientSide()) {
+            ClientPacketDistributor.sendToServer(new JewelCraftingAutoFillPacket());
             return;
         }
 
-        RecipeHolder<JewelCraftingRecipe> recipe = sourceContainer.getRecipe();
+        RecipeHolder<JewelCraftingRecipe> recipe = this.sourceContainer.getRecipe();
         if (recipe == null) return;
 
         List<Object2IntMap.Entry<Ingredient>> mergedIngredients = recipe.value().mergedIngredients;
         for (int i = 0; i < Math.min(mergedIngredients.size(), 4); i++) {
             Object2IntMap.Entry<Ingredient> entry = mergedIngredients.get(i);
             Ingredient ingredient = entry.getKey();
-            Item item = ingredient.getItems()[0].getItem();
-            quickMoveStack(player, CRAFT_SLOT_START + i);
-            moveInvItemTo(item, CRAFT_SLOT_START + i);
+            Item item = ingredient.getValues().get(0).value();
+            this.quickMoveStack(this.player, CRAFT_SLOT_START + i);
+            this.moveInvItemTo(item, CRAFT_SLOT_START + i);
         }
     }
 
@@ -230,7 +237,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         for (int i = INV_SLOT_START; i < USE_ROW_SLOT_END; i++) {
             Slot slot = slots.get(i);
             if (slot.getItem().getItem() == needItem) {
-                if (!moveItemStackTo(slot.getItem(), targetIndex, targetIndex + 1, false)) {
+                if (!this.moveItemStackTo(slot.getItem(), targetIndex, targetIndex + 1, false)) {
                     return;
                 }
             }
@@ -240,9 +247,9 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        access.execute((level, pos) -> {
-            clearContainer(player, sourceContainer);
-            clearContainer(player, craftingContainer);
+        this.access.execute((_, _) -> {
+            this.clearContainer(player, this.sourceContainer);
+            this.clearContainer(player, this.craftingContainer);
         });
     }
 }

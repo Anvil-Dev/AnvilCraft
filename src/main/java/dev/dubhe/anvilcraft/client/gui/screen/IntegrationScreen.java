@@ -2,14 +2,12 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.integration.IntegrationUtil;
 import dev.dubhe.anvilcraft.util.ModEventUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -29,6 +27,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Util;
+import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
@@ -78,7 +78,7 @@ public class IntegrationScreen extends Screen {
         this.layout.addTitleHeader(TITLE, this.font);
         this.integrationList = this.layout.addToContents(new IntegrationList());
         LinearLayout linearlayout = this.layout.addToFooter(LinearLayout.horizontal().spacing(8));
-        linearlayout.addChild(Button.builder(CommonComponents.GUI_DONE, button -> this.onClose()).build());
+        linearlayout.addChild(Button.builder(CommonComponents.GUI_DONE, _ -> this.onClose()).build());
         this.layout.visitWidgets(this::addRenderableWidget);
         this.repositionElements();
     }
@@ -92,29 +92,24 @@ public class IntegrationScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
     public void onClose() {
-        if (this.minecraft != null && this.lastScreen != null) {
+        if (this.lastScreen != null) {
             this.minecraft.setScreen(this.lastScreen);
         } else {
             super.onClose();
         }
     }
 
-    public abstract class AbstractIntegrationEntry extends ContainerObjectSelectionList.Entry<AbstractIntegrationEntry> {
+    public abstract static class AbstractIntegrationEntry extends ContainerObjectSelectionList.Entry<AbstractIntegrationEntry> {
         final List<FormattedCharSequence> tooltip;
 
         public AbstractIntegrationEntry(@Nullable List<FormattedCharSequence> tooltip) {
             this.tooltip = tooltip;
         }
 
-        public void renderToolTip() {
+        public void extractToolTip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
             if (this.tooltip == null) return;
-            IntegrationScreen.this.setTooltipForNextRenderPass(this.tooltip);
+            graphics.setTooltipForNextFrame(this.tooltip, mouseX, mouseY);
         }
     }
 
@@ -159,25 +154,25 @@ public class IntegrationScreen extends Screen {
             return this.children;
         }
 
-        protected void renderLabel(GuiGraphicsExtractor graphics, int x, int y, int width) {
-            PoseStack pose = graphics.pose();
-            pose.pushPose();
-            pose.translate(x, y, 0);
-            pose.scale(1.25F, 1.25F, 1.0F);
+        protected void extractLabel(GuiGraphicsExtractor graphics, int x, int y, int width) {
+            Matrix3x2fStack pose = graphics.pose();
+            pose.pushMatrix();
+            pose.translate(x, y);
+            pose.scale(1.25F, 1.25F);
             Minecraft minecraft = Minecraft.getInstance();
-            graphics.drawString(minecraft.font, this.label.getFirst(), 0, 0, -1, false);
-            pose.popPose();
-            pose.pushPose();
-            pose.translate(x + width, y + 2, 0);
-            pose.scale(0.8F, 0.8F, 1.0F);
+            graphics.text(minecraft.font, this.label.getFirst(), 0, 0, -1, false);
+            pose.popMatrix();
+            pose.pushMatrix();
+            pose.translate(x + width, y + 2);
+            pose.scale(0.8F, 0.8F);
             Component component = switch (this.status) {
                 case LOADED -> Component.translatable("screen.anvilcraft.integration_screen.loaded").withStyle(ChatFormatting.GREEN);
                 case NOT_LOADED -> Component.translatable("screen.anvilcraft.integration_screen.not_loaded").withStyle(ChatFormatting.RED);
                 case NOT_FOUND -> Component.translatable("screen.anvilcraft.integration_screen.not_found").withStyle(ChatFormatting.YELLOW);
             };
-            pose.translate(-minecraft.font.width(component), 0, 0);
-            graphics.drawString(minecraft.font, component, 0, 0, -1, false);
-            pose.popPose();
+            pose.translate(-minecraft.font.width(component), 0);
+            graphics.text(minecraft.font, component, 0, 0, -1, false);
+            pose.popMatrix();
         }
 
         public TexturedButton createButton(String type, String url) {
@@ -191,7 +186,7 @@ public class IntegrationScreen extends Screen {
                 18,
                 18,
                 36,
-                button -> {
+                _ -> {
                     try {
                         URI uri = Util.parseAndValidateUntrustedUri(url);
                         if (Minecraft.getInstance().options.chatLinksPrompt().get()) {
@@ -217,57 +212,46 @@ public class IntegrationScreen extends Screen {
         }
 
         @Override
-        public void render(
-            GuiGraphicsExtractor graphics,
-            int index,
-            int top,
-            int left,
-            int width,
-            int height,
-            int mouseX,
-            int mouseY,
-            boolean hovering,
-            float partialTick
-        ) {
-            this.renderLabel(graphics, left, top, width);
+        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+            this.extractLabel(graphics, this.getContentX(), this.getContentY(), this.getContentWidth());
             int offsetY = this.hasExtra ? 24 : 36;
-            graphics.drawString(
+            graphics.text(
                 Minecraft.getInstance().font,
                 Component.translatable("screen.anvilcraft.integration_screen.target"),
-                left,
-                top + offsetY,
+                this.getContentX(),
+                this.getContentY() + offsetY,
                 -1,
                 false
             );
             for (int i = this.targetButtons.size(); i > 0; i--) {
                 TexturedButton button = this.targetButtons.get(i - 1);
-                button.setX(left + width - 19 * (i));
-                button.setY(top + offsetY - 9);
-                button.render(graphics, mouseX, mouseY, partialTick);
+                button.setX(this.getContentX() + this.getContentWidth() - 19 * (i));
+                button.setY(this.getContentY() + offsetY - 9);
+                button.render(graphics, mouseX, mouseY, a);
             }
             if (!this.hasExtra) return;
-            graphics.drawString(
+            graphics.text(
                 Minecraft.getInstance().font,
                 Component.translatable("screen.anvilcraft.integration_screen.extra"),
-                left,
-                top + 48,
+                this.getContentX(),
+                this.getContentY() + 48,
                 -1,
                 false
             );
             for (int i = this.extraButtons.size(); i > 0; i--) {
                 TexturedButton button = this.extraButtons.get(i - 1);
-                button.setX(left + width - 19 * (i));
-                button.setY(top + 48 - 9);
-                button.render(graphics, mouseX, mouseY, partialTick);
+                button.setX(this.getContentX() + this.getContentWidth() - 19 * (i));
+                button.setY(this.getContentY() + 48 - 9);
+                button.render(graphics, mouseX, mouseY, a);
             }
         }
 
         @Override
-        public void renderToolTip() {
+        public void extractToolTip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
             for (TexturedButton child : this.children) {
                 if (child.isHovered()) return;
             }
-            super.renderToolTip();
+            super.extractToolTip(graphics, mouseX, mouseY);
         }
     }
 
@@ -282,25 +266,14 @@ public class IntegrationScreen extends Screen {
         }
 
         @Override
-        public void render(
-            GuiGraphicsExtractor graphics,
-            int index,
-            int top,
-            int left,
-            int width,
-            int height,
-            int mouseX,
-            int mouseY,
-            boolean hovering,
-            float partialTick
-        ) {
-            PoseStack pose = graphics.pose();
-            pose.pushPose();
-            pose.translate(left, top, 0);
-            pose.scale(SCALE, SCALE, 1.0F);
+        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+            Matrix3x2fStack pose = graphics.pose();
+            pose.pushMatrix();
+            pose.translate(this.getContentX(), this.getContentY());
+            pose.scale(SCALE, SCALE);
             int maxWidth = (int) (width / SCALE);
-            graphics.drawWordWrap(Minecraft.getInstance().font, this.note, 0, 0, maxWidth, -1);
-            pose.popPose();
+            graphics.textWithWordWrap(Minecraft.getInstance().font, this.note, 0, 0, maxWidth, -1);
+            pose.popMatrix();
         }
 
         @Override
@@ -324,7 +297,7 @@ public class IntegrationScreen extends Screen {
         }
     }
 
-    public class CategoryIntegrationEntry extends AbstractIntegrationEntry {
+    public static class CategoryIntegrationEntry extends AbstractIntegrationEntry {
         final Component label;
 
         public CategoryIntegrationEntry(Component label) {
@@ -333,30 +306,13 @@ public class IntegrationScreen extends Screen {
         }
 
         @Override
-        public void render(
-            GuiGraphicsExtractor graphics,
-            int index,
-            int top,
-            int left,
-            int width,
-            int height,
-            int mouseX,
-            int mouseY,
-            boolean hovering,
-            float partialTick
-        ) {
-            PoseStack pose = graphics.pose();
-            pose.pushPose();
-            pose.translate(left + width / 2.0F, top + height - 36.0F, 0);
-            pose.scale(2.0F, 2.0F, 1.0F);
-            graphics.drawCenteredString(
-                Minecraft.getInstance().font,
-                this.label,
-                0,
-                0,
-                -1
-            );
-            pose.popPose();
+        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+            Matrix3x2fStack pose = graphics.pose();
+            pose.pushMatrix();
+            pose.translate(this.getContentX() + this.getContentWidth() / 2.0F, this.getContentY() + this.getContentHeight() - 36.0F);
+            pose.scale(2.0F, 2.0F);
+            graphics.centeredText(Minecraft.getInstance().font, this.label, 0, 0, -1);
+            pose.popMatrix();
         }
 
         @Override
@@ -428,11 +384,11 @@ public class IntegrationScreen extends Screen {
         }
 
         @Override
-        public void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
             AbstractIntegrationEntry entry = this.getHovered();
             if (entry == null || entry.tooltip == null) return;
-            entry.renderToolTip();
+            entry.extractToolTip(graphics, mouseX, mouseY);
         }
     }
 }

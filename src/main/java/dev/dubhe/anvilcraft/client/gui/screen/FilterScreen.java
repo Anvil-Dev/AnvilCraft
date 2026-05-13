@@ -13,7 +13,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -56,7 +56,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             16,
             16,
             32,
-            (button, index) -> {
+            (_, index) -> {
                 container.setIncludeComponents(index == 0);
                 this.sync();
             },
@@ -74,7 +74,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             16,
             16,
             32,
-            (button, index) -> {
+            (_, index) -> {
                 container.setBlackList(index == 0);
                 this.sync();
             },
@@ -86,14 +86,22 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.getImageWidth()) / 2;
-        int j = (this.height - this.getImageHeight()) / 2;
-        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        graphics.blit(
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
     }
 
     @Override
-    protected void slotClicked(Slot slot, int slotId, int button, ClickType type) {
+    protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
         if (slot instanceof FilterSlot filterSlot) {
             ItemStack filterStack = this.menu.getCarried();
             if (!filterStack.isEmpty()) {
@@ -107,7 +115,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             this.getMenu().sync();
             return;
         }
-        super.slotClicked(slot, slotId, button, type);
+        super.slotClicked(slot, slotId, buttonNum, containerInput);
     }
 
     private void sync() {

@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.util.EnchantmentData;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -157,7 +156,6 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
-            RenderPipelines.GUI_OPAQUE_TEXTURED_BACKGROUND,
             BACKGROUND,
             this.leftPos,
             this.topPos,

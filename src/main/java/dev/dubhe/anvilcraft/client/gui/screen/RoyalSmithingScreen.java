@@ -5,19 +5,21 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SmithingTemplateItem;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.equipment.Equippable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -35,14 +37,14 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
     private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES =
         List.of(EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
+    private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
     public static final Quaternionf ARMOR_STAND_ANGLE =
         new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
     private final CyclingSlotBackground baseIcon = new CyclingSlotBackground(1);
     private final CyclingSlotBackground additionalIcon = new CyclingSlotBackground(2);
 
-    @Nullable
-    private ArmorStand armorStandPreview;
+    private final ArmorStandRenderState armorStandPreview = new ArmorStandRenderState();
 
     /**
      * 皇家锻造台 GUI
@@ -69,15 +71,6 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
 
     @Override
     protected void subInit() {
-        if (this.minecraft != null && this.minecraft.level != null) {
-            this.armorStandPreview = new ArmorStand(this.minecraft.level, 0.0, 0.0, 0.0);
-            this.armorStandPreview.setNoBasePlate(true);
-            this.armorStandPreview.setShowArms(true);
-            this.armorStandPreview.yBodyRot = 210.0F;
-            this.armorStandPreview.setXRot(25.0F);
-            this.armorStandPreview.yHeadRot = this.armorStandPreview.getYRot();
-            this.armorStandPreview.yHeadRotO = this.armorStandPreview.getYRot();
-        }
         this.updateArmorStandPreview(this.menu.getSlot(3).getItem());
     }
 
@@ -103,63 +96,82 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        this.renderOnboardingTooltips(graphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractOnboardingTooltips(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(graphics, partialTick, mouseX, mouseY);
-        this.templateIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
-        this.baseIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
-        this.additionalIcon.render(this.menu, graphics, partialTick, this.leftPos, this.topPos);
-        if (this.armorStandPreview == null) return;
-        InventoryScreen.renderEntityInInventory(
-            graphics,
-            this.leftPos + 149,
-            this.topPos + 75,
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        this.templateIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.baseIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.additionalIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+
+        int x0 = this.leftPos + 149;
+        int y0 = this.topPos + 75;
+        int x1 = this.leftPos + 189;
+        int y1 = this.topPos + 135;
+        graphics.entity(
+            this.armorStandPreview,
             25,
-            new Vector3f(),
+            ARMOR_STAND_TRANSLATION,
             ARMOR_STAND_ANGLE,
             null,
-            this.armorStandPreview);
+            x0,
+            y0,
+            x1,
+            y1
+        );
     }
 
     @Override
-    public void slotChanged(
-        AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
+    public void slotChanged(AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
         if (dataSlotIndex == 3) {
             this.updateArmorStandPreview(stack);
         }
     }
 
     private void updateArmorStandPreview(ItemStack stack) {
-        if (this.armorStandPreview == null) {
-            return;
-        }
-        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-            this.armorStandPreview.setItemSlot(equipmentSlot, ItemStack.EMPTY);
-        }
-        if (!stack.isEmpty()) {
-            ItemStack itemStack = stack.copy();
-            Item item = stack.getItem();
-            if (item instanceof ArmorItem armorItem) {
-                this.armorStandPreview.setItemSlot(armorItem.getEquipmentSlot(), itemStack);
-            } else {
-                this.armorStandPreview.setItemSlot(EquipmentSlot.OFFHAND, itemStack);
+        this.armorStandPreview.leftHandItemStack = ItemStack.EMPTY;
+        this.armorStandPreview.leftHandItemState.clear();
+        this.armorStandPreview.headEquipment = ItemStack.EMPTY;
+        this.armorStandPreview.headItem.clear();
+        this.armorStandPreview.chestEquipment = ItemStack.EMPTY;
+        this.armorStandPreview.legsEquipment = ItemStack.EMPTY;
+        this.armorStandPreview.feetEquipment = ItemStack.EMPTY;
+        if (stack.isEmpty()) return;
+        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+        EquipmentSlot slot = equippable != null ? equippable.slot() : null;
+        ItemModelResolver itemModelResolver = this.minecraft.getItemModelResolver();
+        switch (slot) {
+            case HEAD -> {
+                if (HumanoidArmorLayer.shouldRender(stack, EquipmentSlot.HEAD)) {
+                    this.armorStandPreview.headEquipment = stack.copy();
+                } else {
+                    itemModelResolver.updateForTopItem(this.armorStandPreview.headItem, stack, ItemDisplayContext.HEAD, null, null, 0);
+                }
+            }
+            case CHEST -> this.armorStandPreview.chestEquipment = stack.copy();
+            case LEGS -> this.armorStandPreview.legsEquipment = stack.copy();
+            case FEET -> this.armorStandPreview.feetEquipment = stack.copy();
+            case null, default -> {
+                this.armorStandPreview.leftHandItemStack = stack.copy();
+                itemModelResolver.updateForTopItem(
+                    this.armorStandPreview.leftHandItemState, stack, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, null, null, 0
+                );
             }
         }
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphicsExtractor graphics, int x, int y) {
+    protected void extractErrorIcon(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.hasRecipeError()) {
             graphics.blit(SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 
-    private void renderOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    private void extractOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
         if (this.hasRecipeError() && this.isHovering(83, 48, 16, 16, mouseX, mouseY)) {
             optional = Optional.of(ERROR_TOOLTIP);
@@ -184,8 +196,12 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
                 }
             }
         }
-        optional.ifPresent(
-            component -> graphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
+        optional.ifPresent(component -> graphics.setTooltipForNextFrame(
+            this.font,
+            this.font.split(component, 115),
+            mouseX,
+            mouseY
+        ));
     }
 
     private boolean hasRecipeError() {

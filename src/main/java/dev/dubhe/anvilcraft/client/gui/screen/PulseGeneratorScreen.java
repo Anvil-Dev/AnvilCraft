@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -42,9 +42,8 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     private TextWidget signalDuration;
 
     public PulseGeneratorScreen(PulseGeneratorMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+        super(menu, playerInventory, title, 176, 77);
         this.minecraft = Minecraft.getInstance();
-        this.getImageHeight() = 77;
     }
 
     @Override
@@ -70,10 +69,12 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(SharedTextures.BUTTON_RISING_EDGE, SharedTextures.BUTTON_FALLING_EDGE, SharedTextures.BUTTON_LOOP),
             16, 16, 32,
-            (button, index) -> this.menu.setStartMode((byte) index),
-            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
+            (_, index) -> this.menu.setStartMode((byte) index),
+            List.of(
+                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
-                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop"))
+                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop")
+            )
         );
         final SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 28,
@@ -81,9 +82,11 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON),
             16, 16, 32,
-            (button, index) -> this.menu.setOutputInvert(index == 1),
-            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
-                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"))
+            (_, index) -> this.menu.setOutputInvert(index == 1),
+            List.of(
+                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
+                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on")
+            )
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -91,7 +94,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10,
             BUTTON_ADD_T,
             10, 10, 20,
-            button -> tickAdder.accept(!hasShiftDown() ? 1 : 5)
+            _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? 1 : 5)
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> addSecFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -99,7 +102,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10,
             BUTTON_ADD_S,
             10, 10, 20,
-            button -> tickAdder.accept(!hasShiftDown() ? 20 : 100)
+            _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? 20 : 100)
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> addMinFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -107,7 +110,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10,
             BUTTON_ADD_M,
             10, 10, 20,
-            button -> tickAdder.accept(!hasShiftDown() ? 1200 : 6000)
+            _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? 1200 : 6000)
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> minusTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -115,7 +118,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10,
             BUTTON_MINUS_T,
             10, 10, 20,
-            button -> tickAdder.accept(!hasShiftDown() ? -1 : -5)
+            _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? -1 : -5)
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> minusSecFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -123,7 +126,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10,
             BUTTON_MINUS_S,
             10, 10, 20,
-            button -> tickAdder.accept(!hasShiftDown() ? -20 : -100)
+            _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? -20 : -100)
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> minusMinFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -131,7 +134,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             10, 10,
             BUTTON_MINUS_M,
             10, 10, 20,
-            button -> tickAdder.accept(!hasShiftDown() ? -1200 : -6000)
+            _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? -1200 : -6000)
         );
         this.waitingTime = new TextWidget(
             this.leftPos + 63,
@@ -173,35 +176,39 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 128);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (MathUtil.isInRange(
-            mouseX, mouseY,
-            this.waitingTime.getX(), this.waitingTime.getY(),
+            mouseX,
+            mouseY,
+            this.waitingTime.getX(),
+            this.waitingTime.getY(),
             this.waitingTime.getX() + this.waitingTime.getWidth(),
-            this.waitingTime.getY() + this.waitingTime.getHeight())
-        ) {
-            if (hasControlDown()) {
+            this.waitingTime.getY() + this.waitingTime.getHeight()
+        )) {
+            if (this.minecraft.hasControlDown()) {
                 this.menu.addWaitingTime(scrollY < 0 ? -20 : 20);
-            } else if (hasShiftDown()) {
+            } else if (this.minecraft.hasShiftDown()) {
                 this.menu.addWaitingTime(scrollY < 0 ? -1200 : 1200);
             } else {
                 this.menu.addWaitingTime(scrollY < 0 ? -1 : 1);
             }
         }
         if (MathUtil.isInRange(
-            mouseX, mouseY,
-            this.signalDuration.getX(), this.signalDuration.getY(),
+            mouseX,
+            mouseY,
+            this.signalDuration.getX(),
+            this.signalDuration.getY(),
             this.signalDuration.getX() + this.signalDuration.getWidth(),
-            this.signalDuration.getY() + this.signalDuration.getHeight())
-        ) {
-            if (hasControlDown()) {
+            this.signalDuration.getY() + this.signalDuration.getHeight()
+        )) {
+            if (this.minecraft.hasControlDown()) {
                 this.menu.addSignalDuration(scrollY < 0 ? -20 : 20);
-            } else if (hasShiftDown()) {
+            } else if (this.minecraft.hasShiftDown()) {
                 this.menu.addSignalDuration(scrollY < 0 ? -1200 : 1200);
             } else {
                 this.menu.addSignalDuration(scrollY < 0 ? -1 : 1);

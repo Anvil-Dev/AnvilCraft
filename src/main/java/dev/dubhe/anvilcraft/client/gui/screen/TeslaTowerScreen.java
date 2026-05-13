@@ -20,7 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -60,12 +60,12 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     private final List<Pair<TeslaFilter, String>> whiteFilters = new ArrayList<>();
 
     private void onSearchTextChange(String text) {
-        leftScrollOff = 0;
-        filteredFilters.clear();
-        if (text == null || text.isEmpty()) {
+        this.leftScrollOff = 0;
+        this.filteredFilters.clear();
+        if (text.isEmpty()) {
             this.filterText = "";
-            filteredFilters.addAll(allFilter);
-            filteredFilters.removeIf(it -> whiteFilters.stream()
+            this.filteredFilters.addAll(this.allFilter);
+            this.filteredFilters.removeIf(it -> this.whiteFilters.stream()
                 .anyMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
             );
             return;
@@ -75,65 +75,65 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
         if (text.startsWith("#")) {
             String search = text.replaceFirst("#", "");
-            allFilter.stream()
+            this.allFilter.stream()
                 .filter(it -> it.right().contains(search))
-                .filter(it -> whiteFilters.stream()
+                .filter(it -> this.whiteFilters.stream()
                     .noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
                 )
-                .forEach(filteredFilters::add);
+                .forEach(this.filteredFilters::add);
         } else {
             if (text.startsWith("~")) {
                 try {
                     Pattern search = Pattern.compile(text.replaceFirst("~", ""));
-                    allFilter.stream()
+                    this.allFilter.stream()
                         .filter(it -> search.matcher(it.left().getId()).matches())
-                        .forEach(filteredFilters::add);
+                        .forEach(this.filteredFilters::add);
                 } catch (Exception ignored) {
                     // intentionally empty
                 }
             }
-            allFilter.stream()
-                .filter(it -> it.left().title().getString().contains(filterText))
-                .filter(it ->
-                    whiteFilters.stream().noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())))
-                .forEach(filteredFilters::add);
+            this.allFilter.stream()
+                .filter(it -> it.left().title().getString().contains(this.filterText))
+                .filter(it -> this.whiteFilters.stream()
+                    .noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
+                )
+                .forEach(this.filteredFilters::add);
         }
     }
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        assert this.minecraft != null;
-        if (this.minecraft.options.keyInventory.matches(event.key(), event.scancode())) {
-            return this.getFocused() != null && this.getFocused().keyPressed(event.key(), event.scancode(), event.modifiers());
+        if (this.minecraft.options.keyInventory.matches(event)) {
+            return this.getFocused() != null && this.getFocused().keyPressed(event);
         } else {
             return super.keyPressed(event);
         }
     }
 
     private void refreshFilterList() {
-        onSearchTextChange(filterText);
+        this.onSearchTextChange(this.filterText);
     }
 
     private void onAllFilterButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
-        actualIndex += leftScrollOff;
-        if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return;
-        String id = filteredFilters.get(actualIndex).left().getId();
-        String arg = filteredFilters.get(actualIndex).right();
-        addWhiteFilter(id, arg);
+        actualIndex += this.leftScrollOff;
+        if (this.filteredFilters.isEmpty() || actualIndex >= this.filteredFilters.size()) return;
+        String id = this.filteredFilters.get(actualIndex).left().getId();
+        String arg = this.filteredFilters.get(actualIndex).right();
+        this.addWhiteFilter(id, arg);
         ClientPacketDistributor.sendToServer(new TeslaAddFilterPacket(id, arg));
-        refreshFilterList();
+        this.refreshFilterList();
     }
 
     private void onWhiteListFilterButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
-        actualIndex += rightScrollOff;
-        if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return;
-        String id = whiteFilters.get(actualIndex).left().getId();
-        String arg = whiteFilters.get(actualIndex).right();
-        removeWhiteFilter(id, arg);
+        actualIndex += this.rightScrollOff;
+        if (this.whiteFilters.isEmpty() || actualIndex >= this.whiteFilters.size()) return;
+        String id = this.whiteFilters.get(actualIndex).left().getId();
+        String arg = this.whiteFilters.get(actualIndex).right();
+        this.removeWhiteFilter(id, arg);
         ClientPacketDistributor.sendToServer(new TeslaRemoveFilterPacket(id, arg));
-        refreshFilterList();
+        this.refreshFilterList();
     }
 
     void addWhiteFilter(String id, String arg) {
@@ -149,27 +149,27 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     public Component getFilterTitle(int index, int variant) {
         int actualIndex = index;
         if (variant == FILTER_FILTERED) {
-            actualIndex += leftScrollOff;
-            if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return Component.empty();
-            return filteredFilters.get(actualIndex).left().title();
+            actualIndex += this.leftScrollOff;
+            if (this.filteredFilters.isEmpty() || actualIndex >= this.filteredFilters.size()) return Component.empty();
+            return this.filteredFilters.get(actualIndex).left().title();
         } else {
-            actualIndex += rightScrollOff;
-            if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return Component.empty();
-            return whiteFilters.get(actualIndex).left().title();
+            actualIndex += this.rightScrollOff;
+            if (this.whiteFilters.isEmpty() || actualIndex >= this.whiteFilters.size()) return Component.empty();
+            return this.whiteFilters.get(actualIndex).left().title();
         }
     }
 
     public @Nullable String getFilterToolTipAt(int index, int variant) {
         int actualIndex = index;
         if (variant == FILTER_FILTERED) {
-            actualIndex += leftScrollOff;
-            if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return null;
-            Pair<TeslaFilter, String> filter = filteredFilters.get(actualIndex);
+            actualIndex += this.leftScrollOff;
+            if (this.filteredFilters.isEmpty() || actualIndex >= this.filteredFilters.size()) return null;
+            Pair<TeslaFilter, String> filter = this.filteredFilters.get(actualIndex);
             return filter.left().tooltip(filter.right());
         } else {
-            actualIndex += rightScrollOff;
-            if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return null;
-            Pair<TeslaFilter, String> filter = whiteFilters.get(actualIndex);
+            actualIndex += this.rightScrollOff;
+            if (this.whiteFilters.isEmpty() || actualIndex >= this.whiteFilters.size()) return null;
+            Pair<TeslaFilter, String> filter = this.whiteFilters.get(actualIndex);
             return filter.left().tooltip(filter.right());
         }
     }
@@ -178,10 +178,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
      * 主动消音器gui
      */
     public TeslaTowerScreen(TeslaTowerMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+        super(menu, playerInventory, title, 256, 166);
         this.menu = menu;
-        this.getImageWidth() = 256;
-        this.getImageHeight() = 166;
     }
 
     @Override
@@ -198,7 +196,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 FILTER_FILTERED,
                 b -> {
                     if (b instanceof TeslaTowerButton silencerButton) {
-                        onAllFilterButtonClick(silencerButton.getIndex());
+                        this.onAllFilterButtonClick(silencerButton.getIndex());
                     }
                 },
                 this,
@@ -217,7 +215,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 SOUND_MUTED,
                 b -> {
                     if (b instanceof TeslaTowerButton silencerButton) {
-                        onWhiteListFilterButtonClick(silencerButton.getIndex());
+                        this.onWhiteListFilterButtonClick(silencerButton.getIndex());
                     }
                 },
                 this,
@@ -226,33 +224,32 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             buttonTop += 15;
         }
 
-        assert this.minecraft != null;
-        editBox = new EditBox(
+        this.editBox = new EditBox(
             this.minecraft.font,
             leftPos + 78,
             topPos + 19,
             100,
             12,
             Component.translatable("screen.anvilcraft.active_silencer.search"));
-        editBox.setResponder(this::onSearchTextChange);
-        addRenderableWidget(editBox);
+        this.editBox.setResponder(this::onSearchTextChange);
+        this.addRenderableWidget(this.editBox);
 
-        allFilter.addAll(TeslaFilter.all()
+        this.allFilter.addAll(TeslaFilter.all()
             .stream()
             .filter(it -> !it.needArg())
             .map(it -> Pair.of(it, ""))
             .toList()
         );
         assert Minecraft.getInstance().player != null;
-        allFilter.addAll(Minecraft.getInstance().player.connection.getOnlinePlayers().stream()
-            .map(it -> Pair.of(TeslaFilter.getFilter("IsPlayerIdFilter"), it.getProfile().getName()))
+        this.allFilter.addAll(Minecraft.getInstance().player.connection.getOnlinePlayers().stream()
+            .map(it -> Pair.of(TeslaFilter.getFilter("IsPlayerIdFilter"), it.getProfile().name()))
             .toList()
         );
-        allFilter.addAll(BuiltInRegistries.ENTITY_TYPE.stream()
+        this.allFilter.addAll(BuiltInRegistries.ENTITY_TYPE.stream()
             .map(it -> Pair.of(TeslaFilter.getFilter("IsEntityIdFilter"), Component.translatable(it.getDescriptionId()).getString()))
             .toList()
         );
-        filteredFilters.addAll(allFilter);
+        this.filteredFilters.addAll(this.allFilter);
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
@@ -287,12 +284,12 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
-        if (mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
+        if (this.mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
             if (this.filteredFilters.size() > 8) {
                 this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - scrollY, 0, this.filteredFilters.size() - 7);
             }
         } else {
-            if (mouseInRight(mouseX, mouseY, leftPos, topPos)) {
+            if (this.mouseInRight(mouseX, mouseY, leftPos, topPos)) {
                 if (this.whiteFilters.size() > 8) {
                     this.rightScrollOff =
                         (int) Mth.clamp(this.rightScrollOff - scrollY, 0, this.whiteFilters.size() - 7);
@@ -305,12 +302,13 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     /**
      * 鼠标拖动事件
      */
+    @Override
     @SuppressWarnings("DuplicatedCode")
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
-        if (mouseInLeftSlider(event.x(), event.y(), leftPos, topPos)) {
-            int i = filteredFilters.size();
+        if (this.mouseInLeftSlider(event.x(), event.y(), leftPos, topPos)) {
+            int i = this.filteredFilters.size();
             if (this.isDraggingLeft) {
                 int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                 int k = j + SCROLL_BAR_HEIGHT;
@@ -323,8 +321,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 return super.mouseDragged(event, dragX, dragY);
             }
         } else {
-            if (mouseInRightSlider(event.x(), event.y(), leftPos, topPos)) {
-                int i = whiteFilters.size();
+            if (this.mouseInRightSlider(event.x(), event.y(), leftPos, topPos)) {
+                int i = this.whiteFilters.size();
                 if (this.isDraggingRight) {
                     int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                     int k = j + SCROLL_BAR_HEIGHT;
@@ -344,21 +342,22 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     /**
      * 鼠标点击
      */
+    @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
-        isDraggingLeft = false;
-        isDraggingRight = false;
+        this.isDraggingLeft = false;
+        this.isDraggingRight = false;
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
-        if (mouseInLeftSlider(event.x(), event.y(), leftPos, topPos) && filteredFilters.size() > 8) {
+        if (this.mouseInLeftSlider(event.x(), event.y(), leftPos, topPos) && this.filteredFilters.size() > 8) {
             this.isDraggingLeft = true;
         }
-        if (mouseInRightSlider(event.x(), event.y(), leftPos, topPos) && whiteFilters.size() > 8) {
+        if (this.mouseInRightSlider(event.x(), event.y(), leftPos, topPos) && this.whiteFilters.size() > 8) {
             this.isDraggingRight = true;
         }
         return super.mouseClicked(event, handled);
     }
 
-    private void renderScroller(GuiGraphicsExtractor graphics, int posX, int posY, int totalCount, int scrollOff) {
+    private void extractScroller(GuiGraphicsExtractor graphics, int posX, int posY, int totalCount, int scrollOff) {
         int i = totalCount + 1 - 8;
         if (i > 1) {
             int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
@@ -371,46 +370,41 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         }
     }
 
-    /**
-     * 渲染
-     */
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        int leftPos = (this.width - this.getImageWidth()) / 2;
-        int topPos = (this.height - this.getImageHeight()) / 2;
-
-        super.render(graphics, mouseX, mouseY, partialTick);
-        this.renderScroller(graphics, leftPos + 119, topPos + 35, filteredFilters.size(), leftScrollOff);
-
-        this.renderScroller(graphics, leftPos + 245, topPos + 35, whiteFilters.size(), rightScrollOff);
-
-        this.renderTooltip(graphics, mouseX, mouseY);
+    @Override
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractScroller(graphics, this.leftPos + 119, this.topPos + 35, this.filteredFilters.size(), this.leftScrollOff);
+        this.extractScroller(graphics, this.leftPos + 245, this.topPos + 35, this.whiteFilters.size(), this.rightScrollOff);
     }
 
     /**
      * 处理同步包
      */
     public void handleSync(List<Pair<TeslaFilter, String>> filters) {
-        rightScrollOff = 0;
-        whiteFilters.clear();
-        whiteFilters.addAll(filters);
-        onSearchTextChange("");
-        menu.handleSync(filters);
+        this.rightScrollOff = 0;
+        this.whiteFilters.clear();
+        this.whiteFilters.addAll(filters);
+        this.onSearchTextChange("");
+        this.menu.handleSync(filters);
     }
 
     @Override
-    protected void renderLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 
     @Override
-    protected void renderBg(GuiGraphicsExtractor graphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.getImageWidth()) / 2;
-        int j = (this.height - this.getImageHeight()) / 2;
-        graphics.blit(BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight());
-    }
-
-    @Override
-    protected void renderTooltip(GuiGraphicsExtractor graphics, int x, int y) {
-        super.renderTooltip(graphics, x, y);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        graphics.blit(
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
     }
 }

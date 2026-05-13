@@ -8,7 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -70,18 +70,18 @@ public class FilterMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+    public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
         if (
-            clickType == ClickType.SWAP
-                && slotId >= FILTER_FIRST_SLOT_INDEX
-                && slotId < FILTER_FIRST_SLOT_INDEX + FILTER_SLOT_COUNT
-                && this.getSlot(slotId) instanceof FilterOnlySlot filterSlot
-                && (button >= 0 && button < HOTBAR_SLOT_COUNT || button == Inventory.SLOT_OFFHAND)
+            containerInput == ContainerInput.SWAP
+            && slotIndex >= FILTER_FIRST_SLOT_INDEX
+            && slotIndex < FILTER_FIRST_SLOT_INDEX + FILTER_SLOT_COUNT
+            && this.getSlot(slotIndex) instanceof FilterOnlySlot filterSlot
+            && (buttonNum >= 0 && buttonNum < HOTBAR_SLOT_COUNT || buttonNum == Inventory.SLOT_OFFHAND)
         ) {
-            filterSlot.set(player.getInventory().getItem(button).copy());
+            filterSlot.set(player.getInventory().getItem(buttonNum).copy());
             return;
         }
-        super.clicked(slotId, button, clickType, player);
+        super.clicked(slotIndex, buttonNum, containerInput, player);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class FilterMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return container.stillValid(player);
+        return this.container.stillValid(player);
     }
 
     @Override

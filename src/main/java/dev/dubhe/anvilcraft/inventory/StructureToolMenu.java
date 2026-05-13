@@ -14,8 +14,8 @@ public class StructureToolMenu extends AbstractContainerMenu {
     public StructureToolMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory) {
         super(menuType, containerId);
 
-        addPlayerInventory(inventory);
-        addPlayerHotbar(inventory);
+        this.addPlayerInventory(inventory);
+        this.addPlayerHotbar(inventory);
 
         this.addSlot(new Slot(new SimpleContainer(ItemStack.EMPTY), 0, 98, 20));
     }
