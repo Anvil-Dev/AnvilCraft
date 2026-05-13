@@ -26,7 +26,7 @@ public class TagUtil {
         return Iterables.transform(
             iterable,
             holder -> {
-                if (holder == null) throw new NullPointerException("The item holder is null");
+                if (holder == null) throw new NullPointerException("The item recipes is null");
                 return holder.value().getDefaultInstance();
             }
         );

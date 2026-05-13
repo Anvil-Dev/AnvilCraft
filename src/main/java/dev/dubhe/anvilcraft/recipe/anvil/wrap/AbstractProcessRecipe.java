@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasDiffItems;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -397,6 +398,11 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         @Override
         public ItemStackTemplate getResult() {
             return this.results.isEmpty() ? new ItemStackTemplate(Items.ANVIL) : this.results.getFirst().stack();
+        }
+
+        @Override
+        public void save(RecipeOutput recipeOutput) {
+            super.save(recipeOutput);
         }
     }
 
@@ -842,7 +848,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                 for (int i = 0; i < this.inputBlocks.size(); i++) {
                     BlockStatePredicate block = this.inputBlocks.get(i);
                     IRecipePredicate<?> hasBlock;
-                    if (consumeInputBlocks) {
+                    if (this.consumeInputBlocks) {
                         hasBlock = new HasBlockIngredient(this.getBlockInputOffset().subtract(0, i, 0), block);
                     } else {
                         hasBlock = new HasBlock(this.getBlockInputOffset().subtract(0, i, 0), block);

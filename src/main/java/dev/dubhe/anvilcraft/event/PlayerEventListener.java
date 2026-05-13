@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
@@ -135,7 +137,7 @@ public class PlayerEventListener {
         if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START && !level.isClientSide()) {
             DragonRodItem.devourBlock((ServerLevel) level, player, hand, pos, state, blockFace);
         } else if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
-            PacketDistributor.sendToServer(new DragonRodDevourPacket(hand, pos, blockFace));
+            ClientPacketDistributor.sendToServer(new DragonRodDevourPacket(hand, pos, blockFace));
         }
     }
 
@@ -150,6 +152,11 @@ public class PlayerEventListener {
     public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             RecipeCaches.sync(serverPlayer);
+            RecipesRecord.sync2C(
+                (packet, packets) -> PacketDistributor.sendToPlayer(serverPlayer, packet, packets),
+                serverPlayer.level().recipeAccess().getRecipes(),
+                serverPlayer.registryAccess()
+            );
         }
     }
 
