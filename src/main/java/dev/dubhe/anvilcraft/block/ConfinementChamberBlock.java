@@ -5,9 +5,11 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -72,7 +74,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (blockentity instanceof ConfinementChamberBlockEntity confinementChamberBlockEntity) {
-            if (!level.isClientSide() && player.isCreative() && !confinementChamberBlockEntity.getItemHandler().getStackInSlot(0).isEmpty()) {
+            if (!level.isClientSide() && player.isCreative() && !ItemResourceHelper.isSlotEmpty(confinementChamberBlockEntity.getItemHandler(), 0)) {
                 ItemStack itemstack = new ItemStack(ModBlocks.CONFINEMENT_CHAMBER.asItem());
                 itemstack.applyComponents(blockentity.collectComponents());
                 ItemEntity itementity = new ItemEntity(

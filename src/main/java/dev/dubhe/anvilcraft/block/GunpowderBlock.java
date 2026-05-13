@@ -6,8 +6,11 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +22,8 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -86,12 +90,12 @@ public class GunpowderBlock extends Block {
             if (stack.is(Items.FLINT_AND_STEEL)
                 || (stack.is(ModItems.MULTITOOL_ITEM)
                 && MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE)) {
-                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+                stack.hurtAndBreak(1, player, hand);
             } else {
                 stack.consume(1, player);
             }
             player.awardStat(Stats.ITEM_USED.get(item));
-            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+            return InteractionResult.SUCCESS;
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
@@ -99,21 +103,23 @@ public class GunpowderBlock extends Block {
     @Override
     protected BlockState updateShape(
         BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        BlockPos neighborPos
+        Direction direction,
+        BlockPos neighborPos,
+        BlockState neighborState,
+        RandomSource random
     ) {
-        if (!level.isClientSide()) {
+        if (level instanceof Level actualLevel && !actualLevel.isClientSide()) {
             BlockState block = level.getBlockState(pos.relative(direction));
             if (block.getBlock() instanceof BaseFireBlock
                 || block.is(Blocks.LAVA)
                 || ((block.getBlock() instanceof HeatableBlock) && !(block.getBlock() instanceof NormalBlock))) {
-                explosion((Level) level, pos);
+                explosion(actualLevel, pos);
             }
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
@@ -131,8 +137,9 @@ public class GunpowderBlock extends Block {
     }
 
     @Override
-    public void onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
+    public boolean onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
         explosion(level, pos);
+        return super.onCaughtFire(state, level, pos, direction, igniter);
     }
 
     @Override
@@ -141,16 +148,14 @@ public class GunpowderBlock extends Block {
             return;
         }
         BlockPos pos = hit.getBlockPos();
-        if (projectile.isOnFire() && projectile.mayInteract(level, pos)) {
+        if (projectile.isOnFire() && projectile.mayInteract((ServerLevel) level, pos)) {
             explosion(level, pos);
         }
     }
 
+
     @Override
-    public void wasExploded(Level level, BlockPos pos, Explosion explosion) {
-        if (level.isClientSide()) {
-            return;
-        }
+    public void wasExploded(ServerLevel level, BlockPos pos, Explosion explosion) {
         explosion(level, pos);
     }
 

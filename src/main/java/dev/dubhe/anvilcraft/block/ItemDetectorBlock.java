@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -33,6 +34,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -98,11 +101,9 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        super.onRemove(state, level, pos, newState, isMoving);
-        if (level.isClientSide()
-            || (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))
-            || !state.getValue(POWERED)) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        if (!state.getValue(POWERED)) {
             return;
         }
         this.updateNeighborsInFront(level, pos, state);
@@ -137,8 +138,8 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(direction.getOpposite()), false).isCanceled()) {
             return;
         }
-        level.neighborChanged(blockpos, this, Orientation.random(level.getRandom()));
-        level.updateNeighborsAtExceptFromFacing(blockpos, this, direction);
+        level.neighborChanged(blockpos, this, ExperimentalRedstoneUtils.initialOrientation(level, direction.getOpposite(), Direction.UP));
+        level.updateNeighborsAtExceptFromFacing(blockpos, this, direction, ExperimentalRedstoneUtils.initialOrientation(level, direction.getOpposite(), Direction.UP) );
     }
 
     @Override

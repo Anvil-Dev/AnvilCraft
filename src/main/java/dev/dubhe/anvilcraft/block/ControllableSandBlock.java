@@ -8,6 +8,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 
 public class ControllableSandBlock extends Block implements IHammerRemovable {
     public ControllableSandBlock(Properties properties) {
@@ -40,7 +42,7 @@ public class ControllableSandBlock extends Block implements IHammerRemovable {
 
     @Override
     protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston
+        BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
         if (!level.hasNeighborSignal(pos)) return;
         this.move(state, level, pos, level.getRandom());

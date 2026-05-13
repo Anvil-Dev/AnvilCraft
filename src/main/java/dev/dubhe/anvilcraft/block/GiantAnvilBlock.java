@@ -33,7 +33,8 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Fallable;
@@ -369,18 +370,20 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     }
 
     @Override
-    public BlockState updateShape(
+    protected BlockState updateShape(
         BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        BlockPos neighborPos
+        Direction direction,
+        BlockPos neighborPos,
+        BlockState neighborState,
+        RandomSource random
     ) {
-        if (state.hasProperty(HALF)) {
-            level.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
+        if (state.hasProperty(HALF) && level instanceof Level actualLevel) {
+            actualLevel.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
 
     protected int getDelayAfterPlace() {

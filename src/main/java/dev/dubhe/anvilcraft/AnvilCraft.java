@@ -8,7 +8,7 @@ import dev.anvilcraft.lib.v2.integration.IntegrationManager;
 import dev.anvilcraft.lib.v2.network.register.NetworkRegistrar;
 import dev.anvilcraft.lib.v2.registrum.Registrum;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
+import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;

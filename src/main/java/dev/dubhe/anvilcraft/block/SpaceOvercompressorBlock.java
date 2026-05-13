@@ -12,6 +12,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements IHammerRemovable, IMoveableEntityBlock {
@@ -35,21 +37,20 @@ public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements I
     }
 
     @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
+    public void loadData(Level level, BlockPos pos, ValueInput input) {
+        BlockEntity entity = level.getBlockEntity(pos);
+        long mass = input.getLongOr("storedMass", 0L);
+        if (entity instanceof SpaceOvercompressorBlockEntity s) {
+            s.injectMass(mass - s.getStoredMass());
+        }
+    }
+
+    @Override
+    public void storeData(Level level, BlockPos pos, ValueOutput output) {
         CompoundTag tag = new CompoundTag();
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof SpaceOvercompressorBlockEntity s) {
             tag.putLong("storedMass", s.getStoredMass());
-        }
-        return tag;
-    }
-
-    @Override
-    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
-        BlockEntity entity = level.getBlockEntity(pos);
-        long mass = nbt.getLongOr("storedMass", 0L);
-        if (entity instanceof SpaceOvercompressorBlockEntity s) {
-            s.injectMass(mass - s.getStoredMass());
         }
     }
 }

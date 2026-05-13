@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,13 +43,13 @@ public class ReinforcedConcreteBlock extends Block {
     }
 
     @Override
-    public void neighborChanged(
+    public void onNeighborChange(
         BlockState state,
-        Level level,
+        LevelReader levelReader,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
-        boolean movedByPiston) {
+        BlockPos neighborPos) {
+        super.onNeighborChange(state, levelReader, pos, neighborPos);
+        if (!(levelReader instanceof Level level)) return;
         if (level.isClientSide()) return;
         if (shouldIgnoreUpdate(pos, neighborPos)) return;
         ReinforcedConcreteHalf half = state.getValue(HALF);

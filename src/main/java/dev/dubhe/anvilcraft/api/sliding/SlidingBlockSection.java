@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AabbUtil;
+import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
@@ -160,7 +161,8 @@ public final class SlidingBlockSection {
                 .ifPresent(entity1 -> entity1.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), info.entityData())));
             level.neighborChanged(pos, state.getBlock(), Orientation.random(level.getRandom()));
 
-            PacketDistributor.sendToPlayersTrackingEntity(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
+
+            PacketDistributingHelper.sendToPlayersTrackingEntity(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
         }
         entity.discard();
     }

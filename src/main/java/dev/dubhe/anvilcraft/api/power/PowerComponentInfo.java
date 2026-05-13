@@ -3,10 +3,13 @@ package dev.dubhe.anvilcraft.api.power;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.phys.AABB;
 
 public record PowerComponentInfo(
     BlockPos pos,
@@ -15,6 +18,7 @@ public record PowerComponentInfo(
     int stores,
     int capacity,
     int range,
+    AABB boundingBox,
     PowerComponentType type
 ) {
     public static final Codec<PowerComponentInfo> CODEC = RecordCodecBuilder.create(ins -> ins.group(
@@ -36,6 +40,9 @@ public record PowerComponentInfo(
         Codec.INT
             .fieldOf("range")
             .forGetter(PowerComponentInfo::range),
+        CodecUtil.AABB_CODEC
+            .fieldOf("boundingBox")
+            .forGetter(PowerComponentInfo::boundingBox),
         PowerComponentType.CODEC
             .fieldOf("type")
             .forGetter(PowerComponentInfo::type)
@@ -53,6 +60,8 @@ public record PowerComponentInfo(
         PowerComponentInfo::consumes,
         ByteBufCodecs.VAR_INT,
         PowerComponentInfo::consumes,
+        CodecUtil.AABB_STREAM_CODEC,
+        PowerComponentInfo::boundingBox,
         StreamCodecUtil.enumStreamCodec(PowerComponentType.class),
         PowerComponentInfo::type,
         PowerComponentInfo::new

@@ -14,11 +14,12 @@ public class RottenFleshBlock extends Block {
         super(properties);
     }
 
+
     @Override
-    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
         entity.causeFallDamage(fallDistance, 0.2F, level.damageSources().fall());
         if (entity instanceof LivingEntity livingEntity) {
-            livingEntity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 30 * 20));
+            livingEntity.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 30 * 20));
         }
     }
 }

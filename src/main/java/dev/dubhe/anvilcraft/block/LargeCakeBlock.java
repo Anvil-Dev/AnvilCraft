@@ -4,7 +4,9 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -12,8 +14,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
@@ -223,23 +225,29 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public BlockState updateShape(
+    protected BlockState updateShape(
         BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        BlockPos neighborPos
+        Direction direction,
+        BlockPos neighborPos,
+        BlockState neighborState,
+        RandomSource random
     ) {
         return direction == Direction.DOWN && !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : state;
     }
 
     @Override
     public BlockState playerWillDestroy(
-        Level level, BlockPos pos, BlockState state, Player player) {
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        Player player
+    ) {
         this.spawnDestroyParticles(level, player, pos, state);
-        if (state.is(BlockTags.GUARDED_BY_PIGLINS)) {
-            PiglinAi.angerNearbyPiglins(player, false);
+        if (level instanceof ServerLevel && state.is(BlockTags.GUARDED_BY_PIGLINS)) {
+            PiglinAi.angerNearbyPiglins((ServerLevel) level, player, false);
         }
 
         level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));

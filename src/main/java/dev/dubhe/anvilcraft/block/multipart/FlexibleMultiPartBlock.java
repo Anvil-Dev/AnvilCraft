@@ -140,7 +140,7 @@ public abstract class FlexibleMultiPartBlock<
             InteractionHand hand,
             BlockHitResult hitResult
     ) {
-        return Util.interactionResultConverter().apply(this.use(state, level, pos, player, hand, hitResult));
+        return this.use(state, level, pos, player, hand, hitResult);
     }
 
     @Override

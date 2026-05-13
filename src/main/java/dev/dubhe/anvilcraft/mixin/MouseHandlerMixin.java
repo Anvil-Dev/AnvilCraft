@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.dubhe.anvilcraft.api.input.IMouseHandlerExtension;
+import dev.dubhe.anvilcraft.api.injection.input.IMouseHandlerExtension;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.mixin.accessor.MultiPlayerGameModeAccessor;
 import net.minecraft.client.KeyMapping;

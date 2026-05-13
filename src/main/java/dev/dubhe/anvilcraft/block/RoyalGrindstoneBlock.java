@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterGrindstoneBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +30,7 @@ public class RoyalGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
     public InteractionResult use(
         BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide()) {
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return Util.sidedSuccess(level);
         }
         ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
         player.awardStat(Stats.INTERACT_WITH_GRINDSTONE);
@@ -46,4 +47,5 @@ public class RoyalGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
             ),
             CONTAINER_TITLE);
     }
+
 }

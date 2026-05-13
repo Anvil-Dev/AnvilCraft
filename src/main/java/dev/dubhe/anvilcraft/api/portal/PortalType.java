@@ -31,7 +31,7 @@ public class PortalType {
 
     public PortalType(Identifier id) {
         this.id = id;
-        Block block = BuiltInRegistries.BLOCK.get(id);
+        Block block = BuiltInRegistries.BLOCK.get(id).get().value();
         if (!(block instanceof Portal portal1)) {
             throw new IllegalArgumentException("Block '" + id + "' is not a portal");
         }

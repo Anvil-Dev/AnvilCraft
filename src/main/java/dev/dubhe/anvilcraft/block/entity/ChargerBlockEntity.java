@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
@@ -38,7 +38,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 public class ChargerBlockEntity extends BlockEntity
-    implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemHandlerHolder, IHasDisplayItem {
+    implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemResourceHandlerHolder, IHasDisplayItem {
 
     @Setter
     private boolean isCharger;

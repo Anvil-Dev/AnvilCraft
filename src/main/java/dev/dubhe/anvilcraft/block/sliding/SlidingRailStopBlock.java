@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -106,19 +107,20 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos fromPos, boolean isMoving) {
-        super.neighborChanged(state, level, pos, neighborBlock, fromPos, isMoving);
-        if (level.isEmptyBlock(pos.above())) return;
-        BlockState topBlock = level.getBlockState(pos.above());
-        if (!PistonBaseBlock.isPushable(topBlock, level, pos, null, true, null)) return;
-        Direction moveTo = MathUtil.getDirection(fromPos, pos);
+    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
+        super.onNeighborChange(state, level, pos, neighbor);
+        if (!(level instanceof Level actualLevel)) return;
+        if (actualLevel.isEmptyBlock(pos.above())) return;
+        BlockState topBlock = actualLevel.getBlockState(pos.above());
+        if (!PistonBaseBlock.isPushable(topBlock, actualLevel, pos, null, true, null)) return;
+        Direction moveTo = MathUtil.getDirection(neighbor, pos);
         if (moveTo.getAxis() == Direction.Axis.Y) return;
-        if (this.canMoveBlockTo(level, pos, topBlock, moveTo)) {
-            SlidingRailStopBlock.moveBlocksAbove(level, pos, moveTo);
-        } else if (this.canMoveBlockTo(level, pos, topBlock, moveTo.getCounterClockWise())) {
-            SlidingRailStopBlock.moveBlocksAbove(level, pos, moveTo.getCounterClockWise());
-        } else if (this.canMoveBlockTo(level, pos, topBlock, moveTo.getClockWise())) {
-            SlidingRailStopBlock.moveBlocksAbove(level, pos, moveTo.getClockWise());
+        if (this.canMoveBlockTo(actualLevel, pos, topBlock, moveTo)) {
+            SlidingRailStopBlock.moveBlocksAbove(actualLevel, pos, moveTo);
+        } else if (this.canMoveBlockTo(actualLevel, pos, topBlock, moveTo.getCounterClockWise())) {
+            SlidingRailStopBlock.moveBlocksAbove(actualLevel, pos, moveTo.getCounterClockWise());
+        } else if (this.canMoveBlockTo(actualLevel, pos, topBlock, moveTo.getClockWise())) {
+            SlidingRailStopBlock.moveBlocksAbove(actualLevel, pos, moveTo.getClockWise());
         }
     }
 

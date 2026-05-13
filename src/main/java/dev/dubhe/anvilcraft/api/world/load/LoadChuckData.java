@@ -48,9 +48,9 @@ public class LoadChuckData {
         ServerLevel serverLevel
     ) {
         List<ChunkPos> chunkPosList = new ArrayList<>();
-        ChunkPos centerChunkPos = new ChunkPos(centerPos);
-        for (int x = centerChunkPos.x - level; x <= centerChunkPos.x + level; x++) {
-            for (int z = centerChunkPos.z - level; z <= centerChunkPos.z + level; z++) {
+        ChunkPos centerChunkPos = ChunkPos.containing(centerPos);
+        for (int x = centerChunkPos.x() - level; x <= centerChunkPos.x() + level; x++) {
+            for (int z = centerChunkPos.z() - level; z <= centerChunkPos.z() + level; z++) {
                 chunkPosList.add(new ChunkPos(x, z));
             }
         }
@@ -66,7 +66,7 @@ public class LoadChuckData {
                 RandomChuckTickLoadManager.register(this.centerPos, this);
             }
             for (ChunkPos chunkPos : chunkPosList) {
-                level.setChunkForced(chunkPos.x, chunkPos.z, true);
+                level.setChunkForced(chunkPos.x(), chunkPos.z(), true);
             }
         });
     }
@@ -84,7 +84,7 @@ public class LoadChuckData {
                 RandomChuckTickLoadManager.unregister(this.centerPos);
             }
             for (ChunkPos chunkPos : chunkPosList) {
-                level.setChunkForced(chunkPos.x, chunkPos.z, false);
+                level.setChunkForced(chunkPos.x(), chunkPos.z(), false);
             }
         });
     }

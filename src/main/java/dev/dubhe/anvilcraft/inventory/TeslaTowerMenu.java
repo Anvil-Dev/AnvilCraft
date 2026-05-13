@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
+import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import it.unimi.dsi.fastutil.Pair;

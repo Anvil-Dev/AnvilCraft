@@ -5,10 +5,12 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -96,18 +99,20 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
 
     @Override
 
-    public BlockState updateShape(
+    protected BlockState updateShape(
         BlockState blockState,
-        Direction direction,
-        BlockState blockState2,
-        LevelAccessor levelAccessor,
+        LevelReader levelReader,
+        ScheduledTickAccess ticks,
         BlockPos blockPos,
-        BlockPos blockPos2
+        Direction direction,
+        BlockPos blockPos2,
+        BlockState blockState2,
+        RandomSource random
     ) {
         if (blockState.getValue(WATERLOGGED)) {
-            levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
+            ticks.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
-        return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+        return super.updateShape(blockState, levelReader, ticks, blockPos, direction, blockPos2, blockState2, random);
     }
 
     @Override
@@ -118,7 +123,7 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
     @Override
     public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof StampingPlatformBlock)) return Vec3.ZERO;
-        Vec3i normal = state.getValue(FACING).getNormal();
+        Vec3i normal = state.getValue(FACING).getUnitVec3i();
         return new Vec3(normal.getX(), normal.getY(), normal.getZ()).scale(0.7);
     }
 

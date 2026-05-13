@@ -26,6 +26,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHalf>
@@ -123,12 +124,12 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
 
     @Override
 
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston) {
         if (level.isClientSide()) return;
         if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return;

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,7 +11,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 @Getter
-public class CrabTrapBlockEntity extends BlockEntity implements IItemHandlerHolder {
+public class CrabTrapBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     public CrabTrapBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }

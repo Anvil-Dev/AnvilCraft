@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -52,7 +52,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     IPowerConsumer,
     IDiskCloneable,
     IHasAffectRange,
-    IItemHandlerHolder {
+    IItemResourceHandlerHolder {
     @Setter
     private PowerGrid grid;
 

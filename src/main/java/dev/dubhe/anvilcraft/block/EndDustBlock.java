@@ -9,6 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 
 public class EndDustBlock extends Block {
     public EndDustBlock(Properties properties) {
@@ -39,16 +41,19 @@ public class EndDustBlock extends Block {
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        if (level.getFluidState(neighborPos).is(FluidTags.WATER)) {
-            level.scheduleTick(pos, this, this.getDelayAfterPlace());
+        for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
+            if (level.getFluidState(pos.relative(dir)).is(FluidTags.WATER)) {
+                level.scheduleTick(pos, this, this.getDelayAfterPlace());
+                return;
+            }
         }
     }
 

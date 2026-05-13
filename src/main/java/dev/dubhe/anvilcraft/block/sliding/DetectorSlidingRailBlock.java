@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -26,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -121,7 +121,7 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get())
             .map(DetectorSlidingRailBlockEntity::getPower)
             .orElse(0);
@@ -160,7 +160,7 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     }
 
     @Override
-    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
+    public void loadData(Level level, BlockPos pos, ValueInput input) {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() != this) return;
         level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);

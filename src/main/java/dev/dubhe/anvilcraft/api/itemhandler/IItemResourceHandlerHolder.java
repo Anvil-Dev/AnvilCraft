@@ -6,6 +6,6 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 /**
  * 持有ItemHandler的
  */
-public interface IItemHandlerHolder {
+public interface IItemResourceHandlerHolder {
     ResourceHandler<ItemResource> getItemHandler();
 }

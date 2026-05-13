@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
@@ -63,7 +63,7 @@ public class ModCapabilities {
     }
 
     /// 物品
-    private static <T extends BlockEntity & IItemHandlerHolder, S> ResourceHandler<ItemResource> item(T be, S ignored) {
+    private static <T extends BlockEntity & IItemResourceHandlerHolder, S> ResourceHandler<ItemResource> item(T be, S ignored) {
         return be.getItemHandler();
     }
 

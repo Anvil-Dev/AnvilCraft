@@ -83,9 +83,9 @@ public class VoidEnergyCollectorBlock extends BetterBaseEntityBlock implements I
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        super.onRemove(state, level, pos, newState, movedByPiston);
-        if (!state.is(newState.getBlock()) && state.getValue(POWERED)) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        if (state.getValue(POWERED)) {
             this.updateNeighbours(level, pos);
         }
     }
@@ -93,9 +93,9 @@ public class VoidEnergyCollectorBlock extends BetterBaseEntityBlock implements I
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         if (VoidEnergyCollectorBlockEntity.isAnotherCollectorNearby(context.getLevel(), context.getClickedPos())) {
-            Optional.ofNullable(context.getPlayer()).ifPresent(player -> player.displayClientMessage(
+            Optional.ofNullable(context.getPlayer()).ifPresent(player -> player.sendOverlayMessage(
                 Component.translatable("block.anvilcraft.void_energy_collector.placement_too_close_to_another")
-                    .withStyle(ChatFormatting.RED), true));
+                    .withStyle(ChatFormatting.RED)));
         }
         return super.getStateForPlacement(context);
     }

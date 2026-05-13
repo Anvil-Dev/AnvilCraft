@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -64,12 +65,12 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.isClientSide()) {
@@ -128,15 +129,13 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
     
     @Override
-    public void onRemove(
+    protected void affectNeighborsAfterRemoval(
         BlockState state,
-        Level level,
+        ServerLevel level,
         BlockPos magnetPos,
-        BlockState newState,
         boolean movedByPiston
     ) {
-        super.onRemove(state, level, magnetPos, newState, movedByPiston);
-        if (level.isClientSide()) return;
+        super.affectNeighborsAfterRemoval(state, level, magnetPos, movedByPiston);
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         BlockPos currentPos = magnetPos;
         for (int i = 0; i < distance; i++) {

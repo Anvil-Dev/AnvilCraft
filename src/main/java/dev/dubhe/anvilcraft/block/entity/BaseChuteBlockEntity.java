@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +41,7 @@ import java.util.Objects;
 @Getter
 public abstract class BaseChuteBlockEntity
     extends BaseMachineBlockEntity
-    implements IFilterBlockEntity, IDiskCloneable, IItemHandlerHolder {
+    implements IFilterBlockEntity, IDiskCloneable, IItemResourceHandlerHolder {
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override

@@ -105,9 +105,9 @@ public class HeatCollectorManager {
         AABB validRange = AABB.ofSize(pos.getCenter(), 9, 9, 9);
         for (BlockPos checkedPos : manager.heatCollectors) {
             if (validRange.contains(checkedPos.getCenter())) {
-                Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.displayClientMessage(
+                Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.sendOverlayMessage(
                     Component.translatable("block.anvilcraft.heat_collector.placement_too_close_to_another")
-                        .withStyle(ChatFormatting.RED), true
+                        .withStyle(ChatFormatting.RED)
                 ));
                 manager.heatCollectors.add(pos);
                 return;

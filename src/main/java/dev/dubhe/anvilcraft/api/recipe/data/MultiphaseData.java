@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -111,7 +112,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 phases.add(
                     Multiphase.Phase.create(i)
                         .withCustomName(stack.get(DataComponents.CUSTOM_NAME))
-                        .withItemName(ctx.getResult().getItem().getDescription().copy().append(Multiphase.makeSuffix(i)))
+                        .withItemName(Component.translatable(ctx.getResult().getItem().getDescriptionId()).copy().append(Multiphase.makeSuffix(i)))
                         .withRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0))
                         .withEnchantments(stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
                         .addEnchantments(stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
@@ -138,7 +139,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 phases.add(
                     Multiphase.Phase.create(i)
                         .withCustomName(stack.get(DataComponents.CUSTOM_NAME))
-                        .withItemName(ctx.getResult().getItem().getDescription().copy().append(Multiphase.makeSuffix(i)))
+                        .withItemName(Component.translatable(ctx.getResult().getItem().getDescriptionId()).copy().append(Multiphase.makeSuffix(i)))
                         .withRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0))
                         .addRepairCost(stack1.getOrDefault(DataComponents.REPAIR_COST, 0))
                         .withEnchantments(stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
@@ -170,7 +171,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
                 phases.add(
                     Multiphase.Phase.create(i)
                         .withCustomName(stack.get(DataComponents.CUSTOM_NAME))
-                        .withItemName(ctx.getResult().getItem().getDescription().copy().append(Multiphase.makeSuffix(i)))
+                        .withItemName(Component.translatable(ctx.getResult().getItem().getDescriptionId()).copy().append(Multiphase.makeSuffix(i)))
                         .withRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0))
                         .addRepairCost(stack1.getOrDefault(DataComponents.REPAIR_COST, 0))
                         .addRepairCost(stack2.getOrDefault(DataComponents.REPAIR_COST, 0))

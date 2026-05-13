@@ -4,11 +4,13 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.util.TriState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.Rotation;
@@ -21,7 +23,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.util.TriState;
 import org.jspecify.annotations.Nullable;
 
 import java.util.stream.Stream;
@@ -97,37 +98,40 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-        if (isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
-            || isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE
-        ) {
-            if (state.getValue(AXIS) != Axis.Y
-                && (isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
+    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos fromPos) {
+        if (level instanceof Level actualLevel) {
+            if (isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
+                || isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE
+            ) {
+                if (state.getValue(AXIS) != Axis.Y
+                    && (isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
                     || isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE)
+                ) {
+                    actualLevel.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.Y));
+                }
+                if (state.getValue(AXIS) == Axis.Y
+                    && isOtherRailInAxis(level, pos, Axis.Z, -1) != TriState.TRUE
+                    && isOtherRailInAxis(level, pos, Axis.Z, 1) != TriState.TRUE
+                ) {
+                    actualLevel.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.X));
+                }
+            } else if (
+                isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
+                    || isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE
             ) {
-                level.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.Y));
-            }
-            if (state.getValue(AXIS) == Axis.Y
-                && isOtherRailInAxis(level, pos, Axis.Z, -1) != TriState.TRUE
-                && isOtherRailInAxis(level, pos, Axis.Z, 1) != TriState.TRUE
-            ) {
-                level.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.X));
-            }
-        } else if (
-            isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
-            || isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE
-        ) {
-            if (state.getValue(AXIS) == Axis.Y
-                && isOtherRailInAxis(level, pos, Axis.X, -1) != TriState.TRUE
-                && isOtherRailInAxis(level, pos, Axis.X, 1) != TriState.TRUE
-            ) {
-                level.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.Z));
+                if (state.getValue(AXIS) == Axis.Y
+                    && isOtherRailInAxis(level, pos, Axis.X, -1) != TriState.TRUE
+                    && isOtherRailInAxis(level, pos, Axis.X, 1) != TriState.TRUE
+                ) {
+                    actualLevel.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.Z));
+                }
             }
         }
-        super.neighborChanged(state, level, pos, block, fromPos, isMoving);
+        super.onNeighborChange(state, level, pos, fromPos);
+
     }
 
-    private TriState isOtherRailInAxis(Level level, BlockPos pos, Axis axis, int relative) {
+    private TriState isOtherRailInAxis(LevelReader level, BlockPos pos, Axis axis, int relative) {
         BlockState other = level.getBlockState(pos.relative(axis, relative));
         Axis otherAxis;
         if (other.getBlock() instanceof SlidingRailBlock) {

@@ -97,67 +97,7 @@ public class SimplePowerGrid {
         powerComponents.addAll(grid.transmitters);
         this.color = 0;
         for (IPowerComponent component : powerComponents) {
-            switch (component.getComponentType()) {
-                case STORAGE -> {
-                    IPowerStorage it = (IPowerStorage) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        0,
-                        it.getPowerAmount(),
-                        it.getCapacity(),
-                        it.getRange(),
-                        PowerComponentType.STORAGE
-                    ));
-                }
-                case CONSUMER -> {
-                    IPowerConsumer it = (IPowerConsumer) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        it.getInputPower(),
-                        0,
-                        0,
-                        0,
-                        it.getRange(),
-                        PowerComponentType.CONSUMER
-                    ));
-                }
-                case PRODUCER -> {
-                    IPowerProducer it = (IPowerProducer) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        it.getOutputPower(),
-                        0,
-                        0,
-                        it.getRange(),
-                        PowerComponentType.PRODUCER
-                    ));
-                }
-
-                case TRANSMITTER -> {
-                    IPowerTransmitter it = (IPowerTransmitter) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        it.getRange(),
-                        PowerComponentType.TRANSMITTER
-                    ));
-                }
-
-                default -> powerComponentInfoList.add(new PowerComponentInfo(
-                    component.getPos(),
-                    0,
-                    0,
-                    0,
-                    0,
-                    component.getRange(),
-                    PowerComponentType.INVALID
-                ));
-            }
+            powerComponentInfoList.add(component.toPowerComponentInfo());
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
@@ -222,16 +162,7 @@ public class SimplePowerGrid {
     private void createTransmitterVisualLines() {
         List<Map.Entry<BlockPos, AABB>> shapes = this.powerComponentInfoList.stream()
             .filter(it -> it.type() == PowerComponentType.TRANSMITTER)
-            .map(it -> Map.entry(
-                it.pos(), new AABB(
-                    -it.range() + it.pos().getX(),
-                    -it.range() + it.pos().getY(),
-                    -it.range() + it.pos().getZ(),
-                    it.range() + 1 + it.pos().getX(),
-                    it.range() + 1 + it.pos().getY(),
-                    it.range() + 1 + it.pos().getZ()
-                )
-            ))
+            .map(it -> Map.entry(it.pos(), it.boundingBox()))
             .toList();
 
         for (int i = 0; i < shapes.size(); i++) {

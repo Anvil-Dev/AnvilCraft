@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.entity.IExtensibleBlockEntity;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.SingleStackResourceHandler;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder, IExtensibleBlockEntity<ChuteBlockEntity> {
+public class SimpleChuteBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IExtensibleBlockEntity<ChuteBlockEntity> {
     private final SingleStackResourceHandler itemHandler = new SingleStackResourceHandler() {
         @Override
         protected void onContentChanged(ItemStack stack) {

@@ -69,7 +69,7 @@ public class TooltipRenderHelper {
     /**
      * 渲染带图标的Tooltip
      *
-     * @param thiz      GuiGraphicsExtractor
+     * @param guiGraphics      GuiGraphicsExtractor
      * @param font      字体
      * @param itemStack 图标物品
      * @param lines     Tooltip内容
@@ -77,7 +77,7 @@ public class TooltipRenderHelper {
      * @param y         y坐标
      */
     public static void renderTooltipWithItemIcon(
-        GuiGraphicsExtractor thiz,
+        GuiGraphicsExtractor guiGraphics,
         Font font,
         ItemStack itemStack,
         List<Component> lines,
@@ -101,36 +101,34 @@ public class TooltipRenderHelper {
             height += component.getHeight(font);
         }
 
-        Vector2ic vector2ic = tooltipPositioner.positionTooltip(thiz.guiWidth(), thiz.guiHeight(), x, y, width, height);
+        Vector2ic vector2ic = tooltipPositioner.positionTooltip(guiGraphics.guiWidth(), guiGraphics.guiHeight(), x, y, width, height);
         int vx = vector2ic.x();
         int vy = vector2ic.y();
-        thiz.pose().pushMatrix();
+        guiGraphics.pose().pushMatrix();
 
         int finalVy = vy;
         int finalWidth = width;
         int finalHeight = height + 16;
-        thiz.drawManaged(() -> renderTooltipBackground(
-            thiz, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor));
-        thiz.pose().translate(0.0F, 0.0F, 400.0F);
+        renderTooltipBackground(guiGraphics, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor);
 
-        thiz.renderFakeItem(itemStack, vx, vy);
+        guiGraphics.item(itemStack, vx, vy);
 
         vy += 16;
 
         ClientTooltipComponent component;
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
-            component.renderText(font, vx, q, thiz.pose().last().pose(), thiz.bufferSource());
+            component.extractText(guiGraphics, font, vx, q);
             q += component.getHeight(font) + (i == 0 ? 2 : 0);
         }
 
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
-            component.renderImage(font, vx, q, thiz);
+            component.extractImage(font, vx, q, finalWidth, finalHeight, guiGraphics);
             q += component.getHeight(font) + (i == 0 ? 2 : 0);
         }
 
-        thiz.pose().popPose();
+        guiGraphics.pose().popMatrix();
     }
 
     private static void renderTooltipBackground(
@@ -172,20 +170,20 @@ public class TooltipRenderHelper {
     }
 
     private static void renderVerticalLine(GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int color) {
-        guiGraphics.fill(x, y, x + 1, y + length, z, color);
+        guiGraphics.fill(x, y, x + 1, y + length, color);
     }
 
     private static void renderVerticalLineGradient(
         GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int topColor, int bottomColor) {
-        guiGraphics.fillGradient(x, y, x + 1, y + length, z, topColor, bottomColor);
+        guiGraphics.fillGradient(x, y, x + 1, y + length, topColor, bottomColor);
     }
 
     private static void renderHorizontalLine(GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int color) {
-        guiGraphics.fill(x, y, x + length, y + 1, z, color);
+        guiGraphics.fill(x, y, x + length, y + 1, color);
     }
 
     private static void renderRectangle(
         GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height, int z, int color) {
-        guiGraphics.fill(x, y, x + width, y + height, z, color);
+        guiGraphics.fill(x, y, x + width, y + height, color);
     }
 }

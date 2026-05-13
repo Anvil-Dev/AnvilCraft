@@ -3,11 +3,14 @@ package dev.dubhe.anvilcraft.block.nesting;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBlock;
 import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxBlockEntity;
+import dev.dubhe.anvilcraft.api.block.ITooltipBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -28,7 +31,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -36,13 +38,15 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements EntityBlock, IHammerRemovable {
+public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements EntityBlock, IHammerRemovable, ITooltipBlock {
     private static final int SOUND_DELAY = 8;
     public static final BooleanProperty COOLDOWN = BooleanProperty.create("cooldown");
     public static final IntegerProperty SOUNDSETID = IntegerProperty.create("soundsetid", 0, 4);
@@ -124,7 +128,7 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof SupercriticalNestingShulkerBoxBlockEntity nesting) {
-            if (!level.isClientSide() && player.isCreative() && !nesting.getItems().isEmpty()) {
+            if (!level.isClientSide() && player.isCreative() && !ResourceHandlerUtil.isEmpty(nesting.getItems())) {
                 ItemStack stack = this.asItem().getDefaultInstance();
                 stack.applyComponents(be.collectComponents());
                 ItemEntity itemEntity = new ItemEntity(
@@ -149,8 +153,8 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
             params = params.withDynamicDrop(
                 ShulkerBoxBlock.CONTENTS,
                 consumer -> {
-                    for (int i = 0; i < box.getItemHandler().getSlots(); i++) {
-                        consumer.accept(box.getItemHandler().getStackInSlot(i));
+                    for (int i = 0; i < box.getItemHandler().size(); i++) {
+                        consumer.accept(box.getItemHandler().getResource(i).toStack(box.getItemHandler().getAmountAsInt(i)));
                     }
                 }
             );
@@ -160,18 +164,12 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.is(newState.getBlock())) return;
-        BlockEntity blockentity = level.getBlockEntity(pos);
-        super.onRemove(state, level, pos, newState, isMoving);
-        if (blockentity instanceof ShulkerBoxBlockEntity) {
-            level.updateNeighbourForOutputSignal(pos, state.getBlock());
-        }
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltips, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltips, flag);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, Consumer<Component> builder, TooltipFlag flag) {
         int validLine = 0;
         int nonEmpty = 0;
 
@@ -179,7 +177,7 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
             nonEmpty++;
             if (validLine > 4) continue;
             validLine++;
-            tooltips.add(Component.translatable(
+            builder.accept(Component.translatable(
                 "container.shulkerBox.itemCount",
                 stack1.getStack().getHoverName(),
                 stack1.getCount()
@@ -187,7 +185,7 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
         }
 
         if (nonEmpty - validLine <= 0) return;
-        tooltips.add(Component.translatable("container.shulkerBox.more", nonEmpty - validLine).withStyle(ChatFormatting.ITALIC));
+        builder.accept(Component.translatable("container.shulkerBox.more", nonEmpty - validLine).withStyle(ChatFormatting.ITALIC));
     }
 
     @Override
@@ -204,26 +202,28 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
      * Returns the analog signal this block emits. This is the signal a comparator can read from it.
      */
     @Override
-    protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (!(level.getBlockEntity(pos) instanceof SupercriticalNestingShulkerBoxBlockEntity be)) return 0;
-        IItemHandler handler = be.getItemHandler();
+        ResourceHandler<ItemResource> handler = be.getItemHandler();
         float f = 0.0F;
 
-        for (int i = 0; i < handler.getSlots(); i++) {
-            ItemStack stack = handler.getStackInSlot(i);
+        for (int i = 0; i < handler.size(); i++) {
+            ItemStack stack = ItemResourceHelper.getStackInSlot(handler, i);
             if (stack.isEmpty()) continue;
-            f += (float) stack.getCount() / (float) handler.getSlotLimit(i);
+            f += (float) stack.getCount() / (float) ItemResourceHelper.getSlotLimit(handler, i);
         }
 
-        f /= (float) handler.getSlots();
+        f /= (float) handler.size();
         return Mth.lerpDiscrete(f, 0, 15);
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
-        level.getBlockEntity(pos, ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get())
-            .ifPresent(be -> be.saveToItem(stack, level.registryAccess()));
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state, includeData, player);
+        if (includeData) {
+            level.getBlockEntity(pos, ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get())
+                .ifPresent(be -> stack.applyComponents(be.collectComponents()));
+        }
         return stack;
     }
 }

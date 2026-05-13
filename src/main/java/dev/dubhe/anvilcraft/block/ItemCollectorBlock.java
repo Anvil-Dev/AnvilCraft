@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -12,7 +11,9 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -36,7 +37,10 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -76,14 +80,13 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    public void onRemove(
+    protected void affectNeighborsAfterRemoval(
         BlockState state,
-        Level level,
+        ServerLevel level,
         BlockPos pos,
-        BlockState newState,
         boolean movedByPiston
     ) {
-        if (state.is(newState.getBlock())) return;
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         if (level.getBlockEntity(pos) instanceof ItemCollectorBlockEntity entity) {
 
             List<ChunkPos> chunkPosList = entity.getPoachingMapPositions(8);
@@ -96,14 +99,12 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             entity.setRemoved();
 
             Vec3 vec3 = entity.getBlockPos().getCenter();
-            FilteredItemStackHandler depository = entity.getItemHandler();
-            for (int slot = 0; slot < depository.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
+            ResourceHandler<ItemResource> depository = entity.getItemHandler();
+            for (int slot = 0; slot < depository.size(); slot++) {
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, ItemResourceHelper.getStackInSlot(depository, slot));
             }
-            level.updateNeighbourForOutputSignal(pos, this);
 
         }
-        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Nullable
@@ -167,12 +168,12 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston) {
         if (level.isClientSide()) {
             return;
@@ -193,7 +194,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
+    protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos, Direction direction) {
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof ItemCollectorBlockEntity itemCollectorBlockEntity) {
             return itemCollectorBlockEntity.getRedstoneSignal();

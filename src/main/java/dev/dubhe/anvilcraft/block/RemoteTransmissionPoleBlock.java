@@ -27,6 +27,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 public class RemoteTransmissionPoleBlock
@@ -135,12 +136,12 @@ public class RemoteTransmissionPoleBlock
 
     @Override
 
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston) {
         if (level.isClientSide()) {
             return;

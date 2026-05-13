@@ -53,22 +53,22 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
     }
 
     @Override
-    public boolean isSignalSource(BlockState state) {
+    protected boolean isSignalSource(BlockState state) {
         return true;
     }
 
     @Override
-    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+    protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return state.getValue(OVERLOAD) ? 15 : 0;
     }
 
     @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
+    protected boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof LoadMonitorBlockEntity entity) {
             return entity.getRedstoneSignal();
         }

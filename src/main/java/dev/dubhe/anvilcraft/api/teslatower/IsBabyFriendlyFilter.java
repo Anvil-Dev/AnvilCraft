@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.taslatower;
+package dev.dubhe.anvilcraft.api.teslatower;
 
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
@@ -8,11 +8,6 @@ import net.minecraft.world.entity.animal.Animal;
 public class IsBabyFriendlyFilter extends TeslaFilter {
     @Getter
     private final String id = "IsBabyFriendlyFilter";
-
-    @Override
-    public String getId() {
-        return "IsBabyFriendlyFilter";
-    }
 
     @Override
     public boolean match(LivingEntity entity, String arg) {

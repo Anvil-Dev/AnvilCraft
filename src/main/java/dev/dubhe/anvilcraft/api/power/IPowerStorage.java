@@ -38,4 +38,18 @@ public interface IPowerStorage extends IPowerProducer, IPowerConsumer {
     default PowerComponentType getComponentType() {
         return PowerComponentType.STORAGE;
     }
+
+    @Override
+    default PowerComponentInfo toPowerComponentInfo() {
+        return new PowerComponentInfo(
+            getPos(),
+            0,
+            0,
+            getPowerAmount(),
+            getCapacity(),
+            getRange(),
+            getShape(),
+            PowerComponentType.STORAGE
+        );
+    }
 }

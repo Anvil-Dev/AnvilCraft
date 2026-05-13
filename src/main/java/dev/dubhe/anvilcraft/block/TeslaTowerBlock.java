@@ -39,6 +39,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.redstone.Orientation;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
@@ -149,12 +150,12 @@ public class TeslaTowerBlock
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston) {
         if (level.isClientSide()) {
             return;
@@ -224,8 +225,7 @@ public class TeslaTowerBlock
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
             if (level.getBlockEntity(pos) instanceof TeslaTowerBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
-                return Util.interactionResultConverter()
-                    .apply(be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult));
+                return be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult);
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);

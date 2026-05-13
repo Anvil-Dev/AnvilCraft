@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -73,19 +75,19 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
             },
             (checkedPos) -> {
                 if (checkedPos.equals(pos)) {
-                    return true;
+                    return BlockPos.TraversalNodeStatus.ACCEPT;
                 }
                 BlockState blockState = level.getBlockState(checkedPos);
                 FluidState fluidState = level.getFluidState(checkedPos);
                 if (!fluidState.is(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)) {
-                    return false;
+                    return BlockPos.TraversalNodeStatus.SKIP;
                 }
                 Block block = blockState.getBlock();
                 if (block instanceof BucketPickup bucketPickup) {
                     if (!bucketPickup
                         .pickupBlock(null, level, checkedPos, blockState)
                         .isEmpty()) {
-                        return true;
+                        return BlockPos.TraversalNodeStatus.ACCEPT;
                     }
                 }
 
@@ -96,7 +98,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
                         && !blockState.is(Blocks.KELP_PLANT)
                         && !blockState.is(Blocks.SEAGRASS)
                         && !blockState.is(Blocks.TALL_SEAGRASS)) {
-                        return false;
+                        return BlockPos.TraversalNodeStatus.SKIP;
                     }
 
                     BlockEntity blockEntity =
@@ -104,18 +106,18 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
                     dropResources(blockState, level, checkedPos, blockEntity);
                     level.setBlock(checkedPos, Blocks.AIR.defaultBlockState(), 3);
                 }
-                return true;
+                return BlockPos.TraversalNodeStatus.ACCEPT;
             }
         ) > 1;
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;

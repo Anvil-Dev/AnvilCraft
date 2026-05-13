@@ -164,9 +164,9 @@ public class ShulkerContainerBlock
             BlockPos fromPos = updatedPos.relative(direction);
             level.neighborShapeChanged(
                 direction,
-                level.getBlockState(fromPos),
-                updatedPos,
+                 updatedPos,
                 fromPos,
+                level.getBlockState(fromPos),
                 3,
                 512
             );

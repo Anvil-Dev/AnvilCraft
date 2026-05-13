@@ -23,12 +23,14 @@ public class ResinBlock extends HalfTransparentBlock {
         }
     }
 
-    public void updateEntityAfterFallOn(BlockGetter level, Entity entity) {
+    @Override
+    public void updateEntityMovementAfterFallOn(BlockGetter level, Entity entity) {
         if (entity.isSuppressingBounce()) {
-            super.updateEntityAfterFallOn(level, entity);
+            super.updateEntityMovementAfterFallOn(level, entity);
         } else {
             this.bounceUp(entity);
         }
+
     }
 
     private void bounceUp(Entity entity) {

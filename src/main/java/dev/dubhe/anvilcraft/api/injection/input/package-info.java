@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package dev.dubhe.anvilcraft.api.taslatower;
+package dev.dubhe.anvilcraft.api.injection.input;
 
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 

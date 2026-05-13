@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.taslatower;
+package dev.dubhe.anvilcraft.api.teslatower;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;

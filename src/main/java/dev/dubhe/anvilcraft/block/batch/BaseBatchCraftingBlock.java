@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.block.batch;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
@@ -13,7 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -33,13 +30,11 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
@@ -93,13 +88,13 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
     /**
      * 当玩家交互此方块时调用
      *
-     * @param level 方块所在的世界
-     * @param pos 方块所在的位置
-     * @param state 方块的状态
-     * @param be 方块的方块实体
+     * @param level  方块所在的世界
+     * @param pos    方块所在的位置
+     * @param state  方块的状态
+     * @param be     方块的方块实体
      * @param player 交互该方块的玩家
-     * @param hand 玩家交互该方块的手
-     * @param hit 玩家视线与方块的碰撞计算结果
+     * @param hand   玩家交互该方块的手
+     * @param hit    玩家视线与方块的碰撞计算结果
      * @return 此次交互的结果
      */
     protected abstract InteractionResult playerUse(
@@ -114,20 +109,20 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
 
     public abstract Item getToastSymbol();
 
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof IItemHandlerHolder holder) {
-            Vec3 vec3 = pos.getCenter();
-            ResourceHandler<ItemResource> handler = holder.getItemHandler();
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, handler.getStackInSlot(slot));
-            }
-            ItemHandlerUtil.dropAllToPos();
-            level.updateNeighbourForOutputSignal(pos, this);
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
+//    @Override
+//    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+//        if (state.is(newState.getBlock())) return;
+//        if (level.getBlockEntity(pos) instanceof IItemHandlerHolder holder) {
+//            Vec3 vec3 = pos.getCenter();
+//            ResourceHandler<ItemResource> handler = holder.getItemHandler();
+//            for (int slot = 0; slot < handler.getSlots(); slot++) {
+//                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, handler.getStackInSlot(slot));
+//            }
+//            ItemHandlerUtil.dropAllToPos();
+//            level.updateNeighbourForOutputSignal(pos, this);
+//        }
+//        super.onRemove(state, level, pos, newState, movedByPiston);
+//    }
 
     @Override
     public boolean useShapeForLightOcclusion(BlockState state) {
@@ -176,12 +171,12 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
@@ -211,7 +206,8 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
     }
 
     public static BlockState copy(BlockState from, BlockState to) {
-        if (!(from.getBlock() instanceof BaseBatchCraftingBlock) || !(to.getBlock() instanceof BaseBatchCraftingBlock)) return to;
+        if (!(from.getBlock() instanceof BaseBatchCraftingBlock) || !(to.getBlock() instanceof BaseBatchCraftingBlock))
+            return to;
         return to
             .setValue(POWERED, from.getValue(POWERED))
             .setValue(OVERLOAD, from.getValue(OVERLOAD))

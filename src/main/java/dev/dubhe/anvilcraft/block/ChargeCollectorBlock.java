@@ -88,9 +88,9 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        super.onRemove(state, level, pos, newState, movedByPiston);
-        if (!state.is(newState.getBlock()) && state.getValue(POWERED)) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        if (state.getValue(POWERED)) {
             this.updateNeighbours(level, pos);
         }
     }

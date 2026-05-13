@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import lombok.Getter;
@@ -18,7 +18,7 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConfinementChamberBlockEntity extends BlockEntity implements IItemHandlerHolder, IHasDisplayItem {
+public class ConfinementChamberBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IHasDisplayItem {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     @Getter
     private final int id;

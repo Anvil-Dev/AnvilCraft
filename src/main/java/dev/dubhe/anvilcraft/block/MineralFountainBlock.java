@@ -6,8 +6,11 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -58,14 +61,18 @@ public class MineralFountainBlock extends BaseEntityBlock {
     @Override
     protected BlockState updateShape(
         BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        BlockPos neighborPos
+        Direction direction,
+        BlockPos neighborPos,
+        BlockState neighborState,
+        RandomSource random
     ) {
-        setTickCount(level, pos);
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        if (level instanceof LevelAccessor levelAccessor) {
+            setTickCount(levelAccessor, pos);
+        }
+        return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
 
     private void setTickCount(LevelAccessor level, BlockPos pos) {

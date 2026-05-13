@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.item;
 
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -19,7 +19,7 @@ public class ChuteBlockItem extends BlockItem {
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        return level.getBlockEntity(pos) instanceof IItemHandlerHolder
+        return level.getBlockEntity(pos) instanceof IItemResourceHandlerHolder
                || level.getCapability(Capabilities.Item.BLOCK, context.getClickedPos(), context.getClickedFace()) != null
                ? this.useOn(context)
                : super.onItemUseFirst(stack, context);

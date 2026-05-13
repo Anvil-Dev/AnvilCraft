@@ -15,4 +15,18 @@ public interface IPowerTransmitter extends IPowerComponent {
     default PowerComponentType getComponentType() {
         return PowerComponentType.TRANSMITTER;
     }
+
+    @Override
+    default PowerComponentInfo toPowerComponentInfo() {
+        return new PowerComponentInfo(
+            getPos(),
+            0,
+            0,
+            0,
+            0,
+            getRange(),
+            getShape(),
+            PowerComponentType.TRANSMITTER
+        );
+    }
 }

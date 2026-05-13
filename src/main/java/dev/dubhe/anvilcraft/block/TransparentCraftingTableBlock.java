@@ -8,8 +8,10 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,7 +22,8 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,7 +56,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         BlockHitResult hitResult
     ) {
         if (stack.is(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem())) {
-            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
     }
@@ -63,7 +66,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         ModMenuTypes.open((ServerPlayer) player, getMenuProvider(state, level, pos));
         player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
-        return InteractionResult.sidedSuccess(level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -91,8 +94,8 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (newState.is(this)) return;
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         if (state.getValue(TYPE) != Type.SINGLE) {
             this.deformMatrix(level, pos);
             return;
@@ -105,18 +108,23 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
     @Override
     protected BlockState updateShape(
         BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        BlockPos neighborPos
+        Direction direction,
+        BlockPos neighborPos,
+        BlockState neighborState,
+        RandomSource random
     ) {
+        if (!(level instanceof Level actualLevel)) {
+            return state;
+        }
         if (neighborState.is(this)) return state;
-        if (this.tryFormMatrix((Level) level, pos)) {
+        if (this.tryFormMatrix(actualLevel, pos)) {
             return state;
         }
         if (state.getValue(TYPE) != Type.SINGLE && !isValidMatrixBlock(neighborState, false)) {
-            this.deformMatrix((Level) level, pos);
+            this.deformMatrix(actualLevel, pos);
             return state;
         }
         return state;
@@ -178,8 +186,8 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         // 将矩阵内的通透工作台转换为连接状态
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
-                int indexX = x == maxX ? 2 : x > minX ? 1 : 0;
-                int indexZ = z == maxZ ? 2 : z > minZ ? 1 : 0;
+                int indexX = x == maxX ? 2 : (x > minX ? 1 : 0);
+                int indexZ = z == maxZ ? 2 : (z > minZ ? 1 : 0);
                 BlockState state = level.getBlockState(mpos.set(x, y0, z));
                 if (!state.is(this)) continue;
                 level.setBlockAndUpdate(mpos, state.setValue(TYPE, Type.LOOKUP[indexX][indexZ]));

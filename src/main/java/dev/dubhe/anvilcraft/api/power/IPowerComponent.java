@@ -102,6 +102,22 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
         return Optional.ofNullable(this.getGrid()).map(PowerGrid::isWorking).orElse(false);
     }
 
+    /**
+     * 转换为电网元件信息
+     */
+    default PowerComponentInfo toPowerComponentInfo() {
+        return new PowerComponentInfo(
+            getPos(),
+            0,
+            0,
+            0,
+            0,
+            getRange(),
+            getShape(),
+            getComponentType()
+        );
+    }
+
     default MutableComponent getCommandDiscription() {
         Block block = Optional.ofNullable(this.getCurrentLevel())
             .map(level -> level.getBlockState(this.getPos()).getBlock())

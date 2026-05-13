@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHolder, ItemResourceHandlerCache, IFluidHandlerHolder {
+public class FishTankBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, ItemResourceHandlerCache, IFluidHandlerHolder {
     public static final int CAPACITY = FluidType.BUCKET_VOLUME;
     private final FluidStacksResourceHandler fluidHandler = new FluidStacksResourceHandler(1, CAPACITY) {
         @Override

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.input;
+package dev.dubhe.anvilcraft.api.injection.input;
 
 import net.minecraft.client.MouseHandler;
 

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -40,8 +42,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterloggedBlock, IHammerRemovable {
@@ -135,15 +138,20 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
         if (!level.isClientSide()) {
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             if (blockEntity != null) {
-                IItemHandler itemHandler = blockEntity.getItemHandler();
-                for (int i = 0; i < itemHandler.getSlots(); i++) {
-                    ItemStack stack = itemHandler.getStackInSlot(i);
-                    if (stack.isEmpty()) continue;
-                    Vec3 center = pos.relative(Direction.UP).getCenter();
-                    ItemEntity itemEntity = new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
-                    itemEntity.setDefaultPickUpDelay();
-                    level.addFreshEntity(itemEntity);
-                    itemHandler.extractItem(i, stack.getCount(), false);
+                ResourceHandler<ItemResource> itemHandler = blockEntity.getItemHandler();
+                for (int i = 0; i < itemHandler.size(); i++) {
+                    ItemResource resource = itemHandler.getResource(i);
+                    if (resource.isEmpty()) continue;
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        int extracted = itemHandler.extract(i, resource, Integer.MAX_VALUE, transaction);
+                        if (extracted <= 0) continue;
+                        Vec3 center = pos.relative(Direction.UP).getCenter();
+                        ItemStack stack = resource.toStack(extracted);
+                        ItemEntity itemEntity = new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
+                        itemEntity.setDefaultPickUpDelay();
+                        level.addFreshEntity(itemEntity);
+                        transaction.commit();
+                    }
                 }
                 blockEntity.setChanged();
             }
@@ -163,23 +171,20 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
     }
 
     @Override
-    public void onRemove(
+    protected void affectNeighborsAfterRemoval(
         BlockState state,
-        Level level,
+        ServerLevel level,
         BlockPos pos,
-        BlockState newState,
         boolean movedByPiston
     ) {
-        if (state.is(newState.getBlock())) return;
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         if (level.getBlockEntity(pos) instanceof CrabTrapBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
-            IItemHandler itemHandler = entity.getItemHandler();
-            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, itemHandler.getStackInSlot(slot));
+            ResourceHandler<ItemResource> itemHandler = entity.getItemHandler();
+            for (int slot = 0; slot < itemHandler.size(); slot++) {
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, ItemResourceHelper.getStackInSlot(itemHandler, slot));
             }
-            level.updateNeighbourForOutputSignal(pos, this);
         }
-        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     private void tryInsertLoot(
@@ -198,8 +203,14 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
             if (items.isEmpty()) return;
             CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
             if (blockEntity != null) {
+                ResourceHandler<ItemResource> handler = blockEntity.getItemHandler();
                 for (ItemStack item : items) {
-                    ItemHandlerHelper.insertItem(blockEntity.getItemHandler(), item, false);
+                    ItemResource resource = ItemResource.of(item);
+                    int amount = item.getCount();
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        handler.insert(resource, amount, transaction);
+                        transaction.commit();
+                    }
                 }
                 blockEntity.setChanged();
             }

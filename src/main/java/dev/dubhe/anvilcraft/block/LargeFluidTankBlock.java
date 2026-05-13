@@ -94,13 +94,13 @@ public class LargeFluidTankBlock
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult).result();
+        InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         if (result == InteractionResult.PASS) {
             BlockPos mainPartPos = getMainPartPos(pos, state);
             BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
             if (blockEntity instanceof LargeFluidTankBlockEntity tank) {
                 if (tank.onPlayerUse(player, hand)) {
-                    return ItemInteractionResult.sidedSuccess(level.isClientSide());
+                    return InteractionResult.SUCCESS;
                 }
             }
         }
@@ -124,7 +124,7 @@ public class LargeFluidTankBlock
 
     @Override
     public Identifier getDefinitionId() {
-        return ModMultiblockDefinitions.LARGE_FLUID_TANK.location();
+        return ModMultiblockDefinitions.LARGE_FLUID_TANK.identifier();
     }
 
     @Override

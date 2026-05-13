@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -56,11 +57,12 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
         ISlidingRail.whenOnNeighborChange(level, pos, neighbor);
     }
 
-    @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-        if (level.isClientSide()) return;
-        ISlidingRail.whenNeighborChanged(level, self(), pos, fromPos);
-    }
+//    @Override
+//    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+//        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+//        if (level.isClientSide()) return;
+//        ISlidingRail.whenNeighborChanged(level, self(), pos, fromPos);
+//    }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {

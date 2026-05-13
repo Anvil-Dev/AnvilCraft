@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -89,12 +90,12 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         boolean isSignal = Arrays.stream(getParts())
@@ -159,7 +160,7 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos, Direction direction) {
         if (!(blockState.getBlock() instanceof AbstractMultiPartBlock<?> abstractMultiPartBlock)) return 0;
         BlockPos blockPos = abstractMultiPartBlock.getMainPartPos(pos, blockState);
         if (!(level.getBlockEntity(blockPos) instanceof DeflectionRingBlockEntity blockEntity)) return 0;

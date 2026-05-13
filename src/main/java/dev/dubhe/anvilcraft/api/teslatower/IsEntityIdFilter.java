@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.taslatower;
+package dev.dubhe.anvilcraft.api.teslatower;
 
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
@@ -7,11 +7,6 @@ import net.minecraft.world.entity.LivingEntity;
 public class IsEntityIdFilter extends TeslaFilter {
     @Getter
     private final String id = "IsEntityIdFilter";
-
-    @Override
-    public String getId() {
-        return "IsEntityIdFilter";
-    }
 
     @Override
     public boolean match(LivingEntity entity, String arg) {

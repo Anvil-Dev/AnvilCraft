@@ -40,6 +40,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -169,10 +170,8 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
             return InteractionResult.SUCCESS;
         } else if (itemInHand.is(ItemTags.AXES)) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PRIMARY));
-            itemInHand.hurtAndBreak(1, (ServerLevel) level, (ServerPlayer) player,
-                item -> player.onEquippedItemBroken(item, LivingEntity.getSlotForHand(hand))
-            );
-            return InteractionResult.CONSUME_PARTIAL;
+            itemInHand.hurtAndBreak(1, player, hand);
+            return InteractionResult.SUCCESS;
         } else if (itemInHand.is(ModItems.VOID_MATTER.asItem())) {
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.DARK));
             return InteractionResult.SUCCESS;
@@ -194,12 +193,12 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;

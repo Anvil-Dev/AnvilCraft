@@ -22,6 +22,20 @@ public interface IPowerProducer extends IPowerComponent {
         return PowerComponentType.PRODUCER;
     }
 
+    @Override
+    default PowerComponentInfo toPowerComponentInfo() {
+        return new PowerComponentInfo(
+            getPos(),
+            0,
+            getOutputPower(),
+            0,
+            0,
+            getRange(),
+            getShape(),
+            PowerComponentType.PRODUCER
+        );
+    }
+
     /**
      * 实际电量
      */

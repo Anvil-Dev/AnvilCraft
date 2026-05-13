@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.Level;
 
 import java.util.Map;
 import java.util.Random;
@@ -38,6 +40,10 @@ public class Util {
 
     public static boolean findCaller(String caller) {
         return STACK_WALKER.walk(it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
+    }
+
+    public static InteractionResult sidedSuccess(Level level) {
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {

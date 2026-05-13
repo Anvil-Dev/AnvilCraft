@@ -101,7 +101,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        return Util.interactionResultConverter().apply(this.use(state, level, pos, player, hand, hitResult));
+        return this.use(state, level, pos, player, hand, hitResult);
     }
 
     @Override

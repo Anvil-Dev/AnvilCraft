@@ -27,7 +27,7 @@ public class ResultContext {
         ItemStack result
     ) {
         this.registries = registries;
-        this.getRandom() = random;
+        this.random = random;
         this.inputs = inputs;
         this.result = result;
     }
@@ -61,7 +61,7 @@ public class ResultContext {
 
         public Builder(HolderLookup.Provider registries, RandomSource random, ItemStack result) {
             this.registries = registries;
-            this.getRandom() = random;
+            this.random = random;
             this.inputs = ImmutableMap.builder();
             this.result = result;
         }
@@ -76,7 +76,7 @@ public class ResultContext {
         }
 
         public ResultContext build() {
-            return new ResultContext(this.registries, this.getRandom(), this.inputs.build(), this.result);
+            return new ResultContext(this.registries, this.random, this.inputs.build(), this.result);
         }
     }
 }

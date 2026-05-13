@@ -94,7 +94,7 @@ public class AmuletManager {
     }
 
     public Optional<Holder<AmuletType>> getTypeMatchedDamage(ServerPlayer player, DamageSource source, HolderLookup.Provider registries) {
-        Optional<HolderLookup.RegistryLookup<AmuletType>> lookupOptional = registries.lookup(ModRegistries.AMULET_TYPE_KEY);
+        Optional<? extends HolderLookup.RegistryLookup<AmuletType>> lookupOptional = registries.lookup(ModRegistries.AMULET_TYPE_KEY);
         return lookupOptional.flatMap(lookup -> lookup.listElements()
             .filter(reference -> reference.value().canObtain(player, source))
             .findFirst());

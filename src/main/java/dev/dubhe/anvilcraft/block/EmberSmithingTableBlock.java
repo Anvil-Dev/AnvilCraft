@@ -48,7 +48,7 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        return Util.interactionResultConverter().apply(this.use(state, level, pos, player, hand, hitResult));
+        return this.use(state, level, pos, player, hand, hitResult);
     }
 
     @Override

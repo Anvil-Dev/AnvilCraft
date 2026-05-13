@@ -3,11 +3,14 @@ package dev.dubhe.anvilcraft.block.multipart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
@@ -54,27 +57,30 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
     }
 
     @Override
-    public BlockState updateShape(
+    protected BlockState updateShape(
         BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
+        LevelReader level,
+        ScheduledTickAccess ticks,
         BlockPos pos,
-        BlockPos neighborPos) {
+        Direction directionToNeighbour,
+        BlockPos neighbourPos,
+        BlockState neighbourState,
+        RandomSource random
+    ) {
         if (!state.hasProperty(this.getPart())) {
-            return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+            return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
         }
-        Vec3i neighborOffset = neighborPos.subtract(pos);
+        Vec3i neighborOffset = neighbourPos.subtract(pos);
         for (P part : getParts()) {
             Vec3i offset = this.offsetFrom(state, part); // 更新来源偏移值
             if (!offset.equals(neighborOffset)) continue;
-            if (!neighborState.is(this)
-                || !neighborState.hasProperty(this.getPart())
-                || neighborState.getValue(this.getPart()) != part) {
+            if (!neighbourState.is(this)
+                || !neighbourState.hasProperty(this.getPart())
+                || neighbourState.getValue(this.getPart()) != part) {
                 return Blocks.AIR.defaultBlockState();
             }
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
     }
 
     @Override

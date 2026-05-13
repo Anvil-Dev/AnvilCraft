@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class VoidMatterBlock extends Block {
@@ -18,11 +20,18 @@ public class VoidMatterBlock extends Block {
     }
 
     public static BlockState voidDecay(Level level, BlockPos pos, BlockState state, RandomSource random) {
-        return level.registryAccess().registryOrThrow(Registries.BLOCK)
-            .getTag(ModBlockTags.VOID_DECAY_PRODUCTS)
-            .flatMap(it -> it.getRandomElement(random))
-            .map(h -> h.value().defaultBlockState())
-            .orElse(state);
+        Iterable<Holder<Block>> tagOrEmpty = level.registryAccess().lookupOrThrow(Registries.BLOCK)
+            .getTagOrEmpty(ModBlockTags.VOID_DECAY_PRODUCTS);
+        int count = 0;
+        Block randomBlock = null;
+        for (Holder<Block> blockHolder : tagOrEmpty) {
+            count++;
+            if (level.getRandom().nextInt(count) == 0){
+                randomBlock = blockHolder.value();
+            }
+        }
+        if (randomBlock == null)return Blocks.AIR.defaultBlockState();
+        return randomBlock.defaultBlockState();
     }
 
     @Override

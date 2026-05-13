@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -148,7 +149,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
     private static final int[] UPDATE_POS = new int[] {-1, 1};
 
-    protected boolean updatePower(Level level, BlockPos pos, BlockState state, BlockPos fromPos) {
+    protected boolean updatePower(Level level, BlockPos pos, BlockState state, @Nullable BlockPos fromPos) {
         boolean powered = state.getValue(POWERED);
         boolean shouldPower = this.isPowered(level, pos);
         if (powered != shouldPower) {
@@ -175,22 +176,22 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, Orientation orientation, boolean isMoving) {
-        boolean powered = this.updatePower(level, pos, state, fromPos);
-        pushAbove:
-        if (powered) {
-            fromPos = pos.above();
-            if (level.isEmptyBlock(fromPos)) break pushAbove;
-            PistonPushInfo ppi = new PistonPushInfo(fromPos, state.getValue(FACING));
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+        boolean powered = this.updatePower(level, pos, state, null);
+        BlockPos above = pos.above();
+        if (powered && !level.isEmptyBlock(above)) {
+            PistonPushInfo ppi = new PistonPushInfo(above, state.getValue(FACING));
             ppi.extending = true;
             if (MOVING_PISTON_MAP.containsKey(pos)) {
-                MOVING_PISTON_MAP.get(pos).fromPos = fromPos;
+                MOVING_PISTON_MAP.get(pos).fromPos = above;
             } else MOVING_PISTON_MAP.put(pos, ppi);
         }
         if (level.isClientSide()) return;
         if (!powered) return;
-        BlockState blockState = level.getBlockState(MOVING_PISTON_MAP.get(pos) instanceof PistonPushInfo info ? info.fromPos : fromPos);
         if (!MOVING_PISTON_MAP.containsKey(pos)) return;
+        BlockPos checkPos = MOVING_PISTON_MAP.get(pos) instanceof PistonPushInfo info ? info.fromPos : above;
+        BlockState blockState = level.getBlockState(checkPos);
         if (blockState.is(Blocks.MOVING_PISTON) || blockState.isAir()) return;
         level.scheduleTick(pos, this, 2);
     }

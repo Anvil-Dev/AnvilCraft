@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
@@ -8,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +21,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -92,18 +95,20 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public BlockState updateShape(
+    protected BlockState updateShape(
         BlockState blockState,
-        Direction direction,
-        BlockState blockState2,
-        LevelAccessor levelAccessor,
+        LevelReader levelReader,
+        ScheduledTickAccess ticks,
         BlockPos blockPos,
-        BlockPos blockPos2
+        Direction direction,
+        BlockPos blockPos2,
+        BlockState blockState2,
+        RandomSource random
     ) {
         if (blockState.getValue(WATERLOGGED)) {
-            levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
+            ticks.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
-        return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+        return super.updateShape(blockState, levelReader, ticks, blockPos, direction, blockPos2, blockState2, random);
     }
 
     @Override
@@ -121,7 +126,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
         if (state.getValue(LIT)) {
             return;
         }
-        if (entity instanceof ItemEntity itemEntity && !itemEntity.getTags().contains(TAG)) {
+        if (entity instanceof ItemEntity itemEntity /*&& !itemEntity.getItem().tags().anyMatch(it -> it.equals(TAG))*/) {
             ItemStack item = itemEntity.getItem();
             if (item.is(Items.IRON_INGOT) && item.getCount() == 1) {
                 if (itemEntity.getOwner() instanceof ServerPlayer) {
