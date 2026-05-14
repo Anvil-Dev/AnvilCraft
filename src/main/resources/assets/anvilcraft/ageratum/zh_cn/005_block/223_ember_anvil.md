@@ -2,7 +2,6 @@
 navigation:
   title: "§6余烬铁砧"
   icon: "anvilcraft:ember_anvil"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:ember_anvil
 ---

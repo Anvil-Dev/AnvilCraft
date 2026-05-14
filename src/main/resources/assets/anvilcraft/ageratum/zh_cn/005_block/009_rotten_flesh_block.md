@@ -2,7 +2,6 @@
 navigation:
   title: "腐肉块"
   icon: "anvilcraft:rotten_flesh_block"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:rotten_flesh_block
 ---

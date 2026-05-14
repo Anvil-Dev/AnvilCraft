@@ -2,7 +2,6 @@
 navigation:
   title: "方块放置器"
   icon: "anvilcraft:block_placer"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:block_placer
 ---
