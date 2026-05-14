@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.ITooltipBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import net.minecraft.core.Holder;
@@ -11,7 +12,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import org.jspecify.annotations.Nullable;
@@ -28,6 +28,9 @@ import java.util.function.Predicate;
 public abstract class ItemStackMixin implements DataComponentHolder {
     @Shadow
     public abstract boolean is(Predicate<Holder<Item>> item);
+
+    @Shadow
+    public abstract Item getItem();
 
     @Definition(
         id = "addToTooltip",
@@ -70,8 +73,8 @@ public abstract class ItemStackMixin implements DataComponentHolder {
         Consumer<Component> builder,
         CallbackInfo ci
     ) {
-        if (this instanceof BlockItem bi && bi instanceof ITooltipBlock itb) {
-            itb.appendHoverText(this, context, builder, tooltipFlag);
+        if (this.getItem() instanceof BlockItem bi && bi instanceof ITooltipBlock itb) {
+            itb.appendHoverText(Util.cast(this), context, builder, tooltipFlag);
         }
     }
 }

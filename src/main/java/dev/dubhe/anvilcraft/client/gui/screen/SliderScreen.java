@@ -153,14 +153,14 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         if (event.button() == 0) {
-            this.slider.onClick(event.x(), event.y());
+            this.slider.onClick(event, handled);
         }
         return super.mouseClicked(event, handled);
     }
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
-        this.slider.onDrag(event.x(), event.y(), dragX, dragY);
+        this.slider.onDrag(event, dragX, dragY);
         return super.mouseDragged(event, dragX, dragY);
     }
 

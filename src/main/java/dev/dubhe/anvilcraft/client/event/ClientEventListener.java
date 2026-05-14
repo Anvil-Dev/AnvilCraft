@@ -34,8 +34,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
     @SubscribeEvent
-    public static void blockHighlight(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
+    public static void blockHighlight(RenderLevelStageEvent.AfterOpaqueFeatures event) {
         if (BlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
@@ -120,9 +119,9 @@ public class ClientEventListener {
     }
 
     @SubscribeEvent
-    public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Background event) {
+    public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
         AbstractContainerScreen<?> screen = event.getContainerScreen();
-        Slot slot = screen.getSlotUnderMouse();
+        Slot slot = screen.getHoveredSlot();
         if (slot != null) {
             ItemStack item = slot.getItem();
             if (item.is(ModItems.PILL_BOX)) {

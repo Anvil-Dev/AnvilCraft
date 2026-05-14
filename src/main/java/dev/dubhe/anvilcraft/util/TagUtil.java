@@ -32,7 +32,7 @@ public class TagUtil {
         );
     }
 
-    public static <T> Optional<HolderSet.Named<T>> toHolderSet(@Nullable HolderLookup.RegistryLookup<T> lookup, TagKey<T> tag) {
+    public static <T> Optional<HolderSet.Named<T>> toHolderSet(HolderLookup.@Nullable RegistryLookup<T> lookup, TagKey<T> tag) {
         if (lookup == null) return Optional.empty();
         return lookup.get(tag);
     }

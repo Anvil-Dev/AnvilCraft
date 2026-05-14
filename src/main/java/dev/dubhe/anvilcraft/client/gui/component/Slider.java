@@ -4,13 +4,10 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.util.Callback;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -34,9 +31,6 @@ public class Slider extends AbstractWidget {
     private final Function<Double, Double> valueFunction;
     private final Function<Integer, Double> argFunction;
     public final Callback<Integer> callback;
-    protected final int tooltipMsDelay = 1;
-    private long hoverOrFocusedStartTime;
-    private boolean wasHoveredOrFocused;
     private boolean scroll = false;
     public static boolean scrolling = false;
 
@@ -136,24 +130,25 @@ public class Slider extends AbstractWidget {
         if (this.callback != null) this.callback.onValueChange(this.getValue());
     }
 
-    @SuppressWarnings("deprecation")
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
-        if (this.isInSlider(mouseX, mouseY)) {
+    @Override
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        super.onClick(event, doubleClick);
+        if (this.isInSlider(event.x(), event.y())) {
             scrolling = true;
             return;
         }
         scrolling = false;
     }
 
-    public void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
-        super.onDrag(mouseX, mouseY, dragX, dragY);
+    @Override
+    public void onDrag(MouseButtonEvent event, double dx, double dy) {
+        super.onDrag(event, dx, dy);
         if (scrolling || this.scroll) {
             if (scrolling) {
                 this.scroll = true;
                 scrolling = false;
             }
-            double offset = (mouseX - 8 - this.posX) / this.length;
+            double offset = (dx - 8 - this.posX) / this.length;
             this.setProportion(offset);
         }
         if (this.scroll) this.update();
@@ -166,43 +161,20 @@ public class Slider extends AbstractWidget {
     }
 
     protected boolean isInSlider(double mouseX, double mouseY) {
-        int offsetX = posX + (int) (length * this.getProportion());
-        return mouseX > offsetX && mouseX < offsetX + 16 && mouseY > posY && mouseY < posY + 8;
+        int offsetX = this.posX + (int) (this.length * this.getProportion());
+        return mouseX > offsetX && mouseX < offsetX + 16 && mouseY > this.posY && mouseY < this.posY + 8;
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (!this.visible) return;
         this.isHovered = this.isInSlider(mouseX, mouseY);
-        this.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-        this.updateTooltip();
-    }
-
-    @Override
-    protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         double prop = this.getProportion();
-        int offsetX = posX + (int) ((length) * prop);
-        guiGraphics.blit(SLIDER, offsetX, posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
+        int offsetX = this.posX + (int) ((this.length) * prop);
+        graphics.blit(SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
     }
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-    }
-
-    private void updateTooltip() {
-        if (this.getTooltip() == null) return;
-        boolean bl = this.isHovered
-            || this.isFocused()
-            && Minecraft.getInstance().getLastInputType().isKeyboard();
-        if (bl != this.wasHoveredOrFocused) {
-            if (bl) this.hoverOrFocusedStartTime = Util.getMillis();
-            this.wasHoveredOrFocused = bl;
-        }
-        Screen screen;
-        if (bl
-            && Util.getMillis() - this.hoverOrFocusedStartTime > (long) this.tooltipMsDelay
-            && (screen = Minecraft.getInstance().screen) != null) {
-            screen.setTooltipForNextRenderPass(this.getTooltip(), DefaultTooltipPositioner.INSTANCE, this.isFocused());
-        }
     }
 }
