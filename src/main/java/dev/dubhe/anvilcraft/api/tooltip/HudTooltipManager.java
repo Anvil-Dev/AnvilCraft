@@ -146,7 +146,7 @@ public class HudTooltipManager {
     /**
      * 渲染手持物品Tooltip
      */
-    public void renderHandItemLevelTooltip(
+    public void submitHandItemInWorldTooltip(
         ItemStack itemStack,
         PoseStack poseStack,
         VertexConsumer consumer,

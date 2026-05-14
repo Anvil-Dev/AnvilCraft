@@ -15,7 +15,9 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -38,7 +40,7 @@ public class InspectionSupport {
             Map<ResourceKey<Level>, List<ISoundEventListener>> map = SoundHelper.INSTANCE.getEventListeners();
             List<ISoundEventListener> listeners = map.get(Minecraft.getInstance().level.dimension());
             MultiBufferSource.BufferSource buf = r.renderBuffers.bufferSource();
-            VertexConsumer vertex = buf.getBuffer(RenderType.LINES);
+            VertexConsumer vertex = buf.getBuffer(RenderTypes.lines());
             if (listeners == null || listeners.isEmpty()) return;
             listeners.stream().filter(it -> it instanceof IHasAffectRange)
                 .map(it -> ((IHasAffectRange) it).shape())
@@ -82,7 +84,7 @@ public class InspectionSupport {
 
     public void onRenderInspectionAction(
         PoseStack poseStack,
-        LevelRenderer renderer,
+        SubmitNodeCollector renderer,
         Vec3 camera,
         DeltaTracker deltaTracker
     ) {
@@ -105,7 +107,7 @@ public class InspectionSupport {
          */
         void onRenderInspection(
             PoseStack poseStack,
-            LevelRenderer renderer,
+            SubmitNodeCollector renderer,
             Vec3 camera,
             DeltaTracker deltaTracker
         );

@@ -1,15 +1,16 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
+import org.joml.Matrix3x2fStack;
 
 public class TextWidget extends StringWidget {
     private final TextProvider provider;
     protected float alignX = 0.5F;
     protected RenderMode mode = RenderMode.CLIP;
+    private static final int DEFAULT_COLOR = 0xFFFFFFFF;
 
     public TextWidget(int x, int y, int width, int height, Font font, TextProvider provider) {
         super(x, y, width, height, Component.empty(), font);
@@ -25,22 +26,19 @@ public class TextWidget extends StringWidget {
         this.alignX = horizontalAlignment;
     }
 
-    @Override
     public TextWidget alignLeft() {
         this.horizontalAlignment(0.0F);
-        return (TextWidget) super.alignLeft();
+        return this;
     }
 
-    @Override
     public TextWidget alignCenter() {
         this.horizontalAlignment(0.5F);
-        return (TextWidget) super.alignCenter();
+        return this;
     }
 
-    @Override
     public TextWidget alignRight() {
         this.horizontalAlignment(1.0F);
-        return (TextWidget) super.alignRight();
+        return this;
     }
 
     public TextWidget setRenderMode(RenderMode mode) {
@@ -48,22 +46,26 @@ public class TextWidget extends StringWidget {
         return this;
     }
 
-    @Override
-    public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         Component component = this.getMessage();
         Font font = this.getFont();
         switch (this.mode) {
-            case CLIP -> super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-            case SCROLLING -> guiGraphics.drawScrollingString(
-                font, component,
-                this.getX(), this.getX() + this.width, this.getY() + (this.getHeight() - 9) / 2,
-                this.getColor());
+            case SCROLLING -> {
+                // For scrolling mode, render the text normally without scrolling animation
+                int i = this.getWidth();
+                int j = font.width(component);
+                int k = this.getX() + Math.round(this.alignX * (float) (i - j));
+                int l = this.getY() + (this.getHeight() - font.lineHeight) / 2;
+                graphics.text(font, component.getVisualOrderText(), k, l, DEFAULT_COLOR);
+            }
             case SCALED -> {
                 float scaleX = this.getWidth() / (float) font.width(component);
                 float scaleY = this.getHeight() / (float) font.lineHeight;
 
                 if (scaleX >= 1 && scaleY >= 1) {
-                    super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+                    int k = this.getX() + Math.round(this.alignX * (float) (this.getWidth() - font.width(component)));
+                    int l = this.getY() + (this.getHeight() - font.lineHeight) / 2;
+                    graphics.text(font, component, k, l, DEFAULT_COLOR);
                     return;
                 }
 
@@ -73,21 +75,21 @@ public class TextWidget extends StringWidget {
                     scaleX = 1;
                 }
 
-                double offsetX = scaleX >= 1 ? this.alignX * (this.getWidth() - font.width(component)) : 0;
-                double offsetY = scaleY >= 1 ? (this.getHeight() - font.lineHeight) / 2.0 : 0;
-                PoseStack poseStack = guiGraphics.pose();
-                poseStack.pushPose();
-                poseStack.translate(this.getX() + offsetX, this.getY() + offsetY, 0);
-                poseStack.scale(scaleX, scaleY, 1);
-                guiGraphics.drawString(font, component, 0, 0, this.getColor());
-                poseStack.popPose();
+                float offsetX = scaleX >= 1 ? this.alignX * (this.getWidth() - font.width(component)) : 0;
+                float offsetY = scaleY >= 1 ? (this.getHeight() - font.lineHeight) / 2.0F : 0;
+                Matrix3x2fStack poseStack = graphics.pose();
+                poseStack.pushMatrix();
+                poseStack.translate(this.getX() + offsetX, this.getY() + offsetY);
+                poseStack.scale(scaleX, scaleY);
+                graphics.text(font, component, 0, 0, DEFAULT_COLOR);
+                poseStack.popMatrix();
             }
             default -> {
                 int i = this.getWidth();
                 int j = font.width(component);
                 int k = this.getX() + Math.round(this.alignX * (float) (i - j));
                 int l = this.getY() + (this.getHeight() - font.lineHeight) / 2;
-                guiGraphics.drawString(font, component.getVisualOrderText(), k, l, this.getColor());
+                graphics.text(font, component.getVisualOrderText(), k, l, DEFAULT_COLOR);
             }
         }
     }

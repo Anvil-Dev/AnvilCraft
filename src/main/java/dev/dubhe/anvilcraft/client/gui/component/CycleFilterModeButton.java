@@ -1,16 +1,16 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
@@ -28,24 +28,37 @@ public class CycleFilterModeButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (this.isHovered()) {
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+            graphics.tooltip(
+                Minecraft.getInstance().font,
+                List.of(ClientTooltipComponent.create(getMessage().getVisualOrderText())),
+                mouseX,
+                mouseY,
+                DefaultTooltipPositioner.INSTANCE,
+                null
+            );
         }
+        Identifier location = this.filterMode.get().buttonTexture;
+        this.renderTexture(
+            graphics,
+            location,
+            this.getX(),
+            this.getY(),
+            0,
+            0,
+            16,
+            this.width,
+            this.height,
+            16,
+            32
+        );
     }
 
     @Override
     public Component getMessage() {
         return Component.translatable("screen.anvilcraft.button.filter_mode",
             Component.translatable("screen.anvilcraft.button.filter_mode_" + this.filterMode.get().name().toLowerCase(Locale.ROOT)));
-    }
-
-    @Override
-    public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        Identifier location = this.filterMode.get().buttonTexture;
-        this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     public void renderTexture(
@@ -65,7 +78,6 @@ public class CycleFilterModeButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        RenderSystem.enableDepthTest();
         guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 

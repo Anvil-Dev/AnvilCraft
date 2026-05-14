@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -11,8 +10,8 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,61 +21,72 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-
-import java.util.Optional;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT)
-public class RenderEventListener {
+public class SubmitGeometryEventListener {
 
     @SubscribeEvent
-    public static void onRenderInspection(RenderLevelStageEvent.AfterOpaqueFeatures event) {
+    public static void on(SubmitCustomGeometryEvent event) {
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         PoseStack poseStack = event.getPoseStack();
         DeltaTracker deltaTracker = Minecraft.getInstance().getDeltaTracker();
-        LevelRenderer renderer = event.getLevelRenderer();
+        SubmitNodeCollector nodeCollector = event.getSubmitNodeCollector();
+        //Inspection
         InspectionSupport.INSTANCE.onRenderInspectionAction(
             poseStack,
-            renderer,
+            nodeCollector,
             camera,
             deltaTracker
         );
-    }
 
-    @SubscribeEvent
-    public static void onRender(RenderLevelStageEvent.AfterOpaqueFeatures event) {
         if (Minecraft.getInstance().options.hideGui) return;
-        PoseStack pose = event.getPoseStack();
-        MultiBufferSource.BufferSource bufferSource =
-            event.getLevelRenderer().renderBuffers.bufferSource();
+        if (!(Minecraft.getInstance().getCameraEntity() instanceof Player player)) return;
 
-        Vec3 vec3 = event.getLevelRenderState().cameraRenderState.pos;
-        double camX = vec3.x();
-        double camY = vec3.y();
-        double camZ = vec3.z();
-        PowerGridSupport.renderTransmitterLine(pose, bufferSource, vec3);
+        double camX = camera.x();
+        double camY = camera.y();
+        double camZ = camera.z();
 
-        if (!(Minecraft.getInstance().getCameraEntity() instanceof LivingEntity living)) return;
-        ItemStack mainHandItem = living.getItemInHand(InteractionHand.MAIN_HAND);
-        ItemStack offHandItem = living.getItemInHand(InteractionHand.OFF_HAND);
+        ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+        ItemStack offHandItem = player.getItemInHand(InteractionHand.OFF_HAND);
         ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
-        VertexConsumer vertexConsumer3 = bufferSource.getBuffer(RenderTypes.lines());
+
         if (!handItem.isEmpty()) {
-            HudTooltipManager.INSTANCE.renderHandItemLevelTooltip(handItem, pose, vertexConsumer3, camX, camY, camZ);
+            nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
+                PoseStack poses = new PoseStack();
+                poses.pushPose();
+                poses.last().set(pose);
+                HudTooltipManager.INSTANCE.submitHandItemInWorldTooltip(handItem, poses, buffer, camX, camY, camZ);
+                poses.popPose();
+            });
         }
 
-        if (!(living instanceof Player player)) return;
-        Optional<BlockHitResult> hitResult = Util.castSafely(Minecraft.getInstance().hitResult, BlockHitResult.class);
-        hitResult.ifPresent(hit -> renderDragonRodOutline(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
-        if (!AnvilHammerItem.shouldRenderEffect(player)) return;
-        PowerGridSupport.render(pose, bufferSource, vec3);
-        hitResult.ifPresent(hit -> renderAffectRange(pose, hit, vertexConsumer3, camX, camY, camZ));
+        HitResult hitResult = Minecraft.getInstance().hitResult;
+        if (hitResult instanceof BlockHitResult blockHitResult) {
+            nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), ((pose, buffer) -> {
+                if (AnvilHammerItem.shouldRenderEffect(player)) {
+                    renderAffectRange(poseStack, blockHitResult, buffer, camX, camY, camZ);
+                }
+                renderDragonRodOutline(pose, blockHitResult, buffer, camX, camY, camZ, handItem);
+            }));
+
+        }
+
+
+        submitPowerGridLines(poseStack, nodeCollector, camera);
+    }
+
+    private static void submitPowerGridLines(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {
+        PowerGridSupport.submitPowerGridBounds(poseStack, nodeCollector, camera);
+        PowerGridSupport.submitEnhancedTransmitterLine(camera);
+        PowerGridSupport.submitTransmitterLine(poseStack, nodeCollector, camera);
     }
 
     private static void renderAffectRange(
@@ -91,7 +101,7 @@ public class RenderEventListener {
     }
 
     private static void renderDragonRodOutline(
-        PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer, double camX, double camY, double camZ, ItemStack handItem
+        PoseStack.Pose pose, BlockHitResult hitResult, VertexConsumer consumer, double camX, double camY, double camZ, ItemStack handItem
     ) {
         if (handItem.has(ModComponents.DEVOUR_RANGE)) {
             int range = handItem.getOrDefault(ModComponents.DEVOUR_RANGE, -1);

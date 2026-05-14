@@ -17,6 +17,7 @@ public record Line(Vec3 start, Vec3 end, int level, float length) {
         this(start, end, (float) start.distanceTo(end));
     }
 
+    @Deprecated(forRemoval = true)
     public void render(PoseStack pose, VertexConsumer vertex, Vec3 camera, int color) {
         render(pose.last(), vertex, camera, color);
     }

@@ -20,6 +20,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -62,7 +63,7 @@ public class ClientBlockEventListener {
         if (player == null) return false;
         if (property != null) {
             if (event.getEntity().isShiftKeyDown()) {
-                PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
+                ClientPacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
                 return false;
             }
             if (!event.getEntity().getAbilities().mayBuild) return false;
@@ -82,7 +83,7 @@ public class ClientBlockEventListener {
             }
             return true;
         } else {
-            PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
+            ClientPacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
         }
         return false;
     }

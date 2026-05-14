@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import dev.dubhe.anvilcraft.client.gui.component.Slider;
+import dev.dubhe.anvilcraft.client.gui.component.SliderWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -21,7 +21,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     public static final Identifier BUTTON_ADD = SharedTextures.textureGui("misc/slider_like/button_add");
     public static final Identifier BUTTON_MINUS = SharedTextures.textureGui("misc/slider_like/button_minus");
     public static final Identifier BUTTON_MIN = SharedTextures.textureGui("misc/slider_like/button_min");
-    private Slider slider = null;
+    private SliderWidget sliderWidget = null;
     private EditBox value;
 
     public SliderScreen(SliderMenu menu, Inventory inventory, Component title) {
@@ -36,7 +36,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         int offsetX = (this.width - this.getImageWidth()) / 2;
         int offsetY = (this.height - this.getImageHeight()) / 2;
         this.value = new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));
-        this.slider = new Slider(8 + offsetX, 31 + offsetY, -14, 14, 160 - 16, this::update);
+        this.sliderWidget = new SliderWidget(8 + offsetX, 31 + offsetY, -14, 14, 160 - 16, this::update);
         this.value.setCanLoseFocus(true);
         this.value.setTextColor(-1);
         this.value.setTextColorUneditable(-1);
@@ -53,7 +53,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            _ -> this.slider.setValueWithUpdate(8192));
+            _ -> this.sliderWidget.setValueWithUpdate(8192));
         TexturedButton add = new TexturedButton(
             134 + offsetX,
             43 + offsetY,
@@ -64,7 +64,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             32,
             _ -> this.value.setValue("" + Math.clamp(
-                Integer.parseInt(this.value.getValue()) + this.slider.getAddValue(Integer.parseInt(this.value.getValue())),
+                Integer.parseInt(this.value.getValue()) + this.sliderWidget.getAddValue(Integer.parseInt(this.value.getValue())),
                 -8192,
                 8192
             )));
@@ -77,7 +77,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            _ -> this.slider.setValueWithUpdate(-8192));
+            _ -> this.sliderWidget.setValueWithUpdate(-8192));
         TexturedButton minus = new TexturedButton(
             26 + offsetX,
             43 + offsetY,
@@ -88,7 +88,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             32,
             _ -> this.value.setValue("" + Math.clamp(
-                Integer.parseInt(this.value.getValue()) - this.slider.getAddValue(Integer.parseInt(this.value.getValue())),
+                Integer.parseInt(this.value.getValue()) - this.sliderWidget.getAddValue(Integer.parseInt(this.value.getValue())),
                 -8192,
                 8192
             )));
@@ -96,13 +96,13 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         this.addRenderableWidget(add);
         this.addRenderableWidget(min);
         this.addRenderableWidget(minus);
-        this.addRenderableWidget(this.slider);
+        this.addRenderableWidget(this.sliderWidget);
         this.addRenderableWidget(this.value);
         this.setInitialFocus(this.value);
     }
 
     public void setValue(int value) {
-        if (this.slider != null) this.slider.setValue(value);
+        if (this.sliderWidget != null) this.sliderWidget.setValue(value);
         this.value.setValue("" + value);
     }
 
@@ -119,22 +119,22 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             this.value.setValue("-");
             return;
         } else {
-            this.value.setValue("" + this.slider.getValue());
+            this.value.setValue("" + this.sliderWidget.getValue());
             return;
         }
-        this.slider.setValue(v);
+        this.sliderWidget.setValue(v);
         ClientPacketDistributor.sendToServer(new SliderUpdatePacket(Math.clamp(v, -8192, 8192)));
     }
 
     public void setMin(int min) {
-        if (this.slider != null) {
-            this.slider.setMin(min);
+        if (this.sliderWidget != null) {
+            this.sliderWidget.setMin(min);
         }
     }
 
     public void setMax(int max) {
-        if (this.slider != null) {
-            this.slider.setMax(max);
+        if (this.sliderWidget != null) {
+            this.sliderWidget.setMax(max);
         }
     }
 
@@ -153,20 +153,20 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         if (event.button() == 0) {
-            this.slider.onClick(event, handled);
+            this.sliderWidget.onClick(event, handled);
         }
         return super.mouseClicked(event, handled);
     }
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
-        this.slider.onDrag(event, dragX, dragY);
+        this.sliderWidget.onDrag(event, dragX, dragY);
         return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
-        this.slider.onReleased();
+        this.sliderWidget.onReleased();
         return super.mouseReleased(event);
     }
 

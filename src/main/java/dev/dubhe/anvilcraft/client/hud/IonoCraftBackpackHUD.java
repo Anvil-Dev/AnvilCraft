@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -46,20 +47,20 @@ public class IonoCraftBackpackHUD {
 
         poseStack.scale(scale, scale, scale);
         poseStack.translate(x, y, 0);
-        guiGraphics.renderItem(itemStack, 0, 0);
+        guiGraphics.item(itemStack, 0, 0);
 
         poseStack.translate(20, 4, 0);
         Component text = Component.translatable("hud.anvilcraft.ionocraft_backpack_power", percent);
         int textWidth = font.width(text);
-        guiGraphics.drawString(font, text, 0, 0, 0xFFFFFFFF, true);
+        guiGraphics.text(font, text, 0, 0, 0xFFFFFFFF, true);
 
         final int batteryHeight = (int) (percent / 100F * 16);
 
         poseStack.translate(textWidth + 4, -4, 0);
-        guiGraphics.blitSprite(BATTERY_EMPTY, 0, 0, 8, 16);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,BATTERY_EMPTY, 0, 0, 8, 16);
 
         poseStack.translate(0, 0, 1);
-        guiGraphics.blitSprite(BATTERY_FULL, 8, 16, 0, 16 - batteryHeight, 0, 16 - batteryHeight, 8, batteryHeight);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,BATTERY_FULL, 8, 16, 0, 16 - batteryHeight, 0, 16 - batteryHeight, 8, batteryHeight);
 
         poseStack.popPose();
     }

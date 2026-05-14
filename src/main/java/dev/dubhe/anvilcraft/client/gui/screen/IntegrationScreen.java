@@ -227,7 +227,7 @@ public class IntegrationScreen extends Screen {
                 TexturedButton button = this.targetButtons.get(i - 1);
                 button.setX(this.getContentX() + this.getContentWidth() - 19 * (i));
                 button.setY(this.getContentY() + offsetY - 9);
-                button.render(graphics, mouseX, mouseY, a);
+                button.renderContents(graphics, mouseX, mouseY, a);
             }
             if (!this.hasExtra) return;
             graphics.text(
@@ -242,7 +242,7 @@ public class IntegrationScreen extends Screen {
                 TexturedButton button = this.extraButtons.get(i - 1);
                 button.setX(this.getContentX() + this.getContentWidth() - 19 * (i));
                 button.setY(this.getContentY() + 48 - 9);
-                button.render(graphics, mouseX, mouseY, a);
+                button.renderContents(graphics, mouseX, mouseY, a);
             }
         }
 

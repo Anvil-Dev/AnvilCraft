@@ -51,7 +51,7 @@ public class TexturedButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (!this.visible) return;
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         int offsetV = 0;
@@ -59,5 +59,9 @@ public class TexturedButton extends Button {
             offsetV = texYDiff;
         }
         graphics.blit(texture, this.getX(), this.getY(), 0, offsetV, width, height, textureWidth, textureHeight);
+    }
+
+    public void renderContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.extractContents(graphics, mouseX, mouseY, a);
     }
 }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -20,8 +19,8 @@ public class ItemCollectorButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderTexture(guiGraphics, texture, this.getX(), this.getY(), 0, 0, 10, this.width, this.height, 10, 20);
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.renderTexture(graphics, texture, this.getX(), this.getY(), 0, 0, 10, this.width, this.height, 10, 20);
     }
 
     public void renderTexture(
@@ -41,7 +40,6 @@ public class ItemCollectorButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        RenderSystem.enableDepthTest();
         guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 }

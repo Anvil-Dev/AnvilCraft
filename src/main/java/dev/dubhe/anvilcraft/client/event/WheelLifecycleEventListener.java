@@ -26,11 +26,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
@@ -78,7 +81,7 @@ public class WheelLifecycleEventListener {
                 if (!stack.has(ModComponents.MULTIPHASE)) return;
                 MultiphaseRef ref = stack.get(ModComponents.MULTIPHASE);
                 if (ref.isEmpty()) return;
-                PacketDistributor.sendToServer(new MultiphasePackets.SingleSync(stack.get(ModComponents.MULTIPHASE).id().get()));
+                ClientPacketDistributor.sendToServer(new MultiphasePackets.SingleSync(stack.get(ModComponents.MULTIPHASE).id().get()));
                 WheelLifecycleEventListener.multiphaseWheelCache = Optional.ofNullable(
                     WheelLifecycleEventListener.getMultiphaseWheel(hand, stack, ref.toMultiphase())
                 );
@@ -149,9 +152,9 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     phase.applyToStack(copied);
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new MultiphasePackets.ChangePhase(hand, ctx.slotIndex())
                 )
             ));
@@ -166,10 +169,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.resonator.auto"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.AUTO_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) ResonatorItem.AUTO_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -178,10 +181,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.resonator.axe"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.AXE_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) ResonatorItem.AXE_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -190,10 +193,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.resonator.shovel"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.SHOVEL_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) ResonatorItem.SHOVEL_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -202,10 +205,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.resonator.hoe"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.HOE_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) ResonatorItem.HOE_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -214,10 +217,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.resonator.pickaxe"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.PICKAXE_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) ResonatorItem.PICKAXE_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -232,10 +235,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.multitool.all"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.ALL_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.ALL_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -244,10 +247,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.minecraft.shears"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.SHEARS_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.SHEARS_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -256,10 +259,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.minecraft.flint_and_steel"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.FLINT_AND_STEEL_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.FLINT_AND_STEEL_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -268,10 +271,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.minecraft.brush"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.BRUSH_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.BRUSH_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -280,10 +283,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.minecraft.spyglass"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.SPYGLASS_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.SPYGLASS_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -292,10 +295,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.anvilcraft.magnet"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.MAGNET_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.MAGNET_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -304,10 +307,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.minecraft.fishing_rod"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.FISHING_ROD_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.FISHING_ROD_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -316,10 +319,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.minecraft.carrot_on_a_stick"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.CARROT_ON_A_STICK_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.CARROT_ON_A_STICK_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -328,10 +331,10 @@ public class WheelLifecycleEventListener {
                 Component.translatable("item.minecraft.warped_fungus_on_a_stick"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.WARPED_FUNGUS_ON_A_STICK_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) MultitoolItem.WARPED_FUNGUS_ON_A_STICK_MODE), List.of(), List.of(), List.of()));
+                    graphics.item(copied, 2, 2, 9910597);
                 },
-                ctx -> PacketDistributor.sendToServer(
+                ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
                 )
             )
@@ -342,10 +345,10 @@ public class WheelLifecycleEventListener {
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
-        if (ModKeyMappings.SWITCH_PHASE.get().matches(event.getKey(), event.getScanCode())) {
+        if (ModKeyMappings.SWITCH_PHASE.get().matches(event.getKeyEvent())) {
             WheelLifecycleEventListener.processMultiphasePress(client, event.getAction());
         }
-        if (ModKeyMappings.SWITCH_TOOL_MODE.get().matches(event.getKey(), event.getScanCode())) {
+        if (ModKeyMappings.SWITCH_TOOL_MODE.get().matches(event.getKeyEvent())) {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
         }
@@ -355,10 +358,10 @@ public class WheelLifecycleEventListener {
     public static void onKeyInput(InputEvent.MouseButton.Post event) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
-        if (ModKeyMappings.SWITCH_PHASE.get().matchesMouse(event.getButton())) {
+        if (ModKeyMappings.SWITCH_PHASE.get().matchesMouse(new MouseButtonEvent(0, 0, event.getMouseButtonInfo()))) {
             WheelLifecycleEventListener.processMultiphasePress(client, event.getAction());
         }
-        if (ModKeyMappings.SWITCH_TOOL_MODE.get().matchesMouse(event.getButton())) {
+        if (ModKeyMappings.SWITCH_TOOL_MODE.get().matchesMouse(new MouseButtonEvent(0, 0, event.getMouseButtonInfo()))) {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
         }
@@ -370,7 +373,7 @@ public class WheelLifecycleEventListener {
             if (WheelLifecycleEventListener.multiphaseKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
             } else {
-                PacketDistributor.sendToServer(new MultiphasePackets.SwitchPhase());
+                ClientPacketDistributor.sendToServer(new MultiphasePackets.SwitchPhase());
             }
             WheelLifecycleEventListener.multiphaseKeyWasDown = false;
             WheelLifecycleEventListener.multiphaseKeyTime = -1L;

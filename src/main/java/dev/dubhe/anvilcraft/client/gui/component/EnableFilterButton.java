@@ -1,17 +1,17 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 @Getter
@@ -26,12 +26,19 @@ public class EnableFilterButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (this.isHovered()) {
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+            graphics.tooltip(
+                Minecraft.getInstance().font,
+                List.of(ClientTooltipComponent.create(getMessage().getVisualOrderText())),
+                mouseX,
+                mouseY,
+                DefaultTooltipPositioner.INSTANCE,
+                null
+            );
         }
+        Identifier location = this.filterEnabled.get() ? SharedTextures.BUTTON_YES : SharedTextures.BUTTON_NO;
+        this.renderTexture(graphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     /**
@@ -42,12 +49,6 @@ public class EnableFilterButton extends Button {
             "screen.anvilcraft.button.record",
             Component.translatable(
                 "screen.anvilcraft.button." + (this.getFilterEnabled().get() ? "on" : "off"))));
-    }
-
-    @Override
-    public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
-        Identifier location = this.filterEnabled.get() ? SharedTextures.BUTTON_YES : SharedTextures.BUTTON_NO;
-        this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     public void renderTexture(
@@ -67,7 +68,6 @@ public class EnableFilterButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        RenderSystem.enableDepthTest();
         guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 

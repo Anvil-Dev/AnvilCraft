@@ -31,6 +31,28 @@ public class TooltipRenderHelper {
         VoxelShape shape,
         int color
     ) {
+        renderOutline(
+            poseStack.last(),
+            consumer,
+            camX,
+            camY,
+            camZ,
+            offsetPos,
+            shape,
+            color
+        );
+    }
+
+    public static void renderOutline(
+        PoseStack.Pose poseStack,
+        VertexConsumer consumer,
+        double camX,
+        double camY,
+        double camZ,
+        BlockPos offsetPos,
+        VoxelShape shape,
+        int color
+    ) {
         renderShape(
             poseStack,
             consumer,
@@ -43,7 +65,7 @@ public class TooltipRenderHelper {
     }
 
     private static void renderShape(
-        PoseStack poseStack,
+        PoseStack.Pose pose,
         VertexConsumer consumer,
         VoxelShape shape,
         double x,
@@ -51,7 +73,6 @@ public class TooltipRenderHelper {
         double z,
         int color
     ) {
-        PoseStack.Pose pose = poseStack.last();
         shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
             float dx = (float) (maxX - minX);
             float dy = (float) (maxY - minY);

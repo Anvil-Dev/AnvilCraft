@@ -13,7 +13,7 @@ import net.minecraft.resources.Identifier;
 
 import java.util.function.Function;
 
-public class Slider extends AbstractWidget {
+public class SliderWidget extends AbstractWidget {
     public static final Identifier SLIDER = SharedTextures.textureGui("misc/slider_like/slider");
 
     @Setter
@@ -44,7 +44,7 @@ public class Slider extends AbstractWidget {
      * @param length   长度
      * @param callback 更新回调
      */
-    public Slider(
+    public SliderWidget(
         int x,
         int y,
         int min,
@@ -65,7 +65,7 @@ public class Slider extends AbstractWidget {
         this.callback = callback;
     }
 
-    public Slider(
+    public SliderWidget(
         int x,
         int y,
         int min,
@@ -79,8 +79,8 @@ public class Slider extends AbstractWidget {
             min,
             max,
             length,
-            i -> Slider.defaultValueFunction(i, min, max),
-            i -> Slider.defaultArgFunction(i, min, max),
+            i -> SliderWidget.defaultValueFunction(i, min, max),
+            i -> SliderWidget.defaultArgFunction(i, min, max),
             callback
         );
     }

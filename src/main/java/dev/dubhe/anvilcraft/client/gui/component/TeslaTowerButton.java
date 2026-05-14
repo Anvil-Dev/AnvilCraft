@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
@@ -58,11 +60,11 @@ public class TeslaTowerButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         String searchText = parent.getFilterText();
         String id = parent.getFilterToolTipAt(index, variant);
         if (id == null) return;
-        this.renderTexture(guiGraphics, texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
+        this.renderTexture(graphics, texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
         Component message;
         if (searchText.startsWith("#") || searchText.startsWith("~")) {
             message = parent.getFilterTitle(index, variant);
@@ -74,17 +76,19 @@ public class TeslaTowerButton extends Button {
             );
         }
         this.setMessage(message);
-        this.renderString(guiGraphics, Minecraft.getInstance().font, 16777215 | Mth.ceil(this.alpha * 255.0F) << 24);
+        int color = 16777215 | Mth.ceil(this.alpha * 255.0F) << 24;
+        Font font = Minecraft.getInstance().font;
+        graphics.text(font, message, this.getX() + 2, this.getY() + 3, color);
         if (this.isHovered()) {
             Component filterText = highlighted(
                 id, searchText.replaceFirst("#", ""), ChatFormatting.GRAY);
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font,
-                filterText.getString().isEmpty()
-                ? List.of(message.getVisualOrderText())
-                : List.of(message.getVisualOrderText(), filterText.getVisualOrderText()),
-                mouseX,
-                mouseY);
+            List<ClientTooltipComponent> tooltipComponents = filterText.getString().isEmpty()
+                ? List.of(ClientTooltipComponent.create(message.getVisualOrderText()))
+                : List.of(
+                    ClientTooltipComponent.create(message.getVisualOrderText()),
+                    ClientTooltipComponent.create(filterText.getVisualOrderText())
+                );
+            graphics.tooltip(font, tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
         }
     }
 
@@ -122,7 +126,6 @@ public class TeslaTowerButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        RenderSystem.enableDepthTest();
         guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 }
