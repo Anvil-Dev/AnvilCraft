@@ -96,7 +96,7 @@ abstract class EnchantmentHelperMixin {
     private static void anvilcraft$boostEnchantment(List<EnchantmentInstance> list, ResourceKey<Enchantment> key) {
         EnchantmentInstance target = null;
         for (EnchantmentInstance instance : list) {
-            if (instance.enchantment.is(key)) {
+            if (instance.enchantment().is(key)) {
                 target = instance;
                 break;
             }

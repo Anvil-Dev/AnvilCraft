@@ -33,7 +33,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.neoforge.common.EffectCure;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -197,28 +196,28 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
         }
     }
 
-    @WrapOperation(
-        method = "removeEffectsCuredBy",
-        at = @At(
-            value = "INVOKE",
-            target = "Ljava/util/Set;contains(Ljava/lang/Object;)Z"
-        )
-    )
-    private boolean preventRemovalRageEffect(
-        Set<EffectCure> instance,
-        Object o,
-        Operation<Boolean> original,
-        @Local MobEffectInstance effect
-    ) {
-        return original.call(instance, o) && !effect.is(ModMobEffects.RAGE);
-    }
+//    @WrapOperation(
+//        method = "removeAllEffects",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Ljava/util/Set;contains(Ljava/lang/Object;)Z"
+//        )
+//    )
+//    private boolean preventRemovalRageEffect(
+//        Set<EffectCure> instance,
+//        Object o,
+//        Operation<Boolean> original,
+//        @Local MobEffectInstance effect
+//    ) {
+//        return original.call(instance, o) && !effect.is(ModMobEffects.RAGE);
+//    }
 
     @Inject(
-        method = "hurt",
+        method = "hurtServer",
         at = @At(value = "HEAD"),
         cancellable = true
     )
-    private void invulnerableEffect(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void invulnerableEffect(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         if (this.hasEffect(ModMobEffects.INVULNERABLE)) {
             if (!source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
                 cir.setReturnValue(false);

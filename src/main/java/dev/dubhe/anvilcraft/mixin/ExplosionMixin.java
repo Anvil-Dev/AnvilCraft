@@ -7,17 +7,15 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.injection.IExplosionExtension;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
-import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Final;
@@ -27,7 +25,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-@Mixin(Explosion.class)
+@Mixin(ServerExplosion.class)
 abstract class ExplosionMixin implements IExplosionExtension {
 
     @Unique
@@ -55,43 +53,37 @@ abstract class ExplosionMixin implements IExplosionExtension {
     private Level level;
 
     @Inject(
-        method = "finalizeExplosion",
+        method = "interactWithBlocks",
         at =
         @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/state/BlockState;"
-                     + "onExplosionHit(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;"
-                     + "Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;onExplosionHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
             shift = At.Shift.AFTER
-        ),
-        locals = LocalCapture.CAPTURE_FAILSOFT
+        )
     )
     private void finalizeExplosion(
-        boolean spawnParticles,
+        List<BlockPos> targetBlocks,
         CallbackInfo ci,
-        boolean flag,
-        List<Pair<ItemStack, BlockPos>> list,
-        ObjectListIterator<BlockPos> var4,
-        BlockPos blockpos
+        @Local BlockPos pos
     ) {
-        BlockState state = this.level.getBlockState(blockpos);
+        BlockState state = this.level.getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof IHasMultiBlock multiBlock) {
-            multiBlock.onRemove(level, blockpos, state);
+            multiBlock.onRemove(level, pos, state);
         }
     }
 
     @Inject(
-        method = "explode()V", at = @At(
-        value = "INVOKE",
-        target = "Lnet/minecraft/world/level/Level;"
-                 + "getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
+        method = "calculateExplodedPositions",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
+        )
     )
-    )
-    private void anvilcraft$explosionBlockTransform(
-        CallbackInfo ci,
+    private void anvilcraft$explosionBlockTransform0(
+        CallbackInfoReturnable<List<BlockPos>> cir,
         @Share("isExplosionBlockTransformed") LocalBooleanRef isExplosionBlockTransformed,
-        @Local(ordinal = 0) BlockPos pos
+        @Local(index = 22) BlockPos pos
     ) {
         Block block = level.getBlockState(pos).getBlock();
         ArrayList<BlockTransform> blockTransforms = new ArrayList<>(this.anvilcraft$blockTransformMap.get(block));
@@ -111,15 +103,11 @@ abstract class ExplosionMixin implements IExplosionExtension {
     }
 
     @WrapOperation(
-        method = "explode",
+        method = "calculateExplodedPositions",
         at =
         @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;"
-                     + "shouldBlockExplode(Lnet/minecraft/world/level/Explosion;"
-                     + "Lnet/minecraft/world/level/BlockGetter;"
-                     + "Lnet/minecraft/core/BlockPos;"
-                     + "Lnet/minecraft/world/level/block/state/BlockState;F)Z"
+            target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;shouldBlockExplode(Lnet/minecraft/world/level/Explosion;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;F)Z"
         )
     )
     private boolean anvilcraft$explosionBlockTransform(

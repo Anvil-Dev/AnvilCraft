@@ -15,6 +15,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,15 +40,15 @@ abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
         this.anvilcraft$wasAttracted(state, level, pos);
     }
 

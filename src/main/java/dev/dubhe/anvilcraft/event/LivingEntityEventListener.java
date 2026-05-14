@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.ai.goal.GenericZombieAttackGoal;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
 import net.minecraft.tags.EntityTypeTags;
@@ -38,6 +39,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -133,6 +135,13 @@ public class LivingEntityEventListener {
                     break;
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void on(MobEffectEvent.Remove event) {
+        if (event.getEffect().is(ModMobEffects.RAGE)) {
+            event.setCanceled(true);
         }
     }
 }

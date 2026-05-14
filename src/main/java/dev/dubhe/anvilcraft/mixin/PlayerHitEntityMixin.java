@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -32,9 +33,9 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
         super(entityType, level);
     }
 
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("UnreachableCode")
-    private void onFlyingHitBlock(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void onFlyingHitBlock(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         Optional<ServerPlayer> playerOp = Util.castSafely(this, ServerPlayer.class);
         if (playerOp.isEmpty()) return;
         final ServerPlayer thiS = playerOp.get();

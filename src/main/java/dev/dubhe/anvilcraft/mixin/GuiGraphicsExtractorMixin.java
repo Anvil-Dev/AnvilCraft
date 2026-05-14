@@ -27,31 +27,24 @@ public abstract class GuiGraphicsExtractorMixin {
     private PoseStack pose;
 
     @Shadow
-    protected abstract void renderItem(
-        @Nullable LivingEntity entity, @Nullable Level level, ItemStack stack, int x, int y, int seed, int guiOffset
-    );
+    protected abstract void item(@Nullable LivingEntity owner, @Nullable Level level, ItemStack itemStack, int x, int y, int seed);
 
     @Inject(
-        method = "renderItem("
-                 + "Lnet/minecraft/world/entity/LivingEntity;"
-                 + "Lnet/minecraft/world/level/Level;"
-                 + "Lnet/minecraft/world/item/ItemStack;IIII"
-                 + ")V",
+        method = "item(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;III)V",
         at = @At(
             value = "RETURN"
         )
     )
-    private void renderExtra(LivingEntity entity, Level level, ItemStack stack, int x, int y, int seed, int guiOffset, CallbackInfo ci) {
+    private void renderExtra(LivingEntity owner, Level level, ItemStack itemStack, int x, int y, int seed, CallbackInfo ci) {
         IExtraItemDisplayRenderer.renderGuiExtra(
             this.pose,
-            this::renderItem,
-            entity,
+            this::item,
+            owner,
             level,
-            stack,
+            itemStack,
             x,
             y,
             seed,
-            guiOffset,
             ANVILCRAFT$RECURSION,
             ANVILCRAFT$MAX_RECURSION,
             i -> ANVILCRAFT$RECURSION = i

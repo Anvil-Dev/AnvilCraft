@@ -10,8 +10,8 @@ import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
-import net.minecraft.world.entity.animal.Cat;
-import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
@@ -55,13 +55,11 @@ public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
     private void addAvoidPlayerGoal(CallbackInfoReturnable<Boolean> cir) {
         if (this.avoidClass.isAssignableFrom(Cat.class)) {
             Player nearest = this.mob.level().getNearestPlayer(
-                this.avoidEntityTargeting.selector(
-                    player -> player.getData(ModDataAttachments.SCARE_CREEPERS)
-                ),
-                this.mob,
                 this.mob.getX(),
                 this.mob.getY(),
-                this.mob.getZ()
+                this.mob.getZ(),
+                16,
+                player -> player.getData(ModDataAttachments.SCARE_CREEPERS)
             );
             if (nearest == null) return;
             Vec3 posAway = DefaultRandomPos.getPosAway(this.mob, 16, 7, nearest.position());
@@ -71,13 +69,11 @@ public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
             cir.setReturnValue(this.path != null);
         } else if (this.avoidClass.isAssignableFrom(Wolf.class)) {
             Player nearest = this.mob.level().getNearestPlayer(
-                this.avoidEntityTargeting.selector(
-                    player -> player.getData(ModDataAttachments.SCARE_SKELETONS)
-                ),
-                this.mob,
                 this.mob.getX(),
                 this.mob.getY(),
-                this.mob.getZ()
+                this.mob.getZ(),
+                16,
+                player -> player.getData(ModDataAttachments.SCARE_SKELETONS)
             );
             if (nearest == null) return;
             Vec3 posAway = DefaultRandomPos.getPosAway(this.mob, 16, 7, nearest.position());

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.util.GravityType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.block.Block;
@@ -48,7 +49,7 @@ public abstract class FallingBlockMixin extends Block {
         }
 
         // 2. 寻找主受力方向
-        Direction primaryDir = Direction.getNearest(netGravity.x, netGravity.y, netGravity.z);
+        Direction primaryDir = Direction.getNearest(Mth.ceil(netGravity.x), Mth.ceil(netGravity.y), Mth.ceil(netGravity.z), Direction.NORTH);
         BlockPos targetPos = pos.relative(primaryDir);
         BlockState targetState = level.getBlockState(targetPos);
 

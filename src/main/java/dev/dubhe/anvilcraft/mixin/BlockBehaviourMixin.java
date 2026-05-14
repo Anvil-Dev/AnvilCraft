@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.block.storage.FlintBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -27,10 +28,10 @@ abstract class BlockBehaviourMixin {
     }
 
     @Inject(
-        method = "onRemove",
+        method = "affectNeighborsAfterRemoval",
         at = @At("RETURN")
     )
-    private void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston, CallbackInfo ci) {
+    private void onRemove(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston, CallbackInfo ci) {
         if (state.is(Blocks.IRON_BLOCK) || state.is(ModBlocks.HEAVY_IRON_BLOCK)) {
             if (movedByPiston) {
                 FlintBlock.ignite(level, pos, false);

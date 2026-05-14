@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Consumer;
 
 public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
-    protected IExtraItemDisplayRenderer(ItemRenderer itemRenderer, IItemRenderer renderer) {
-        super(itemRenderer, renderer);
+    protected IExtraItemDisplayRenderer(IItemRenderer renderer) {
+        super(renderer);
     }
 
     public static void renderGuiExtra(
@@ -29,7 +28,6 @@ public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         int x,
         int y,
         int seed,
-        int guiOffset,
         int recursion,
         int maxRecursion,
         Consumer<Integer> recursionSetter
@@ -43,7 +41,7 @@ public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         pose.translate(x + item.offsetX(stack), y + item.offsetY(stack), 0);
         float scale = item.scale(stack);
         pose.scale(scale, scale, 1.0F);
-        itemRenderer.renderItem(entity, level, innerStack, 0, 0, seed, guiOffset + 10);
+        itemRenderer.renderItem(entity, level, innerStack, 0, 0, seed/*, guiOffset + 10*/);
         recursionSetter.accept(recursion - 1);
         pose.popPose();
     }

@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.block.INegativeShapeBlock;
 import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.TriState;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,63 +27,70 @@ import java.util.function.Predicate;
 abstract class BlockMixin implements IBlockExtension {
     @Final
     @Shadow
-    private static ThreadLocal<Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey>> OCCLUSION_CACHE;
+    private static ThreadLocal<Object2ByteLinkedOpenHashMap<Block.ShapePairKey>> OCCLUSION_CACHE;
+
 
     @Inject(
-        method = "shouldRenderFace",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;canOcclude()Z"),
+        method = "shouldRenderFace(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;)Z",
+        //TODO HEAD
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;getFaceOcclusionShape(Lnet/minecraft/core/Direction;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
+            ordinal = 1
+        ),
         cancellable = true
     )
     private static void emberMetalBlockFaceSkip(
-        BlockState state,
         BlockGetter level,
-        BlockPos offset,
-        Direction face,
         BlockPos pos,
-        CallbackInfoReturnable<Boolean> cir
+        BlockState state,
+        BlockState neighborState,
+        Direction direction,
+        CallbackInfoReturnable<Boolean> cir,
+        @Local(index = 5) VoxelShape occluder
     ) {
         if (state.getBlock() instanceof INegativeShapeBlock<?> block) {
-            anvilcraft$NegativeShapeFaceSkip(
-                t -> block.getBlockType().isInstance(t.getBlock()),
-                state, level, offset, face, pos, cir
+            boolean b = anvilcraft$NegativeShapeFaceSkip(
+                block,
+                level,
+                pos,
+                state,
+                neighborState,
+                direction,
+                occluder
             );
+            cir.setReturnValue(b);
         }
     }
 
     @Unique
-    private static void anvilcraft$NegativeShapeFaceSkip(
+    private static boolean anvilcraft$NegativeShapeFaceSkip(
         Predicate<BlockState> predicate,
-        BlockState state,
         BlockGetter level,
-        BlockPos offset,
-        Direction face,
         BlockPos pos,
-        CallbackInfoReturnable<Boolean> cir
+        BlockState state,
+        BlockState neighborState,
+        Direction direction,
+        VoxelShape occluder
     ) {
-        BlockState blockstate = level.getBlockState(pos);
-        if (blockstate.canOcclude() || predicate.test(blockstate)) {
-            Block.BlockStatePairKey blockstatepairkey = new Block.BlockStatePairKey(state, blockstate, face);
-            Object2ByteLinkedOpenHashMap<Block.BlockStatePairKey> object2bytelinkedopenhashmap =
-                OCCLUSION_CACHE.get();
-            byte b0 = object2bytelinkedopenhashmap.getAndMoveToFirst(blockstatepairkey);
-            if (b0 != 127) {
-                cir.setReturnValue(b0 != 0 || !predicate.test(blockstate));
-                return;
-            }
-            VoxelShape voxelshape = state.getFaceOcclusionShape(level, offset, face);
-            if (voxelshape.isEmpty()) {
-                cir.setReturnValue(!predicate.test(blockstate));
-                return;
-            }
-            VoxelShape voxelshape1 = blockstate.getFaceOcclusionShape(level, pos, face.getOpposite());
-            boolean flag = Shapes.joinIsNotEmpty(voxelshape, voxelshape1, BooleanOp.ONLY_FIRST);
-            if (object2bytelinkedopenhashmap.size() == 2048) {
-                object2bytelinkedopenhashmap.removeLastByte();
-            }
-            object2bytelinkedopenhashmap.putAndMoveToFirst(blockstatepairkey, (byte) (flag ? 1 : 0));
-            cir.setReturnValue(flag || !predicate.test(blockstate));
-            return;
+        VoxelShape shape = state.getFaceOcclusionShape(direction);
+        if (shape == Shapes.empty() && !predicate.test(state)) {
+            return true;
         }
-        cir.setReturnValue(true);
+        Block.ShapePairKey key = new Block.ShapePairKey(shape, occluder);
+        Object2ByteLinkedOpenHashMap<Block.ShapePairKey> cache = OCCLUSION_CACHE.get();
+        byte cached = cache.getAndMoveToFirst(key);
+        if (cached != 127) {
+            return cached != 0;
+        } else {
+            boolean result = Shapes.joinIsNotEmpty(shape, occluder, BooleanOp.ONLY_FIRST);
+            if (cache.size() == 256) {
+                cache.removeLastByte();
+            }
+
+            cache.putAndMoveToFirst(key, (byte) (result ? 1 : 0));
+            return result;
+        }
+
     }
 }

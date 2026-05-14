@@ -15,17 +15,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$18")
+@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$14")
 abstract class DispenseItemWaterBottleBehaviorMixin extends DefaultDispenseItemBehavior {
     @Inject(
-        method = "execute(Lnet/minecraft/core/dispenser/BlockSource;"
-                 + "Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;",
-        at =
-        @At(
+        method = "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;",
+        at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;getBlockState("
-                     + "Lnet/minecraft/core/BlockPos;"
-                     + ")Lnet/minecraft/world/level/block/state/BlockState;"
+            target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
         ),
         cancellable = true
     )
@@ -34,7 +30,7 @@ abstract class DispenseItemWaterBottleBehaviorMixin extends DefaultDispenseItemB
         ItemStack stack,
         CallbackInfoReturnable<ItemStack> cir,
         @Local ServerLevel serverLevel,
-        @Local(ordinal = 0) BlockPos blockPos2
+        @Local(name = "target") BlockPos blockPos2
     ) {
         BlockState state = serverLevel.getBlockState(blockPos2);
         if (state.is(Blocks.CAULDRON)) {

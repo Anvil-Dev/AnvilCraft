@@ -25,7 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
@@ -105,20 +105,20 @@ public abstract class EntityMixin implements IEntityExtension {
     }
 
     @WrapOperation(
-        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(
-        value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;setPos(DDD)V", ordinal = 1
-    )
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;setPos(Lnet/minecraft/world/phys/Vec3;)V"
+        )
     )
     public void anvilcraft$fixFallingBlockEntity(
         Entity instance,
-        double x,
-        double y,
-        double z,
+        Vec3 pos,
         Operation<Void> original,
         @Share("isFixed") LocalBooleanRef isFixed
     ) {
         isFixed.set(false);
-        Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
+        Vec3 vec3 = new Vec3(pos.x - getX(), pos.y - getY(), pos.z - getZ());
         if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class, Player.class) && vec3.length() > 0.98) {
             Vec3 s = position();
             Vec3 e = vec3.add(s);
@@ -136,10 +136,10 @@ public abstract class EntityMixin implements IEntityExtension {
             }
             double distance = Double.MAX_VALUE;
             BlockPos blockPos = null;
-            for (Pair<BlockPos, Double> pos : blockPosList) {
-                if (distance > pos.right()) {
-                    distance = pos.right();
-                    blockPos = pos.left();
+            for (Pair<BlockPos, Double> blockPosDoublePair : blockPosList) {
+                if (distance > blockPosDoublePair.right()) {
+                    distance = blockPosDoublePair.right();
+                    blockPos = blockPosDoublePair.left();
                 }
             }
             if (blockPos == null) {
@@ -162,22 +162,24 @@ public abstract class EntityMixin implements IEntityExtension {
             return;
         }
         anvil$isDeflected = false;
-        original.call(instance, x, y, z);
+        original.call(instance, pos);
     }
 
     @WrapOperation(
-        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(
-        value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0
-    )
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+        at = @At(
+            value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0
+        )
     )
     public boolean anvilcraft$cancelCollision1(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
         return isFixed.get() || original.call(x, y);
     }
 
     @WrapOperation(
-        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(
-        value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1
-    )
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+        at = @At(
+            value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1
+        )
     )
     public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
         return isFixed.get() || original.call(x, y);
@@ -252,15 +254,13 @@ public abstract class EntityMixin implements IEntityExtension {
         method = "handlePortal",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;changeDimension("
-                     + "Lnet/minecraft/world/level/portal/DimensionTransition;"
-                     + ")"
-                     + "Lnet/minecraft/world/entity/Entity;"
+            target = "Lnet/minecraft/world/entity/Entity;teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/world/entity/Entity;"
         )
     )
     @SuppressWarnings("deprecation")
-    private Entity handlePortal(Entity instance, DimensionTransition transition, Operation<Entity> original) {
-        if (!(this.portalProcess instanceof PortalProcessorAccessor accessor)) return original.call(instance, transition);
+    private Entity handlePortal(Entity instance, TeleportTransition transition, Operation<Entity> original) {
+        if (!(this.portalProcess instanceof PortalProcessorAccessor accessor))
+            return original.call(instance, transition);
         Block portal = Util.cast(accessor.getPortal());
         EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(
             this.level,

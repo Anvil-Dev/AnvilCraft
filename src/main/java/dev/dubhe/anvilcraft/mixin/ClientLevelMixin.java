@@ -6,6 +6,8 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,15 +20,15 @@ abstract class ClientLevelMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     void onLevelLoad(
         ClientPacketListener connection,
-        ClientLevel.ClientLevelData clientLevelData,
-        ResourceKey<?> dimension,
-        Holder<?> dimensionType,
-        int viewDistance,
+        ClientLevel.ClientLevelData levelData,
+        ResourceKey<Level> dimension,
+        Holder<DimensionType> dimensionType,
+        int serverChunkRadius,
         int serverSimulationDistance,
-        Supplier<?> profiler,
         LevelRenderer levelRenderer,
         boolean isDebug,
         long biomeZoomSeed,
+        int seaLevel,
         CallbackInfo ci
     ) {
         PowerGridSupport.clearAllGrid();

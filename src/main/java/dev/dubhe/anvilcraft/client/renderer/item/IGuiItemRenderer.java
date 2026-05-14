@@ -13,7 +13,6 @@ public interface IGuiItemRenderer {
         ItemStack stack,
         int x,
         int y,
-        int seed,
-        int guiOffset
+        int seed
     );
 }

@@ -8,7 +8,7 @@ import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$7")
+@Mixin(targets = "net/minecraft/core/dispenser/DispenseItemBehavior$4")
 abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemBehavior {
     @Inject(
         method = "execute(Lnet/minecraft/core/dispenser/BlockSource;Lnet/minecraft/world/item/ItemStack;)"
