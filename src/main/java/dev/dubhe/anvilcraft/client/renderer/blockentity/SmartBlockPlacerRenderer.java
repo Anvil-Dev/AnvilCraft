@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity> {
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
@@ -36,6 +37,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
     private static final WorkingAnimationScheme WORKING_ANIMATION_SCHEME = new WorkingAnimationScheme();
 
+    @SuppressWarnings("unused")
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
         // 不需要初始化，使用静态常量
     }
@@ -48,10 +50,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         private static final float UPPER_ARM_LENGTH = 2.5f;  // 大臂长度
         private static final float FOREARM_LENGTH = 2.5f;    // 小臂长度
         private static final float BASE_HEIGHT = 0.0f;       // 底座关节高度（相对于底座模型）
-        private static final float CLAW_OFFSET = 0.1f;       // 钳子偏移
         private static final int ANIMATION_DURATION_TICKS = 20; // 动画总持续时间：20tick = 1秒
-        private static final int FORWARD_DURATION_TICKS = 14; // 正向动画：14tick = 0.7秒
-        private static final int BACKWARD_DURATION_TICKS = 6; // 倒放动画：6tick = 0.3秒
         
         /**
          * 计算机械臂角度以指向目标位置
@@ -74,25 +73,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 计算目标角度
             float[] targetAngles = this.calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
 
-            // 计算目标位置的方向向量（用于动态补偿）
-            double dx = targetPos.getX() - placerPos.getX();
-            double dy = targetPos.getY() - placerPos.getY();
-            double dz = targetPos.getZ() - placerPos.getZ();
-
-            Direction forward = facing;
-            Direction right = facing.getCounterClockWise();
-            double forwardDist = dx * forward.getStepX() + dz * forward.getStepZ();
-            double rightDist = dx * right.getStepX() + dz * right.getStepZ();
-            double verticalDist = dy;
-
-            // 倒挂时，垂直距离需要修正（因为动画计算是在本地坐标系中）
-            float targetHeight = (float) verticalDist - BASE_HEIGHT;
-            if (upsideDown) {
-                targetHeight = -(float) verticalDist - BASE_HEIGHT;
-            }
-
             // 根据动画进度计算当前角度
-            float baseAngle, upperArmAngle, forearmAngle, clawAngle;
+            float baseAngle;
+            float upperArmAngle;
+            float forearmAngle;
+            float clawAngle;
 
             if (animationProgress <= 0.2f) {
                 // 阶段1：底盘旋转 + 小臂和钳子指向目标
@@ -158,37 +143,36 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             double dz = targetPos.getZ() - placerPos.getZ();
 
             // 2. 根据朝向转换到局部坐标系
-            Direction forward = facing;
             Direction right = facing.getCounterClockWise();
 
             // 计算在局部坐标系中的位置
-            double forwardDist = dx * forward.getStepX() + dz * forward.getStepZ();
+            double forwardDist = dx * facing.getStepX() + dz * facing.getStepZ();
             double rightDist = dx * right.getStepX() + dz * right.getStepZ();
-            double verticalDist = dy;
 
             // 3. 计算底座旋转角度（水平面内）
-            float baseAngle = (float) Math.toDegrees(Math.atan2(rightDist, forwardDist));
+            final float baseAngle = (float) Math.toDegrees(Math.atan2(rightDist, forwardDist));
 
             // 4. 计算水平距离
-            float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
+            final float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
 
             // 5. 计算垂直距离（倒挂时需要翻转）
-            float targetHeight = (float) verticalDist - BASE_HEIGHT;
+            float targetHeight = (float) dy - BASE_HEIGHT;
             if (upsideDown) {
-                targetHeight = -(float) verticalDist - BASE_HEIGHT;
+                targetHeight = -(float) dy - BASE_HEIGHT;
             }
 
             // 6. 计算仰角
-            float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
+            final float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
 
             // 7. 计算机械臂关节角度（逆运动学）
-            float distToTarget = (float) Math.sqrt(horizontalDist * horizontalDist + targetHeight * targetHeight);
-            boolean isOverRange = distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH;
+            final float distToTarget = (float) Math.sqrt(horizontalDist * horizontalDist + targetHeight * targetHeight);
+            final boolean isOverRange = distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH;
 
-            float upperArmAngle, forearmAngle;
+            float upperArmAngle;
+            float forearmAngle;
             if (isOverRange) {
                 // 超距情况：机械臂完全伸直指向目标
-                upperArmAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist)) - 74f;
+                upperArmAngle = elevationAngle - 74f;
                 forearmAngle = 85f;
             } else {
                 // 正常情况：使用余弦定理计算关节角度
@@ -204,9 +188,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 cosUpperArm = Math.max(-1.0f, Math.min(1.0f, cosUpperArm));
                 float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
 
-                float targetAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
-
-                upperArmAngle = -(180f - upperArmAngleFromTarget - targetAngle) * 0.6f + 20f;
+                upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
                 forearmAngle = forearmAngleFromUpper * 0.8f - 10f;
             }
 
@@ -223,13 +205,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
 
-        /**
-         * 缓动函数：让动画更平滑
-         */
-        private float easeInOutCubic(float t) {
-            return t < 0.5f ? 4f * t * t * t : 1f - (float) Math.pow(-2f * t + 2f, 3) / 2f;
-        }
-        
         /**
          * 获取动画持续时间（tick）
          */
@@ -287,11 +262,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             long currentTime = entity.getLevel().getGameTime();
             long animStartTime = entity.getClientAnimationStartTime();
             
-            // 如果动画未开始，初始化
+            // 如果动画未开始且有目标位置，初始化
             if (animStartTime == 0 && targetPos != null) {
                 entity.setClientAnimationStartTime(currentTime);
                 entity.setClientLastTargetPos(targetPos);
-                animStartTime = currentTime;
             }
             
             // 使用缓存的目标位置，确保动画连贯
@@ -300,12 +274,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 long elapsedTicks = currentTime - animStartTime;
                 
                 // 如果动画已完成（超过1秒），且找到新的目标位置，开始新动画
-                if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() && 
-                    targetPos != null &&
-                    !targetPos.equals(entity.getClientLastTargetPos())) {
+                if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() 
+                    && targetPos != null
+                    && !targetPos.equals(entity.getClientLastTargetPos())) {
                     entity.setClientAnimationStartTime(currentTime);
                     entity.setClientLastTargetPos(targetPos);
-                    animStartTime = currentTime;
                     elapsedTicks = 0;
                 }
                 
@@ -313,18 +286,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 BlockPos animTargetPos = entity.getClientLastTargetPos();
                 
                 // 只有当有目标位置时才播放动画
-                if (animTargetPos != null) {
-                    float animationProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks());
-                    
-                    // 计算当前角度
-                    float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                        animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
-                    );
-                    baseSwingAngle = angles[0];
-                    upperArmAngle = angles[1];
-                    forearmAngle = angles[2];
-                    clawAngle = angles[3];
-                }
+                float animationProgress = Math.min(
+                    1.0f,
+                    (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
+                );
+
+                // 计算当前角度
+                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                    animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
+                );
+                baseSwingAngle = angles[0];
+                upperArmAngle = angles[1];
+                forearmAngle = angles[2];
+                clawAngle = angles[3];
             }
         }
         
@@ -379,11 +353,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     
     private void applyHorizontalRotation(PoseStack poseStack, Direction facing, boolean upsideDown) {
         float rotation = switch (facing) {
-            case NORTH -> 0f;
             case WEST -> 90f;
             case SOUTH -> 180f;
             case EAST -> 270f;
-            default -> 0f;
+            default -> 0f; // NORTH
         };
         // 倒挂时，南北朝向需要额外旋转180度来修正模型翻转
         if (upsideDown && (facing == Direction.NORTH || facing == Direction.SOUTH)) {
@@ -395,6 +368,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     /**
      * 获取下一个要放置的目标位置
      */
+    @Nullable
     private BlockPos getNextTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown) {
         // 计算基准位置（放置器前方4格，水平方向）
         BlockPos basePos = entity.getBlockPos().relative(facing.getOpposite(), -4);
@@ -481,6 +455,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     /**
      * 计算目标位置（复制自BlockEntity的逻辑）
      */
+    @SuppressWarnings("checkstyle:LocalVariableName")
     private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
         // 根据朝向计算水平偏移方向
         Direction right = facing.getClockWise();
@@ -539,7 +514,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         net.minecraft.client.resources.model.BakedModel bakedModel = blockRenderer.getBlockModel(blockState);
         
         // 根据方块状态选择合适的渲染类型
-        net.minecraft.client.renderer.RenderType renderType = net.minecraft.client.renderer.ItemBlockRenderTypes.getRenderType(blockState, false);
+        net.minecraft.client.renderer.RenderType renderType = net.minecraft.client.renderer.ItemBlockRenderTypes
+            .getRenderType(blockState, false);
         
         // 使用renderModel方法渲染方块
         blockRenderer.getModelRenderer().renderModel(

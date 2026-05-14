@@ -54,7 +54,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private static final int POWER = 16;
     private static final int PLACEMENT_INTERVAL = 20; // 放置间隔（tick）
     private static final int PLACEMENT_DELAY = 6; // 放置延迟（tick），动画进行到"往前戳"时放置
-        
+
     private PowerGrid grid = null;
     private boolean isPowered = false;
     private boolean hasRedstoneSignal = false;
@@ -63,6 +63,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private ItemStack currentHeldBlock = ItemStack.EMPTY; // 当前持有的方块（客户端渲染）
     private int currentPlacementIndex = 0; // 当前放置进度索引
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>(); // 每个layer的位置集合
+
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
     private BlockPos clientLastTargetPos = null;
@@ -73,8 +74,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     public void updateClientAnimationState(boolean isPowered, boolean hasRedstoneSignal) {
         if (!isPowered || hasRedstoneSignal) {
-            clientAnimationStartTime = 0;
-            clientLastTargetPos = null;
+            this.clientAnimationStartTime = 0;
+            this.clientLastTargetPos = null;
         }
     }
 
@@ -169,7 +170,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.tickClient();
         }
     }
-        
+
     /**
      * 客户端tick，用于更新动画状态
      */
@@ -180,7 +181,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         this.lastPlaceCooldown = this.placeCooldown;
     }
-    
+
     /**
      * 检查是否有空位需要放置方块
      */
@@ -199,14 +200,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         return false;
     }
-    
+
     /**
      * 检查是否有方块物品（支持容器、运输船和物品实体）
      */
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
         Direction facing = getFacing(placerPos, level);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
-        
+
         // 1. 检查容器（箱子等）
         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
         if (handler != null) {
@@ -217,7 +218,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
             }
         }
-        
+
         // 2. 检查运输船/运输矿车等实体容器
         if (handler == null) {
             AABB aabb = new AABB(inputPos);
@@ -226,7 +227,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ).stream()
                 .map(it -> (ContainerEntity) it)
                 .toList();
-            
+
             if (!entities.isEmpty()) {
                 Entity entity = (Entity) entities.getFirst();
                 IItemHandler entityHandler = entity.getCapability(
@@ -242,7 +243,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
             }
         }
-        
+
         // 3. 检查物品实体
         AABB aabb = new AABB(inputPos);
         List<ItemEntity> entities = level.getEntities(
@@ -255,14 +256,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     private Direction getFacing(BlockPos pos, Level level) {
         return level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING);
     }
-    
+
     /**
      * 放置方块（每次只放置一个）
      */
@@ -310,7 +311,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
         }
     }
-    
+
     /**
      * 构建有序的放置位置列表
      * 顺序：从最下面一层开始，每层从远到近，从左到右
@@ -344,7 +345,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         return positions;
     }
-    
+
     /**
      * 从容器中预览方块物品（不真正提取）
      */
@@ -358,7 +359,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private ItemStack extractBlockItemFromContainer(Level level, BlockPos placerPos) {
         return this.getBlockItemFromContainer(level, placerPos, true);
     }
-    
+
     /**
      * 从容器中获取方块物品
      * 支持三种来源：容器、运输船、物品实体

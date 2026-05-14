@@ -142,6 +142,6 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                 }
             }
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.sidedSuccess(false);
     }
 }

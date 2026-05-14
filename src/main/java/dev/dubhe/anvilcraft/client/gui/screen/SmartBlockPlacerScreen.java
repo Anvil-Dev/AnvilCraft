@@ -351,7 +351,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // 渲染3D预览
-        this.renderPreview(guiGraphics, partialTick);
+        this.renderPreview(guiGraphics);
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -359,31 +359,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 构建并渲染3D预览
      */
-    private void renderPreview(GuiGraphics guiGraphics, float partialTick) {
+    private void renderPreview(GuiGraphics guiGraphics) {
         if (this.menu.getBlockEntity() == null || this.minecraft == null || this.minecraft.level == null) {
             return;
         }
 
         LevelLike previewLevelLike = this.buildPreviewLevelLike();
-        if (previewLevelLike == null) {
-            // 没有配置位置时显示提示信息
-            Component previewText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
-
-            // 缩小文本到0.8倍
-            float scale = 0.8f;
-            int textWidth = this.minecraft.font.width(previewText);
-            int centerX = this.previewWindowX + this.previewWindowWidth / 2;
-            int centerY = this.previewWindowY + this.previewWindowHeight / 2;
-
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(centerX, centerY, 0);
-            guiGraphics.pose().scale(scale, scale, 1.0f);
-            guiGraphics.pose().translate(-textWidth / 2, -4 / scale, 0);
-            guiGraphics.drawString(this.minecraft.font, previewText, 0, 0, 0xFFFFFFFF, false);
-            guiGraphics.pose().popPose();
-
-            return;
-        }
 
         // 启用裁剪，限制渲染区域在预览窗口内
         RenderSystem.enableScissor(

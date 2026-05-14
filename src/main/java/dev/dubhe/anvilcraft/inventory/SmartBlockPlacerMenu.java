@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -21,14 +20,12 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     @Nullable
     private final SmartBlockPlacerBlockEntity blockEntity;
     private final Level level;
-    private final Inventory playerInventory;
 
     public SmartBlockPlacerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
         this.blockEntity = (SmartBlockPlacerBlockEntity) machine;
         this.level = inventory.player.level();
-        this.playerInventory = inventory;
 
         // 添加玩家物品栏（主物品栏3行9列）
         for (int row = 0; row < 3; ++row) {
@@ -43,6 +40,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         }
     }
 
+    @SuppressWarnings("resource")
     public SmartBlockPlacerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(
@@ -63,7 +61,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem()) {
+        if (slot.hasItem()) {
             ItemStack originalStack = slot.getItem();
             itemstack = originalStack.copy();
 
