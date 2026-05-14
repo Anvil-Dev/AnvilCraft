@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.block.storage;
 
 import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
 import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -81,15 +81,17 @@ public class GunpowderBlock extends Block {
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (stack.is(Items.FLINT_AND_STEEL)
+        if (
+            stack.is(Items.FLINT_AND_STEEL)
             || stack.is(Items.FIRE_CHARGE)
-            || (stack.is(ModItems.MULTITOOL_ITEM)
-            && MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE)) {
-            explosion(level, pos);
+            || MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)
+        ) {
+            this.explosion(level, pos);
             Item item = stack.getItem();
-            if (stack.is(Items.FLINT_AND_STEEL)
-                || (stack.is(ModItems.MULTITOOL_ITEM)
-                && MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE)) {
+            if (
+                stack.is(Items.FLINT_AND_STEEL)
+                || MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)
+            ) {
                 stack.hurtAndBreak(1, player, hand);
             } else {
                 stack.consume(1, player);
@@ -116,7 +118,7 @@ public class GunpowderBlock extends Block {
             if (block.getBlock() instanceof BaseFireBlock
                 || block.is(Blocks.LAVA)
                 || ((block.getBlock() instanceof HeatableBlock) && !(block.getBlock() instanceof NormalBlock))) {
-                explosion(actualLevel, pos);
+                this.explosion(actualLevel, pos);
             }
         }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
@@ -130,15 +132,21 @@ public class GunpowderBlock extends Block {
                 if (block.getBlock() instanceof BaseFireBlock
                     || block.is(Blocks.LAVA)
                     || ((block.getBlock() instanceof HeatableBlock) && !(block.getBlock() instanceof NormalBlock))) {
-                    explosion(level, pos);
+                    this.explosion(level, pos);
                 }
             }
         }
     }
 
     @Override
-    public boolean onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
-        explosion(level, pos);
+    public boolean onCaughtFire(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        @Nullable Direction direction,
+        @Nullable LivingEntity igniter
+    ) {
+        this.explosion(level, pos);
         return super.onCaughtFire(state, level, pos, direction, igniter);
     }
 
@@ -149,14 +157,13 @@ public class GunpowderBlock extends Block {
         }
         BlockPos pos = hit.getBlockPos();
         if (projectile.isOnFire() && projectile.mayInteract((ServerLevel) level, pos)) {
-            explosion(level, pos);
+            this.explosion(level, pos);
         }
     }
 
-
     @Override
     public void wasExploded(ServerLevel level, BlockPos pos, Explosion explosion) {
-        explosion(level, pos);
+        this.explosion(level, pos);
     }
 
     @Override

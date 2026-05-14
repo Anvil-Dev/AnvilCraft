@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.item.tool;
 
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.MagnetUtil;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -12,7 +12,6 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +24,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -36,36 +34,32 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.ShearsItem;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BrushableBlock;
 import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BrushableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.IShearable;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.common.Tags;
-import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class MultitoolItem extends Item {
     public static final int ALL_MODE = 0;
@@ -79,50 +73,46 @@ public class MultitoolItem extends Item {
     public static final int WARPED_FUNGUS_ON_A_STICK_MODE = 8;
 
     public MultitoolItem(Properties properties) {
-        super(properties);
+        super(properties.enchantable(1));
+    }
+
+    public static boolean isHolding(Player player, Item item) {
+        return MultitoolItem.getMode(player.getMainHandItem()).isActing(item)
+               || MultitoolItem.getMode(player.getOffhandItem()).isActing(item);
+    }
+
+    public static boolean isHolding(Player player, MultitoolMode mode) {
+        return MultitoolItem.getMode(player.getMainHandItem()) == mode || MultitoolItem.getMode(player.getOffhandItem()) == mode;
+    }
+
+    public static boolean isActingAs(ItemStack stack, MultitoolMode mode) {
+        return MultitoolItem.getMode(stack) == mode;
+    }
+
+    public static MultitoolMode getMode(ItemInstance item) {
+        return item.getOrDefault(ModComponents.MULTITOOL_MODE, MultitoolMode.ALL_MODE);
     }
 
     @Override
-    @SuppressWarnings("removal")
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        ItemProperties.register(
-            this, Identifier.withDefaultNamespace("cast"), (itemStack, level, entity, value) -> {
-                if (entity == null) {
-                    return 0.0F;
-                } else {
-                    boolean flag = itemStack.is(entity.getMainHandItem().getItem());
-                    boolean flag1 = itemStack.is(entity.getOffhandItem().getItem());
-                    if (entity.getMainHandItem()
-                            .getItem() instanceof MultitoolItem && getMode(entity.getMainHandItem()) == MultitoolItem.FISHING_ROD_MODE) {
-                        flag1 = false;
-                    }
-                    return (flag || flag1) && entity instanceof Player && ((Player) entity).fishing != null ? 1.0F : 0.0F;
-                }
-            }
-        );
-    }
-
-    @Override
-    public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
-        if (MultitoolItem.getMode(stack) == SPYGLASS_MODE) {
+    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SPYGLASS_MODE)) {
             this.stopUsing(livingEntity);
-        } else {
-            super.releaseUsing(stack, level, livingEntity, timeCharged);
+            return true;
         }
+        return super.releaseUsing(stack, level, livingEntity, timeCharged);
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
-        if (MultitoolItem.getMode(stack) == SPYGLASS_MODE) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SPYGLASS_MODE)) {
             this.stopUsing(livingEntity);
             return stack;
-        } else {
-            return super.finishUsingItem(stack, level, livingEntity);
         }
+        return super.finishUsingItem(stack, level, livingEntity);
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         return switch (MultitoolItem.getMode(player.getItemInHand(usedHand))) {
             case SPYGLASS_MODE -> {
                 player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
@@ -134,8 +124,9 @@ public class MultitoolItem extends Item {
             case CARROT_ON_A_STICK_MODE -> this.useAsCarrotOnAStick(level, player, usedHand);
             case WARPED_FUNGUS_ON_A_STICK_MODE -> this.useAsWarpedFungusOnAStick(level, player, usedHand);
             case ALL_MODE -> {
-                player.hurt(level.damageSources().playerAttack(player), 1);
-                yield InteractionResultHolder.pass(player.getItemInHand(usedHand));
+                // noinspection deprecation
+                player.hurtOrSimulate(level.damageSources().playerAttack(player), 1);
+                yield InteractionResult.PASS;
             }
             default -> super.use(level, player, usedHand);
         };
@@ -143,7 +134,7 @@ public class MultitoolItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        return switch (context.getItemInHand().getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value()) {
+        return switch (MultitoolItem.getMode(context.getItemInHand())) {
             case SHEARS_MODE -> this.useOnAsShears(context);
             case FLINT_AND_STEEL_MODE -> this.useOnAsFlintAndSteel(context);
             case BRUSH_MODE -> this.useOnAsBrush(context);
@@ -153,7 +144,7 @@ public class MultitoolItem extends Item {
     }
 
     @Override
-    public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
+    public boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {
         return switch (MultitoolItem.getMode(stack)) {
             case SHEARS_MODE -> ItemAbilities.DEFAULT_SHEARS_ACTIONS.contains(itemAbility);
             case FLINT_AND_STEEL_MODE -> ItemAbilities.DEFAULT_FLINT_ACTIONS.contains(itemAbility);
@@ -164,10 +155,10 @@ public class MultitoolItem extends Item {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return switch (MultitoolItem.getMode(stack)) {
-            case BRUSH_MODE -> UseAnim.BRUSH;
-            case SPYGLASS_MODE -> UseAnim.SPYGLASS;
+            case BRUSH_MODE -> ItemUseAnimation.BRUSH;
+            case SPYGLASS_MODE -> ItemUseAnimation.SPYGLASS;
             default -> super.getUseAnimation(stack);
         };
     }
@@ -183,7 +174,7 @@ public class MultitoolItem extends Item {
 
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        if (MultitoolItem.getMode(stack) == BRUSH_MODE) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.BRUSH_MODE)) {
             this.onUseTickAsBrush(level, livingEntity, stack, remainingUseDuration);
         } else {
             super.onUseTick(level, livingEntity, stack, remainingUseDuration);
@@ -192,7 +183,7 @@ public class MultitoolItem extends Item {
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
-        if (MultitoolItem.getMode(stack) == SHEARS_MODE) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SHEARS_MODE)) {
             return this.mineBlockAsShears(stack, level, state, miningEntity);
         } else {
             return super.mineBlock(stack, level, state, pos, miningEntity);
@@ -206,23 +197,18 @@ public class MultitoolItem extends Item {
         LivingEntity interactionTarget,
         InteractionHand usedHand
     ) {
-        if (MultitoolItem.getMode(stack) == SHEARS_MODE) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SHEARS_MODE)) {
             return this.interactLivingEntityAsShears(stack, player, interactionTarget, usedHand);
         } else {
             return super.interactLivingEntity(stack, player, interactionTarget, usedHand);
         }
     }
 
-    @Override
-    public int getEnchantmentValue(ItemStack stack) {
-        return 1;
+    private InteractionResult useAsMagnet(Level level, Player player, InteractionHand usedHand) {
+        return MagnetUtil.magnetizeItems(level, player, usedHand);
     }
 
-    private InteractionResultHolder<ItemStack> useAsMagnet(Level level, Player player, InteractionHand usedHand) {
-        return MagnetUtil.magnetizeItems(this, level, player, usedHand);
-    }
-
-    private InteractionResultHolder<ItemStack> useAsFishingRod(Level level, Player player, InteractionHand usedHand) {
+    private InteractionResult useAsFishingRod(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemstack = player.getItemInHand(usedHand);
         if (player.fishing != null) {
             if (!level.isClientSide()) {
@@ -265,37 +251,37 @@ public class MultitoolItem extends Item {
             player.awardStat(Stats.ITEM_USED.get(this));
             player.gameEvent(GameEvent.ITEM_INTERACT_START);
         }
-        return InteractionResultHolder.sidedSuccess(itemstack, level.isClientSide());
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
-    private InteractionResultHolder<ItemStack> useAsCarrotOnAStick(Level level, Player player, InteractionHand usedHand) {
+    private InteractionResult useAsCarrotOnAStick(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
         if (!level.isClientSide()) {
             Entity entity = player.getControlledVehicle();
             if (player.isPassenger() && entity instanceof ItemSteerable itemSteerable) {
                 if (entity.getType() == EntityType.PIG && itemSteerable.boost()) {
                     itemStack.hurtAndBreak(7, player, usedHand);
-                    return InteractionResultHolder.success(itemStack);
+                    return InteractionResult.SUCCESS;
                 }
             }
             player.awardStat(Stats.ITEM_USED.get(this));
         }
-        return InteractionResultHolder.pass(itemStack);
+        return InteractionResult.PASS;
     }
 
-    private InteractionResultHolder<ItemStack> useAsWarpedFungusOnAStick(Level level, Player player, InteractionHand usedHand) {
+    private InteractionResult useAsWarpedFungusOnAStick(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
         if (!level.isClientSide()) {
             Entity entity = player.getControlledVehicle();
             if (player.isPassenger() && entity instanceof ItemSteerable itemSteerable) {
                 if (entity.getType() == EntityType.STRIDER && itemSteerable.boost()) {
                     itemStack.hurtAndBreak(1, player, usedHand);
-                    return InteractionResultHolder.success(itemStack);
+                    return InteractionResult.SUCCESS;
                 }
             }
             player.awardStat(Stats.ITEM_USED.get(this));
         }
-        return InteractionResultHolder.pass(itemStack);
+        return InteractionResult.PASS;
     }
 
     public InteractionResult useOnAsShears(UseOnContext context) {
@@ -315,10 +301,9 @@ public class MultitoolItem extends Item {
                 itemstack.hurtAndBreak(1, player, context.getHand());
             }
 
-            return InteractionResult.sidedSuccess(level.isClientSide());
-        } else {
-            return super.useOn(context);
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
+        return super.useOn(context);
     }
 
     public InteractionResult useOnAsFlintAndSteel(UseOnContext context) {
@@ -347,10 +332,9 @@ public class MultitoolItem extends Item {
                     itemstack.hurtAndBreak(1, player, context.getHand());
                 }
 
-                return InteractionResult.sidedSuccess(level.isClientSide());
-            } else {
-                return InteractionResult.FAIL;
+                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
+            return InteractionResult.FAIL;
         } else {
             level.playSound(
                 player,
@@ -366,7 +350,7 @@ public class MultitoolItem extends Item {
                 context.getItemInHand().hurtAndBreak(1, player, context.getHand());
             }
 
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
     }
 
@@ -380,7 +364,7 @@ public class MultitoolItem extends Item {
     }
 
     public InteractionResult useOnAsMagnet(UseOnContext context) {
-        return MagnetUtil.placeMagnetizedNode(this, context);
+        return MagnetUtil.placeMagnetizedNode(context);
     }
 
     private HitResult calculateHitResult(Player player) {
@@ -412,58 +396,52 @@ public class MultitoolItem extends Item {
     }
 
     private void onUseTickAsBrush(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        if (remainingUseDuration >= 0 && livingEntity instanceof Player player) {
-            HitResult hitresult = this.calculateHitResult(player);
-            if (hitresult instanceof BlockHitResult blockhitresult) {
-                if (hitresult.getType() == HitResult.Type.BLOCK) {
-                    int i = this.getUseDuration(stack, livingEntity) - remainingUseDuration + 1;
-                    boolean flag = i % 10 == 5;
-                    if (flag) {
-                        BlockPos blockpos = blockhitresult.getBlockPos();
-                        BlockState blockstate = level.getBlockState(blockpos);
-                        HumanoidArm humanoidarm = livingEntity.getUsedItemHand() == InteractionHand.MAIN_HAND
-                                                  ? player.getMainArm()
-                                                  : player.getMainArm().getOpposite();
-                        if (blockstate.shouldSpawnTerrainParticles() && blockstate.getRenderShape() != RenderShape.INVISIBLE) {
-                            this.spawnDustParticles(level, blockhitresult, blockstate, livingEntity.getViewVector(0.0F), humanoidarm);
-                        }
-
-                        Block var15 = blockstate.getBlock();
-                        SoundEvent soundevent;
-                        if (var15 instanceof BrushableBlock brushableBlock) {
-                            soundevent = brushableBlock.getBrushSound();
-                        } else {
-                            soundevent = SoundEvents.BRUSH_GENERIC;
-                        }
-
-                        level.playSound(player, blockpos, soundevent, SoundSource.BLOCKS);
-                        if (!level.isClientSide()) {
-                            BlockEntity var18 = level.getBlockEntity(blockpos);
-                            if (var18 instanceof BrushableBlockEntity brushableBlockEntity) {
-                                boolean flag1 = brushableBlockEntity.brush(level.getGameTime(), player, blockhitresult.getDirection());
-                                if (flag1) {
-                                    EquipmentSlot equipmentslot = stack.equals(player.getItemBySlot(EquipmentSlot.OFFHAND))
-                                                                  ? EquipmentSlot.OFFHAND
-                                                                  : EquipmentSlot.MAINHAND;
-                                    stack.hurtAndBreak(1, livingEntity, equipmentslot);
-                                }
-                            }
-                        }
-                    }
-                    return;
-                }
-            }
-
+        if (remainingUseDuration < 0 || !(livingEntity instanceof Player player)) {
             livingEntity.releaseUsingItem();
-        } else {
-            livingEntity.releaseUsingItem();
+            return;
         }
+        HitResult result = this.calculateHitResult(player);
+        if (!(result instanceof BlockHitResult blockhitresult)) {
+            livingEntity.releaseUsingItem();
+            return;
+        }
+        if (result.getType() != HitResult.Type.BLOCK) {
+            livingEntity.releaseUsingItem();
+            return;
+        }
+        int i = this.getUseDuration(stack, livingEntity) - remainingUseDuration + 1;
+        if (i % 10 != 5) {
+            livingEntity.releaseUsingItem();
+            return;
+        }
+        BlockPos pos = blockhitresult.getBlockPos();
+        BlockState state = level.getBlockState(pos);
+        HumanoidArm arm = livingEntity.getUsedItemHand() == InteractionHand.MAIN_HAND
+                          ? player.getMainArm()
+                          : player.getMainArm().getOpposite();
+        if (state.shouldSpawnTerrainParticles() && state.getRenderShape() != RenderShape.INVISIBLE) {
+            this.spawnDustParticles(level, blockhitresult, state, livingEntity.getViewVector(0.0F), arm);
+        }
+
+        SoundEvent event;
+        if (state.getBlock() instanceof BrushableBlock brushableBlock) {
+            event = brushableBlock.getBrushSound();
+        } else {
+            event = SoundEvents.BRUSH_GENERIC;
+        }
+
+        level.playSound(player, pos, event, SoundSource.BLOCKS);
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        if (!(level.getBlockEntity(pos) instanceof BrushableBlockEntity brushable)) return;
+        if (!brushable.brush(level.getGameTime(), serverLevel, player, blockhitresult.getDirection(), stack)) return;
+        EquipmentSlot equipmentslot = stack.equals(player.getItemBySlot(EquipmentSlot.OFFHAND))
+                                      ? EquipmentSlot.OFFHAND
+                                      : EquipmentSlot.MAINHAND;
+        stack.hurtAndBreak(1, livingEntity, equipmentslot);
     }
 
     private boolean mineBlockAsShears(ItemStack stack, Level level, BlockState state, LivingEntity miningEntity) {
-        if (!level.isClientSide() && !state.is(BlockTags.FIRE)) {
-            stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
-        }
+        if (!level.isClientSide() && !state.is(BlockTags.FIRE)) stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
         return state.is(BlockTags.LEAVES)
                || state.is(Blocks.COBWEB)
                || state.is(Blocks.SHORT_GRASS)
@@ -486,9 +464,9 @@ public class MultitoolItem extends Item {
             boolean isClient = interactionTarget.level().isClientSide();
             if (target.isShearable(player, stack, interactionTarget.level(), pos)) {
                 List<ItemStack> drops = target.onSheared(player, stack, interactionTarget.level(), pos);
-                if (!isClient) {
+                if (interactionTarget.level() instanceof ServerLevel serverLevel) {
                     for (ItemStack drop : drops) {
-                        target.spawnShearedDrop(interactionTarget.level(), pos, drop);
+                        target.spawnShearedDrop(serverLevel, pos, drop);
                     }
                 }
 
@@ -497,15 +475,11 @@ public class MultitoolItem extends Item {
                     stack.hurtAndBreak(1, player, usedHand);
                 }
 
-                return InteractionResult.sidedSuccess(isClient);
+                return isClient ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
         }
 
         return InteractionResult.PASS;
-    }
-
-    public static int getMode(ItemStack item) {
-        return Math.clamp(item.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value(), 0, 8);
     }
 
     public static void setMode(Player player, InteractionHand hand, @Range(from = 0, to = 8) int mode) {
@@ -514,10 +488,8 @@ public class MultitoolItem extends Item {
             return;
         }
         item.remove(DataComponents.TOOL);
-        item.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(mode));
-        if (mode == SHEARS_MODE) {
-            item.set(DataComponents.TOOL, ShearsItem.createToolProperties());
-        }
+        item.set(ModComponents.MULTITOOL_MODE, MultitoolMode.values()[mode]);
+        if (mode == SHEARS_MODE) item.set(DataComponents.TOOL, ShearsItem.createToolProperties());
     }
 
     private void stopUsing(LivingEntity entity) {

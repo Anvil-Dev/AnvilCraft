@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -24,17 +24,15 @@ public class CandleCakeBlockMixin {
         cancellable = true
     )
     private void useItemOn(
-        ItemStack stack,
+        ItemStack itemStack,
         BlockState state,
         Level level,
         BlockPos pos,
         Player player,
         InteractionHand hand,
         BlockHitResult hitResult,
-        CallbackInfoReturnable<ItemInteractionResult> cir
+        CallbackInfoReturnable<InteractionResult> cir
     ) {
-        if (stack.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
-            cir.setReturnValue(ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION);
-        }
+        if (MultitoolItem.isActingAs(itemStack, MultitoolMode.FLINT_AND_STEEL_MODE)) cir.setReturnValue(InteractionResult.PASS);
     }
 }

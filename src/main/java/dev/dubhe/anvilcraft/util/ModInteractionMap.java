@@ -2,15 +2,16 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.workstation.FishTankBlock;
 import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.Layered4LevelCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.block.workstation.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.resources.Identifier;
@@ -161,7 +162,7 @@ public class ModInteractionMap {
             oil,
             ModItems.MULTITOOL_ITEM.asItem(),
             (state, level, pos, player, hand, stack) -> {
-                if (MultitoolItem.getMode(stack) != MultitoolItem.FLINT_AND_STEEL_MODE) return InteractionResult.SUCCESS;
+                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)) return InteractionResult.SUCCESS;
                 OilCauldronBlock.ignite(level, pos, state);
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
@@ -264,7 +265,7 @@ public class ModInteractionMap {
             fishTank,
             ModItems.MULTITOOL_ITEM.asItem(),
             (state, level, pos, player, hand, stack) -> {
-                if (MultitoolItem.getMode(stack) != MultitoolItem.FLINT_AND_STEEL_MODE) return InteractionResult.SUCCESS;
+                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)) return InteractionResult.SUCCESS;
                 if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);

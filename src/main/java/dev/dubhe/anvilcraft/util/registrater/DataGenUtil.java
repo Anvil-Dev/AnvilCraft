@@ -14,6 +14,8 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
+import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
+import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.advancements.criterion.DataComponentMatchers;
@@ -33,6 +35,9 @@ import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
+import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
+import net.minecraft.client.renderer.item.properties.conditional.IsUsingItem;
+import net.minecraft.client.renderer.item.properties.select.ComponentContents;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -78,8 +83,12 @@ public class DataGenUtil {
         };
     }
 
-    public static <T extends BlockItem> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> flatItem() {
-        return (ctx, generator) -> generator.createFlatItemModel(ctx.get(), ModelTemplates.FLAT_ITEM);
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> flatItem() {
+        return (ctx, generator) -> generator.generateFlatItem(ctx.get(), ModelTemplates.FLAT_ITEM);
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> flatHandheldItem() {
+        return (ctx, generator) -> generator.generateFlatItem(ctx.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
     }
 
     public static <T extends BlockItem> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> blockItem() {
@@ -88,6 +97,82 @@ public class DataGenUtil {
 
     public static <T extends BlockItem> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> blockItem(String suffix) {
         return (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix(suffix));
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> multitool() {
+        return (ctx, generator) -> {
+            Item item = ctx.get();
+            ItemModel.Unbaked all = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item));
+            Identifier prefix = ModelLocationUtils.getModelLocation(item).withSuffix("_");
+            ItemModel.Unbaked brush = ItemModelUtils.plainModel(prefix.withSuffix("brush"));
+            ItemModel.Unbaked carrotRod = ItemModelUtils.plainModel(prefix.withSuffix("carrot_on_a_stick"));
+            ItemModel.Unbaked fishingRod = ItemModelUtils.plainModel(prefix.withSuffix("fishing_rod"));
+            ItemModel.Unbaked fishingRodCast = ItemModelUtils.plainModel(prefix.withSuffix("fishing_rod_cast"));
+            ItemModel.Unbaked flintAndSteel = ItemModelUtils.plainModel(prefix.withSuffix("flint_and_steel"));
+            ItemModel.Unbaked magnet = ItemModelUtils.plainModel(prefix.withSuffix("magnet"));
+            ItemModel.Unbaked shears = ItemModelUtils.plainModel(prefix.withSuffix("shears"));
+            ItemModel.Unbaked spyglass = ItemModelUtils.plainModel(prefix.withSuffix("spyglass"));
+            ItemModel.Unbaked warpedFungusRod = ItemModelUtils.plainModel(prefix.withSuffix("warped_fungus_on_a_stick"));
+            generator.itemModelOutput.accept(
+                item,
+                ItemModelUtils.select(
+                    new ComponentContents<>(ModComponents.MULTITOOL_MODE),
+                    all,
+                    ItemModelUtils.when(MultitoolMode.BRUSH_MODE, brush),
+                    ItemModelUtils.when(MultitoolMode.CARROT_ON_A_STICK_MODE, carrotRod),
+                    ItemModelUtils.when(
+                        MultitoolMode.FISHING_ROD_MODE,
+                        ItemModelUtils.conditional(
+                            new FishingRodCast(),
+                            fishingRodCast,
+                            fishingRod
+                        )
+                    ),
+                    ItemModelUtils.when(MultitoolMode.FLINT_AND_STEEL_MODE, flintAndSteel),
+                    ItemModelUtils.when(MultitoolMode.MAGNET_MODE, magnet),
+                    ItemModelUtils.when(MultitoolMode.SHEARS_MODE, shears),
+                    ItemModelUtils.when(MultitoolMode.SPYGLASS_MODE, spyglass),
+                    ItemModelUtils.when(MultitoolMode.WARPED_FUNGUS_ON_A_STICK_MODE, warpedFungusRod)
+                )
+            );
+        };
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> heavyHalberd() {
+        return (ctx, generator) -> {
+            Item item = ctx.get();
+            Identifier id = ModelLocationUtils.getModelLocation(item);
+            ItemModel.Unbaked normal = ItemModelUtils.plainModel(id);
+            ItemModel.Unbaked throwing = ItemModelUtils.plainModel(id.withSuffix("_throwing"));
+            generator.itemModelOutput.accept(
+                item,
+                ItemModelUtils.conditional(new IsUsingItem(), throwing, normal)
+            );
+        };
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> resonator() {
+        return (ctx, generator) -> {
+            Item item = ctx.get();
+            Identifier prefix = ModelLocationUtils.getModelLocation(item);
+            prefix = prefix.withPath(prefix.getPath().substring(0, prefix.getPath().length() - 9)); // 减掉resonator
+            ItemModel.Unbaked auto = ItemModelUtils.plainModel(prefix.withSuffix("resonator"));
+            ItemModel.Unbaked axe = ItemModelUtils.plainModel(prefix.withSuffix("resonance_axe"));
+            ItemModel.Unbaked hoe = ItemModelUtils.plainModel(prefix.withSuffix("resonance_hoe"));
+            ItemModel.Unbaked pickaxe = ItemModelUtils.plainModel(prefix.withSuffix("resonance_pickaxe"));
+            ItemModel.Unbaked shovel = ItemModelUtils.plainModel(prefix.withSuffix("resonance_shovel"));
+            generator.itemModelOutput.accept(
+                item,
+                ItemModelUtils.select(
+                    new ComponentContents<>(ModComponents.RESONATE_MODE),
+                    auto,
+                    ItemModelUtils.when(ResonateMode.AXE, axe),
+                    ItemModelUtils.when(ResonateMode.HOE, hoe),
+                    ItemModelUtils.when(ResonateMode.PICKAXE, pickaxe),
+                    ItemModelUtils.when(ResonateMode.SHOVEL, shovel)
+                )
+            );
+        };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> ionocraftBackpack() {
@@ -117,6 +202,13 @@ public class DataGenUtil {
                 )
             );
         };
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> onlyInfo() {
+        return (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))
+        );
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> onlyState() {

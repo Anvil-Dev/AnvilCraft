@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
+import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -41,8 +41,8 @@ abstract class TntBlockMixin extends Block {
         BlockHitResult hitResult,
         CallbackInfoReturnable<InteractionResult> cir
     ) {
-        if (itemStack.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(itemStack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
-            onCaughtFire(state, level, pos, hitResult.getDirection(), player);
+        if (MultitoolItem.isActingAs(itemStack, MultitoolMode.FLINT_AND_STEEL_MODE)) {
+            this.onCaughtFire(state, level, pos, hitResult.getDirection(), player);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
             Item item = itemStack.getItem();
             itemStack.hurtAndBreak(1, player, hand.asEquipmentSlot());
