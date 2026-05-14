@@ -17,6 +17,7 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
@@ -48,25 +49,25 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
     private final Map<BeaconConversionRecipe, LevelLike> cache = new HashMap<>();
 
     public BeaconConversionCategory(IGuiHelper helper) {
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        slotChoice = JeiRenderHelper.getSlotChoice(helper);
-        title = Component.translatable("gui.anvilcraft.category.beacon_conversion");
-        activateTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.activate")
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.slotChoice = JeiRenderHelper.getSlotChoice(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.beacon_conversion");
+        this.activateTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.activate")
             .withStyle(ChatFormatting.GOLD);
-        beaconBaseTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.beacon_base")
+        this.beaconBaseTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.beacon_base")
             .withStyle(ChatFormatting.GOLD);
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
     }
 
     @Override
-    public RecipeType<BeaconConversionRecipe> getRecipeType() {
+    public IRecipeType<BeaconConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.BEACON_CONVERSION;
     }
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -95,11 +96,11 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
         builder.addSlot(RecipeIngredientRole.INPUT, 48, 8)
             .addItemStack(ModItems.CURSED_GOLD_INGOT.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                tooltip.add(activateTooltip));
+                tooltip.add(this.activateTooltip));
         builder.addSlot(RecipeIngredientRole.CATALYST, 10, 110)
-            .addItemStack(ModBlocks.CURSED_GOLD_BLOCK.asStack(recipe.cursedGoldBlockCount))
+            .add(ModBlocks.CURSED_GOLD_BLOCK.asStack(recipe.cursedGoldBlockCount))
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                tooltip.add(beaconBaseTooltip));
+                tooltip.add(this.beaconBaseTooltip));
         builder.addSlot(RecipeIngredientRole.INPUT, 10, 92)
             .addItemStack(Blocks.BEACON.asItem().getDefaultInstance());
         IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 96)
