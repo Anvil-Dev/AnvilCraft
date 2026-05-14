@@ -39,7 +39,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
         // 不需要初始化，使用静态常量
     }
-    
+
     /**
      * 工作动画方案（放置方块时）
      */
@@ -72,74 +72,74 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             float animationProgress
         ) {
             // 计算目标角度
-            float[] targetAngles = calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
-            
+            float[] targetAngles = this.calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
+
             // 计算目标位置的方向向量（用于动态补偿）
             double dx = targetPos.getX() - placerPos.getX();
             double dy = targetPos.getY() - placerPos.getY();
             double dz = targetPos.getZ() - placerPos.getZ();
-            
+
             Direction forward = facing;
             Direction right = facing.getCounterClockWise();
             double forwardDist = dx * forward.getStepX() + dz * forward.getStepZ();
             double rightDist = dx * right.getStepX() + dz * right.getStepZ();
             double verticalDist = dy;
-            
+
             // 倒挂时，垂直距离需要修正（因为动画计算是在本地坐标系中）
             float targetHeight = (float) verticalDist - BASE_HEIGHT;
             if (upsideDown) {
                 targetHeight = -(float) verticalDist - BASE_HEIGHT;
             }
-            
+
             // 根据动画进度计算当前角度
             float baseAngle, upperArmAngle, forearmAngle, clawAngle;
-            
+
             if (animationProgress <= 0.2f) {
                 // 阶段1：底盘旋转 + 小臂和钳子指向目标
                 // 大臂不动(0°)，小臂需要补偿角度以指向目标
                 float phase1Progress = animationProgress / 0.2f;
-                
+
                 baseAngle = targetAngles[0] * phase1Progress;
                 upperArmAngle = 0f; // 大臂不动
-                
+
                 // 计算补偿角度：当大臂为0时，小臂需要多少度才能让钳子指向目标
                 // 使用简化补偿：小臂角度 = 目标大臂角度 + 目标小臂角度
                 float compensationAngle = targetAngles[1] + targetAngles[2];
                 forearmAngle = compensationAngle * phase1Progress;
                 clawAngle = targetAngles[3] * phase1Progress;
-                
+
             } else if (animationProgress <= 0.3f) {
                 // 阶段2：停顿，保持指向目标
                 baseAngle = targetAngles[0];
                 upperArmAngle = 0f;
                 forearmAngle = targetAngles[1] + targetAngles[2]; // 补偿角度
                 clawAngle = targetAngles[3];
-                
+
             } else if (animationProgress <= 0.7f) {
                 // 阶段3：大臂推出（延长），小臂持续补偿
                 float phase3Progress = (animationProgress - 0.3f) / 0.4f;
-                
+
                 baseAngle = targetAngles[0];
                 upperArmAngle = targetAngles[1] * phase3Progress;
-                
+
                 // 小臂补偿：从“补偿角度”渐变到“目标角度”
                 // 当大臂到位时，小臂也应该是目标角度
                 float startForearmAngle = targetAngles[1] + targetAngles[2]; // 起始补偿角度
                 float endForearmAngle = targetAngles[2]; // 结束目标角度
                 forearmAngle = startForearmAngle + (endForearmAngle - startForearmAngle) * phase3Progress;
-                
+
                 clawAngle = targetAngles[3];
-                
+
             } else {
                 // 阶段4：收回动画
                 float phase4Progress = (animationProgress - 0.7f) / 0.3f;
-                
+
                 baseAngle = targetAngles[0] * (1f - phase4Progress);
                 upperArmAngle = targetAngles[1] * (1f - phase4Progress);
                 forearmAngle = targetAngles[2] * (1f - phase4Progress);
                 clawAngle = targetAngles[3] * (1f - phase4Progress);
             }
-            
+
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
         
@@ -156,35 +156,35 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             double dx = targetPos.getX() - placerPos.getX();
             double dy = targetPos.getY() - placerPos.getY();
             double dz = targetPos.getZ() - placerPos.getZ();
-            
+
             // 2. 根据朝向转换到局部坐标系
             Direction forward = facing;
             Direction right = facing.getCounterClockWise();
-            
+
             // 计算在局部坐标系中的位置
             double forwardDist = dx * forward.getStepX() + dz * forward.getStepZ();
             double rightDist = dx * right.getStepX() + dz * right.getStepZ();
             double verticalDist = dy;
-            
+
             // 3. 计算底座旋转角度（水平面内）
             float baseAngle = (float) Math.toDegrees(Math.atan2(rightDist, forwardDist));
-            
+
             // 4. 计算水平距离
             float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
-            
+
             // 5. 计算垂直距离（倒挂时需要翻转）
             float targetHeight = (float) verticalDist - BASE_HEIGHT;
             if (upsideDown) {
                 targetHeight = -(float) verticalDist - BASE_HEIGHT;
             }
-            
+
             // 6. 计算仰角
             float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
-            
+
             // 7. 计算机械臂关节角度（逆运动学）
             float distToTarget = (float) Math.sqrt(horizontalDist * horizontalDist + targetHeight * targetHeight);
             boolean isOverRange = distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH;
-            
+
             float upperArmAngle, forearmAngle;
             if (isOverRange) {
                 // 超距情况：机械臂完全伸直指向目标
@@ -193,36 +193,36 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             } else {
                 // 正常情况：使用余弦定理计算关节角度
                 float clampedDist = Math.max(0.01f, distToTarget);
-                
-                float cosForearm = (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - clampedDist * clampedDist) 
+
+                float cosForearm = (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - clampedDist * clampedDist)
                     / (2 * UPPER_ARM_LENGTH * FOREARM_LENGTH);
                 cosForearm = Math.max(-1.0f, Math.min(1.0f, cosForearm));
                 float forearmAngleFromUpper = (float) Math.toDegrees(Math.acos(cosForearm));
-                
-                float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH) 
+
+                float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH)
                     / (2 * clampedDist * UPPER_ARM_LENGTH);
                 cosUpperArm = Math.max(-1.0f, Math.min(1.0f, cosUpperArm));
                 float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
-                
+
                 float targetAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
-                
+
                 upperArmAngle = -(180f - upperArmAngleFromTarget - targetAngle) * 0.6f + 20f;
                 forearmAngle = forearmAngleFromUpper * 0.8f - 10f;
             }
-            
+
             // 应用距离修正
-            upperArmAngle += horizontalDist <= 2.0f ? -10f : 
-                           (horizontalDist >= 4.0f ? -66f : 
+            upperArmAngle += horizontalDist <= 2.0f ? -10f :
+                           (horizontalDist >= 4.0f ? -66f :
                            -10f + (-50f) * (horizontalDist - 2.0f) / 2.0f);
-            
+
             forearmAngle += horizontalDist >= 4.0f ? 40f : 0f;
-            
+
             // 钳子角度（随高度变化，超距时额外修正）
             float clawAngle = 45f - elevationAngle * -0.4f + (isOverRange ? -10f : 0f);
-            
+
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
-        
+
         /**
          * 缓动函数：让动画更平滑
          */

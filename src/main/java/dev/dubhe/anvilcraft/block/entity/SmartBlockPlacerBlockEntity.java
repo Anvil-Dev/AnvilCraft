@@ -63,15 +63,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private ItemStack currentHeldBlock = ItemStack.EMPTY; // 当前持有的方块（客户端渲染）
     private int currentPlacementIndex = 0; // 当前放置进度索引
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>(); // 每个layer的位置集合
-        
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
     private BlockPos clientLastTargetPos = null;
     private int lastPlaceCooldown = 0;
-    
     /**
      * 更新客户端动画状态（供渲染器调用）
      */
+
     public void updateClientAnimationState(boolean isPowered, boolean hasRedstoneSignal) {
         if (!isPowered || hasRedstoneSignal) {
             clientAnimationStartTime = 0;
@@ -128,58 +127,58 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 服务端检测电网通电状态
             boolean wasPowered = this.isPowered;
             boolean wasRedstoneSignal = this.hasRedstoneSignal;
-            this.isPowered = grid != null && grid.isWorking();
+            this.isPowered = this.grid != null && this.grid.isWorking();
             // 检测红石信号
             this.hasRedstoneSignal = level.hasNeighborSignal(pos);
-                    
+
             // 如果从"不能工作"变为"可以工作"，重置放置索引
             boolean wasAbleToWork = wasPowered && !wasRedstoneSignal;
             boolean isAbleToWork = this.isPowered && !this.hasRedstoneSignal;
-                
+
             if (!wasAbleToWork && isAbleToWork) {
-                currentPlacementIndex = 0;
+                this.currentPlacementIndex = 0;
             }
-                    
+
             // 方块放置逻辑
-            if (isPowered && !hasRedstoneSignal) {
-                boolean needsPlacement = hasEmptyPositions(level, pos);
-                boolean hasBlocksInContainer = hasBlockItemsInContainer(level, pos);
-                                
-                if (placeCooldown > 0) {
-                    placeCooldown--;
-                    if (placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
-                        placeBlocks(level, pos);
+            if (this.isPowered && !this.hasRedstoneSignal) {
+                boolean needsPlacement = this.hasEmptyPositions(level, pos);
+                boolean hasBlocksInContainer = this.hasBlockItemsInContainer(level, pos);
+
+                if (this.placeCooldown > 0) {
+                    this.placeCooldown--;
+                    if (this.placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
+                        this.placeBlocks(level, pos);
                     }
                 } else if (needsPlacement && hasBlocksInContainer) {
                     // 新周期开始，如果持有方块为空（之前耗尽），重置索引
-                    if (currentHeldBlock.isEmpty()) {
-                        currentPlacementIndex = 0;
+                    if (this.currentHeldBlock.isEmpty()) {
+                        this.currentPlacementIndex = 0;
                     }
-                    placeCooldown = PLACEMENT_INTERVAL;
-                    currentHeldBlock = peekBlockItemFromContainer(level, pos);
-                    onChanged();
+                    this.placeCooldown = PLACEMENT_INTERVAL;
+                    this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
+                    this.onChanged();
                 }
             } else {
-                placeCooldown = 0;
-                currentHeldBlock = ItemStack.EMPTY;
+                this.placeCooldown = 0;
+                this.currentHeldBlock = ItemStack.EMPTY;
             }
-                    
-            onChanged();
+
+            this.onChanged();
         } else {
             // 客户端tick：更新工作状态动画
-            tickClient(level, pos);
+            this.tickClient();
         }
     }
         
     /**
      * 客户端tick，用于更新动画状态
      */
-    private void tickClient(Level level, BlockPos pos) {
-        if (lastPlaceCooldown == 0 && placeCooldown == PLACEMENT_INTERVAL) {
-            clientAnimationStartTime = 0;
-            clientLastTargetPos = null;
+    private void tickClient() {
+        if (this.lastPlaceCooldown == 0 && this.placeCooldown == PLACEMENT_INTERVAL) {
+            this.clientAnimationStartTime = 0;
+            this.clientLastTargetPos = null;
         }
-        lastPlaceCooldown = placeCooldown;
+        this.lastPlaceCooldown = this.placeCooldown;
     }
     
     /**
@@ -189,10 +188,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Direction facing = level.getBlockState(placerPos).getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        
-        for (Map.Entry<Integer, Set<Integer>> entry : layerPositions.entrySet()) {
+
+        for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
             for (int position : entry.getValue()) {
-                BlockPos targetPos = calculateTargetPosition(basePos, facing, position / 5, position % 5, entry.getKey(), upsideDown);
+                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, entry.getKey(), upsideDown);
                 if (level.isEmptyBlock(targetPos)) {
                     return true;
                 }
@@ -267,50 +266,49 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 放置方块（每次只放置一个）
      */
-    private boolean placeBlocks(Level level, BlockPos placerPos) {
-        Direction facing = getFacing(placerPos, level);
+    private void placeBlocks(Level level, BlockPos placerPos) {
+        Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        List<BlockPos> allPositions = buildOrderedPositions(basePos, facing, upsideDown);
-        
+        List<BlockPos> allPositions = this.buildOrderedPositions(basePos, facing, upsideDown);
+
         if (allPositions.isEmpty()) {
-            return false;
+            return;
         }
-        
-        if (currentPlacementIndex >= allPositions.size()) {
-            currentPlacementIndex = 0;
+
+        if (this.currentPlacementIndex >= allPositions.size()) {
+            this.currentPlacementIndex = 0;
         }
-        
+
         for (int i = 0; i < allPositions.size(); i++) {
-            int index = (currentPlacementIndex + i) % allPositions.size();
+            int index = (this.currentPlacementIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
-            
+
             if (level.isEmptyBlock(targetPos)) {
-                ItemStack blockItem = extractBlockItemFromContainer(level, placerPos);
+                ItemStack blockItem = this.extractBlockItemFromContainer(level, placerPos);
                 if (blockItem.isEmpty()) {
                     // 物品耗尽，重置放置索引，下次从头开始
-                    currentPlacementIndex = 0;
-                    currentHeldBlock = ItemStack.EMPTY;
-                    onChanged();
-                    return false;
+                    this.currentPlacementIndex = 0;
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    this.onChanged();
+                    return;
                 }
-                
+
                 if (blockItem.getItem() instanceof BlockItem blockItemObj) {
-                    Orientation orientation = calculatePlacementOrientation(facing, upsideDown);
-                    
+                    Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
+
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
                         level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                        return false;
+                        return;
                     }
-                    
-                    currentPlacementIndex = (index + 1) % allPositions.size();
-                    currentHeldBlock = ItemStack.EMPTY;
-                    onChanged();
-                    return true;
+
+                    this.currentPlacementIndex = (index + 1) % allPositions.size();
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    this.onChanged();
+                    return;
                 }
             }
         }
-        return false;
     }
     
     /**
@@ -319,25 +317,29 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing, boolean upsideDown) {
         List<BlockPos> positions = new ArrayList<>();
-        List<Integer> sortedLayers = new ArrayList<>(layerPositions.keySet());
+        List<Integer> sortedLayers = new ArrayList<>(this.layerPositions.keySet());
         sortedLayers.sort(Integer::compareTo);
-        
+
         for (int layer : sortedLayers) {
-            Set<Integer> layerPosSet = layerPositions.get(layer);
-            if (layerPosSet == null || layerPosSet.isEmpty()) continue;
-            
+            Set<Integer> layerPosSet = this.layerPositions.get(layer);
+            if (layerPosSet == null || layerPosSet.isEmpty()) {
+                continue;
+            }
+
             List<int[]> rowColList = new ArrayList<>();
             for (int position : layerPosSet) {
                 rowColList.add(new int[]{position / 5, position % 5});
             }
-            
+
             rowColList.sort((a, b) -> {
-                if (a[0] != b[0]) return Integer.compare(a[0], b[0]);
+                if (a[0] != b[0]) {
+                    return Integer.compare(a[0], b[0]);
+                }
                 return Integer.compare(a[1], b[1]);
             });
-            
+
             for (int[] rowCol : rowColList) {
-                positions.add(calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
+                positions.add(this.calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
             }
         }
         return positions;
@@ -347,25 +349,26 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 从容器中预览方块物品（不真正提取）
      */
     private ItemStack peekBlockItemFromContainer(Level level, BlockPos placerPos) {
-        return getBlockItemFromContainer(level, placerPos, false);
+        return this.getBlockItemFromContainer(level, placerPos, false);
     }
-    
+
     /**
      * 从容器中提取物块物品
      */
     private ItemStack extractBlockItemFromContainer(Level level, BlockPos placerPos) {
-        return getBlockItemFromContainer(level, placerPos, true);
+        return this.getBlockItemFromContainer(level, placerPos, true);
     }
     
     /**
      * 从容器中获取方块物品
      * 支持三种来源：容器、运输船、物品实体
+     *
      * @param extract true=提取，false=仅预览
      */
     private ItemStack getBlockItemFromContainer(Level level, BlockPos placerPos, boolean extract) {
-        Direction facing = getFacing(placerPos, level);
+        Direction facing = this.getFacing(placerPos, level);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
-        
+
         // 1. 尝试从容器（箱子等）获取
         IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
         int slot;
@@ -375,7 +378,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 return extract ? itemHandler.extractItem(slot, 1, false) : blockItemStack.copy();
             }
         }
-        
+
         // 2. 从运输船/运输矿车等实体容器获取
         if (itemHandler == null) {
             AABB aabb = new AABB(inputPos);
@@ -384,7 +387,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ).stream()
                 .map(it -> (ContainerEntity) it)
                 .toList();
-            
+
             if (!entities.isEmpty()) {
                 Entity entity = (Entity) entities.getFirst();
                 IItemHandler entityHandler = entity.getCapability(
@@ -404,7 +407,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
             }
         }
-        
+
         // 3. 从物品实体获取
         AABB aabb = new AABB(inputPos);
         List<ItemEntity> entities = level.getEntities(
@@ -412,8 +415,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             aabb,
             Entity::isAlive
         );
-        if (entities.isEmpty()) return ItemStack.EMPTY;
-        
+        if (entities.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
         ItemEntity itemEntity = null;
         for (ItemEntity entity : entities) {
             if (entity.getItem().getItem() instanceof BlockItem) {
@@ -421,13 +426,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 break;
             }
         }
-        
-        if (itemEntity == null) return ItemStack.EMPTY;
-        
+
+        if (itemEntity == null) {
+            return ItemStack.EMPTY;
+        }
+
         // 预览或提取物块
-        if (!extract) {
-            return itemEntity.getItem().copy();
-        } else {
+        if (extract) {
             // 真正消耗物品
             int count = itemEntity.getItem().getCount();
             if (count > 1) {
@@ -435,8 +440,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             } else {
                 itemEntity.discard();
             }
-            return itemEntity.getItem().copy();
         }
+        return itemEntity.getItem().copy();
     }
     
     /**
@@ -458,8 +463,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
         Direction right = facing.getClockWise();
         // 倒挂时整体下移4格
-        int yOffset = upsideDown ? -4 : 0;
-        return basePos.above(layer + yOffset)
+        int verticalOffset = upsideDown ? -4 : 0;
+        return basePos.above(layer + verticalOffset)
             .relative(right, col - 2)
             .relative(right.getClockWise(), row - 2);
     }
@@ -519,8 +524,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     private void saveLayerPositions(CompoundTag tag) {
         CompoundTag layerTag = new CompoundTag();
-        for (Map.Entry<Integer, Set<Integer>> entry : layerPositions.entrySet()) {
-            layerTag.putIntArray("layer_" + entry.getKey(), 
+        for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
+            layerTag.putIntArray("layer_" + entry.getKey(),
                 entry.getValue().stream().mapToInt(Integer::intValue).toArray());
         }
         tag.put("layerPositions", layerTag);
@@ -575,22 +580,24 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
+        if (player.isSpectator()) {
+            return null;
+        }
         return new SmartBlockPlacerMenu(ModMenuTypes.SMART_BLOCK_PLACER.get(), containerId, inventory, this);
     }
 
     @Override
     public void storeDiskData(CompoundTag tag) {
-        tag.putInt("selectedLayer", selectedLayer);
-        tag.putInt("currentPlacementIndex", currentPlacementIndex);
-        saveLayerPositions(tag);
+        tag.putInt("selectedLayer", this.selectedLayer);
+        tag.putInt("currentPlacementIndex", this.currentPlacementIndex);
+        this.saveLayerPositions(tag);
     }
 
     @Override
     public void applyDiskData(CompoundTag tag) {
         this.selectedLayer = tag.getInt("selectedLayer");
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
-        loadLayerPositions(tag);
+        this.loadLayerPositions(tag);
         this.onChanged();
     }
 

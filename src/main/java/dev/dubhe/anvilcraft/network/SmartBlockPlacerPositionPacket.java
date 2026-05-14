@@ -31,9 +31,13 @@ public record SmartBlockPlacerPositionPacket(int layer, int position, boolean se
 
     @Override
     public void handleOnServer(Player player) {
-        if (!(player.containerMenu instanceof SmartBlockPlacerMenu menu)) return;
+        if (!(player.containerMenu instanceof SmartBlockPlacerMenu menu)) {
+            return;
+        }
         SmartBlockPlacerBlockEntity blockEntity = menu.getBlockEntity();
-        if (blockEntity == null) return;
+        if (blockEntity == null) {
+            return;
+        }
         blockEntity.togglePosition(this.layer, this.position, this.selected);
     }
 }

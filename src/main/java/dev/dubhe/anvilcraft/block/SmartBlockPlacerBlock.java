@@ -32,13 +32,13 @@ import org.jetbrains.annotations.Nullable;
 
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
-    
+
     // 碰撞箱（地面）
     private static final VoxelShape SHAPE_FLOOR = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16),
         Block.box(2, 4, 2, 14, 8, 14)
     );
-    
+
     // 碰撞箱（天花板）
     private static final VoxelShape SHAPE_CEILING = Shapes.or(
         Block.box(0, 12, 0, 16, 16, 16),
@@ -70,15 +70,15 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getClickedFace();
         boolean upsideDown = facing == Direction.DOWN;
-        
+
         // 获取玩家的水平朝向
         Direction horizontalFacing = context.getHorizontalDirection().getOpposite();
-        
+
         // 潜行时与玩家朝向相同，否则与玩家朝向相反
         if (context.getPlayer() != null && !context.getPlayer().isShiftKeyDown()) {
             horizontalFacing = horizontalFacing.getOpposite();
         }
-        
+
         return this.defaultBlockState()
             .setValue(HorizontalDirectionalBlock.FACING, horizontalFacing)
             .setValue(UPSIDE_DOWN, upsideDown);
@@ -129,9 +129,9 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
-            if (player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get()) 
+            if (player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get())
                 || player.getItemInHand(InteractionHand.OFF_HAND).is(ModItems.DISK.get())) {
-                InteractionHand hand = player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get()) 
+                InteractionHand hand = player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get())
                     ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
                 return placerEntity.useDisk(level, player, hand, player.getItemInHand(hand), hitResult);
             }

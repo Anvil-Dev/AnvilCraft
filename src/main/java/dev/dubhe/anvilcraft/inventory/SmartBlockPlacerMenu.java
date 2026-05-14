@@ -29,14 +29,14 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         this.blockEntity = (SmartBlockPlacerBlockEntity) machine;
         this.level = inventory.player.level();
         this.playerInventory = inventory;
-        
+
         // 添加玩家物品栏（主物品栏3行9列）
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
                 this.addSlot(new Slot(inventory, col + row * 9 + 9, 48 + col * 18, 119 + row * 18));
             }
         }
-        
+
         // 添加快捷栏（1行9列）
         for (int col = 0; col < 9; ++col) {
             this.addSlot(new Slot(inventory, col, 48 + col * 18, 177));
@@ -51,7 +51,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
 
     @Nullable
     public SmartBlockPlacerBlockEntity getBlockEntity() {
-        return blockEntity;
+        return this.blockEntity;
     }
 
     // Slot索引常量
@@ -66,7 +66,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         if (slot != null && slot.hasItem()) {
             ItemStack originalStack = slot.getItem();
             itemstack = originalStack.copy();
-            
+
             // 判断点击的是主物品栏还是快捷栏
             if (index < PLAYER_INVENTORY_SLOT_COUNT) {
                 // 点击的是主物品栏（索引0-26），移动到快捷栏（索引27-35）
@@ -79,7 +79,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             }
-            
+
             if (originalStack.getCount() == 0) {
                 slot.set(ItemStack.EMPTY);
             } else {
@@ -92,9 +92,11 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        if (blockEntity == null) return false;
+        if (this.blockEntity == null) {
+            return false;
+        }
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.SMART_BLOCK_PLACER.get()
         );

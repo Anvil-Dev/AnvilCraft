@@ -27,9 +27,13 @@ public record SmartBlockPlacerLayerPacket(int layer) implements IServerboundPack
 
     @Override
     public void handleOnServer(Player player) {
-        if (!(player.containerMenu instanceof SmartBlockPlacerMenu menu)) return;
+        if (!(player.containerMenu instanceof SmartBlockPlacerMenu menu)) {
+            return;
+        }
         SmartBlockPlacerBlockEntity blockEntity = menu.getBlockEntity();
-        if (blockEntity == null) return;
+        if (blockEntity == null) {
+            return;
+        }
         blockEntity.setSelectedLayer(this.layer);
     }
 }
