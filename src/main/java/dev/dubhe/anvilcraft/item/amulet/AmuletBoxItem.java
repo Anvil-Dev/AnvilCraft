@@ -12,7 +12,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
@@ -90,7 +89,7 @@ public class AmuletBoxItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         Inventory inventory = player.getInventory();
         ItemStack box = player.getItemInHand(usedHand);
         if (!level.isClientSide()) {
@@ -120,7 +119,7 @@ public class AmuletBoxItem extends Item {
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
             }
             player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResultHolder.success(box);
+            return InteractionResult.SUCCESS;
         }
         return super.use(level, player, usedHand);
     }

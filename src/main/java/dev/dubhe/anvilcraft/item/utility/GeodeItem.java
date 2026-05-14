@@ -12,7 +12,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,13 +25,13 @@ public class GeodeItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(
+    public InteractionResult use(
         Level level, Player player, InteractionHand usedHand) {
         super.use(level, player, usedHand);
         ItemStack itemStack = player.getItemInHand(usedHand);
         BlockPos pos = player.getOnPos().below();
         player.getCooldowns().addCooldown(itemStack.getItem(), AnvilCraft.CONFIG.geodeCooldown * 20);
-        if (!level.isClientSide()) return InteractionResultHolder.success(itemStack);
+        if (!level.isClientSide()) return InteractionResult.SUCCESS;
         int interval = AnvilCraft.CONFIG.geodeInterval;
         int radius = AnvilCraft.CONFIG.geodeRadius;
         block:
@@ -64,6 +63,6 @@ public class GeodeItem extends Item {
             }
         }
         player.playSound(SoundEvents.AMETHYST_BLOCK_RESONATE);
-        return InteractionResultHolder.success(itemStack);
+        return InteractionResult.SUCCESS;
     }
 }

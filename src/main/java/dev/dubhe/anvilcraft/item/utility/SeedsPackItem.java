@@ -5,7 +5,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +22,7 @@ public class SeedsPackItem extends Item {
     private Level level = null;
 
     @Override
-    public InteractionResultHolder<ItemStack> use(
+    public InteractionResult use(
         Level level, Player player, InteractionHand usedHand
     ) {
         ItemStack stack = player.getItemInHand(usedHand);
@@ -37,12 +36,12 @@ public class SeedsPackItem extends Item {
                 .toList();
             this.level = level;
         }
-        if (items.isEmpty()) return InteractionResultHolder.fail(stack);
+        if (items.isEmpty()) return InteractionResult.FAIL;
         if (!level.isClientSide()) {
             RandomSource random = level.getRandom();
             player.getInventory().placeItemBackInInventory(new ItemStack(items.get(random.nextInt(items.size()))));
         }
         stack.shrink(1);
-        return InteractionResultHolder.consume(stack);
+        return InteractionResult.CONSUME;
     }
 }

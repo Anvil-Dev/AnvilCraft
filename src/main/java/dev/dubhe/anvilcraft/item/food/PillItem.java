@@ -5,7 +5,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -29,13 +28,13 @@ public class PillItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             use(itemStack, player);
             itemStack.consume(1, player);
             player.getCooldowns().addCooldown(itemStack.getItem(), 40);
-            return InteractionResultHolder.success(itemStack);
+            return InteractionResult.SUCCESS;
         }
         return super.use(level, player, usedHand);
     }

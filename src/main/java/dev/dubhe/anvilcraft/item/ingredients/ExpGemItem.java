@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.fluid.ExpFluidBlock;
 import dev.dubhe.anvilcraft.mixin.accessor.VillagerAccessor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerData;
@@ -24,7 +23,7 @@ public class ExpGemItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(
+    public InteractionResult use(
         Level level,
         Player player,
         InteractionHand usedHand
@@ -34,7 +33,7 @@ public class ExpGemItem extends Item {
         player.giveExperiencePoints(ExpFluidBlock.XP_POINTS * count);
         itemStack.consume(count, player);
         player.getCooldowns().addCooldown(this, 5);
-        return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     /**

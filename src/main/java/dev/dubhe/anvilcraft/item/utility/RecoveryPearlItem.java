@@ -7,7 +7,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +22,7 @@ public class RecoveryPearlItem extends Item {
 
     @SuppressWarnings({"DataFlowIssue"})
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
 
         if (!level.isClientSide()) {
@@ -57,7 +56,7 @@ public class RecoveryPearlItem extends Item {
 
         player.getCooldowns().addCooldown(this, 20);
         itemStack.consume(1, player);
-        return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     private double getDistance(BlockPos pos1, BlockPos pos2) {

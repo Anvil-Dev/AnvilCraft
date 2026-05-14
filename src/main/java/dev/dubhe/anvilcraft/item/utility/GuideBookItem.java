@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,16 +24,16 @@ public class GuideBookItem extends Item implements Thinkable {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         if (player instanceof ServerPlayer serverPlayer) {
             if (ModEventUtil.hasGuideBook()) {
                 ModEventUtil.openGuideBook(level, serverPlayer, usedHand);
-                return new InteractionResultHolder<>(InteractionResult.CONSUME, player.getItemInHand(usedHand));
+                return new InteractionResult<>(InteractionResult.CONSUME, player.getItemInHand(usedHand));
             } else {
                 serverPlayer.connection.send(new OpenIntegrationScreenPacket());
             }
         }
-        return new InteractionResultHolder<>(InteractionResult.PASS, player.getItemInHand(usedHand));
+        return new InteractionResult<>(InteractionResult.PASS, player.getItemInHand(usedHand));
     }
 
     @Override

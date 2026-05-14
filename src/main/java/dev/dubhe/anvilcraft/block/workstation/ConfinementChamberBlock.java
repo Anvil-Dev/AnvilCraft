@@ -67,7 +67,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         if (itemStack.is(handItemStack.getItem())) return ItemInteractionResult.FAIL;
         player.setItemInHand(hand, itemStack.copy());
         confinementChamberBlockEntity.getItemHandler().setStackInSlot(0, handItemStack.copy());
-        return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }*/
 
     @Override

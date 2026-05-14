@@ -4,7 +4,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.EnergyWeaponMakeMenu;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -17,9 +17,9 @@ public class EnergyWeaponPlatformItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
-        if (level.isClientSide()) return InteractionResultHolder.pass(stack);
+        if (level.isClientSide()) return InteractionResult.PASS;
         ModMenuTypes.open(
             Util.cast(player),
             new SimpleMenuProvider(
@@ -27,6 +27,6 @@ public class EnergyWeaponPlatformItem extends Item {
                 this.getName(stack)
             )
         );
-        return InteractionResultHolder.sidedSuccess(stack, false);
+        return false ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 }

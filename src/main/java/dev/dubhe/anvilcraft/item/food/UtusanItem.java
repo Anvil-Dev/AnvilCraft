@@ -6,7 +6,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -76,7 +75,7 @@ public class UtusanItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(
+    public InteractionResult use(
         Level level, Player player, InteractionHand interactionHand) {
         return ItemUtils.startUsingInstantly(level, player, interactionHand);
     }

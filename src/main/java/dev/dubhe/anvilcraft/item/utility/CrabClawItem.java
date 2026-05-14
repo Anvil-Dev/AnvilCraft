@@ -86,7 +86,7 @@ public class CrabClawItem extends Item {
                 EntityUtil.setShulkerOpen(shulker);
             }
 
-            return InteractionResult.sidedSuccess(player.level().isClientSide());
+            return player.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
         return InteractionResult.PASS;

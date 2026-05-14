@@ -12,7 +12,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -49,13 +48,13 @@ public class FilterItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemstack = player.getItemInHand(usedHand);
-        if (!itemstack.is(ModItems.FILTER)) return InteractionResultHolder.pass(itemstack);
-        if (level.isClientSide()) return InteractionResultHolder.success(itemstack);
+        if (!itemstack.is(ModItems.FILTER)) return InteractionResult.PASS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         int position = usedHand == InteractionHand.MAIN_HAND ? player.getInventory().selected : 151;
         ModMenuTypes.open((ServerPlayer) player, new FilterMenuProvider(position));
-        return InteractionResultHolder.success(itemstack);
+        return InteractionResult.SUCCESS;
     }
 
     @Override

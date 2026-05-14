@@ -21,7 +21,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -264,15 +263,15 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         if (isTooDamagedToUse(itemstack)) {
-            return InteractionResultHolder.fail(itemstack);
+            return InteractionResult.FAIL;
         } else if (EnchantmentHelper.getTridentSpinAttackStrength(itemstack, player) > 0.0F && !player.isInWaterOrRain()) {
-            return InteractionResultHolder.fail(itemstack);
+            return InteractionResult.FAIL;
         } else {
             player.startUsingItem(hand);
-            return InteractionResultHolder.consume(itemstack);
+            return InteractionResult.CONSUME;
         }
     }
 

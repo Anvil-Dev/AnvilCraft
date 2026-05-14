@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -75,8 +74,8 @@ public class DragonRodItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        InteractionResultHolder<ItemStack> superHolder = super.use(level, player, usedHand);
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
+        InteractionResult superHolder = super.use(level, player, usedHand);
         ItemStack dragonRod = superHolder.getObject();
         if (!dragonRod.is(this)) return superHolder;
         switch (dragonRod.get(ModComponents.DEVOUR_RANGE)) {
@@ -89,7 +88,7 @@ public class DragonRodItem extends Item {
                 dragonRod.set(ModComponents.DEVOUR_RANGE, 3);
             }
         }
-        return new InteractionResultHolder<>(superHolder.getResult(), dragonRod);
+        return new InteractionResult<>(superHolder.getResult(), dragonRod);
     }
 
     @Override
