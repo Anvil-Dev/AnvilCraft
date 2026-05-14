@@ -5,11 +5,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.entity.IExtensibleBlockEntity;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
-import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.util.mixin.ExtensibleBlockEntityEntry;
 import net.minecraft.core.BlockPos;
@@ -101,7 +101,7 @@ public abstract class LevelChunkMixin {
         if (!this.getLevel().isClientSide()) return;
         BlockEntity be = this.getBlockEntity(pos);
         if (be instanceof BaseLaserBlockEntity laserStateAccess) {
-            CacheableBERenderingPipeline.getInstance().blockRemoved(laserStateAccess);
+            CachedBlockEntityRenderingPipeline.getInstance().blockRemoved(laserStateAccess);
         }
     }
 

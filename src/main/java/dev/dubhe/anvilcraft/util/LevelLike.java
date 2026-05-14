@@ -5,12 +5,8 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.ColorResolver;
+import net.minecraft.world.level.BlockAndLightGetter;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class LevelLike implements BlockAndTintGetter {
+public class LevelLike implements BlockAndLightGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
     private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
     private final ClientLevel parent;
@@ -94,31 +90,31 @@ public class LevelLike implements BlockAndTintGetter {
         return getBlockState(blockPos).getFluidState();
     }
 
-    @Override
-    public float getShade(Direction direction, boolean b) {
-        boolean flag = parent.effects().constantAmbientLight();
-        if (!b) {
-            return flag ? 0.9F : 1.0F;
-        } else {
-            return switch (direction) {
-                case DOWN -> flag ? 0.9F : 0.5F;
-                case UP -> flag ? 0.9F : 1.0F;
-                case NORTH, SOUTH -> 0.8F;
-                case WEST, EAST -> 0.6F;
-            };
-        }
-    }
+//    @Override
+//    public float getShade(Direction direction, boolean b) {
+//        boolean flag = parent.effects().constantAmbientLight();
+//        if (!b) {
+//            return flag ? 0.9F : 1.0F;
+//        } else {
+//            return switch (direction) {
+//                case DOWN -> flag ? 0.9F : 0.5F;
+//                case UP -> flag ? 0.9F : 1.0F;
+//                case NORTH, SOUTH -> 0.8F;
+//                case WEST, EAST -> 0.6F;
+//            };
+//        }
+//    }
 
     @Override
     public LevelLightEngine getLightEngine() {
         return null;
     }
 
-    @Override
-    public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
-        var plains = parent.registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
-        return colorResolver.getColor(plains, blockPos.getX(), blockPos.getZ());
-    }
+//    @Override
+//    public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
+//        var plains = parent.registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
+//        return colorResolver.getColor(plains, blockPos.getX(), blockPos.getZ());
+//    }
 
     @Override
     public int getHeight() {
@@ -126,8 +122,8 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     @Override
-    public int getMinBuildHeight() {
-        return 0;
+    public int getMinY() {
+        return -63;
     }
 
     @Override

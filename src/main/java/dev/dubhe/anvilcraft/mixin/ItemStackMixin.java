@@ -1,10 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.llamalad7.mixinextras.expression.Definition;
-import com.llamalad7.mixinextras.expression.Expression;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.ITooltipBlock;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.network.chat.Component;
@@ -31,38 +28,6 @@ public abstract class ItemStackMixin implements DataComponentHolder {
 
     @Shadow
     public abstract Item getItem();
-
-    @Definition(
-        id = "addToTooltip",
-        method = "Lnet/minecraft/world/item/ItemStack;"
-                 + "addToTooltip(Lnet/minecraft/core/component/DataComponentType;"
-                 + "Lnet/minecraft/world/item/Item$TooltipContext;"
-                 + "Lnet/minecraft/world/item/component/TooltipDisplay;"
-                 + "Ljava/util/function/Consumer;"
-                 + "Lnet/minecraft/world/item/TooltipFlag;)V"
-    )
-    @Definition(
-        id = "ENCHANTMENTS",
-        field = "Lnet/minecraft/core/component/DataComponents;ENCHANTMENTS:Lnet/minecraft/core/component/DataComponentType;"
-    )
-    @Expression("this.addToTooltip(ENCHANTMENTS, ?, ?, ?, ?)")
-    @Inject(method = "addDetailsToTooltip", at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER))
-    private void addMercilessToTooltip(
-        Item.TooltipContext context,
-        TooltipDisplay display,
-        @Nullable Player player,
-        TooltipFlag tooltipFlag,
-        Consumer<Component> builder,
-        CallbackInfo ci
-    ) {
-        this.addToTooltip(
-            ModComponents.MERCILESS_ENCHANTMENTS,
-            context,
-            display,
-            tooltip -> builder.accept(tooltip.copy().withColor(0x5F93A3)),
-            tooltipFlag
-        );
-    }
 
     @Inject(method = "addDetailsToTooltip", at = @At(value = "HEAD", shift = At.Shift.AFTER))
     private void addDetailsForBlock(

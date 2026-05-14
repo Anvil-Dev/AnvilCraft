@@ -30,20 +30,22 @@ import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
     @SubscribeEvent
-    public static void blockHighlight(RenderLevelStageEvent.AfterOpaqueFeatures event) {
+    public static void on(SubmitCustomGeometryEvent event) {
         if (BlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         BlockHighlightUtil.render(
             level,
+            event.getSubmitNodeCollector(),
             Minecraft.getInstance().renderBuffers().bufferSource(),
             event.getPoseStack(),
-            event.getCamera()
-        );
+                event.getLevelRenderState().cameraRenderState
+            );
     }
 
     @SubscribeEvent
