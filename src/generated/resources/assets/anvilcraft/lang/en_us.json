@@ -1415,6 +1415,9 @@
   "screen.anvilcraft.smart_block_placer.layer.3": "Switch to Layer 3",
   "screen.anvilcraft.smart_block_placer.layer.4": "Switch to Layer 4",
   "screen.anvilcraft.smart_block_placer.layer.5": "Switch to Layer 5",
-  "screen.anvilcraft.smart_block_placer.position.selected": "Position %d, %d Has Been Selected",
-  "screen.anvilcraft.smart_block_placer.position.unselected": "Position %d, %d Has Not Been Selected"
+  "screen.anvilcraft.smart_block_placer.layer_mode.all": "Show All Layers. Click to switch to Single Layer Mode",
+  "screen.anvilcraft.smart_block_placer.layer_mode.single": "Show Layer %d/%d. Click to switch to All Layers Mode",
+  "screen.anvilcraft.smart_block_placer.position.selected": "Position %d, %d Has Been Selected. Click to unselect",
+  "screen.anvilcraft.smart_block_placer.position.unselected": "Position %d, %d Has Not Been Selected. Click to select",
+  "screen.anvilcraft.smart_block_placer.preview.empty": "No positions configured"
 }

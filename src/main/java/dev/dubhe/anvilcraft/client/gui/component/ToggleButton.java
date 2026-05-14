@@ -12,30 +12,27 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 三层状态按钮:默认、悬停、选中
- * 贴图垂直排列:默认(上)、悬停(中)、选中(下)
+ * 两状态切换按钮:默认、悬停
+ * 贴图垂直排列:默认(上)、悬停(下)
+ * 点击后切换到另一张贴图
  */
-public class TriStateButton extends Button {
+public class ToggleButton extends Button {
     private ResourceLocation texture;
     private final int texWidth;
     private final int texHeight;
     @Getter
     @Setter
     private boolean selected = false;
-    private final Consumer<TriStateButton> onPress;
+    private final Consumer<ToggleButton> onPress;
     @Getter
     @Setter
     private List<Component> tooltips;
     
-    public void setTexture(ResourceLocation texture) {
-        this.texture = texture;
-    }
-
-    public TriStateButton(
+    public ToggleButton(
         int x, int y, int width, int height,
         ResourceLocation texture,
         int texWidth, int texHeight,
-        Consumer<TriStateButton> onPress,
+        Consumer<ToggleButton> onPress,
         List<Component> tooltips
     ) {
         super(x, y, width, height, Component.empty(), btn -> {}, DEFAULT_NARRATION);
@@ -45,6 +42,10 @@ public class TriStateButton extends Button {
         this.onPress = onPress;
         this.tooltips = tooltips;
     }
+    
+    public void setTexture(ResourceLocation texture) {
+        this.texture = texture;
+    }
 
     @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
@@ -53,15 +54,10 @@ public class TriStateButton extends Button {
         
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         
-        // 计算Y轴偏移:默认=0, 悬停=texHeight, 选中=2*texHeight
-        int yOffset = 0;
-        if (this.selected) {
-            yOffset = 2 * this.texHeight;
-        } else if (this.isHovered) {
-            yOffset = this.texHeight;
-        }
+        // 计算Y轴偏移:默认=0, 悬停=texHeight
+        int yOffset = this.isHovered ? this.texHeight : 0;
         
-        guiGraphics.blit(texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 3);
+        guiGraphics.blit(texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 2);
         
         // 渲染tooltip
         if (this.isHovered && tooltips != null && !tooltips.isEmpty()) {

@@ -84,7 +84,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             double forwardDist = dx * forward.getStepX() + dz * forward.getStepZ();
             double rightDist = dx * right.getStepX() + dz * right.getStepZ();
             double verticalDist = dy;
+            
+            // 倒挂时，垂直距离需要修正（因为动画计算是在本地坐标系中）
             float targetHeight = (float) verticalDist - BASE_HEIGHT;
+            if (upsideDown) {
+                targetHeight = -(float) verticalDist - BASE_HEIGHT;
+            }
             
             // 根据动画进度计算当前角度
             float baseAngle, upperArmAngle, forearmAngle, clawAngle;
@@ -167,8 +172,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 4. 计算水平距离
             float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
             
-            // 5. 计算垂直距离
+            // 5. 计算垂直距离（倒挂时需要翻转）
             float targetHeight = (float) verticalDist - BASE_HEIGHT;
+            if (upsideDown) {
+                targetHeight = -(float) verticalDist - BASE_HEIGHT;
+            }
             
             // 6. 计算仰角
             float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
@@ -395,7 +403,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         java.util.Map<Integer, java.util.Set<Integer>> layerPositions = entity.getLayerPositions();
         
         // 构建有序的放置位置列表（与BlockEntity保持一致）
-        java.util.List<BlockPos> allPositions = buildOrderedPositionsForRenderer(basePos, facing, layerPositions);
+        java.util.List<BlockPos> allPositions = buildOrderedPositionsForRenderer(basePos, facing, layerPositions, upsideDown);
         
         // 如果没有配置任何位置，返回null
         if (allPositions.isEmpty()) {
@@ -428,7 +436,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      * 顺序：从最下面一层开始，每一层从最远离放置器的位置开始，从左到右，然后逐渐向下
      */
     private java.util.List<BlockPos> buildOrderedPositionsForRenderer(
-        BlockPos basePos, Direction facing, java.util.Map<Integer, java.util.Set<Integer>> layerPositions) {
+        BlockPos basePos, Direction facing, java.util.Map<Integer, java.util.Set<Integer>> layerPositions, boolean upsideDown) {
         java.util.List<BlockPos> positions = new java.util.ArrayList<>();
         
         // 获取所有layer，按layer升序排序（从最下面开始）
@@ -462,7 +470,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             for (int[] rowCol : rowColList) {
                 int row = rowCol[0];
                 int col = rowCol[1];
-                BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer);
+                BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer, upsideDown);
                 positions.add(targetPos);
             }
         }
@@ -473,12 +481,15 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     /**
      * 计算目标位置（复制自BlockEntity的逻辑）
      */
-    private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer) {
+    private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
         // 根据朝向计算水平偏移方向
         Direction right = facing.getClockWise();
         
+        // 倒挂时整体下移4格
+        int yOffset = upsideDown ? -4 : 0;
+        
         BlockPos pos = basePos;
-        pos = pos.above(layer); // 层偏移（垂直向上）
+        pos = pos.above(layer + yOffset); // 层偏移（倒挂时下移4格）
         pos = pos.relative(right, col - 2); // 列偏移（-2到+2）
         pos = pos.relative(facing.getClockWise().getClockWise(), row - 2); // 行偏移（-2到+2）
         

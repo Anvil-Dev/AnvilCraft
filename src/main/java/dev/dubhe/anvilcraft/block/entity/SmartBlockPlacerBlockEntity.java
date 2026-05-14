@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
@@ -20,8 +21,11 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +35,8 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +50,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider {
+public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable {
     private static final int POWER = 16;
     private static final int PLACEMENT_INTERVAL = 20; // 放置间隔（tick）
     private static final int PLACEMENT_DELAY = 6; // 放置延迟（tick），动画进行到"往前戳"时放置
@@ -125,29 +131,30 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.isPowered = grid != null && grid.isWorking();
             // 检测红石信号
             this.hasRedstoneSignal = level.hasNeighborSignal(pos);
-                
-            // 如果从“不能工作”变为“可以工作”，重置放置索引
-            // 不能工作的情况：断电 或 有红石信号
-            // 可以工作的情况：通电 且 无红石信号
+                    
+            // 如果从"不能工作"变为"可以工作"，重置放置索引
             boolean wasAbleToWork = wasPowered && !wasRedstoneSignal;
             boolean isAbleToWork = this.isPowered && !this.hasRedstoneSignal;
                 
             if (!wasAbleToWork && isAbleToWork) {
                 currentPlacementIndex = 0;
             }
-                
+                    
             // 方块放置逻辑
-            // 动画时序：0-0.2s底盘旋转 → 0.2-0.4s机械臂移动 → 0.4-0.8s停顿 → 0.8s放置方块 → 0.8-1.0s收回
             if (isPowered && !hasRedstoneSignal) {
                 boolean needsPlacement = hasEmptyPositions(level, pos);
                 boolean hasBlocksInContainer = hasBlockItemsInContainer(level, pos);
-                            
+                                
                 if (placeCooldown > 0) {
                     placeCooldown--;
                     if (placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
                         placeBlocks(level, pos);
                     }
                 } else if (needsPlacement && hasBlocksInContainer) {
+                    // 新周期开始，如果持有方块为空（之前耗尽），重置索引
+                    if (currentHeldBlock.isEmpty()) {
+                        currentPlacementIndex = 0;
+                    }
                     placeCooldown = PLACEMENT_INTERVAL;
                     currentHeldBlock = peekBlockItemFromContainer(level, pos);
                     onChanged();
@@ -156,7 +163,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 placeCooldown = 0;
                 currentHeldBlock = ItemStack.EMPTY;
             }
-                
+                    
             onChanged();
         } else {
             // 客户端tick：更新工作状态动画
@@ -180,11 +187,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private boolean hasEmptyPositions(Level level, BlockPos placerPos) {
         Direction facing = level.getBlockState(placerPos).getValue(HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
         
         for (Map.Entry<Integer, Set<Integer>> entry : layerPositions.entrySet()) {
             for (int position : entry.getValue()) {
-                BlockPos targetPos = calculateTargetPosition(basePos, facing, position / 5, position % 5, entry.getKey());
+                BlockPos targetPos = calculateTargetPosition(basePos, facing, position / 5, position % 5, entry.getKey(), upsideDown);
                 if (level.isEmptyBlock(targetPos)) {
                     return true;
                 }
@@ -194,12 +202,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
-     * 检查容器中是否有方块物品
+     * 检查是否有方块物品（支持容器、运输船和物品实体）
      */
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
-        BlockPos containerPos = placerPos.relative(getFacing(placerPos, level).getOpposite());
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, null);
+        Direction facing = getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
         
+        // 1. 检查容器（箱子等）
+        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
         if (handler != null) {
             for (int slot = 0; slot < handler.getSlots(); slot++) {
                 ItemStack stack = handler.getStackInSlot(slot);
@@ -208,6 +218,45 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
             }
         }
+        
+        // 2. 检查运输船/运输矿车等实体容器
+        if (handler == null) {
+            AABB aabb = new AABB(inputPos);
+            List<ContainerEntity> entities = level.getEntitiesOfClass(
+                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+            ).stream()
+                .map(it -> (ContainerEntity) it)
+                .toList();
+            
+            if (!entities.isEmpty()) {
+                Entity entity = (Entity) entities.getFirst();
+                IItemHandler entityHandler = entity.getCapability(
+                    Capabilities.ItemHandler.ENTITY, null
+                );
+                if (entityHandler != null) {
+                    for (int slot = 0; slot < entityHandler.getSlots(); slot++) {
+                        ItemStack stack = entityHandler.getStackInSlot(slot);
+                        if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 3. 检查物品实体
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem) {
+                return true;
+            }
+        }
+        
         return false;
     }
     
@@ -220,8 +269,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private boolean placeBlocks(Level level, BlockPos placerPos) {
         Direction facing = getFacing(placerPos, level);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        List<BlockPos> allPositions = buildOrderedPositions(basePos, facing);
+        List<BlockPos> allPositions = buildOrderedPositions(basePos, facing, upsideDown);
         
         if (allPositions.isEmpty()) {
             return false;
@@ -238,13 +288,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (level.isEmptyBlock(targetPos)) {
                 ItemStack blockItem = extractBlockItemFromContainer(level, placerPos);
                 if (blockItem.isEmpty()) {
+                    // 物品耗尽，重置放置索引，下次从头开始
+                    currentPlacementIndex = 0;
                     currentHeldBlock = ItemStack.EMPTY;
                     onChanged();
                     return false;
                 }
                 
                 if (blockItem.getItem() instanceof BlockItem blockItemObj) {
-                    boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
                     Orientation orientation = calculatePlacementOrientation(facing, upsideDown);
                     
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
@@ -266,7 +317,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 构建有序的放置位置列表
      * 顺序：从最下面一层开始，每层从远到近，从左到右
      */
-    private List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing) {
+    private List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing, boolean upsideDown) {
         List<BlockPos> positions = new ArrayList<>();
         List<Integer> sortedLayers = new ArrayList<>(layerPositions.keySet());
         sortedLayers.sort(Integer::compareTo);
@@ -286,7 +337,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             });
             
             for (int[] rowCol : rowColList) {
-                positions.add(calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer));
+                positions.add(calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
             }
         }
         return positions;
@@ -308,21 +359,84 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     /**
      * 从容器中获取方块物品
+     * 支持三种来源：容器、运输船、物品实体
      * @param extract true=提取，false=仅预览
      */
     private ItemStack getBlockItemFromContainer(Level level, BlockPos placerPos, boolean extract) {
-        BlockPos containerPos = placerPos.relative(getFacing(placerPos, level).getOpposite());
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, null);
+        Direction facing = getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
         
-        if (handler != null) {
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                ItemStack stack = handler.getStackInSlot(slot);
-                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
-                    return extract ? handler.extractItem(slot, 1, false) : stack.copy();
+        // 1. 尝试从容器（箱子等）获取
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        int slot;
+        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
+            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
+            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
+                return extract ? itemHandler.extractItem(slot, 1, false) : blockItemStack.copy();
+            }
+        }
+        
+        // 2. 从运输船/运输矿车等实体容器获取
+        if (itemHandler == null) {
+            AABB aabb = new AABB(inputPos);
+            List<ContainerEntity> entities = level.getEntitiesOfClass(
+                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+            ).stream()
+                .map(it -> (ContainerEntity) it)
+                .toList();
+            
+            if (!entities.isEmpty()) {
+                Entity entity = (Entity) entities.getFirst();
+                IItemHandler entityHandler = entity.getCapability(
+                    Capabilities.ItemHandler.ENTITY, null
+                );
+                if (entityHandler != null) {
+                    for (slot = 0; slot < entityHandler.getSlots(); slot++) {
+                        ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
+                        if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
+                            if (!extract) {
+                                return blockItemStack.copy();
+                            } else {
+                                return entityHandler.extractItem(slot, 1, false);
+                            }
+                        }
+                    }
                 }
             }
         }
-        return ItemStack.EMPTY;
+        
+        // 3. 从物品实体获取
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        if (entities.isEmpty()) return ItemStack.EMPTY;
+        
+        ItemEntity itemEntity = null;
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem) {
+                itemEntity = entity;
+                break;
+            }
+        }
+        
+        if (itemEntity == null) return ItemStack.EMPTY;
+        
+        // 预览或提取物块
+        if (!extract) {
+            return itemEntity.getItem().copy();
+        } else {
+            // 真正消耗物品
+            int count = itemEntity.getItem().getCount();
+            if (count > 1) {
+                itemEntity.getItem().setCount(count - 1);
+            } else {
+                itemEntity.discard();
+            }
+            return itemEntity.getItem().copy();
+        }
     }
     
     /**
@@ -341,9 +455,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 计算目标位置
      */
-    private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer) {
+    private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
         Direction right = facing.getClockWise();
-        return basePos.above(layer)
+        // 倒挂时整体下移4格
+        int yOffset = upsideDown ? -4 : 0;
+        return basePos.above(layer + yOffset)
             .relative(right, col - 2)
             .relative(right.getClockWise(), row - 2);
     }
@@ -461,6 +577,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new SmartBlockPlacerMenu(ModMenuTypes.SMART_BLOCK_PLACER.get(), containerId, inventory, this);
+    }
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        tag.putInt("selectedLayer", selectedLayer);
+        tag.putInt("currentPlacementIndex", currentPlacementIndex);
+        saveLayerPositions(tag);
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag tag) {
+        this.selectedLayer = tag.getInt("selectedLayer");
+        this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
+        loadLayerPositions(tag);
+        this.onChanged();
     }
 
 }

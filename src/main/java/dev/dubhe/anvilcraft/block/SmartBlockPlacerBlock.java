@@ -5,9 +5,11 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -69,14 +71,12 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         Direction facing = context.getClickedFace();
         boolean upsideDown = facing == Direction.DOWN;
         
-        // 确定水平朝向
-        Direction horizontalFacing;
-        if (facing.getAxis().isVertical()) {
-            // 点击顶面或底面，使用玩家的水平朝向
-            horizontalFacing = context.getHorizontalDirection().getOpposite();
-        } else {
-            // 点击侧面，面向玩家
-            horizontalFacing = facing.getOpposite();
+        // 获取玩家的水平朝向
+        Direction horizontalFacing = context.getHorizontalDirection().getOpposite();
+        
+        // 潜行时与玩家朝向相同，否则与玩家朝向相反
+        if (context.getPlayer() != null && !context.getPlayer().isShiftKeyDown()) {
+            horizontalFacing = horizontalFacing.getOpposite();
         }
         
         return this.defaultBlockState()
@@ -127,10 +127,19 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        if (player instanceof ServerPlayer serverPlayer) {
-            var menuProvider = state.getMenuProvider(level, pos);
-            if (menuProvider != null) {
-                ModMenuTypes.open(serverPlayer, menuProvider, pos);
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
+            if (player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get()) 
+                || player.getItemInHand(InteractionHand.OFF_HAND).is(ModItems.DISK.get())) {
+                InteractionHand hand = player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get()) 
+                    ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                return placerEntity.useDisk(level, player, hand, player.getItemInHand(hand), hitResult);
+            }
+            if (player instanceof ServerPlayer serverPlayer) {
+                var menuProvider = state.getMenuProvider(level, pos);
+                if (menuProvider != null) {
+                    ModMenuTypes.open(serverPlayer, menuProvider, pos);
+                }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
