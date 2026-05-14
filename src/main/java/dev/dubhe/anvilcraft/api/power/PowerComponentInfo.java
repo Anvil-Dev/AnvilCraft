@@ -4,8 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.util.CodecUtil;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.AABB;
@@ -46,7 +46,7 @@ public record PowerComponentInfo(
             .fieldOf("type")
             .forGetter(PowerComponentInfo::type)
     ).apply(ins, PowerComponentInfo::new));
-    public static final StreamCodec<ByteBuf, PowerComponentInfo> STREAM_CODEC = StreamCodecUtil.composite(
+    public static final StreamCodec<FriendlyByteBuf, PowerComponentInfo> STREAM_CODEC = StreamCodecUtil.composite(
         BlockPos.STREAM_CODEC,
         PowerComponentInfo::pos,
         ByteBufCodecs.VAR_INT,

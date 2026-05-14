@@ -29,7 +29,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public int getContainerSize() {
-        return size;
+        return this.size;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        return filterList.get(slot);
+        return this.filterList.get(slot);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        filterList.set(slot, stack);
+        this.filterList.set(slot, stack);
     }
 
     @Override

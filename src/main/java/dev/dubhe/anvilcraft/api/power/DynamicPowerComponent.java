@@ -33,7 +33,7 @@ public class DynamicPowerComponent {
 
     public int getPowerConsumption() {
         int amount = 0;
-        for (PowerConsumption powerConsumption : powerConsumptions) {
+        for (PowerConsumption powerConsumption : this.powerConsumptions) {
             amount += powerConsumption.amount;
         }
         return amount;
@@ -51,16 +51,16 @@ public class DynamicPowerComponent {
     }
 
     public AABB boundingBox() {
-        return aabbSupplier.get();
+        return this.aabbSupplier.get();
     }
 
     public void gridTick() {
-        if (owner instanceof IDynamicPowerComponentHolder) {
-            ((IDynamicPowerComponentHolder) owner).anvilcraft$gridTick();
+        if (this.owner instanceof IDynamicPowerComponentHolder) {
+            ((IDynamicPowerComponentHolder) this.owner).anvilcraft$gridTick();
         }
     }
 
-    public MutableComponent getCommandDiscription() {
+    public MutableComponent getCommandDescription() {
         double x = this.owner.getX();
         double y = this.owner.getY();
         double z = this.owner.getZ();

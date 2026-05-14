@@ -4,14 +4,14 @@ import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -21,6 +21,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -30,17 +31,16 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.MaceItem;
 import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.ToolMaterial;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -48,9 +48,9 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.Nullable;
@@ -66,20 +66,23 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
     public HeavyHalberdItem(ToolMaterial material, float attackDamage, float attackSpeed, Properties properties) {
         super(
             properties
-                .attributes(createAttributes(material, attackDamage, attackSpeed))
-                .component(DataComponents.TOOL, createToolProperties(material))
+                .attributes(HeavyHalberdItem.createAttributes(material, attackDamage, attackSpeed))
+                .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material))
                 .rarity(Rarity.EPIC)
         );
         this.material = material;
         this.attackDamage = attackDamage;
     }
 
-    public static ItemAttributeModifiers createAttributes(Tier tier, float attackDamage, float attackSpeed) {
+    public static ItemAttributeModifiers createAttributes(ToolMaterial material, float attackDamage, float attackSpeed) {
         return ItemAttributeModifiers.builder()
             .add(
                 Attributes.ATTACK_DAMAGE,
                 new AttributeModifier(
-                    BASE_ATTACK_DAMAGE_ID, attackDamage + tier.getAttackDamageBonus(), AttributeModifier.Operation.ADD_VALUE),
+                    BASE_ATTACK_DAMAGE_ID,
+                    attackDamage + material.attackDamageBonus(),
+                    AttributeModifier.Operation.ADD_VALUE
+                ),
                 EquipmentSlotGroup.MAINHAND
             )
             .add(
@@ -102,14 +105,18 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         return 2.0;
     }
 
-    public static Tool createToolProperties(Tier tier) {
+    @SuppressWarnings("deprecation")
+    public static Tool createToolProperties(ToolMaterial material) {
+        HolderGetter<Block> lookup = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
         ArrayList<Tool.Rule> rules = new ArrayList<>();
-        rules.addAll(SwordItem.createToolProperties().rules());
-        rules.addAll(tier.createToolProperties(BlockTags.MINEABLE_WITH_AXE).rules());
-        return new Tool(rules, 1.0F, 2);
+        rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
+        rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE));
+        rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_EFFICIENT), 1.5F));
+        rules.add(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), material.speed()));
+        return new Tool(rules, material.speed(), 1, false);
     }
 
-    public static void checkTooDamaged(Tier tier, ItemStack stack) {
+    public static void checkTooDamaged(ToolMaterial material, ItemStack stack) {
         Item item = stack.getItem();
         if (!(item instanceof HeavyHalberdItem heavyHalberd)) return;
         if (isTooDamagedToUse(stack)) {
@@ -165,45 +172,31 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
                         Attributes.ATTACK_DAMAGE,
                         new AttributeModifier(
                             BASE_ATTACK_DAMAGE_ID,
-                            heavyHalberd.attackDamage + tier.getAttackDamageBonus(),
-                            AttributeModifier.Operation.ADD_VALUE),
+                            heavyHalberd.attackDamage + material.attackDamageBonus(),
+                            AttributeModifier.Operation.ADD_VALUE
+                        ),
                         EquipmentSlotGroup.MAINHAND
                     );
                 stack.set(DataComponents.ATTRIBUTE_MODIFIERS, modifiers);
             }
             if (!stack.has(DataComponents.TOOL)) {
-                stack.set(DataComponents.TOOL, createToolProperties(tier));
+                stack.set(DataComponents.TOOL, createToolProperties(material));
             }
         }
     }
 
     @Override
-    @SuppressWarnings({"removal"})
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        ItemProperties.register(
-            this,
-            Identifier.withDefaultNamespace("throwing"),
-            (stack, level, entity, data) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F
-        );
-    }
-
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (!stack.has(DataComponents.UNBREAKABLE)) checkTooDamaged(this.getTier(), stack);
-    }
-
-    @Override
-    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-        return !player.isCreative();
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
+        super.inventoryTick(stack, level, owner, slot);
+        if (!stack.has(DataComponents.UNBREAKABLE)) HeavyHalberdItem.checkTooDamaged(this.material, stack);
     }
 
     /**
      * Returns the action that specifies what animation to play when the item is being used.
      */
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.SPEAR;
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.SPEAR;
     }
 
     @Override
@@ -211,17 +204,14 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         return 72000;
     }
 
-    /**
-     * Called when the player stops using an Item (stops holding the right mouse button).
-     */
     @Override
-    public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
-        if (!(entityLiving instanceof Player player)) return;
+    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
+        if (!(entityLiving instanceof Player player)) return false;
         int i = this.getUseDuration(stack, entityLiving) - timeLeft;
-        if (i < 10) return;
+        if (i < 10) return false;
         float spinStrength = EnchantmentHelper.getTridentSpinAttackStrength(stack, player);
-        if (spinStrength > 0.0F && !player.isInWaterOrRain()) return;
-        if (isTooDamagedToUse(stack)) return;
+        if (spinStrength > 0.0F && !player.isInWaterOrRain()) return false;
+        if (isTooDamagedToUse(stack)) return false;
         Holder<SoundEvent> soundEvent = EnchantmentHelper.pickHighestLevel(stack, EnchantmentEffectComponents.TRIDENT_SOUND)
             .orElse(SoundEvents.TRIDENT_THROW);
         if (!level.isClientSide()) {
@@ -242,7 +232,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
-        if (spinStrength <= 0.0F) return;
+        if (spinStrength <= 0.0F) return false;
         float rotY = player.getYRot();
         float rotX = player.getXRot();
         float deltaX = -Mth.sin(rotY * (float) (Math.PI / 180.0)) * Mth.cos(rotX * (float) (Math.PI / 180.0));
@@ -260,6 +250,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         }
 
         level.playSound(null, player, soundEvent.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+        return true;
     }
 
     @Override
@@ -286,18 +277,17 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
     }
 
     @Override
-    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        if (!(attacker instanceof ServerPlayer player) || !MaceItem.canSmashAttack(player)) return true;
+    public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        if (!(attacker instanceof ServerPlayer player) || !MaceItem.canSmashAttack(player)) return;
         final ServerLevel level = (ServerLevel) attacker.level();
         if (player.isIgnoringFallDamageFromCurrentImpulse() && player.currentImpulseImpactPos != null) {
             if (player.currentImpulseImpactPos.y > player.position().y) {
-                player.currentImpulseImpactPos = player.position();
+                player.setIgnoreFallDamageFromCurrentImpulse(true, player.position());
             }
         } else {
-            player.currentImpulseImpactPos = player.position();
+            player.setIgnoreFallDamageFromCurrentImpulse(true, player.position());
         }
 
-        player.setIgnoreFallDamageFromCurrentImpulse(true);
         player.setDeltaMovement(player.getDeltaMovement().with(Direction.Axis.Y, 0.01F));
         player.connection.send(new ClientboundSetEntityMotionPacket(player));
         if (target.onGround()) {
@@ -313,7 +303,6 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         }
 
         MaceItem.knockback(level, player, target);
-        return true;
     }
 
     @Override
@@ -331,7 +320,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
 
         float firstMaxHeight = 3.0F;
         float secondMaxHeight = 8.0F;
-        float fallDistance = entity.fallDistance;
+        float fallDistance = (float) entity.fallDistance;
 
         float damageBonus;
         if (fallDistance <= firstMaxHeight) {
@@ -359,7 +348,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
     public abstract ThrownHeavyHalberdEntity createThrown(Level level, double x, double y, double z, ItemStack pickupItemStack);
 
     @Override
-    public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        return ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility) || ItemAbilities.DEFAULT_SWORD_ACTIONS.contains(itemAbility);
+    public boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {
+        return ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility);
     }
 }

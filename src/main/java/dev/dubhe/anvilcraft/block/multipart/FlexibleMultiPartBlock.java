@@ -31,7 +31,7 @@ public abstract class FlexibleMultiPartBlock<
 
     public FlexibleMultiPartBlock(Properties properties) {
         super(properties);
-        this.mainPart = Arrays.stream(getParts()).filter(IFlexibleMultiPartBlockState::isMain).findFirst().orElse(null);
+        this.mainPart = Arrays.stream(this.getParts()).filter(IFlexibleMultiPartBlockState::isMain).findFirst().orElse(null);
     }
 
     public abstract Property<P> getPart();
@@ -43,7 +43,7 @@ public abstract class FlexibleMultiPartBlock<
     public void forEachPart(Level level, BlockPos pos, Consumer<BlockPos> function) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(this)) return;
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
             if (level.getBlockState(partPos).is(this)) {
                 function.accept(partPos);
@@ -55,15 +55,15 @@ public abstract class FlexibleMultiPartBlock<
         BlockState state = level.getBlockState(pos);
         if (!state.is(this)) return;
         state = state.setValue(property, value);
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
-            if (level.getBlockState(partPos).is(this)) level.setBlock(partPos, state.setValue(getPart(), part), flag);
+            if (level.getBlockState(partPos).is(this)) level.setBlock(partPos, state.setValue(this.getPart(), part), flag);
         }
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(getPart(), getAdditionalProperty());
+        builder.add(this.getPart(), this.getAdditionalProperty());
     }
 
     @Override
@@ -118,7 +118,7 @@ public abstract class FlexibleMultiPartBlock<
      * 是否有足够的空间放下方块
      */
     public boolean hasEnoughSpace(BlockState originState, BlockPos pos, LevelReader level) {
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos pos1 = pos.offset(this.offsetFrom(originState, part));
             if (level.isOutsideBuildHeight(pos1)) return false;
             BlockState state = level.getBlockState(pos1);

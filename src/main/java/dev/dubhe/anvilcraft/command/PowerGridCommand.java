@@ -17,8 +17,6 @@ import net.minecraft.server.level.ServerLevel;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static net.minecraft.commands.Commands.literal;
-
 public class PowerGridCommand {
 
     public static final int SHOW_INFO_LIMIT = 256;
@@ -57,7 +55,7 @@ public class PowerGridCommand {
                         .forEach(message::append);
                     p.getGrid().getDynamicComponents().stream()
                         .limit(SHOW_INFO_LIMIT)
-                        .map(DynamicPowerComponent::getCommandDiscription)
+                        .map(DynamicPowerComponent::getCommandDescription)
                         .map(component -> component.append("\n"))
                         .forEach(message::append);
                     ctx.getSource().sendSuccess(() -> message, true);
@@ -67,9 +65,9 @@ public class PowerGridCommand {
     }
 
     public static void registerCommand(LiteralArgumentBuilder<CommandSourceStack> parent) {
-        LiteralArgumentBuilder<CommandSourceStack> commandRoot = literal("powergrid");
+        LiteralArgumentBuilder<CommandSourceStack> commandRoot = Commands.literal("powergrid");
         commandRoot.then(
-            literal("info").then(
+            Commands.literal("info").then(
                 Commands.argument("pos", BlockPosArgument.blockPos())
                     .executes(PowerGridCommand::showInfo)
             ));

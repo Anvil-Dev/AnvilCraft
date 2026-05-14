@@ -49,6 +49,13 @@ public class TooltipEventListener {
         final Consumer<Component> consumer = event::addTooltipLines;
         final TooltipFlag flag = ctx.flag();
         final boolean shift = flag.hasShiftDown();
+        stack.addToTooltip(
+            ModComponents.MERCILESS_ENCHANTMENTS,
+            ctx,
+            display,
+            tooltip -> consumer.accept(tooltip.copy().withColor(0x5F93A3)),
+            flag
+        );
         stack.addToTooltip(ModComponents.CAN_TAKE_OUT_AMMO, ctx, display, consumer, flag);
         stack.addUnitComponentToTooltip(ModComponents.FIRE_REFORGING, FIRE_REFORGING, display, consumer);
         stack.addToTooltip(ModComponents.MERCILESS, ctx, display, consumer, flag);

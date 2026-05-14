@@ -1,21 +1,14 @@
 package dev.dubhe.anvilcraft.init.item;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
-import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
+import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.ModFoods;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.food.CannedFoodItem;
 import dev.dubhe.anvilcraft.item.food.PillItem;
 import dev.dubhe.anvilcraft.item.food.UtusanItem;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.neoforged.neoforge.common.Tags;
 
@@ -39,15 +32,7 @@ public class ModFoodItems {
 
     public static final ItemEntry<Item> COCOA_LIQUOR = REGISTRUM
         .item("cocoa_liquor", Item::new)
-        .recipe(
-            (ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get(), 2)
-                .requires(ModFoodItems.COCOA_POWDER)
-                .requires(ModFoodItems.COCOA_POWDER)
-                .requires(ModFoodItems.COCOA_BUTTER)
-                .unlockedBy("has_coco_powder", RegistrumRecipeProvider.has(ModFoodItems.COCOA_POWDER))
-                .unlockedBy("has_coco_butter", RegistrumRecipeProvider.has(ModFoodItems.COCOA_BUTTER))
-                .save(provider)
-        )
+        .recipe(RegistrumItemRecipeLoader::cocoaLiquor)
         .register();
 
     public static final ItemEntry<Item> COCOA_BUTTER = REGISTRUM
@@ -61,87 +46,25 @@ public class ModFoodItems {
     public static final ItemEntry<Item> CHOCOLATE = REGISTRUM
         .item("chocolate", properties -> new Item(properties.food(ModFoods.CHOCOLATE)))
         .tag(Tags.Items.FOODS)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get(), 4)
-                .pattern("ABA")
-                .pattern("CDC")
-                .pattern("ABA")
-                .define('A', ModFoodItems.COCOA_LIQUOR)
-                .define('B', ModFoodItems.COCOA_BUTTER)
-                .define('C', ModFoodItems.CREAM)
-                .define('D', Items.SUGAR)
-                .unlockedBy("has_cocoa_liquor", RegistrumRecipeProvider.has(ModFoodItems.COCOA_LIQUOR))
-                .unlockedBy("has_cocoa_butter", RegistrumRecipeProvider.has(ModFoodItems.COCOA_BUTTER))
-                .unlockedBy("has_cream", RegistrumRecipeProvider.has(ModFoodItems.CREAM))
-                .unlockedBy("has_sugar", RegistrumRecipeProvider.has(Items.SUGAR))
-                .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get(), 9)
-                .requires(ModBlocks.CHOCOLATE_BLOCK)
-                .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(ModBlocks.CHOCOLATE_BLOCK))
-                .save(provider, AnvilCraft.of("chocolate_from_block"));
-        })
+        .recipe(RegistrumItemRecipeLoader::chocolate)
         .register();
 
     public static final ItemEntry<Item> CHOCOLATE_BLACK = REGISTRUM
         .item("chocolate_black", p -> new Item(p.food(ModFoods.CHOCOLATE_BLACK)))
         .tag(Tags.Items.FOODS)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get(), 4)
-                .pattern("AAA")
-                .pattern("BCB")
-                .pattern("AAA")
-                .define('A', ModFoodItems.COCOA_LIQUOR)
-                .define('B', ModFoodItems.COCOA_BUTTER)
-                .define('C', Items.SUGAR)
-                .unlockedBy("has_cocoa_butter", RegistrumRecipeProvider.has(ModFoodItems.COCOA_LIQUOR))
-                .unlockedBy("has_cream", RegistrumRecipeProvider.has(ModFoodItems.CREAM))
-                .unlockedBy("has_sugar", RegistrumRecipeProvider.has(Items.SUGAR))
-                .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get(), 9)
-                .requires(ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.BLACK_CHOCOLATE_BLOCK)
-                )
-                .save(provider, AnvilCraft.of("black_chocolate_from_block"));
-        })
+        .recipe(RegistrumItemRecipeLoader::chocolateBlack)
         .register();
 
     public static final ItemEntry<Item> CHOCOLATE_WHITE = REGISTRUM
         .item("chocolate_white", p -> new Item(p.food(ModFoods.CHOCOLATE_WHITE)))
         .tag(Tags.Items.FOODS)
-        .recipe((ctx, provider) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get(), 4)
-                .pattern("AAA")
-                .pattern("BCB")
-                .pattern("AAA")
-                .define('A', ModFoodItems.COCOA_BUTTER)
-                .define('B', ModFoodItems.CREAM)
-                .define('C', Items.SUGAR)
-                .unlockedBy("has_butter", RegistrumRecipeProvider.has(ModFoodItems.COCOA_BUTTER))
-                .unlockedBy("has_cream", RegistrumRecipeProvider.has(ModFoodItems.CREAM))
-                .unlockedBy("has_sugar", RegistrumRecipeProvider.has(Items.SUGAR))
-                .save(provider);
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get(), 9)
-                .requires(ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                .unlockedBy(
-                    AnvilCraftDatagen.hasItem(ModBlocks.WHITE_CHOCOLATE_BLOCK),
-                    AnvilCraftDatagen.has(ModBlocks.WHITE_CHOCOLATE_BLOCK)
-                )
-                .save(provider, AnvilCraft.of("white_chocolate_from_block"));
-        }).register();
+        .recipe(RegistrumItemRecipeLoader::chocolateWhite)
+        .register();
 
     public static final ItemEntry<Item> CREAMY_BREAD_ROLL = REGISTRUM
         .item("creamy_bread_roll", p -> new Item(p.food(ModFoods.CREAMY_BREAD_ROLL)))
         .tag(Tags.Items.FOODS)
-        .recipe(
-            (ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get())
-                .requires(Items.BREAD)
-                .requires(Items.SUGAR)
-                .requires(ModFoodItems.CREAM)
-                .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModFoodItems.CREAM))
-                .save(provider)
-        )
+        .recipe(RegistrumItemRecipeLoader::creamyBreadRoll)
         .register();
 
     public static final ItemEntry<Item> BEEF_MUSHROOM_STEW = REGISTRUM
@@ -161,7 +84,7 @@ public class ModFoodItems {
     public static final ItemEntry<PillItem> PILL = REGISTRUM
         .item("pill", PillItem::new)
         .properties(properties -> properties.component(DataComponents.POTION_CONTENTS, PotionContents.EMPTY))
-        .recipe((ctx, provider) -> {
+        .recipe((_, provider) -> {
             StampingRecipe.builder()
                 .requires(ModItemTags.FLOUR)
                 .result(ModFoodItems.PILL, 4)
