@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
-import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
+import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

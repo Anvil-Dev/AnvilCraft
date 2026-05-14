@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.block.nesting;
 
+import dev.dubhe.anvilcraft.api.block.ITooltipBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBlock;
 import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxBlockEntity;
-import dev.dubhe.anvilcraft.api.block.ITooltipBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;

@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.entity;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;

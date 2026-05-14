@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.multipart;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.state.ISimpleMultiPartBlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;

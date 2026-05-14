@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
+import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
-import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
-import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
+import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;

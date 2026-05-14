@@ -2,13 +2,13 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
-import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
-import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
+import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.ModifySpawnerAction;

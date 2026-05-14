@@ -37,7 +37,6 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
-import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

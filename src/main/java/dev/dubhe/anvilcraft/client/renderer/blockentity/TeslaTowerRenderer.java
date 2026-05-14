@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import net.minecraft.client.Minecraft;
