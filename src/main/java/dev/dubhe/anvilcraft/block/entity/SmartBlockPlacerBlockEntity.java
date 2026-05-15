@@ -517,6 +517,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return ItemStack.EMPTY;
         }
 
+        // 提取时先保存物品副本，再修改实体数量
+        ItemStack extracted = itemEntity.getItem().copyWithCount(1);
         if (extract) {
             int count = itemEntity.getItem().getCount();
             if (count > 1) {
@@ -524,6 +526,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             } else {
                 itemEntity.discard();
             }
+            return extracted;
         }
         return itemEntity.getItem().copy();
     }

@@ -269,41 +269,40 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     entity.setClientLastTargetPos(targetPos);
                     animStartTime = currentTime;
                     animTargetPos = targetPos;
-                } else {
-                    // 没有可用目标位置，直接返回
-                    return;
                 }
             }
             
-            // 使用缓存的目标位置播放动画
-            // 在整个动画周期内锁定目标位置，确保动画流畅
-            long elapsedTicks = currentTime - animStartTime;
-            
-            // 只有当动画完成后，才查找新的目标位置
-            if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
-                BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
-                // 如果找到新的目标位置且与当前不同，开始新动画
-                if (targetPos != null && !targetPos.equals(animTargetPos)) {
-                    entity.setClientAnimationStartTime(currentTime);
-                    entity.setClientLastTargetPos(targetPos);
-                    animTargetPos = targetPos;
-                    elapsedTicks = 0;
-                }
-            }
-            
-            float animationProgress = Math.min(
-                1.0f,
-                (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
-            );
+            // 播放动画（animStartTime != 0 说明 animTargetPos 已经被设置）
+            if (animStartTime != 0) {
+                // 使用缓存的目标位置播放动画
+                // 在整个动画周期内锁定目标位置，确保动画流畅
+                long elapsedTicks = currentTime - animStartTime;
 
-            // 计算当前角度
-            float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
-            );
-            baseSwingAngle = angles[0];
-            upperArmAngle = angles[1];
-            forearmAngle = angles[2];
-            clawAngle = angles[3];
+                // 只有当动画完成后，才查找新的目标位置
+                if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
+                    BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+                    // 如果找到新的目标位置且与当前不同，开始新动画
+                    if (targetPos != null && !targetPos.equals(animTargetPos)) {
+                        entity.setClientAnimationStartTime(currentTime);
+                        entity.setClientLastTargetPos(targetPos);
+                        animTargetPos = targetPos;
+                        elapsedTicks = 0;
+                    }
+                }
+                float animationProgress = Math.min(
+                    1.0f,
+                    (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
+                );
+
+                // 计算当前角度
+                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                    animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
+                );
+                baseSwingAngle = angles[0];
+                upperArmAngle = angles[1];
+                forearmAngle = angles[2];
+                clawAngle = angles[3];
+            }
         }
         
         // 渲染底座

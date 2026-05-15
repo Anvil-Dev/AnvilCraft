@@ -467,16 +467,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             return;
         }
         
-        // 启用裁剪，限制渲染区域在预览窗口内
-        // 使用浮点数缩放以避免非整数GUI缩放比例（如1.5、2.5）的精度丢失
-        double guiScale = this.minecraft.getWindow().getGuiScale();
-        RenderSystem.enableScissor(
-            (int) (this.previewWindowX * guiScale),
-            (int) ((this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * guiScale),
-            (int) (this.previewWindowWidth * guiScale),
-            (int) (this.previewWindowHeight * guiScale)
-        );
-        
         // 获取缓冲区
         MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
         final VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.RenderType.lines());
@@ -528,9 +518,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         
         buffers.endBatch(net.minecraft.client.renderer.RenderType.lines());
         guiGraphics.pose().popPose();
-        
-        // 禁用裁剪
-        RenderSystem.disableScissor();
     }
     
     /**
