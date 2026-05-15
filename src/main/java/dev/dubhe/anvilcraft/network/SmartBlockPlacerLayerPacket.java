@@ -34,6 +34,19 @@ public record SmartBlockPlacerLayerPacket(int layer) implements IServerboundPack
         if (blockEntity == null) {
             return;
         }
+        
+        // 验证数据范围，防止恶意客户端发送非法数据
+        // layer 必须在 0-4 范围内（5层选择）
+        if (this.layer < 0 || this.layer > 4) {
+            AnvilCraft.LOGGER.warn(
+                "Player {} attempted to select invalid layer {} for SmartBlockPlacer at {}",
+                player.getName().getString(),
+                this.layer,
+                blockEntity.getBlockPos()
+            );
+            return;
+        }
+        
         blockEntity.setSelectedLayer(this.layer);
     }
 }

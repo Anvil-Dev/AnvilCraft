@@ -38,6 +38,30 @@ public record SmartBlockPlacerPositionPacket(int layer, int position, boolean se
         if (blockEntity == null) {
             return;
         }
+        
+        // 验证数据范围，防止恶意客户端发送非法数据
+        // layer 必须在 0-4 范围内（5层配置）
+        if (this.layer < 0 || this.layer > 4) {
+            AnvilCraft.LOGGER.warn(
+                "Player {} attempted to set invalid layer {} for SmartBlockPlacer at {}",
+                player.getName().getString(),
+                this.layer,
+                blockEntity.getBlockPos()
+            );
+            return;
+        }
+        
+        // position 必须在 0-24 范围内（5x5网格）
+        if (this.position < 0 || this.position > 24) {
+            AnvilCraft.LOGGER.warn(
+                "Player {} attempted to set invalid position {} for SmartBlockPlacer at {}",
+                player.getName().getString(),
+                this.position,
+                blockEntity.getBlockPos()
+            );
+            return;
+        }
+        
         blockEntity.togglePosition(this.layer, this.position, this.selected);
     }
 }

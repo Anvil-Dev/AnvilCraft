@@ -410,11 +410,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         LevelLike previewLevelLike = this.buildPreviewLevelLike();
 
         // 启用裁剪，限制渲染区域在预览窗口内
+        // 使用浮点数缩放以避免非整数GUI缩放比例（如1.5、2.5）的精度丢失
+        double guiScale = this.minecraft.getWindow().getGuiScale();
         RenderSystem.enableScissor(
-            this.previewWindowX * (int) this.minecraft.getWindow().getGuiScale(),
-            (this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * (int) this.minecraft.getWindow().getGuiScale(),
-            this.previewWindowWidth * (int) this.minecraft.getWindow().getGuiScale(),
-            this.previewWindowHeight * (int) this.minecraft.getWindow().getGuiScale()
+            (int) (this.previewWindowX * guiScale),
+            (int) ((this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * guiScale),
+            (int) (this.previewWindowWidth * guiScale),
+            (int) (this.previewWindowHeight * guiScale)
         );
 
         // 渲染3D预览（使用固定旋转角度和固定尺寸）
@@ -466,11 +468,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
         
         // 启用裁剪，限制渲染区域在预览窗口内
+        // 使用浮点数缩放以避免非整数GUI缩放比例（如1.5、2.5）的精度丢失
+        double guiScale = this.minecraft.getWindow().getGuiScale();
         RenderSystem.enableScissor(
-            this.previewWindowX * (int) this.minecraft.getWindow().getGuiScale(),
-            (this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * (int) this.minecraft.getWindow().getGuiScale(),
-            this.previewWindowWidth * (int) this.minecraft.getWindow().getGuiScale(),
-            this.previewWindowHeight * (int) this.minecraft.getWindow().getGuiScale()
+            (int) (this.previewWindowX * guiScale),
+            (int) ((this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * guiScale),
+            (int) (this.previewWindowWidth * guiScale),
+            (int) (this.previewWindowHeight * guiScale)
         );
         
         // 获取缓冲区

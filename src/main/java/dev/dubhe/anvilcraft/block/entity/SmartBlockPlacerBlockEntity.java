@@ -129,14 +129,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             boolean wasRedstoneSignal = this.hasRedstoneSignal;
             this.isPowered = this.grid != null && this.grid.isWorking();
             this.hasRedstoneSignal = level.hasNeighborSignal(pos);
-    
+
+            boolean stateChanged = this.isPowered != wasPowered || this.hasRedstoneSignal != wasRedstoneSignal;
+
             boolean wasAbleToWork = wasPowered && !wasRedstoneSignal;
             boolean isAbleToWork = this.isPowered && !this.hasRedstoneSignal;
-    
-            if (!wasAbleToWork && isAbleToWork) {
+
+            boolean indexReset = !wasAbleToWork && isAbleToWork && this.currentPlacementIndex != 0;
+            if (indexReset) {
                 this.currentPlacementIndex = 0;
             }
-    
+
             if (this.isPowered && !this.hasRedstoneSignal) {
                 if (this.isPickupMode) {
                     this.tickPickupMode(level, pos);
@@ -144,11 +147,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     this.tickMoveMode(level, pos);
                 }
             } else {
-                this.placeCooldown = 0;
-                this.currentHeldBlock = ItemStack.EMPTY;
+                boolean cooldownReset = this.placeCooldown != 0;
+                if (cooldownReset) {
+                    this.placeCooldown = 0;
+                }
+                boolean heldItemCleared = !this.currentHeldBlock.isEmpty();
+                if (heldItemCleared) {
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                }
+                
+                if (stateChanged || cooldownReset || heldItemCleared) {
+                    this.onChanged();
+                }
             }
-    
-            this.onChanged();
         } else {
             this.tickClient();
         }
@@ -269,8 +280,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             .toList();
 
         if (!entities.isEmpty()) {
-            ContainerEntity containerEntity = entities.getFirst();
-            IItemHandler entityHandler = ((Entity) containerEntity).getCapability(
+            Entity entity = (Entity) entities.getFirst();
+            IItemHandler entityHandler = entity.getCapability(
                 Capabilities.ItemHandler.ENTITY, null
             );
             if (entityHandler != null) {
@@ -375,7 +386,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 
                 ItemStack blockItem = sourceState2.getBlock().asItem().getDefaultInstance();
                 if (!(blockItem.getItem() instanceof BlockItem)) {
-                    level.removeBlock(sourcePos, false);
+                    // Do not remove the source block if it's not a BlockItem to avoid voiding blocks
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.onChanged();
                     return;
