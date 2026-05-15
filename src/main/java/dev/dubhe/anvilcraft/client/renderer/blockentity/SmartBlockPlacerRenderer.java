@@ -7,19 +7,14 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -278,13 +273,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
             // 如果有动画状态，保存当前角度用于收回
-            if (animStartTime != 0 && animTargetPos != null) {
+            if (animStartTime != 0) {
                 entity.setClientIsRetracting(true);
                 entity.setClientRetractStartTime(entity.getLevel().getGameTime());
                 
                 // 计算当前中断位置的角度和进度
                 long elapsedTicks = entity.getLevel().getGameTime() - animStartTime;
-                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks());
+                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
+                    .getAnimationDurationTicks());
                 float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
                     animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
                 );

@@ -67,6 +67,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
+    @Nullable
     private BlockPos clientLastTargetPos = null;
     private int lastPlaceCooldown = 0;
     
