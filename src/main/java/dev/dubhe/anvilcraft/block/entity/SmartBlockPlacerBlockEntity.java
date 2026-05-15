@@ -162,7 +162,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public void tickClient() {
-        if (this.lastPlaceCooldown == 0 && this.placeCooldown == PLACEMENT_INTERVAL) {
+        // 检测新的工作周期开始：placeCooldown 从低值变为高值（表示新的放置周期）
+        // 使用阈值判断，避免依赖具体的 lastPlaceCooldown 值
+        boolean isNewCycle = this.placeCooldown > this.lastPlaceCooldown 
+            && this.placeCooldown >= PLACEMENT_INTERVAL;
+        
+        if (isNewCycle) {
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
         }
