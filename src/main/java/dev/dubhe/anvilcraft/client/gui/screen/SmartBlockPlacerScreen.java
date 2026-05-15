@@ -106,7 +106,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         if (this.menu.getBlockEntity() != null) {
             this.currentViewLayer = this.menu.getBlockEntity().getSelectedLayer();
-            this.layerPositions = this.menu.getBlockEntity().getLayerPositions();
+            // 创建深拷贝，避免与 blockEntity 共享内部 Set 引用
+            this.layerPositions = new HashMap<>();
+            for (Map.Entry<Integer, Set<Integer>> entry : this.menu.getBlockEntity().getLayerPositions().entrySet()) {
+                this.layerPositions.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            }
             this.isPickupMode = this.menu.getBlockEntity().isPickupMode();
         }
 
@@ -231,9 +235,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private void onLayerButtonClick(int index) {
         this.currentViewLayer = index;
 
-        // 从服务端获取最新配置
+        // 从服务端获取最新配置，创建深拷贝
         if (this.menu.getBlockEntity() != null) {
-            this.layerPositions = this.menu.getBlockEntity().getLayerPositions();
+            this.layerPositions = new HashMap<>();
+            for (Map.Entry<Integer, Set<Integer>> entry : this.menu.getBlockEntity().getLayerPositions().entrySet()) {
+                this.layerPositions.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            }
         }
 
         // 更新layer按钮（互斥）
@@ -555,7 +562,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         if (needsRebuild) {
             this.cachedPreviewLevelLike = this.buildPreviewLevelLike();
-            this.cachedLayerPositions = new HashMap<>(this.layerPositions);
+            // 深拷贝 layerPositions，避免共享 Set 引用导致缓存判断失效
+            this.cachedLayerPositions = new HashMap<>();
+            for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
+                this.cachedLayerPositions.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            }
             this.cachedViewLayer = this.currentViewLayer;
             this.cachedShowAllLayers = this.showAllLayers;
             this.cachedPickupMode = this.isPickupMode;
