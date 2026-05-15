@@ -525,12 +525,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      *
      * @return 预览数据
      */
-    @SuppressWarnings(
-        {
-            "DataFlowIssue",
-            "checkstyle:VariableDeclarationUsageDistance"
-        }
-    )
+    @SuppressWarnings({
+        "DataFlowIssue",
+        "checkstyle:VariableDeclarationUsageDistance"
+    })
     private LevelLike buildPreviewLevelLike() {
         var blockEntity = this.menu.getBlockEntity();
         var level = this.minecraft.level;

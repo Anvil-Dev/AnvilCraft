@@ -74,15 +74,15 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public void setBlockState(BlockPos pos, BlockState state) {
-        setBlockStateWithAlpha(pos, state, 1.0f);
+        setBlockStateWithAlpha(pos, state);
     }
     
     public void setBlockStateAlwaysRender(BlockPos pos, BlockState state) {
-        setBlockStateWithAlpha(pos, state, 1.0f);
+        setBlockStateWithAlpha(pos, state);
         alwaysRenderBlocks.add(pos);
     }
     
-    public void setBlockStateWithAlpha(BlockPos pos, BlockState state, float alpha) {
+    public void setBlockStateWithAlpha(BlockPos pos, BlockState state) {
         blockEntities.remove(pos);
         blocks.put(pos, state);
         // BlockEntities stored in LevelLike is only for render
@@ -92,7 +92,7 @@ public class LevelLike implements BlockAndTintGetter {
             if (blockEntity == null) return;
             if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
             blockEntity.setLevel(this.parent);
-            //noinspection deprecation
+            // noinspection deprecation
             blockEntity.setBlockState(state);
             blockEntities.put(pos, blockEntity);
         }
@@ -132,9 +132,8 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     @Override
-    @Nullable
     public LevelLightEngine getLightEngine() {
-        return null;
+        return this.parent.getLightEngine();
     }
 
     @Override
