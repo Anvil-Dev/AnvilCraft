@@ -196,6 +196,10 @@ public class ItemTooltipManager {
             When powered by redstone, this block places a block in front of it.
             If struck by a falling anvil, the placement distance increases — the farther the anvil falls, the farther the block is placed.
             No internal inventory and must obtain blocks from dropped items or container inventories behind it""");
+        SHIFT.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), """
+            Advanced block placer with 5x5x5 placement area, configurable via GUI.
+            Supports pickup mode (from containers) and move mode (direct block movement).
+            Requires power supply, consumes 16 kW.""");
         SHIFT.put(ModBlocks.BLOCK_DEVOURER.asItem(), """
             When powered by redstone, this block instantly breaks a 3×3 area of blocks in front of it.
             If struck by a falling anvil, the breaking range increases — the farther the anvil falls, the larger the area it destroys.
