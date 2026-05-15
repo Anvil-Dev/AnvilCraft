@@ -546,18 +546,19 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         // 检查缓存是否有效
+        // 使用客户端本地的 layerPositions 而不是 blockEntity 的，避免网络延迟导致的预览不更新
         boolean needsRebuild = this.cachedPreviewLevelLike == null
-            || !this.cachedLayerPositions.equals(blockEntity.getLayerPositions())
-            || this.cachedViewLayer != blockEntity.getSelectedLayer()
+            || !this.cachedLayerPositions.equals(this.layerPositions)
+            || this.cachedViewLayer != this.currentViewLayer
             || this.cachedShowAllLayers != this.showAllLayers
-            || this.cachedPickupMode != blockEntity.isPickupMode();
+            || this.cachedPickupMode != this.isPickupMode;
 
         if (needsRebuild) {
             this.cachedPreviewLevelLike = this.buildPreviewLevelLike();
-            this.cachedLayerPositions = new HashMap<>(blockEntity.getLayerPositions());
-            this.cachedViewLayer = blockEntity.getSelectedLayer();
+            this.cachedLayerPositions = new HashMap<>(this.layerPositions);
+            this.cachedViewLayer = this.currentViewLayer;
             this.cachedShowAllLayers = this.showAllLayers;
-            this.cachedPickupMode = blockEntity.isPickupMode();
+            this.cachedPickupMode = this.isPickupMode;
         }
 
         return this.cachedPreviewLevelLike;
@@ -594,7 +595,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
         );
 
-        Map<Integer, Set<Integer>> layerPositions = blockEntity.getLayerPositions();
+        // 使用客户端本地的 layerPositions，确保快速拖动时预览能及时更新
+        Map<Integer, Set<Integer>> layerPositions = this.layerPositions;
         if (layerPositions.isEmpty()) {
             // 没有选区时只渲染放置器
             return previewLevelLike;
