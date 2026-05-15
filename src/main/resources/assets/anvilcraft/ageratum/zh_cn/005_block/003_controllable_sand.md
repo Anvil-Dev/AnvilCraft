@@ -2,7 +2,6 @@
 navigation:
   title: "可控沙"
   icon: "anvilcraft:controllable_sand"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:controllable_sand
 ---

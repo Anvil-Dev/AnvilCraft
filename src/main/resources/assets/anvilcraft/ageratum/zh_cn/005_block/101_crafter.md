@@ -2,7 +2,6 @@
 navigation:
   title: "§2批量合成器"
   icon: "anvilcraft:batch_crafter"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:batch_crafter
 ---

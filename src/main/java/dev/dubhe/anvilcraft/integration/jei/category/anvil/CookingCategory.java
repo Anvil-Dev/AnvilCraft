@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -83,6 +84,7 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.COOKING);
         registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.COOKING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftJeiPlugin.COOKING);
         registration.addRecipeCatalyst(new ItemStack(Items.CAMPFIRE), AnvilCraftJeiPlugin.COOKING);
     }
 }

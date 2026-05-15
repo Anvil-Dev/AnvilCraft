@@ -2,7 +2,6 @@
 navigation:
   title: "火药块"
   icon: "anvilcraft:gunpowder_block"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:gunpowder_block
 ---

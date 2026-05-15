@@ -150,5 +150,6 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.COLORED_CONCRETE);
         registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.COLORED_CONCRETE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftJeiPlugin.COLORED_CONCRETE);
     }
 }

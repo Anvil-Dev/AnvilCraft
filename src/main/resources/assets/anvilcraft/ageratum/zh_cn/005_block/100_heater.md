@@ -2,7 +2,6 @@
 navigation:
   title: "§2加热器"
   icon: "anvilcraft:heater"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:heater
 ---

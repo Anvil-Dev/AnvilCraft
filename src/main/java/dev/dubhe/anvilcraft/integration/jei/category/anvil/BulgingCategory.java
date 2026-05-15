@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -236,5 +237,6 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.BULGING);
         registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.BULGING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftJeiPlugin.BULGING);
     }
 }

@@ -2,7 +2,6 @@
 navigation:
   title: "§5中子辐照器"
   icon: "anvilcraft:neutron_irradiator"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:neutron_irradiator
 ---
