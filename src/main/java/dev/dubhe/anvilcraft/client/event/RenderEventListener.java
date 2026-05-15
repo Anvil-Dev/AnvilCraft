@@ -79,7 +79,7 @@ public class RenderEventListener {
         if (!(entity instanceof Player player)) return;
         Optional<BlockHitResult> hitResult = Util.castSafely(Minecraft.getInstance().hitResult, BlockHitResult.class);
         hitResult.ifPresent(hit -> renderDragonRodOutline(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
-        hitResult.ifPresent(hit -> renderSmartBlockPlacerRange(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
+        hitResult.ifPresent(hit -> renderSmartBlockPlacerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
         if (!AnvilHammerItem.shouldRenderEffect(player)) return;
         PowerGridSupport.render(pose, bufferSource, vec3);
         hitResult.ifPresent(hit -> renderAffectRange(pose, hit, vertexConsumer3, camX, camY, camZ));
@@ -128,9 +128,10 @@ public class RenderEventListener {
         }
     }
 
+    @SuppressWarnings("checkstyle:LocalVariableName")
     private static void renderSmartBlockPlacerRange(
         PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer,
-        double camX, double camY, double camZ, ItemStack handItem
+        double camX, double camY, double camZ
     ) {
         Player player = Minecraft.getInstance().player;
         if (player == null || !AnvilHammerItem.shouldRenderEffect(player)) return;
