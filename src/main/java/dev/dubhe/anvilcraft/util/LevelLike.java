@@ -20,6 +20,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,7 +29,6 @@ import java.util.Set;
 public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
     private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
-    private final Map<BlockPos, Float> blockAlpha = new HashMap<>();  // 方块透明度
     private final Set<BlockPos> alwaysRenderBlocks = new HashSet<>();  // 始终渲染的方块
     private final ClientLevel parent;
 
@@ -85,7 +85,6 @@ public class LevelLike implements BlockAndTintGetter {
     public void setBlockStateWithAlpha(BlockPos pos, BlockState state, float alpha) {
         blockEntities.remove(pos);
         blocks.put(pos, state);
-        blockAlpha.put(pos, alpha);
         // BlockEntities stored in LevelLike is only for render
         // If any block entity don't have its own renderer we don't need to store an instance for it
         if (state.getBlock() instanceof EntityBlock entityBlock) {
@@ -93,17 +92,14 @@ public class LevelLike implements BlockAndTintGetter {
             if (blockEntity == null) return;
             if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
             blockEntity.setLevel(this.parent);
+            //noinspection deprecation
             blockEntity.setBlockState(state);
             blockEntities.put(pos, blockEntity);
         }
     }
     
-    public float getBlockAlpha(BlockPos pos) {
-        return blockAlpha.getOrDefault(pos, 1.0f);
-    }
-    
     public Set<BlockPos> getAlwaysRenderBlocks() {
-        return alwaysRenderBlocks;
+        return Collections.unmodifiableSet(alwaysRenderBlocks);
     }
 
     public BlockState getBlockState(BlockPos pos) {
@@ -136,6 +132,7 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     @Override
+    @Nullable
     public LevelLightEngine getLightEngine() {
         return null;
     }

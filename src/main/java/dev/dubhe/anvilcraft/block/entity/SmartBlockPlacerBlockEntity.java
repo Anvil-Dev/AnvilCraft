@@ -214,7 +214,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
             int layer = entry.getKey();
             for (int position : entry.getValue()) {
-                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
+                BlockPos targetPos = SmartBlockPlacerBlockEntity
+                    .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 if (level.isEmptyBlock(targetPos)) {
                     return true;
                 }
@@ -241,7 +242,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
             int layer = entry.getKey();
             for (int position : entry.getValue()) {
-                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
+                BlockPos targetPos = SmartBlockPlacerBlockEntity
+                    .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 if (level.isEmptyBlock(targetPos)) {
                     return true;
                 }
@@ -412,17 +414,44 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
-    private List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing, boolean upsideDown) {
-        if (this.layerPositions.isEmpty()) {
+    /**
+     * 构建有序的放置位置列表
+     * 顺序：从最下面一层开始，每一层从最远离放置器的位置开始，从左到右，然后逐渐向下
+     * 
+     * @param basePos 基准位置
+     * @param facing 朝向
+     * @param upsideDown 是否倒挂
+     * @return 有序的位置列表
+     */
+    public List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing, boolean upsideDown) {
+        return SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
+    }
+    
+    /**
+     * 构建有序的放置位置列表（静态方法，供渲染器调用）
+     * 
+     * @param basePos 基准位置
+     * @param facing 朝向
+     * @param layerPositions 层位置映射
+     * @param upsideDown 是否倒挂
+     * @return 有序的位置列表
+     */
+    public static List<BlockPos> buildOrderedPositions(
+        BlockPos basePos, 
+        Direction facing, 
+        Map<Integer, Set<Integer>> layerPositions, 
+        boolean upsideDown
+    ) {
+        if (layerPositions.isEmpty()) {
             return List.of();
         }
         
         List<BlockPos> positions = new ArrayList<>();
-        List<Integer> sortedLayers = new ArrayList<>(this.layerPositions.keySet());
+        List<Integer> sortedLayers = new ArrayList<>(layerPositions.keySet());
         sortedLayers.sort(Integer::compareTo);
 
         for (int layer : sortedLayers) {
-            Set<Integer> layerPosSet = this.layerPositions.get(layer);
+            Set<Integer> layerPosSet = layerPositions.get(layer);
             if (layerPosSet == null || layerPosSet.isEmpty()) {
                 continue;
             }
@@ -440,7 +469,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             });
 
             for (int[] rowCol : rowColList) {
-                positions.add(this.calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
+                positions.add(calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
             }
         }
         return positions;
@@ -541,8 +570,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         };
     }
     
+    /**
+     * 计算目标位置
+     * 
+     * @param basePos 基准位置
+     * @param facing 朝向
+     * @param row 行索引 (0-4)
+     * @param col 列索引 (0-4)
+     * @param layer 层索引
+     * @param upsideDown 是否倒挂
+     * @return 目标方块位置
+     */
     @SuppressWarnings("checkstyle:LocalVariableName")
-    private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
+    public static BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
         Direction right = facing.getClockWise();
         int yOffset = upsideDown ? layer - 4 : layer;
         return basePos.atY(basePos.getY() + yOffset)

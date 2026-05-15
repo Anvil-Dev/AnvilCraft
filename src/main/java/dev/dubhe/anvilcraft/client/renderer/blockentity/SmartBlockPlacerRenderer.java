@@ -18,7 +18,14 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity> {
+    // 位置列表缓存，避免每帧重新分配
+    private final Map<String, List<BlockPos>> positionCache = new HashMap<>();
+    
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_base")
     );
@@ -283,12 +290,17 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                     // 如果找到新的目标位置且与当前不同，开始新动画
                     if (targetPos != null && !targetPos.equals(animTargetPos)) {
+                        // 修复：使用当前时间作为新动画的起点，避免累积偏移
                         entity.setClientAnimationStartTime(currentTime);
                         entity.setClientLastTargetPos(targetPos);
                         animTargetPos = targetPos;
                         elapsedTicks = 0;
+                    } else {
+                        // 没有新目标或目标未改变，保持动画完成状态
+                        elapsedTicks = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks();
                     }
                 }
+                
                 float animationProgress = Math.min(
                     1.0f,
                     (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
@@ -414,65 +426,24 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      */
     private java.util.List<BlockPos> buildOrderedPositionsForRenderer(
         BlockPos basePos, Direction facing, java.util.Map<Integer, java.util.Set<Integer>> layerPositions, boolean upsideDown) {
-        java.util.List<BlockPos> positions = new java.util.ArrayList<>();
+        // 使用缓存的 key：放置器位置 + 朝向 + 倒挂状态 + layerPositions 的哈希
+        String cacheKey = basePos.toShortString() + "_" + facing.getName() + "_" + upsideDown + "_" + layerPositions.hashCode();
         
-        // 获取所有layer，按layer升序排序（从最下面开始）
-        // 注意：必须使用排序后的List，确保顺序稳定
-        java.util.List<Integer> sortedLayers = new java.util.ArrayList<>(layerPositions.keySet());
-        sortedLayers.sort(Integer::compareTo);
-        
-        for (int layer : sortedLayers) {
-            java.util.Set<Integer> layerPositionsSet = layerPositions.get(layer);
-            if (layerPositionsSet == null || layerPositionsSet.isEmpty()) {
-                continue;
-            }
-            
-            // 将该层的所有位置收集起来
-            java.util.List<int[]> rowColList = new java.util.ArrayList<>();
-            for (int position : layerPositionsSet) {
-                int row = position / 5;
-                int col = position % 5;
-                rowColList.add(new int[]{row, col, position}); // 保存原始position用于调试
-            }
-            
-            // 排序：先按row升序（从远到近，0→4），再按col升序（从左到右，0→4）
-            rowColList.sort((a, b) -> {
-                if (a[0] != b[0]) {
-                    return Integer.compare(a[0], b[0]); // row升序（0→4，远→近）
-                }
-                return Integer.compare(a[1], b[1]); // col升序（0→4，左→右）
-            });
-            
-            // 按排序后的顺序添加位置
-            for (int[] rowCol : rowColList) {
-                int row = rowCol[0];
-                int col = rowCol[1];
-                BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer, upsideDown);
-                positions.add(targetPos);
-            }
+        // 检查缓存
+        if (this.positionCache.containsKey(cacheKey)) {
+            return this.positionCache.get(cacheKey);
         }
+        
+        // 调用 BlockEntity 的静态方法计算位置列表
+        List<BlockPos> positions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, layerPositions, upsideDown);
+        
+        // 更新缓存
+        this.positionCache.put(cacheKey, positions);
         
         return positions;
     }
     
-    /**
-     * 计算目标位置（复制自BlockEntity的逻辑）
-     */
-    @SuppressWarnings("checkstyle:LocalVariableName")
-    private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
-        // 根据朝向计算水平偏移方向
-        Direction right = facing.getClockWise();
-        
-        // 倒挂时整体下移4格
-        int yOffset = upsideDown ? -4 : 0;
-        
-        BlockPos pos = basePos;
-        pos = pos.above(layer + yOffset); // 层偏移（倒挂时下移4格）
-        pos = pos.relative(right, col - 2); // 列偏移（-2到+2）
-        pos = pos.relative(facing.getClockWise().getClockWise(), row - 2); // 行偏移（-2到+2）
-        
-        return pos;
-    }
+
     @SuppressWarnings({"checkstyle:EmptyLineSeparator", "deprecation"})
     private void renderModel(
         PoseStack poseStack, MultiBufferSource buffer, ModelResourceLocation model, int packedLight, int packedOverlay) {

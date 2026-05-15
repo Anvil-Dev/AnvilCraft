@@ -72,7 +72,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         // 获取玩家的水平朝向
         Direction horizontalFacing = context.getHorizontalDirection().getOpposite();
 
-        // 潜行时与玩家朝向相同，否则与玩家朝向相反
+        // 潜行时与玩家朝向相反，否则与玩家朝向相同
         if (context.getPlayer() != null && !context.getPlayer().isShiftKeyDown()) {
             horizontalFacing = horizontalFacing.getOpposite();
         }
