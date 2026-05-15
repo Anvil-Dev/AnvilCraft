@@ -201,8 +201,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
 
         for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
+            int layer = entry.getKey();
             for (int position : entry.getValue()) {
-                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, entry.getKey(), upsideDown);
+                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 if (level.isEmptyBlock(targetPos)) {
                     return true;
                 }
@@ -212,31 +213,31 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private boolean hasTargetPositions(Level level, BlockPos placerPos) {
+        if (this.layerPositions.isEmpty()) {
+            return false;
+        }
+        
         Direction facing = level.getBlockState(placerPos).getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
         BlockPos sourcePos = placerPos.relative(facing.getOpposite());
 
         BlockState sourceState = level.getBlockState(sourcePos);
-        if (sourceState.isAir()) {
-            return false;
-        }
-        
-        if (isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
             return false;
         }
 
-        int emptyCount = 0;
         for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
+            int layer = entry.getKey();
             for (int position : entry.getValue()) {
-                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, entry.getKey(), upsideDown);
+                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 if (level.isEmptyBlock(targetPos)) {
-                    emptyCount++;
+                    return true;
                 }
             }
         }
         
-        return emptyCount > 0;
+        return false;
     }
 
     private boolean isBlockNotPushable(BlockState state, Level level, BlockPos pos, Direction facing) {
@@ -257,39 +258,38 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     return true;
                 }
             }
-        }
-
-        if (handler == null) {
-            AABB aabb = new AABB(inputPos);
-            List<ContainerEntity> entities = level.getEntitiesOfClass(
-                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
-            ).stream()
-                .map(it -> (ContainerEntity) it)
-                .toList();
-
-            if (!entities.isEmpty()) {
-                Entity entity = (Entity) entities.getFirst();
-                IItemHandler entityHandler = entity.getCapability(
-                    Capabilities.ItemHandler.ENTITY, null
-                );
-                if (entityHandler != null) {
-                    for (int slot = 0; slot < entityHandler.getSlots(); slot++) {
-                        ItemStack stack = entityHandler.getStackInSlot(slot);
-                        if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
-                            return true;
-                        }
-                    }
-                }
-            }
+            return false;
         }
 
         AABB aabb = new AABB(inputPos);
-        List<ItemEntity> entities = level.getEntities(
+        List<ContainerEntity> entities = level.getEntitiesOfClass(
+            Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+        ).stream()
+            .map(it -> (ContainerEntity) it)
+            .toList();
+
+        if (!entities.isEmpty()) {
+            ContainerEntity containerEntity = entities.getFirst();
+            IItemHandler entityHandler = ((Entity) containerEntity).getCapability(
+                Capabilities.ItemHandler.ENTITY, null
+            );
+            if (entityHandler != null) {
+                for (int slot = 0; slot < entityHandler.getSlots(); slot++) {
+                    ItemStack stack = entityHandler.getStackInSlot(slot);
+                    if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        List<ItemEntity> itemEntities = level.getEntities(
             EntityTypeTest.forClass(ItemEntity.class),
             aabb,
             Entity::isAlive
         );
-        for (ItemEntity entity : entities) {
+        for (ItemEntity entity : itemEntities) {
             if (entity.getItem().getItem() instanceof BlockItem) {
                 return true;
             }
@@ -402,6 +402,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing, boolean upsideDown) {
+        if (this.layerPositions.isEmpty()) {
+            return List.of();
+        }
+        
         List<BlockPos> positions = new ArrayList<>();
         List<Integer> sortedLayers = new ArrayList<>(this.layerPositions.keySet());
         sortedLayers.sort(Integer::compareTo);
@@ -412,7 +416,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
 
-            List<int[]> rowColList = new ArrayList<>();
+            List<int[]> rowColList = new ArrayList<>(layerPosSet.size());
             for (int position : layerPosSet) {
                 rowColList.add(new int[]{position / 5, position % 5});
             }
@@ -523,10 +527,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         };
     }
     
+    @SuppressWarnings("checkstyle:LocalVariableName")
     private BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
         Direction right = facing.getClockWise();
-        int verticalOffset = upsideDown ? -4 : 0;
-        return basePos.above(layer + verticalOffset)
+        int yOffset = upsideDown ? layer - 4 : layer;
+        return basePos.atY(basePos.getY() + yOffset)
             .relative(right, col - 2)
             .relative(right.getClockWise(), row - 2);
     }
@@ -534,13 +539,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public void onChanged() {
         this.setChanged();
         Level level = this.getLevel();
-        if (level == null) return;
-        level.sendBlockUpdated(
-            this.getBlockPos(),
-            this.getBlockState(),
-            this.getBlockState(),
-            Block.UPDATE_CLIENTS
-        );
+        if (level != null) {
+            level.sendBlockUpdated(
+                this.getBlockPos(),
+                this.getBlockState(),
+                this.getBlockState(),
+                Block.UPDATE_CLIENTS
+            );
+        }
     }
 
     public void setSelectedLayer(int layer) {
