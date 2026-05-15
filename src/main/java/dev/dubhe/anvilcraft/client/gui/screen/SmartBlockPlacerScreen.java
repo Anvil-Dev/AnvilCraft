@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerLayerPacket;
+import dev.dubhe.anvilcraft.network.SmartBlockPlacerModePacket;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerPositionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.gui.GuiGraphics;
@@ -49,12 +50,18 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private static final ResourceLocation LAYER_ALL = SharedTextures.textureGui("machine/smart_block_placer/layer_all");
     private static final ResourceLocation LAYER_SINGLE = SharedTextures.textureGui("machine/smart_block_placer/layer_single");
 
+    // 取物/移动模式切换按钮贴图
+    private static final ResourceLocation PICKUP_MODE = SharedTextures.textureGui("machine/smart_block_placer/pickup_mode");
+    private static final ResourceLocation MOVE_MODE = SharedTextures.textureGui("machine/smart_block_placer/move_mode");
+
     private final List<TriStateButton> layerButtons = new ArrayList<>();
     private final TriStateButton[][] positionButtons = new TriStateButton[5][5];
     private ToggleButton layerModeButton;  // 分层显示切换按钮
+    private ToggleButton operationModeButton;  // 取物/移动模式切换按钮
     private int currentViewLayer = 0;
     private Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
     private boolean showAllLayers = true;  // 是否显示所有层
+    private boolean isPickupMode = true;  // 是否为取物模式（true=取物，false=移动）
 
     // 鼠标拖动状态
     private Boolean dragTargetState = null;
@@ -92,6 +99,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         if (this.menu.getBlockEntity() != null) {
             this.currentViewLayer = this.menu.getBlockEntity().getSelectedLayer();
             this.layerPositions = this.menu.getBlockEntity().getLayerPositions();
+            this.isPickupMode = this.menu.getBlockEntity().isPickupMode();
         }
 
         // 初始化预览窗口位置（根据GUI背景图）
@@ -101,6 +109,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.initLayerButtons();
         this.initPositionButtons();
         this.initLayerModeButton();
+        this.initOperationModeButton();
     }
     
     private void initLayerButtons() {
@@ -158,12 +167,36 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.addRenderableWidget(this.layerModeButton);
     }
     
+    private void initOperationModeButton() {
+        // 在分层显示切换按钮下方
+        int buttonX = this.leftPos + 232;  // 与layerModeButton对齐
+        int buttonY = this.topPos + 130;   // layerModeButton的Y坐标(112) + 18像素间距
+
+        this.operationModeButton = new ToggleButton(
+            buttonX, buttonY, 16, 16,
+            this.isPickupMode ? PICKUP_MODE : MOVE_MODE,
+            16, 16,
+            (btn) -> this.onOperationModeButtonClick(),
+            List.of(this.getOperationModeTooltip())
+        );
+        this.operationModeButton.setSelected(this.isPickupMode);
+        this.addRenderableWidget(this.operationModeButton);
+    }
+    
     private Component getLayerModeTooltip() {
         if (this.showAllLayers) {
             return Component.translatable("screen.anvilcraft.smart_block_placer.layer_mode.all");
         } else {
             return Component.translatable("screen.anvilcraft.smart_block_placer.layer_mode.single",
                 this.currentViewLayer + 1, 5);
+        }
+    }
+    
+    private Component getOperationModeTooltip() {
+        if (this.isPickupMode) {
+            return Component.translatable("screen.anvilcraft.smart_block_placer.operation_mode.pickup");
+        } else {
+            return Component.translatable("screen.anvilcraft.smart_block_placer.operation_mode.move");
         }
     }
     
@@ -222,6 +255,20 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 更新tooltip
         this.layerModeButton.setTooltips(List.of(this.getLayerModeTooltip()));
+    }
+    
+    private void onOperationModeButtonClick() {
+        this.isPickupMode = !this.isPickupMode;
+        this.operationModeButton.setSelected(this.isPickupMode);
+
+        // 更新按钮贴图
+        this.operationModeButton.setTexture(this.isPickupMode ? PICKUP_MODE : MOVE_MODE);
+
+        // 更新tooltip
+        this.operationModeButton.setTooltips(List.of(this.getOperationModeTooltip()));
+
+        // 发送网络数据包同步到服务端
+        PacketDistributor.sendToServer(new SmartBlockPlacerModePacket(this.isPickupMode));
     }
     
     private void updatePositionButtons() {
@@ -383,6 +430,18 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewRotationY
         );  // 固定5x5的尺寸
 
+        // 如果没有配置选区位置，显示提示文本
+        if (this.menu.getBlockEntity().getLayerPositions().isEmpty()) {
+            Component emptyText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
+            int textWidth = (int) (this.font.width(emptyText) * 0.8f);
+            int textX = this.previewWindowX + (this.previewWindowWidth - textWidth) / 2;
+            int textY = this.previewWindowY + (this.previewWindowHeight - (int) (this.font.lineHeight * 0.8f)) / 2;
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(0.8f, 0.8f, 0.8f);
+            guiGraphics.drawString(this.font, emptyText, (int) (textX / 0.8f), (int) (textY / 0.8f), 0xFFFFFF, true);
+            guiGraphics.pose().popPose();
+        }
+
         // 禁用裁剪
         RenderSystem.disableScissor();
     }
@@ -402,21 +461,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 构建预览用的LevelLike实例
      *
-     * @return 预览数据，如果没有配置位置则返回null
+     * @return 预览数据
      */
     @SuppressWarnings("DataFlowIssue")
     private LevelLike buildPreviewLevelLike() {
         var blockEntity = this.menu.getBlockEntity();
         var level = blockEntity.getLevel();
-        if (level == null) {
-            return null;
-        }
-
-        Map<Integer, Set<Integer>> layerPositions = blockEntity.getLayerPositions();
-        if (layerPositions.isEmpty()) {
-            return null;
-        }
-
+        
         LevelLike previewLevelLike = new LevelLike(this.minecraft.level);
         previewLevelLike.setAllLayersVisible(this.showAllLayers);
 
@@ -435,6 +486,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             dev.dubhe.anvilcraft.init.block.ModBlocks.SMART_BLOCK_PLACER.get().defaultBlockState()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
         );
+
+        Map<Integer, Set<Integer>> layerPositions = blockEntity.getLayerPositions();
+        if (layerPositions.isEmpty()) {
+            // 没有选区时只渲染放置器
+            return previewLevelLike;
+        }
 
         // 基于游戏时间选择方块类型
         long gameTime = level.getGameTime();

@@ -53,8 +53,8 @@ import java.util.Set;
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable {
     private static final int POWER = 16;
     private static final int PLACEMENT_INTERVAL = 20; // 放置间隔（tick）
-    private static final int PLACEMENT_DELAY = 6; // 放置延迟（tick），动画进行到"往前戳"时放置
-
+    private static final int PLACEMENT_DELAY = 6; // 放置延迟（tick），动画进行到“往前戳”时放置
+    
     private PowerGrid grid = null;
     private boolean isPowered = false;
     private boolean hasRedstoneSignal = false;
@@ -63,6 +63,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private ItemStack currentHeldBlock = ItemStack.EMPTY; // 当前持有的方块（客户端渲染）
     private int currentPlacementIndex = 0; // 当前放置进度索引
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>(); // 每个layer的位置集合
+    private boolean isPickupMode = true; // 是否为取物模式（true=取物放置，false=移动方块）
 
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
@@ -103,6 +104,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putInt("selectedLayer", selectedLayer);
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
         tag.putInt("placeCooldown", placeCooldown);
+        tag.putBoolean("isPickupMode", isPickupMode);
         if (!currentHeldBlock.isEmpty()) {
             tag.put("currentHeldBlock", currentHeldBlock.save(provider));
         }
@@ -117,6 +119,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.selectedLayer = tag.getInt("selectedLayer");
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
         this.placeCooldown = tag.getInt("placeCooldown");
+        this.isPickupMode = tag.getBoolean("isPickupMode");
         this.currentHeldBlock = tag.contains("currentHeldBlock", Tag.TAG_COMPOUND)
             ? ItemStack.parse(provider, tag.getCompound("currentHeldBlock")).orElse(ItemStack.EMPTY)
             : ItemStack.EMPTY;
@@ -131,43 +134,73 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.isPowered = this.grid != null && this.grid.isWorking();
             // 检测红石信号
             this.hasRedstoneSignal = level.hasNeighborSignal(pos);
-
-            // 如果从"不能工作"变为"可以工作"，重置放置索引
+    
+            // 如果从“不能工作”变为“可以工作”，重置放置索引
             boolean wasAbleToWork = wasPowered && !wasRedstoneSignal;
             boolean isAbleToWork = this.isPowered && !this.hasRedstoneSignal;
-
+    
             if (!wasAbleToWork && isAbleToWork) {
                 this.currentPlacementIndex = 0;
             }
-
-            // 方块放置逻辑
+    
+            // 根据模式执行不同的逻辑
             if (this.isPowered && !this.hasRedstoneSignal) {
-                boolean needsPlacement = this.hasEmptyPositions(level, pos);
-                boolean hasBlocksInContainer = this.hasBlockItemsInContainer(level, pos);
-
-                if (this.placeCooldown > 0) {
-                    this.placeCooldown--;
-                    if (this.placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
-                        this.placeBlocks(level, pos);
-                    }
-                } else if (needsPlacement && hasBlocksInContainer) {
-                    // 新周期开始，如果持有方块为空（之前耗尽），重置索引
-                    if (this.currentHeldBlock.isEmpty()) {
-                        this.currentPlacementIndex = 0;
-                    }
-                    this.placeCooldown = PLACEMENT_INTERVAL;
-                    this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
-                    this.onChanged();
+                if (this.isPickupMode) {
+                    // 取物模式：从容器取物品放置
+                    this.tickPickupMode(level, pos);
+                } else {
+                    // 移动模式：直接移动背后的方块
+                    this.tickMoveMode(level, pos);
                 }
             } else {
                 this.placeCooldown = 0;
                 this.currentHeldBlock = ItemStack.EMPTY;
             }
-
+    
             this.onChanged();
         } else {
             // 客户端tick：更新工作状态动画
             this.tickClient();
+        }
+    }
+    
+    /**
+     * 取物模式tick逻辑
+     */
+    private void tickPickupMode(Level level, BlockPos pos) {
+        boolean needsPlacement = this.hasEmptyPositions(level, pos);
+        boolean hasBlocksInContainer = this.hasBlockItemsInContainer(level, pos);
+    
+        if (this.placeCooldown > 0) {
+            this.placeCooldown--;
+            if (this.placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
+                this.placeBlocks(level, pos);
+            }
+        } else if (needsPlacement && hasBlocksInContainer) {
+            // 新周期开始，如果持有方块为空（之前耗尽），重置索引
+            if (this.currentHeldBlock.isEmpty()) {
+                this.currentPlacementIndex = 0;
+            }
+            this.placeCooldown = PLACEMENT_INTERVAL;
+            this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
+            this.onChanged();
+        }
+    }
+    
+    /**
+     * 移动模式tick逻辑
+     */
+    private void tickMoveMode(Level level, BlockPos pos) {
+        boolean needsMove = this.hasTargetPositions(level, pos);
+    
+        if (this.placeCooldown > 0) {
+            this.placeCooldown--;
+            if (this.placeCooldown == PLACEMENT_DELAY && needsMove) {
+                this.moveBlocks(level, pos);
+            }
+        } else if (needsMove) {
+            this.placeCooldown = PLACEMENT_INTERVAL;
+            this.onChanged();
         }
     }
 
@@ -199,6 +232,48 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
         }
         return false;
+    }
+
+    /**
+     * 检查是否有目标位置需要移动方块（移动模式）
+     */
+    private boolean hasTargetPositions(Level level, BlockPos placerPos) {
+        Direction facing = level.getBlockState(placerPos).getValue(HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        BlockPos sourcePos = placerPos.relative(facing.getOpposite());
+
+        // 检查背后（输入位置）是否有可移动的方块
+        BlockState sourceState = level.getBlockState(sourcePos);
+        if (sourceState.isAir()) {
+            return false;
+        }
+        
+        if (isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+            return false;
+        }
+
+        // 检查是否有空的目标位置
+        int emptyCount = 0;
+        for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
+            for (int position : entry.getValue()) {
+                BlockPos targetPos = this.calculateTargetPosition(basePos, facing, position / 5, position % 5, entry.getKey(), upsideDown);
+                if (level.isEmptyBlock(targetPos)) {
+                    emptyCount++;
+                }
+            }
+        }
+        
+        return emptyCount > 0;
+    }
+
+    /**
+     * 检查方块是否不可以被活塞移动
+     */
+    private boolean isBlockNotPushable(BlockState state, Level level, BlockPos pos, Direction facing) {
+        return !net.minecraft.world.level.block.piston.PistonBaseBlock.isPushable(
+            state, level, pos, facing, false, facing
+        );
     }
 
     /**
@@ -303,6 +378,73 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         return;
                     }
 
+                    this.currentPlacementIndex = (index + 1) % allPositions.size();
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    this.onChanged();
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * 移动方块（每次只移动一个）
+     * 使用fakeplayer方案：先破坏源方块获取BlockItem，然后使用fakeplayer放置
+     */
+    private void moveBlocks(Level level, BlockPos placerPos) {
+        Direction facing = this.getFacing(placerPos, level);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        BlockPos sourcePos = placerPos.relative(facing.getOpposite());
+        List<BlockPos> allPositions = this.buildOrderedPositions(basePos, facing, upsideDown);
+
+        if (allPositions.isEmpty()) {
+            return;
+        }
+
+        if (this.currentPlacementIndex >= allPositions.size()) {
+            this.currentPlacementIndex = 0;
+        }
+
+        // 检查背后的方块是否可以移动
+        BlockState sourceState = level.getBlockState(sourcePos);
+        if (isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+            return;
+        }
+
+        // 找到第一个空的目标位置
+        for (int i = 0; i < allPositions.size(); i++) {
+            int index = (this.currentPlacementIndex + i) % allPositions.size();
+            BlockPos targetPos = allPositions.get(index);
+
+            if (level.isEmptyBlock(targetPos)) {
+                // 获取源方块状态
+                BlockState sourceState2 = level.getBlockState(sourcePos);
+                
+                // 将方块本身转换为BlockItem
+                ItemStack blockItem = sourceState2.getBlock().asItem().getDefaultInstance();
+                if (!(blockItem.getItem() instanceof BlockItem)) {
+                    // 如果无法转换为BlockItem，直接破坏方块
+                    level.removeBlock(sourcePos, false);
+                    this.currentPlacementIndex = (index + 1) % allPositions.size();
+                    this.onChanged();
+                    return;
+                }
+                
+                // 破坏源方块（不产生掉落物）
+                level.removeBlock(sourcePos, false);
+                
+                // 使用fakeplayer放置方块
+                if (blockItem.getItem() instanceof BlockItem blockItemObj) {
+                    Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
+                    
+                    if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
+                        level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
+                        // 如果放置失败，恢复源方块
+                        level.setBlock(sourcePos, sourceState2, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                        return;
+                    }
+                    
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.currentHeldBlock = ItemStack.EMPTY;
                     this.onChanged();
@@ -488,6 +630,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     /**
+     * 切换操作模式
+     *
+     * @param pickupMode true=取物模式，false=移动模式
+     */
+    public void setPickupMode(boolean pickupMode) {
+        this.isPickupMode = pickupMode;
+        this.onChanged();
+    }
+
+    /**
      * 切换位置的选中状态
      *
      * @param layer layer索引
@@ -516,6 +668,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putInt("selectedLayer", selectedLayer);
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
         tag.putInt("placeCooldown", placeCooldown);
+        tag.putBoolean("isPickupMode", isPickupMode);
         if (!currentHeldBlock.isEmpty()) {
             tag.put("currentHeldBlock", currentHeldBlock.save(registries));
         }
@@ -591,6 +744,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public void storeDiskData(CompoundTag tag) {
         tag.putInt("selectedLayer", this.selectedLayer);
         tag.putInt("currentPlacementIndex", this.currentPlacementIndex);
+        tag.putBoolean("isPickupMode", this.isPickupMode);
         this.saveLayerPositions(tag);
     }
 
@@ -598,6 +752,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public void applyDiskData(CompoundTag tag) {
         this.selectedLayer = tag.getInt("selectedLayer");
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
+        this.isPickupMode = tag.getBoolean("isPickupMode");
         this.loadLayerPositions(tag);
         this.onChanged();
     }

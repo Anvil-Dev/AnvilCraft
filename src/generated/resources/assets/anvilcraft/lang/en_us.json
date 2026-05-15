@@ -1419,5 +1419,7 @@
   "screen.anvilcraft.smart_block_placer.layer_mode.single": "Show Layer %d/%d. Click to switch to All Layers Mode",
   "screen.anvilcraft.smart_block_placer.position.selected": "Position %d, %d Has Been Selected. Click to unselect",
   "screen.anvilcraft.smart_block_placer.position.unselected": "Position %d, %d Has Not Been Selected. Click to select",
-  "screen.anvilcraft.smart_block_placer.preview.empty": "No positions configured"
+  "screen.anvilcraft.smart_block_placer.preview.empty": "No positions configured",
+  "screen.anvilcraft.smart_block_placer.operation_mode.pickup": "Pickup Mode: Place blocks from containers. Click to switch to Move Mode",
+  "screen.anvilcraft.smart_block_placer.operation_mode.move": "Move Mode: Move blocks behind to selected positions. Click to switch to Pickup Mode"
 }

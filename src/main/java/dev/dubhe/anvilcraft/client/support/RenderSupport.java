@@ -322,31 +322,17 @@ public class RenderSupport {
     }
     
     /**
-     * 渲染LevelLike，支持固定旋转角度
-     * @param fixedRotationY 固定的Y轴旋转角度（度）
-     * @param useFixedRotation 是否使用固定旋转（如果为false，X轴使用默认的-30度）
-     */
-    public static void renderLevelLike(
-        LevelLike level,
-        GuiGraphics guiGraphics,
-        int posX,
-        int posY,
-        float scaleFactor,
-        float fixedRotationY,
-        boolean useFixedRotation
-    ) {
-        float rotationX = useFixedRotation ? -30.0f : -30.0f;  // 默认X轴旋转角度
-        renderLevelLikeWithFixedSize(level, guiGraphics, posX, posY, scaleFactor, 
-            rotationX, fixedRotationY, level.horizontalSize(), level.verticalSize());
-    }
-    
-    /**
      * 渲染LevelLike，支持固定旋转角度和固定尺寸
+     *
      * @param rotationX X轴旋转角度（度）
      * @param rotationY Y轴旋转角度（度）
      * @param fixedSizeX 固定的X尺寸
      * @param fixedSizeY 固定的Y尺寸
      */
+    @SuppressWarnings({
+        "checkstyle:VariableDeclarationUsageDistance",
+        "checkstyle:RequireEmptyLineBeforeBlockTagGroup"
+    })
     public static void renderLevelLikeWithFixedSize(
         LevelLike level,
         GuiGraphics guiGraphics,
@@ -359,7 +345,7 @@ public class RenderSupport {
         int fixedSizeY
     ) {
         RenderSystem.enableBlend();
-        Minecraft minecraft = Minecraft.getInstance();
+        final Minecraft minecraft = Minecraft.getInstance();
         PoseStack pose = guiGraphics.pose();
 
         pose.pushPose();

@@ -72,59 +72,60 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         ) {
             // 计算目标角度
             float[] targetAngles = this.calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
-
+        
             // 根据动画进度计算当前角度
             float baseAngle;
             float upperArmAngle;
             float forearmAngle;
             float clawAngle;
-
+        
             if (animationProgress <= 0.2f) {
                 // 阶段1：底盘旋转 + 小臂和钳子指向目标
                 // 大臂不动(0°)，小臂需要补偿角度以指向目标
                 float phase1Progress = animationProgress / 0.2f;
-
+        
                 baseAngle = targetAngles[0] * phase1Progress;
                 upperArmAngle = 0f; // 大臂不动
-
+        
                 // 计算补偿角度：当大臂为0时，小臂需要多少度才能让钳子指向目标
                 // 使用简化补偿：小臂角度 = 目标大臂角度 + 目标小臂角度
                 float compensationAngle = targetAngles[1] + targetAngles[2];
                 forearmAngle = compensationAngle * phase1Progress;
                 clawAngle = targetAngles[3] * phase1Progress;
-
+        
             } else if (animationProgress <= 0.3f) {
                 // 阶段2：停顿，保持指向目标
                 baseAngle = targetAngles[0];
                 upperArmAngle = 0f;
                 forearmAngle = targetAngles[1] + targetAngles[2]; // 补偿角度
                 clawAngle = targetAngles[3];
-
+        
             } else if (animationProgress <= 0.7f) {
                 // 阶段3：大臂推出（延长），小臂持续补偿
                 float phase3Progress = (animationProgress - 0.3f) / 0.4f;
-
+        
                 baseAngle = targetAngles[0];
                 upperArmAngle = targetAngles[1] * phase3Progress;
-
-                // 小臂补偿：从“补偿角度”渐变到“目标角度”
+        
+                // 小臂补偿：从"补偿角度"渐变到"目标角度"
                 // 当大臂到位时，小臂也应该是目标角度
                 float startForearmAngle = targetAngles[1] + targetAngles[2]; // 起始补偿角度
                 float endForearmAngle = targetAngles[2]; // 结束目标角度
                 forearmAngle = startForearmAngle + (endForearmAngle - startForearmAngle) * phase3Progress;
-
+        
                 clawAngle = targetAngles[3];
-
+        
             } else {
-                // 阶段4：收回动画
+                // 阶段4：收回动画 - 合并为一个平滑的过程
+                // 底盘、大臂、小臂同时归零
                 float phase4Progress = (animationProgress - 0.7f) / 0.3f;
-
-                baseAngle = targetAngles[0] * (1f - phase4Progress);
-                upperArmAngle = targetAngles[1] * (1f - phase4Progress);
-                forearmAngle = targetAngles[2] * (1f - phase4Progress);
-                clawAngle = targetAngles[3] * (1f - phase4Progress);
+                        
+                baseAngle = targetAngles[0] * (1f - phase4Progress); // 底盘归零
+                upperArmAngle = targetAngles[1] * (1f - phase4Progress); // 大臂归零
+                forearmAngle = targetAngles[2] * (1f - phase4Progress); // 小臂直接归零
+                clawAngle = targetAngles[3] * (1f - phase4Progress); // 钳子归零
             }
-
+        
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
         
@@ -255,51 +256,54 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         boolean isWorking = entity.getPlaceCooldown() > 0;
         
         if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && entity.getLevel() != null) {
-            // 工作状态下播放1秒动画
-            BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
-            
             // 获取动画进度
             long currentTime = entity.getLevel().getGameTime();
             long animStartTime = entity.getClientAnimationStartTime();
+            BlockPos animTargetPos = entity.getClientLastTargetPos();
             
-            // 如果动画未开始且有目标位置，初始化
-            if (animStartTime == 0 && targetPos != null) {
-                entity.setClientAnimationStartTime(currentTime);
-                entity.setClientLastTargetPos(targetPos);
-            }
-            
-            // 使用缓存的目标位置，确保动画连贯
-            // 即使找不到新目标，也要继续播放当前周期的动画
-            if (animStartTime > 0) {
-                long elapsedTicks = currentTime - animStartTime;
-                
-                // 如果动画已完成（超过1秒），且找到新的目标位置，开始新动画
-                if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() 
-                    && targetPos != null
-                    && !targetPos.equals(entity.getClientLastTargetPos())) {
+            // 如果动画未开始，查找目标位置并初始化
+            if (animStartTime == 0) {
+                BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+                if (targetPos != null) {
                     entity.setClientAnimationStartTime(currentTime);
                     entity.setClientLastTargetPos(targetPos);
+                    animStartTime = currentTime;
+                    animTargetPos = targetPos;
+                } else {
+                    // 没有可用目标位置，直接返回
+                    return;
+                }
+            }
+            
+            // 使用缓存的目标位置播放动画
+            // 在整个动画周期内锁定目标位置，确保动画流畅
+            long elapsedTicks = currentTime - animStartTime;
+            
+            // 只有当动画完成后，才查找新的目标位置
+            if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
+                BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+                // 如果找到新的目标位置且与当前不同，开始新动画
+                if (targetPos != null && !targetPos.equals(animTargetPos)) {
+                    entity.setClientAnimationStartTime(currentTime);
+                    entity.setClientLastTargetPos(targetPos);
+                    animTargetPos = targetPos;
                     elapsedTicks = 0;
                 }
-                
-                // 使用缓存的目标位置播放动画
-                BlockPos animTargetPos = entity.getClientLastTargetPos();
-                
-                // 只有当有目标位置时才播放动画
-                float animationProgress = Math.min(
-                    1.0f,
-                    (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
-                );
-
-                // 计算当前角度
-                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                    animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
-                );
-                baseSwingAngle = angles[0];
-                upperArmAngle = angles[1];
-                forearmAngle = angles[2];
-                clawAngle = angles[3];
             }
+            
+            float animationProgress = Math.min(
+                1.0f,
+                (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
+            );
+
+            // 计算当前角度
+            float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
+            );
+            baseSwingAngle = angles[0];
+            upperArmAngle = angles[1];
+            forearmAngle = angles[2];
+            clawAngle = angles[3];
         }
         
         // 渲染底座
