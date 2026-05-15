@@ -69,12 +69,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private long clientAnimationStartTime = 0;
     private BlockPos clientLastTargetPos = null;
     private int lastPlaceCooldown = 0;
+    
+    // 客户端收回动画状态（每个BlockEntity独立）
+    private boolean clientIsRetracting = false;
+    private long clientRetractStartTime = 0;
+    private float[] clientRetractStartAngles = new float[4];
+    private float clientRetractStartProgress = 0f; // 保存中断时的进度，用于计算收回时长
 
     public void updateClientAnimationState(boolean isPowered, boolean hasRedstoneSignal) {
-        if (!isPowered || hasRedstoneSignal) {
-            this.clientAnimationStartTime = 0;
-            this.clientLastTargetPos = null;
-        }
+        // 不要在断电时清除动画状态，让Renderer能够平滑过渡到收回动画
+        // 动画状态的清除由Renderer在收回动画完成后处理
     }
 
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
@@ -183,6 +187,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (this.placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
                 this.placeBlocks(level, pos);
             }
+            // 容器耗尽时立即清除cooldown，防止客户端继续播放动画
+            if (!hasBlocksInContainer && this.placeCooldown > 0) {
+                this.placeCooldown = 0;
+                this.currentHeldBlock = ItemStack.EMPTY;
+                this.onChanged();
+            }
         } else if (needsPlacement && hasBlocksInContainer) {
             if (this.currentHeldBlock.isEmpty()) {
                 this.currentPlacementIndex = 0;
@@ -200,6 +210,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.placeCooldown--;
             if (this.placeCooldown == PLACEMENT_DELAY && needsMove) {
                 this.moveBlocks(level, pos);
+            }
+            // 没有可移动的位置时立即清除cooldown，防止客户端继续播放动画
+            if (!needsMove && this.placeCooldown > 0) {
+                this.placeCooldown = 0;
+                this.currentHeldBlock = ItemStack.EMPTY;
+                this.onChanged();
             }
         } else if (needsMove) {
             this.placeCooldown = PLACEMENT_INTERVAL;

@@ -269,7 +269,79 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         // 判断是否处于工作状态（正在放置方块）
         boolean isWorking = entity.getPlaceCooldown() > 0;
         
-        if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && entity.getLevel() != null) {
+        // 检测是否需要开始收回动画：从工作状态切换到非工作状态
+        // 包括：断电、红石信号、容器耗尽、无方块可移动等情况
+        boolean wasWorkingLastFrame = entity.getClientAnimationStartTime() != 0;
+        boolean shouldStartRetract = wasWorkingLastFrame && !isWorking && !entity.isClientIsRetracting();
+        if (shouldStartRetract && entity.getLevel() != null) {
+            long animStartTime = entity.getClientAnimationStartTime();
+            BlockPos animTargetPos = entity.getClientLastTargetPos();
+            
+            // 如果有动画状态，保存当前角度用于收回
+            if (animStartTime != 0 && animTargetPos != null) {
+                entity.setClientIsRetracting(true);
+                entity.setClientRetractStartTime(entity.getLevel().getGameTime());
+                
+                // 计算当前中断位置的角度和进度
+                long elapsedTicks = entity.getLevel().getGameTime() - animStartTime;
+                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks());
+                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                    animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
+                );
+                entity.setClientRetractStartAngles(angles);
+                
+                // 保存中断进度，用于计算收回时长
+                // 例如：在70%进度中断，收回动画只用30%的时长
+                entity.setClientRetractStartProgress(interruptProgress);
+            }
+        }
+        
+        // 如果重新开始工作，取消收回状态
+        if (isCurrentlyPowered && !hasRedstoneSignal && isWorking) {
+            entity.setClientIsRetracting(false);
+        }
+        
+        if (entity.isClientIsRetracting() && entity.getLevel() != null) {
+            // 收回动画：从保存的起始角度平滑归零
+            long currentTime = entity.getLevel().getGameTime();
+            long elapsedRetractTicks = currentTime - entity.getClientRetractStartTime();
+            
+            // 收回动画的时长 = 总时长 * (1 - 中断进度)
+            // 例如：在70%进度中断，收回只用30%的时长(6 tick)
+            float startProgress = entity.getClientRetractStartProgress();
+            float remainingProgress = 1.0f - startProgress;
+            float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
+            
+            // 避免除以零：如果已经完成动画，立即归零
+            if (retractDuration <= 0) {
+                baseSwingAngle = 0f;
+                upperArmAngle = 0f;
+                forearmAngle = 0f;
+                clawAngle = 0f;
+                entity.setClientIsRetracting(false);
+                entity.setClientAnimationStartTime(0);
+                entity.setClientLastTargetPos(null);
+            } else {
+                float retractProgress = Math.min(
+                    1.0f,
+                    (elapsedRetractTicks + partialTick) / retractDuration
+                );
+                
+                // 从起始角度线性插值到零
+                float[] startAngles = entity.getClientRetractStartAngles();
+                baseSwingAngle = startAngles[0] * (1f - retractProgress);
+                upperArmAngle = startAngles[1] * (1f - retractProgress);
+                forearmAngle = startAngles[2] * (1f - retractProgress);
+                clawAngle = startAngles[3] * (1f - retractProgress);
+                
+                // 收回完成后重置状态
+                if (retractProgress >= 1.0f) {
+                    entity.setClientIsRetracting(false);
+                    entity.setClientAnimationStartTime(0);
+                    entity.setClientLastTargetPos(null);
+                }
+            }
+        } else if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && entity.getLevel() != null) {
             // 获取动画进度
             long currentTime = entity.getLevel().getGameTime();
             long animStartTime = entity.getClientAnimationStartTime();
@@ -477,36 +549,27 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         // 使用 currentHeldBlock 字段（已同步到客户端）来获取要渲染的方块
         ItemStack stack = entity.getCurrentHeldBlock();
         
-        if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem blockItem)) {
+        if (stack.isEmpty()) {
             return;
         }
         
-        // 获取方块的BlockState
-        Block block = blockItem.getBlock();
-        BlockState blockState = block.defaultBlockState();
-        
-        // 渲染方块模型
+        // 渲染物品模型（会自动选择正确的模型：方块模型或物品模型）
         poseStack.pushPose();
         // 方块在钳子开口位置（相对于钳子旋转中心）
-        poseStack.translate(0.375, 0.9, -0.1);
-        poseStack.scale(0.25f, 0.25f, 0.25f);
+        poseStack.translate(0.5, 0.95, 0.0);
+        poseStack.scale(0.65f, 0.65f, 0.65f);
         
-        BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
-        BakedModel bakedModel = blockRenderer.getBlockModel(blockState);
-        
-        // 根据方块状态选择合适的渲染类型
-        RenderType renderType = ItemBlockRenderTypes
-            .getRenderType(blockState, false);
-        
-        // 使用renderModel方法渲染方块
-        blockRenderer.getModelRenderer().renderModel(
-            poseStack.last(),
-            buffer.getBuffer(renderType),
-            blockState,
-            bakedModel,
-            1f, 1f, 1f,
+        // 使用 ItemRenderer 渲染物品，这样会正确处理方块物品和普通物品
+        net.minecraft.client.renderer.entity.ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        itemRenderer.renderStatic(
+            stack,
+            net.minecraft.world.item.ItemDisplayContext.FIXED,
             packedLight,
-            packedOverlay
+            packedOverlay,
+            poseStack,
+            buffer,
+            entity.getLevel(),
+            0
         );
         
         poseStack.popPose();
