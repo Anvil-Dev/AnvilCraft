@@ -7,13 +7,19 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity> {
     // 位置列表缓存，避免每帧重新分配
@@ -71,8 +78,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
          */
         @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
         public float[] calculateArmAngles(
-            net.minecraft.core.BlockPos targetPos,
-            net.minecraft.core.BlockPos placerPos,
+            BlockPos targetPos,
+            BlockPos placerPos,
             Direction facing,
             boolean upsideDown,
             float animationProgress
@@ -140,8 +147,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
          * 计算目标角度（不考虑动画进度）
          */
         private float[] calculateTargetAngles(
-            net.minecraft.core.BlockPos targetPos,
-            net.minecraft.core.BlockPos placerPos,
+            BlockPos targetPos,
+            BlockPos placerPos,
             Direction facing,
             boolean upsideDown
         ) {
@@ -389,10 +396,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         BlockPos basePos = entity.getBlockPos().relative(facing.getOpposite(), -4);
         
         // 获取所有配置的位置
-        java.util.Map<Integer, java.util.Set<Integer>> layerPositions = entity.getLayerPositions();
+        Map<Integer, Set<Integer>> layerPositions = entity.getLayerPositions();
         
         // 构建有序的放置位置列表（与BlockEntity保持一致）
-        java.util.List<BlockPos> allPositions = buildOrderedPositionsForRenderer(basePos, facing, layerPositions, upsideDown);
+        List<BlockPos> allPositions = buildOrderedPositionsForRenderer(basePos, facing, layerPositions, upsideDown);
         
         // 如果没有配置任何位置，返回null
         if (allPositions.isEmpty()) {
@@ -424,8 +431,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      * 构建有序的放置位置列表（渲染器使用）
      * 顺序：从最下面一层开始，每一层从最远离放置器的位置开始，从左到右，然后逐渐向下
      */
-    private java.util.List<BlockPos> buildOrderedPositionsForRenderer(
-        BlockPos basePos, Direction facing, java.util.Map<Integer, java.util.Set<Integer>> layerPositions, boolean upsideDown) {
+    private List<BlockPos> buildOrderedPositionsForRenderer(
+        BlockPos basePos, Direction facing, Map<Integer, Set<Integer>> layerPositions, boolean upsideDown) {
         // 使用缓存的 key：放置器位置 + 朝向 + 倒挂状态 + layerPositions 的哈希
         String cacheKey = basePos.toShortString() + "_" + facing.getName() + "_" + upsideDown + "_" + layerPositions.hashCode();
         
@@ -468,15 +475,15 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private void renderHeldBlock(
         PoseStack poseStack, MultiBufferSource buffer, SmartBlockPlacerBlockEntity entity, int packedLight, int packedOverlay) {
         // 使用 currentHeldBlock 字段（已同步到客户端）来获取要渲染的方块
-        net.minecraft.world.item.ItemStack stack = entity.getCurrentHeldBlock();
+        ItemStack stack = entity.getCurrentHeldBlock();
         
-        if (stack.isEmpty() || !(stack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem)) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem blockItem)) {
             return;
         }
         
         // 获取方块的BlockState
-        net.minecraft.world.level.block.Block block = blockItem.getBlock();
-        net.minecraft.world.level.block.state.BlockState blockState = block.defaultBlockState();
+        Block block = blockItem.getBlock();
+        BlockState blockState = block.defaultBlockState();
         
         // 渲染方块模型
         poseStack.pushPose();
@@ -484,11 +491,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.translate(0.375, 0.9, -0.1);
         poseStack.scale(0.25f, 0.25f, 0.25f);
         
-        net.minecraft.client.renderer.block.BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
-        net.minecraft.client.resources.model.BakedModel bakedModel = blockRenderer.getBlockModel(blockState);
+        BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+        BakedModel bakedModel = blockRenderer.getBlockModel(blockState);
         
         // 根据方块状态选择合适的渲染类型
-        net.minecraft.client.renderer.RenderType renderType = net.minecraft.client.renderer.ItemBlockRenderTypes
+        RenderType renderType = ItemBlockRenderTypes
             .getRenderType(blockState, false);
         
         // 使用renderModel方法渲染方块

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
@@ -15,7 +16,9 @@ import dev.dubhe.anvilcraft.network.SmartBlockPlacerPositionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -27,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,6 +84,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private static final float ROTATION_SENSITIVITY = 0.5f;
 
     private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
+    
+    // LevelLike 缓存
+    private LevelLike cachedPreviewLevelLike = null;
+    private Map<Integer, Set<Integer>> cachedLayerPositions = new HashMap<>();
+    private int cachedViewLayer = -1;
+    private boolean cachedShowAllLayers = true;
+    private boolean cachedPickupMode = true;
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -407,7 +418,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             return;
         }
 
-        LevelLike previewLevelLike = this.buildPreviewLevelLike();
+        LevelLike previewLevelLike = this.getOrCreateCachedPreviewLevelLike();
 
         // 启用裁剪，限制渲染区域在预览窗口内
         // 使用浮点数缩放以避免非整数GUI缩放比例（如1.5、2.5）的精度丢失
@@ -450,10 +461,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 使用固定尺寸渲染预览
      */
-    private void renderPreviewWithFixedSize(LevelLike level, GuiGraphics guiGraphics,
+    private void renderPreviewWithFixedSize(@Nullable LevelLike level, GuiGraphics guiGraphics,
                                             int posX, int posY,
         float rotationX, float rotationY
     ) {
+        if (level == null) {
+            return;
+        }
         RenderSupport.renderLevelLikeWithFixedSize(level, guiGraphics, posX, posY,
             (float) 80.0, rotationX, rotationY, 5, 5
         );
@@ -469,13 +483,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         
         // 获取缓冲区
         MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
-        final VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.RenderType.lines());
+        final VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
         
         // 设置PoseStack - 完全复制RenderSupport.renderLevelLikeWithFixedSize的变换顺序
-        guiGraphics.pose().pushPose();
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
         
         // 1. 平移到预览窗口中心
-        guiGraphics.pose().translate(
+        poseStack.translate(
             this.previewWindowX + (float) this.previewWindowWidth / 2,
             this.previewWindowY + (float) this.previewWindowHeight / 2 + 5,
             100
@@ -485,30 +500,30 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         float scaleX = 80.0f / (5 * net.minecraft.util.Mth.SQRT_OF_TWO);
         float scaleY = 80.0f / 5.0f;
         float scale = Math.min(scaleY, scaleX);
-        guiGraphics.pose().scale(-scale, -scale, -scale);
+        poseStack.scale(-scale, -scale, -scale);
         
         // 3. 平移到中心
-        guiGraphics.pose().translate(-(float) 5 / 2, -(float) 5 / 2, 0);
+        poseStack.translate(-(float) 5 / 2, -(float) 5 / 2, 0);
         
         // 4. 先应用X轴旋转
-        guiGraphics.pose().mulPose(com.mojang.math.Axis.XP.rotationDegrees(this.previewRotationX));
+        poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(this.previewRotationX));
         
         // 5. Y轴旋转的中心点和旋转
         float offsetX = (float) -5 / 2 + 0.05f;
         float offsetZ = (float) -5 / 2 + 1 - 0.05f;
-        guiGraphics.pose().translate(-offsetX, 0, -offsetZ);
-        guiGraphics.pose().mulPose(com.mojang.math.Axis.YP.rotationDegrees(this.previewRotationY + 45));
-        guiGraphics.pose().translate(offsetX, 0, offsetZ);
+        poseStack.translate(-offsetX, 0, -offsetZ);
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(this.previewRotationY + 45));
+        poseStack.translate(offsetX, 0, offsetZ);
         
         // 6. 平移Z轴（与方块渲染保持一致）
-        guiGraphics.pose().translate(0, 0, -1);
+        poseStack.translate(0, 0, -1);
         
         // 7. 创建范围框（与方块渲染的位置空间一致）
         final VoxelShape rangeShape = Shapes.create(0.0, 0.0, 0.0, 5.0, 5.0, 5.0);
         
         // 8. 渲染范围框（青色，与世界中一致）
         TooltipRenderHelper.renderOutline(
-            guiGraphics.pose(),
+            poseStack,
             consumer,
             0, 0, 0,
             BlockPos.ZERO,
@@ -516,8 +531,36 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             0xFF00FFCC
         );
         
-        buffers.endBatch(net.minecraft.client.renderer.RenderType.lines());
-        guiGraphics.pose().popPose();
+        buffers.endBatch(RenderType.lines());
+        poseStack.popPose();
+    }
+    
+    /**
+     * 获取或创建缓存的 LevelLike 实例
+     * 只在状态改变时重建，避免每帧重新构建
+     */
+    private @Nullable LevelLike getOrCreateCachedPreviewLevelLike() {
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null || this.minecraft == null || this.minecraft.level == null) {
+            return null;
+        }
+
+        // 检查缓存是否有效
+        boolean needsRebuild = this.cachedPreviewLevelLike == null
+            || !this.cachedLayerPositions.equals(blockEntity.getLayerPositions())
+            || this.cachedViewLayer != blockEntity.getSelectedLayer()
+            || this.cachedShowAllLayers != this.showAllLayers
+            || this.cachedPickupMode != blockEntity.isPickupMode();
+
+        if (needsRebuild) {
+            this.cachedPreviewLevelLike = this.buildPreviewLevelLike();
+            this.cachedLayerPositions = new HashMap<>(blockEntity.getLayerPositions());
+            this.cachedViewLayer = blockEntity.getSelectedLayer();
+            this.cachedShowAllLayers = this.showAllLayers;
+            this.cachedPickupMode = blockEntity.isPickupMode();
+        }
+
+        return this.cachedPreviewLevelLike;
     }
     
     /**
@@ -525,16 +568,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      *
      * @return 预览数据
      */
-    @SuppressWarnings({
-        "DataFlowIssue",
-        "checkstyle:VariableDeclarationUsageDistance"
-    })
-    private LevelLike buildPreviewLevelLike() {
+    private @Nullable LevelLike buildPreviewLevelLike() {
         var blockEntity = this.menu.getBlockEntity();
-        var level = this.minecraft.level;
-        if (level == null) {
-            return new LevelLike(null);
+        if (blockEntity == null || this.minecraft == null || this.minecraft.level == null) {
+            return null;
         }
+        
+        ClientLevel level = this.minecraft.level;
         LevelLike previewLevelLike = new LevelLike(level);
         previewLevelLike.setAllLayersVisible(this.showAllLayers);
 
