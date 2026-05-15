@@ -33,13 +33,11 @@ import org.jetbrains.annotations.Nullable;
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
 
-    // 碰撞箱（地面）
     private static final VoxelShape SHAPE_FLOOR = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16),
         Block.box(2, 4, 2, 14, 8, 14)
     );
 
-    // 碰撞箱（天花板）
     private static final VoxelShape SHAPE_CEILING = Shapes.or(
         Block.box(0, 12, 0, 16, 16, 16),
         Block.box(2, 8, 2, 14, 12, 14)

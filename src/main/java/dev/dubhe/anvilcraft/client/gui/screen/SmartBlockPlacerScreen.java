@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -13,6 +15,7 @@ import dev.dubhe.anvilcraft.network.SmartBlockPlacerPositionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -21,6 +24,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -34,7 +39,6 @@ import java.util.Set;
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "smart_block_placer");
 
-    // Layer按钮贴图
     private static final ResourceLocation[] LAYER_DEFAULT = {
         SharedTextures.textureGui("machine/smart_block_placer/layer_1"),
         SharedTextures.textureGui("machine/smart_block_placer/layer_2"),
@@ -43,14 +47,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         SharedTextures.textureGui("machine/smart_block_placer/layer_5")
     };
 
-    // 位置选择按钮贴图
     private static final ResourceLocation POSITION_SELECT = SharedTextures.textureGui("machine/smart_block_placer/position_select");
 
-    // 分层显示切换按钮贴图
     private static final ResourceLocation LAYER_ALL = SharedTextures.textureGui("machine/smart_block_placer/layer_all");
     private static final ResourceLocation LAYER_SINGLE = SharedTextures.textureGui("machine/smart_block_placer/layer_single");
 
-    // 取物/移动模式切换按钮贴图
     private static final ResourceLocation PICKUP_MODE = SharedTextures.textureGui("machine/smart_block_placer/pickup_mode");
     private static final ResourceLocation MOVE_MODE = SharedTextures.textureGui("machine/smart_block_placer/move_mode");
 
@@ -60,13 +61,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private ToggleButton operationModeButton;  // 取物/移动模式切换按钮
     private int currentViewLayer = 0;
     private Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
-    private boolean showAllLayers = true;  // 是否显示所有层
-    private boolean isPickupMode = true;  // 是否为取物模式（true=取物，false=移动）
+    private boolean showAllLayers = true;
+    private boolean isPickupMode = true;
 
-    // 鼠标拖动状态
     private Boolean dragTargetState = null;
 
-    // 3D预览窗口
     private int previewWindowX;
     private int previewWindowY;
     private final int previewWindowWidth = 112;
@@ -80,8 +79,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private static final float MAX_ROTATION_X = 0.0f;
     private static final float ROTATION_SENSITIVITY = 0.5f;
 
-    // 预览方块动画
-    private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;  // 4秒 = 80 tick
+    private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -95,14 +93,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         super.init();
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
 
-        // 从服务端获取初始状态
         if (this.menu.getBlockEntity() != null) {
             this.currentViewLayer = this.menu.getBlockEntity().getSelectedLayer();
             this.layerPositions = this.menu.getBlockEntity().getLayerPositions();
             this.isPickupMode = this.menu.getBlockEntity().isPickupMode();
         }
 
-        // 初始化预览窗口位置（根据GUI背景图）
         this.previewWindowX = this.leftPos + 136;
         this.previewWindowY = this.topPos + 18;
 
@@ -430,6 +426,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewRotationY
         );  // 固定5x5的尺寸
 
+        // 渲染3D放置范围框
+        this.renderPlacementRangeBox(guiGraphics);
+
         // 如果没有配置选区位置，显示提示文本
         if (this.menu.getBlockEntity().getLayerPositions().isEmpty()) {
             Component emptyText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
@@ -456,6 +455,78 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         RenderSupport.renderLevelLikeWithFixedSize(level, guiGraphics, posX, posY,
             (float) 80.0, rotationX, rotationY, 5, 5
         );
+    }
+    
+    /**
+     * 渲染3D放置范围框
+     */
+    private void renderPlacementRangeBox(GuiGraphics guiGraphics) {
+        if (this.minecraft == null || this.minecraft.level == null) {
+            return;
+        }
+        
+        // 启用裁剪，限制渲染区域在预览窗口内
+        RenderSystem.enableScissor(
+            this.previewWindowX * (int) this.minecraft.getWindow().getGuiScale(),
+            (this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * (int) this.minecraft.getWindow().getGuiScale(),
+            this.previewWindowWidth * (int) this.minecraft.getWindow().getGuiScale(),
+            this.previewWindowHeight * (int) this.minecraft.getWindow().getGuiScale()
+        );
+        
+        // 获取缓冲区
+        MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
+        final VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.RenderType.lines());
+        
+        // 设置PoseStack - 完全复制RenderSupport.renderLevelLikeWithFixedSize的变换顺序
+        guiGraphics.pose().pushPose();
+        
+        // 1. 平移到预览窗口中心
+        guiGraphics.pose().translate(
+            this.previewWindowX + (float) this.previewWindowWidth / 2,
+            this.previewWindowY + (float) this.previewWindowHeight / 2 + 5,
+            100
+        );
+        
+        // 2. 使用与预览相同的缩放计算
+        float scaleX = 80.0f / (5 * net.minecraft.util.Mth.SQRT_OF_TWO);
+        float scaleY = 80.0f / 5.0f;
+        float scale = Math.min(scaleY, scaleX);
+        guiGraphics.pose().scale(-scale, -scale, -scale);
+        
+        // 3. 平移到中心
+        guiGraphics.pose().translate(-(float) 5 / 2, -(float) 5 / 2, 0);
+        
+        // 4. 先应用X轴旋转
+        guiGraphics.pose().mulPose(com.mojang.math.Axis.XP.rotationDegrees(this.previewRotationX));
+        
+        // 5. Y轴旋转的中心点和旋转
+        float offsetX = (float) -5 / 2 + 0.05f;
+        float offsetZ = (float) -5 / 2 + 1 - 0.05f;
+        guiGraphics.pose().translate(-offsetX, 0, -offsetZ);
+        guiGraphics.pose().mulPose(com.mojang.math.Axis.YP.rotationDegrees(this.previewRotationY + 45));
+        guiGraphics.pose().translate(offsetX, 0, offsetZ);
+        
+        // 6. 平移Z轴（与方块渲染保持一致）
+        guiGraphics.pose().translate(0, 0, -1);
+        
+        // 7. 创建范围框（与方块渲染的位置空间一致）
+        final VoxelShape rangeShape = Shapes.create(0.0, 0.0, 0.0, 5.0, 5.0, 5.0);
+        
+        // 8. 渲染范围框（青色，与世界中一致）
+        TooltipRenderHelper.renderOutline(
+            guiGraphics.pose(),
+            consumer,
+            0, 0, 0,
+            BlockPos.ZERO,
+            rangeShape,
+            0xFF00FFCC
+        );
+        
+        buffers.endBatch(net.minecraft.client.renderer.RenderType.lines());
+        guiGraphics.pose().popPose();
+        
+        // 禁用裁剪
+        RenderSystem.disableScissor();
     }
     
     /**
