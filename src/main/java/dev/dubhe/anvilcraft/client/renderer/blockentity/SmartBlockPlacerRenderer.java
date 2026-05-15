@@ -273,7 +273,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
             // 如果有动画状态，保存当前角度用于收回
-            if (animStartTime != 0) {
+            if (animStartTime != 0 && animTargetPos != null) {
                 entity.setClientIsRetracting(true);
                 entity.setClientRetractStartTime(entity.getLevel().getGameTime());
                 
@@ -355,7 +355,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
             
             // 播放动画（animStartTime != 0 说明 animTargetPos 已经被设置）
-            if (animStartTime != 0) {
+            if (animStartTime != 0 && animTargetPos != null) {
                 // 使用缓存的目标位置播放动画
                 // 在整个动画周期内锁定目标位置，确保动画流畅
                 long elapsedTicks = currentTime - animStartTime;
