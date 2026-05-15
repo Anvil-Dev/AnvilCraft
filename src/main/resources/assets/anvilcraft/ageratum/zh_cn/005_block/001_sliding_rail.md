@@ -2,7 +2,6 @@
 navigation:
   title: "滑轨系统"
   icon: "anvilcraft:sliding_rail"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:sliding_rail
   - anvilcraft:sliding_rail_stop

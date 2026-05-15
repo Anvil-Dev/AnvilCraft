@@ -2,7 +2,6 @@
 navigation:
   title: "§6门格海绵"
   icon: "anvilcraft:menger_sponge"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:menger_sponge
 ---

@@ -136,7 +136,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
                     ItemStack stack = handler.extractItem(slot, Integer.MAX_VALUE, false);
                     if (!stack.isEmpty()) Block.popResource(level, pos, stack);
                 }
-
+                tank.dropFish();
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

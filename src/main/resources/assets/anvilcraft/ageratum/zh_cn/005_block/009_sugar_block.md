@@ -2,7 +2,6 @@
 navigation:
   title: "糖块"
   icon: "anvilcraft:sugar_block"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:sugar_block
 ---

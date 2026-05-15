@@ -2,7 +2,6 @@
 navigation:
   title: "§2物品收集器"
   icon: "anvilcraft:item_collector"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:item_collector
 ---

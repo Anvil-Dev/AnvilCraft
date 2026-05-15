@@ -2,7 +2,6 @@
 navigation:
   title: "蟹笼"
   icon: "anvilcraft:crab_trap"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:crab_trap
 ---

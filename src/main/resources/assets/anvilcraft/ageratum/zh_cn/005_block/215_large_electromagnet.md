@@ -2,7 +2,6 @@
 navigation:
   title: "§6大型电磁铁"
   icon: "anvilcraft:acceleration_ring"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:acceleration_ring
   - anvilcraft:deflection_ring

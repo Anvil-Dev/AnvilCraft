@@ -2,7 +2,6 @@
 navigation:
   title: "§2电感灯"
   icon: "anvilcraft:induction_light"
-  parent: anvilcraft_guideme:block.md
 items:
   - anvilcraft:induction_light
 ---

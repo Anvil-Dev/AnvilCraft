@@ -2,23 +2,29 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.client.event.ClientTickRecorder;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
+import dev.dubhe.anvilcraft.mixin.accessor.EntityAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -27,15 +33,31 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.joml.Quaternionf;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTankBlockEntity> {
+    public static final float FISH_SCALE = 0.5F;
     private static final ModelResourceLocation FIRE = ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4"));
     private final RandomSource random = RandomSource.create();
     private final BlockRenderDispatcher dispatcher;
 
+    private final Map<Long, FishCacheEntry> fishCache = new HashMap<>();
+
     public FishTankBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
         this.dispatcher = ctx.getBlockRenderDispatcher();
+    }
+
+    private static class FishCacheEntry {
+        List<TropicalFish> cachedFishes;
+        int dataHash;
+        
+        FishCacheEntry(List<TropicalFish> cachedFishes, int dataHash) {
+            this.cachedFishes = cachedFishes;
+            this.dataHash = dataHash;
+        }
     }
 
     @Override
@@ -57,14 +79,15 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             // Top and bottom positions of the fluid inside the tank
             float height = 1 - 2 * TANK_W;
 
-            minY = TANK_W;
             maxY = minY + height * fill;
         }
 
         PollableItemHandler handler = tank.getItemHandler();
         this.random.setSeed(ItemHandlerUtil.hash(handler));
+        Level level = tank.getLevel();
+        if (level == null) return;
         FishTankBlockEntityRenderer.drawItemsInTank(
-            tank.getLevel(),
+            level,
             ItemHandlerUtil.getNonEmptyItemsFromHandler(handler),
             fill,
             Minecraft.getInstance().getItemRenderer(),
@@ -74,6 +97,8 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             light,
             overlay
         );
+
+        this.drawTropicalFishInTank(tank, partialTick, pose, source, light);
         FishTankBlockEntityRenderer.drawFluidInTank(pose, source, light, fluid, minY, maxY);
         if (tank.isIgnited()) {
             pose.pushPose();
@@ -91,7 +116,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
                 0xFFFFFF,
                 overlay,
                 ModelData.EMPTY,
-                null
+                RenderType.cutout()
             );
             pose.popPose();
         }
@@ -189,5 +214,94 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             false
         );
         if (source instanceof MultiBufferSource.BufferSource buffer) buffer.endBatch();
+    }
+
+    private void drawTropicalFishInTank(
+        FishTankBlockEntity tank,
+        float partialTick,
+        PoseStack pose,
+        MultiBufferSource source,
+        int light
+    ) {
+        Level level = tank.getLevel();
+        if (level == null) return;
+        if (tank.isEmptyOfFish()) return;
+
+        List<CompoundTag> fishData = tank.getTropicalFishData();
+        int newDataHash = computeFishDataHash(fishData);
+        long cacheKey = tank.getBlockPos().asLong();
+
+        // Get or create cache entry
+        FishCacheEntry cacheEntry = this.fishCache.get(cacheKey);
+        List<TropicalFish> cachedFishes;
+
+        // Rebuild cache if it doesn't exist or data has changed
+        if (cacheEntry == null || cacheEntry.dataHash != newDataHash) {
+            cachedFishes = createTropicalFishEntities(level, fishData);
+            this.fishCache.put(cacheKey, new FishCacheEntry(cachedFishes, newDataHash));
+        } else {
+            cachedFishes = cacheEntry.cachedFishes;
+        }
+
+        EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        float ticks = ClientTickRecorder.getTicks() + partialTick;
+        float height = 1 - 2 * TANK_W;
+        int count = cachedFishes.size();
+
+        for (int i = 0; i < count; i++) {
+            TropicalFish fish = cachedFishes.get(i);
+            fish.tickCount = (int) ticks;
+
+            float speed = 0.05F;
+            float angle = ticks * speed + (Mth.TWO_PI / count) * i;
+            float radius = 0.22F;
+            float x = 0.5F + Mth.cos(angle) * radius;
+            float z = 0.5F + Mth.sin(angle) * radius;
+
+            float y = TANK_W + height * (0.5F + Mth.sin(ticks * 0.07F + i) * 0.07F + Mth.sin(ticks * 0.19F + i) * 0.19F);
+
+            float yawDeg = -(angle * Mth.RAD_TO_DEG);
+
+            pose.pushPose();
+            pose.translate(x, y, z);
+            pose.mulPose(Axis.YP.rotationDegrees(yawDeg));
+            pose.scale(FISH_SCALE, FISH_SCALE, FISH_SCALE);
+            dispatcher.render(fish, 0, 0, 0, yawDeg, partialTick, pose, source, light);
+            pose.popPose();
+        }
+    }
+
+    /**
+     * Creates TropicalFish entities from fish data NBT tags
+     */
+    private static List<TropicalFish> createTropicalFishEntities(Level level, List<CompoundTag> fishData) {
+        List<TropicalFish> fishes = new ArrayList<>();
+        for (CompoundTag fishDatum : fishData) {
+            TropicalFish fish = EntityType.TROPICAL_FISH.create(level);
+            if (fish == null) continue;
+
+            CompoundTag data = fishDatum.copy();
+            fish.loadFromBucketTag(data);
+            fish.fromBucket();
+            fish.setNoAi(true);
+            fish.setSilent(true);
+            EntityAccessor accessor = Util.cast(fish);
+            accessor.setWasTouchingWater(true);
+
+            fishes.add(fish);
+        }
+        return fishes;
+    }
+
+    /**
+     * Computes a hash of the fish data to detect changes
+     */
+    private static int computeFishDataHash(List<CompoundTag> fishData) {
+        if (fishData.isEmpty()) return 0;
+        int hash = fishData.size();
+        for (CompoundTag tag : fishData) {
+            hash = hash * 31 + tag.hashCode();
+        }
+        return hash;
     }
 }
