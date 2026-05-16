@@ -61,10 +61,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             );
         }
     };
-    /**
-     * 0-7 为输出产物，<br>
-     * 8-15 为输入物品
-     */
+    /// 0-7 为输出产物，<br>
+    /// 8-15 为输入物品
     private final PollableItemHandler itemHandler = new PollableItemHandler(16) {
         @Override
         public boolean isValid(int slot, ItemResource stack) {
@@ -101,6 +99,28 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             );
         }
     };
+    /// 输出产物的存储代理，用于炼药锅配方输出
+    private final PollableItemHandler outputProxy = new PollableItemHandler(8) {
+        @Override
+        public ItemResource getResource(int index) {
+            return FishTankBlockEntity.this.itemHandler.getResource(index);
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            return FishTankBlockEntity.this.itemHandler.getAmountAsLong(index);
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, ItemResource resource) {
+            return FishTankBlockEntity.this.itemHandler.getCapacityAsLong(index, resource);
+        }
+
+        @Override
+        protected void onContentsChanged(int index, ItemStack previousContents) {
+            FishTankBlockEntity.this.itemHandler.set(index, this.getResource(index), this.getAmountAsInt(index));
+        }
+    };
     private boolean ignited = false;
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -120,9 +140,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         return this.itemHandler;
     }
 
-    @Override
     public PollableItemHandler getOutput() {
-        return this.itemHandler;
+        return this.outputProxy;
     }
 
     @Override
