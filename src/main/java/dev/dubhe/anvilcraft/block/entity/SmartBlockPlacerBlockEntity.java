@@ -144,10 +144,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public void tickServer(Level level, BlockPos pos) {
-        boolean previousPowered = this.isPowered;
-        boolean previousRedstoneSignal = this.hasRedstoneSignal;
+        final boolean previousPowered = this.isPowered;
+        final boolean previousRedstoneSignal = this.hasRedstoneSignal;
+        
         this.isPowered = this.grid != null && this.grid.isWorking();
         this.hasRedstoneSignal = level.hasNeighborSignal(pos);
+
+        // 更新方块的 OVERLOAD 状态
+        this.flushState(level, pos);
 
         boolean stateChanged = this.isPowered != previousPowered || this.hasRedstoneSignal != previousRedstoneSignal;
 

@@ -2,13 +2,16 @@ package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -32,22 +36,28 @@ import org.jetbrains.annotations.Nullable;
 
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     private static final VoxelShape SHAPE_FLOOR = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16),
-        Block.box(2, 4, 2, 14, 8, 14)
+        Block.box(2, 4, 2, 14, 8, 14),
+        Block.box(4, 8, 4, 12, 16, 12),
+        Block.box(4, 4, 14, 12, 10, 16)
     );
 
     private static final VoxelShape SHAPE_CEILING = Shapes.or(
         Block.box(0, 12, 0, 16, 16, 16),
-        Block.box(2, 8, 2, 14, 12, 14)
+        Block.box(2, 0, 2, 14, 12, 14)
     );
 
     public SmartBlockPlacerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-            .setValue(UPSIDE_DOWN, false));
+            .setValue(UPSIDE_DOWN, false)
+            .setValue(POWERED, false)
+            .setValue(OVERLOAD, true));
     }
 
     public RenderShape getRenderShape(BlockState state) {
@@ -61,13 +71,14 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
-        builder.add(HorizontalDirectionalBlock.FACING, UPSIDE_DOWN);
+        builder.add(HorizontalDirectionalBlock.FACING, UPSIDE_DOWN, POWERED, OVERLOAD);
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getClickedFace();
         boolean upsideDown = facing == Direction.DOWN;
+        Level level = context.getLevel();
 
         // 获取玩家的水平朝向
         Direction horizontalFacing = context.getHorizontalDirection().getOpposite();
@@ -79,7 +90,9 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
 
         return this.defaultBlockState()
             .setValue(HorizontalDirectionalBlock.FACING, horizontalFacing)
-            .setValue(UPSIDE_DOWN, upsideDown);
+            .setValue(UPSIDE_DOWN, upsideDown)
+            .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
+            .setValue(OVERLOAD, true);
     }
 
     @Override
@@ -148,5 +161,27 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
             }
         }
         return InteractionResult.sidedSuccess(false);
+    }
+
+    @Override
+    public void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        if (level.isClientSide) {
+            return;
+        }
+        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+    }
+
+    @Override
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(POWERED), 2);
+        }
     }
 }
