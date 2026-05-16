@@ -1,6 +1,8 @@
 {
+	"format_version": "1.21.11",
 	"credit": "Made by XeKr with Blockbench",
 	"textures": {
+		"3": "anvilcraft:block/smart_block_placer_input",
 		"5": "anvilcraft:block/smart_block_placer_base",
 		"6": "anvilcraft:block/smart_block_placer_sides",
 		"particle": "anvilcraft:block/smart_block_placer_arms"
@@ -12,10 +14,22 @@
 			"faces": {
 				"north": {"uv": [0, 12, 16, 16], "texture": "#6", "cullface": "north"},
 				"east": {"uv": [0, 8, 16, 12], "texture": "#6", "cullface": "east"},
-				"south": {"uv": [0, 8, 16, 12], "texture": "#6", "cullface": "south"},
+				"south": {"uv": [0, 12, 16, 16], "texture": "#3", "cullface": "south"},
 				"west": {"uv": [0, 8, 16, 12], "texture": "#6", "cullface": "west"},
 				"up": {"uv": [0, 0, 16, 16], "texture": "#5"},
 				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#5", "cullface": "down"}
+			}
+		},
+		{
+			"from": [4, 4, 14],
+			"to": [12, 10, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [4, 4, 14]},
+			"faces": {
+				"north": {"uv": [4, 6, 12, 12], "texture": "#3"},
+				"east": {"uv": [4, 6, 6, 12], "texture": "#3"},
+				"south": {"uv": [4, 6, 12, 12], "texture": "#3"},
+				"west": {"uv": [10, 6, 12, 12], "texture": "#3"},
+				"up": {"uv": [4, 8, 12, 6], "texture": "#3"}
 			}
 		}
 	]

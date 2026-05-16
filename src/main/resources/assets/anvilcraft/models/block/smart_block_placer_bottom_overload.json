@@ -1,0 +1,9 @@
+{
+	"parent": "anvilcraft:block/smart_block_placer_bottom",
+	"textures": {
+		"3": "anvilcraft:block/smart_block_placer_input_overload",
+		"5": "anvilcraft:block/smart_block_placer_base_overload",
+		"6": "anvilcraft:block/smart_block_placer_sides_overload",
+		"particle": "anvilcraft:block/smart_block_placer_arms"
+	}
+}
