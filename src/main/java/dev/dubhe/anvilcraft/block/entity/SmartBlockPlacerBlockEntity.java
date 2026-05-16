@@ -219,6 +219,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
         if (this.placeCooldown > 0) {
             this.placeCooldown--;
+            // 在 cooldown 倒计时到 PLACEMENT_DELAY 时执行放置
             if (this.placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
                 this.placeBlocks(level, pos);
             }
@@ -228,7 +229,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.onChanged();
             }
-        } else if (needsPlacement && hasBlocksInContainer) {
+        }
+        
+        // 在 cooldown 结束后立即开始新的周期（不浪费 tick）
+        if (this.placeCooldown == 0 && needsPlacement && hasBlocksInContainer) {
             if (this.currentHeldBlock.isEmpty()) {
                 this.currentPlacementIndex = 0;
             }

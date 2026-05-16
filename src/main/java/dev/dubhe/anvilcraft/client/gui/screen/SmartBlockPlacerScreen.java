@@ -639,12 +639,16 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             previewLevelLike.setCurrentVisibleLayer(this.currentViewLayer);
         }
 
-        // 获取放置器的倒挂状态
+        // 获取放置器的状态
         boolean upsideDown = false;
+        boolean powered = false;
+        boolean overload = true;
         if (this.minecraft.level != null) {
             BlockState placerState = this.minecraft.level.getBlockState(this.menu.getBlockEntity().getBlockPos());
             if (placerState.getBlock() instanceof dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock) {
                 upsideDown = placerState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
+                powered = placerState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED);
+                overload = placerState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD);
             }
         }
 
@@ -655,11 +659,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int placerY = upsideDown ? 4 : 0;
 
         // 放置器始终渲染，不受分层限制，预览窗口中统一朝北
+        // 应用实际的 POWERED 和 OVERLOAD 状态以显示正确的贴图
         previewLevelLike.setBlockStateAlwaysRender(
             new BlockPos(placerX, placerY, placerZ),
             dev.dubhe.anvilcraft.init.block.ModBlocks.SMART_BLOCK_PLACER.get().defaultBlockState()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
                 .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
+                .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED, powered)
+                .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD, overload)
         );
 
         // 使用客户端本地的 layerPositions，确保快速拖动时预览能及时更新

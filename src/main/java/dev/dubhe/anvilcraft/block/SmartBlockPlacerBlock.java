@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
@@ -30,7 +31,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,17 +39,24 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    private static final VoxelShape SHAPE_FLOOR = Shapes.or(
-        Block.box(0, 0, 0, 16, 4, 16),
-        Block.box(2, 4, 2, 14, 8, 14),
-        Block.box(4, 8, 4, 12, 16, 12),
-        Block.box(4, 4, 14, 12, 10, 16)
+    // 基础碰撞箱（朝北，正放）
+    private static final VoxelShape SHAPE_NORTH = ShapeUtil.merge(
+        Block.box(0, 0, 0, 16, 4, 16),      // 底座
+        Block.box(2, 4, 2, 14, 8, 14),      // 中间连接
+        Block.box(4, 8, 4, 12, 16, 12),     // 机械臂主体
+        Block.box(4, 4, 14, 12, 10, 16)     // 输入口（南侧）
     );
 
-    private static final VoxelShape SHAPE_CEILING = Shapes.or(
-        Block.box(0, 12, 0, 16, 16, 16),
-        Block.box(2, 0, 2, 14, 12, 14)
-    );
+    // 使用 ShapeUtil.rotate 自动生成其他水平朝向
+    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH);
+
+    // 倒挂状态：使用 Axis.X 旋转 180 度实现 Y 轴翻转
+    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_WEST);
+    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_SOUTH);
+    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_EAST);
 
     public SmartBlockPlacerBlock(Properties properties) {
         super(properties);
@@ -102,8 +109,16 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         BlockPos pos,
         CollisionContext context
     ) {
+        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = state.getValue(UPSIDE_DOWN);
-        return upsideDown ? SHAPE_CEILING : SHAPE_FLOOR;
+        
+        return switch (facing) {
+            case NORTH -> upsideDown ? SHAPE_NORTH_UPSIDE : SHAPE_NORTH;
+            case SOUTH -> upsideDown ? SHAPE_SOUTH_UPSIDE : SHAPE_SOUTH;
+            case WEST -> upsideDown ? SHAPE_WEST_UPSIDE : SHAPE_WEST;
+            case EAST -> upsideDown ? SHAPE_EAST_UPSIDE : SHAPE_EAST;
+            default -> upsideDown ? SHAPE_NORTH_UPSIDE : SHAPE_NORTH;
+        };
     }
 
     @Nullable
