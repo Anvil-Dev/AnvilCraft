@@ -77,12 +77,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private float[] clientRetractStartAngles = new float[4];
     private float clientRetractStartProgress = 0f; // 保存中断时的进度，用于计算收回时长
 
-    @SuppressWarnings("unused")
-    public void updateClientAnimationState(boolean isPowered, boolean hasRedstoneSignal) {
-        // 不要在断电时清除动画状态，让Renderer能够平滑过渡到收回动画
-        // 动画状态的清除由Renderer在收回动画完成后处理
-    }
 
+    @SuppressWarnings("checkstyle:EmptyLineSeparator")
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.SMART_BLOCK_PLACER.get(), pos, blockState);
     }
@@ -178,6 +174,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.clientLastTargetPos = null;
         }
         this.lastPlaceCooldown = this.placeCooldown;
+    }
+    
+    /**
+     * 更新客户端动画状态（由渲染器调用）
+     * 
+     * @param isCurrentlyPowered 当前是否通电
+     * @param hasRedstoneSignal 当前是否有红石信号
+     */
+    @SuppressWarnings("unused")
+    public void updateClientAnimationState(boolean isCurrentlyPowered, boolean hasRedstoneSignal) {
+        // 这个方法主要用于触发tickClient中的逻辑
+        // 实际的动画状态更新在tickClient中处理
+        // 渲染器通过调用此方法来确保客户端动画状态是最新的
+        // 参数用于记录状态，未来可能用于更复杂的动画逻辑
+        this.tickClient();
     }
     
     private void tickPickupMode(Level level, BlockPos pos) {
