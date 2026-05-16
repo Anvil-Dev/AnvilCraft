@@ -77,12 +77,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private float[] clientRetractStartAngles = new float[4];
     private float clientRetractStartProgress = 0f; // 保存中断时的进度，用于计算收回时长
 
-    @SuppressWarnings("unused")
-    public void updateClientAnimationState(boolean isPowered, boolean hasRedstoneSignal) {
-        // 不要在断电时清除动画状态，让Renderer能够平滑过渡到收回动画
-        // 动画状态的清除由Renderer在收回动画完成后处理
-    }
 
+    @SuppressWarnings("checkstyle:EmptyLineSeparator")
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.SMART_BLOCK_PLACER.get(), pos, blockState);
     }
