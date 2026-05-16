@@ -292,8 +292,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private boolean canNotBePlaced(Level level, BlockState blockState, @Nullable net.minecraft.world.item.BlockItem blockItem) {
         if (level instanceof net.minecraft.server.level.ServerLevel) {
-            // 可替换方块
-            if (blockState.is(net.minecraft.tags.BlockTags.REPLACEABLE)) {
+            // 流体（水、岩浆等）可以被直接替换
+            if (!blockState.getFluidState().isEmpty()) {
                 return false;
             }
             // 海龟蛋
@@ -372,8 +372,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     // 尝试放置方块（placeBlock内部可能会消耗itemStack）
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
                         level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                        // 放置失败，不消耗物品，尝试下一个位置
-                        this.currentPlacementIndex = (index + 1) % allPositions.size();
+                        // 放置失败（非法位置或实体阻挡），不消耗物品，保持在当前位置重试
+                        this.currentHeldBlock = ItemStack.EMPTY;
                         this.onChanged();
                         return;
                     }
@@ -451,8 +451,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
                         level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                        // 放置失败，不删除源方块，尝试下一个位置
-                        this.currentPlacementIndex = (index + 1) % allPositions.size();
+                        // 放置失败（非法位置或实体阻挡），不删除源方块，保持在当前位置重试
+                        this.currentHeldBlock = ItemStack.EMPTY;
                         this.onChanged();
                         return;
                     }

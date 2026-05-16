@@ -523,20 +523,26 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             currentIndex = 0;
         }
         
-        // 从当前索引开始查找第一个空位或可堆叠位置
+        // 从当前索引开始查找第一个空位或可放置位置
         for (int i = 0; i < allPositions.size(); i++) {
             int index = (currentIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
             
             if (entity.getLevel() == null) continue;
             
+            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
+            
             // 如果目标位置为空，返回该位置
-            if (entity.getLevel().isEmptyBlock(targetPos)) {
+            if (targetState.isAir()) {
+                return targetPos;
+            }
+            
+            // 检查是否是流体（水、岩浆等），流体可以被直接替换
+            if (!targetState.getFluidState().isEmpty()) {
                 return targetPos;
             }
             
             // 检查是否是可堆叠位置（海龟蛋、海泡菜、蜡烛等）
-            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
             if (!targetState.isAir()) {
                 // 使用 currentHeldBlock 来检查类型匹配
                 net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
