@@ -351,17 +351,25 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 isAnimationPlaying = true;
                 long elapsedTicks = currentTime - animStartTime;
 
-                // 动画完成后，查找新的目标位置
+                // 动画完成后，查找新的目标位置（只在刚完成时检查一次）
                 if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
-                    BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
-                    if (targetPos != null && !targetPos.equals(animTargetPos)) {
-                        // 新目标：重置动画
-                        entity.setClientAnimationStartTime(currentTime);
-                        entity.setClientLastTargetPos(targetPos);
-                        animTargetPos = targetPos;
-                        elapsedTicks = 0;
+                    // 检查是否是第一次达到完成状态
+                    boolean isFirstFrameAfterComplete = elapsedTicks < WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 2;
+                    
+                    if (isFirstFrameAfterComplete) {
+                        BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+                        if (targetPos != null && !targetPos.equals(animTargetPos)) {
+                            // 新目标：重置动画
+                            entity.setClientAnimationStartTime(currentTime);
+                            entity.setClientLastTargetPos(targetPos);
+                            animTargetPos = targetPos;
+                            elapsedTicks = 0;
+                        } else {
+                            // 无新目标：保持在最终位置
+                            elapsedTicks = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks();
+                        }
                     } else {
-                        // 无新目标：保持在最终位置
+                        // 已经完成过检查，保持最终位置
                         elapsedTicks = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks();
                     }
                 }
