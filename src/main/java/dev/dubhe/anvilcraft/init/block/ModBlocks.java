@@ -879,6 +879,7 @@ public class ModBlocks {
         })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
         .register();
 
     public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRUM.block("ruby_laser", RubyLaserBlock::new)

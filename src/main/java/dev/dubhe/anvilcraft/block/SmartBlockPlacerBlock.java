@@ -113,7 +113,6 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         boolean upsideDown = state.getValue(UPSIDE_DOWN);
         
         return switch (facing) {
-            case NORTH -> upsideDown ? SHAPE_NORTH_UPSIDE : SHAPE_NORTH;
             case SOUTH -> upsideDown ? SHAPE_SOUTH_UPSIDE : SHAPE_SOUTH;
             case WEST -> upsideDown ? SHAPE_WEST_UPSIDE : SHAPE_WEST;
             case EAST -> upsideDown ? SHAPE_EAST_UPSIDE : SHAPE_EAST;
