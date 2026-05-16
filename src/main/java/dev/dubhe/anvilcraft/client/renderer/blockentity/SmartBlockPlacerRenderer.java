@@ -260,12 +260,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float upperArmAngle = 0f;
         float forearmAngle = 0f;
         float clawAngle = 0f;
+        float animationProgress = 0f;
+        boolean isAnimationPlaying = false;
         
-        // 判断是否处于工作状态（正在放置方块）
+        // 判断是否处于工作状态
         boolean isWorking = entity.getPlaceCooldown() > 0;
         
         // 检测是否需要开始收回动画：从工作状态切换到非工作状态
-        // 包括：断电、红石信号、容器耗尽、无方块可移动等情况
         boolean wasWorkingLastFrame = entity.getClientAnimationStartTime() != 0;
         boolean shouldStartRetract = wasWorkingLastFrame && !isWorking && !entity.isClientIsRetracting();
         if (shouldStartRetract && entity.getLevel() != null) {
@@ -285,9 +286,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
                 );
                 entity.setClientRetractStartAngles(angles);
-                
-                // 保存中断进度，用于计算收回时长
-                // 例如：在70%进度中断，收回动画只用30%的时长
                 entity.setClientRetractStartProgress(interruptProgress);
             }
         }
@@ -303,17 +301,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             long elapsedRetractTicks = currentTime - entity.getClientRetractStartTime();
             
             // 收回动画的时长 = 总时长 * (1 - 中断进度)
-            // 例如：在70%进度中断，收回只用30%的时长(6 tick)
             float startProgress = entity.getClientRetractStartProgress();
             float remainingProgress = 1.0f - startProgress;
             float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
             
             // 避免除以零：如果已经完成动画，立即归零
             if (retractDuration <= 0) {
-                baseSwingAngle = 0f;
-                upperArmAngle = 0f;
-                forearmAngle = 0f;
-                clawAngle = 0f;
                 entity.setClientIsRetracting(false);
                 entity.setClientAnimationStartTime(0);
                 entity.setClientLastTargetPos(null);
@@ -338,7 +331,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 }
             }
         } else if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && entity.getLevel() != null) {
-            // 获取动画进度
             long currentTime = entity.getLevel().getGameTime();
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
@@ -354,29 +346,27 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 }
             }
             
-            // 播放动画（animStartTime != 0 说明 animTargetPos 已经被设置）
+            // 播放动画
             if (animStartTime != 0 && animTargetPos != null) {
-                // 使用缓存的目标位置播放动画
-                // 在整个动画周期内锁定目标位置，确保动画流畅
+                isAnimationPlaying = true;
                 long elapsedTicks = currentTime - animStartTime;
 
-                // 只有当动画完成后，才查找新的目标位置
+                // 动画完成后，查找新的目标位置
                 if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
                     BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
-                    // 如果找到新的目标位置且与当前不同，开始新动画
                     if (targetPos != null && !targetPos.equals(animTargetPos)) {
-                        // 修复：使用当前时间作为新动画的起点，避免累积偏移
+                        // 新目标：重置动画
                         entity.setClientAnimationStartTime(currentTime);
                         entity.setClientLastTargetPos(targetPos);
                         animTargetPos = targetPos;
                         elapsedTicks = 0;
                     } else {
-                        // 没有新目标或目标未改变，保持动画完成状态
+                        // 无新目标：保持在最终位置
                         elapsedTicks = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks();
                     }
                 }
                 
-                float animationProgress = Math.min(
+                animationProgress = Math.min(
                     1.0f,
                     (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
                 );
@@ -424,14 +414,23 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.mulPose(Axis.XP.rotationDegrees(clawAngle));
         poseStack.translate(-0.5, -1.3125, -0.375);
         
-        // 根据方块放置状态切换钳子模型
-        // placeCooldown > 0 表示正在放置方块，使用打开的钳子模型
-        // placeCooldown == 0 表示放置完成，使用闭合的钳子模型
-        ModelResourceLocation currentClawModel = isWorking ? CLAW_OPEN_MODEL : CLAW_MODEL;
+        // 根据动画进度切换钳子模型
+        // 工作动画播放期间（进度 < 1.0）或收回动画期间，钳子打开
+        // 彻底归中后（进度 = 1.0 且无收回动画）钳子闭合
+        boolean shouldClawBeOpen = false;
+        if (entity.isClientIsRetracting()) {
+            // 收回动画期间，钳子保持打开
+            shouldClawBeOpen = true;
+        } else if (isAnimationPlaying) {
+            // 工作动画期间，进度 < 1.0 时钳子打开
+            shouldClawBeOpen = animationProgress < 1.0f;
+        }
+        
+        ModelResourceLocation currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;
         renderModel(poseStack, buffer, currentClawModel, packedLight, packedOverlay);
         
-        // 如果正在工作，在钳子开口位置渲染要放置的方块
-        if (isWorking && entity.getLevel() != null) {
+        // 如果钳子打开，渲染要放置的方块
+        if (shouldClawBeOpen && entity.getLevel() != null) {
             renderHeldBlock(poseStack, buffer, entity, packedLight, packedOverlay);
         }
         
@@ -453,6 +452,42 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             rotation = (rotation + 180f) % 360f;
         }
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
+    }
+    
+    /**
+     * 检查方块是否可以继续堆叠
+     * 
+     * @param state 当前方块状态
+     * @param blockItem 要放置的方块物品（可选，用于检查类型匹配）
+     * @return 是否可以继续堆叠
+     */
+    private boolean canBeStacked(net.minecraft.world.level.block.state.BlockState state,
+        @Nullable net.minecraft.world.item.BlockItem blockItem) {
+        // 海龟蛋：最多4个
+        if (state.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG)) {
+            if (state.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS) < 4) {
+                // 如果要放置的是海龟蛋，检查类型是否匹配
+                return blockItem == null || state.getBlock() == blockItem.getBlock(); // 类型不匹配
+            }
+            return false;
+        }
+        // 海泡菜：最多4个
+        if (state.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE)) {
+            if (state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES) < 4) {
+                // 如果要放置的是海泡菜，检查类型是否匹配
+                return blockItem == null || state.getBlock() == blockItem.getBlock(); // 类型不匹配
+            }
+            return false;
+        }
+        // 蜡烛：最多4个
+        if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
+            if (state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES) < 4) {
+                // 如果要放置的是蜡烛，检查类型是否匹配
+                return blockItem == null || state.getBlock() == blockItem.getBlock(); // 类型不匹配
+            }
+            return false;
+        }
+        return false;
     }
     
     /**
@@ -480,14 +515,34 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             currentIndex = 0;
         }
         
-        // 从当前索引开始查找第一个空位
+        // 从当前索引开始查找第一个空位或可堆叠位置
         for (int i = 0; i < allPositions.size(); i++) {
             int index = (currentIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
             
+            if (entity.getLevel() == null) continue;
+            
             // 如果目标位置为空，返回该位置
-            if (entity.getLevel() != null && entity.getLevel().isEmptyBlock(targetPos)) {
+            if (entity.getLevel().isEmptyBlock(targetPos)) {
                 return targetPos;
+            }
+            
+            // 检查是否是可堆叠位置（海龟蛋、海泡菜、蜡烛等）
+            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
+            if (!targetState.isAir()) {
+                // 使用 currentHeldBlock 来检查类型匹配
+                net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
+                if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
+                    // 检查类型是否匹配且可以继续堆叠
+                    if (canBeStacked(targetState, heldBlockItem)) {
+                        return targetPos;
+                    }
+                } else if (heldItem.isEmpty()) {
+                    // 如果没有手持物品，仍然检查是否可以堆叠（用于动画初始化）
+                    if (canBeStacked(targetState, null)) {
+                        return targetPos;
+                    }
+                }
             }
         }
         

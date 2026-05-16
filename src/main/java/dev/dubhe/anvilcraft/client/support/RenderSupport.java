@@ -360,6 +360,7 @@ public class RenderSupport {
         // 先应用X轴旋转（俯视角度）
         pose.mulPose(Axis.XP.rotationDegrees(rotationX));
 
+        // Y轴旋转中心：固定基于5x5范围计算，忽略放置器
         float offsetX = (float) -fixedSizeX / 2;
         float offsetZ = (float) -fixedSizeX / 2 + 1;
         

@@ -235,7 +235,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             for (int position : entry.getValue()) {
                 BlockPos targetPos = SmartBlockPlacerBlockEntity
                     .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
-                if (level.isEmptyBlock(targetPos)) {
+                BlockState targetState = level.getBlockState(targetPos);
+                // 空位置或可以放置的位置都算作有效位置
+                if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
                     return true;
                 }
             }
@@ -263,7 +265,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             for (int position : entry.getValue()) {
                 BlockPos targetPos = SmartBlockPlacerBlockEntity
                     .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
-                if (level.isEmptyBlock(targetPos)) {
+                BlockState targetState = level.getBlockState(targetPos);
+                // 空位置或可以放置的位置都算作有效位置
+                if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
                     return true;
                 }
             }
@@ -278,6 +282,44 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         );
     }
 
+    /**
+     * 判断当前位置是否不能放置方块（参考普通BlockPlacer的逻辑）
+     *
+     * @param level      放置世界
+     * @param blockState 目标位置的方块状态
+     * @param blockItem  要放置的方块物品（可选，用于检查类型匹配）
+     * @return 当前位置是否不能放置方块
+     */
+    private boolean canNotBePlaced(Level level, BlockState blockState, @Nullable net.minecraft.world.item.BlockItem blockItem) {
+        if (level instanceof net.minecraft.server.level.ServerLevel) {
+            // 可替换方块
+            if (blockState.is(net.minecraft.tags.BlockTags.REPLACEABLE)) {
+                return false;
+            }
+            // 海龟蛋
+            if (blockState.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG) 
+                && blockState.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS) < 4) {
+                // 如果要放置的是海龟蛋，检查类型是否匹配
+                return blockItem != null && blockState.getBlock() != blockItem.getBlock(); // 类型不匹配，不能放置
+            }
+            // 海泡菜
+            if (blockState.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE) 
+                && blockState.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES) < 4) {
+                // 如果要放置的是海泡菜，检查类型是否匹配
+                return blockItem != null && blockState.getBlock() != blockItem.getBlock(); // 类型不匹配，不能放置
+            }
+            // 蜡烛
+            if (blockState.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
+                if (blockState.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES) >= 4) {
+                    return true; // 已满，不能放置
+                }
+                // 如果要放置的是蜡烛，检查类型是否匹配
+                return blockItem != null && blockState.getBlock() != blockItem.getBlock(); // 类型不匹配，不能放置
+            }
+        }
+        return true;
+    }
+
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
         return !getBlockItemFromContainer(level, placerPos, false).isEmpty();
     }
@@ -290,7 +332,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        List<BlockPos> allPositions = this.buildOrderedPositions(basePos, facing, upsideDown);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
 
         if (allPositions.isEmpty()) {
             return;
@@ -304,8 +346,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int index = (this.currentPlacementIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
 
-            if (level.isEmptyBlock(targetPos)) {
-                ItemStack blockItem = this.extractBlockItemFromContainer(level, placerPos);
+            BlockState targetState = level.getBlockState(targetPos);
+            // 检查是否是空位置或可以放置的位置
+            if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
+                // 先预览物品，不提取
+                ItemStack blockItem = this.peekBlockItemFromContainer(level, placerPos);
                 if (blockItem.isEmpty()) {
                     this.currentPlacementIndex = 0;
                     this.currentHeldBlock = ItemStack.EMPTY;
@@ -314,13 +359,45 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
 
                 if (blockItem.getItem() instanceof BlockItem blockItemObj) {
+                    // 再次检查，这次传入物品信息以进行类型匹配验证
+                    if (!targetState.isAir() && this.canNotBePlaced(level, targetState, blockItemObj)) {
+                        // 类型不匹配，跳过这个位置
+                        this.currentPlacementIndex = (index + 1) % allPositions.size();
+                        this.onChanged();
+                        return;
+                    }
+                    
                     Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
 
+                    // 尝试放置方块（placeBlock内部可能会消耗itemStack）
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
                         level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
+                        // 放置失败，不消耗物品，尝试下一个位置
+                        this.currentPlacementIndex = (index + 1) % allPositions.size();
+                        this.onChanged();
+                        return;
+                    }
+                    
+                    // 放置成功，才从容器中提取物品
+                    ItemStack extracted = this.extractBlockItemFromContainer(level, placerPos);
+                    if (extracted.isEmpty()) {
+                        // 理论上不应该到这里，因为前面已经peek过了
+                        this.currentPlacementIndex = 0;
+                        this.currentHeldBlock = ItemStack.EMPTY;
+                        this.onChanged();
                         return;
                     }
 
+                    // 检查当前位置是否还可以继续堆叠
+                    BlockState newState = level.getBlockState(targetPos);
+                    if (!newState.isAir() && !this.canNotBePlaced(level, newState, blockItemObj)) {
+                        // 当前位置还可以继续堆叠，保持currentPlacementIndex不变，下次继续放置到同一位置
+                        this.currentHeldBlock = ItemStack.EMPTY;
+                        this.onChanged();
+                        return;
+                    }
+                    
+                    // 当前位置已满或无法继续堆叠，移动到下一个位置
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.currentHeldBlock = ItemStack.EMPTY;
                     this.onChanged();
@@ -335,7 +412,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
         BlockPos sourcePos = placerPos.relative(facing.getOpposite());
-        List<BlockPos> allPositions = this.buildOrderedPositions(basePos, facing, upsideDown);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
 
         if (allPositions.isEmpty()) {
             return;
@@ -346,7 +423,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
 
         BlockState sourceState = level.getBlockState(sourcePos);
-        if (isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
             return;
         }
 
@@ -354,27 +431,34 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int index = (this.currentPlacementIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
 
-            if (level.isEmptyBlock(targetPos)) {
+            BlockState targetState = level.getBlockState(targetPos);
+            // 检查目标位置是否是空位置或可以放置的位置
+            if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
+                // 先检查源方块是否可以转换为BlockItem
                 BlockState sourceState2 = level.getBlockState(sourcePos);
-                
                 ItemStack blockItem = sourceState2.getBlock().asItem().getDefaultInstance();
+                
                 if (!(blockItem.getItem() instanceof BlockItem)) {
-                    // Do not remove the source block if it's not a BlockItem to avoid voiding blocks
+                    // 源方块不是BlockItem，跳过这个位置
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.onChanged();
                     return;
                 }
                 
-                level.removeBlock(sourcePos, false);
-                
+                // 尝试放置方块（先不删除源方块）
                 if (blockItem.getItem() instanceof BlockItem blockItemObj) {
                     Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
                     
                     if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
                         level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                        level.setBlock(sourcePos, sourceState2, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                        // 放置失败，不删除源方块，尝试下一个位置
+                        this.currentPlacementIndex = (index + 1) % allPositions.size();
+                        this.onChanged();
                         return;
                     }
+                    
+                    // 放置成功，才删除源方块
+                    level.removeBlock(sourcePos, false);
                     
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.currentHeldBlock = ItemStack.EMPTY;
@@ -388,18 +472,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 构建有序的放置位置列表
      * 顺序：从最下面一层开始，每一层从最远离放置器的位置开始，从左到右，然后逐渐向下
-     * 
-     * @param basePos 基准位置
-     * @param facing 朝向
-     * @param upsideDown 是否倒挂
-     * @return 有序的位置列表
-     */
-    public List<BlockPos> buildOrderedPositions(BlockPos basePos, Direction facing, boolean upsideDown) {
-        return SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
-    }
-    
-    /**
-     * 构建有序的放置位置列表（静态方法，供渲染器调用）
      * 
      * @param basePos 基准位置
      * @param facing 朝向
@@ -463,7 +535,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
             ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
             if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
-                return extract ? itemHandler.extractItem(slot, 1, false) : blockItemStack.copy();
+                if (extract) {
+                    ItemStack extracted = itemHandler.extractItem(slot, 1, false);
+                    // 处理细雪桶：替换为桶
+                    if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
+                        itemHandler.insertItem(slot, new ItemStack(net.minecraft.world.item.Items.BUCKET), false);
+                    }
+                    return extracted;
+                }
+                return blockItemStack.copy();
             }
         }
 
@@ -521,7 +601,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         ItemStack extracted = itemEntity.getItem().copyWithCount(1);
         if (extract) {
             int count = itemEntity.getItem().getCount();
-            if (count > 1) {
+            // 处理细雪桶：替换为桶
+            if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
+                itemEntity.setItem(new ItemStack(net.minecraft.world.item.Items.BUCKET, count));
+                itemEntity.setDeltaMovement(0, 0, 0);
+            } else if (count > 1) {
                 itemEntity.getItem().setCount(count - 1);
             } else {
                 itemEntity.discard();

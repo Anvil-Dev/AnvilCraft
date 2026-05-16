@@ -91,6 +91,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private int cachedViewLayer = -1;
     private boolean cachedShowAllLayers = true;
     private boolean cachedPickupMode = true;
+    private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -420,6 +421,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 构建并渲染3D预览
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderPreview(GuiGraphics guiGraphics) {
         if (this.menu.getBlockEntity() == null || this.minecraft == null || this.minecraft.level == null) {
             return;
@@ -446,23 +448,30 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewRotationY
         );  // 固定5x5的尺寸
 
-        // 渲染3D放置范围框
+        // 渲染3D放置范围框（在方块之后渲染，会被方块遮挡）
         this.renderPlacementRangeBox(guiGraphics);
 
-        // 如果没有配置选区位置，显示提示文本
+        // 禁用裁剪
+        RenderSystem.disableScissor();
+
+        // 如果没有配置选区位置，显示提示文本（在裁剪区域外渲染，确保在最上层）
         if (this.menu.getBlockEntity().getLayerPositions().isEmpty()) {
             Component emptyText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
             int textWidth = (int) (this.font.width(emptyText) * 0.8f);
             int textX = this.previewWindowX + (this.previewWindowWidth - textWidth) / 2;
             int textY = this.previewWindowY + (this.previewWindowHeight - (int) (this.font.lineHeight * 0.8f)) / 2;
+            
+            // 禁用深度测试，确保文本在最上层渲染
+            RenderSystem.disableDepthTest();
             guiGraphics.pose().pushPose();
+            // 将Z轴向前移动，确保文本在最前面
+            guiGraphics.pose().translate(0, 0, 1000);
             guiGraphics.pose().scale(0.8f, 0.8f, 0.8f);
             guiGraphics.drawString(this.font, emptyText, (int) (textX / 0.8f), (int) (textY / 0.8f), 0xFFFFFF, true);
             guiGraphics.pose().popPose();
+            // 恢复深度测试
+            RenderSystem.enableDepthTest();
         }
-
-        // 禁用裁剪
-        RenderSystem.disableScissor();
     }
     
     /**
@@ -515,14 +524,15 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 4. 先应用X轴旋转
         poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(this.previewRotationX));
         
-        // 5. Y轴旋转的中心点和旋转
+        // 5. Y轴旋转的中心点 - 固定基于5x5范围计算，忽略放置器
+        // 与RenderSupport.renderLevelLikeWithFixedSize保持一致
         float offsetX = (float) -5 / 2 + 0.05f;
-        float offsetZ = (float) -5 / 2 + 1 - 0.05f;
+        float offsetZ = (float) -5 / 2 + 1;
         poseStack.translate(-offsetX, 0, -offsetZ);
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(this.previewRotationY + 45));
         poseStack.translate(offsetX, 0, offsetZ);
         
-        // 6. 平移Z轴（与方块渲染保持一致）
+        // 6. 平移Z轴（与方块保持一致，在Z=-1处渲染）
         poseStack.translate(0, 0, -1);
         
         // 7. 创建范围框（与方块渲染的位置空间一致）
@@ -554,11 +564,15 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 检查缓存是否有效
         // 使用客户端本地的 layerPositions 而不是 blockEntity 的，避免网络延迟导致的预览不更新
+        // 同时检查游戏时间，确保方块类型能实时切换
+        long currentGameTime = this.minecraft.level.getGameTime();
+        long currentBlockTypeTime = currentGameTime / (PREVIEW_BLOCK_SWITCH_INTERVAL * 2);
         boolean needsRebuild = this.cachedPreviewLevelLike == null
             || !this.cachedLayerPositions.equals(this.layerPositions)
             || this.cachedViewLayer != this.currentViewLayer
             || this.cachedShowAllLayers != this.showAllLayers
-            || this.cachedPickupMode != this.isPickupMode;
+            || this.cachedPickupMode != this.isPickupMode
+            || this.cachedGameTimeBlockType != currentBlockTypeTime;
 
         if (needsRebuild) {
             this.cachedPreviewLevelLike = this.buildPreviewLevelLike();
@@ -570,6 +584,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.cachedViewLayer = this.currentViewLayer;
             this.cachedShowAllLayers = this.showAllLayers;
             this.cachedPickupMode = this.isPickupMode;
+            this.cachedGameTimeBlockType = currentBlockTypeTime;
         }
 
         return this.cachedPreviewLevelLike;
@@ -594,16 +609,27 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             previewLevelLike.setCurrentVisibleLayer(this.currentViewLayer);
         }
 
-        // 放置器位置：X居中，Z=6（放置区域后方），Y=0
+        // 获取放置器的倒挂状态
+        boolean upsideDown = false;
+        if (this.minecraft.level != null) {
+            BlockState placerState = this.minecraft.level.getBlockState(this.menu.getBlockEntity().getBlockPos());
+            if (placerState.getBlock() instanceof dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock) {
+                upsideDown = placerState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
+            }
+        }
+
+        // 放置器位置：X居中，Z=6（放置区域后方）
+        // 倒挂时Y=4（顶部），正常时Y=0（底部）
         int placerX = 2;
         int placerZ = 6;
-        int placerY = 0;
+        int placerY = upsideDown ? 4 : 0;
 
         // 放置器始终渲染，不受分层限制，预览窗口中统一朝北
         previewLevelLike.setBlockStateAlwaysRender(
             new BlockPos(placerX, placerY, placerZ),
             dev.dubhe.anvilcraft.init.block.ModBlocks.SMART_BLOCK_PLACER.get().defaultBlockState()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
         );
 
         // 使用客户端本地的 layerPositions，确保快速拖动时预览能及时更新
