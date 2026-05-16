@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
@@ -78,6 +79,7 @@ public class RenderEventListener {
         if (!(entity instanceof Player player)) return;
         Optional<BlockHitResult> hitResult = Util.castSafely(Minecraft.getInstance().hitResult, BlockHitResult.class);
         hitResult.ifPresent(hit -> renderDragonRodOutline(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
+        hitResult.ifPresent(hit -> renderSmartBlockPlacerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
         if (!AnvilHammerItem.shouldRenderEffect(player)) return;
         PowerGridSupport.render(pose, bufferSource, vec3);
         hitResult.ifPresent(hit -> renderAffectRange(pose, hit, vertexConsumer3, camX, camY, camZ));
@@ -124,5 +126,33 @@ public class RenderEventListener {
 
             TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, pos, willDevourShape, 0xFFFFFFFE);
         }
+    }
+
+    @SuppressWarnings("checkstyle:LocalVariableName")
+    private static void renderSmartBlockPlacerRange(
+        PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer,
+        double camX, double camY, double camZ
+    ) {
+        Player player = Minecraft.getInstance().player;
+        if (player == null || !AnvilHammerItem.shouldRenderEffect(player)) return;
+        if (hitResult.miss) return;
+
+        BlockPos hitPos = hitResult.getBlockPos();
+        if (Minecraft.getInstance().level == null) return;
+
+        var blockState = Minecraft.getInstance().level.getBlockState(hitPos);
+        if (!blockState.is(ModBlocks.SMART_BLOCK_PLACER.get())) return;
+
+        Direction placerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = blockState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
+        BlockPos basePos = hitPos.relative(placerFacing.getOpposite(), -4);
+
+        int yOffset = upsideDown ? -4 : 0;
+        VoxelShape rangeShape = Shapes.create(
+            basePos.getX() - 2, basePos.getY() + yOffset, basePos.getZ() - 2,
+            basePos.getX() + 3, basePos.getY() + 5 + yOffset, basePos.getZ() + 3
+        );
+
+        TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
     }
 }

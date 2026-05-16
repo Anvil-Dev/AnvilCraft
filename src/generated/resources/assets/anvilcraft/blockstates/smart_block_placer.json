@@ -1,0 +1,38 @@
+{
+  "variants": {
+    "facing=east,upside_down=false": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "y": 90
+    },
+    "facing=east,upside_down=true": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "x": 180,
+      "y": 270
+    },
+    "facing=north,upside_down=false": {
+      "model": "anvilcraft:block/smart_block_placer_bottom"
+    },
+    "facing=north,upside_down=true": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "x": 180,
+      "y": 180
+    },
+    "facing=south,upside_down=false": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "y": 180
+    },
+    "facing=south,upside_down=true": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "x": 180
+    },
+    "facing=west,upside_down=false": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "y": 270
+    },
+    "facing=west,upside_down=true": {
+      "model": "anvilcraft:block/smart_block_placer_bottom",
+      "x": 180,
+      "y": 90
+    }
+  }
+}

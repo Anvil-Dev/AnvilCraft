@@ -320,6 +320,105 @@ public class RenderSupport {
     ) {
         renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
     }
+    
+    /**
+     * 渲染LevelLike，支持固定旋转角度和固定尺寸
+     *
+     * @param rotationX X轴旋转角度（度）
+     * @param rotationY Y轴旋转角度（度）
+     * @param fixedSizeX 固定的X尺寸
+     * @param fixedSizeY 固定的Y尺寸
+     */
+    @SuppressWarnings({
+        "checkstyle:VariableDeclarationUsageDistance",
+        "checkstyle:RequireEmptyLineBeforeBlockTagGroup"
+    })
+    public static void renderLevelLikeWithFixedSize(
+        LevelLike level,
+        GuiGraphics guiGraphics,
+        int posX,
+        int posY,
+        float scaleFactor,
+        float rotationX,
+        float rotationY,
+        int fixedSizeX,
+        int fixedSizeY
+    ) {
+        RenderSystem.enableBlend();
+        final Minecraft minecraft = Minecraft.getInstance();
+        PoseStack pose = guiGraphics.pose();
+
+        pose.pushPose();
+        pose.translate(posX, posY, 100);
+        float scaleX = scaleFactor / (fixedSizeX * Mth.SQRT_OF_TWO);
+        float scaleY = scaleFactor / (float) fixedSizeY;
+        float scale = Math.min(scaleY, scaleX);
+        pose.scale(-scale, -scale, -scale);
+
+        pose.translate(-(float) fixedSizeX / 2, -(float) fixedSizeY / 2, 0);
+        
+        // 先应用X轴旋转（俯视角度）
+        pose.mulPose(Axis.XP.rotationDegrees(rotationX));
+
+        float offsetX = (float) -fixedSizeX / 2;
+        float offsetZ = (float) -fixedSizeX / 2 + 1;
+        
+        // 再应用Y轴旋转（水平旋转）
+        pose.translate(-offsetX, 0, -offsetZ);
+        pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
+        pose.translate(offsetX, 0, offsetZ);
+
+        Iterable<BlockPos> iter;
+        if (level.isAllLayersVisible()) {
+            // 使用LevelLike的实际尺寸，但确保至少包含fixedSize范围
+            int actualSizeX = Math.max(fixedSizeX, level.horizontalSize());
+            int actualSizeY = Math.max(fixedSizeY, level.verticalSize());
+            iter = BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(actualSizeX - 1, actualSizeY - 1, actualSizeX - 1));
+        } else {
+            int visibleLayer = level.getCurrentVisibleLayer();
+            int actualSizeX = Math.max(fixedSizeX, level.horizontalSize());
+            // 单层模式：遍历可见层 + 始终渲染的方块所在的层
+            int minLayer = Math.min(0, visibleLayer);  // 包含Y=0（放置器）
+            int maxLayer = Math.max(visibleLayer, level.getAlwaysRenderBlocks().stream()
+                .mapToInt(BlockPos::getY)
+                .max()
+                .orElse(visibleLayer));
+            iter = BlockPos.betweenClosed(
+                BlockPos.ZERO.atY(minLayer), new BlockPos(actualSizeX - 1, maxLayer, actualSizeX - 1));
+        }
+        pose.pushPose();
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        pose.translate(0, 0, -1);
+        MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
+        BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
+        for (BlockPos pos : iter) {
+            BlockState state = level.getBlockState(pos);
+            
+            pose.pushPose();
+            pose.translate(pos.getX(), pos.getY(), pos.getZ());
+            
+            FluidState fluid = state.getFluidState();
+            if (!fluid.isEmpty()) {
+                RenderType renderType = ItemBlockRenderTypes.getRenderLayer(fluid);
+                VertexConsumer vertex = buffers.getBuffer(renderType);
+                blockRenderer.renderLiquid(pos, level, new VertexConsumerWithPose(vertex, pose.last(), pos), state, fluid);
+            }
+            if (state.getRenderShape() != RenderShape.INVISIBLE) {
+                BakedModel bakedModel = blockRenderer.getBlockModel(state);
+                for (RenderType type : bakedModel.getRenderTypes(state, RANDOM, ModelData.EMPTY)) {
+                    VertexConsumer vertex = buffers.getBuffer(type);
+                    blockRenderer.renderBatched(state, pos, level, pose, vertex, false, RANDOM, ModelData.EMPTY, type);
+                }
+            }
+
+            Optional.ofNullable(level.getBlockEntity(pos))
+                .ifPresent(blockEntity -> renderBlockEntity(blockEntity, pose, buffers));
+            pose.popPose();
+        }
+        buffers.endBatch();
+        pose.popPose();
+        pose.popPose();
+    }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {
         if (!state.hasBlockEntity()) return Optional.empty();
