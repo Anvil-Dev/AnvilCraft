@@ -222,8 +222,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (this.placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
                 this.placeBlocks(level, pos);
             }
-            // 容器耗尽时立即清除cooldown，防止客户端继续播放动画
-            if (!hasBlocksInContainer && this.placeCooldown > 0) {
+            // 容器耗尽或没有可放置位置时立即清除cooldown，防止客户端继续播放动画
+            if ((!hasBlocksInContainer || !needsPlacement) && this.placeCooldown > 0) {
                 this.placeCooldown = 0;
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.onChanged();
