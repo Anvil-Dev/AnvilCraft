@@ -221,6 +221,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
         } else if (needsMove) {
             this.placeCooldown = PLACEMENT_INTERVAL;
+            // 设置钳子中持有的方块（从源位置获取）
+            BlockPos sourcePos = pos.relative(level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING).getOpposite());
+            BlockState sourceState = level.getBlockState(sourcePos);
+            ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
+            if (!sourceItem.isEmpty() && sourceItem.getItem() instanceof net.minecraft.world.item.BlockItem) {
+                this.currentHeldBlock = sourceItem.copy();
+            } else {
+                this.currentHeldBlock = ItemStack.EMPTY;
+            }
             this.onChanged();
         }
     }
