@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +28,16 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = (SmartBlockPlacerBlockEntity) machine;
         this.level = inventory.player.level();
+
+        // 添加Structure Disk物品栏槽位（1个槽位）
+        int diskSlotX = 8;
+        int diskSlotY = 119;
+        this.addSlot(new StructureDiskOnlySlot(
+            this.blockEntity.getDiskInventory(),
+            0,
+            diskSlotX,
+            diskSlotY
+        ));
 
         // 添加玩家物品栏（主物品栏3行9列）
         for (int row = 0; row < 3; ++row) {
@@ -53,10 +65,13 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     }
 
     // Slot索引常量
+    private static final int STRUCTURE_DISK_SLOT_COUNT = 1;                 // Structure Disk物品栏1个槽位
     private static final int PLAYER_INVENTORY_SLOT_COUNT = 27;  // 主物品栏3行9列
     private static final int HOTBAR_SLOT_COUNT = 9;             // 快捷栏1行9列
     private static final int VANILLA_SLOT_COUNT = PLAYER_INVENTORY_SLOT_COUNT + HOTBAR_SLOT_COUNT;
+    private static final int TOTAL_SLOT_COUNT = STRUCTURE_DISK_SLOT_COUNT + VANILLA_SLOT_COUNT;
 
+    @SuppressWarnings("checkstyle:RightCurly")
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
@@ -65,16 +80,34 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             ItemStack originalStack = slot.getItem();
             itemstack = originalStack.copy();
 
-            // 判断点击的是主物品栏还是快捷栏
-            if (index < PLAYER_INVENTORY_SLOT_COUNT) {
-                // 点击的是主物品栏（索引0-26），移动到快捷栏（索引27-35）
-                if (!this.moveItemStackTo(originalStack, PLAYER_INVENTORY_SLOT_COUNT, VANILLA_SLOT_COUNT, false)) {
+            // Structure Disk槽位（索引0）的物品移动到玩家物品栏
+            if (index < STRUCTURE_DISK_SLOT_COUNT) {
+                if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (index < VANILLA_SLOT_COUNT) {
-                // 点击的是快捷栏（索引27-35），移动到主物品栏（索引0-26）
-                if (!this.moveItemStackTo(originalStack, 0, PLAYER_INVENTORY_SLOT_COUNT, false)) {
-                    return ItemStack.EMPTY;
+            }
+            // 玩家物品栏的物品移动
+            else if (index < TOTAL_SLOT_COUNT) {
+                if (originalStack.is(ModItems.STRUCTURE_DISK.get())) {
+                    // Structure Disk尝试移动到Disk槽位
+                    if (!this.moveItemStackTo(originalStack, 0, STRUCTURE_DISK_SLOT_COUNT, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else {
+                    // 其他物品在玩家物品栏内部移动（主物品栏<->快捷栏）
+                    int playerInventoryEnd = STRUCTURE_DISK_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+                    
+                    if (index >= playerInventoryEnd) {
+                        // 从快捷栏移动到主物品栏
+                        if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT, playerInventoryEnd, false)) {
+                            return ItemStack.EMPTY;
+                        }
+                    } else {
+                        // 从主物品栏移动到快捷栏
+                        if (!this.moveItemStackTo(originalStack, playerInventoryEnd, TOTAL_SLOT_COUNT, false)) {
+                            return ItemStack.EMPTY;
+                        }
+                    }
                 }
             }
 

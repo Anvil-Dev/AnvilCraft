@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -65,6 +66,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
     private boolean isPickupMode = true;
 
+    /**
+     * -- GETTER --
+     *  获取Disk物品栏
+     */
+    // Disk物品栏
+    private final SimpleContainer diskInventory = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            SmartBlockPlacerBlockEntity.this.setChanged();
+        }
+    };
+
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
     @Nullable
@@ -108,6 +122,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             tag.put("currentHeldBlock", currentHeldBlock.save(provider));
         }
         saveLayerPositions(tag);
+        // 保存Disk物品栏
+        tag.put("diskInventory", this.diskInventory.createTag(provider));
     }
 
     @Override
@@ -123,6 +139,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ? ItemStack.parse(provider, tag.getCompound("currentHeldBlock")).orElse(ItemStack.EMPTY)
             : ItemStack.EMPTY;
         loadLayerPositions(tag);
+        // 加载Disk物品栏
+        this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
     }
 
     public void tickServer(Level level, BlockPos pos) {

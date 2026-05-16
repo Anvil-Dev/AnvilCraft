@@ -17,6 +17,7 @@ import java.util.function.Consumer;
  * 点击后切换到另一张贴图
  */
 public class ToggleButton extends Button {
+    @Setter
     private ResourceLocation texture;
     private final int texWidth;
     private final int texHeight;
@@ -42,10 +43,6 @@ public class ToggleButton extends Button {
         this.onPress = onPress;
         this.tooltips = tooltips;
     }
-    
-    public void setTexture(ResourceLocation texture) {
-        this.texture = texture;
-    }
 
     @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
@@ -59,8 +56,11 @@ public class ToggleButton extends Button {
         
         guiGraphics.blit(texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 2);
         
-        // 渲染tooltip
+        // 渲染tooltip，确保在所有元素上方（包括预览窗口提示文本）
         if (this.isHovered && tooltips != null && !tooltips.isEmpty()) {
+            guiGraphics.pose().pushPose();
+            // 将Z轴向前移动，确保tooltip在所有按钮和预览窗口提示文本上方
+            guiGraphics.pose().translate(0, 0, 1500);
             guiGraphics.renderTooltip(
                 Minecraft.getInstance().font, 
                 tooltips, 
@@ -68,6 +68,7 @@ public class ToggleButton extends Button {
                 mouseX, 
                 mouseY
             );
+            guiGraphics.pose().popPose();
         }
     }
 

@@ -543,6 +543,10 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::disk)
         .register();
 
+    public static final ItemEntry<Item> STRUCTURE_DISK = REGISTRUM.item("structure_disk", Item::new)
+        .properties(p -> p.stacksTo(1))
+        .register();
+
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties((properties) -> properties.stacksTo(16))
