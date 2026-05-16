@@ -723,7 +723,8 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CRAB_CLAW), AnvilCraftDatagen.has(ModItems.CRAB_CLAW))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(ModItems.PROCESSOR))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.HOPPER), AnvilCraftDatagen.has(Items.HOPPER))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK), AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
             .save(provider);
     }
 
