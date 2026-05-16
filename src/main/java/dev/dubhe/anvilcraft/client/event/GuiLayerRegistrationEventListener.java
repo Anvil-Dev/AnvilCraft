@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.event;
 import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
@@ -52,9 +53,13 @@ public class GuiLayerRegistrationEventListener {
             if (hit.getType() == HitResult.Type.BLOCK) {
                 BlockPos blockPos = ((BlockHitResult) hit).getBlockPos();
                 if (minecraft.level == null) return;
+                BlockState s = minecraft.level.getBlockState(blockPos);
+                if (minecraft.level.getBlockState(blockPos).getBlock() instanceof AbstractMultiPartBlock<?> block) {
+                    blockPos = block.getMainPartPos(blockPos, s);
+                    s = minecraft.level.getBlockState(blockPos);
+                }
                 BlockEntity e = minecraft.level.getBlockEntity(blockPos);
                 if (e == null) {
-                    BlockState s = minecraft.level.getBlockState(blockPos);
                     if (s.is(BlockTags.AIR)) return;
                     HudTooltipManager.INSTANCE.renderTooltip(
                         guiGraphics, minecraft.level, blockPos, s, partialTick, screenWidth, screenHeight);
