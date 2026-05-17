@@ -104,9 +104,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
             Blocks.ANVIL.defaultBlockState(),
             50,
             12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
 
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
@@ -119,14 +117,12 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
                 renderedState,
                 50,
                 30 + 10 * i,
-                10 - 10 * i,
-                12,
-                RenderSupport.SINGLE_BLOCK
+                12
             );
         }
 
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderSupport.SINGLE_BLOCK
+            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 12
         );
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
@@ -135,12 +131,10 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
             renderedState,
             110,
             30,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
         RenderSupport.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK
+            guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 12
         );
     }
 

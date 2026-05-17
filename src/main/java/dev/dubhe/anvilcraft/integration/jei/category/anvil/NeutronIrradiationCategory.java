@@ -106,9 +106,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
         Block material = recipe.getHasCauldron().getFluidCauldron();
         RenderSupport.renderBlock(
@@ -116,9 +114,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
             CauldronUtil.fullState(material),
             81,
             30,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
 
         BlockState block = ModBlocks.NEUTRON_IRRADIATOR
@@ -130,9 +126,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
             block,
             81,
             40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
 
         this.arrowIn.draw(guiGraphics, 54, 20);
@@ -148,7 +142,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
         } else {
             BlockState cauldronState = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
 
-            RenderSupport.renderBlock(guiGraphics, cauldronState, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+            RenderSupport.renderBlock(guiGraphics, cauldronState, 133, 30, 12);
         }
     }
 

@@ -96,16 +96,14 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
             Blocks.ANVIL.defaultBlockState(),
             50,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
 
         renderInput: {
             List<BlockState> input = recipe.value().getFirstInputBlock().constructStatesForRender();
             if (input.isEmpty()) break renderInput;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) break renderInput;
-            RenderSupport.renderBlock(guiGraphics, renderedState, 50, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
+            RenderSupport.renderBlock(guiGraphics, renderedState, 50, 40, 12);
         }
 
         RenderSupport.renderBlock(
@@ -113,18 +111,14 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
             Blocks.ANVIL.defaultBlockState(),
             110,
             30,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
         RenderSupport.renderBlock(
             guiGraphics,
             recipe.value().getFirstResultBlock().state(),
             110,
             40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
     }
 

@@ -109,17 +109,13 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(),
             81,
             40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
 
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOut.draw(guiGraphics, 92, 29);

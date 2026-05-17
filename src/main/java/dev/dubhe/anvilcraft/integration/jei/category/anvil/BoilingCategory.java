@@ -52,25 +52,19 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
             guiGraphics,
             CauldronUtil.fullState(Blocks.WATER_CAULDRON),
             81,
             30,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true),
             81,
             40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
 
         arrowIn.draw(guiGraphics, 54, 20);
         arrowOut.draw(guiGraphics, 92, 19);

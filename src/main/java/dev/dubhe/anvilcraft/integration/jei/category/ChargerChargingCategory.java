@@ -100,9 +100,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
             recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false),
             81,
             40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
 
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOut.draw(guiGraphics, 92, 29);

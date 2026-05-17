@@ -155,9 +155,7 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
             block,
             81,
             40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
 
         this.arrowDefault.draw(guiGraphics, 74, 22);

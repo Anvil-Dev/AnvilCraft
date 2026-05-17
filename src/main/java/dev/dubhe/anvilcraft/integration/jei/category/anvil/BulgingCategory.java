@@ -111,9 +111,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         BlockState state;
         if (recipe.isFromWater()) {
             state = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
@@ -122,7 +120,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         } else {
             state = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
         }
-        RenderSupport.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, state, 81, 40, 12);
 
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOut.draw(guiGraphics, 92, 29);
@@ -179,7 +177,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
             } else {
                 state = CauldronUtil.fullState(result);
             }
-            RenderSupport.renderBlock(guiGraphics, state, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+            RenderSupport.renderBlock(guiGraphics, state, 133, 30, 12);
         }
     }
 

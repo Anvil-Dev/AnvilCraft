@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.client;
 
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
+import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
@@ -9,10 +11,12 @@ import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.model.Model;
@@ -56,6 +60,10 @@ public class AnvilCraftClient {
         IntegrationHook.setModEventBus(modEventBus);
         IntegrationHook.setModContainer(modContainer);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
+        event.enqueueWork(() -> {
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(ModBlockEntities.RUBY_LASER.get(), new CachedLaserBlockEntityRenderer<>());
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(ModBlockEntities.RUBY_PRISM.get(), new CachedLaserBlockEntityRenderer<>());
+        });
     }
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {

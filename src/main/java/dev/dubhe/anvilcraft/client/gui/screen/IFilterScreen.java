@@ -185,7 +185,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     default void extractFilterItem(GuiGraphicsExtractor graphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
-        RenderSupport.renderItemWithTransparency(stack, graphics.pose(), i, j, 0.52F);
+        RenderSupport.renderItemWithTransparency(stack, graphics, i, j, 0.52F);
         graphics.fill(i, j, i + 16, j + 16, 0x60Ffaaaa);
     }
 

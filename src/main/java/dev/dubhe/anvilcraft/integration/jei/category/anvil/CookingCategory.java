@@ -50,19 +50,15 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true),
             81,
             40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
 
         arrowIn.draw(guiGraphics, 54, 20);
         arrowOut.draw(guiGraphics, 92, 19);

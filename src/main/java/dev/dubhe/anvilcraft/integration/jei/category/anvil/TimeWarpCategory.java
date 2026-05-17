@@ -110,18 +110,14 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         Block material = recipe.getHasCauldron().getFluidCauldron();
         RenderSupport.renderBlock(
             guiGraphics,
             CauldronUtil.fullState(material),
             81,
             30,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
 
         BlockState block = ModBlocks.CORRUPTED_BEACON
@@ -134,9 +130,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             block,
             81,
             40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
 
         if (!recipe.getInputItems().isEmpty()) {
@@ -192,7 +186,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
             } else {
                 cauldronState = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
             }
-            RenderSupport.renderBlock(guiGraphics, cauldronState, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+            RenderSupport.renderBlock(guiGraphics, cauldronState, 133, 30, 12);
         }
     }
 

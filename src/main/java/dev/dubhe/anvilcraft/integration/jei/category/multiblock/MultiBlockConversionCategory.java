@@ -266,9 +266,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                         .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
                     80,
                     19.8F + anvilYOffset,
-                    20,
-                    5,
-                    RenderSupport.SINGLE_BLOCK
+                    5
                 );
                 pose.pushMatrix();
                 pose.scale(0.8F, 0.8F);

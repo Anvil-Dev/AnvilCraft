@@ -98,11 +98,9 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 12);
 
         this.arrowIn.draw(guiGraphics, 55, 17);
         this.slotDefault.draw(guiGraphics, 36, 13);

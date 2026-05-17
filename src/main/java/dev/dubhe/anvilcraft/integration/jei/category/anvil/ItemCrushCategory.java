@@ -48,17 +48,13 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.CRUSHING_TABLE.getDefaultState(),
             81,
             40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
 
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOutputFromBelow.draw(guiGraphics, 92, 29);

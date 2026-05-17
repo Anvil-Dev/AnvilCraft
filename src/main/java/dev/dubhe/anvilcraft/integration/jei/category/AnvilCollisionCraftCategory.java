@@ -178,9 +178,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                 renderedState,
                 80,
                 28,
-                20,
-                scale,
-                RenderSupport.SINGLE_BLOCK
+                scale
             );
         }
 
@@ -199,9 +197,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         inputBlockRenderedState,
                         120,
                         5,
-                        20,
-                        12,
-                        RenderSupport.SINGLE_BLOCK
+                        12
                     );
 
                     ChanceBlockState outputBlock = blockTransform.outputBlock();
@@ -211,9 +207,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         outputBlockState,
                         120,
                         48,
-                        20,
-                        12,
-                        RenderSupport.SINGLE_BLOCK
+                        12
                     );
 
                     this.blockConversion.draw(guiGraphics, 113, 19);
@@ -246,9 +240,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         inputBlockRenderedState,
                         110,
                         3,
-                        20,
-                        8,
-                        RenderSupport.SINGLE_BLOCK
+                        8
                     );
 
                     ChanceBlockState outputBlock = blockTransform.outputBlock();
@@ -258,9 +250,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         outputBlockState,
                         110,
                         13,
-                        20,
-                        8,
-                        RenderSupport.SINGLE_BLOCK
+                        8
                     );
                     this.blockConversion.draw(guiGraphics, 86, 6);
                     this.arrowDefault.draw(guiGraphics, 98, 26);
@@ -298,7 +288,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         for (int i = 0; i < 7; i++) {
             RenderSupport.renderItemWithTransparency(
                 new ItemStack(Blocks.ANVIL),
-                pose,
+                guiGraphics,
                 55 - i * 3,
                 24,
                 1F - (float) i / 10

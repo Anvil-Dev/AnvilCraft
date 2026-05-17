@@ -112,11 +112,9 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(guiGraphics, ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState(),
-            81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
+            81, 40, 12);
 
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOutputFromBelow.draw(guiGraphics, 92, 29);

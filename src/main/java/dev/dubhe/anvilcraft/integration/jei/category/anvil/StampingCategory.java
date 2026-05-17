@@ -53,12 +53,10 @@ public class StampingCategory extends AbstractProgressCategory<BaseStampingRecip
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
         RenderSupport.renderBlock(
-            guiGraphics, ModBlocks.STAMPING_PLATFORM.getDefaultState(), 81, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics, ModBlocks.STAMPING_PLATFORM.getDefaultState(), 81, 40, 12);
 
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOutputFromBelow.draw(guiGraphics, 92, 29);

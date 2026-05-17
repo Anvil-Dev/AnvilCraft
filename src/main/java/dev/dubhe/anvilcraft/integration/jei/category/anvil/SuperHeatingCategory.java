@@ -62,19 +62,15 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
             Blocks.ANVIL.defaultBlockState(),
             81,
             12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
-        RenderSupport.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
         RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false),
             81,
             40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
 
         arrowIn.draw(guiGraphics, 54, 20);
@@ -90,7 +86,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
         HasCauldronSimple hasCauldron = recipe.getHasCauldron();
         if (!HasCauldron.isNotEmpty(hasCauldron.transform())) return;
         BlockState cauldron = CauldronUtil.fullState(hasCauldron.getTransformCauldron());
-        RenderSupport.renderBlock(guiGraphics, cauldron, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, cauldron, 133, 30, 12);
 
         if (recipe.isConsumeFluid()) {
             PoseStack pose = guiGraphics.pose();

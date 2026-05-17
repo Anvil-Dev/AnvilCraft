@@ -81,8 +81,7 @@ public class JeiRenderHelper {
         BlockState state,
         float x,
         float y,
-        float z,
-        RenderSupport.BlockRenderFunction function
+        float z
     ) {
         PoseStack pose = graphics.pose();
         pose.pushPose();
@@ -93,9 +92,7 @@ public class JeiRenderHelper {
             state,
             9,
             5.5F,
-            z,
-            11.5F,
-            function
+            11.5F
         );
         pose.popPose();
     }

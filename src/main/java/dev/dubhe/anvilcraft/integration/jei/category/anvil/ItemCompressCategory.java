@@ -48,11 +48,9 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 12);
 
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);

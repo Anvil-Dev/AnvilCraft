@@ -66,7 +66,9 @@ public class HammerEffectRenderEventListener {
         );
         event.getRenderState().setRenderData(HammerEffectRenderEventListener.HAMMER_STATE, model);
     }
-    
+
+
+    //TODO use custom render type for colored overlay
     @SubscribeEvent
     public static void onRender(RenderLevelStageEvent.AfterOpaqueFeatures event) {
         Minecraft mc = Minecraft.getInstance();

@@ -69,7 +69,8 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
     public void setRecipe(IRecipeLayoutBuilder builder, TranscendiumRecipe recipe, IFocusGroup focuses) {
         int recipeId = recipe.recipeId();
         // 输入
-        builder.addInputSlot(21, 24).add(ModItems.CHARGED_NEUTRONIUM_INGOT.asStack())
+        builder.addInputSlot(21, 24)
+            .add(ModItems.CHARGED_NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                 switch (recipeId) {
                     case 0 -> tooltip.add(Component.translatable(
@@ -140,16 +141,14 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
         final int recipeId = recipe.recipeId();
         this.slotDefault.draw(guiGraphics, 20, 23);
         this.arrowIn.draw(guiGraphics, 54, 30);
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20, 12, RenderSupport.SINGLE_BLOCK);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
         RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getDefaultState(),
             81,
             40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK
+            12
         );
         this.arrowOut.draw(guiGraphics, 92, 29);
         switch (recipeId) {
@@ -171,9 +170,7 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
                     ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(),
                     133,
                     45,
-                    0,
-                    12,
-                    RenderSupport.SINGLE_BLOCK
+                    12
                 );
             }
             case 4 -> {
@@ -184,9 +181,7 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
                     ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(),
                     133,
                     45,
-                    0,
-                    12,
-                    RenderSupport.SINGLE_BLOCK
+                    12
                 );
             }
             default -> {

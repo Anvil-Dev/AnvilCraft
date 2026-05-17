@@ -105,8 +105,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
                 renderedState,
                 4,
                 4,
-                20,
-                RenderSupport.SINGLE_BLOCK
+                20
             );
         }
 
@@ -121,8 +120,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
                 result.state().state(),
                 142,
                 4,
-                20,
-                RenderSupport.SINGLE_BLOCK
+                20
             );
         }
     }

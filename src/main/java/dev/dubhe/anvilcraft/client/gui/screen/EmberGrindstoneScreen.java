@@ -168,7 +168,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         );
         RenderSupport.renderItemWithTransparency(
             Items.BOOK.getDefaultInstance(),
-            graphics.pose(),
+            graphics,
             this.leftPos + 25,
             this.topPos + 42,
             0.5F

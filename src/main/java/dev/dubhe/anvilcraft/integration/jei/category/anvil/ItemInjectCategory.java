@@ -106,22 +106,20 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
 
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         if (input.isEmpty()) return;
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
         if (renderedState == null) return;
-        RenderSupport.renderBlock(guiGraphics, renderedState, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, renderedState, 81, 40, 12);
 
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOut.draw(guiGraphics, 92, 29);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
         RenderSupport.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics, recipe.getFirstResultBlock().state(), 133, 30, 12);
     }
 
     @Override

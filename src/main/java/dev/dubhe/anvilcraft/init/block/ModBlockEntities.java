@@ -72,7 +72,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 
@@ -199,12 +199,12 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<RubyPrismBlockEntity> RUBY_PRISM = REGISTRUM
         .blockEntity("ruby_prism", RubyPrismBlockEntity::createBlockEntity)
-        .renderer(() -> LaserBlockRenderer::new)
+        .renderer(() -> LaserBlockEntityRenderer::new)
         .validBlock(ModBlocks.RUBY_PRISM)
         .register();
     public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRUM
         .blockEntity("ruby_laser", RubyLaserBlockEntity::createBlockEntity)
-        .renderer(() -> LaserBlockRenderer::new)
+        .renderer(() -> LaserBlockEntityRenderer::new)
         .validBlock(ModBlocks.RUBY_LASER)
         .register();
 

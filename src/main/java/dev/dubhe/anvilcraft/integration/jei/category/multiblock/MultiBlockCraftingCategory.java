@@ -177,9 +177,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
                 .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
             138,
             44.8F + anvilYOffset,
-            20,
-            5,
-            RenderSupport.SINGLE_BLOCK
+            5
         );
         pose.pushPose();
         pose.scale(0.8F, 0.8F, 0.8F);

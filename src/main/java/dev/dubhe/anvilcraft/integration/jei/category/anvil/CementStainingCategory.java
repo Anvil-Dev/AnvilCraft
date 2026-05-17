@@ -106,23 +106,19 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.CEMENT_CAULDRONS.get(color).getDefaultState(),
             81,
             40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+            12);
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOut.draw(guiGraphics, 92, 29);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, recipe.ingredients().size());
 
-        RenderSupport.renderBlock(guiGraphics, recipe.resultBlock().defaultBlockState(), 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, recipe.resultBlock().defaultBlockState(), 133, 30, 12);
     }
 
     @Override
