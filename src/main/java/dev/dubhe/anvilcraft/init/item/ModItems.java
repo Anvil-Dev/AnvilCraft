@@ -87,7 +87,6 @@ import dev.dubhe.anvilcraft.item.utility.GuideBookItem;
 import dev.dubhe.anvilcraft.item.utility.IonoCraftItem;
 import dev.dubhe.anvilcraft.item.utility.MagnetItem;
 import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
-import dev.dubhe.anvilcraft.item.utility.RecoveryPearlItem;
 import dev.dubhe.anvilcraft.item.utility.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.utility.StructureToolItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
@@ -110,6 +109,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
@@ -120,6 +120,7 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -284,7 +285,7 @@ public class ModItems {
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRUM.item("anvil_hammer", AnvilHammerItem::new)
-        .properties(properties -> properties.durability(35))
+        .properties(properties -> properties.durability(35).enchantable(14).repairable(Items.IRON_INGOT))
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::anvilHammer)
@@ -297,7 +298,11 @@ public class ModItems {
         )
         .recipe(RegistrumItemRecipeLoader::royalAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
-        .properties(properties -> properties.durability(150))
+        .properties(properties -> properties
+            .durability(150)
+            .enchantable(7)
+            .repairable(ModItems.ROYAL_STEEL_INGOT.asItem())
+        )
         .model(DataGenUtil::onlyInfo)
         .register();
     public static final ItemEntry<EmberAnvilHammerItem> EMBER_ANVIL_HAMMER = REGISTRUM
@@ -305,9 +310,13 @@ public class ModItems {
             "ember_anvil_hammer",
             EmberAnvilHammerItem::new
         )
+        .properties(properties -> properties
+            .durability(2031)
+            .enchantable(22)
+            .repairable(ModItems.EMBER_METAL_INGOT.asItem())
+        )
         .recipe(RegistrumItemRecipeLoader::emberAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
-        .properties(properties -> properties.durability(2031))
         .model(DataGenUtil::onlyInfo)
         .register();
     public static final ItemEntry<TranscendenceAnvilHammerItem> TRANSCENDENCE_ANVIL_HAMMER = REGISTRUM
@@ -315,47 +324,65 @@ public class ModItems {
             "transcendence_anvil_hammer",
             TranscendenceAnvilHammerItem::new
         )
+        .properties(properties -> properties
+            .durability(3156)
+            .enchantable(28)
+            .repairable(ModItems.TRANSCENDIUM_INGOT.asItem())
+        )
         .recipe(RegistrumItemRecipeLoader::transcendenceAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
-        .properties(properties -> properties.durability(3156))
         .model(DataGenUtil::onlyInfo)
         .register();
-    public static final ItemEntry<DragonRodItem> DRAGON_ROD = REGISTRUM.item("dragon_rod", properties -> new DragonRodItem(properties, 3))
-        .properties(properties -> properties.durability(35))
+    public static final ItemEntry<DragonRodItem> DRAGON_ROD = REGISTRUM
+        .item("dragon_rod", DragonRodItem::new)
+        .properties(properties -> properties
+            .durability(35)
+            .enchantable(3)
+            .repairable(Items.IRON_INGOT)
+            .component(DataComponents.USE_COOLDOWN, new UseCooldown(20, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
+        )
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::dragonRod)
         .register();
     public static final ItemEntry<DragonRodItem> ROYAL_DRAGON_ROD = REGISTRUM
-        .item(
-            "royal_dragon_rod",
-            properties -> new DragonRodItem(properties, 6)
+        .item("royal_dragon_rod", DragonRodItem::new)
+        .properties(properties -> properties
+            .durability(150)
+            .enchantable(6)
+            .repairable(ModItems.ROYAL_STEEL_INGOT.asItem())
+            .component(DataComponents.USE_COOLDOWN, new UseCooldown(20, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
-        .properties(properties -> properties.durability(150))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::royalDragonRod)
         .register();
     public static final ItemEntry<DragonRodItem> EMBER_DRAGON_ROD = REGISTRUM
-        .item(
-            "ember_dragon_rod",
-            properties -> new DragonRodItem(properties, 9)
+        .item("ember_dragon_rod", DragonRodItem::new)
+        .properties(properties -> properties
+            .durability(2031)
+            .enchantable(9)
+            .repairable(ModItems.EMBER_METAL_INGOT.asItem())
+            .fireResistant()
+            .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
+            .component(DataComponents.USE_COOLDOWN, new UseCooldown(20, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
-        .properties(properties -> properties.durability(2031).fireResistant().component(ModComponents.FIRE_REFORGING, Unit.INSTANCE))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD, ModItemTags.EXPLOSION_PROOF)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::emberDragonRod)
         .register();
     public static final ItemEntry<DragonRodItem> TRANSCENDENCE_DRAGON_ROD = REGISTRUM
-        .item(
-            "transcendence_dragon_rod",
-            properties -> new DragonRodItem(properties, 13)
-        )
-        .properties(properties -> properties.durability(3156)
+        .item("transcendence_dragon_rod", DragonRodItem::new)
+        .properties(properties -> properties
+            .durability(3156)
+            .enchantable(13)
+            .repairable(ModItems.TRANSCENDIUM_INGOT.asItem())
             .fireResistant()
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
-            .component(ModComponents.PROVIDENCE, Unit.INSTANCE))
+            .component(ModComponents.PROVIDENCE, Unit.INSTANCE)
+            .component(DataComponents.USE_COOLDOWN, new UseCooldown(4, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
+        )
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::transcendenceDragonRod)
@@ -764,8 +791,8 @@ public class ModItems {
     public static final ItemEntry<Item> TIN_CAN = REGISTRUM.item("tin_can", Item::new)
         .register();
 
-    public static final ItemEntry<RecoveryPearlItem> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", RecoveryPearlItem::new)
-        .properties(properties -> properties.stacksTo(16))
+    public static final ItemEntry<Item> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", Item::new)
+        .properties(properties -> properties.stacksTo(16).useCooldown(1))
         .recipe(RegistrumItemRecipeLoader::recoveryPearl)
         .register();
 

@@ -15,8 +15,8 @@ import java.util.List;
 
 public class ModDeathProtections {
     public static final DeathProtection TOTEM_OF_RECOVERY = new DeathProtection(List.of(
-        new TeleportToRespawnPointConsumeEffect(),
-        new ClearAllStatusEffectsConsumeEffect(),
+        TeleportToRespawnPointConsumeEffect.INSTANCE,
+        ClearAllStatusEffectsConsumeEffect.INSTANCE,
         new ApplyStatusEffectsConsumeEffect(List.of(
             new MobEffectInstance(MobEffects.REGENERATION, 900, 1),
             new MobEffectInstance(MobEffects.ABSORPTION, 100, 1),
@@ -26,7 +26,7 @@ public class ModDeathProtections {
 
     public static final DeathProtection TOTEM_OF_RAGE = new DeathProtection(List.of(
         new SetFoodLevelConsumeEffect(20),
-        new ClearAllStatusEffectsConsumeEffect(),
+        ClearAllStatusEffectsConsumeEffect.INSTANCE,
         new ApplyStatusEffectsConsumeEffect(List.of(
             new MobEffectInstance(MobEffects.REGENERATION, 900, 1),
             new MobEffectInstance(MobEffects.ABSORPTION, 100, 1),
@@ -37,7 +37,7 @@ public class ModDeathProtections {
     ));
 
     public static final DeathProtection AMULET_BOX = new DeathProtection(List.of(
-        new PreventShrinkingConsumeEffect(),
-        new TryTotemsInBoxConsumeEffect()
+        PreventShrinkingConsumeEffect.INSTANCE,
+        TryTotemsInBoxConsumeEffect.INSTANCE
     ));
 }

@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
+import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
@@ -95,9 +96,9 @@ public class ModComponents {
         b -> b.persistent(Ferocious.CODEC.codec()).networkSynchronized(Ferocious.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Integer> DEVOUR_RANGE = register(
+    public static final DataComponentType<DevourRange> DEVOUR_RANGE = register(
         "devour_range",
-        b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+        b -> b.persistent(DevourRange.CODEC).networkSynchronized(DevourRange.STREAM_CODEC)
     );
 
     public static final DataComponentType<BoxContents> BOX_CONTENTS = register(

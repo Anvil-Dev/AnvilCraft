@@ -20,14 +20,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAware {
@@ -55,16 +53,6 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
                 .component(ModComponents.FLIGHT_TIME, FlightTime.EMPTY)
         );
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
-    }
-
-    @Override
-    @SuppressWarnings({"removal"})
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        ItemProperties.register(
-            this,
-            AnvilCraft.of("flight_time"),
-            ModItemProperties.FLIGHT_TIME
-        );
     }
 
     @Override

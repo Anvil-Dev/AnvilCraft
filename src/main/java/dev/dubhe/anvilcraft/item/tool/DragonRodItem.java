@@ -2,10 +2,11 @@ package dev.dubhe.anvilcraft.item.tool;
 
 import com.google.common.collect.Streams;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
@@ -14,16 +15,19 @@ import it.unimi.dsi.fastutil.ints.IntListIterator;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -41,54 +45,22 @@ import java.util.Objects;
 
 @Slf4j
 public class DragonRodItem extends Item {
-    public static final int DEFAULT_RANGE = 3;
-    private final int enchantmentValue;
+    public static final Identifier COOLDOWN_GROUP = AnvilCraft.of("dragon_rods");
 
-    public DragonRodItem(Properties properties, int enchantmentValue) {
-        super(properties.component(ModComponents.DEVOUR_RANGE, DEFAULT_RANGE).rarity(Rarity.UNCOMMON));
-        this.enchantmentValue = enchantmentValue;
-    }
-
-    @Override
-    public boolean isValidRepairItem(ItemStack stack, ItemStack repairCandidate) {
-        if (stack.is(ModItems.DRAGON_ROD)) {
-            return repairCandidate.is(Items.IRON_INGOT);
-        } else if (stack.is(ModItems.ROYAL_DRAGON_ROD)) {
-            return repairCandidate.is(ModItems.ROYAL_STEEL_INGOT);
-        } else if (stack.is(ModItems.EMBER_DRAGON_ROD)) {
-            return repairCandidate.is(ModItems.EMBER_METAL_INGOT);
-        } else if (stack.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
-            return repairCandidate.is(ModItems.TRANSCENDIUM_INGOT);
-        }
-        return super.isValidRepairItem(stack, repairCandidate);
-    }
-
-    @Override
-    public int getEnchantmentValue(ItemStack stack) {
-        return this.enchantmentValue;
-    }
-
-    @Override
-    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-        return !player.isCreative();
+    public DragonRodItem(Properties properties) {
+        super(
+            properties
+                .component(ModComponents.DEVOUR_RANGE, DevourRange.THREE)
+                .rarity(Rarity.UNCOMMON)
+        );
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
-        InteractionResult superHolder = super.use(level, player, usedHand);
-        ItemStack dragonRod = superHolder.getObject();
-        if (!dragonRod.is(this)) return superHolder;
-        switch (dragonRod.get(ModComponents.DEVOUR_RANGE)) {
-            case 3 -> dragonRod.set(ModComponents.DEVOUR_RANGE, 5);
-            case 5 -> dragonRod.set(ModComponents.DEVOUR_RANGE, 7);
-            case 7 -> dragonRod.set(ModComponents.DEVOUR_RANGE, 9);
-            case 9 -> dragonRod.set(ModComponents.DEVOUR_RANGE, 3);
-            case null, default -> {
-                log.warn("A dragon rod in player {} dose not have devour range, use default", player);
-                dragonRod.set(ModComponents.DEVOUR_RANGE, 3);
-            }
-        }
-        return new InteractionResult<>(superHolder.getResult(), dragonRod);
+        ItemStack dragonRod = player.getItemInHand(usedHand);
+        if (!dragonRod.is(this)) return super.use(level, player, usedHand);
+        dragonRod.set(ModComponents.DEVOUR_RANGE, dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getNext());
+        return super.use(level, player, usedHand);
     }
 
     @Override
@@ -105,8 +77,7 @@ public class DragonRodItem extends Item {
         if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
         ItemStack dragonRod = player.getItemInHand(hand);
         if (!canDevour(player, dragonRod)) return;
-        int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, -1);
-        if (range == -1) return;
+        int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
         range = (range - 1) / 2;
         Iterable<BlockPos> devouringPoses;
         switch (clickedSide) {
@@ -156,7 +127,7 @@ public class DragonRodItem extends Item {
                     }
                 }
                 // 特判雕纹书架一类
-                ResourceHandler<ItemResource> source = level.getCapability(Capabilities.ItemHandler.BLOCK, devouringPos, null);
+                ResourceHandler<ItemResource> source = level.getCapability(Capabilities.Item.BLOCK, devouringPos, null);
                 if (source != null && dropList.isEmpty()) {
                     for (IntListIterator it = IntIterators.fromTo(0, source.size()); it.hasNext(); ) {
                         int slot = it.nextInt();
@@ -186,17 +157,11 @@ public class DragonRodItem extends Item {
             level.destroyBlock(devouringPos, false);
         }
 
-        int cooldown = calculateCooldown(player);
-        player.getCooldowns().addCooldown(ModItems.DRAGON_ROD.asItem(), cooldown);
-        player.getCooldowns().addCooldown(ModItems.ROYAL_DRAGON_ROD.asItem(), cooldown);
-        player.getCooldowns().addCooldown(ModItems.EMBER_DRAGON_ROD.asItem(), cooldown);
-        player.getCooldowns().addCooldown(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), calculateTranscendenceDragonRodCooldown(player));
-        if (!(dragonRod.getItem() instanceof DragonRodItem)) {
-            player.getCooldowns().addCooldown(dragonRod.getItem(), cooldown);
-        }
+        int cooldown = calculateCooldown(player, dragonRod);
+        player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, cooldown);
 
         dragonRod.hurtAndBreak(calculateDamage(dragonRod), level, player, item -> {
-            player.onEquippedItemBroken(item, hand);
+            player.onEquippedItemBroken(item, hand.asEquipmentSlot());
             EventHooks.onPlayerDestroyItem(player, dragonRod, hand);
         });
     }
@@ -204,39 +169,28 @@ public class DragonRodItem extends Item {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean canDevour(Player player, ItemStack dragonRod) {
         return dragonRod.getDamageValue() < dragonRod.getMaxDamage() - 1
-            && !player.getCooldowns().isOnCooldown(dragonRod.getItem());
+               && !player.getCooldowns().isOnCooldown(dragonRod);
     }
 
     public static int calculateDamage(ItemStack dragonRod) {
-        int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, 0);
-        int damage = switch (range) {
-            case 5 -> 1;
-            case 7 -> 2;
-            case 9 -> 4;
-            default -> 0;
-        };
+        int damage = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getDamage();
         return Math.clamp(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1, damage);
     }
 
-    public static int calculateCooldown(Player player) {
-        int cooldown = 20;
-        if (player.hasEffect(MobEffects.DIG_SPEED)) {
-            cooldown -= Objects.requireNonNull(player.getEffect(MobEffects.DIG_SPEED)).getAmplifier() * 4;
+    public static int calculateCooldown(Player player, ItemStack dragonRod) {
+        int cooldown;
+        UseCooldown useCooldown = dragonRod.get(DataComponents.USE_COOLDOWN);
+        if (useCooldown == null) {
+            cooldown = 20;
+        } else {
+            cooldown = useCooldown.ticks();
         }
-        if (player.hasEffect(MobEffects.DIG_SLOWDOWN)) {
-            cooldown += Objects.requireNonNull(player.getEffect(MobEffects.DIG_SLOWDOWN)).getAmplifier() * 60;
+        if (player.hasEffect(MobEffects.HASTE)) {
+            cooldown -= Objects.requireNonNull(player.getEffect(MobEffects.HASTE)).getAmplifier() * 4;
         }
-        return Math.max(cooldown, 4);
-    }
-
-    public static int calculateTranscendenceDragonRodCooldown(Player player) {
-        int cooldown = 4;
-        if (player.hasEffect(MobEffects.DIG_SPEED)) {
-            cooldown -= Math.max(Objects.requireNonNull(player.getEffect(MobEffects.DIG_SPEED)).getAmplifier(), 1);
+        if (player.hasEffect(MobEffects.MINING_FATIGUE)) {
+            cooldown += Objects.requireNonNull(player.getEffect(MobEffects.MINING_FATIGUE)).getAmplifier() * 60;
         }
-        if (player.hasEffect(MobEffects.DIG_SLOWDOWN)) {
-            cooldown += Objects.requireNonNull(player.getEffect(MobEffects.DIG_SLOWDOWN)).getAmplifier() * 4;
-        }
-        return cooldown;
+        return Math.max(cooldown, 80);
     }
 }

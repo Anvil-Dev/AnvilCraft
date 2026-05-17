@@ -1,11 +1,9 @@
 package dev.dubhe.anvilcraft.item.tool.ember;
 
-import com.mojang.datafixers.util.Unit;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Unit;
 import net.minecraft.world.level.block.Block;
 
 public class EmberAnvilHammerItem extends AnvilHammerItem {
@@ -19,16 +17,6 @@ public class EmberAnvilHammerItem extends AnvilHammerItem {
             properties.fireResistant()
                 .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
         );
-    }
-
-    @Override
-    public int getEnchantmentValue(ItemStack stack) {
-        return 22;
-    }
-
-    @Override
-    public boolean isValidRepairItem(ItemStack stack, ItemStack repairCandidate) {
-        return repairCandidate.is(ModItems.EMBER_METAL_INGOT);
     }
 
     @Override

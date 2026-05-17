@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.item.tool.royal;
 
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
 public class RoyalAnvilHammerItem extends AnvilHammerItem {
@@ -14,11 +12,6 @@ public class RoyalAnvilHammerItem extends AnvilHammerItem {
      */
     public RoyalAnvilHammerItem(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    public boolean isValidRepairItem(ItemStack stack, ItemStack repairCandidate) {
-        return repairCandidate.is(ModItems.ROYAL_STEEL_INGOT);
     }
 
     @Override

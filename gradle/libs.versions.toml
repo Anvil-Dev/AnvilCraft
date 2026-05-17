@@ -2,7 +2,7 @@
 minecraft = "26.1.2"
 neoForge = "26.1.2.36-beta"
 jei = "29.5.0.28"
-jade = "21.1.7+neoforge"
+jade = "26.1.1+neoforge"
 modDevGradle = "2.0.141"
 lombok = "8.7.1"
 machete = "1.2.0"

@@ -23,5 +23,10 @@ public class ToolPropertyLang {
         provider.add("tooltip.anvilcraft.property.providence.shifting", "Providence: has chance to trigger (%s) enchantments multiple times");
         provider.add("tooltip.anvilcraft.property.stored_energy", "Remaining Energy: %s");
         provider.add("tooltip.anvilcraft.property.box_contents", "Fullness: %1$d / %2$d");
+        provider.add("tooltip.anvilcraft.property.devour_range", "Current Devour Range: %s");
+        provider.add("tooltip.anvilcraft.property.devour_range.range_3", "3x3");
+        provider.add("tooltip.anvilcraft.property.devour_range.range_5", "5x5");
+        provider.add("tooltip.anvilcraft.property.devour_range.range_7", "7x7");
+        provider.add("tooltip.anvilcraft.property.devour_range.range_9", "9x9");
     }
 }

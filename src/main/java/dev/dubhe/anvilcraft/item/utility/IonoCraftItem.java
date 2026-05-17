@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.utility;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.player.Player;

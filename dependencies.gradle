@@ -11,7 +11,7 @@ dependencies {
     compileOnlyApi(libs.jei.forge.api) { transitive = false }
     implementation(libs.jei.forge) { transitive = false }
 
-    // Sodium, Iris, Embeddium
+    // Sodium, Iris
     compileOnly(libs.sodium)
     compileOnly(libs.iris)
 

@@ -7,16 +7,15 @@ import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -39,7 +38,7 @@ public class SubmitGeometryEventListener {
         PoseStack poseStack = event.getPoseStack();
         DeltaTracker deltaTracker = Minecraft.getInstance().getDeltaTracker();
         SubmitNodeCollector nodeCollector = event.getSubmitNodeCollector();
-        //Inspection
+        // Inspection
         InspectionSupport.INSTANCE.onRenderInspectionAction(
             poseStack,
             nodeCollector,
@@ -104,8 +103,7 @@ public class SubmitGeometryEventListener {
         PoseStack.Pose pose, BlockHitResult hitResult, VertexConsumer consumer, double camX, double camY, double camZ, ItemStack handItem
     ) {
         if (handItem.has(ModComponents.DEVOUR_RANGE)) {
-            int range = handItem.getOrDefault(ModComponents.DEVOUR_RANGE, -1);
-            if (range == -1) return;
+            int range = handItem.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
             int half = (range - 1) / 2;
 
             if (hitResult.miss) return;

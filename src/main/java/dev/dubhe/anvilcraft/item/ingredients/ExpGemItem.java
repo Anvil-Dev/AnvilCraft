@@ -6,9 +6,9 @@ import dev.dubhe.anvilcraft.mixin.accessor.VillagerAccessor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.VillagerData;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.villager.VillagerData;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +19,7 @@ public class ExpGemItem extends Item {
     public static final int AGE_ADDITION = 2 * 60;
 
     public ExpGemItem(Properties properties) {
-        super(properties);
+        super(properties.useCooldown(0.25F));
     }
 
     @Override
@@ -32,7 +32,6 @@ public class ExpGemItem extends Item {
         int count = player.isShiftKeyDown() ? itemStack.getCount() : 1;
         player.giveExperiencePoints(ExpFluidBlock.XP_POINTS * count);
         itemStack.consume(count, player);
-        player.getCooldowns().addCooldown(this, 5);
         return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
@@ -45,8 +44,8 @@ public class ExpGemItem extends Item {
         if (villager.getAge() >= 0) {
             // 只对有职业且不满级的村民生效
             VillagerData villagerData = villager.getVillagerData();
-            int villagerLevel = villagerData.getLevel();
-            if (villagerData.getProfession() == VillagerProfession.NONE) return InteractionResult.PASS;
+            int villagerLevel = villagerData.level();
+            if (villagerData.profession() == VillagerProfession.NONE) return InteractionResult.PASS;
             if (!VillagerData.canLevelUp(villagerLevel)) return InteractionResult.PASS;
 
             updateVillager(villager);

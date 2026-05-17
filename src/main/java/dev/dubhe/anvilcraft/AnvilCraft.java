@@ -102,7 +102,7 @@ public class AnvilCraft {
         ModLootContextParamSets.registerAll();
         ModEnchantmentEffectComponents.register(modEventBus);
         ModEnchantmentEffects.register(modEventBus);
-        ModLootItemFunctions.LOOT_FUNCTION_TYPES.register(modEventBus);
+        ModLootItemFunctions.register(modEventBus);
         ModLootModifiers.register(modEventBus);
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
