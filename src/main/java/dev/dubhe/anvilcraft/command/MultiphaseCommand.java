@@ -28,6 +28,7 @@ import net.minecraft.network.chat.Style;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+// CHECKSTYLE.SUPPRESS: AvoidStaticImport for +2 lines
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 

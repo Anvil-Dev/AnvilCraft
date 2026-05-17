@@ -20,7 +20,7 @@ public record ItemProcessInput(
      */
     @Override
     public ItemStack getItem(int index) {
-        return items.get(index);
+        return this.items.get(index);
     }
 
     /**
@@ -30,6 +30,6 @@ public record ItemProcessInput(
      */
     @Override
     public int size() {
-        return items.size();
+        return this.items.size();
     }
 }

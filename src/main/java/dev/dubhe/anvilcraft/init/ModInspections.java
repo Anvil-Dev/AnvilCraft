@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+// CHECKSTYLE.SUPPRESS: AvoidStaticImport for +1 lines
 import static net.minecraft.commands.Commands.literal;
 
 @Slf4j
@@ -45,18 +46,18 @@ public class ModInspections {
 
     public void registerCommand(LiteralArgumentBuilder<CommandSourceStack> parent) {
         LiteralArgumentBuilder<CommandSourceStack> commandRoot = literal("inspection");
-        for (Identifier option : inspectionOptions) {
+        for (Identifier option : this.inspectionOptions) {
             commandRoot.then(
                 literal(option.toString())
                     .then(literal("enable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, true)
+                            ? this.changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, true)
                             : 0
                         )
                     )
                     .then(literal("disable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, false)
+                            ? this.changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, false)
                             : 0
                         )
                     )

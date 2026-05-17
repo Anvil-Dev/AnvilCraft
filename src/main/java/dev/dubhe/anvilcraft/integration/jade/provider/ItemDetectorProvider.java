@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +17,6 @@ import snownee.jade.api.config.IPluginConfig;
 import java.util.Locale;
 import java.util.Optional;
 
-import static dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 
 public enum ItemDetectorProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;

@@ -79,21 +79,21 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     public void updateIrradiateBlockPos(@Nullable BlockPos newPos) {
-        if (irradiateBlockPos == null) {
+        if (this.irradiateBlockPos == null) {
             if (newPos != null) this.markChanged();
-            irradiateBlockPos = newPos;
+            this.irradiateBlockPos = newPos;
             return;
         }
-        if (!irradiateBlockPos.equals(newPos)) this.markChanged();
-        irradiateBlockPos = newPos;
+        if (!this.irradiateBlockPos.equals(newPos)) this.markChanged();
+        this.irradiateBlockPos = newPos;
     }
 
     public void resetState() {
-        changed = false;
+        this.changed = false;
     }
 
     public void markChanged() {
-        changed = true;
+        this.changed = true;
     }
 
     private BlockPos getIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
@@ -112,8 +112,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     protected int calculateLaserLevel() {
-        return getBaseLaserLevel()
-            + irradiateSelfLaserBlockSet.stream()
+        return this.getBaseLaserLevel()
+            + this.irradiateSelfLaserBlockSet.stream()
             .mapToInt(BaseLaserBlockEntity::calculateLaserLevel)
             .sum();
     }
@@ -121,17 +121,17 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(getLaserLevel(), getBlockPos(), irradiateBlockPos)
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos)
         );
     }
 
     public void tick(Level level) {
-        if (changed) {
+        if (this.changed) {
             if (level instanceof ServerLevel serverLevel) {
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
                     level.getChunkAt(getBlockPos()).getPos(),
-                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), irradiateBlockPos)
+                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos)
                 );
             }
         }
@@ -142,7 +142,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         ) {
             HeaterManager.addProducer(this.getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
         }
-        tickCount++;
+        this.tickCount++;
     }
 
     /**
@@ -153,8 +153,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         BlockPos tempIrradiateBlockPos = this.getIrradiateBlockPos(this.maxTransmissionDistance, direction, this.getBlockPos());
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
             if (
-                this.irradiateBlockPos != null
-                && this.level.getBlockEntity(this.irradiateBlockPos)
+                this.level.getBlockEntity(this.irradiateBlockPos)
                 instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity
             ) {
                 lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
@@ -191,12 +190,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                     .getCenter()
                     .add(0.0625, 0.0625, 0.0625)
             );
+            // noinspection deprecation
             this.level.getEntities(
                 EntityTypeTest.forClass(LivingEntity.class),
                 trackBoundingBox,
                 Entity::isAlive
             ).forEach(livingEntity ->
-                livingEntity.hurt(
+                livingEntity.hurtOrSimulate(
                     ModDamageTypes.laser(this.level),
                     hurt
                 )
@@ -209,7 +209,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             if (irradiateBlock.is(Tags.Blocks.ORES)) {
                 List<ItemStack> drops = BreakBlockUtil.drop(
                     serverLevel,
-                    irradiateBlockPos
+                    this.irradiateBlockPos
                 );
                 this.deliverItem(drops, direction, this.irradiateBlockPos);
             }
@@ -219,13 +219,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void deliverItem(List<ItemStack> drops, Direction direction, BlockPos sourceBlockPos) {
         if (this.level == null) return;
         Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
-        BlockPos downStreamPos = getBlockPos().relative(getFacing().getOpposite());
+        BlockPos downStreamPos = getBlockPos().relative(this.getFacing().getOpposite());
         if (getLevel() == null) return;
         ResourceHandler<ItemResource> cap = getLevel()
             .getCapability(
                 Capabilities.Item.BLOCK,
                 downStreamPos,
-                getFacing()
+                this.getFacing()
             );
         BlockState sourceBlock = this.level.getBlockState(sourceBlockPos);
         drops.forEach(itemStack -> {
@@ -280,23 +280,23 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
      */
     public boolean isInIrradiateSelfLaserBlockSet(BaseLaserBlockEntity baseLaserBlockEntity) {
         return baseLaserBlockEntity == this
-            || irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
-            || irradiateSelfLaserBlockSet.stream()
+            || this.irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
+            || this.irradiateSelfLaserBlockSet.stream()
             .anyMatch(baseLaserBlockEntity1 ->
                 baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
     }
 
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
-        irradiateSelfLaserBlockSet.add(baseLaserBlockEntity);
+        this.irradiateSelfLaserBlockSet.add(baseLaserBlockEntity);
     }
 
     /**
      * 当方块被取消激光照射时调用
      */
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
-        irradiateSelfLaserBlockSet.remove(baseLaserBlockEntity);
-        BlockPos tempIrradiateBlockPos = irradiateBlockPos;
-        updateIrradiateBlockPos(null);
+        this.irradiateSelfLaserBlockSet.remove(baseLaserBlockEntity);
+        BlockPos tempIrradiateBlockPos = this.irradiateBlockPos;
+        this.updateIrradiateBlockPos(null);
         if (level == null) return;
         if (tempIrradiateBlockPos == null) return;
         if (!(level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)) return;
@@ -309,9 +309,9 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void setRemoved() {
         super.setRemoved();
         if (level == null) return;
-        if (irradiateBlockPos == null) return;
-        if (!level.isLoaded(irradiateBlockPos)) return;
-        if (!(level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)) return;
+        if (this.irradiateBlockPos == null) return;
+        if (!level.isLoaded(this.irradiateBlockPos)) return;
+        if (!(level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)) return;
         irradiateBlockEntity.onCancelingIrradiation(this);
         if (level.isClientSide()) {
             CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
@@ -348,10 +348,10 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     }
 
     public void updateLaserLevel(int value) {
-        if (laserLevel != value) {
-            markChanged();
+        if (this.laserLevel != value) {
+            this.markChanged();
         }
-        laserLevel = value;
+        this.laserLevel = value;
     }
 
     public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {

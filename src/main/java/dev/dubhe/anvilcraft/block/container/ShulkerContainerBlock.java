@@ -197,6 +197,7 @@ public class ShulkerContainerBlock
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
+
     @Override
     public Property<OpenedCube3x3PartHalf> getPart() {
         return ShulkerContainerBlock.HALF;

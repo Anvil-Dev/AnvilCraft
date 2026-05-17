@@ -27,7 +27,7 @@ public interface IPowerProducer extends IPowerComponent {
         return new PowerComponentInfo(
             getPos(),
             0,
-            getOutputPower(),
+            this.getOutputPower(),
             0,
             0,
             getRange(),
@@ -52,7 +52,7 @@ public interface IPowerProducer extends IPowerComponent {
                     : powerComponentInfo.consumes())
                 .orElse(1);
         } else {
-            return Math.abs(getOutputPower());
+            return Math.abs(this.getOutputPower());
         }
     }
 }

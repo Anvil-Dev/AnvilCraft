@@ -78,7 +78,14 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
         boolean flag = level.getBestNeighborSignal(pos) >= 15
             || level.getBestNeighborSignal(pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
                 ? Direction.UP

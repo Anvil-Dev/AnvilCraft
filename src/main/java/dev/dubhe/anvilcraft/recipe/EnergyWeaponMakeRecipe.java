@@ -129,12 +129,12 @@ public record EnergyWeaponMakeRecipe(
     public record Input(List<ItemStack> items) implements RecipeInput, IItemsInput {
         @Override
         public ItemStack getItem(int index) {
-            return items.get(index);
+            return this.items.get(index);
         }
 
         @Override
         public int size() {
-            return items.size();
+            return this.items.size();
         }
     }
 

@@ -31,7 +31,11 @@ public class SolidCauldronExtractor extends SnapshotJournal<BlockState> implemen
      * Wrapper map, similar to {@link VanillaContainerWrapper#wrappers}.
      * We need the cauldron wrapper to hold a strong reference to the wrapper location to avoid the weak keys being cleared too early.
      */
-    private static final Map<SolidCauldronExtractor.WrapperLocation, SolidCauldronExtractor> WRAPPERS = new MapMaker().concurrencyLevel(1).weakKeys().weakValues().makeMap();
+    private static final Map<SolidCauldronExtractor.WrapperLocation, SolidCauldronExtractor> WRAPPERS = new MapMaker()
+        .concurrencyLevel(1)
+        .weakKeys()
+        .weakValues()
+        .makeMap();
 
     public static SolidCauldronExtractor get(Level level, BlockPos pos, Predicate<BlockState> validCauldron) {
         SolidCauldronExtractor.WrapperLocation location = new SolidCauldronExtractor.WrapperLocation(level, pos.immutable());
@@ -95,7 +99,7 @@ public class SolidCauldronExtractor extends SnapshotJournal<BlockState> implemen
 
     private void setLevel(TransactionContext transaction) {
         this.updateSnapshots(transaction);
-        this.location.level.setBlock(location.pos, Blocks.CAULDRON.defaultBlockState(), 0);
+        this.location.level.setBlock(this.location.pos, Blocks.CAULDRON.defaultBlockState(), 0);
     }
 
     @Override

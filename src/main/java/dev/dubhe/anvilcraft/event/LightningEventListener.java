@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.event.LightningBoltStrikeEvent;
 import dev.dubhe.anvilcraft.api.event.TeslaStrikeEvent;
+import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -11,8 +12,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-
-import static dev.dubhe.anvilcraft.block.storage.MagnetBlock.LIT;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LightningEventListener {
@@ -37,8 +36,8 @@ public class LightningEventListener {
             BlockState blockState = level.getBlockState(blockPos);
             if (blockState.is(Blocks.IRON_BLOCK)) {
                 BlockState blockState1 = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
-                if (blockState1.hasProperty(LIT)) {
-                    blockState1 = blockState1.setValue(LIT, level.hasNeighborSignal(blockPos));
+                if (blockState1.hasProperty(MagnetBlock.LIT)) {
+                    blockState1 = blockState1.setValue(MagnetBlock.LIT, level.hasNeighborSignal(blockPos));
                 }
                 level.setBlockAndUpdate(blockPos, blockState1);
             }

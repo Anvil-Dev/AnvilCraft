@@ -130,7 +130,6 @@ public class NestingShulkerBoxBlock extends BetterBlock implements EntityBlock, 
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
 
-
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, Consumer<Component> builder, TooltipFlag flag) {
         int validLine = 0;

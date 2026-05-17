@@ -35,9 +35,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper.renderOutline;
-import static dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper.renderTooltipWithItemIcon;
-
 public class HudTooltipManager {
     public static final HudTooltipManager INSTANCE = new HudTooltipManager();
     private static final int BACKGROUND_COLOR = 0xCC100010;
@@ -96,11 +93,11 @@ public class HudTooltipManager {
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
-        ITooltipProvider.BlockTooltipProvider currentProvider = determineBlockTooltipProvider(level, pos, state);
+        ITooltipProvider.BlockTooltipProvider currentProvider = this.determineBlockTooltipProvider(level, pos, state);
         if (currentProvider == null) return;
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
         if (tooltip.isEmpty()) return;
-        renderTooltipWithItemIcon(
+        TooltipRenderHelper.renderTooltipWithItemIcon(
             guiGraphics,
             font,
             currentProvider.icon(level, pos, state),
@@ -188,7 +185,7 @@ public class HudTooltipManager {
         IAffectRangeProvider currentProvider = this.determineAffectRangeProvider(entity);
         if (currentProvider == null) return;
         VoxelShape shape = currentProvider.affectRange(entity);
-        renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00Ffcc);
+        TooltipRenderHelper.renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00Ffcc);
     }
 
     private @Nullable IHandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {

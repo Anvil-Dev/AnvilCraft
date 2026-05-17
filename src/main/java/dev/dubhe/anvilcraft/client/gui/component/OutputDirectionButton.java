@@ -47,7 +47,7 @@ public class OutputDirectionButton extends Button {
             };
             graphics.tooltip(Minecraft.getInstance().font, components, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
         }
-        Identifier location = switch (direction) {
+        Identifier location = switch (this.direction) {
             case UP -> SharedTextures.BUTTON_U;
             case EAST -> SharedTextures.BUTTON_E;
             case WEST -> SharedTextures.BUTTON_W;
@@ -109,6 +109,6 @@ public class OutputDirectionButton extends Button {
             case NORTH -> Direction.UP;
             default -> Direction.EAST;
         };
-        return this.skip.contains(direction1) ? next(direction1) : direction1;
+        return this.skip.contains(direction1) ? this.next(direction1) : direction1;
     }
 }

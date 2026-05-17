@@ -113,7 +113,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
             ChunkPos.containing(getBlockPos()),
-            new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), lastEntitySpeed)
+            new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), this.lastEntitySpeed)
         );
     }
 
@@ -125,7 +125,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putDouble("lastEntitySpeed", lastEntitySpeed);
+        output.putDouble("lastEntitySpeed", this.lastEntitySpeed);
     }
 
     @Override
@@ -168,40 +168,40 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
     public void tick() {
         if (level == null) return;
-        if (resetEntitySpeedTickCounter >= 40 && !level.isClientSide()) updateLastEntitySpeed(0.0);
-        else resetEntitySpeedTickCounter++;
-        if (overSpeed && overSpeedTick > 1) {
-            overSpeed = false;
-            overSpeedTick = 0;
+        if (this.resetEntitySpeedTickCounter >= 40 && !level.isClientSide()) this.updateLastEntitySpeed(0.0);
+        else this.resetEntitySpeedTickCounter++;
+        if (this.overSpeed && this.overSpeedTick > 1) {
+            this.overSpeed = false;
+            this.overSpeedTick = 0;
             BlockState state = getBlockState();
             if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, state.getValue(DeflectionRingBlock.OVERLOAD), 3);
-        } else if (overSpeed) {
-            overSpeedTick++;
+        } else if (this.overSpeed) {
+            this.overSpeedTick++;
         }
         if (level.isClientSide()) {
             if (!getBlockState().getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
-            if (isWork()) {
-                addSelfToMap();
-                accelerate();
-            } else removeSelfFromMap();
+            if (this.isWork()) {
+                this.addSelfToMap();
+                this.accelerate();
+            } else this.removeSelfFromMap();
         }
-        if (grid == null) return;
+        if (this.grid == null) return;
         BlockState state = getBlockState();
         if (!state.getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
         if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
-        if (grid.isWorking() && state.getValue(DeflectionRingBlock.OVERLOAD)) {
+        if (this.grid.isWorking() && state.getValue(DeflectionRingBlock.OVERLOAD)) {
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, false, 3);
-        } else if (!grid.isWorking() && !state.getValue(DeflectionRingBlock.OVERLOAD)) {
+        } else if (!this.grid.isWorking() && !state.getValue(DeflectionRingBlock.OVERLOAD)) {
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, true, 3);
         }
-        if (!isWork()) {
-            removeSelfFromMap();
+        if (!this.isWork()) {
+            this.removeSelfFromMap();
             return;
         }
-        addSelfToMap();
-        if (state.getValue(DeflectionRingBlock.FACING).getAxis().equals(Direction.Axis.Y)) attractGianAnvil();
-        accelerate();
+        this.addSelfToMap();
+        if (state.getValue(DeflectionRingBlock.FACING).getAxis().equals(Direction.Axis.Y)) this.attractGianAnvil();
+        this.accelerate();
     }
 
     private double fixPos(double p1, double p2, double p3) {
@@ -229,34 +229,34 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             boolean applyOffset = entity instanceof FallingBlockEntity || entity instanceof Player;
             final Vec3 fixedPos = switch (facing) {
                 case UP -> new Vec3(
-                    fixPos(v.z, v.z, v.x),
+                    this.fixPos(v.z, v.z, v.x),
                     applyOffset ? -0.5 : 0,
-                    -fixPos(v.x, v.z, v.x)
+                    -this.fixPos(v.x, v.z, v.x)
                 );
                 case DOWN -> new Vec3(
-                    -fixPos(v.z, v.z, v.x),
+                    -this.fixPos(v.z, v.z, v.x),
                     applyOffset ? -0.5 : 0,
-                    fixPos(v.x, v.z, v.x)
+                    this.fixPos(v.x, v.z, v.x)
                 );
                 case NORTH -> new Vec3(
-                    fixPos(v.y, v.y, v.x),
-                    -fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
+                    this.fixPos(v.y, v.y, v.x),
+                    -this.fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
                     0
                 );
                 case SOUTH -> new Vec3(
-                    -fixPos(v.y, v.y, v.x),
-                    fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
+                    -this.fixPos(v.y, v.y, v.x),
+                    this.fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
                     0
                 );
                 case WEST -> new Vec3(
                     0,
-                    fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
-                    -fixPos(v.y, v.z, v.y)
+                    this.fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
+                    -this.fixPos(v.y, v.z, v.y)
                 );
                 case EAST -> new Vec3(
                     0,
-                    -fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
-                    fixPos(v.y, v.z, v.y)
+                    -this.fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
+                    this.fixPos(v.y, v.z, v.y)
                 );
             };
             v = switch (facing) {
@@ -297,7 +297,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             entity.setDeltaMovement(entity.getDeltaMovement().scale(1.0204081632653061));
             entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
             if (level.isClientSide()) continue;
-            updateLastEntitySpeed(entity.getDeltaMovement().length());
+            this.updateLastEntitySpeed(entity.getDeltaMovement().length());
         }
     }
 
@@ -386,6 +386,6 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @Override
     public void setRemoved() {
         super.setRemoved();
-        removeSelfFromMap();
+        this.removeSelfFromMap();
     }
 }

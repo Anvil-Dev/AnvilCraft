@@ -34,10 +34,10 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     private final Component title;
 
     public JewelCraftingCategory(IGuiHelper helper) {
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
-        icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.JEWEL_CRAFTING_TABLE));
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.jewel_crafting");
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.JEWEL_CRAFTING_TABLE));
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.jewel_crafting");
     }
 
     @Override
@@ -47,7 +47,7 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -88,14 +88,14 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
         double mouseY
     ) {
         // source
-        slotDefault.draw(guiGraphics, 58, 10);
+        this.slotDefault.draw(guiGraphics, 58, 10);
         // result
-        slotDefault.draw(guiGraphics, 134, 23);
+        this.slotDefault.draw(guiGraphics, 134, 23);
         // input
         for (int i = 0; i < 4; i++) {
-            slotDefault.draw(guiGraphics, 4 + i * 18, 36);
+            this.slotDefault.draw(guiGraphics, 4 + i * 18, 36);
         }
-        arrowDefault.draw(guiGraphics, 100, 27);
+        this.arrowDefault.draw(guiGraphics, 100, 27);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

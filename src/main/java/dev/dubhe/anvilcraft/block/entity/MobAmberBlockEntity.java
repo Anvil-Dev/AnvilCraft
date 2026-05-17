@@ -40,7 +40,7 @@ public class MobAmberBlockEntity extends HasMobBlockEntity {
         if (!state.is(ModBlocks.MOB_AMBER_BLOCK) || !(entity instanceof LivingEntity displayEntity)) return;
 
         displayEntity.setPos(blockPos.getCenter());
-        setYRot(displayEntity, state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot());
+        this.setYRot(displayEntity, state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot());
     }
 
     private void setYRot(LivingEntity displayEntity, float rotY) {

@@ -75,15 +75,15 @@ public class SimplePowerGrid {
         this.pos = pos;
         this.level = level;
         this.id = id;
-        random.setSeed(id);
-        int[] colors = ColorUtil.hsvToRgb(random.nextInt(360), 80, 80);
+        this.random.setSeed(id);
+        int[] colors = ColorUtil.hsvToRgb(this.random.nextInt(360), 80, 80);
         this.color = ARGB.color((int) (0.4 * 255), colors[0], colors[1], colors[2]);
         this.generate = generate;
         this.consume = consume;
-        blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
+        this.blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
-        createMergedOutlineShape();
-        createTransmitterVisualLines();
+        this.createMergedOutlineShape();
+        this.createTransmitterVisualLines();
     }
 
     public SimplePowerGrid(PowerGrid grid) {
@@ -97,7 +97,7 @@ public class SimplePowerGrid {
         powerComponents.addAll(grid.transmitters);
         this.color = 0;
         for (IPowerComponent component : powerComponents) {
-            powerComponentInfoList.add(component.toPowerComponentInfo());
+            this.powerComponentInfoList.add(component.toPowerComponentInfo());
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
@@ -146,7 +146,7 @@ public class SimplePowerGrid {
      * 获得指定坐标的电网元件信息
      */
     public Optional<PowerComponentInfo> getInfoForPos(BlockPos pos) {
-        return powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
+        return this.powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
     }
 
     public boolean isOverloaded() {
@@ -156,7 +156,7 @@ public class SimplePowerGrid {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean shouldRender(Vec3 cameraPos) {
         int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
-        return powerComponentInfoList.stream().anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
+        return this.powerComponentInfoList.stream().anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
     }
 
     private void createTransmitterVisualLines() {
@@ -174,7 +174,7 @@ public class SimplePowerGrid {
                 if (a.intersects(b)) {
                     Vec3 start = e1.getKey().getCenter();
                     Vec3 end = e2.getKey().getCenter();
-                    powerTransmitterLines.add(new Line(start, end));
+                    this.powerTransmitterLines.add(new Line(start, end));
                 }
             }
         }
@@ -184,7 +184,7 @@ public class SimplePowerGrid {
         if (SimplePowerGrid.EXECUTOR.isShutdown()) SimplePowerGrid.recreateExecutor();
         this.shapeFuture = SimplePowerGrid.EXECUTOR.submit(() -> {
             List<VoxelShape> input = new ArrayList<>();
-            for (PowerComponentInfo it : powerComponentInfoList) {
+            for (PowerComponentInfo it : this.powerComponentInfoList) {
                 Vec3 center = it.pos().getCenter();
                 float size = it.range() * 2 + 1;
                 input.add(Shapes.create(AABB.ofSize(center, size, size, size)));
@@ -213,8 +213,8 @@ public class SimplePowerGrid {
     }
 
     public void destroy() {
-        if (!shapeFuture.isDone()) {
-            shapeFuture.cancel(true);
+        if (!this.shapeFuture.isDone()) {
+            this.shapeFuture.cancel(true);
         }
     }
 }

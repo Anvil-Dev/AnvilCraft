@@ -15,12 +15,12 @@ public class ItemCollectorButton extends Button {
      */
     public ItemCollectorButton(int x, int y, String variant, OnPress onPress) {
         super(x, y, 10, 10, Component.literal(""), onPress, var -> Component.literal(variant));
-        texture = SharedTextures.textureGui("machine/item_collector/button_%s".formatted(variant));
+        this.texture = SharedTextures.textureGui("machine/item_collector/button_%s".formatted(variant));
     }
 
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.renderTexture(graphics, texture, this.getX(), this.getY(), 0, 0, 10, this.width, this.height, 10, 20);
+        this.renderTexture(graphics, this.texture, this.getX(), this.getY(), 0, 0, 10, this.width, this.height, 10, 20);
     }
 
     public void renderTexture(

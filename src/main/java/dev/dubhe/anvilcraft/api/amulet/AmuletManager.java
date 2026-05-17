@@ -171,7 +171,7 @@ public class AmuletManager {
     }
 
     public void inventoryTick(ServerPlayer player) {
-        resetState(player);
+        this.resetState(player);
         HashMultimap<Holder<AmuletType>, ItemStack> amulets = this.getAmuletsFromInventory(player);
         for (Supplier<AmuletItem> amuletGetter : this.amuletItems) {
             AmuletItem amuletItem = amuletGetter.get();

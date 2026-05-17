@@ -94,12 +94,12 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         float bonusChancePerLevel
     ) {
         consumer.accept(lootTableKey, LootTable.lootTable()
-            .withPool(generatePool(headItem, baseChance, bonusChancePerLevel))
+            .withPool(this.generatePool(headItem, baseChance, bonusChancePerLevel))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25F))))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05F))))
         );
     }
@@ -113,12 +113,12 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         LootItemFunction.Builder extraFunction
     ) {
         consumer.accept(lootTableKey, LootTable.lootTable()
-            .withPool(generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction))
+            .withPool(this.generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25F))))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05F))))
         );
     }

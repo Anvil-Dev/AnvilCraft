@@ -45,8 +45,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP;
-
 public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -91,8 +89,8 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
 
             List<ChunkPos> chunkPosList = entity.getPoachingMapPositions(8);
             for (ChunkPos chunkPos : chunkPosList) {
-                if (POACHING_COLLECTOR_MAP.containsKey(level) && POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
-                    List<ItemCollectorBlockEntity> list = POACHING_COLLECTOR_MAP.get(level).get(chunkPos);
+                if (ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.containsKey(level) && ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
+                    List<ItemCollectorBlockEntity> list = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level).get(chunkPos);
                     list.remove(entity);
                 }
             }

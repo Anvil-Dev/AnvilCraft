@@ -30,8 +30,10 @@ public class BlockPlaceAssist {
         Vec3 centerToHit = hit.subtract(Vec3.atLowerCornerOf(pos).add(.5F, .5F, .5F));
         return Arrays.stream(Direction.values())
             .filter(includeDirection)
-            .map(dir -> Pair.of(dir, Vec3.atLowerCornerOf(new Vec3i(dir.getStepX(), dir.getStepY(), dir.getStepZ())).distanceTo(centerToHit)))
-            .sorted(Comparator.comparingDouble(pair -> pair.getSecond()))
+            .map(dir -> Pair.of(dir, Vec3.atLowerCornerOf(
+                new Vec3i(dir.getStepX(), dir.getStepY(), dir.getStepZ())
+            ).distanceTo(centerToHit)))
+            .sorted(Comparator.comparingDouble(Pair::getSecond))
             .map(Pair::getFirst)
             .collect(Collectors.toList());
     }

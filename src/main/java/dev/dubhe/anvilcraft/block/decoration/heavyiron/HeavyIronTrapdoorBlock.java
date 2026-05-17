@@ -56,7 +56,14 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChan
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
         boolean flag = level.getBestNeighborSignal(pos) >= 15;
         if (flag != state.getValue(POWERED)) {
             if (state.getValue(OPEN) != flag) {

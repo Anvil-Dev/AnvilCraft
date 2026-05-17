@@ -45,8 +45,8 @@ public interface IPowerStorage extends IPowerProducer, IPowerConsumer {
             getPos(),
             0,
             0,
-            getPowerAmount(),
-            getCapacity(),
+            this.getPowerAmount(),
+            this.getCapacity(),
             getRange(),
             getShape(),
             PowerComponentType.STORAGE

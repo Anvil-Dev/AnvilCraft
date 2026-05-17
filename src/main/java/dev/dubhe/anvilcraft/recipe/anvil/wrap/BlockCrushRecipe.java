@@ -160,10 +160,10 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
 
         @Override
         public void validate(Identifier id) {
-            if (input == null) {
+            if (this.input == null) {
                 throw new IllegalArgumentException("Recipe input must not be null, RecipeId: " + id);
             }
-            if (result == null) {
+            if (this.result == null) {
                 throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + id);
             }
         }
@@ -175,7 +175,7 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
 
         @Override
         public ItemStackTemplate getResult() {
-            return WrapUtils.getItem(result);
+            return WrapUtils.getItem(this.result);
         }
     }
 }

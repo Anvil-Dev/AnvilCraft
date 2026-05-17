@@ -23,8 +23,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static dev.dubhe.anvilcraft.block.storage.MagnetBlock.LIT;
-
 @Mixin(AnvilBlock.class)
 abstract class AnvilBlockMixin extends FallingBlock {
     public AnvilBlockMixin(Properties properties) {
@@ -33,7 +31,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
+        if (this.anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
             return;
         }
         super.tick(state, level, pos, random);
@@ -54,7 +52,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Unique
     private boolean anvilcraft$isAttracts(BlockState state) {
-        return state.is(ModBlockTags.MAGNET) && !state.getValue(LIT);
+        return state.is(ModBlockTags.MAGNET) && !state.getValue(MagnetBlock.LIT);
     }
 
     @Override
@@ -79,7 +77,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
         for (int i = 0; i < distance; i++) {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);
-            if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(LIT)) {
+            if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(MagnetBlock.LIT)) {
                 if (level.isEmptyBlock(magnet) || state1.getBlock() instanceof LiquidBlock) {
                     continue;
                 } else {

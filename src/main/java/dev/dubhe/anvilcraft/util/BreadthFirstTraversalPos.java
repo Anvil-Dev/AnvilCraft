@@ -40,6 +40,6 @@ public enum BreadthFirstTraversalPos {
     }
 
     public Vec3i getOffset() {
-        return new Vec3i(offsetX, offsetY, offsetZ);
+        return new Vec3i(this.offsetX, this.offsetY, this.offsetZ);
     }
 }

@@ -64,16 +64,16 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
     private static final BlockPos CENTER_POS = new BlockPos(1, 1, 1);
 
     public VoidDecayCategory(IGuiHelper helper) {
-        slot = JeiRenderHelper.getSlotChoice(helper);
-        title = Component.translatable("gui.anvilcraft.category.void_decay");
-        randomTickTooltip = Component.translatable("gui.anvilcraft.category.void_decay.random_tick");
-        centerTooltip = Component.translatable("gui.anvilcraft.category.void_decay.center")
+        this.slot = JeiRenderHelper.getSlotChoice(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.void_decay");
+        this.randomTickTooltip = Component.translatable("gui.anvilcraft.category.void_decay.random_tick");
+        this.centerTooltip = Component.translatable("gui.anvilcraft.category.void_decay.center")
             .withStyle(ChatFormatting.GOLD);
-        aroundTooltip = Component.translatable("gui.anvilcraft.category.void_decay.around")
+        this.aroundTooltip = Component.translatable("gui.anvilcraft.category.void_decay.around")
             .withStyle(ChatFormatting.GOLD);
-        notConsumedTooltip = Component.translatable("gui.anvilcraft.category.void_decay.not_consumed")
+        this.notConsumedTooltip = Component.translatable("gui.anvilcraft.category.void_decay.not_consumed")
             .withStyle(ChatFormatting.GOLD);
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -107,11 +107,11 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         builder.addSlot(RecipeIngredientRole.INPUT, 8, 84)
             .addItemStack(recipe.center.asItem().getDefaultInstance())
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                tooltip.add(centerTooltip));
+                tooltip.add(this.centerTooltip));
         builder.addSlot(RecipeIngredientRole.CATALYST, 8, 102)
             .addItemStack(new ItemStack(recipe.catalyst.asItem(), recipe.catalystCount))
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                tooltip.addAll(List.of(aroundTooltip, notConsumedTooltip)));
+                tooltip.addAll(List.of(this.aroundTooltip, this.notConsumedTooltip)));
         RegistryUtil.getRegistry(Registries.BLOCK)
             .getTag(recipe.result)
             .stream()
@@ -128,7 +128,7 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         IScrollGridWidget scrollGridWidget =
             builder.addScrollGridWidget(outputSlots, MAX_SHOWN_COLUMN, MAX_SHOWN_ROW);
         scrollGridWidget.setPosition(60, 4,
-            getWidth(), getHeight(), HorizontalAlignment.LEFT, VerticalAlignment.TOP);
+                                     this.getWidth(), this.getHeight(), HorizontalAlignment.LEFT, VerticalAlignment.TOP);
     }
 
     @Override
@@ -138,20 +138,20 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
-        LevelLike level = cache.get(recipe);
+        LevelLike level = this.cache.get(recipe);
         if (level == null) {
             LevelLike showCase = new LevelLike(Minecraft.getInstance().level);
             CATALYST_POS.forEach(pos -> showCase.setBlockState(pos, recipe.catalyst.defaultBlockState()));
             showCase.setBlockState(CENTER_POS, recipe.center.defaultBlockState());
-            cache.put(recipe, showCase);
+            this.cache.put(recipe, showCase);
             level = showCase;
         }
 
         RenderSupport.renderLevelLike(level, guiGraphics, 24, 36, 60, 0.5F);
 
-        slot.draw(guiGraphics, 7, 83);
-        slot.draw(guiGraphics, 7, 101);
-        arrowDefault.draw(guiGraphics, 35, 87);
+        this.slot.draw(guiGraphics, 7, 83);
+        this.slot.draw(guiGraphics, 7, 101);
+        this.arrowDefault.draw(guiGraphics, 35, 87);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         double mouseX,
         double mouseY) {
         if (mouseX >= 5 && mouseX <= 45 && mouseY >= 15 && mouseY <= 65) {
-            tooltip.add(randomTickTooltip);
+            tooltip.add(this.randomTickTooltip);
         }
     }
 

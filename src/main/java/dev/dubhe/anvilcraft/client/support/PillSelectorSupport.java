@@ -22,7 +22,7 @@ public class PillSelectorSupport {
     public void setPillBox(ItemStack pillBox) {
         if (pillBox.isEmpty()) {
             this.contents = PillBoxContents.EMPTY;
-            resetIndex();
+            this.resetIndex();
         } else {
             this.pillBox = pillBox;
             this.contents = pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
@@ -40,7 +40,7 @@ public class PillSelectorSupport {
     }
 
     public void render(GuiGraphicsExtractor guiGraphics, int x, int y) {
-        if (pillBox.isEmpty() || this.contents.pills().isEmpty()) {
+        if (this.pillBox.isEmpty() || this.contents.pills().isEmpty()) {
             return;
         }
         final int left = x - 78 / 2;
@@ -85,7 +85,7 @@ public class PillSelectorSupport {
     }
 
     public boolean hasItem() {
-        return !pillBox.isEmpty();
+        return !this.pillBox.isEmpty();
     }
 
     public void nextIndex() {
@@ -93,7 +93,7 @@ public class PillSelectorSupport {
         int index = mutable.getIndex() + 1;
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
     }
 
     public void previousIndex() {
@@ -101,14 +101,14 @@ public class PillSelectorSupport {
         int index = mutable.getIndex() - 1;
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
     }
 
     public void setIndex(int index) {
         PillBoxContents.Mutable mutable = this.contents.mutable();
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
     }
 
     public void mouseScrolled(int amount) {

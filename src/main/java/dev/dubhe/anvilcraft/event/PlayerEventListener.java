@@ -83,7 +83,7 @@ public class PlayerEventListener {
         );
         if (
             item.is(ModItems.MAGNET)
-            || MultitoolItem.isActingAs(item, MultitoolMode.MAGNET_MODE)
+            || MultitoolItem.isActingAs(item, MultitoolMode.MAGNET)
             || item.is(ModItemTags.ANVIL_HAMMER)
         ) {
             return;

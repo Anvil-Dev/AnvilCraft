@@ -54,7 +54,7 @@ public record RecipeResult(ItemStackTemplate result, @Unmodifiable List<IResultM
             .listOf()
             .optionalFieldOf("modifiers", List.of())
             .forGetter(items -> items.getFirst().modifiers())
-    ).apply(ins, (items, modifiers) -> Lists.transform(items, item -> new RecipeResult(item, modifiers))));
+    ).apply(ins, RecipeResult::constructFromList));
     public static final Codec<List<RecipeResult>> LIST_CODEC = Codec
         .either(RecipeResult.LIST_DIRECT_CODEC.codec(), RecipeResult.CODEC.listOf())
         .xmap(
@@ -196,5 +196,9 @@ public record RecipeResult(ItemStackTemplate result, @Unmodifiable List<IResultM
         public RecipeResult build() {
             return new RecipeResult(this.result, this.modifiers.build());
         }
+    }
+
+    private static List<RecipeResult> constructFromList(List<ItemStackTemplate> items, List<IResultModifier> modifiers) {
+        return Lists.transform(items, item -> new RecipeResult(item, modifiers));
     }
 }

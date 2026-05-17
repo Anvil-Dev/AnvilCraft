@@ -62,7 +62,6 @@ public class BlockHighlightUtil {
         );
     }
 
-
     public static void render(
         ClientLevel level,
         SubmitNodeCollector submitNodeCollector,
@@ -112,9 +111,5 @@ public class BlockHighlightUtil {
 
     static Level getLevel() {
         return LEVEL_REF.get();
-    }
-
-    public static void render() {
-
     }
 }

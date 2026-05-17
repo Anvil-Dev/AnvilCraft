@@ -17,14 +17,13 @@ abstract class InventoryMixin {
     @Final
     public Player player;
 
-    @SuppressWarnings("PatternVariableHidesField")
     @Inject(
         method = "tick",
         at = @At(value = "HEAD")
     )
     private void preInventoryTick(CallbackInfo ci) {
-        if (this.player instanceof ServerPlayer player) {
-            AmuletManager.INSTANCE.inventoryTick(player);
+        if (this.player instanceof ServerPlayer serverPlayer) {
+            AmuletManager.INSTANCE.inventoryTick(serverPlayer);
         }
     }
 }

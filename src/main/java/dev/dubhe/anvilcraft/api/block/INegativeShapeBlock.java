@@ -10,6 +10,6 @@ public interface INegativeShapeBlock<T> extends IHammerRemovable, Predicate<Bloc
 
     @Override
     default boolean test(BlockState blockState) {
-        return getBlockType().isInstance(blockState.getBlock());
+        return this.getBlockType().isInstance(blockState.getBlock());
     }
 }

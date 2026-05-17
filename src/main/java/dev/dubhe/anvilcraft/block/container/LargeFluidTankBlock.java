@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -29,8 +30,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
-
-import static dev.dubhe.anvilcraft.block.laser.PropelPistonBlock.createTickerHelper;
 
 public class LargeFluidTankBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
@@ -77,7 +76,7 @@ public class LargeFluidTankBlock
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(
+        return PropelPistonBlock.createTickerHelper(
             type,
             ModBlockEntities.LARGE_FLUID_TANK.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
@@ -117,6 +116,7 @@ public class LargeFluidTankBlock
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
+
     @Override
     public Block getBlock() {
         return this;

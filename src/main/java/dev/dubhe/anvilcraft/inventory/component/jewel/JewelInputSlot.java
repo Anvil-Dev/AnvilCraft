@@ -24,36 +24,36 @@ public class JewelInputSlot extends Slot {
         super(container, slot, x, y);
         this.sourceContainer = sourceContainer;
 
-        updateIngredient();
+        this.updateIngredient();
     }
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        if (ingredient == null) {
+        if (this.ingredient == null) {
             return false;
         }
-        if (!ingredient.test(stack)) {
+        if (!this.ingredient.test(stack)) {
             return false;
         }
         return super.mayPlace(stack);
     }
 
     public void updateIngredient() {
-        RecipeHolder<JewelCraftingRecipe> recipe = sourceContainer.getRecipe();
+        RecipeHolder<JewelCraftingRecipe> recipe = this.sourceContainer.getRecipe();
         if (recipe != null) {
-            var mergedIngredients = sourceContainer.getRecipe().value().mergedIngredients;
+            var mergedIngredients = this.sourceContainer.getRecipe().value().mergedIngredients;
             if (getSlotIndex() > mergedIngredients.size() - 1) {
-                ingredient = null;
-                ingredientItems = null;
+                this.ingredient = null;
+                this.ingredientItems = null;
             } else {
                 var entry = mergedIngredients.get(getSlotIndex());
-                ingredient = entry.getKey();
-                ingredientItems = ingredient.getItems();
-                hintCount = entry.getIntValue();
+                this.ingredient = entry.getKey();
+                this.ingredientItems = this.ingredient.getItems();
+                this.hintCount = entry.getIntValue();
             }
         } else {
-            ingredient = null;
-            ingredientItems = null;
+            this.ingredient = null;
+            this.ingredientItems = null;
         }
     }
 }

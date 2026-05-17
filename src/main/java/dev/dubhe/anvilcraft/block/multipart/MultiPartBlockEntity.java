@@ -11,8 +11,8 @@ public interface MultiPartBlockEntity<P extends Enum<P>, T extends AbstractMulti
 
     @Override
     default @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (getMultiBlock().isMainPart(state)) {
-            return createBlockEntity(pos, state);
+        if (this.getMultiBlock().isMainPart(state)) {
+            return this.createBlockEntity(pos, state);
         }
         return null;
     }

@@ -117,7 +117,7 @@ public record MobTransformWithItemRecipe(
     public boolean matches(Input in, Level level) {
         boolean typeMatches = in.getInputEntity().getType() == this.input();
         if (!typeMatches) return false;
-        if (!testItem(in.getItem(0))) return false;
+        if (!this.testItem(in.getItem(0))) return false;
         return this.predicates()
             .stream()
             .allMatch(it -> it.test(new EntityDataAccessor(in.getInputEntity()).getData()));
@@ -177,7 +177,7 @@ public record MobTransformWithItemRecipe(
 
     @Nullable
     public Entity apply(RandomSource rand, LivingEntity livingEntity, ServerLevel level) {
-        EntityType<?> entityType = getResult(rand, livingEntity);
+        EntityType<?> entityType = this.getResult(rand, livingEntity);
         if (entityType == null) return null;
         CompoundTag tag = new CompoundTag();
         tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
@@ -237,7 +237,7 @@ public record MobTransformWithItemRecipe(
         if (newEntity instanceof LivingEntity entity && oldEntity instanceof LivingEntity) {
             entity.setItemInHand(
                 InteractionHand.MAIN_HAND,
-                new ItemStack(itemResult.item(), itemResult.count())
+                new ItemStack(this.itemResult.item(), this.itemResult.count())
             );
             if (entity instanceof Mob mob) {
                 mob.setDropChance(EquipmentSlot.MAINHAND, 1.0F);

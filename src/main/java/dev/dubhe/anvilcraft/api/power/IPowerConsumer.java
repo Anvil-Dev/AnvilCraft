@@ -17,7 +17,7 @@ public interface IPowerConsumer extends IPowerComponent {
     default PowerComponentInfo toPowerComponentInfo() {
         return new PowerComponentInfo(
             getPos(),
-            getInputPower(),
+            this.getInputPower(),
             0,
             0,
             0,

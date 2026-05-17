@@ -41,7 +41,10 @@ public abstract class FlyingHitEntityMixin extends Entity {
         at =
         @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+            target = "Lnet/minecraft/world/entity/LivingEntity;"
+                     + "move("
+                     + "Lnet/minecraft/world/entity/MoverType;"
+                     + "Lnet/minecraft/world/phys/Vec3;)V",
             shift = At.Shift.AFTER
         )
     )

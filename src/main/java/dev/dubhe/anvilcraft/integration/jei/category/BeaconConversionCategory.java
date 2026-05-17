@@ -93,23 +93,19 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
     @Override
     public void setRecipe(
         IRecipeLayoutBuilder builder, BeaconConversionRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 48, 8)
-            .addItemStack(ModItems.CURSED_GOLD_INGOT.asStack())
-            .addRichTooltipCallback((recipeSlotView, tooltip) ->
+        builder.addSlot(RecipeIngredientRole.INPUT, 48, 8).add(ModItems.CURSED_GOLD_INGOT.asStack())
+            .addRichTooltipCallback((_, tooltip) ->
                 tooltip.add(this.activateTooltip));
-        builder.addSlot(RecipeIngredientRole.CATALYST, 10, 110)
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 10, 110)
             .add(ModBlocks.CURSED_GOLD_BLOCK.asStack(recipe.cursedGoldBlockCount))
-            .addRichTooltipCallback((recipeSlotView, tooltip) ->
+            .addRichTooltipCallback((_, tooltip) ->
                 tooltip.add(this.beaconBaseTooltip));
-        builder.addSlot(RecipeIngredientRole.INPUT, 10, 92)
-            .addItemStack(Blocks.BEACON.asItem().getDefaultInstance());
-        IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 96)
-            .addItemStack(ModBlocks.CORRUPTED_BEACON.asStack());
-        JeiRecipeUtil.addTooltips(slot, recipe.corruptedBeaconOutput.stack().getCount(), recipe.corruptedBeaconOutput.count());
+        builder.addSlot(RecipeIngredientRole.INPUT, 10, 92).add(Blocks.BEACON.asItem().getDefaultInstance());
+        IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 96).add(ModBlocks.CORRUPTED_BEACON.asStack());
+        JeiRecipeUtil.addTooltips(slot, recipe.corruptedBeaconOutput.stack().count(), recipe.corruptedBeaconOutput.count());
         if (recipe.chance < 1.0F) {
-            slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 96)
-                .addItemStack(Blocks.BEACON.asItem().getDefaultInstance());
-            JeiRecipeUtil.addTooltips(slot, recipe.beaconOutput.stack().getCount(), recipe.beaconOutput.count());
+            slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 96).add(Blocks.BEACON.asItem().getDefaultInstance());
+            JeiRecipeUtil.addTooltips(slot, recipe.beaconOutput.stack().count(), recipe.beaconOutput.count());
         }
     }
 
@@ -120,7 +116,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
         GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
-        LevelLike level = cache.get(recipe);
+        LevelLike level = this.cache.get(recipe);
         if (level == null) {
             LevelLike beaconBase = new LevelLike(Objects.requireNonNull(Minecraft.getInstance().level));
             int layers = recipe.cursedGoldBlockLayers;
@@ -137,24 +133,24 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
                 .defaultBlockState()
                 .trySetValue(BlockStateProperties.WATERLOGGED, false);
             beaconBase.setBlockState(new BlockPos(layers, layers, layers), block);
-            cache.put(recipe, beaconBase);
+            this.cache.put(recipe, beaconBase);
             level = beaconBase;
         }
 
         RenderSupport.renderLevelLike(level, guiGraphics, 84, 54, 90);
 
-        slotDefault.draw(guiGraphics, 47, 7);
-        slotDefault.draw(guiGraphics, 9, 109);
-        slotDefault.draw(guiGraphics, 9, 91);
+        this.slotDefault.draw(guiGraphics, 47, 7);
+        this.slotDefault.draw(guiGraphics, 9, 109);
+        this.slotDefault.draw(guiGraphics, 9, 91);
         if (recipe.chance < 1.0F) {
-            slotChoice.draw(guiGraphics, 111, 95);
-            slotChoice.draw(guiGraphics, 129, 95);
+            this.slotChoice.draw(guiGraphics, 111, 95);
+            this.slotChoice.draw(guiGraphics, 129, 95);
         } else {
-            slotDefault.draw(guiGraphics, 129, 95);
+            this.slotDefault.draw(guiGraphics, 129, 95);
         }
 
-        arrowIn.draw(guiGraphics, 66, 14);
-        arrowDefault.draw(guiGraphics, 60, 96);
+        this.arrowIn.draw(guiGraphics, 66, 14);
+        this.arrowDefault.draw(guiGraphics, 60, 96);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

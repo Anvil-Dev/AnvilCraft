@@ -138,7 +138,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
 
     @Override
     protected void init() {
-        items.clear();
+        this.items.clear();
         float centerX = this.width / 2F;
         float centerY = this.height / 2F;
         this.centerPos = new Vector2f(centerX, centerY);
@@ -163,7 +163,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                         detectionEnd,
                         state,
                         state.getBlock() instanceof IMultiPartBlockModelHolder holder
-                        ? withPropertyValue(
+                        ? this.withPropertyValue(
                             holder.mapRealModelHolderBlock(this.minecraft.level, this.targetBlockPos, state),
                             this.property,
                             state
@@ -265,7 +265,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         if (progress >= 1 || progress <= 0) {
             this.minecraft.setScreen(null);
         }
-        renderProgressAnimation(graphics, progress, centerX, centerY);
+        this.renderProgressAnimation(graphics, progress, centerX, centerY);
     }
 
     @SuppressWarnings({"SameParameterValue", "deprecation"})
@@ -277,7 +277,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         float z,
         float scale
     ) {
-        final float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
+        final float partialTick = this.minecraft.getTimer().getGameTimeDeltaPartialTick(true);
         poseStack.pushPose();
         poseStack.translate(-7, 7, 0);
         poseStack.translate(x, y, z);
@@ -368,8 +368,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         );
         poseStack.popPose();
         float finalProgress = progress;
-        items.stream()
-            .filter(it -> it.state == currentBlockState)
+        this.items.stream()
+            .filter(it -> it.state == this.currentBlockState)
             .findFirst()
             .ifPresent(it -> {
                 Vector2f center = new Vector2f(
@@ -385,7 +385,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                     SELECTION_EFFECT_RADIUS
                 );
             });
-        for (SelectionItem value : items) {
+        for (SelectionItem value : this.items) {
             Vector2f center = new Vector2f(
                 (value.center.x - centerX) / RADIUS,
                 (value.center.y - centerY) / RADIUS
@@ -410,7 +410,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                     graphics.peekScissorStack()
                 ));
             } else {
-                renderRotatedBlock(
+                this.renderRotatedBlock(
                     poseStack,
                     value.modelBlock,
                     x,
@@ -447,13 +447,13 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         RenderSystem.enableBlend();
         final float centerX = this.width / 2F;
         final float centerY = this.height / 2F;
-        if (this.validate && !isValidState(this.currentBlockState)) {
+        if (this.validate && !this.isValidState(this.currentBlockState)) {
             this.validate = false;
             this.displayTime = System.currentTimeMillis();
             this.closingAnimationStarted = true;
         }
-        renderClosingAnimation(graphics, mouseX, mouseY, partialTick);
-        if (!shouldRender()) {
+        this.renderClosingAnimation(graphics, mouseX, mouseY, partialTick);
+        if (!this.shouldRender()) {
             return;
         }
         if (this.closingAnimationStarted) return;
@@ -464,11 +464,11 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         final PoseStack poseStack = graphics.pose();
         float delta = this.displayTime + ANIMATION_T - System.currentTimeMillis();
         if (delta > 0) {
-            triggerChunkRebuild();
+            this.triggerChunkRebuild();
             float progress = 1 - (delta / ANIMATION_T);
             progress = (float) (-Math.pow(progress, 2) + 2 * progress);
             if (progress == 0) return;
-            renderProgressAnimation(graphics, progress, centerX, centerY);
+            this.renderProgressAnimation(graphics, progress, centerX, centerY);
             return;
         }
         renderRing(
@@ -479,12 +479,12 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             RING_INNER_DIAMETER,
             RING_OUTER_DIAMETER
         );
-        renderSelection(graphics);
+        this.renderSelection(graphics);
         for (SelectionItem value : this.items) {
             float x = value.center.x;
             float y = value.center.y;
             if (value.state.getBlock() instanceof IMultiPartBlockModelHolder) {
-                renderRotatedBlock(
+                this.renderRotatedBlock(
                     poseStack,
                     value.modelBlock,
                     x + 4,
@@ -493,7 +493,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                     5
                 );
             } else {
-                renderRotatedBlock(
+                this.renderRotatedBlock(
                     poseStack,
                     value.modelBlock,
                     x,
@@ -673,7 +673,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
-        if (shouldRender() && !this.closingAnimationStarted) {
+        if (this.shouldRender() && !this.closingAnimationStarted) {
             IMouseHandlerExtension.of(this.minecraft.mouseHandler).anvilcraft$grabMouseWithScreen();
             this.displayTime = System.currentTimeMillis();
             this.closingAnimationStarted = true;

@@ -33,6 +33,6 @@ public class CandleCakeBlockMixin {
         BlockHitResult hitResult,
         CallbackInfoReturnable<InteractionResult> cir
     ) {
-        if (MultitoolItem.isActingAs(itemStack, MultitoolMode.FLINT_AND_STEEL_MODE)) cir.setReturnValue(InteractionResult.PASS);
+        if (MultitoolItem.isActingAs(itemStack, MultitoolMode.FLINT_AND_STEEL)) cir.setReturnValue(InteractionResult.PASS);
     }
 }

@@ -55,12 +55,12 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
             ChunkPos.containing(getBlockPos()),
-            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), storedEnergy)
+            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), this.storedEnergy)
         );
     }
 
     public void addEnergy(int energy) {
-        updateStoredEnergy(getStoredEnergy() + energy);
+        this.updateStoredEnergy(getStoredEnergy() + energy);
     }
 
     @Override
@@ -71,22 +71,22 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     public void tick(Level level, BlockPos pos, BlockState state) {
         updateLaserLevel(calculateLaserLevel());
         if (changed) {
-            delay = 0;
-            power = laserLevel * 15;
+            this.delay = 0;
+            this.power = laserLevel * 15;
         }
         if (!changed) {
-            if (storedEnergy < 80000) {
-                delay++;
-                if (delay >= 20) {
-                    delay = 0;
-                    addEnergy(power);
+            if (this.storedEnergy < 80000) {
+                this.delay++;
+                if (this.delay >= 20) {
+                    this.delay = 0;
+                    this.addEnergy(this.power);
                 }
             }
         }
         if (getStoredEnergy() > 0) {
             level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, false));
             if (!level.getBlockTicks().hasScheduledTick(pos, state.getBlock())) {
-                checkCanMove(level, pos, state);
+                this.checkCanMove(level, pos, state);
             }
         } else {
             level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, true).setValue(PropelPistonBlock.MOVING, false));

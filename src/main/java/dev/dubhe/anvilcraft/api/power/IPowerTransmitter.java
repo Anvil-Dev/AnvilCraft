@@ -24,7 +24,7 @@ public interface IPowerTransmitter extends IPowerComponent {
             0,
             0,
             0,
-            getRange(),
+            this.getRange(),
             getShape(),
             PowerComponentType.TRANSMITTER
         );

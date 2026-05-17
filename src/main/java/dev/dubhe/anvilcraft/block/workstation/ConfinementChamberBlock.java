@@ -74,7 +74,11 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (blockentity instanceof ConfinementChamberBlockEntity confinementChamberBlockEntity) {
-            if (!level.isClientSide() && player.isCreative() && !ItemResourceHelper.isSlotEmpty(confinementChamberBlockEntity.getItemHandler(), 0)) {
+            if (
+                !level.isClientSide()
+                && player.isCreative()
+                && !ItemResourceHelper.isSlotEmpty(confinementChamberBlockEntity.getItemHandler(), 0)
+            ) {
                 ItemStack itemstack = new ItemStack(ModBlocks.CONFINEMENT_CHAMBER.asItem());
                 itemstack.applyComponents(blockentity.collectComponents());
                 ItemEntity itementity = new ItemEntity(

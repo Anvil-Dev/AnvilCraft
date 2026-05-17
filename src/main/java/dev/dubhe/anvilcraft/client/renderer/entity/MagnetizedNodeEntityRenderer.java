@@ -20,7 +20,7 @@ public class MagnetizedNodeEntityRenderer extends EntityRenderer<MagnetizedNodeE
 
     public MagnetizedNodeEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
-        model = new MagnetizedNodeModel(context.bakeLayer(ModModelLayers.MAGNETIZED_NODE));
+        this.model = new MagnetizedNodeModel(context.bakeLayer(ModModelLayers.MAGNETIZED_NODE));
     }
 
     @Override

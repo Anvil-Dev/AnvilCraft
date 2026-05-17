@@ -98,9 +98,9 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
         @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        boolean isSignal = Arrays.stream(getParts())
+        boolean isSignal = Arrays.stream(this.getParts())
             .anyMatch(it -> level.hasNeighborSignal(
-                pos.subtract(state.getValue(getPart()).getOffset()).offset(it.getOffset())
+                pos.subtract(state.getValue(this.getPart()).getOffset()).offset(it.getOffset())
             ));
         if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {
             updateState(level, pos, SWITCH, IPowerComponent.Switch.OFF, 3);

@@ -45,18 +45,18 @@ public class RipeningManager {
         int radius = AnvilCraft.CONFIG.inductionLightBlockRipeningRange / 2;
         for (BlockPos plantPos : BlockPos.betweenClosed(pos.offset(radius, radius, radius), pos.offset(-radius, -radius, -radius))) {
             if (ripened.contains(plantPos)) continue;
-            BlockState state = level.getBlockState(plantPos);
+            BlockState state = this.level.getBlockState(plantPos);
             Block block = state.getBlock();
 
             if (
                 block instanceof BonemealableBlock growable
                 && !(growable instanceof GrassBlock)
                 && !(growable instanceof NyliumBlock)
-                && growable.isValidBonemealTarget(level, plantPos, state)
-                && level.getBrightness(LightLayer.BLOCK, plantPos) >= 10
+                && growable.isValidBonemealTarget(this.level, plantPos, state)
+                && this.level.getBrightness(LightLayer.BLOCK, plantPos) >= 10
             ) {
-                growable.performBonemeal((ServerLevel) level, level.getRandom(), plantPos, state);
-                level.addParticle(
+                growable.performBonemeal((ServerLevel) this.level, this.level.getRandom(), plantPos, state);
+                this.level.addParticle(
                     ParticleTypes.HAPPY_VILLAGER,
                     plantPos.getX() + 0.5,
                     plantPos.getY() + 0.5,
@@ -67,12 +67,12 @@ public class RipeningManager {
                 );
                 ripened.add(plantPos);
             }
-            if (state.is(Blocks.SUGAR_CANE) && level.getBlockState(plantPos.above()).is(Blocks.AIR)) {
-                level.setBlock(plantPos.above(), Blocks.SUGAR_CANE.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
-            } else if (state.is(Blocks.CACTUS) && level.getBlockState(plantPos.above()).is(Blocks.AIR)) {
-                level.setBlock(plantPos.above(), Blocks.CACTUS.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+            if (state.is(Blocks.SUGAR_CANE) && this.level.getBlockState(plantPos.above()).is(Blocks.AIR)) {
+                this.level.setBlock(plantPos.above(), Blocks.SUGAR_CANE.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
+            } else if (state.is(Blocks.CACTUS) && this.level.getBlockState(plantPos.above()).is(Blocks.AIR)) {
+                this.level.setBlock(plantPos.above(), Blocks.CACTUS.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
             } else if (state.is(Blocks.NETHER_WART) && state.getValue(NetherWartBlock.AGE) != NetherWartBlock.MAX_AGE) {
-                level.setBlock(
+                this.level.setBlock(
                     plantPos,
                     Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE, state.getValue(NetherWartBlock.AGE) + 1),
                     Block.UPDATE_ALL_IMMEDIATE
@@ -82,7 +82,7 @@ public class RipeningManager {
     }
 
     public void doRipen(BlockPos blockPos) {
-        if (isRipenReady()) doRipen(blockPos, ripened);
+        if (this.isRipenReady()) this.doRipen(blockPos, this.ripened);
     }
 
     /**
@@ -94,17 +94,17 @@ public class RipeningManager {
      * @return if already cooldown for ripen
      */
     private boolean isRipenReady() {
-        if (level.getServer() == null) return false;
-        long curTime = level.getGameTime();
-        long ticksBeforeLastRipen = curTime - lastTickRipen;
+        if (this.level.getServer() == null) return false;
+        long curTime = this.level.getGameTime();
+        long ticksBeforeLastRipen = curTime - this.lastTickRipen;
         if (ticksBeforeLastRipen == 0) return true; // another LightBlock is Ripened at this tick.
         if (ticksBeforeLastRipen < 0) { // time set xxx may change the gameTime.
-            lastTickRipen = curTime - 1;
+            this.lastTickRipen = curTime - 1;
             return false;
         }
         if (ticksBeforeLastRipen >= AnvilCraft.CONFIG.inductionLightBlockRipeningCooldown) {
-            lastTickRipen = curTime;
-            ripened.clear();
+            this.lastTickRipen = curTime;
+            this.ripened.clear();
             return true;
         }
         return false;

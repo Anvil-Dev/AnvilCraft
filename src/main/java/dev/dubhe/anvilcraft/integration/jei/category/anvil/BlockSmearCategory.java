@@ -56,7 +56,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -97,8 +97,8 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
         double mouseY) {
         BlockSmearRecipe recipe = recipeHolder.value();
 
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        arrowDefault.draw(guiGraphics, 73, 35);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        this.arrowDefault.draw(guiGraphics, 73, 35);
 
         RenderSupport.renderBlock(
             guiGraphics,

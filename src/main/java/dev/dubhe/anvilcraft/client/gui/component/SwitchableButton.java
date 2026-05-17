@@ -57,10 +57,10 @@ public class SwitchableButton extends Button {
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         int offsetV = 0;
         if (this.isHovered) {
-            offsetV = texYDiff;
+            offsetV = this.texYDiff;
         }
-        if (current < textures.size()) {
-            graphics.blit(textures.get(current), this.getX(), this.getY(), 0, offsetV, width, height, textureWidth, textureHeight);
+        if (this.current < this.textures.size()) {
+            graphics.blit(this.textures.get(this.current), this.getX(), this.getY(), 0, offsetV, width, height, this.textureWidth, this.textureHeight);
         }
         if (MathUtil.isInRange(mouseX, this.getX(), this.getX() + this.width)
             && MathUtil.isInRange(mouseY, this.getY(), this.getY() + this.height)
@@ -68,7 +68,7 @@ public class SwitchableButton extends Button {
             && this.textures.size() == this.message.size()) {
             graphics.tooltip(
                 Minecraft.getInstance().font,
-                List.of(ClientTooltipComponent.create(getMessage().getVisualOrderText())),
+                List.of(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())),
                 mouseX,
                 mouseY,
                 DefaultTooltipPositioner.INSTANCE,

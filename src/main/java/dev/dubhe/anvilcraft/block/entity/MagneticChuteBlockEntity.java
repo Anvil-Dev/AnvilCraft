@@ -50,7 +50,7 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
 
     @Override
     protected Direction getInputDirection() {
-        return getOutputDirection().getOpposite();
+        return this.getOutputDirection().getOpposite();
     }
 
     @Override

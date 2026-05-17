@@ -96,7 +96,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         ItemStack result;
         
         Optional<BatchCrafterCache> cacheOp = this.cache.stream()
-            .filter(recipe -> recipe.test(craftingContainer))
+            .filter(recipe -> recipe.test(this.craftingContainer))
             .findFirst();
         Optional<RecipeHolder<CraftingRecipe>> holderOp;
         List<ItemStack> craftRemaining;

@@ -61,16 +61,16 @@ public class TeslaTowerButton extends Button {
 
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        String searchText = parent.getFilterText();
-        String id = parent.getFilterToolTipAt(index, variant);
+        String searchText = this.parent.getFilterText();
+        String id = this.parent.getFilterToolTipAt(this.index, this.variant);
         if (id == null) return;
-        this.renderTexture(graphics, texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
+        this.renderTexture(graphics, this.texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
         Component message;
         if (searchText.startsWith("#") || searchText.startsWith("~")) {
-            message = parent.getFilterTitle(index, variant);
+            message = this.parent.getFilterTitle(this.index, this.variant);
         } else {
             message = highlighted(
-                parent.getFilterTitle(index, variant).getString(),
+                this.parent.getFilterTitle(this.index, this.variant).getString(),
                 searchText,
                 ChatFormatting.WHITE
             );

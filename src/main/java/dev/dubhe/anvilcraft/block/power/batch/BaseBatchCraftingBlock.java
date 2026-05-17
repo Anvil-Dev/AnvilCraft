@@ -109,20 +109,20 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
 
     public abstract Item getToastSymbol();
 
-//    @Override
-//    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-//        if (state.is(newState.getBlock())) return;
-//        if (level.getBlockEntity(pos) instanceof IItemHandlerHolder holder) {
-//            Vec3 vec3 = pos.getCenter();
-//            ResourceHandler<ItemResource> handler = holder.getItemHandler();
-//            for (int slot = 0; slot < handler.getSlots(); slot++) {
-//                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, handler.getStackInSlot(slot));
-//            }
-//            ItemHandlerUtil.dropAllToPos();
-//            level.updateNeighbourForOutputSignal(pos, this);
-//        }
-//        super.onRemove(state, level, pos, newState, movedByPiston);
-//    }
+    // @Override
+    // protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    //     if (state.is(newState.getBlock())) return;
+    //     if (level.getBlockEntity(pos) instanceof IItemHandlerHolder holder) {
+    //         Vec3 vec3 = pos.getCenter();
+    //         ResourceHandler<ItemResource> handler = holder.getItemHandler();
+    //         for (int slot = 0; slot < handler.getSlots(); slot++) {
+    //             Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, handler.getStackInSlot(slot));
+    //         }
+    //         ItemHandlerUtil.dropAllToPos();
+    //         level.updateNeighbourForOutputSignal(pos, this);
+    //     }
+    //     super.onRemove(state, level, pos, newState, movedByPiston);
+    // }
 
     @Override
     public boolean useShapeForLightOcclusion(BlockState state) {
@@ -206,8 +206,12 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
     }
 
     public static BlockState copy(BlockState from, BlockState to) {
-        if (!(from.getBlock() instanceof BaseBatchCraftingBlock) || !(to.getBlock() instanceof BaseBatchCraftingBlock))
+        if (
+            !(from.getBlock() instanceof BaseBatchCraftingBlock)
+            || !(to.getBlock() instanceof BaseBatchCraftingBlock)
+        ) {
             return to;
+        }
         return to
             .setValue(POWERED, from.getValue(POWERED))
             .setValue(OVERLOAD, from.getValue(OVERLOAD))

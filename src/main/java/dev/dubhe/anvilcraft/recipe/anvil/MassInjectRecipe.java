@@ -228,7 +228,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
          */
         public Builder requires(ItemLike item) {
             this.defaultId = BuiltInRegistries.ITEM.getKey(item.asItem()).toString().replace(':', '_');
-            return requires(Ingredient.of(item));
+            return this.requires(Ingredient.of(item));
         }
 
         /**
@@ -241,7 +241,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
         public Builder requires(TagKey<Item> tag) {
             this.defaultId = tag.location().toString().replace(':', '_');
             this.tagCondition = tag;
-            return requires(Ingredient.of(this.items.getOrThrow(tag)));
+            return this.requires(Ingredient.of(this.items.getOrThrow(tag)));
         }
 
         /**

@@ -138,7 +138,12 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
             return;
         }
         level.neighborChanged(blockpos, this, ExperimentalRedstoneUtils.initialOrientation(level, direction.getOpposite(), Direction.UP));
-        level.updateNeighborsAtExceptFromFacing(blockpos, this, direction, ExperimentalRedstoneUtils.initialOrientation(level, direction.getOpposite(), Direction.UP) );
+        level.updateNeighborsAtExceptFromFacing(
+            blockpos,
+            this,
+            direction,
+            ExperimentalRedstoneUtils.initialOrientation(level, direction.getOpposite(), Direction.UP)
+        );
     }
 
     @Override

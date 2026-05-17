@@ -32,13 +32,14 @@ public record BlockPredicate(Optional<HolderSet<Block>> block) implements Predic
             return new Builder();
         }
 
+        @SuppressWarnings("deprecation")
         public Builder of(Block block) {
-            this.blocks = HolderSet.direct(b -> b.defaultBlockState().getBlockHolder(), block);
+            this.blocks = HolderSet.direct(b -> b.defaultBlockState().getBlock().builtInRegistryHolder(), block);
             return this;
         }
 
         public Builder of(TagKey<Block> tag) {
-            this.blocks = BuiltInRegistries.BLOCK.getOrCreateTag(tag);
+            this.blocks = BuiltInRegistries.BLOCK.getOrThrow(tag);
             return this;
         }
 

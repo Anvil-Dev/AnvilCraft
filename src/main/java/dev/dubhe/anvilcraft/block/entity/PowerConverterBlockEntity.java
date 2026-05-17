@@ -37,15 +37,15 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("InputPower", inputPower);
-        output.putInt("Cooldown", cooldown);
+        output.putInt("InputPower", this.inputPower);
+        output.putInt("Cooldown", this.cooldown);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        inputPower = input.getIntOr("InputPower", 0);
-        cooldown = input.getIntOr("Cooldown", 0);
+        this.inputPower = input.getIntOr("InputPower", 0);
+        this.cooldown = input.getIntOr("Cooldown", 0);
     }
 
     /**
@@ -55,10 +55,10 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         if (this.level != null) {
             flushState(this.level, getBlockPos());
         }
-        if (cooldown == 0) {
-            cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
+        if (this.cooldown == 0) {
+            this.cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
             if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
-            int amountTick = (int) (inputPower
+            int amountTick = (int) (this.inputPower
                                     * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
                                     * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
             );
@@ -66,13 +66,13 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
             EnergyHelper.insertEnergy(getLevel(), getBlockPos().relative(face), face.getOpposite(), amount);
         } else {
-            cooldown--;
+            this.cooldown--;
         }
     }
 
     @Override
     public int getInputPower() {
-        return inputPower;
+        return this.inputPower;
     }
 
     @Override
@@ -92,6 +92,6 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
     @Override
     public @Nullable PowerGrid getGrid() {
-        return grid;
+        return this.grid;
     }
 }

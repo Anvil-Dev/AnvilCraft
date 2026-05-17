@@ -47,7 +47,7 @@ public class CanningFoodRecipe extends CustomRecipe {
         for (ItemStack item : items) {
             if (item.is(ModItems.TIN_CAN)) {
                 canCount++;
-            } else if (isFood(item)) {
+            } else if (this.isFood(item)) {
                 if (food.isEmpty()) {
                     food = item.copy();
                 } else if (!food.is(item.getItem())) {
@@ -65,10 +65,10 @@ public class CanningFoodRecipe extends CustomRecipe {
     public ItemStack assemble(CraftingInput input) {
         ItemStack food = ItemStack.EMPTY;
         for (ItemStack item : input.items()) {
-            if (food.isEmpty() && isFood(item)) {
+            if (food.isEmpty() && this.isFood(item)) {
                 food = item.copy();
                 food.setCount(1);
-            } else if (isFood(item)) {
+            } else if (this.isFood(item)) {
                 food.setCount(food.getCount() + 1);
             }
         }

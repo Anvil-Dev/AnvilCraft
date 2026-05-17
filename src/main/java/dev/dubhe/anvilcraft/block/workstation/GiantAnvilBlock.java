@@ -317,7 +317,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             return;
         }
         if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
-        for (Cube3x3PartHalf part : getParts()) {
+        for (Cube3x3PartHalf part : this.getParts()) {
             if (part.getOffsetY() != 0) continue;
             if (!FallingBlock.isFree(level.getBlockState(pos.offset(part.getOffset()).below()))) return;
         }
@@ -336,7 +336,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         BlockState blockState = level.getBlockState(pos);
         if (!blockState.is(this)) return;
         BlockPos bottomCenterPos = this.getMainPartPos(pos, blockState).below();
-        for (Cube3x3PartHalf part : getParts()) {
+        for (Cube3x3PartHalf part : this.getParts()) {
             BlockPos bp = bottomCenterPos.offset(part.getOffset());
             level.setBlock(bp, level.getBlockState(bp).getFluidState().createLegacyBlock(), 3, 0);
         }

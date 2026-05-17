@@ -177,7 +177,7 @@ public class OverLimitItemContainerContents {
      * @throws UnsupportedOperationException if the provided slot index is out-of-bounds.
      */
     public UnlimitedItemStack getStackInSlot(int slot) {
-        validateSlotIndex(slot);
+        this.validateSlotIndex(slot);
         return this.items.get(slot).copy();
     }
 
@@ -185,8 +185,8 @@ public class OverLimitItemContainerContents {
      * Neo: Throws {@link UnsupportedOperationException} if the provided slot index is invalid.
      */
     private void validateSlotIndex(int slot) {
-        if (slot >= 0 && slot < getSlots()) return;
-        throw new UnsupportedOperationException("Slot " + slot + " not in valid range - [0," + getSlots() + ")");
+        if (slot >= 0 && slot < this.getSlots()) return;
+        throw new UnsupportedOperationException("Slot " + slot + " not in valid range - [0," + this.getSlots() + ")");
     }
 
     record Slot(int index, UnlimitedItemStack stack) {

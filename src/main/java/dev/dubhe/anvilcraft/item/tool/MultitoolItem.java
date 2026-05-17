@@ -90,12 +90,12 @@ public class MultitoolItem extends Item {
     }
 
     public static MultitoolMode getMode(ItemInstance item) {
-        return item.getOrDefault(ModComponents.MULTITOOL_MODE, MultitoolMode.ALL_MODE);
+        return item.getOrDefault(ModComponents.MULTITOOL_MODE, MultitoolMode.ALL);
     }
 
     @Override
     public boolean releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
-        if (MultitoolItem.isActingAs(stack, MultitoolMode.SPYGLASS_MODE)) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SPYGLASS)) {
             this.stopUsing(livingEntity);
             return true;
         }
@@ -104,7 +104,7 @@ public class MultitoolItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
-        if (MultitoolItem.isActingAs(stack, MultitoolMode.SPYGLASS_MODE)) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SPYGLASS)) {
             this.stopUsing(livingEntity);
             return stack;
         }
@@ -114,16 +114,16 @@ public class MultitoolItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         return switch (MultitoolItem.getMode(player.getItemInHand(usedHand))) {
-            case SPYGLASS_MODE -> {
+            case SPYGLASS -> {
                 player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
                 player.awardStat(Stats.ITEM_USED.get(this));
                 yield ItemUtils.startUsingInstantly(level, player, usedHand);
             }
-            case MAGNET_MODE -> this.useAsMagnet(level, player, usedHand);
-            case FISHING_ROD_MODE -> this.useAsFishingRod(level, player, usedHand);
-            case CARROT_ON_A_STICK_MODE -> this.useAsCarrotOnAStick(level, player, usedHand);
-            case WARPED_FUNGUS_ON_A_STICK_MODE -> this.useAsWarpedFungusOnAStick(level, player, usedHand);
-            case ALL_MODE -> {
+            case MAGNET -> this.useAsMagnet(level, player, usedHand);
+            case FISHING_ROD -> this.useAsFishingRod(level, player, usedHand);
+            case CARROT_ON_A_STICK -> this.useAsCarrotOnAStick(level, player, usedHand);
+            case WARPED_FUNGUS_ON_A_STICK -> this.useAsWarpedFungusOnAStick(level, player, usedHand);
+            case ALL -> {
                 // noinspection deprecation
                 player.hurtOrSimulate(level.damageSources().playerAttack(player), 1);
                 yield InteractionResult.PASS;
@@ -135,10 +135,10 @@ public class MultitoolItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         return switch (MultitoolItem.getMode(context.getItemInHand())) {
-            case SHEARS_MODE -> this.useOnAsShears(context);
-            case FLINT_AND_STEEL_MODE -> this.useOnAsFlintAndSteel(context);
-            case BRUSH_MODE -> this.useOnAsBrush(context);
-            case MAGNET_MODE -> this.useOnAsMagnet(context);
+            case SHEARS -> this.useOnAsShears(context);
+            case FLINT_AND_STEEL -> this.useOnAsFlintAndSteel(context);
+            case BRUSH -> this.useOnAsBrush(context);
+            case MAGNET -> this.useOnAsMagnet(context);
             default -> super.useOn(context);
         };
     }
@@ -146,10 +146,10 @@ public class MultitoolItem extends Item {
     @Override
     public boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {
         return switch (MultitoolItem.getMode(stack)) {
-            case SHEARS_MODE -> ItemAbilities.DEFAULT_SHEARS_ACTIONS.contains(itemAbility);
-            case FLINT_AND_STEEL_MODE -> ItemAbilities.DEFAULT_FLINT_ACTIONS.contains(itemAbility);
-            case BRUSH_MODE -> ItemAbilities.DEFAULT_BRUSH_ACTIONS.contains(itemAbility);
-            case FISHING_ROD_MODE -> ItemAbilities.DEFAULT_FISHING_ROD_ACTIONS.contains(itemAbility);
+            case SHEARS -> ItemAbilities.DEFAULT_SHEARS_ACTIONS.contains(itemAbility);
+            case FLINT_AND_STEEL -> ItemAbilities.DEFAULT_FLINT_ACTIONS.contains(itemAbility);
+            case BRUSH -> ItemAbilities.DEFAULT_BRUSH_ACTIONS.contains(itemAbility);
+            case FISHING_ROD -> ItemAbilities.DEFAULT_FISHING_ROD_ACTIONS.contains(itemAbility);
             default -> super.canPerformAction(stack, itemAbility);
         };
     }
@@ -157,8 +157,8 @@ public class MultitoolItem extends Item {
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return switch (MultitoolItem.getMode(stack)) {
-            case BRUSH_MODE -> ItemUseAnimation.BRUSH;
-            case SPYGLASS_MODE -> ItemUseAnimation.SPYGLASS;
+            case BRUSH -> ItemUseAnimation.BRUSH;
+            case SPYGLASS -> ItemUseAnimation.SPYGLASS;
             default -> super.getUseAnimation(stack);
         };
     }
@@ -166,15 +166,15 @@ public class MultitoolItem extends Item {
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return switch (MultitoolItem.getMode(stack)) {
-            case BRUSH_MODE -> 200;
-            case SPYGLASS_MODE -> 1200;
+            case BRUSH -> 200;
+            case SPYGLASS -> 1200;
             default -> super.getUseDuration(stack, entity);
         };
     }
 
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        if (MultitoolItem.isActingAs(stack, MultitoolMode.BRUSH_MODE)) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.BRUSH)) {
             this.onUseTickAsBrush(level, livingEntity, stack, remainingUseDuration);
         } else {
             super.onUseTick(level, livingEntity, stack, remainingUseDuration);
@@ -183,7 +183,7 @@ public class MultitoolItem extends Item {
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
-        if (MultitoolItem.isActingAs(stack, MultitoolMode.SHEARS_MODE)) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SHEARS)) {
             return this.mineBlockAsShears(stack, level, state, miningEntity);
         } else {
             return super.mineBlock(stack, level, state, pos, miningEntity);
@@ -197,7 +197,7 @@ public class MultitoolItem extends Item {
         LivingEntity interactionTarget,
         InteractionHand usedHand
     ) {
-        if (MultitoolItem.isActingAs(stack, MultitoolMode.SHEARS_MODE)) {
+        if (MultitoolItem.isActingAs(stack, MultitoolMode.SHEARS)) {
             return this.interactLivingEntityAsShears(stack, player, interactionTarget, usedHand);
         } else {
             return super.interactLivingEntity(stack, player, interactionTarget, usedHand);

@@ -98,7 +98,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                            BlockState oldState,
                            boolean movedByPiston) {
         if (!level.isClientSide()) {
-            checkIfTriggered(level, state, pos);
+            this.checkIfTriggered(level, state, pos);
         }
     }
 
@@ -125,7 +125,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         boolean movedByPiston
     ) {
         if (!level.isClientSide()) {
-            checkIfTriggered(level, state, pos);
+            this.checkIfTriggered(level, state, pos);
         }
     }
 
@@ -137,7 +137,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             if (triggered) {
                 return;
             }
-            placeBlock(1, level, blockPos, blockState.getValue(ORIENTATION));
+            this.placeBlock(1, level, blockPos, blockState.getValue(ORIENTATION));
         }
     }
 
@@ -229,7 +229,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         // 判断是放置位置是否不能放置方块
         Direction direction = orientation.getDirection();
         BlockState blockState = level.getBlockState(blockPos.relative(direction, distance));
-        if (canNotBePlaced(level, blockState)) {
+        if (this.canNotBePlaced(level, blockState)) {
             // 不能放置方块，方法直接结束
             return;
         }

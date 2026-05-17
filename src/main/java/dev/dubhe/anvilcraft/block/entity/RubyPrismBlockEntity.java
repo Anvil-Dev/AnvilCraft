@@ -23,11 +23,11 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void tick(Level level) {
-        if (enabled) {
-            emitLaser(getFacing());
+        if (this.enabled) {
+            emitLaser(this.getFacing());
         }
         if (laserLevel == 0) {
-            enabled = false;
+            this.enabled = false;
         }
         super.tick(level);
         resetState();
@@ -40,19 +40,19 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
-        enabled = false;
+        this.enabled = false;
         super.onCancelingIrradiation(baseLaserBlockEntity);
     }
 
     @Override
     public void onIrradiated(BaseLaserBlockEntity baseLaserBlockEntity) {
-        enabled = true;
+        this.enabled = true;
         super.onIrradiated(baseLaserBlockEntity);
     }
 
     @Override
     public int getLaserLevel() {
-        if (enabled) {
+        if (this.enabled) {
             return super.getLaserLevel();
         }
         return 0;
@@ -60,7 +60,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
-        enabled = laserLevel > 0;
+        this.enabled = laserLevel > 0;
         super.clientUpdate(irradiateBlockPos, laserLevel);
     }
 

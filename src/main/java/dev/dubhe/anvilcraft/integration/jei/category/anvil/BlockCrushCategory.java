@@ -42,10 +42,10 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
     private final ITickTimer timer;
 
     public BlockCrushCategory(IGuiHelper helper) {
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
-        icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
-        title = Component.translatable("gui.anvilcraft.category.block_crush");
-        timer = helper.createTickTimer(30, 60, true);
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
+        this.title = Component.translatable("gui.anvilcraft.category.block_crush");
+        this.timer = helper.createTickTimer(30, 60, true);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -89,8 +89,8 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        arrowDefault.draw(guiGraphics, 73, 35);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        this.arrowDefault.draw(guiGraphics, 73, 35);
 
         RenderSupport.renderBlock(
             guiGraphics,

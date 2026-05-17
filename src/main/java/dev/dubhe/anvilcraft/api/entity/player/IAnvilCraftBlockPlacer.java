@@ -39,17 +39,17 @@ public interface IAnvilCraftBlockPlacer {
         if (AnvilCraftFakePlayers.BLOCK_PLACER_BLACKLIST.contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString())) {
             return InteractionResult.FAIL;
         }
-        if (level instanceof ServerLevel serverLevel) getPlayer().setServerLevel(serverLevel);
+        if (level instanceof ServerLevel serverLevel) this.getPlayer().setServerLevel(serverLevel);
         // 获取fakePlayer的方向 与放置器的方向不太一样
         Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
-        getPlayer().setYRot(fakePlayerOrientation.getYRotation());
+        this.getPlayer().setYRot(fakePlayerOrientation.getYRotation());
         /*
          * net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
          * 该字段一并设置，以使得部分方块的方向检测正确
          */
-        getPlayer().setYHeadRot(fakePlayerOrientation.getYRotation());
-        getPlayer().setXRot(fakePlayerOrientation.getXRotation());
-        Vec3 clickClickLocation = getPosFromOrientation(orientation);
+        this.getPlayer().setYHeadRot(fakePlayerOrientation.getYRotation());
+        this.getPlayer().setXRot(fakePlayerOrientation.getXRotation());
+        Vec3 clickClickLocation = this.getPosFromOrientation(orientation);
         double x = clickClickLocation.x;
         double y = clickClickLocation.y;
         double z = clickClickLocation.z;
@@ -62,8 +62,8 @@ public interface IAnvilCraftBlockPlacer {
         BlockPlaceContext blockPlaceContext =
             new BlockPlaceContext(
                 level,
-                getPlayer(),
-                getPlayer().getUsedItemHand(),
+                this.getPlayer(),
+                this.getPlayer().getUsedItemHand(),
                 itemStack,
                 blockHitResult
             );
@@ -71,9 +71,9 @@ public interface IAnvilCraftBlockPlacer {
         // 实际上，如果需要nbt的话，直接用NeoForge自带的就行
         InteractionResult ir = blockItem.place(blockPlaceContext);
         if (ir == InteractionResult.FAIL) return ir;
-        SoundType soundType = blockState.getSoundType(level, pos, getPlayer());
+        SoundType soundType = blockState.getSoundType(level, pos, this.getPlayer());
         level.playSound(
-            getPlayer(),
+            this.getPlayer(),
             pos,
             soundType.getPlaceSound(),
             SoundSource.BLOCKS,

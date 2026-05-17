@@ -57,7 +57,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         if (this.tickCount > -1) this.tickCount--;
         if (this.tickCount != 0) return;
         if (!(this.level instanceof ServerLevel serverLevel)) return;
-        BlockState aroundState = getAroundBlock();
+        BlockState aroundState = this.getAroundBlock();
         if (this.level.getMinY() > getBlockPos().getY() || getBlockPos().getY() > this.level.getMinY() + 8) {
             return;
         }

@@ -95,7 +95,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     @Override
     public boolean matches(MultiblockInput input, Level level) {
         int size = input.size();
-        if (pattern.getLayers().size() != size) {
+        if (this.pattern.getLayers().size() != size) {
             return false;
         }
         // 无旋转
@@ -103,7 +103,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
+                    if (!this.pattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
                         flag = false;
                     }
                 }
@@ -117,7 +117,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(
+                    if (!this.pattern.getPredicate(x, y, z).test(
                         input.getBlockState(z, y, size - 1 - x).rotate(Rotation.CLOCKWISE_90))) {
                         flag = false;
                     }
@@ -132,7 +132,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(
+                    if (!this.pattern.getPredicate(x, y, z).test(
                         input.getBlockState(size - 1 - x, y, size - 1 - z).rotate(Rotation.CLOCKWISE_180))) {
                         flag = false;
                     }
@@ -147,7 +147,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(
+                    if (!this.pattern.getPredicate(x, y, z).test(
                         input.getBlockState(size - 1 - z, y, x).rotate(Rotation.COUNTERCLOCKWISE_90))) {
                         flag = false;
                     }

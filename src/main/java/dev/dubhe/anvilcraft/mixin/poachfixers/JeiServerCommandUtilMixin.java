@@ -17,7 +17,9 @@ public class JeiServerCommandUtilMixin {
         method = "giveToInventory",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerPlayer;drop(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/entity/item/ItemEntity;",
+            target = "Lnet/minecraft/server/level/ServerPlayer;"
+                     + "drop(Lnet/minecraft/world/item/ItemStack;Z)"
+                     + "Lnet/minecraft/world/entity/item/ItemEntity;",
             ordinal = 0
         )
     )

@@ -48,7 +48,7 @@ public record ItemSavedEntityPredicate(
     public ItemSavedEntityPredicate predicate(Consumer<NumericTagValuePredicate.Builder> predicateBuilder) {
         NumericTagValuePredicate.Builder builder = NumericTagValuePredicate.builder();
         predicateBuilder.accept(builder);
-        predicates.add(builder.build());
+        this.predicates.add(builder.build());
         return this;
     }
 

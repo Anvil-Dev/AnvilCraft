@@ -164,10 +164,10 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
 
         @Override
         public void validate(Identifier id) {
-            if (inputs.isEmpty()) {
+            if (this.inputs.isEmpty()) {
                 throw new IllegalArgumentException("Recipe inputs must not be empty, RecipeId: " + id);
             }
-            if (result == null) {
+            if (this.result == null) {
                 throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + id);
             }
         }
@@ -179,7 +179,7 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
 
         @Override
         public ItemStackTemplate getResult() {
-            return WrapUtils.getItem(result);
+            return WrapUtils.getItem(this.result);
         }
     }
 }

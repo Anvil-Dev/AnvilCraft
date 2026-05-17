@@ -27,28 +27,28 @@ public class RedstoneEMPBehavior implements IAnvilBehavior {
         if (!level.getBlockState(pos.relative(Direction.EAST)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = 1; x < distance; x++) {
                 for (int z = -distance; z < distance; z++) {
-                    redstoneEmp(level, pos.offset(x, 0, z));
+                    this.redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }
         if (!level.getBlockState(pos.relative(Direction.WEST)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = -1; x > -distance; x--) {
                 for (int z = -distance; z < distance; z++) {
-                    redstoneEmp(level, pos.offset(x, 0, z));
+                    this.redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }
         if (!level.getBlockState(pos.relative(Direction.SOUTH)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = -distance; x < distance; x++) {
                 for (int z = 1; z < distance; z++) {
-                    redstoneEmp(level, pos.offset(x, 0, z));
+                    this.redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }
         if (!level.getBlockState(pos.relative(Direction.NORTH)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = -distance; x < distance; x++) {
                 for (int z = -1; z > -distance; z--) {
-                    redstoneEmp(level, pos.offset(x, 0, z));
+                    this.redstoneEmp(level, pos.offset(x, 0, z));
                 }
             }
         }

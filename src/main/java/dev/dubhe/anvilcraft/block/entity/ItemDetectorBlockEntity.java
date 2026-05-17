@@ -47,8 +47,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.dubhe.anvilcraft.block.utility.redstone.ItemDetectorBlock.POWERED;
-
 public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider, IFilterBlockEntity, IHasAffectRange,
     IDiskCloneable {
 
@@ -128,7 +126,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (input.getInt("FilterMode").isPresent()) {
             this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
         }
-        input.child("Filter").ifPresent(filter::deserialize);
+        input.child("Filter").ifPresent(this.filter::deserialize);
         if (input.getInt("OutputSignal").isPresent()) {
             this.outputSignal = input.getIntOr("OutputSignal", 0);
         }
@@ -169,11 +167,11 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             this.detectionRange,
             entity -> !entity.getItem().isEmpty()
         );
-        int output = getOutput(itemEntities, level, this.detectionRange);
+        int output = this.getOutput(itemEntities, level, this.detectionRange);
         if (output == this.outputSignal) return;
         this.outputSignal = output;
-        if (blockState.getValue(POWERED) != (this.outputSignal > 0)) {
-            blockState = blockState.setValue(POWERED, this.outputSignal > 0);
+        if (blockState.getValue(ItemDetectorBlock.POWERED) != (this.outputSignal > 0)) {
+            blockState = blockState.setValue(ItemDetectorBlock.POWERED, this.outputSignal > 0);
             level.setBlock(pos, blockState, 2);
         }
         ModBlocks.ITEM_DETECTOR.get().updateNeighborsInFront(level, pos, blockState);
@@ -198,7 +196,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     matchCount += itemEntity.getItem().getCount();
                 }
             }
-            for (BlockPos p : blocksInRange) matchCount += scanContainer(level, p, filterItem);
+            for (BlockPos p : blocksInRange) matchCount += this.scanContainer(level, p, filterItem);
             int lerpedOutput = lerpOutput(matchCount, targetCount);
             if (lerpedOutput > 0) {
                 minNonZeroOutput = Math.min(minNonZeroOutput, lerpedOutput);
@@ -211,7 +209,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (!hasFilter) {
             int totalCount = 0;
             for (ItemEntity itemEntity : itemEntities) totalCount += itemEntity.getItem().getCount();
-            for (BlockPos p : blocksInRange) totalCount += scanContainer(level, p, null);
+            for (BlockPos p : blocksInRange) totalCount += this.scanContainer(level, p, null);
             output = lerpOutput(totalCount, 1);
         }
         return output;
@@ -236,11 +234,11 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     public void increaseRange() {
-        this.range = Mth.clamp(range + 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range + 1, MIN_RANGE, MAX_RANGE);
     }
 
     public void decreaseRange() {
-        this.range = Mth.clamp(range - 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range - 1, MIN_RANGE, MAX_RANGE);
     }
 
     public void setRange(int range) {

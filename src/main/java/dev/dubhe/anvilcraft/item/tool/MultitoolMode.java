@@ -14,15 +14,15 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 public enum MultitoolMode implements StringRepresentable {
-    ALL_MODE,
-    SHEARS_MODE(Items.SHEARS),
-    FLINT_AND_STEEL_MODE(Items.FLINT_AND_STEEL),
-    BRUSH_MODE(Items.BRUSH),
-    SPYGLASS_MODE(Items.SPYGLASS),
-    MAGNET_MODE(ModItems.MAGNET.get()),
-    FISHING_ROD_MODE(Items.FISHING_ROD),
-    CARROT_ON_A_STICK_MODE(Items.CARROT_ON_A_STICK),
-    WARPED_FUNGUS_ON_A_STICK_MODE(Items.WARPED_FUNGUS_ON_A_STICK),
+    ALL,
+    SHEARS(Items.SHEARS),
+    FLINT_AND_STEEL(Items.FLINT_AND_STEEL),
+    BRUSH(Items.BRUSH),
+    SPYGLASS(Items.SPYGLASS),
+    MAGNET(ModItems.MAGNET.get()),
+    FISHING_ROD(Items.FISHING_ROD),
+    CARROT_ON_A_STICK(Items.CARROT_ON_A_STICK),
+    WARPED_FUNGUS_ON_A_STICK(Items.WARPED_FUNGUS_ON_A_STICK),
     ;
 
     public static final Codec<MultitoolMode> CODEC = StringRepresentable.fromEnum(MultitoolMode::values);

@@ -118,21 +118,21 @@ public class DataGenUtil {
                 ItemModelUtils.select(
                     new ComponentContents<>(ModComponents.MULTITOOL_MODE),
                     all,
-                    ItemModelUtils.when(MultitoolMode.BRUSH_MODE, brush),
-                    ItemModelUtils.when(MultitoolMode.CARROT_ON_A_STICK_MODE, carrotRod),
+                    ItemModelUtils.when(MultitoolMode.BRUSH, brush),
+                    ItemModelUtils.when(MultitoolMode.CARROT_ON_A_STICK, carrotRod),
                     ItemModelUtils.when(
-                        MultitoolMode.FISHING_ROD_MODE,
+                        MultitoolMode.FISHING_ROD,
                         ItemModelUtils.conditional(
                             new FishingRodCast(),
                             fishingRodCast,
                             fishingRod
                         )
                     ),
-                    ItemModelUtils.when(MultitoolMode.FLINT_AND_STEEL_MODE, flintAndSteel),
-                    ItemModelUtils.when(MultitoolMode.MAGNET_MODE, magnet),
-                    ItemModelUtils.when(MultitoolMode.SHEARS_MODE, shears),
-                    ItemModelUtils.when(MultitoolMode.SPYGLASS_MODE, spyglass),
-                    ItemModelUtils.when(MultitoolMode.WARPED_FUNGUS_ON_A_STICK_MODE, warpedFungusRod)
+                    ItemModelUtils.when(MultitoolMode.FLINT_AND_STEEL, flintAndSteel),
+                    ItemModelUtils.when(MultitoolMode.MAGNET, magnet),
+                    ItemModelUtils.when(MultitoolMode.SHEARS, shears),
+                    ItemModelUtils.when(MultitoolMode.SPYGLASS, spyglass),
+                    ItemModelUtils.when(MultitoolMode.WARPED_FUNGUS_ON_A_STICK, warpedFungusRod)
                 )
             );
         };

@@ -56,16 +56,16 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
         ISlidingRail.whenOnNeighborChange(level, pos, neighbor);
     }
 
-//    @Override
-//    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
-//        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
-//        if (level.isClientSide()) return;
-//        ISlidingRail.whenNeighborChanged(level, self(), pos, fromPos);
-//    }
+    // @Override
+    // protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+    //     super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+    //     if (level.isClientSide()) return;
+    //     ISlidingRail.whenNeighborChanged(level, this.self(), pos, fromPos);
+    // }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        ISlidingRail.whenTick(level, self(), pos);
+        ISlidingRail.whenTick(level, this.self(), pos);
     }
 
     @Override
@@ -128,7 +128,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
             }
         }
         if (entity instanceof LivingEntity) {
-            if (this instanceof PoweredSlidingRailBlock poweredRail) {
+            if (this instanceof PoweredSlidingRailBlock) {
                 BlockState railState = level.getBlockState(pos);
                 if (railState.getValue(PoweredSlidingRailBlock.POWERED)) {
                     Direction facing = railState.getValue(PoweredSlidingRailBlock.FACING);

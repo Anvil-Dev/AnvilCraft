@@ -14,7 +14,6 @@ public class RottenFleshBlock extends Block {
         super(properties);
     }
 
-
     @Override
     public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
         entity.causeFallDamage(fallDistance, 0.2F, level.damageSources().fall());

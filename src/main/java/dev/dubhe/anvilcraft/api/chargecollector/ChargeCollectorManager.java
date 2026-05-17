@@ -68,14 +68,14 @@ public class ChargeCollectorManager {
      * 添加新的集电器
      */
     public void addChargeCollector(ChargeCollectorBlockEntity blockEntity) {
-        chargeCollectors.put(blockEntity.getBlockPos(), blockEntity);
+        this.chargeCollectors.put(blockEntity.getBlockPos(), blockEntity);
     }
 
     /**
      * 删除集电器
      */
     public void removeChargeCollector(ChargeCollectorBlockEntity blockEntity) {
-        chargeCollectors.remove(blockEntity.getBlockPos());
+        this.chargeCollectors.remove(blockEntity.getBlockPos());
     }
 
     /**
@@ -83,7 +83,7 @@ public class ChargeCollectorManager {
      */
     public List<Entry> getNearestChargeCollect(BlockPos blockPos) {
         List<Entry> distanceList = new ArrayList<>();
-        for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : chargeCollectors.entrySet()) {
+        for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : this.chargeCollectors.entrySet()) {
             double distance = Vector3f.distance(
                 entry.getKey().getX(),
                 entry.getKey().getY(),

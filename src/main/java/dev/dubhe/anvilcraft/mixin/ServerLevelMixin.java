@@ -37,8 +37,8 @@ public class ServerLevelMixin {
     )
     public void recordAddedItemEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof ItemEntity e1) {
-            anvilcraft$addedEntity = e1;
-            anvilcraft$shouldCheckDiscarded = true;
+            this.anvilcraft$addedEntity = e1;
+            this.anvilcraft$shouldCheckDiscarded = true;
         }
     }
 
@@ -49,8 +49,8 @@ public class ServerLevelMixin {
         )
     )
     public void cancelItemDiscardedWarn(Logger instance, String string, Object o, Operation<Void> original) {
-        if (anvilcraft$shouldCheckDiscarded && anvilcraft$addedEntity.anvilcraft$getDiscarded()) {
-            anvilcraft$shouldCheckDiscarded = false;
+        if (this.anvilcraft$shouldCheckDiscarded && this.anvilcraft$addedEntity.anvilcraft$getDiscarded()) {
+            this.anvilcraft$shouldCheckDiscarded = false;
             return;
         }
 

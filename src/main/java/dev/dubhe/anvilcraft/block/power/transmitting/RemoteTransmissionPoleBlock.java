@@ -113,7 +113,7 @@ public class RemoteTransmissionPoleBlock
     public BlockState playerWillDestroy(
         Level level, BlockPos pos, BlockState state, Player player) {
         if (level.isClientSide()) return state;
-        onRemove(level, pos, state);
+        this.onRemove(level, pos, state);
         super.playerWillDestroy(level, pos, state, player);
         return state;
     }

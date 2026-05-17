@@ -122,7 +122,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
     ) {
         if (level.isClientSide()) return;
         if (AnvilCraft.CONFIG.cleanFluidAfterUpdateMengerSponge) {
-            removeFluidBreadthFirstSearch(level, pos);
+            this.removeFluidBreadthFirstSearch(level, pos);
         }
     }
 

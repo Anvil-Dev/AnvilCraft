@@ -69,7 +69,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     private final WatchableCyclingValue<Integer> cooldown = new WatchableCyclingValue<>(
         "cooldown",
         thiz -> {
-            cd = thiz.get();
+            this.cd = thiz.get();
             this.setChanged();
         },
         0,
@@ -77,7 +77,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         10,
         60
     );
-    private int cd = cooldown.next();
+    private int cd = this.cooldown.next();
 
     public static final Map<Level, Map<ChunkPos, List<ItemCollectorBlockEntity>>> POACHING_COLLECTOR_MAP = new HashMap<>();
 
@@ -86,14 +86,14 @@ public class ItemCollectorBlockEntity extends BlockEntity
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
-            if (level == null || level.isClientSide() || changed) return;
-            changed = true;
+            if (level == null || level.isClientSide() || ItemCollectorBlockEntity.this.changed) return;
+            ItemCollectorBlockEntity.this.changed = true;
             Objects.requireNonNull(level.getServer()).execute(() -> {
                 try {
                     setChanged();
                     flushState(level, getBlockPos());
                 } finally {
-                    changed = false;
+                    ItemCollectorBlockEntity.this.changed = false;
                 }
             });
         }
@@ -200,10 +200,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     public void updatePoachingMapForThis() {
-        List<ChunkPos> chunkPosListMax = getPoachingMapPositions(8);
-        List<ChunkPos> chunkPosListReal = getPoachingMapPositions(rangeRadius.get());
+        List<ChunkPos> chunkPosListMax = this.getPoachingMapPositions(8);
+        List<ChunkPos> chunkPosListReal = this.getPoachingMapPositions(this.rangeRadius.get());
         for (ChunkPos chunkPos : chunkPosListMax) {
-            if (cooldown.get() == 0 && chunkPosListReal.contains(chunkPos)) {
+            if (this.cooldown.get() == 0 && chunkPosListReal.contains(chunkPos)) {
                 if (!POACHING_COLLECTOR_MAP.containsKey(level)) POACHING_COLLECTOR_MAP.put(level, new HashMap<>());
                 if (!POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
                     POACHING_COLLECTOR_MAP.get(level).put(chunkPos, new ArrayList<>());
@@ -227,8 +227,8 @@ public class ItemCollectorBlockEntity extends BlockEntity
         // 如果保持“截胡模式就不再主动吸取物品”的设定就把下面一行取消注释回来
         // if (cooldown.get() == 0) return;
 
-        if (cd > 1) {
-            cd--;
+        if (this.cd > 1) {
+            this.cd--;
             return;
         }
         if (!this.isGridWorking()) return;
@@ -245,7 +245,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
             ItemStack itemStack = itemEntity.getItem();
             int slotIndex = 0;
             while (itemStack != ItemStack.EMPTY && slotIndex < 9) {
-                itemStack = ItemResourceHelper.insertInto(itemHandler, slotIndex++, itemStack);
+                itemStack = ItemResourceHelper.insertInto(this.itemHandler, slotIndex++, itemStack);
             }
             if (itemStack != ItemStack.EMPTY) {
                 itemEntity.setItem(itemStack);

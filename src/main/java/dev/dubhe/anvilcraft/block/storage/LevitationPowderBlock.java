@@ -40,7 +40,7 @@ public class LevitationPowderBlock extends FallingBlock {
 
     @Override
     public int getDustColor(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
-        //color of sand
+        // color of sand
         return 14406560;
     }
 
@@ -50,7 +50,14 @@ public class LevitationPowderBlock extends FallingBlock {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
         level.scheduleTick(pos, this, 2);
     }
 }

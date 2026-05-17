@@ -84,13 +84,13 @@ public class GunpowderBlock extends Block {
         if (
             stack.is(Items.FLINT_AND_STEEL)
             || stack.is(Items.FIRE_CHARGE)
-            || MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)
+            || MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)
         ) {
             this.explosion(level, pos);
             Item item = stack.getItem();
             if (
                 stack.is(Items.FLINT_AND_STEEL)
-                || MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)
+                || MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)
             ) {
                 stack.hurtAndBreak(1, player, hand);
             } else {

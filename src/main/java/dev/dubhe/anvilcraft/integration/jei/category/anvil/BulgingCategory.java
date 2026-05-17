@@ -50,17 +50,17 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
     private final IDrawable arrowOut;
 
     public BulgingCategory(IGuiHelper helper) {
-        icon = new DrawableBlockStateIcon(
+        this.icon = new DrawableBlockStateIcon(
             Blocks.ANVIL.defaultBlockState(),
             CauldronUtil.fullState(Blocks.WATER_CAULDRON)
         );
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        title = Component.translatable("gui.anvilcraft.category.bulging");
-        timer = helper.createTickTimer(30, 60, true);
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.bulging");
+        this.timer = helper.createTickTimer(30, 60, true);
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -105,7 +105,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         double mouseX,
         double mouseY) {
         BulgingRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -124,15 +124,15 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
         }
         RenderSupport.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        this.arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
         if (!recipe.getResultItems().isEmpty()) {
             if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotProbability, recipe.getResultItems().size());
             } else {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, recipe.getResultItems().size());
             }
             HasCauldronSimple hasCauldron = recipe.getHasCauldron();
             if (recipe.isConsumeFluid()) {

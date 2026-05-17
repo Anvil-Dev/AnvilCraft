@@ -202,11 +202,6 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
-        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
-    }
-
-    @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         Optional<ActivatorSlidingRailBlockEntity> beOp = level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get());
         TriState shouldPower = beOp.map(ActivatorSlidingRailBlockEntity::getShouldPower).orElse(TriState.DEFAULT);

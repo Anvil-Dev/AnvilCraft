@@ -90,7 +90,7 @@ public record MobTransformRecipe(
 
     @Override
     public boolean matches(MobTransformInput in, Level level) {
-        boolean typeMatches = in.inputEntity().getType() == input;
+        boolean typeMatches = in.inputEntity().getType() == this.input;
         if (!typeMatches) return false;
         return this.predicates().stream().allMatch(it -> it.test(new EntityDataAccessor(in.inputEntity()).getData()));
     }
@@ -144,7 +144,7 @@ public record MobTransformRecipe(
 
     @Nullable
     public Entity apply(RandomSource rand, LivingEntity livingEntity, ServerLevel level) {
-        EntityType<?> entityType = getResult(rand);
+        EntityType<?> entityType = this.getResult(rand);
         CompoundTag tag = new CompoundTag();
         tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
         Entity newEntity = EntityType.loadEntityRecursive(

@@ -49,7 +49,10 @@ public class FallingBlockCollisionEventListener {
         BlockPos pos = event.getPos();
         if (AnvilCraft.CONFIG.anvilCollisionCraftSpeed > event.getSpeed()) return;
         RecipeHolder<AnvilCollisionCraftRecipe> resultRecipe = null;
-        Collection<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getServer().getRecipeManager().recipeMap().byType(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
+        Collection<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getServer()
+            .getRecipeManager()
+            .recipeMap()
+            .byType(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
         BlockState state = level.getBlockState(pos);
         BlockEntity entity = level.getBlockEntity(pos);
         for (RecipeHolder<AnvilCollisionCraftRecipe> recipe : recipes) {

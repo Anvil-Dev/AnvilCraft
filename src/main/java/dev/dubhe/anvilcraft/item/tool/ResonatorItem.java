@@ -280,7 +280,7 @@ public abstract class ResonatorItem extends Item {
         ResonateMode mode = ResonatorItem.getMode(stack);
         return switch (mode) {
             case AUTO -> {
-                if (isTranscendence(stack) && !isTooDamagedToUse(stack)) {
+                if (this.isTranscendence(stack) && !isTooDamagedToUse(stack)) {
                     Player player = context.getPlayer();
                     if (player != null) {
                         player.startUsingItem(context.getHand());

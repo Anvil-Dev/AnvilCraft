@@ -71,11 +71,11 @@ public class FloatingBlockEntity extends FallingBlockEntity {
             ++this.time;
             BlockPos blockPos = this.blockPosition();
 
-            if (this.level().getFluidState(blockPos.above()).is(FluidTags.WATER) && !underCeiling) {
+            if (this.level().getFluidState(blockPos.above()).is(FluidTags.WATER) && !this.underCeiling) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.04, 0.0));
             } else {
                 if (!this.level().isClientSide()) {
-                    if (underCeiling) blockPos = blockPos.above();
+                    if (this.underCeiling) blockPos = blockPos.above();
                     BlockState blockState = this.level().getBlockState(blockPos);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
                     if (!blockState.is(Blocks.MOVING_PISTON)) {
@@ -116,7 +116,7 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 this.discard();
                                 if (this.dropItem && this.level().getServer().getGameRules().get(GameRules.ENTITY_DROPS)) {
                                     this.callOnBrokenAfterFall(block, blockPos);
-                                    this.spawnAtLocation((ServerLevel) level(),block);
+                                    this.spawnAtLocation((ServerLevel) level(), block);
                                 }
                             }
                         } else {

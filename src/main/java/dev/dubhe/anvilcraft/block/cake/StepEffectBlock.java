@@ -23,7 +23,7 @@ public class StepEffectBlock extends Block {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        stepAction.accept(entity);
+        this.stepAction.accept(entity);
     }
 
     public static void stepOnChocolateBlock(Entity entity) {

@@ -197,8 +197,8 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
         public void save(RecipeOutput recipeOutput) {
             save(
                 recipeOutput,
-                AnvilCraft.of(getResult().typeHolder().getKey().identifier().getPath())
-                    .withPrefix(getType() + "/")
+                AnvilCraft.of(this.getResult().typeHolder().getKey().identifier().getPath())
+                    .withPrefix(this.getType() + "/")
                     .withSuffix("_from_" + this.dimension.getPath())
             );
         }

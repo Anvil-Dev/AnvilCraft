@@ -12,6 +12,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
+import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -27,8 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static net.minecraft.world.entity.vehicle.boat.AbstractBoat.canVehicleCollide;
-
 public class IonocraftEntity extends VehicleEntity {
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION = new DynamicPowerComponent.PowerConsumption(16);
     private final DynamicPowerComponent component;
@@ -39,14 +38,14 @@ public class IonocraftEntity extends VehicleEntity {
         this.xo = pos.x;
         this.yo = pos.y;
         this.zo = pos.z;
-        component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
-        component.getPowerConsumptions().add(CONSUMPTION);
+        this.component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
+        this.component.getPowerConsumptions().add(CONSUMPTION);
     }
 
     public IonocraftEntity(EntityType<IonocraftEntity> type, Level level) {
         super(type, level);
-        component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
-        component.getPowerConsumptions().add(CONSUMPTION);
+        this.component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
+        this.component.getPowerConsumptions().add(CONSUMPTION);
     }
 
     public AABB getPowerSupplyingBoundingBox() {
@@ -87,7 +86,7 @@ public class IonocraftEntity extends VehicleEntity {
                 }
             }
         } else {
-            clientCompute();
+            this.clientCompute();
         }
         this.move(MoverType.SELF, this.getDeltaMovement());
         super.tick();
@@ -118,8 +117,8 @@ public class IonocraftEntity extends VehicleEntity {
 
     @OnlyIn(Dist.CLIENT)
     private void clientCompute() {
-        SimplePowerGrid powerGrid = clientFindPowerGridContains(this.getPowerSupplyingBoundingBox()).orElse(null);
-        SimplePowerGrid findSmaller = clientFindPowerGridContains(this.getBoundingBox()).orElse(null);
+        SimplePowerGrid powerGrid = this.clientFindPowerGridContains(this.getPowerSupplyingBoundingBox()).orElse(null);
+        SimplePowerGrid findSmaller = this.clientFindPowerGridContains(this.getBoundingBox()).orElse(null);
         if (findSmaller == null && powerGrid != null) {
             if (powerGrid.isOverloaded()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, -0.01, 0));
@@ -177,7 +176,7 @@ public class IonocraftEntity extends VehicleEntity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        return canVehicleCollide(this, entity);
+        return AbstractBoat.canVehicleCollide(this, entity);
     }
 
     @Override

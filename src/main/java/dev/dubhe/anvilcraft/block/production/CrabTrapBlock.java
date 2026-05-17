@@ -117,12 +117,12 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
 
         if (times >= 3) {
             // 获取战利品并放入 block entity
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_COMMON);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_RIVER);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_OCEAN);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_WARM_OCEAN);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_SWAMP);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_JUNGLE);
+            this.tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_COMMON);
+            this.tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_RIVER);
+            this.tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_OCEAN);
+            this.tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_WARM_OCEAN);
+            this.tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_SWAMP);
+            this.tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_JUNGLE);
         }
     }
 

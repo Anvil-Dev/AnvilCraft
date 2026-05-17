@@ -57,10 +57,28 @@ public class IonoCraftBackpackHUD {
         final int batteryHeight = (int) (percent / 100F * 16);
 
         poseStack.translate(textWidth + 4, -4, 0);
-        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,BATTERY_EMPTY, 0, 0, 8, 16);
+        guiGraphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED,
+            BATTERY_EMPTY,
+            0,
+            0,
+            8,
+            16
+        );
 
         poseStack.translate(0, 0, 1);
-        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,BATTERY_FULL, 8, 16, 0, 16 - batteryHeight, 0, 16 - batteryHeight, 8, batteryHeight);
+        guiGraphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED,
+            BATTERY_FULL,
+            8,
+            16,
+            0,
+            16 - batteryHeight,
+            0,
+            16 - batteryHeight,
+            8,
+            batteryHeight
+        );
 
         poseStack.popPose();
     }

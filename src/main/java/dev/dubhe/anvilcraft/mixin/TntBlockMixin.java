@@ -41,7 +41,7 @@ abstract class TntBlockMixin extends Block {
         BlockHitResult hitResult,
         CallbackInfoReturnable<InteractionResult> cir
     ) {
-        if (MultitoolItem.isActingAs(itemStack, MultitoolMode.FLINT_AND_STEEL_MODE)) {
+        if (MultitoolItem.isActingAs(itemStack, MultitoolMode.FLINT_AND_STEEL)) {
             this.onCaughtFire(state, level, pos, hitResult.getDirection(), player);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 11);
             Item item = itemStack.getItem();

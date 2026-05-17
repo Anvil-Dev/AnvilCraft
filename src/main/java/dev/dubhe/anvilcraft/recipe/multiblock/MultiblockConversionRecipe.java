@@ -121,14 +121,14 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!inputPattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
+                    if (!this.inputPattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
                         flag = false;
                     }
                 }
             }
         }
         if (flag) {
-            matchedRotation = Rotation.NONE;
+            this.matchedRotation = Rotation.NONE;
             return true;
         }
         // 旋转90
@@ -136,7 +136,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!inputPattern.getPredicate(x, y, z).test(
+                    if (!this.inputPattern.getPredicate(x, y, z).test(
                         input.getBlockState(z, y, size - 1 - x).rotate(Rotation.CLOCKWISE_90))) {
                         flag = false;
                     }
@@ -144,7 +144,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
             }
         }
         if (flag) {
-            matchedRotation = Rotation.COUNTERCLOCKWISE_90;
+            this.matchedRotation = Rotation.COUNTERCLOCKWISE_90;
             return true;
         }
         // 旋转180
@@ -152,7 +152,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!inputPattern.getPredicate(x, y, z).test(
+                    if (!this.inputPattern.getPredicate(x, y, z).test(
                         input.getBlockState(size - 1 - x, y, size - 1 - z).rotate(Rotation.CLOCKWISE_180))) {
                         flag = false;
                     }
@@ -160,7 +160,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
             }
         }
         if (flag) {
-            matchedRotation = Rotation.CLOCKWISE_180;
+            this.matchedRotation = Rotation.CLOCKWISE_180;
             return true;
         }
         // 旋转270
@@ -168,7 +168,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!inputPattern.getPredicate(x, y, z).test(
+                    if (!this.inputPattern.getPredicate(x, y, z).test(
                         input.getBlockState(size - 1 - z, y, x).rotate(Rotation.COUNTERCLOCKWISE_90))) {
                         flag = false;
                     }
@@ -176,7 +176,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
             }
         }
         if (flag) {
-            matchedRotation = Rotation.CLOCKWISE_90;
+            this.matchedRotation = Rotation.CLOCKWISE_90;
             return true;
         }
         return false;
@@ -272,18 +272,18 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         }
 
         public Builder inputLayer(String... layers) {
-            inputPattern.layer(layers);
+            this.inputPattern.layer(layers);
             return this;
         }
 
         public Builder outputLayer(String... layers) {
-            outputPattern.layer(layers);
+            this.outputPattern.layer(layers);
             return this;
         }
 
         public Builder symbol(char symbol, BlockPredicateWithState predicate) {
-            inputPattern.symbol(symbol, predicate);
-            outputPattern.symbol(symbol, predicate);
+            this.inputPattern.symbol(symbol, predicate);
+            this.outputPattern.symbol(symbol, predicate);
             return this;
         }
 
@@ -300,7 +300,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         }
 
         public Builder inputSymbol(char symbol, BlockPredicateWithState predicate) {
-            inputPattern.symbol(symbol, predicate);
+            this.inputPattern.symbol(symbol, predicate);
             return this;
         }
 
@@ -317,7 +317,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         }
 
         public Builder outputSymbol(char symbol, BlockPredicateWithState predicate) {
-            outputPattern.symbol(symbol, predicate);
+            this.outputPattern.symbol(symbol, predicate);
             return this;
         }
 
@@ -340,19 +340,19 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
         @Override
         public MultiblockConversionRecipe buildRecipe() {
-            return new MultiblockConversionRecipe(inputPattern, outputPattern, postAction);
+            return new MultiblockConversionRecipe(this.inputPattern, this.outputPattern, this.postAction);
         }
 
         @Override
         public void validate(Identifier id) {
-            if (inputPattern.getSize() != outputPattern.getSize()) {
+            if (this.inputPattern.getSize() != this.outputPattern.getSize()) {
                 throw new IllegalArgumentException(("Input size must be same as output size: %s input size: %d, output size: %d")
-                    .formatted(id, inputPattern.getSize(), outputPattern.getSize()));
+                    .formatted(id, this.inputPattern.getSize(), this.outputPattern.getSize()));
             }
-            if (!inputPattern.checkSymbols()) {
+            if (!this.inputPattern.checkSymbols()) {
                 throw new IllegalArgumentException("Input pattern must contain all valid symbols: " + id);
             }
-            if (!outputPattern.checkSymbols()) {
+            if (!this.outputPattern.checkSymbols()) {
                 throw new IllegalArgumentException("Output pattern must contain all valid symbols: " + id);
             }
         }

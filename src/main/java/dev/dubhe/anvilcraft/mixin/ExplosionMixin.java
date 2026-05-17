@@ -57,14 +57,19 @@ abstract class ExplosionMixin implements IExplosionExtension {
         at =
         @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/state/BlockState;onExplosionHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Explosion;Ljava/util/function/BiConsumer;)V",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;"
+                     + "onExplosionHit("
+                     + "Lnet/minecraft/server/level/ServerLevel;"
+                     + "Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/world/level/Explosion;"
+                     + "Ljava/util/function/BiConsumer;)V",
             shift = At.Shift.AFTER
         )
     )
     private void finalizeExplosion(
         List<BlockPos> targetBlocks,
         CallbackInfo ci,
-        @Local BlockPos pos
+        @Local(name = "pos") BlockPos pos
     ) {
         BlockState state = this.level.getBlockState(pos);
         Block block = state.getBlock();
@@ -85,19 +90,19 @@ abstract class ExplosionMixin implements IExplosionExtension {
         @Share("isExplosionBlockTransformed") LocalBooleanRef isExplosionBlockTransformed,
         @Local(index = 22) BlockPos pos
     ) {
-        Block block = level.getBlockState(pos).getBlock();
+        Block block = this.level.getBlockState(pos).getBlock();
         ArrayList<BlockTransform> blockTransforms = new ArrayList<>(this.anvilcraft$blockTransformMap.get(block));
         if (blockTransforms.isEmpty()) return;
-        BlockTransform blockTransform = blockTransforms.get(level.getRandom().nextInt(blockTransforms.size()));
-        if (anvilcraft$counterMap.getOrDefault(blockTransform, 0) >= blockTransform.maxCount()) return;
-        if (anvilcraft$processedPosSet.contains(pos)) return;
-        isExplosionBlockTransformed.set(blockTransform.progress(level, pos));
-        if (isExplosionBlockTransformed.get() && !anvilcraft$processedPosSet.contains(pos)) {
-            anvilcraft$processedPosSet.add(pos);
-            if (anvilcraft$counterMap.containsKey(blockTransform)) {
-                anvilcraft$counterMap.put(blockTransform, anvilcraft$counterMap.get(blockTransform) + 1);
+        BlockTransform blockTransform = blockTransforms.get(this.level.getRandom().nextInt(blockTransforms.size()));
+        if (this.anvilcraft$counterMap.getOrDefault(blockTransform, 0) >= blockTransform.maxCount()) return;
+        if (this.anvilcraft$processedPosSet.contains(pos)) return;
+        isExplosionBlockTransformed.set(blockTransform.progress(this.level, pos));
+        if (isExplosionBlockTransformed.get() && !this.anvilcraft$processedPosSet.contains(pos)) {
+            this.anvilcraft$processedPosSet.add(pos);
+            if (this.anvilcraft$counterMap.containsKey(blockTransform)) {
+                this.anvilcraft$counterMap.put(blockTransform, this.anvilcraft$counterMap.get(blockTransform) + 1);
             } else {
-                anvilcraft$counterMap.put(blockTransform, 1);
+                this.anvilcraft$counterMap.put(blockTransform, 1);
             }
         }
     }
@@ -107,7 +112,12 @@ abstract class ExplosionMixin implements IExplosionExtension {
         at =
         @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;shouldBlockExplode(Lnet/minecraft/world/level/Explosion;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;F)Z"
+            target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;"
+                     + "shouldBlockExplode("
+                     + "Lnet/minecraft/world/level/Explosion;"
+                     + "Lnet/minecraft/world/level/BlockGetter;"
+                     + "Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/world/level/block/state/BlockState;F)Z"
         )
     )
     private boolean anvilcraft$explosionBlockTransform(

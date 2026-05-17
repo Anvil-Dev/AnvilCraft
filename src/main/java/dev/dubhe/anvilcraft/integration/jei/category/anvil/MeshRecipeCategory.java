@@ -55,7 +55,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -92,7 +92,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY) {
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -104,12 +104,12 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         RenderSupport.renderBlock(
             guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
 
-        arrowIn.draw(guiGraphics, 55, 17);
-        slotDefault.draw(guiGraphics, 36, 13);
+        this.arrowIn.draw(guiGraphics, 55, 17);
+        this.slotDefault.draw(guiGraphics, 36, 13);
 
         for (int row = 0; row < MeshRecipeGroup.maxRows; row++) {
             for (int column = 0; column < 9; column++) {
-                slotProbability.draw(guiGraphics, column * 18, ROW_START + row * 18);
+                this.slotProbability.draw(guiGraphics, column * 18, ROW_START + row * 18);
             }
         }
     }

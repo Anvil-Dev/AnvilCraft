@@ -32,8 +32,8 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     BlockPos getPos();
 
     default AABB getShape() {
-        float range = getRange() * 2 + 1;
-        return AABB.ofSize(getPos().getCenter(), range, range, range);
+        float range = this.getRange() * 2 + 1;
+        return AABB.ofSize(this.getPos().getCenter(), range, range, range);
     }
 
     default int getRange() {
@@ -94,7 +94,7 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     @Override
     default int compareTo(IPowerComponent powerComponent) {
         if (this.equals(powerComponent)) return 0;
-        int i = getComponentType().compareTo(powerComponent.getComponentType());
+        int i = this.getComponentType().compareTo(powerComponent.getComponentType());
         return i == 0 ? 1 : i;
     }
 
@@ -107,14 +107,14 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
      */
     default PowerComponentInfo toPowerComponentInfo() {
         return new PowerComponentInfo(
-            getPos(),
+            this.getPos(),
             0,
             0,
             0,
             0,
-            getRange(),
-            getShape(),
-            getComponentType()
+            this.getRange(),
+            this.getShape(),
+            this.getComponentType()
         );
     }
 

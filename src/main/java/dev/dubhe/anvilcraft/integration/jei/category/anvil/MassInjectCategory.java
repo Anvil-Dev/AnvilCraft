@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -32,9 +33,6 @@ import net.minecraft.world.level.block.Blocks;
 import java.util.Comparator;
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity.DISPLAYED_MASS;
-import static dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS;
-
 public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInjectRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -52,14 +50,14 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     private final IDrawable arrowOutputFromBelow;
 
     public MassInjectCategory(IGuiHelper helper) {
-        icon = new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(),
+        this.icon = new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(),
             ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState());
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.mass_inject");
-        timer = helper.createTickTimer(30, 60, true);
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.mass_inject");
+        this.timer = helper.createTickTimer(30, 60, true);
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOutputFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOutputFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
     }
 
     @Override
@@ -69,7 +67,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -84,7 +82,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     @Override
     public IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -97,7 +95,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             .addItemStack(ModItems.NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback(
                 (recipeSlotView, tooltip) -> tooltip.add(
-                    Component.translatable(KEY_MASS_NEEDED, DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
+                    Component.translatable(KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
                 ));
     }
 
@@ -110,7 +108,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         double mouseY
     ) {
         final MassInjectRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -122,11 +120,11 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         RenderSupport.renderBlock(guiGraphics, ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState(),
             81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOutputFromBelow.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        this.arrowOutputFromBelow.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, 1);
-        JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, 1);
+        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 1);
+        JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, 1);
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
@@ -135,7 +133,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             Component.translatable(KEY_MASS_VALUE, recipe.displayMassValue()),
             0, 10, 0xFF000000, false);
         guiGraphics.drawString(Minecraft.getInstance().font,
-            Component.translatable(KEY_ITEMS_NEEDED, Math.ceilDiv(NEUTRONIUM_INGOT_MASS, recipe.getMass())),
+            Component.translatable(KEY_ITEMS_NEEDED, Math.ceilDiv(SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS, recipe.getMass())),
             0, 70, 0xFF000000, false);
         pose.popPose();
     }

@@ -109,7 +109,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         boolean movedByPiston
     ) {
         if (!level.isClientSide()) {
-            checkIfTriggered(level, state, pos);
+            this.checkIfTriggered(level, state, pos);
         }
     }
 
@@ -137,7 +137,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         boolean movedByPiston
     ) {
         if (!level.isClientSide()) {
-            checkIfTriggered(level, state, pos);
+            this.checkIfTriggered(level, state, pos);
         }
     }
 
@@ -147,7 +147,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             BlockState changedState = blockState.setValue(TRIGGERED, !bl);
             level.setBlock(blockPos, changedState, 2);
             if (!bl) {
-                devourBlock((ServerLevel) level, blockPos, blockState.getValue(FACING), 1);
+                this.devourBlock((ServerLevel) level, blockPos, blockState.getValue(FACING), 1);
             }
         }
     }

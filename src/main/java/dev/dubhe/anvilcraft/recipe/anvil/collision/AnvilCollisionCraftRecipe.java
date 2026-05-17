@@ -172,7 +172,7 @@ public record AnvilCollisionCraftRecipe(
          */
         @Override
         public ItemStack getItem(int index) {
-            return items.get(index);
+            return this.items.get(index);
         }
 
         /**
@@ -182,7 +182,7 @@ public record AnvilCollisionCraftRecipe(
          */
         @Override
         public int size() {
-            return items.size();
+            return this.items.size();
         }
     }
 
@@ -347,7 +347,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder hitBlock(TagKey<Block> blockTagKey) {
-            return hitBlock(BlockStatePredicate.builder().of(blockTagKey).build());
+            return this.hitBlock(BlockStatePredicate.builder().of(blockTagKey).build());
         }
 
         /**
@@ -359,7 +359,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder hitBlock(Block block, Map<String, String> states) {
-            return hitBlock(BlockStatePredicate.builder().of(block).build());
+            return this.hitBlock(BlockStatePredicate.builder().of(block).build());
         }
 
         /**
@@ -370,7 +370,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder hitBlock(Block block) {
-            return hitBlock(BlockStatePredicate.builder().of(block).build());
+            return this.hitBlock(BlockStatePredicate.builder().of(block).build());
         }
 
         /**
@@ -413,7 +413,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder outputItem(Item item, int count, float chance) {
-            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, count), chance));
+            return this.outputItem(ChanceItemStack.of(new ItemStackTemplate(item, count), chance));
         }
 
         /**
@@ -425,7 +425,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder outputItem(Item item, int count) {
-            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, count), 1F));
+            return this.outputItem(ChanceItemStack.of(new ItemStackTemplate(item, count), 1F));
         }
 
         /**
@@ -437,7 +437,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder outputItem(Item item, float chance) {
-            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, 1), chance));
+            return this.outputItem(ChanceItemStack.of(new ItemStackTemplate(item, 1), chance));
         }
 
         /**
@@ -448,7 +448,7 @@ public record AnvilCollisionCraftRecipe(
          * @return 构建器实例
          */
         public Builder outputItem(Item item) {
-            return outputItem(ChanceItemStack.of(new ItemStackTemplate(item, 1), 1F));
+            return this.outputItem(ChanceItemStack.of(new ItemStackTemplate(item, 1), 1F));
         }
 
         public Builder speed(int speed) {
@@ -463,7 +463,7 @@ public record AnvilCollisionCraftRecipe(
          */
         @Override
         public ItemStackTemplate getResult() {
-            if (anvil.getStatesCache().isEmpty()) {
+            if (this.anvil.getStatesCache().isEmpty()) {
                 return new ItemStackTemplate(Blocks.ANVIL.asItem());
             }
             return new ItemStackTemplate(this.anvil.getStatesCache().getFirst().getBlock().asItem());
@@ -476,7 +476,14 @@ public record AnvilCollisionCraftRecipe(
          */
         @Override
         public AnvilCollisionCraftRecipe buildRecipe() {
-            return new AnvilCollisionCraftRecipe(anvil, consume, hitBlock, transformBlocks, outputItems, speed);
+            return new AnvilCollisionCraftRecipe(
+                this.anvil,
+                this.consume,
+                this.hitBlock,
+                this.transformBlocks,
+                this.outputItems,
+                this.speed
+            );
         }
 
         /**
@@ -486,10 +493,10 @@ public record AnvilCollisionCraftRecipe(
          */
         @Override
         public void validate(Identifier id) {
-            if (anvil == null) {
+            if (this.anvil == null) {
                 throw new IllegalArgumentException("Recipe has no anvil, RecipeId:" + id);
             }
-            if (hitBlock == null) {
+            if (this.hitBlock == null) {
                 throw new IllegalArgumentException("Recipe has no hitBlock, RecipeId:" + id);
             }
         }
@@ -514,7 +521,7 @@ public record AnvilCollisionCraftRecipe(
             save(
                 recipeOutput,
                 AnvilCraft.of(this.anvil.getKey().getPath() + "_and_" + this.hitBlock.getKey().getPath() + "_" + this.speed)
-                    .withPrefix(getType() + "/")
+                    .withPrefix(this.getType() + "/")
             );
         }
     }

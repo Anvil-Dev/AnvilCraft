@@ -29,13 +29,19 @@ abstract class BlockMixin implements IBlockExtension {
     @Shadow
     private static ThreadLocal<Object2ByteLinkedOpenHashMap<Block.ShapePairKey>> OCCLUSION_CACHE;
 
-
     @Inject(
-        method = "shouldRenderFace(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;)Z",
-        //TODO HEAD
+        method = "shouldRenderFace("
+                 + "Lnet/minecraft/world/level/BlockGetter;"
+                 + "Lnet/minecraft/core/BlockPos;"
+                 + "Lnet/minecraft/world/level/block/state/BlockState;"
+                 + "Lnet/minecraft/world/level/block/state/BlockState;"
+                 + "Lnet/minecraft/core/Direction;)Z",
+        // TODO: HEAD
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/state/BlockState;getFaceOcclusionShape(Lnet/minecraft/core/Direction;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;"
+                     + "getFaceOcclusionShape(Lnet/minecraft/core/Direction;)"
+                     + "Lnet/minecraft/world/phys/shapes/VoxelShape;",
             ordinal = 1
         ),
         cancellable = true

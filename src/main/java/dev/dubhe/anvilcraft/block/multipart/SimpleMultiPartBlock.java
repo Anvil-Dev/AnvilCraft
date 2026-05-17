@@ -66,7 +66,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
     @Nullable
     @Override
     public final BlockState getStateForPlacement(BlockPlaceContext context) {
-        if (!hasEnoughSpace(context.getClickedPos(), context.getLevel())) return null; // 判断是否有足够空间放置方块
+        if (!this.hasEnoughSpace(context.getClickedPos(), context.getLevel())) return null; // 判断是否有足够空间放置方块
         return this.getPlacementState(context);
     }
 

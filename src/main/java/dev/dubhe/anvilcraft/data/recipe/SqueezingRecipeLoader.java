@@ -2,12 +2,11 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.recipe.util.RecipeLoaderUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-
-import static dev.dubhe.anvilcraft.data.recipe.util.RecipeLoaderUtil.getName;
 
 public class SqueezingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -41,6 +40,6 @@ public class SqueezingRecipeLoader {
             .result(result)
             .transform(cauldron)
             .produce(produce)
-            .save(provider, AnvilCraft.of("squeezing/%s_from_%s".formatted(getName(cauldron), getName(requires))));
+            .save(provider, AnvilCraft.of("squeezing/%s_from_%s".formatted(RecipeLoaderUtil.getName(cauldron), RecipeLoaderUtil.getName(requires))));
     }
 }

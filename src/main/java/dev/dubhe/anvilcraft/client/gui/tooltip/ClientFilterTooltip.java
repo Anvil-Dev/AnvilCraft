@@ -29,7 +29,7 @@ public class ClientFilterTooltip implements ClientTooltipComponent {
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphicsExtractor guiGraphics) {
         int i = 0;
-        for (ItemStack stack : content.list()) {
+        for (ItemStack stack : this.content.list()) {
             if (i >= 18) break;
             int row = i / 6;
             int col = i % 6;

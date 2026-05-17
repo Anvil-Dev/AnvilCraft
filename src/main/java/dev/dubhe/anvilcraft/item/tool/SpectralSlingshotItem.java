@@ -338,14 +338,30 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
 
             if (tickPercent >= 0.2F && !this.startSoundPlayed) {
                 this.startSoundPlayed = true;
-                sounds.start()
-                    .ifPresent(sound -> level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), sound.value(), SoundSource.PLAYERS, 0.5F, 1.0F));
+                sounds.start().ifPresent(sound -> level.playSound(
+                    null,
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    sound.value(),
+                    SoundSource.PLAYERS,
+                    0.5F,
+                    1.0F
+                ));
             }
 
             if (tickPercent >= 0.5F && !this.midLoadSoundPlayed) {
                 this.midLoadSoundPlayed = true;
-                sounds.mid()
-                    .ifPresent(sound -> level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), sound.value(), SoundSource.PLAYERS, 0.5F, 1.0F));
+                sounds.mid().ifPresent(sound -> level.playSound(
+                    null,
+                    entity.getX(),
+                    entity.getY(),
+                    entity.getZ(),
+                    sound.value(),
+                    SoundSource.PLAYERS,
+                    0.5F,
+                    1.0F
+                ));
             }
 
             if (tickPercent >= 1.0F && !isCharged(stack) && tryLoadProjectiles(entity, stack)) {

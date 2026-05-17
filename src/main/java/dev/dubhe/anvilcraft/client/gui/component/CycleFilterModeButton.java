@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
+import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -12,8 +13,6 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
-
-import static dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 
 public class CycleFilterModeButton extends Button {
 
@@ -32,7 +31,7 @@ public class CycleFilterModeButton extends Button {
         if (this.isHovered()) {
             graphics.tooltip(
                 Minecraft.getInstance().font,
-                List.of(ClientTooltipComponent.create(getMessage().getVisualOrderText())),
+                List.of(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())),
                 mouseX,
                 mouseY,
                 DefaultTooltipPositioner.INSTANCE,

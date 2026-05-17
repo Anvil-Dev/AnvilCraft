@@ -1,19 +1,19 @@
 package dev.dubhe.anvilcraft.mixin.compat;
 
-//TODO SODIUM HAMMER EFFECT SKIP BLOCK
-//import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-//import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-//import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
-//import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
-//import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
-//import net.minecraft.client.Minecraft;
-//import net.minecraft.client.resources.model.BakedModel;
-//import net.minecraft.core.BlockPos;
-//import net.minecraft.world.level.block.state.BlockState;
-//import org.spongepowered.asm.mixin.Mixin;
-//import org.spongepowered.asm.mixin.injection.At;
+// TODO: SODIUM HAMMER EFFECT SKIP BLOCK
+// import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+// import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+// import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
+// import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
+// import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
+// import net.minecraft.client.Minecraft;
+// import net.minecraft.client.resources.model.BakedModel;
+// import net.minecraft.core.BlockPos;
+// import net.minecraft.world.level.block.state.BlockState;
+// import org.spongepowered.asm.mixin.Mixin;
+// import org.spongepowered.asm.mixin.injection.At;
 
-//@Mixin(ChunkBuilderMeshingTask.class)
+// @Mixin(ChunkBuilderMeshingTask.class)
 abstract class SodiumChunkBuilderMeshingTaskMixin {
 //    @WrapOperation(
 //        method = "execute("

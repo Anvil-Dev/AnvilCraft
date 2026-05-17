@@ -32,7 +32,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
      */
     default void tryAbsorbWater(Level level, BlockPos pos) {
         if (this.removeFluidBreadthFirstSearch(level, pos)) {
-            level.levelEvent(2001, pos, Block.getId(getCheckBlockState()));
+            level.levelEvent(2001, pos, Block.getId(this.getCheckBlockState()));
             level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1F, 1F);
         }
     }
@@ -61,7 +61,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                             if (!bucketPickup
                                 .pickupBlock(null, level, checkedPos, blockState)
                                 .isEmpty()) {
-                                setCheckBlockState(blockState);
+                                this.setCheckBlockState(blockState);
                                 return BlockPos.TraversalNodeStatus.ACCEPT;
                             }
                         }
@@ -81,7 +81,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                             Block.dropResources(blockState, level, checkedPos, blockEntity);
                             level.setBlock(checkedPos, Blocks.AIR.defaultBlockState(), 3);
                         }
-                        setCheckBlockState(blockState);
+                        this.setCheckBlockState(blockState);
                         return BlockPos.TraversalNodeStatus.ACCEPT;
                     }
                 }

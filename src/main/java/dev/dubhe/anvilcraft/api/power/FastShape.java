@@ -14,7 +14,7 @@ public class FastShape {
     }
 
     public boolean inRange(Vec3 pos) {
-        for (AABB aabb : shapes) {
+        for (AABB aabb : this.shapes) {
             if (aabb.contains(pos)) {
                 return true;
             }
@@ -23,7 +23,7 @@ public class FastShape {
     }
 
     public boolean intersects(AABB box) {
-        for (AABB aabb : shapes) {
+        for (AABB aabb : this.shapes) {
             if (aabb.intersects(box)) {
                 return true;
             }
@@ -32,7 +32,7 @@ public class FastShape {
     }
 
     public void add(AABB shape) {
-        shapes.add(shape);
+        this.shapes.add(shape);
     }
 
     public static FastShape create(List<AABB> shapes) {

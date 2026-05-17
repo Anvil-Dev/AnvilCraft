@@ -94,7 +94,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public void save(RecipeOutput output, String id) {
-        this.save(output, AnvilCraft.of(id).withPrefix(getType() + "/"));
+        this.save(output, AnvilCraft.of(id).withPrefix(this.getType() + "/"));
     }
 
     /**

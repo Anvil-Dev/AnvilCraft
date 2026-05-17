@@ -118,7 +118,7 @@ public class ClientEventListener {
         Minecraft minecraft = Minecraft.getInstance();
         long curTime = minecraft.gui.getGuiTicks();
         long deltaTime = curTime - lastThoughtTime;
-        if (deltaTime > ThoughtManager.getMAX_SECONDS() * 20) {
+        if (deltaTime > ThoughtManager.getMaxSeconds() * 20) {
             ThoughtManager.onPostThought();
         }
     }

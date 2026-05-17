@@ -57,7 +57,7 @@ public abstract class DestroyMode {
 
         @Override
         public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
-            createTool((ServerLevel) ctx.level());
+            this.createTool((ServerLevel) ctx.level());
             LootParams.Builder builder = new LootParams.Builder((ServerLevel) ctx.level())
                 .withParameter(LootContextParams.ORIGIN, pos.getCenter())
                 .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
@@ -130,7 +130,7 @@ public abstract class DestroyMode {
 
         @Override
         public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
-            createTool((ServerLevel) ctx.level());
+            this.createTool((ServerLevel) ctx.level());
             LootParams.Builder builder = new LootParams.Builder((ServerLevel) ctx.level())
                 .withParameter(LootContextParams.ORIGIN, pos.getCenter())
                 .withOptionalParameter(LootContextParams.BLOCK_ENTITY, ctx.level().getBlockEntity(pos))
@@ -195,7 +195,7 @@ public abstract class DestroyMode {
     public abstract List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx);
 
     public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx, ItemStack tool) {
-        return apply(state, pos, ctx);
+        return this.apply(state, pos, ctx);
     }
 }
 

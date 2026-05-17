@@ -38,7 +38,7 @@ public class FlexibleMultiPartBlockItem<
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
         for (P part : this.block.getParts()) {
-            BlockPos offset = pos.offset(part.getOffset(state.getValue(block.getAdditionalProperty())));
+            BlockPos offset = pos.offset(part.getOffset(state.getValue(this.block.getAdditionalProperty())));
             BlockState blockState =
                 level.isWaterAt(offset) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
             level.setBlock(offset, blockState, 27);
@@ -50,9 +50,9 @@ public class FlexibleMultiPartBlockItem<
         Vec3i normal = clickedFace.getOpposite().getUnitVec3i();
         int i = 0;
         for (P part : this.block.getParts()) {
-            int x = part.getOffsetX(state.getValue(block.getAdditionalProperty())) * normal.getX()
-                + part.getOffsetY(state.getValue(block.getAdditionalProperty())) * normal.getY()
-                + part.getOffsetZ(state.getValue(block.getAdditionalProperty())) * normal.getZ();
+            int x = part.getOffsetX(state.getValue(this.block.getAdditionalProperty())) * normal.getX()
+                + part.getOffsetY(state.getValue(this.block.getAdditionalProperty())) * normal.getY()
+                + part.getOffsetZ(state.getValue(this.block.getAdditionalProperty())) * normal.getZ();
             i = Math.max(x, i);
         }
         return ++i;
@@ -80,7 +80,7 @@ public class FlexibleMultiPartBlockItem<
                 BlockPos pos = context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(state, clickedFace));
                 List<BlockPos> errorPosList = new ObjectArrayList<>();
                 for (P part : this.block.getParts()) {
-                    BlockPos offset = pos.offset(part.getOffset(state.getValue(block.getAdditionalProperty())));
+                    BlockPos offset = pos.offset(part.getOffset(state.getValue(this.block.getAdditionalProperty())));
                     if (!level.getBlockState(offset).canBeReplaced() || level.isOutsideBuildHeight(offset)) {
                         errorPosList.add(offset);
                     }
@@ -95,7 +95,7 @@ public class FlexibleMultiPartBlockItem<
 
     @Override
     public boolean canPlace(BlockPlaceContext context, BlockState state) {
-        if (!block.hasEnoughSpace(state, context.getClickedPos(), context.getLevel())) return false;
+        if (!this.block.hasEnoughSpace(state, context.getClickedPos(), context.getLevel())) return false;
         return super.canPlace(context, state);
     }
 }

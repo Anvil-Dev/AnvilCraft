@@ -23,15 +23,23 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 public class FilteredItemStackHandler extends ItemStacksResourceHandler {
     public static final MapCodec<FilteredItemStackHandler> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        Codec.BOOL.fieldOf("filterEnabled").forGetter(FilteredItemStackHandler::isFilterEnabled),
+        Codec.BOOL
+            .fieldOf("filterEnabled")
+            .forGetter(FilteredItemStackHandler::isFilterEnabled),
         CodecUtil.createOptionalCodec(ItemStack.CODEC)
             .listOf()
             .fieldOf("filteredItems")
             .forGetter(o -> o.filteredItems.stream()
                 .map(it -> Optional.of(it).filter(ItemStack::isEmpty))
                 .toList()),
-        Codec.BOOL.listOf().fieldOf("disabled").forGetter(FilteredItemStackHandler::getDisabled),
-        Codec.INT.listOf().fieldOf("slotLimits").forGetter(FilteredItemStackHandler::getSlotLimits)
+        Codec.BOOL
+            .listOf()
+            .fieldOf("disabled")
+            .forGetter(FilteredItemStackHandler::getDisabled),
+        Codec.INT
+            .listOf()
+            .fieldOf("slotLimits")
+            .forGetter(FilteredItemStackHandler::getSlotLimits)
     ).apply(ins, FilteredItemStackHandler::new));
 
     private boolean filterEnabled = false;
@@ -93,7 +101,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
 
     @Override
     public void set(int index, ItemResource resource, int amount) {
-        if (!filterEnabled && !resource.isEmpty()) {
+        if (!this.filterEnabled && !resource.isEmpty()) {
             this.setSlotDisabled(index, false);
         }
         super.set(index, resource, amount);

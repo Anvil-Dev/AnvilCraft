@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluidtank.CapacityModifiableFluidHandler;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -19,13 +21,13 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 16 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
-    protected final MyFluidStacksResourceHandler tank = new MyFluidStacksResourceHandler();
+    @Getter
+    protected final CapacityModifiableFluidHandler tank = new CapacityModifiableFluidHandler(1, FluidTankBlockEntity.CAPACITY);
     protected boolean isBigger = false;
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -46,7 +48,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putBoolean("bigger", this.isBigger);
-        tank.serialize(output);
+        this.tank.serialize(output);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         } else {
             this.onUnformed();
         }
-        tank.deserialize(input);
+        this.tank.deserialize(input);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putBoolean("bigger", this.isBigger);
         TagValueOutput valueOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
-        tank.serialize(valueOutput);
+        this.tank.serialize(valueOutput);
         tag.store("tank", CompoundTag.CODEC, valueOutput.buildResult());
         return tag;
     }
@@ -77,24 +79,11 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
-        return FluidUtil.interactWithFluidHandler(player, hand, worldPosition, tank);
+        return FluidUtil.interactWithFluidHandler(player, hand, worldPosition, this.tank);
     }
 
-//    public ResourceHandler<FluidResource> getTank() {
-//        return tank;
-//    }
-
+    @Override
     public ResourceHandler<FluidResource> getFluidHandler() {
-        return tank;
-    }
-
-    public static class MyFluidStacksResourceHandler extends FluidStacksResourceHandler {
-        public MyFluidStacksResourceHandler() {
-            super(1, FluidTankBlockEntity.CAPACITY);
-        }
-
-        public void setCapacity(int capacity) {
-            this.capacity = capacity;
-        }
+        return this.tank;
     }
 }

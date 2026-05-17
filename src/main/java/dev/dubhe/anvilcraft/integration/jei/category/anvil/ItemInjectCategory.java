@@ -46,13 +46,13 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     private final IDrawable arrowOut;
 
     public ItemInjectCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.item_inject");
-        timer = helper.createTickTimer(30, 60, true);
+        this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.item_inject");
+        this.timer = helper.createTickTimer(30, 60, true);
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     @Override
     public IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         double mouseX,
         double mouseY) {
         ItemInjectRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -116,10 +116,10 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         if (renderedState == null) return;
         RenderSupport.renderBlock(guiGraphics, renderedState, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        this.arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
         RenderSupport.renderBlock(
             guiGraphics, recipe.getFirstResultBlock().state(), 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
     }

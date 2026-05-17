@@ -32,23 +32,23 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     protected int getBaseLaserLevel() {
-        return isSwitchedOn() ? 1 : 0;
+        return this.isSwitchedOn() ? 1 : 0;
     }
 
     @Override
     public void tick(Level level) {
         this.resetState();
-        if (getGrid() != null && getBlockState().getValue(RubyLaserBlock.OVERLOAD) == getGrid().isWorking()) {
+        if (this.getGrid() != null && this.getBlockState().getValue(RubyLaserBlock.OVERLOAD) == this.getGrid().isWorking()) {
             level.setBlock(
-                getPos(),
-                getBlockState().setValue(OVERLOAD, !getGrid().isWorking()),
+                this.getPos(),
+                this.getBlockState().setValue(OVERLOAD, !this.getGrid().isWorking()),
                 2
             );
         }
-        if (level.hasNeighborSignal(getBlockPos()) == (getBlockState().getValue(SWITCH) == Switch.ON)) {
+        if (level.hasNeighborSignal(getBlockPos()) == (this.getBlockState().getValue(SWITCH) == Switch.ON)) {
             level.setBlock(
-                getPos(),
-                getBlockState().setValue(
+                this.getPos(),
+                this.getBlockState().setValue(
                     SWITCH,
                     level.hasNeighborSignal(getBlockPos())
                         ? Switch.OFF
@@ -56,15 +56,15 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
                 ),
                 2);
         }
-        if (isSwitchedOn()) {
-            emitLaser(getFacing());
+        if (this.isSwitchedOn()) {
+            this.emitLaser(this.getFacing());
         } else {
             if (irradiateBlockPos != null
                 && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity
             ) {
                 irradiateBlockEntity.onCancelingIrradiation(this);
             }
-            updateIrradiateBlockPos(null);
+            this.updateIrradiateBlockPos(null);
         }
         super.tick(level);
     }

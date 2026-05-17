@@ -25,6 +25,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -82,8 +83,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     public PowerComponentType getComponentType() {
         if (this.getLevel() == null) return PowerComponentType.INVALID;
         if (!this.getBlockState().is(ModBlocks.TESLA_TOWER.get())) return PowerComponentType.INVALID;
-        if (this.getBlockState().getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM)
-            return PowerComponentType.INVALID;
+        if (this.getBlockState().getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM) return PowerComponentType.INVALID;
         return PowerComponentType.CONSUMER;
     }
 
@@ -106,10 +106,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        if (this.targetEntityUUID != null) {
-            output.putLong("TargetEntityUUIDMost", this.targetEntityUUID.getMostSignificantBits());
-            output.putLong("TargetEntityUUIDLeast", this.targetEntityUUID.getLeastSignificantBits());
-        }
+        if (this.targetEntityUUID != null) output.store("TargetEntityUUID", UUIDUtil.CODEC, this.targetEntityUUID);
         if (this.targetLightningRod != null) {
             output.putIntArray(
                 "TargetLightningRod",
@@ -131,11 +128,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        if (input.getLong("TargetEntityUUIDMost").isPresent()) {
-            this.targetEntityUUID = new java.util.UUID(input.getLongOr("TargetEntityUUIDMost", 0L), input.getLongOr("TargetEntityUUIDLeast", 0L));
-        } else {
-            this.targetEntityUUID = null;
-        }
+        this.targetEntityUUID = input.read("TargetEntityUUID", UUIDUtil.CODEC).orElse(null);
         if (input.getIntArray("TargetLightningRod").isPresent()) {
             int[] arr = input.getIntArray("TargetLightningRod").orElse(new int[0]);
             this.targetLightningRod = new BlockPos(arr[0], arr[1], arr[2]);
@@ -200,7 +193,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         this.tickCount--;
         AABB aabb = new AABB(this.getBlockPos().above(3)).expandTowards(8, 8, 8).expandTowards(-8, -8, -8);
         if (this.targetEntity != null) {
-            if (!targetEntity.isAlive()) {
+            if (!this.targetEntity.isAlive()) {
                 this.clearTargetEntity(state);
             } else {
                 AABB boundingBox = this.targetEntity.getBoundingBox();
@@ -222,7 +215,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.targetEntity = targetEntity;
             this.targetEntityUUID = targetEntity.getUUID();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
-            this.targetEntity.hurt(this.level.damageSources().lightningBolt(), 5.0F);
+            // noinspection deprecation
+            this.targetEntity.hurtOrSimulate(this.level.damageSources().lightningBolt(), 5.0F);
         } else {
             ArrayList<BlockPos> lightningRods = new ArrayList<>();
             BlockPos.betweenClosedStream(aabb)

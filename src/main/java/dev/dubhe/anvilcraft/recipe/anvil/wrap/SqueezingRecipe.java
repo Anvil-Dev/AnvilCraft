@@ -362,7 +362,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
 
         @Override
         public SqueezingRecipe buildRecipe() {
-            return new SqueezingRecipe(this.ingredient, this.result, hasCauldron.build(), this.hasAnvil);
+            return new SqueezingRecipe(this.ingredient, this.result, this.hasCauldron.build(), this.hasAnvil);
         }
 
         @Override

@@ -16,6 +16,6 @@ public class CustomRenderItemClientExtension implements IClientItemExtensions {
 
     @Override
     public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-        return renderer;
+        return this.renderer;
     }
 }

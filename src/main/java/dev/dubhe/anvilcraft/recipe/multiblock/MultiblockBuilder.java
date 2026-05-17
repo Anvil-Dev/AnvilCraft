@@ -24,25 +24,25 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
     }
 
     public MultiblockBuilder layer(String... layers) {
-        pattern.layer(layers);
+        this.pattern.layer(layers);
         return this;
     }
 
     public MultiblockBuilder symbol(char symbol, BlockPredicateWithState predicate) {
-        pattern.symbol(symbol, predicate);
+        this.pattern.symbol(symbol, predicate);
         return this;
     }
 
     public MultiblockBuilder symbol(char symbol, Block block) {
-        return symbol(symbol, BlockPredicateWithState.of(block));
+        return this.symbol(symbol, BlockPredicateWithState.of(block));
     }
 
     public MultiblockBuilder symbol(char symbol, Holder<Block> block) {
-        return symbol(symbol, block.value());
+        return this.symbol(symbol, block.value());
     }
 
     public MultiblockBuilder symbol(char symbol, String block) {
-        return symbol(symbol, BlockPredicateWithState.of(block));
+        return this.symbol(symbol, BlockPredicateWithState.of(block));
     }
 
     @Override
@@ -52,10 +52,10 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     @Override
     public void validate(Identifier id) {
-        if (result == null) {
+        if (this.result == null) {
             throw new IllegalArgumentException("Recipe result must not be null, Recipe: " + id);
         }
-        if (!pattern.checkSymbols()) {
+        if (!this.pattern.checkSymbols()) {
             throw new IllegalArgumentException("Recipe pattern must contain all valid symbols: " + id);
         }
     }

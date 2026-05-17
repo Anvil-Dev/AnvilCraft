@@ -184,7 +184,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
 
         @Override
         public ItemStackTemplate getResult() {
-            return WrapUtils.getItem(blockResult);
+            return WrapUtils.getItem(this.blockResult);
         }
 
         @Override

@@ -38,12 +38,12 @@ abstract class PistonStructureResolverMixin {
 
     @Inject(method = "resolve", at = @At("RETURN"))
     private void onPistonResolve(CallbackInfoReturnable<Boolean> cir) {
-        if (level.isClientSide()) {
+        if (this.level.isClientSide()) {
             return;
         }
         if (!cir.getReturnValue()) return;
-        List<BlockPos> toPushBlocks = new ArrayList<>(toPush);
-        PistonMoveBlockListener.onPistonMoveBlocks(level, toPushBlocks);
+        List<BlockPos> toPushBlocks = new ArrayList<>(this.toPush);
+        PistonMoveBlockListener.onPistonMoveBlocks(this.level, toPushBlocks);
     }
 
     @ModifyConstant(method = "addBlockLine", constant = @Constant(intValue = 12, ordinal = 0))

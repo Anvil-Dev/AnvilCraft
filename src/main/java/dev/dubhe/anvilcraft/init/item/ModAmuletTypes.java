@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static dev.dubhe.anvilcraft.init.ModDataAttachments.DISCOUNT_RATE;
-
 public class ModAmuletTypes {
     private static final DeferredRegister<AmuletType> REGISTER = DeferredRegister.create(ModRegistries.AMULET_TYPE_KEY, AnvilCraft.MOD_ID);
 
@@ -40,9 +38,9 @@ public class ModAmuletTypes {
             .obtainByMurder(type)
             .inventoryTick((player, amulet, isEnabled) -> {
                 if (isEnabled) {
-                    player.setData(DISCOUNT_RATE, 0.3F);
+                    player.setData(ModDataAttachments.DISCOUNT_RATE, 0.3F);
                 } else {
-                    player.removeData(DISCOUNT_RATE);
+                    player.removeData(ModDataAttachments.DISCOUNT_RATE);
                 }
             })
             .amulet(ModItems.EMERALD_AMULET)

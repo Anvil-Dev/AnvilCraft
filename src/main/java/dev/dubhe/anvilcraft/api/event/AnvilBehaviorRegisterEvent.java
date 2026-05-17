@@ -17,11 +17,11 @@ public class AnvilBehaviorRegisterEvent extends Event {
     }
 
     public void registerBehavior(Block matchingBlock, IAnvilBehavior behavior) {
-        blockBehaviorRegister.register(matchingBlock, behavior);
+        this.blockBehaviorRegister.register(matchingBlock, behavior);
     }
 
     public void registerBehavior(Predicate<BlockState> pred, IAnvilBehavior behavior) {
-        stateBehaviorRegister.register(pred, behavior);
+        this.stateBehaviorRegister.register(pred, behavior);
     }
 
     public interface BlockBehaviorRegister {

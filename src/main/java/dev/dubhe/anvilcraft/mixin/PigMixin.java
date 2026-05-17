@@ -29,7 +29,7 @@ abstract class PigMixin extends Animal {
             new TemptGoal(
                 this,
                 1.25,
-                stack -> MultitoolItem.isActingAs(stack, MultitoolMode.CARROT_ON_A_STICK_MODE),
+                stack -> MultitoolItem.isActingAs(stack, MultitoolMode.CARROT_ON_A_STICK),
                 false
             )
         );
@@ -43,6 +43,6 @@ abstract class PigMixin extends Animal {
         )
     )
     private boolean getControllingPassenger(Player instance, Item item, Operation<Boolean> original) {
-        return original.call(instance, item) || MultitoolItem.isHolding(instance, MultitoolMode.CARROT_ON_A_STICK_MODE);
+        return original.call(instance, item) || MultitoolItem.isHolding(instance, MultitoolMode.CARROT_ON_A_STICK);
     }
 }

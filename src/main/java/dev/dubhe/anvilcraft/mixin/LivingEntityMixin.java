@@ -196,21 +196,21 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
         }
     }
 
-//    @WrapOperation(
-//        method = "removeAllEffects",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Ljava/util/Set;contains(Ljava/lang/Object;)Z"
-//        )
-//    )
-//    private boolean preventRemovalRageEffect(
-//        Set<EffectCure> instance,
-//        Object o,
-//        Operation<Boolean> original,
-//        @Local MobEffectInstance effect
-//    ) {
-//        return original.call(instance, o) && !effect.is(ModMobEffects.RAGE);
-//    }
+    // @WrapOperation(
+    //     method = "removeAllEffects",
+    //     at = @At(
+    //         value = "INVOKE",
+    //         target = "Ljava/util/Set;contains(Ljava/lang/Object;)Z"
+    //     )
+    // )
+    // private boolean preventRemovalRageEffect(
+    //     Set<EffectCure> instance,
+    //     Object o,
+    //     Operation<Boolean> original,
+    //     @Local MobEffectInstance effect
+    // ) {
+    //     return original.call(instance, o) && !effect.is(ModMobEffects.RAGE);
+    // }
 
     @Inject(
         method = "hurtServer",

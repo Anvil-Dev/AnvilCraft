@@ -37,7 +37,7 @@ public class LevelLike implements BlockAndLightGetter {
     }
 
     public int horizontalSize() {
-        Set<BlockPos> keys = blocks.keySet();
+        Set<BlockPos> keys = this.blocks.keySet();
         return Math.max(
             keys.stream()
                 .map(BlockPos::getX)
@@ -52,7 +52,7 @@ public class LevelLike implements BlockAndLightGetter {
     }
 
     public int verticalSize() {
-        Set<BlockPos> keys = blocks.keySet();
+        Set<BlockPos> keys = this.blocks.keySet();
         return keys.stream()
             .map(BlockPos::getY)
             .max(Integer::compare)
@@ -62,12 +62,12 @@ public class LevelLike implements BlockAndLightGetter {
 
     @Override
     public @Nullable BlockEntity getBlockEntity(BlockPos blockPos) {
-        return blockEntities.get(blockPos);
+        return this.blockEntities.get(blockPos);
     }
 
     public void setBlockState(BlockPos pos, BlockState state) {
-        blockEntities.remove(pos);
-        blocks.put(pos, state);
+        this.blockEntities.remove(pos);
+        this.blocks.put(pos, state);
         // BlockEntities stored in LevelLike is only for render
         // If any block entity don't have its own renderer we don't need to store an instance for it
         if (state.getBlock() instanceof EntityBlock entityBlock) {
@@ -76,45 +76,45 @@ public class LevelLike implements BlockAndLightGetter {
             if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
             blockEntity.setLevel(this.parent);
             blockEntity.setBlockState(state);
-            blockEntities.put(pos, blockEntity);
+            this.blockEntities.put(pos, blockEntity);
         }
     }
 
     public BlockState getBlockState(BlockPos pos) {
-        if (!allLayersVisible && pos.getY() != currentVisibleLayer) return Blocks.AIR.defaultBlockState();
-        return blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
+        if (!this.allLayersVisible && pos.getY() != this.currentVisibleLayer) return Blocks.AIR.defaultBlockState();
+        return this.blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
     }
 
     @Override
     public FluidState getFluidState(BlockPos blockPos) {
-        return getBlockState(blockPos).getFluidState();
+        return this.getBlockState(blockPos).getFluidState();
     }
 
-//    @Override
-//    public float getShade(Direction direction, boolean b) {
-//        boolean flag = parent.effects().constantAmbientLight();
-//        if (!b) {
-//            return flag ? 0.9F : 1.0F;
-//        } else {
-//            return switch (direction) {
-//                case DOWN -> flag ? 0.9F : 0.5F;
-//                case UP -> flag ? 0.9F : 1.0F;
-//                case NORTH, SOUTH -> 0.8F;
-//                case WEST, EAST -> 0.6F;
-//            };
-//        }
-//    }
+    // @Override
+    // public float getShade(Direction direction, boolean b) {
+    //     boolean flag = parent.effects().constantAmbientLight();
+    //     if (!b) {
+    //         return flag ? 0.9F : 1.0F;
+    //     } else {
+    //         return switch (direction) {
+    //             case DOWN -> flag ? 0.9F : 0.5F;
+    //             case UP -> flag ? 0.9F : 1.0F;
+    //             case NORTH, SOUTH -> 0.8F;
+    //             case WEST, EAST -> 0.6F;
+    //         };
+    //     }
+    // }
 
     @Override
     public LevelLightEngine getLightEngine() {
         return null;
     }
 
-//    @Override
-//    public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
-//        var plains = parent.registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
-//        return colorResolver.getColor(plains, blockPos.getX(), blockPos.getZ());
-//    }
+    // @Override
+    // public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
+    //     var plains = parent.registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
+    //     return colorResolver.getColor(plains, blockPos.getX(), blockPos.getZ());
+    // }
 
     @Override
     public int getHeight() {
@@ -137,18 +137,18 @@ public class LevelLike implements BlockAndLightGetter {
     }
 
     public void nextLayer() {
-        if (currentVisibleLayer >= verticalSize() - 1) {
-            currentVisibleLayer = 0;
+        if (this.currentVisibleLayer >= this.verticalSize() - 1) {
+            this.currentVisibleLayer = 0;
         } else {
-            currentVisibleLayer++;
+            this.currentVisibleLayer++;
         }
     }
 
     public void previousLayer() {
-        if (currentVisibleLayer <= 0) {
-            currentVisibleLayer = verticalSize() - 1;
+        if (this.currentVisibleLayer <= 0) {
+            this.currentVisibleLayer = this.verticalSize() - 1;
         } else {
-            currentVisibleLayer--;
+            this.currentVisibleLayer--;
         }
     }
 

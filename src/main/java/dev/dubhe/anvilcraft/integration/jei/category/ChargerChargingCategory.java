@@ -44,12 +44,12 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     private static final String KEY_TIME = KEY_CATEGORY + ".time";
 
     public ChargerChargingCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(ModBlocks.CHARGER.asStack());
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.charger_charging");
+        this.icon = helper.createDrawableItemStack(ModBlocks.CHARGER.asStack());
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.charger_charging");
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
 
     @Override
     public IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -106,11 +106,11 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
             12,
             RenderSupport.SINGLE_BLOCK);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        this.arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, 1);
-        JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, 1);
+        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 1);
+        JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, 1);
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();

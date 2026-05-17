@@ -131,11 +131,17 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
     }
 
     @Override
-    public void draw(TranscendiumRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
+    public void draw(
+        TranscendiumRecipe recipe,
+        IRecipeSlotsView recipeSlotsView,
+        GuiGraphicsExtractor guiGraphics,
+        double mouseX,
+        double mouseY
+    ) {
         final int recipeId = recipe.recipeId();
-        slotDefault.draw(guiGraphics, 20, 23);
-        arrowIn.draw(guiGraphics, 54, 30);
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        this.slotDefault.draw(guiGraphics, 20, 23);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20, 12, RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(
             guiGraphics,
@@ -146,21 +152,21 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
             12,
             RenderSupport.SINGLE_BLOCK
         );
-        arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowOut.draw(guiGraphics, 92, 29);
         switch (recipeId) {
-            case 0 -> slotDefault.draw(guiGraphics, 124, 23);
+            case 0 -> this.slotDefault.draw(guiGraphics, 124, 23);
             case 1 -> {
-                slotChance.draw(guiGraphics, 115, 14);
-                slotDefault.draw(guiGraphics, 133, 14);
-                slotDefault.draw(guiGraphics, 115, 32);
+                this.slotChance.draw(guiGraphics, 115, 14);
+                this.slotDefault.draw(guiGraphics, 133, 14);
+                this.slotDefault.draw(guiGraphics, 115, 32);
             }
             case 2 -> {
-                slotDefault.draw(guiGraphics, 115, 14);
-                slotDefault.draw(guiGraphics, 133, 14);
-                slotDefault.draw(guiGraphics, 115, 32);
+                this.slotDefault.draw(guiGraphics, 115, 14);
+                this.slotDefault.draw(guiGraphics, 133, 14);
+                this.slotDefault.draw(guiGraphics, 115, 32);
             }
             case 3 -> {
-                slotDefault.draw(guiGraphics, 124, 14);
+                this.slotDefault.draw(guiGraphics, 124, 14);
                 RenderSupport.renderBlock(
                     guiGraphics,
                     ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(),
@@ -172,8 +178,8 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
                 );
             }
             case 4 -> {
-                slotDefault.draw(guiGraphics, 115, 14);
-                slotDefault.draw(guiGraphics, 133, 14);
+                this.slotDefault.draw(guiGraphics, 115, 14);
+                this.slotDefault.draw(guiGraphics, 133, 14);
                 RenderSupport.renderBlock(
                     guiGraphics,
                     ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(),

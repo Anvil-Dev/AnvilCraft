@@ -52,12 +52,12 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
     private static final String KEY_CHANCE = "gui.anvilcraft.category.mob_transform_with_item.chance_per_item";
 
     public MobTransformWithItemCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(ModBlocks.CORRUPTED_BEACON.asStack());
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        title = Component.translatable(KEY_CATEGORY);
+        this.icon = helper.createDrawableItemStack(ModBlocks.CORRUPTED_BEACON.asStack());
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
+        this.title = Component.translatable(KEY_CATEGORY);
 
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
     }
 
     @Override
@@ -67,12 +67,12 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -161,13 +161,13 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
             RenderSupport.SINGLE_BLOCK
         );
 
-        arrowDefault.draw(guiGraphics, 74, 22);
+        this.arrowDefault.draw(guiGraphics, 74, 22);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, 2);
+        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 2);
         if (recipe.chancePercentPerItem() == 0) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, 2);
+            JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, 2);
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, 2);
+            JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotProbability, 2);
         }
 
         PoseStack pose = guiGraphics.pose();

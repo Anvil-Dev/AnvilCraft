@@ -14,6 +14,6 @@ public class DistanceComparator implements Comparator<Vec3> {
 
     @Override
     public int compare(Vec3 o1, Vec3 o2) {
-        return Double.compare(center.distanceTo(o1), center.distanceTo(o2));
+        return Double.compare(this.center.distanceTo(o1), this.center.distanceTo(o2));
     }
 }

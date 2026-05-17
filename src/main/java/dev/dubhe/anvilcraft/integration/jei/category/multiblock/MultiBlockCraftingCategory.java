@@ -66,29 +66,29 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     private final ITickTimer timer;
 
     public MultiBlockCraftingCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
-        arrowOut = JeiRenderHelper.getArrowInput(helper);
-        slot = JeiRenderHelper.getSlotDefault(helper);
-        timer = helper.createTickTimer(30, 60, true);
-        conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_CRAFTING, 0, 0, 594, 418)
+        this.icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
+        this.arrowOut = JeiRenderHelper.getArrowInput(helper);
+        this.slot = JeiRenderHelper.getSlotDefault(helper);
+        this.timer = helper.createTickTimer(30, 60, true);
+        this.conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_CRAFTING, 0, 0, 594, 418)
             .setTextureSize(594, 418)
             .build();
-        layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
+        this.layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
+        this.layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
+        this.layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
+        this.layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
+        this.renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
+        this.renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
     }
@@ -115,12 +115,12 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
-        cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
+        this.cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
             .addItemStack(recipe.value().getResult().copy());
 
@@ -144,10 +144,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         double mouseX,
         double mouseY
     ) {
-        LevelLike level = cache.get(recipe);
+        LevelLike level = this.cache.get(recipe);
         if (level == null) {
             level = RecipeUtil.asLevelLike(recipe.value().pattern);
-            cache.put(recipe, level);
+            this.cache.put(recipe, level);
         }
         final boolean renderAllLayers = level.isAllLayersVisible();
         final int visibleLayer = level.getCurrentVisibleLayer();
@@ -158,19 +158,19 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         Component component;
         if (renderAllLayers) {
             component = Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
-            renderSwitchOff.draw(guiGraphics, 125, 10);
+            this.renderSwitchOff.draw(guiGraphics, 125, 10);
         } else {
             component =
                 Component.translatable("gui.anvilcraft.category.multiblock.single_layer", visibleLayer + 1, sizeY);
-            renderSwitchOn.draw(guiGraphics, 125, 10);
+            this.renderSwitchOn.draw(guiGraphics, 125, 10);
             this.layerUpButton(mouseX, mouseY).draw(guiGraphics, 137, 10);
             this.layerDownButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
         }
         pose.pushPose();
         pose.scale(0.03F, 0.03F, 1.0F);
-        conversion.draw(guiGraphics, 4300, 1700);
+        this.conversion.draw(guiGraphics, 4300, 1700);
         pose.popPose();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
         RenderSupport.renderBlock(
             guiGraphics,
             ModBlocks.GIANT_ANVIL.getDefaultState()
@@ -193,22 +193,22 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             85, 115, 0xFF000000, false
         );
         pose.popPose();
-        arrowOut.draw(guiGraphics, 110, 60);
-        slot.draw(guiGraphics, 129, 69);
+        this.arrowOut.draw(guiGraphics, 110, 60);
+        this.slot.draw(guiGraphics, 129, 69);
 
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < 9; j++) {
-                slot.draw(guiGraphics, j * 18, START_HEIGHT + i * 18);
+                this.slot.draw(guiGraphics, j * 18, START_HEIGHT + i * 18);
             }
         }
     }
 
     private IDrawable layerUpButton(double mouseX, double mouseY) {
-        return (mouseX >= 137 && mouseX < 147 && mouseY >= 10 && mouseY < 20) ? layerUpHovered : layerUp;
+        return (mouseX >= 137 && mouseX < 147 && mouseY >= 10 && mouseY < 20) ? this.layerUpHovered : this.layerUp;
     }
 
     private IDrawable layerDownButton(double mouseX, double mouseY) {
-        return (mouseX >= 149 && mouseX < 159 && mouseY >= 10 && mouseY < 20) ? layerDownHovered : layerDown;
+        return (mouseX >= 149 && mouseX < 159 && mouseY >= 10 && mouseY < 20) ? this.layerDownHovered : this.layerDown;
     }
 
     @Override

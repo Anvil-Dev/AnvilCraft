@@ -96,12 +96,12 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Override
     public boolean anvilcraft$isDeflected() {
-        return anvil$isDeflected;
+        return this.anvil$isDeflected;
     }
 
     @Override
     public Vec3 anvilcraft$getFixedDeltaMovement() {
-        return anvil$fixedDeltaMovement;
+        return this.anvil$fixedDeltaMovement;
     }
 
     @WrapOperation(
@@ -118,12 +118,12 @@ public abstract class EntityMixin implements IEntityExtension {
         @Share("isFixed") LocalBooleanRef isFixed
     ) {
         isFixed.set(false);
-        Vec3 vec3 = new Vec3(pos.x - getX(), pos.y - getY(), pos.z - getZ());
+        Vec3 vec3 = new Vec3(pos.x - this.getX(), pos.y - this.getY(), pos.z - this.getZ());
         if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class, Player.class) && vec3.length() > 0.98) {
-            Vec3 s = position();
+            Vec3 s = this.position();
             Vec3 e = vec3.add(s);
             ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
-            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(level)) {
+            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(this.level)) {
                 Vec3 q = blockPos.getCenter();
                 double a = s.distanceTo(q);
                 double b = e.distanceTo(q);
@@ -143,25 +143,25 @@ public abstract class EntityMixin implements IEntityExtension {
                 }
             }
             if (blockPos == null) {
-                anvil$isDeflected = false;
-                setPos(e);
+                this.anvil$isDeflected = false;
+                this.setPos(e);
                 return;
             }
             double a = distance / vec3.length();
 
             if (a > 1) {
-                anvil$isDeflected = false;
-                setPos(e);
+                this.anvil$isDeflected = false;
+                this.setPos(e);
                 return;
             }
-            setPos(vec3.multiply(a, a, a).add(s));
+            this.setPos(vec3.multiply(a, a, a).add(s));
             isFixed.set(true);
-            anvil$fixedDeltaMovement = vec3.multiply(a, a, a);
-            anvil$isDeflected = true;
+            this.anvil$fixedDeltaMovement = vec3.multiply(a, a, a);
+            this.anvil$isDeflected = true;
 
             return;
         }
-        anvil$isDeflected = false;
+        this.anvil$isDeflected = false;
         original.call(instance, pos);
     }
 
@@ -188,13 +188,13 @@ public abstract class EntityMixin implements IEntityExtension {
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
     public void anvilcraft$changeProjectilePosSetResult(double x, double y, double z, CallbackInfo ci) {
         if (!Util.instanceOfAny(this, Projectile.class)) return;
-        Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
-        if (vec3.add(getDeltaMovement().scale(-1)).length() > 0.5) return;
+        Vec3 vec3 = new Vec3(x - this.getX(), y - this.getY(), z - this.getZ());
+        if (vec3.add(this.getDeltaMovement().scale(-1)).length() > 0.5) return;
         if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class) && vec3.length() > 0.98) {
-            Vec3 s = position();
+            Vec3 s = this.position();
             Vec3 e = vec3.add(s);
             ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
-            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(level)) {
+            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(this.level)) {
                 Vec3 q = blockPos.getCenter();
                 double a = s.distanceTo(q);
                 double b = e.distanceTo(q);
@@ -218,8 +218,8 @@ public abstract class EntityMixin implements IEntityExtension {
 
             if (a > 1) return;
             Vec3 pos = vec3.multiply(a, a, a).add(s);
-            setPosRaw(pos.x, pos.y, pos.z);
-            setBoundingBox(makeBoundingBox());
+            this.setPosRaw(pos.x, pos.y, pos.z);
+            this.setBoundingBox(this.makeBoundingBox());
             ci.cancel();
         }
     }
@@ -247,20 +247,21 @@ public abstract class EntityMixin implements IEntityExtension {
         BlockPos blockPos = BlockPos.containing(this.position.add(beforeBoundingMovement.get()
             .scale(0.55 / beforeBoundingMovement.get().length())
             .multiply(1, 0, 1)));
-        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, beforeBoundingMovement.get().length()));
+        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(this.level, blockPos, self, beforeBoundingMovement.get().length()));
     }
 
     @WrapOperation(
         method = "handlePortal",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/world/entity/Entity;"
+            target = "Lnet/minecraft/world/entity/Entity;teleport("
+                     + "Lnet/minecraft/world/level/portal/TeleportTransition;)"
+                     + "Lnet/minecraft/world/entity/Entity;"
         )
     )
     @SuppressWarnings("deprecation")
     private Entity handlePortal(Entity instance, TeleportTransition transition, Operation<Entity> original) {
-        if (!(this.portalProcess instanceof PortalProcessorAccessor accessor))
-            return original.call(instance, transition);
+        if (!(this.portalProcess instanceof PortalProcessorAccessor accessor)) return original.call(instance, transition);
         Block portal = Util.cast(accessor.getPortal());
         EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(
             this.level,

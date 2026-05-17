@@ -49,10 +49,10 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     private final Component title;
 
     public SqueezingCategory(IGuiHelper helper) {
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
-        icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
-        title = Component.translatable("gui.anvilcraft.category.squeezing");
-        timer = helper.createTickTimer(30, 60, true);
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
+        this.title = Component.translatable("gui.anvilcraft.category.squeezing");
+        this.timer = helper.createTickTimer(30, 60, true);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -141,7 +141,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         double mouseY
     ) {
         SqueezingRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -162,7 +162,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         RenderSupport.renderBlock(guiGraphics, renderedState, 50, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
 
-        arrowDefault.draw(guiGraphics, 73, 35);
+        this.arrowDefault.draw(guiGraphics, 73, 35);
 
         RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(guiGraphics, getCauldron(recipe), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK);

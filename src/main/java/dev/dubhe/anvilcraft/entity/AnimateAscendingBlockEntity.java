@@ -102,7 +102,7 @@ public class AnimateAscendingBlockEntity extends Entity {
         BlockPos eyePos = BlockPos.containing(this.getEyePosition());
         BlockPos up = current.above();
         BlockState bs = this.level().getBlockState(up);
-        if (!bs.isAir() || current.getY() >= getEndPos().getY() || eyePos.getY() >= getEndPos().getY()) {
+        if (!bs.isAir() || current.getY() >= this.getEndPos().getY() || eyePos.getY() >= this.getEndPos().getY()) {
             this.discard();
         }
         this.setDeltaMovement(this.getDeltaMovement().scale(0.98));

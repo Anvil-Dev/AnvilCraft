@@ -18,8 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.minecraft.core.dispenser.DefaultDispenseItemBehavior.spawnItem;
-
 @Mixin(DefaultDispenseItemBehavior.class)
 public abstract class DefaultDispenseItemBehaviorMixin {
     @Inject(
@@ -27,36 +25,37 @@ public abstract class DefaultDispenseItemBehaviorMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;split(I)Lnet/minecraft/world/item/ItemStack;"),
         cancellable = true
     )
-    @SuppressWarnings("resource")
-    public void betterDispense(BlockSource blockSource, ItemStack item, CallbackInfoReturnable<ItemStack> cir) {
-        if (!(item.getItem() instanceof BucketItem)
-            && !item.is(Items.POWDER_SNOW_BUCKET)
-            && !item.is(Items.GLASS_BOTTLE)
-            && !item.is(Items.HONEY_BOTTLE)
-            && !item.is(Items.POTION)) {
+    public void betterDispense(BlockSource source, ItemStack dispensed, CallbackInfoReturnable<ItemStack> cir) {
+        if (
+            !(dispensed.getItem() instanceof BucketItem)
+            && !dispensed.is(Items.POWDER_SNOW_BUCKET)
+            && !dispensed.is(Items.GLASS_BOTTLE)
+            && !dispensed.is(Items.HONEY_BOTTLE)
+            && !dispensed.is(Items.POTION)
+        ) {
             return;
         }
-        Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
-        BlockPos targetBlockPos = blockSource.pos().relative(direction);
-        BlockState targetState = blockSource.level().getBlockState(targetBlockPos);
+        Direction direction = source.state().getValue(DispenserBlock.FACING);
+        BlockPos targetBlockPos = source.pos().relative(direction);
+        BlockState targetState = source.level().getBlockState(targetBlockPos);
         if (!(targetState.getBlock() instanceof AbstractCauldronBlock cauldronBlock)) return;
         Player player = AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer();
-        ItemStack itemStack = item.copy();
+        ItemStack itemStack = dispensed.copy();
         itemStack.setCount(1);
         player.setItemInHand(player.getUsedItemHand(), itemStack);
-        cauldronBlock.useItemOn(itemStack, targetState, blockSource.level(), targetBlockPos, player, player.getUsedItemHand(), null);
+        cauldronBlock.useItemOn(itemStack, targetState, source.level(), targetBlockPos, player, player.getUsedItemHand(), null);
         ItemStack result = player.getItemInHand(player.getUsedItemHand());
-        if (result.is(item.getItem())) return;
+        if (result.is(dispensed.getItem())) return;
         ItemStack out;
-        if (item.getCount() == 1) {
+        if (dispensed.getCount() == 1) {
             out = result;
         } else {
-            out = item;
+            out = dispensed;
             out.split(1);
-            ItemStack insertResult = blockSource.blockEntity().insertItem(result);
+            ItemStack insertResult = source.blockEntity().insertItem(result);
             if (!insertResult.isEmpty()) {
-                Position position = DispenserBlock.getDispensePosition(blockSource);
-                spawnItem(blockSource.level(), insertResult, 6, direction, position);
+                Position position = DispenserBlock.getDispensePosition(source);
+                DefaultDispenseItemBehavior.spawnItem(source.level(), insertResult, 6, direction, position);
             }
         }
         cir.setReturnValue(out);

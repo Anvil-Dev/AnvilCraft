@@ -46,7 +46,7 @@ public class ShovelEatableCakeBlock extends Block {
             return InteractionResult.PASS;
         }
         if (level.isClientSide()) {
-            if (eat(level, pos, player, getFoodLevel(), getSaturationLevel()).consumesAction()) {
+            if (eat(level, pos, player, this.getFoodLevel(), this.getSaturationLevel()).consumesAction()) {
                 return InteractionResult.SUCCESS;
             }
 
@@ -54,7 +54,7 @@ public class ShovelEatableCakeBlock extends Block {
                 return InteractionResult.CONSUME;
             }
         } else {
-            InteractionResult result = eat(level, pos, player, getFoodLevel(), getSaturationLevel());
+            InteractionResult result = eat(level, pos, player, this.getFoodLevel(), this.getSaturationLevel());
             if (result == InteractionResult.SUCCESS) itemStack.hurtAndBreak(1, player, hand.asEquipmentSlot());
             return result;
         }

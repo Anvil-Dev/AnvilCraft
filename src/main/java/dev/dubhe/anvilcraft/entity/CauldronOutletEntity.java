@@ -80,7 +80,7 @@ public class CauldronOutletEntity extends Entity {
                 BlockState targetState = this.level().getBlockState(this.targetPos);
 
                 if (targetState.is(BlockTags.CAULDRONS)) { // A：目标已经变成了炼药锅 -> 移动结束，落地
-                    moveToBlock(this.targetPos, targetState);
+                    this.moveToBlock(this.targetPos, targetState);
                     // 落地瞬间暂不处理物品
                     return;
                 } else if (targetState.is(Blocks.MOVING_PISTON)) { // B：目标还是移动活塞 -> 正在动画中，原地等待
@@ -96,12 +96,12 @@ public class CauldronOutletEntity extends Entity {
             if (currentState.is(Blocks.MOVING_PISTON)) {
                 BlockEntity be = this.level().getBlockEntity(this.getCauldronPos());
                 if (be instanceof PistonMovingBlockEntity pistonBe) {
-                    Direction moveDir = getMovementDirection(pistonBe);
+                    Direction moveDir = this.getMovementDirection(pistonBe);
 
                     if (pistonBe.isSourcePiston()) {
                         // A：我是源头。炼药锅正在离我而去 -> 立即追过去
                         BlockPos destPos = this.getCauldronPos().relative(moveDir);
-                        manualMove(destPos);
+                        this.manualMove(destPos);
                         return;
                     } else {
                         // B：我是目的地。说明有方块正在推入这里 -> 检查是不是连环推
@@ -112,16 +112,19 @@ public class CauldronOutletEntity extends Entity {
                         if (nextState.is(Blocks.MOVING_PISTON)) {
                             BlockEntity nextBe = this.level().getBlockEntity(nextPos);
                             // 检查链条一致性
-                            if (nextBe instanceof PistonMovingBlockEntity nextPistonBe && nextPistonBe.getMovedState()
-                                .is(BlockTags.CAULDRONS) && !nextPistonBe.isSourcePiston() && getMovementDirection(nextPistonBe).equals(
-                                moveDir)) {
+                            if (
+                                nextBe instanceof PistonMovingBlockEntity nextPistonBe
+                                && nextPistonBe.getMovedState().is(BlockTags.CAULDRONS)
+                                && !nextPistonBe.isSourcePiston()
+                                && this.getMovementDirection(nextPistonBe).equals(moveDir)
+                            ) {
                                 isChainPush = true;
                             }
                         }
 
                         if (isChainPush) {
                             // 确认是连环推 -> 移动到下一格
-                            manualMove(nextPos);
+                            this.manualMove(nextPos);
                         } else {
                             // 只是普通的被推入，原地等待变回实体
                             this.wasMoving = true;
@@ -144,12 +147,12 @@ public class CauldronOutletEntity extends Entity {
                     if (neighborState.is(Blocks.MOVING_PISTON)) {
                         BlockEntity be = this.level().getBlockEntity(neighborPos);
                         if (be instanceof PistonMovingBlockEntity pistonBe && !pistonBe.isSourcePiston()) {
-                            Direction moveDir = getMovementDirection(pistonBe);
+                            Direction moveDir = this.getMovementDirection(pistonBe);
                             BlockPos originPos = neighborPos.relative(moveDir.getOpposite());
 
                             if (originPos.equals(this.getCauldronPos())) {
                                 // 发现拉取 -> 锁定目标到邻居
-                                manualMove(neighborPos);
+                                this.manualMove(neighborPos);
                                 foundPullingPiston = true;
                                 break;
                             }
@@ -218,7 +221,7 @@ public class CauldronOutletEntity extends Entity {
     // 辅助方法：统一处理移动和锁定
     private void manualMove(BlockPos destPos) {
         // 更新物理位置
-        moveToBlock(destPos, this.level().getBlockState(destPos));
+        this.moveToBlock(destPos, this.level().getBlockState(destPos));
         // 设置状态
         this.wasMoving = true;
         // 锁定目标

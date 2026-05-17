@@ -30,13 +30,13 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        cooldown = input.getIntOr("Cooldown", 0);
+        this.cooldown = input.getIntOr("Cooldown", 0);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("Cooldown", cooldown);
+        output.putInt("Cooldown", this.cooldown);
     }
 
     @Override
@@ -59,8 +59,8 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     }
 
     public void tick() {
-        if (cooldown > 0) {
-            cooldown--;
+        if (this.cooldown > 0) {
+            this.cooldown--;
         } else {
             if (getGrid() == null) return;
             flushState(getLevel(), getBlockPos());
@@ -72,7 +72,7 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
                 : 0;
             BlockState state = getBlockState().setValue(LoadMonitorBlock.LOAD, load);
             getLevel().setBlockAndUpdate(getBlockPos(), state);
-            cooldown = AnvilCraft.CONFIG.loadMonitor;
+            this.cooldown = AnvilCraft.CONFIG.loadMonitor;
             getLevel().updateNeighbourForOutputSignal(getBlockPos(), state.getBlock());
         }
     }

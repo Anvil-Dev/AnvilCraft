@@ -50,7 +50,7 @@ public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TimeCountedPressurePlateBlockEntity(pos, state, needTick);
+        return new TimeCountedPressurePlateBlockEntity(pos, state, this.needTick);
     }
 
     @Override

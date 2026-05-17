@@ -33,7 +33,7 @@ public class EmberMetalBlock extends Block implements IEmberBlock {
         BlockPos pos,
         RandomSource random
     ) {
-        if (random.nextDouble() <= waterAbsorptionChance) {
+        if (random.nextDouble() <= this.waterAbsorptionChance) {
             tryAbsorbWater(level, pos);
         }
     }

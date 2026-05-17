@@ -92,7 +92,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new PowerConverterBlockEntity(ModBlockEntities.POWER_CONVERTER.get(), pos, state, inputPower);
+        return new PowerConverterBlockEntity(ModBlockEntities.POWER_CONVERTER.get(), pos, state, this.inputPower);
     }
 
     @Override

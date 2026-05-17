@@ -21,12 +21,12 @@ public class CrabTrapBlockEntity extends BlockEntity implements IItemResourceHan
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        itemHandler.serialize(output.child("Inventory"));
+        this.itemHandler.serialize(output.child("Inventory"));
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        itemHandler.deserialize(input.childOrEmpty("Inventory"));
+        this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
     }
 }

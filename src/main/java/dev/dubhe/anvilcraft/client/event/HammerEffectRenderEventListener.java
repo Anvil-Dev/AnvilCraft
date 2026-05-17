@@ -66,9 +66,7 @@ public class HammerEffectRenderEventListener {
         );
         event.getRenderState().setRenderData(HammerEffectRenderEventListener.HAMMER_STATE, model);
     }
-
-
-    //TODO change event stage
+    
     @SubscribeEvent
     public static void onRender(RenderLevelStageEvent.AfterOpaqueFeatures event) {
         Minecraft mc = Minecraft.getInstance();

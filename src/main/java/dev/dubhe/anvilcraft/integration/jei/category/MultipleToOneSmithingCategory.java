@@ -102,9 +102,9 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
         double mouseX,
         double mouseY
     ) {
-        background.draw(guiGraphics);
+        this.background.draw(guiGraphics);
         for (int i = Math.min(8, recipe.value().getInputs().size()); i < 8; i++) {
-            disabledSlotIcon.draw(guiGraphics, INPUT_X[i], INPUT_Y[i]);
+            this.disabledSlotIcon.draw(guiGraphics, INPUT_X[i], INPUT_Y[i]);
         }
     }
 

@@ -18,10 +18,23 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class SectionCompilerMixin {
 
     @WrapOperation(
-        method = "compile(Lnet/minecraft/core/SectionPos;Lnet/minecraft/client/renderer/chunk/RenderSectionRegion;Lcom/mojang/blaze3d/vertex/VertexSorting;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;Ljava/util/List;)Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;",
+        method = "compile("
+                 + "Lnet/minecraft/core/SectionPos;"
+                 + "Lnet/minecraft/client/renderer/chunk/RenderSectionRegion;"
+                 + "Lcom/mojang/blaze3d/vertex/VertexSorting;"
+                 + "Lnet/minecraft/client/renderer/SectionBufferBuilderPack;"
+                 + "Ljava/util/List;)"
+                 + "Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;tesselateBlock(Lnet/minecraft/client/renderer/block/BlockQuadOutput;FFFLnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;J)V"
+            target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;"
+                     + "tesselateBlock("
+                     + "Lnet/minecraft/client/renderer/block/BlockQuadOutput;"
+                     + "FFF"
+                     + "Lnet/minecraft/client/renderer/block/BlockAndTintGetter;"
+                     + "Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/world/level/block/state/BlockState;"
+                     + "Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;J)V"
         )
     )
     void skipBlockAt(

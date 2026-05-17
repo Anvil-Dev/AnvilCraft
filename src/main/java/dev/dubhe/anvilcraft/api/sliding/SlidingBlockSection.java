@@ -157,8 +157,9 @@ public final class SlidingBlockSection {
 
             state = Block.updateFromNeighbourShapes(state, level, pos);
             if (!level.setBlock(pos, state, Block.UPDATE_ALL)) continue;
-            Optional.ofNullable(level.getBlockEntity(pos))
-                .ifPresent(entity1 -> entity1.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), info.entityData())));
+            Optional.ofNullable(level.getBlockEntity(pos)).ifPresent(entity1 -> entity1.loadCustomOnly(
+                TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), info.entityData())
+            ));
             level.neighborChanged(pos, state.getBlock(), Orientation.random(level.getRandom()));
 
 
@@ -173,7 +174,7 @@ public final class SlidingBlockSection {
     }
 
     public List<SlidingBlockInfo> blocks() {
-        return blocks;
+        return this.blocks;
     }
 
     @Override
@@ -185,6 +186,6 @@ public final class SlidingBlockSection {
 
     @Override
     public int hashCode() {
-        return Objects.hash(blocks);
+        return Objects.hash(this.blocks);
     }
 }

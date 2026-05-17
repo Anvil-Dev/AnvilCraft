@@ -46,7 +46,7 @@ abstract class ItemInHandRendererMixin {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(Minecraft minecraft, EntityRenderDispatcher entityRenderDispatcher, ItemRenderer itemRenderer, CallbackInfo ci) {
-        anvilcraft$manager = new ItemInHandRendererManager(itemRenderer, this::renderItem);
+        this.anvilcraft$manager = new ItemInHandRendererManager(itemRenderer, this::renderItem);
     }
 
     @WrapOperation(

@@ -47,12 +47,12 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
     private final IDrawable arrowOut;
 
     public TimeWarpCategory(IGuiHelper helper) {
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        title = Component.translatable("gui.anvilcraft.category.time_warp");
-        timer = helper.createTickTimer(30, 60, true);
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.time_warp");
+        this.timer = helper.createTickTimer(30, 60, true);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -104,7 +104,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
         double mouseX,
         double mouseY) {
         TimeWarpRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -140,16 +140,16 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
         );
 
         if (!recipe.getInputItems().isEmpty()) {
-            arrowIn.draw(guiGraphics, 54, 20);
+            this.arrowIn.draw(guiGraphics, 54, 20);
         }
-        arrowOut.draw(guiGraphics, 92, 19);
+        this.arrowOut.draw(guiGraphics, 92, 19);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
         if (!recipe.getResultItems().isEmpty()) {
             if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotProbability, recipe.getResultItems().size());
             } else {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, recipe.getResultItems().size());
             }
             if (recipe.isConsumeFluid()) {
                 PoseStack pose = guiGraphics.pose();
