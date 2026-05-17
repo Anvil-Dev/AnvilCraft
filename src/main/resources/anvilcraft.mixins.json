@@ -82,11 +82,8 @@
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
-    "GameRendererMixin",
     "GuiGraphicsExtractorMixin",
-    "ItemFrameRendererMixin",
     "ItemInHandRendererMixin",
-    "ItemOverridesMixin",
     "ItemSubmitMixin",
     "MouseHandlerMixin",
     "SectionCompilerMixin",
@@ -95,9 +92,7 @@
     "accessor.FluidStateModelSetAccessor",
     "accessor.LevelRendererAccessor",
     "accessor.MultiPlayerGameModeAccessor",
-    "accessor.ScreenAccessor",
-    "compat.EmbChunkBuilderMeshingTaskMixin",
-    "compat.SodiumChunkBuilderMeshingTaskMixin"
+    "accessor.ScreenAccessor"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {
