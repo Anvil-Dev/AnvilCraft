@@ -290,7 +290,18 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         Set<Integer> positions = this.layerPositions.getOrDefault(this.currentViewLayer, new HashSet<>());
         for (int row = 0; row < 5; row++) {
             for (int col = 0; col < 5; col++) {
-                this.positionButtons[row][col].setSelected(positions.contains(row * 5 + col));
+                int positionIndex = row * 5 + col;
+                boolean isSelected = positions.contains(positionIndex);
+                this.positionButtons[row][col].setSelected(isSelected);
+                
+                // 更新tooltip以反映当前层级的选择状态
+                List<Component> tooltipSelected = List.of(
+                    Component.translatable("screen.anvilcraft.smart_block_placer.position.selected", row + 1, col + 1)
+                );
+                List<Component> tooltipUnselected = List.of(
+                    Component.translatable("screen.anvilcraft.smart_block_placer.position.unselected", row + 1, col + 1)
+                );
+                this.positionButtons[row][col].setTooltips(isSelected ? tooltipSelected : tooltipUnselected);
             }
         }
     }

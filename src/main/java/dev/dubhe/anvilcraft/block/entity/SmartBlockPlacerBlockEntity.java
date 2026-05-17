@@ -61,6 +61,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private boolean hasRedstoneSignal = false;
     private int selectedLayer = 0;
     private int placeCooldown = 0;
+    private long lastTickGameTime = -1;  // 记录上次tick的游戏时间，防止同tick重复递减
     private ItemStack currentHeldBlock = ItemStack.EMPTY;
     private int currentPlacementIndex = 0;
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
@@ -216,57 +217,78 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private void tickPickupMode(Level level, BlockPos pos) {
         boolean needsPlacement = this.hasEmptyPositions(level, pos);
         boolean hasBlocksInContainer = this.hasBlockItemsInContainer(level, pos);
-    
-        if (this.placeCooldown > 0) {
-            this.placeCooldown--;
-            // 在 cooldown 倒计时到 PLACEMENT_DELAY 时执行放置
-            if (this.placeCooldown == PLACEMENT_DELAY && needsPlacement && hasBlocksInContainer) {
-                this.placeBlocks(level, pos);
-            }
-            // 容器耗尽或没有可放置位置时立即清除cooldown，防止客户端继续播放动画
-            if ((!hasBlocksInContainer || !needsPlacement) && this.placeCooldown > 0) {
-                this.placeCooldown = 0;
-                this.currentHeldBlock = ItemStack.EMPTY;
-                this.onChanged();
-            }
-        }
         
-        // 在 cooldown 结束后立即开始新的周期（不浪费 tick）
-        if (this.placeCooldown == 0 && needsPlacement && hasBlocksInContainer) {
-            if (this.currentHeldBlock.isEmpty()) {
-                this.currentPlacementIndex = 0;
+        tickCommonCooldownLogic(level, 
+            needsPlacement && hasBlocksInContainer,
+            () -> this.placeBlocks(level, pos),
+            () -> {
+                // 新周期开始，预览要放置的方块
+                this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
             }
-            this.placeCooldown = PLACEMENT_INTERVAL;
-            this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
-            this.onChanged();
-        }
+        );
     }
     
     private void tickMoveMode(Level level, BlockPos pos) {
         boolean needsMove = this.hasTargetPositions(level, pos);
+        
+        tickCommonCooldownLogic(level,
+            needsMove,
+            () -> this.moveBlocks(level, pos),
+            () -> {
+                // 新周期开始，设置钳子中持有的方块（从源位置获取）
+                BlockPos sourcePos = pos.relative(level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING).getOpposite());
+                BlockState sourceState = level.getBlockState(sourcePos);
+                ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
+                if (!sourceItem.isEmpty() && sourceItem.getItem() instanceof net.minecraft.world.item.BlockItem) {
+                    this.currentHeldBlock = sourceItem.copy();
+                } else {
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                }
+            }
+        );
+    }
     
-        if (this.placeCooldown > 0) {
+    /**
+     * 通用的冷却控制逻辑（两种模式共享）
+     * 
+     * @param level 世界
+     * @param shouldExecute 是否应该执行放置/移动
+     * @param executeAction 执行放置/移动的回调
+     * @param onCycleStart 新周期开始时的回调（用于设置 currentHeldBlock）
+     */
+    private void tickCommonCooldownLogic(Level level, boolean shouldExecute, 
+        Runnable executeAction, Runnable onCycleStart) {
+        // 使用游戏时间控制冷却，防止同tick内重复递减
+        long currentGameTime = level.getGameTime();
+        boolean shouldDecrementCooldown = currentGameTime != this.lastTickGameTime;
+        
+        if (this.placeCooldown > 0 && shouldDecrementCooldown) {
+            // 在 cooldown 倒计时到 PLACEMENT_DELAY 时执行放置/移动（递减前检查）
+            if (this.placeCooldown == PLACEMENT_DELAY && shouldExecute) {
+                // 重置索引（如果需要）
+                if (this.currentHeldBlock.isEmpty()) {
+                    this.currentPlacementIndex = 0;
+                }
+                // 执行放置/移动（使用周期开始时已设置的 currentHeldBlock）
+                executeAction.run();
+            }
+            
+            // 递减冷却
             this.placeCooldown--;
-            if (this.placeCooldown == PLACEMENT_DELAY && needsMove) {
-                this.moveBlocks(level, pos);
-            }
-            // 没有可移动的位置时立即清除cooldown，防止客户端继续播放动画
-            if (!needsMove && this.placeCooldown > 0) {
-                this.placeCooldown = 0;
-                this.currentHeldBlock = ItemStack.EMPTY;
-                this.onChanged();
-            }
-        } else if (needsMove) {
+        }
+        
+        // 更新上次tick的游戏时间
+        if (shouldDecrementCooldown) {
+            this.lastTickGameTime = currentGameTime;
+        }
+        
+        // 在 cooldown 结束后立即开始新的周期（不浪费 tick）
+        if (this.placeCooldown == 0 && shouldExecute) {
+            // 调用周期开始回调
+            onCycleStart.run();
+            
             this.placeCooldown = PLACEMENT_INTERVAL;
-            // 设置钳子中持有的方块（从源位置获取）
-            BlockPos sourcePos = pos.relative(level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING).getOpposite());
-            BlockState sourceState = level.getBlockState(sourcePos);
-            ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
-            if (!sourceItem.isEmpty() && sourceItem.getItem() instanceof net.minecraft.world.item.BlockItem) {
-                this.currentHeldBlock = sourceItem.copy();
-            } else {
-                this.currentHeldBlock = ItemStack.EMPTY;
-            }
+            this.lastTickGameTime = currentGameTime;  // 重置游戏时间记录
             this.onChanged();
         }
     }
@@ -276,19 +298,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
 
-        for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
-            int layer = entry.getKey();
-            for (int position : entry.getValue()) {
-                BlockPos targetPos = SmartBlockPlacerBlockEntity
-                    .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
-                BlockState targetState = level.getBlockState(targetPos);
-                // 空位置或可以放置的位置都算作有效位置
-                if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return hasValidTargetPositions(level, basePos, facing, upsideDown);
     }
 
     private boolean hasTargetPositions(Level level, BlockPos placerPos) {
@@ -306,19 +316,34 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return false;
         }
 
+        return hasValidTargetPositions(level, basePos, facing, upsideDown);
+    }
+    
+    /**
+     * 检查是否有有效的目标位置
+     *
+     * @param level      世界
+     * @param basePos    基准位置
+     * @param facing     朝向
+     * @param upsideDown 是否倒挂
+     * @return 是否存在有效位置
+     */
+    private boolean hasValidTargetPositions(Level level, BlockPos basePos, Direction facing, 
+        boolean upsideDown
+    ) {
         for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
             int layer = entry.getKey();
             for (int position : entry.getValue()) {
                 BlockPos targetPos = SmartBlockPlacerBlockEntity
                     .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 BlockState targetState = level.getBlockState(targetPos);
-                // 空位置或可以放置的位置都算作有效位置
+                
+                // 检查基本有效性
                 if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
                     return true;
                 }
             }
         }
-        
         return false;
     }
 
@@ -377,6 +402,68 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private void placeBlocks(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        
+        executeBlockOperation(level, placerPos, facing, upsideDown,
+            () -> this.peekBlockItemFromContainer(level, placerPos),
+            (blockItem, blockItemObj, targetPos) -> {
+                // 放置成功后从容器中提取物品
+                ItemStack extracted = this.extractBlockItemFromContainer(level, placerPos);
+                if (extracted.isEmpty()) {
+                    this.currentPlacementIndex = 0;
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    this.onChanged();
+                    return false;
+                }
+                
+                // 放置成功，清空钳子中的方块
+                this.currentHeldBlock = ItemStack.EMPTY;
+                
+                // 检查是否可以继续堆叠
+                BlockState newState = level.getBlockState(targetPos);
+                return !newState.isAir() && !this.canNotBePlaced(level, newState, blockItemObj);
+            }
+        );
+    }
+
+    private void moveBlocks(Level level, BlockPos placerPos) {
+        Direction facing = this.getFacing(placerPos, level);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        BlockPos sourcePos = placerPos.relative(facing.getOpposite());
+        
+        // 检查源方块
+        BlockState sourceState = level.getBlockState(sourcePos);
+        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+            return;
+        }
+        
+        executeBlockOperation(level, placerPos, facing, upsideDown,
+            () -> sourceState.getBlock().asItem().getDefaultInstance(),
+            (blockItem, blockItemObj, targetPos) -> {
+                // 移动成功后删除源方块
+                level.removeBlock(sourcePos, false);
+                
+                // 移动成功，清空钳子中的方块
+                this.currentHeldBlock = ItemStack.EMPTY;
+                
+                // 移动模式不支持堆叠
+                return false;
+            }
+        );
+    }
+    
+    /**
+     * 执行方块操作（放置或移动）的通用逻辑
+     * 
+     * @param level 世界
+     * @param placerPos 放置器位置
+     * @param facing 朝向
+     * @param upsideDown 是否倒挂
+     * @param itemSupplier 物品提供者（从容器或源位置获取）
+     * @param onSuccess 成功回调，返回是否可以继续堆叠
+     */
+    private void executeBlockOperation(Level level, BlockPos placerPos, Direction facing, boolean upsideDown,
+        java.util.function.Supplier<ItemStack> itemSupplier,
+        BlockOperationSuccessHandler onSuccess) {
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
         List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
 
@@ -395,124 +482,64 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockState targetState = level.getBlockState(targetPos);
             // 检查是否是空位置或可以放置的位置
             if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
-                // 先预览物品，不提取
-                ItemStack blockItem = this.peekBlockItemFromContainer(level, placerPos);
-                if (blockItem.isEmpty()) {
-                    this.currentPlacementIndex = 0;
-                    this.currentHeldBlock = ItemStack.EMPTY;
-                    this.onChanged();
-                    return;
-                }
-
-                if (blockItem.getItem() instanceof BlockItem blockItemObj) {
-                    // 再次检查，这次传入物品信息以进行类型匹配验证
-                    if (!targetState.isAir() && this.canNotBePlaced(level, targetState, blockItemObj)) {
-                        // 类型不匹配，跳过这个位置
-                        this.currentPlacementIndex = (index + 1) % allPositions.size();
-                        this.onChanged();
-                        return;
-                    }
-                    
-                    Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
-
-                    // 尝试放置方块（placeBlock内部可能会消耗itemStack）
-                    if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
-                        level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                        // 放置失败（非法位置或实体阻挡），不消耗物品，保持在当前位置重试
-                        this.currentHeldBlock = ItemStack.EMPTY;
-                        this.onChanged();
-                        return;
-                    }
-                    
-                    // 放置成功，才从容器中提取物品
-                    ItemStack extracted = this.extractBlockItemFromContainer(level, placerPos);
-                    if (extracted.isEmpty()) {
-                        // 理论上不应该到这里，因为前面已经peek过了
-                        this.currentPlacementIndex = 0;
-                        this.currentHeldBlock = ItemStack.EMPTY;
-                        this.onChanged();
-                        return;
-                    }
-
-                    // 检查当前位置是否还可以继续堆叠
-                    BlockState newState = level.getBlockState(targetPos);
-                    if (!newState.isAir() && !this.canNotBePlaced(level, newState, blockItemObj)) {
-                        // 当前位置还可以继续堆叠，保持currentPlacementIndex不变，下次继续放置到同一位置
-                        this.currentHeldBlock = ItemStack.EMPTY;
-                        this.onChanged();
-                        return;
-                    }
-                    
-                    // 当前位置已满或无法继续堆叠，移动到下一个位置
+                // 获取物品
+                ItemStack blockItem = itemSupplier.get();
+                if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
+                    // 物品无效，跳过这个位置
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.currentHeldBlock = ItemStack.EMPTY;
                     this.onChanged();
                     return;
                 }
+                
+                // 检查类型匹配
+                if (!targetState.isAir() && this.canNotBePlaced(level, targetState, blockItemObj)) {
+                    // 类型不匹配，跳过这个位置
+                    this.currentPlacementIndex = (index + 1) % allPositions.size();
+                    this.onChanged();
+                    return;
+                }
+                
+                Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
+
+                // 尝试放置方块
+                if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
+                    level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
+                    // 放置失败（非法位置或实体阻挡），保持在当前位置重试
+                    this.onChanged();
+                    return;
+                }
+                
+                // 放置成功，执行后续操作
+                boolean canStack = onSuccess.handle(blockItem, blockItemObj, targetPos);
+                
+                if (canStack) {
+                    // 可以继续堆叠，保持currentPlacementIndex不变
+                    this.onChanged();
+                    return;
+                }
+                
+                // 移动到下一个位置
+                this.currentPlacementIndex = (index + 1) % allPositions.size();
+                this.onChanged();
+                return;
             }
         }
     }
-
-    private void moveBlocks(Level level, BlockPos placerPos) {
-        Direction facing = this.getFacing(placerPos, level);
-        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        BlockPos sourcePos = placerPos.relative(facing.getOpposite());
-        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
-
-        if (allPositions.isEmpty()) {
-            return;
-        }
-
-        if (this.currentPlacementIndex >= allPositions.size()) {
-            this.currentPlacementIndex = 0;
-        }
-
-        BlockState sourceState = level.getBlockState(sourcePos);
-        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
-            return;
-        }
-
-        for (int i = 0; i < allPositions.size(); i++) {
-            int index = (this.currentPlacementIndex + i) % allPositions.size();
-            BlockPos targetPos = allPositions.get(index);
-
-            BlockState targetState = level.getBlockState(targetPos);
-            // 检查目标位置是否是空位置或可以放置的位置
-            if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
-                // 先检查源方块是否可以转换为BlockItem
-                BlockState sourceState2 = level.getBlockState(sourcePos);
-                ItemStack blockItem = sourceState2.getBlock().asItem().getDefaultInstance();
-                
-                if (!(blockItem.getItem() instanceof BlockItem)) {
-                    // 源方块不是BlockItem，跳过这个位置
-                    this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.onChanged();
-                    return;
-                }
-                
-                // 尝试放置方块（先不删除源方块）
-                if (blockItem.getItem() instanceof BlockItem blockItemObj) {
-                    Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
-                    
-                    if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
-                        level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                        // 放置失败（非法位置或实体阻挡），不删除源方块，保持在当前位置重试
-                        this.currentHeldBlock = ItemStack.EMPTY;
-                        this.onChanged();
-                        return;
-                    }
-                    
-                    // 放置成功，才删除源方块
-                    level.removeBlock(sourcePos, false);
-                    
-                    this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.currentHeldBlock = ItemStack.EMPTY;
-                    this.onChanged();
-                    return;
-                }
-            }
-        }
+    
+    /**
+     * 方块操作成功回调接口
+     */
+    @FunctionalInterface
+    private interface BlockOperationSuccessHandler {
+        /**
+         * 处理放置/移动成功后的逻辑
+         * 
+         * @param blockItem 方块物品
+         * @param blockItemObj 方块物品对象
+         * @param targetPos 目标位置
+         * @return 是否可以继续堆叠
+         */
+        boolean handle(ItemStack blockItem, BlockItem blockItemObj, BlockPos targetPos);
     }
 
     /**

@@ -432,6 +432,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         } else if (isAnimationPlaying) {
             // 工作动画期间，进度 < 1.0 时钳子打开
             shouldClawBeOpen = animationProgress < 1.0f;
+        } else if (!entity.getCurrentHeldBlock().isEmpty()) {
+            // 如果有手持物品，钳子也应该打开（动画初始化前的情况）
+            shouldClawBeOpen = true;
         }
         
         ModelResourceLocation currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;

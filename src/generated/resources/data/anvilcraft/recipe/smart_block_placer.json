@@ -16,15 +16,12 @@
     },
     "E": {
       "item": "anvilcraft:magnetoelectric_core"
-    },
-    "F": {
-      "item": "minecraft:iron_ingot"
     }
   },
   "pattern": [
     "AAB",
     "AC ",
-    "DEF"
+    "DEA"
   ],
   "result": {
     "count": 1,
