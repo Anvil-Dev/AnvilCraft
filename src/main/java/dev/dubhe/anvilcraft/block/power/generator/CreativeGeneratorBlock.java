@@ -40,7 +40,6 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
     }
 
     @Override
-    @SuppressWarnings({"UnreachableCode"})
     public InteractionResult use(
         BlockState state,
         Level level,

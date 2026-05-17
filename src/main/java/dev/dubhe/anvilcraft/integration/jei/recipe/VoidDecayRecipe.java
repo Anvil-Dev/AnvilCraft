@@ -7,21 +7,11 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
-public class VoidDecayRecipe {
-
-    public final Block center;
-    public final Block catalyst;
-    public final TagKey<Block> result;
-    public final int catalystCount;
-
-    public VoidDecayRecipe(Block center, Block catalyst, TagKey<Block> result, int catalystCount) {
+public record VoidDecayRecipe(Block center, Block catalyst, TagKey<Block> result, int catalystCount) {
+    public VoidDecayRecipe {
         if (catalystCount < 1 || catalystCount > 6) {
             throw new IllegalArgumentException("catalystCount should be in range [1, 6], but found " + catalyst);
         }
-        this.center = center;
-        this.catalyst = catalyst;
-        this.result = result;
-        this.catalystCount = catalystCount;
     }
 
     public VoidDecayRecipe(Block center, Block catalyst, TagKey<Block> result) {

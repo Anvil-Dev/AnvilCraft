@@ -84,8 +84,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
                 )
             ).toList()
         );
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
     }
 
     @Override
@@ -154,7 +153,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
         double mouseY) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         BlockSmearRecipe recipe = recipeHolder.value();
-        Identifier id = getRegistryName(recipeHolder);
+        Identifier id = this.getIdentifier(recipeHolder);
 
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY < 42) {

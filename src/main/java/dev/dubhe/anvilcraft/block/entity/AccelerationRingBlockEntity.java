@@ -210,7 +210,6 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert this.level != null;
         if (

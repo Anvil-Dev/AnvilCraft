@@ -1,19 +1,12 @@
 package dev.dubhe.anvilcraft.util;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
@@ -28,7 +21,6 @@ import org.joml.Vector3ic;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**

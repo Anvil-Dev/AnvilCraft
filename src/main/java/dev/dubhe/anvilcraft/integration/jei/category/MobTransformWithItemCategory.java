@@ -121,8 +121,7 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
         outputStacks.add(ChanceItemStack.of(recipe.value().itemResult().copyWithCount(1)));
         JeiSlotUtil.addOutputSlots(builder, outputStacks);
 
-        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST)
-            .addItemStack(ModBlocks.CORRUPTED_BEACON.asStack());
+        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).add(ModBlocks.CORRUPTED_BEACON.asStack());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

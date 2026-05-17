@@ -104,20 +104,18 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
     @Override
     public void setRecipe(
         IRecipeLayoutBuilder builder, VoidDecayRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 8, 84)
-            .addItemStack(recipe.center.asItem().getDefaultInstance())
+        builder.addSlot(RecipeIngredientRole.INPUT, 8, 84).add(recipe.center().asItem().getDefaultInstance())
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
                 tooltip.add(this.centerTooltip));
-        builder.addSlot(RecipeIngredientRole.CATALYST, 8, 102)
-            .addItemStack(new ItemStack(recipe.catalyst.asItem(), recipe.catalystCount))
+        builder.addSlot(RecipeIngredientRole.CATALYST, 8, 102).add(new ItemStack(recipe.catalyst().asItem(), recipe.catalystCount()))
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
                 tooltip.addAll(List.of(this.aroundTooltip, this.notConsumedTooltip)));
         RegistryUtil.getRegistry(Registries.BLOCK)
-            .getTag(recipe.result)
+            .getTag(recipe.result())
             .stream()
             .flatMap(HolderSet.ListBacked::stream)
             .map(h -> h.value().asItem().getDefaultInstance())
-            .forEach(stack -> builder.addOutputSlot().addItemStack(stack));
+            .forEach(stack -> builder.addOutputSlot().add(stack));
     }
 
     @Override
@@ -141,8 +139,8 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
         LevelLike level = this.cache.get(recipe);
         if (level == null) {
             LevelLike showCase = new LevelLike(Minecraft.getInstance().level);
-            CATALYST_POS.forEach(pos -> showCase.setBlockState(pos, recipe.catalyst.defaultBlockState()));
-            showCase.setBlockState(CENTER_POS, recipe.center.defaultBlockState());
+            CATALYST_POS.forEach(pos -> showCase.setBlockState(pos, recipe.catalyst().defaultBlockState()));
+            showCase.setBlockState(CENTER_POS, recipe.center().defaultBlockState());
             this.cache.put(recipe, showCase);
             level = showCase;
         }

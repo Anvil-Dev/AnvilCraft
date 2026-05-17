@@ -7,7 +7,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings("deprecation")
 public class FlightTimePropertyFunction implements ItemPropertyFunction {
     @Override
     public float call(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {

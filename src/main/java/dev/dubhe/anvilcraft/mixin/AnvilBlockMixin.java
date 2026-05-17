@@ -94,7 +94,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
-    private static void damage(BlockState state, CallbackInfoReturnable<BlockState> cir) {
-        if (state.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(state);
+    private static void damage(BlockState blockState, CallbackInfoReturnable<BlockState> cir) {
+        if (blockState.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(blockState);
     }
 }

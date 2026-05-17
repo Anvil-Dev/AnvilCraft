@@ -34,7 +34,6 @@
     "InventoryMixin",
     "ItemEntityMixin",
     "ItemMixin",
-    "ItemStackMixin",
     "LevelChunkMixin",
     "LightningBoltMixin",
     "LivingEntityMixin",

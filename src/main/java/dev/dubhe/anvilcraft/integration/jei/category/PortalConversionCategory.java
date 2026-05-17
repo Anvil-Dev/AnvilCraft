@@ -77,11 +77,11 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         PortalConversionRecipe recipe = holder.value();
         IIngredientAcceptor<?> acceptor = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
         for (Holder<Block> block : recipe.getInput().getBlocks()) {
-            acceptor.addItemLike(block.value());
+            acceptor.add(block.value());
         }
         acceptor = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
         for (WeightedChanceBlockStates.Entry state : recipe.getResults().states()) {
-            acceptor.addItemLike(state.state().state().getBlock());
+            acceptor.add(state.state().state().getBlock());
         }
     }
 

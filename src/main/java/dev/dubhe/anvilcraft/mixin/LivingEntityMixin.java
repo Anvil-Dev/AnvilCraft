@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
@@ -43,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -62,11 +60,7 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
     public abstract ItemStack getItemInHand(InteractionHand hand);
 
     @Shadow
-    @Nullable
-    protected Player lastHurtByPlayer;
-
-    @Shadow
-    protected int lastHurtByPlayerTime;
+    public abstract void setLastHurtByPlayer(UUID player, int timeToRemember);
 
     private LivingEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -77,37 +71,36 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
         this.anvilcraft$raged = true;
     }
 
-    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
-    private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        switch (value.getEntity()) {
+    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true, name = "source")
+    private DamageSource modifySource(DamageSource source, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+        switch (source.getEntity()) {
             case FallingBlockEntity falling when !this.level().isClientSide() -> {
                 Block anvil = falling.getBlockState().getBlock();
-                if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return value;
+                if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return source;
                 ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
-                this.lastHurtByPlayer = killer;
-                this.lastHurtByPlayerTime = 1;
+                this.setLastHurtByPlayer(killer.getGameProfile().id(), 1);
                 killerRef.set(killer);
-                DamageSource source = new DamageSource(
+                DamageSource damageSource = new DamageSource(
                     this.level().damageSources().playerAttack(killer).typeHolder(),
                     falling,
                     killer,
-                    value.getSourcePosition()
+                    source.getSourcePosition()
                 );
                 if (anvil instanceof TranscendenceAnvilBlock) {
                     AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
                 } else if (anvil instanceof FrostAnvilBlock) {
                     AnvilCraftFakePlayers.anvilcraftKiller.enableDisintegration((ServerLevel) this.level(), killer);
                 }
-                return source;
+                return damageSource;
             }
             case null, default -> {
-                return value;
+                return source;
             }
         }
     }
 
     @Inject(method = "die", at = @At("RETURN"))
-    private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
         AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
     }
@@ -190,7 +183,7 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
         ),
         cancellable = true
     )
-    private void preventAddEffect(MobEffectInstance effectInstance, Entity entity, CallbackInfoReturnable<Boolean> cir) {
+    private void preventAddEffect(MobEffectInstance newEffect, Entity source, CallbackInfoReturnable<Boolean> cir) {
         if (this.hasEffect(ModMobEffects.RAGE)) {
             cir.setReturnValue(false);
         }

@@ -44,7 +44,7 @@ abstract class EnchantmentHelperMixin {
         int i,
         EnchantedItemInUse enchantedItemInUse,
         Operation<Void> original,
-        @Local Holder<Enchantment> enchantment
+        @Local(name = "enchantment") Holder<Enchantment> enchantment
     ) {
         if (!enchantment.is(ModEnchantmentTags.PROVIDENCE_BONUS)) {
             original.call(instance, holder, i, enchantedItemInUse);
@@ -61,12 +61,12 @@ abstract class EnchantmentHelperMixin {
     )
     private static List<EnchantmentInstance> modifyEnchantmentResults(
         List<EnchantmentInstance> original,
-        int level,
-        ItemStack stack,
-        Stream<Holder<Enchantment>> possibleEnchantments
+        int value,
+        ItemStack itemStack,
+        Stream<Holder<Enchantment>> source
     ) {
         List<EnchantmentInstance> modified = new ArrayList<>(original);
-        String path = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        String path = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath();
 
         boolean isRoyal = path.contains("royal_steel");
         boolean isFrost = path.contains("frost_metal");

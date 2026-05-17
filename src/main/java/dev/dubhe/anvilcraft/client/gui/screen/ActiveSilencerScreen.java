@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("DuplicatedCode")
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "active_silencer");
     public static final Identifier SLIDER = SharedTextures.SMALL_SLIDER;

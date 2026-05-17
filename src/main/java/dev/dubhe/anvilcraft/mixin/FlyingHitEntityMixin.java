@@ -48,8 +48,7 @@ public abstract class FlyingHitEntityMixin extends Entity {
             shift = At.Shift.AFTER
         )
     )
-    @SuppressWarnings("UnreachableCode")
-    private void onFlyingHitEntity(Vec3 travelVector, CallbackInfo ci) {
+    private void onFlyingHitEntity(Vec3 input, CallbackInfo ci) {
         Optional<ServerPlayer> playerOp = Util.castSafely(this, ServerPlayer.class);
         if (playerOp.isEmpty()) return;
         ServerPlayer thiS = playerOp.get();
@@ -63,7 +62,8 @@ public abstract class FlyingHitEntityMixin extends Entity {
         Vec3 movement = getDeltaMovement();
         float amount = (float) (movement.length() * DAMAGE_FACTOR);
         for (LivingEntity entity : entities) {
-            entity.hurt(damageSources().playerAttack(thiS), amount);
+            // noinspection deprecation
+            entity.hurtOrSimulate(damageSources().playerAttack(thiS), amount);
             anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
         }
     }

@@ -27,6 +27,6 @@ public class EnergyWeaponPlatformItem extends Item {
                 this.getName(stack)
             )
         );
-        return false ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return InteractionResult.SUCCESS_SERVER;
     }
 }

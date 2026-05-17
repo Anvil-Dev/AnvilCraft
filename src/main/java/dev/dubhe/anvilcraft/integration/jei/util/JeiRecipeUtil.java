@@ -40,7 +40,7 @@ public class JeiRecipeUtil {
         return new ArrayList<>(
             Minecraft.getInstance()
                 .getConnection()
-                .getRecipeManager()
+                .recipes()
                 .getAllRecipesFor(recipeType)
         );
     }

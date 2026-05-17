@@ -67,16 +67,15 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<JewelCraftingRecipe> recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).addItemStack(recipe.value().result.copyWithCount(1));
+        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).add(recipe.value().result.create().copyWithCount(1));
         for (int i = 0; i < recipe.value().mergedIngredients.size(); i++) {
             var entry = recipe.value().mergedIngredients.get(i);
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, 5 + i * 18, 37)
-                .addIngredients(entry.getKey());
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, 5 + i * 18, 37).add(entry.getKey());
             if (entry.getIntValue() > 1) {
                 slot.setOverlay(new DrawableText("" + entry.getIntValue(), 2, 2, 0xFFFFFFFF), 12, 12);
             }
         }
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).addItemStack(recipe.value().result.copy());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).add(recipe.value().result.create());
     }
 
     @Override

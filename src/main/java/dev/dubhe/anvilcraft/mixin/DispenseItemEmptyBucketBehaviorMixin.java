@@ -38,8 +38,7 @@ abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemB
         ),
         cancellable = true
     )
-    @SuppressWarnings("resource")
-    public void takeMilkFromCow(BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
+    public void takeMilkFromCow(BlockSource source, ItemStack dispensed, CallbackInfoReturnable<ItemStack> cir) {
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
         ServerLevel level = source.level();
         ServerLevel levelAccessor = source.level();
@@ -60,7 +59,7 @@ abstract class DispenseItemEmptyBucketBehaviorMixin extends DefaultDispenseItemB
         cir.setReturnValue(
             this.consumeWithRemainder(
                 source,
-                stack,
+                dispensed,
                 new ItemStack(item)
             )
         );

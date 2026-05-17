@@ -72,7 +72,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
     @Nullable

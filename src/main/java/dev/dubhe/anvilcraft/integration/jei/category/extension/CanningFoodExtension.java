@@ -66,7 +66,7 @@ public class CanningFoodExtension implements ICraftingCategoryExtension<CanningF
             .forEach(slot -> {
                 if (slot.getRole() == RecipeIngredientRole.OUTPUT) {
                     slot.getDisplayedItemStack().ifPresent(canStack -> slot.createDisplayOverrides()
-                        .addItemStack(ModFoodItems.CANNED_FOOD.get().setFood(canStack, displayedFood)));
+                        .add(ModFoodItems.CANNED_FOOD.get().setFood(canStack, displayedFood)));
                 }
             });
     }

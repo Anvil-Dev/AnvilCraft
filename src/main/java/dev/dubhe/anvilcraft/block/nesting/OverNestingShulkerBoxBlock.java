@@ -1,17 +1,12 @@
 package dev.dubhe.anvilcraft.block.nesting;
 
-import dev.dubhe.anvilcraft.api.block.ITooltipBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBlock;
 import dev.dubhe.anvilcraft.block.entity.nesting.OverNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.util.ItemResourceHelper;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,9 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -44,9 +37,8 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Consumer;
 
-public class OverNestingShulkerBoxBlock extends BetterBlock implements EntityBlock, IHammerRemovable, ITooltipBlock {
+public class OverNestingShulkerBoxBlock extends BetterBlock implements EntityBlock, IHammerRemovable {
     private static final int SOUND_DELAY = 8;
     public static final BooleanProperty COOLDOWN = BooleanProperty.create("cooldown");
     public static final IntegerProperty SOUNDSETID = IntegerProperty.create("soundsetid", 0, 2);
@@ -155,26 +147,6 @@ public class OverNestingShulkerBoxBlock extends BetterBlock implements EntityBlo
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, Consumer<Component> builder, TooltipFlag flag) {
-        int validLine = 0;
-        int nonEmpty = 0;
-
-        for (var stack1 : stack.getOrDefault(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY).nonEmptyItems()) {
-            nonEmpty++;
-            if (validLine > 4) continue;
-            validLine++;
-            builder.accept(Component.translatable(
-                "container.shulkerBox.itemCount",
-                stack1.getStack().getHoverName(),
-                stack1.getCount()
-            ));
-        }
-
-        if (nonEmpty - validLine <= 0) return;
-        builder.accept(Component.translatable("container.shulkerBox.more", nonEmpty - validLine).withStyle(ChatFormatting.ITALIC));
     }
 
     @Override

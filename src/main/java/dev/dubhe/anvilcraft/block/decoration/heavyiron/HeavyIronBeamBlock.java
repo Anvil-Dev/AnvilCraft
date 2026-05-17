@@ -52,13 +52,11 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, Hamme
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        return switch (blockState.getValue(AXIS)) {
-            case X:
-                yield AABB_X;
-            case Z:
-            default:
-                yield AABB_Z;
-        };
+        if (blockState.getValue(AXIS) == Direction.Axis.X) {
+            return AABB_X;
+        } else {
+            return AABB_Z;
+        }
     }
 
     @Override

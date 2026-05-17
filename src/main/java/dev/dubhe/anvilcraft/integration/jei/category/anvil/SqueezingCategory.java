@@ -85,13 +85,12 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         IRecipeLayoutBuilder builder, RecipeHolder<SqueezingRecipe> recipeHolder, IFocusGroup focuses) {
         SqueezingRecipe recipe = recipeHolder.value();
         for (BlockStatePredicate input : recipe.getInputBlocks()) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-                .addIngredients(Ingredient.of(
-                    input.getBlocks().stream().map(holder -> new ItemStack(holder.value())).toArray(ItemStack[]::new)));
+            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(Ingredient.of(
+                input.getBlocks().stream().map(holder -> new ItemStack(holder.value())).toArray(ItemStack[]::new)));
         }
         for (ChanceItemStack output : recipe.getResultItems()) {
             builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-                .addItemStack(output.stack().copyWithCount(output.getMaxCount()));
+                .addItemStack(output.stack().create().copyWithCount(output.getMaxCount()));
         }
     }
 
@@ -104,7 +103,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         double mouseY
     ) {
         SqueezingRecipe recipe = recipeHolder.value();
-        Identifier id = getRegistryName(recipeHolder);
+        Identifier id = getIdentifier(recipeHolder);
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY <= 42) {
                 tooltip.addAll(TooltipUtil.tooltip(recipe.getInputBlocks().getFirst().constructStatesForRender().getFirst().getBlock()));

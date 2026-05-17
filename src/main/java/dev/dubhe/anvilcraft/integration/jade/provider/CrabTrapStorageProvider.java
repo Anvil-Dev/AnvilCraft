@@ -4,7 +4,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.view.ClientViewGroup;
 import snownee.jade.api.view.IClientExtensionProvider;
@@ -21,11 +22,11 @@ public enum CrabTrapStorageProvider implements IServerExtensionProvider<ItemStac
     @Override
     public List<ViewGroup<ItemStack>> getGroups(Accessor<?> accessor) {
         if (!(accessor.getTarget() instanceof CrabTrapBlockEntity crabTrap)) return null;
-        IItemHandler itemHandler = crabTrap.getItemHandler();
-        List<ItemStack> items = new ArrayList<>(itemHandler.getSlots());
-        for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-            ItemStack stack = itemHandler.getStackInSlot(slot);
-            if (!stack.isEmpty()) items.add(stack.copy());
+        ItemStacksResourceHandler itemHandler = crabTrap.getItemHandler();
+        List<ItemStack> items = new ArrayList<>(itemHandler.size());
+        for (int slot = 0; slot < itemHandler.size(); slot++) {
+            ItemResource resource = itemHandler.getResource(slot);
+            if (!resource.isEmpty()) items.add(resource.toStack(itemHandler.getAmountAsInt(slot)));
         }
         return items.isEmpty() ? null : List.of(new ViewGroup<>(items));
     }

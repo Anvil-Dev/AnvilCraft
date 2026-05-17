@@ -75,12 +75,12 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MeshRecipeGroup recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 37, 14).addIngredients(Ingredient.of(recipe.ingredient().getItems()));
+        builder.addSlot(RecipeIngredientRole.INPUT, 37, 14).add(Ingredient.of(recipe.ingredient().getItems()));
 
         for (int i = 0; i < recipe.results().size(); i++) {
             MeshRecipeGroup.Result result = recipe.results().get(i);
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9))
-                .addItemStack(result.item());
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9)).add(
+                result.item());
             JeiRecipeUtil.addTooltips(slot, result.item().getCount(), result.provider());
         }
     }

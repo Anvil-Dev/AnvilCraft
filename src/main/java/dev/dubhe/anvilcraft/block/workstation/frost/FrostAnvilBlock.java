@@ -53,7 +53,6 @@ public class FrostAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
         return Z_AXIS_AABB;
     }
 
-    @SuppressWarnings("UnreachableCode")
     @Override
     public InteractionResult use(
         BlockState state,

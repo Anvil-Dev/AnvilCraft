@@ -404,7 +404,6 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         return this.toBlockPattern(data, false);
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Nullable
     private BlockPattern toBlockPattern(@Nullable StructureData data, boolean recordAllStates) {
         ClientLevel level = minecraft.level;

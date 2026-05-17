@@ -274,7 +274,6 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return this.anvilcraft$fallDistance;
     }
 
-    @SuppressWarnings("UnreachableCode")
     @Inject(
         method = "tick", at = @At(
         value = "INVOKE",
@@ -306,7 +305,6 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         }
     }
 
-    @SuppressWarnings("UnreachableCode")
     @Inject(
         method = "causeFallDamage", at = @At(
         value = "INVOKE",

@@ -21,6 +21,7 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -85,11 +86,10 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         IRecipeLayoutBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses) {
         ItemInjectRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-            .addIngredients(Ingredient.of(
-                recipe.getFirstInputBlock().getBlocks().stream().map(state -> new ItemStack(state.value())).toArray(ItemStack[]::new)));
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(Ingredient.of(
+            recipe.getFirstInputBlock().getBlocks().stream().map(Holder::value)
+        ));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
     }
 
     @Override
@@ -132,7 +132,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         double mouseX,
         double mouseY) {
         ItemInjectRecipe recipe = recipeHolder.value();
-        Identifier id = getRegistryName(recipeHolder);
+        Identifier id = this.getIdentifier(recipeHolder);
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
                 tooltip.addAll(TooltipUtil.tooltip(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));

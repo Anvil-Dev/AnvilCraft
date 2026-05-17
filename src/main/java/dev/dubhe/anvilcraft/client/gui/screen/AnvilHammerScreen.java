@@ -331,7 +331,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         }
         BlockEntity blockEntity = Objects.requireNonNull(this.minecraft.level).getBlockEntity(this.targetBlockPos);
         if (blockEntity != null && blockEntity.getBlockState().is(block.getBlock())) {
-            BlockEntityRenderer<BlockEntity> renderer = this.minecraft.getBlockEntityRenderDispatcher().getRenderer(blockEntity);
+            BlockEntityRenderer<BlockEntity, ?> renderer = this.minecraft.getBlockEntityRenderDispatcher().getRenderer(blockEntity);
             if (renderer != null) {
                 final Level originalLevel = blockEntity.getLevel();
                 final BlockState originalBlockState = blockEntity.getBlockState();

@@ -93,7 +93,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         CauldronFluidContent cauldronFluidContent = CauldronFluidContent.getForBlock(cauldrons);
         if (cauldronFluidContent == null) return;
         Fluid fluid = cauldronFluidContent.fluid;
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addFluidStack(fluid);
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(fluid);
     }
 
     @Override

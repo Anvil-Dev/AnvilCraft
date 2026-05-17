@@ -44,7 +44,7 @@ public abstract class BeaconMenuMixin {
         )
     )
     private void updateEffects(
-        Optional<MobEffect> primaryEffect, Optional<MobEffect> secondaryEffect, CallbackInfo ci) {
+        Optional<MobEffect> primary, Optional<MobEffect> secondary, CallbackInfo ci) {
         ItemStack item = this.paymentSlot.getItem();
         if (!item.is(ModItems.CURSED_GOLD_INGOT.get())) return;
         this.access.execute((level, pos) -> {

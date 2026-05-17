@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(EnchantmentPredicate.class)
 abstract class EnchantmentPredicateMixin {
     @WrapMethod(method = "containedIn")
-    private boolean checkProvidence(ItemEnchantments enchantments, Operation<Boolean> original) {
-        return original.call(enchantments);
+    private boolean checkProvidence(ItemEnchantments itemEnchantments, Operation<Boolean> original) {
+        return original.call(itemEnchantments);
     }
 }

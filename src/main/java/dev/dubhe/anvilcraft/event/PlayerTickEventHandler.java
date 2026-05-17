@@ -20,7 +20,6 @@ public class PlayerTickEventHandler {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
-        CrabClawItem.holdingCrabClawIncreasesRange(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             applyPowerGrid(serverPlayer);
             IonoCraftBackpackItem.playerTick(serverPlayer);

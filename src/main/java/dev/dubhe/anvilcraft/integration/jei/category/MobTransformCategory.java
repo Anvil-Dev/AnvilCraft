@@ -100,7 +100,7 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
             inputIngredient = Ingredient.of(x);
         } else inputIngredient = Ingredient.of(spawnEggItemInput);
 
-        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).addIngredients(inputIngredient);
+        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(inputIngredient);
 
         List<ChanceItemStack> outputStacks = new ArrayList<>();
         for (TransformResult result : recipe.value().results()) {
@@ -114,8 +114,7 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
         }
         JeiSlotUtil.addOutputSlots(builder, outputStacks);
 
-        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST)
-            .addItemStack(ModBlocks.CORRUPTED_BEACON.asStack());
+        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).add(ModBlocks.CORRUPTED_BEACON.asStack());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

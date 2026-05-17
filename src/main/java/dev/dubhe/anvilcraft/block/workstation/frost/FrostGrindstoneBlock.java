@@ -30,7 +30,6 @@ public class FrostGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
         super(properties);
     }
 
-    @SuppressWarnings("UnreachableCode")
     public InteractionResult use(
         BlockState state,
         Level level,

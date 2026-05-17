@@ -32,7 +32,7 @@ abstract class EndPortalBlockMixin {
         Portal portal,
         BlockPos pos,
         Operation<Void> original,
-        @Local(argsOnly = true) Level level
+        @Local(argsOnly = true, name = "level") Level level
     ) {
         EndPortalBlock block = Util.cast(this);
         EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(

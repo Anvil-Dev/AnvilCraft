@@ -108,6 +108,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
+        @SuppressWarnings("deprecation")
         public Builder obtainByMurder(TagKey<EntityType<?>> tag) {
             return this.obtain((player, source) -> Optional.ofNullable(source.getEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))
@@ -135,6 +136,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
+        @SuppressWarnings("deprecation")
         public Builder obtainByDirectMurder(TagKey<EntityType<?>> tag) {
             return this.obtain((player, source) -> Optional.ofNullable(source.getDirectEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))
@@ -193,6 +195,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
+        @SuppressWarnings("deprecation")
         public Builder obtainByMurderOr(TagKey<EntityType<?>> tag) {
             return this.obtainOr((player, source) -> Optional.ofNullable(source.getEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))
@@ -220,6 +223,7 @@ public class AmuletType {
                 .orElse(false));
         }
 
+        @SuppressWarnings("deprecation")
         public Builder obtainByDirectMurderOr(TagKey<EntityType<?>> tag) {
             return this.obtainOr((player, source) -> Optional.ofNullable(source.getDirectEntity())
                 .flatMap(e -> Util.castSafely(e, LivingEntity.class))

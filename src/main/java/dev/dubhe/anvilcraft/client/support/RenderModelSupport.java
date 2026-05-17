@@ -27,7 +27,6 @@ public class RenderModelSupport {
      * @param model 渲染模型对象，包含模型的几何数据
      * @return 返回模型的轴对齐包围盒（AABB）
      */
-    @SuppressWarnings("deprecation")
     public static AABB getSize(
         BlockState state,
         BakedModel model
@@ -53,7 +52,6 @@ public class RenderModelSupport {
      * @param model 渲染模型对象，包含模型的几何数据
      * @return 返回模型的轴对齐包围盒（AABB）
      */
-    @SuppressWarnings("deprecation")
     public static AABB getSize(
         BakedModel model
     ) {

@@ -85,7 +85,7 @@ public class PillRecipeExtension implements ICraftingCategoryExtension<PillRecip
                     slot.getDisplayedItemStack().ifPresent(pill -> {
                         pill.set(DataComponents.POTION_CONTENTS, itemStack.get(DataComponents.POTION_CONTENTS));
                         pill.set(ModComponents.WEAKENING, itemStack.getOrDefault(ModComponents.WEAKENING, false));
-                        slot.createDisplayOverrides().addItemStack(pill);
+                        slot.createDisplayOverrides().add(pill);
                     });
                 }
             });

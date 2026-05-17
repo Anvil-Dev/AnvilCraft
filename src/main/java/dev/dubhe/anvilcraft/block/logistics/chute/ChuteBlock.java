@@ -233,7 +233,6 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         };
     }
 
-    @SuppressWarnings({"DuplicatedCode", "UnreachableCode"})
     @Override
     public InteractionResult use(
         BlockState state,

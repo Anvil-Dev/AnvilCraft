@@ -81,23 +81,23 @@ public class MineralFountainBlockEntity extends BlockEntity {
                         .byType(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
                         .stream()
                         .filter(r -> r.value()
-                            .getDimension()
+                            .dimension()
                             .equals(this.level.dimension().identifier())
                         )
-                        .filter(r -> r.value().getFromBlock().test(this.level, aboveState, null))
+                        .filter(r -> r.value().fromBlock().test(this.level, aboveState, null))
                         .toList();
                     for (var changeRecipe : chanceList) {
                         if (this.level.getRandom().nextDouble() <= changeRecipe.value().getChance(serverLevel)) {
                             this.level.setBlockAndUpdate(
                                 getBlockPos().above(),
-                                changeRecipe.value().getToBlock().state()
+                                changeRecipe.value().toBlock().state()
                             );
                             return;
                         }
                     }
                     level.setBlockAndUpdate(
                         getBlockPos().above(),
-                        recipe.value().getToBlock().state()
+                        recipe.value().toBlock().state()
                     );
                 });
         }

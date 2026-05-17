@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
 import com.mojang.authlib.GameProfile;
-import lombok.Data;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -34,7 +33,7 @@ public class AnvilCraftDestroyerFakePlayer {
             destroyer = new Destroyer(level, ENABLED_DESTROYERS.size());
         }
         ENABLED_DESTROYERS.add(destroyer);
-        return destroyer.getPlayer();
+        return destroyer.player();
     }
 
     public void enabledDestroy(ServerPlayer player, ItemStack itemStack) {
@@ -49,25 +48,20 @@ public class AnvilCraftDestroyerFakePlayer {
             .filter(destroyer -> destroyer.getUUID().equals(player.getUUID()))
             .findFirst()
             .ifPresent(destroyer -> {
-                destroyer.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                 DISABLED_DESTROYERS.offer(destroyer);
                 ENABLED_DESTROYERS.remove(destroyer);
             });
     }
 
-    @Data
-    public static final class Destroyer {
-        private final GameProfile profile;
-        private final ServerPlayer player;
-
-        public Destroyer(ServerLevel level, int index) {
-            this.profile = FAKE_PROFILE_FACTORY.apply(index + 1);
-            this.player = FakePlayerFactory.get(level, this.profile);
+    public record Destroyer(ServerPlayer player, GameProfile profile) {
+        public Destroyer(ServerLevel player, int profile) {
+            GameProfile gp = FAKE_PROFILE_FACTORY.apply(profile + 1);
+            this(FakePlayerFactory.get(player, gp), gp);
         }
 
         public UUID getUUID() {
             return this.player.getUUID();
         }
     }
-
 }

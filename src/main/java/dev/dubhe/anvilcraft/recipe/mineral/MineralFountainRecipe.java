@@ -7,7 +7,6 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,41 +26,32 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-@Getter
-public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input> {
+public record MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePredicate fromBlock, ChanceBlockState toBlock) implements
+    Recipe<MineralFountainRecipe.Input> {
     private static final MapCodec<MineralFountainRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         BlockStatePredicate.CODEC
             .fieldOf("need_block")
-            .forGetter(MineralFountainRecipe::getNeedBlock),
+            .forGetter(MineralFountainRecipe::needBlock),
         BlockStatePredicate.CODEC
             .fieldOf("from_block")
-            .forGetter(MineralFountainRecipe::getFromBlock),
+            .forGetter(MineralFountainRecipe::fromBlock),
         ChanceBlockState.CODEC
             .fieldOf("to_block")
-            .forGetter(MineralFountainRecipe::getToBlock)
+            .forGetter(MineralFountainRecipe::toBlock)
     ).apply(ins, MineralFountainRecipe::new));
     private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainRecipe> STREAM_CODEC = StreamCodec.composite(
         BlockStatePredicate.STREAM_CODEC,
-        MineralFountainRecipe::getNeedBlock,
+        MineralFountainRecipe::needBlock,
         BlockStatePredicate.STREAM_CODEC,
-        MineralFountainRecipe::getFromBlock,
+        MineralFountainRecipe::fromBlock,
         ChanceBlockState.STREAM_CODEC,
-        MineralFountainRecipe::getToBlock,
+        MineralFountainRecipe::toBlock,
         MineralFountainRecipe::new
     );
     public static final RecipeSerializer<MineralFountainRecipe> SERIALIZER = new RecipeSerializer<>(
         MineralFountainRecipe.CODEC,
         MineralFountainRecipe.STREAM_CODEC
     );
-    private final BlockStatePredicate needBlock;
-    private final BlockStatePredicate fromBlock;
-    private final ChanceBlockState toBlock;
-
-    public MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePredicate fromBlock, ChanceBlockState toBlock) {
-        this.needBlock = needBlock;
-        this.fromBlock = fromBlock;
-        this.toBlock = toBlock;
-    }
 
     public static Builder builder() {
         return new Builder();
@@ -165,6 +155,7 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
          * 添加结果方块
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder toBlock(ChanceBlockState result) {
@@ -176,6 +167,7 @@ public class MineralFountainRecipe implements Recipe<MineralFountainRecipe.Input
          * 添加结果方块（默认概率为1.0F）
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder toBlock(Block result) {

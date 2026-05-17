@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.google.common.collect.Lists;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import lombok.Getter;
 import lombok.Setter;

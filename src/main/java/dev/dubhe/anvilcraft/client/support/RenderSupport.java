@@ -340,7 +340,7 @@ public class RenderSupport {
         BlockEntity blockEntity,
         PoseStack pose,
         MultiBufferSource.BufferSource buffers) {
-        BlockEntityRenderer<BlockEntity> renderer = Minecraft.getInstance()
+        BlockEntityRenderer<BlockEntity, ?> renderer = Minecraft.getInstance()
             .getBlockEntityRenderDispatcher().getRenderer(blockEntity);
         if (renderer == null) return;
         try {

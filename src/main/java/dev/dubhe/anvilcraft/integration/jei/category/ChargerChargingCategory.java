@@ -81,12 +81,10 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     public void setRecipe(
         IRecipeLayoutBuilder builder, RecipeHolder<ChargerChargingRecipe> recipeHolder, IFocusGroup focuses) {
         ChargerChargingRecipe recipe = recipeHolder.value();
-        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24)
-            .addIngredients(recipe.getIngredient());
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24)
-            .addItemStack(recipe.getResult());
-        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST)
-            .addItemStack(recipe.getProcessingBlock().asItem().getDefaultInstance());
+        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(recipe.ingredient());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24).add(recipe.result());
+        builder.addInvisibleIngredients(RecipeIngredientRole.CRAFTING_STATION)
+            .add(recipe.getProcessingBlock().asItem().getDefaultInstance());
     }
 
     @Override
@@ -116,11 +114,11 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         pose.pushPose();
         pose.scale(0.8F, 0.8F, 1.0F);
         guiGraphics.drawString(Minecraft.getInstance().font,
-            Component.translatable(recipe.getPower() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE,
-                Math.abs(recipe.getPower())),
+            Component.translatable(recipe.power() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE,
+                Math.abs(recipe.power())),
             0, 10, 0xFF000000, false);
         guiGraphics.drawString(Minecraft.getInstance().font,
-            Component.translatable(KEY_TIME, 0.05 * recipe.getTime()),
+            Component.translatable(KEY_TIME, 0.05 * recipe.time()),
             0, 70, 0xFF000000, false);
         pose.popPose();
     }

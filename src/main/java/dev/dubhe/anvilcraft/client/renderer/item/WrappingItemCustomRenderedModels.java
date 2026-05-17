@@ -12,14 +12,14 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 // import net.neoforged.fml.common.EventBusSubscriber;
 // import net.neoforged.neoforge.client.event.ModelEvent;
 // import net.neoforged.neoforge.client.model.BakedModelWrapper;
-//
+
 // import java.util.Map;
-//
+
 // @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 // public class WrappingItemCustomRenderedModels {
 //     public static final Identifier SPECTRAL_WEAPON_LAUNCHER = AnvilCraft.of("spectral_weapon_launcher");
 //     public static final Identifier SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED = AnvilCraft.of("spectral_weapon_launcher_exhausted");
-//
+
 //     @SubscribeEvent
 //     public static void onModelBake(ModelEvent.ModifyBakingResult event) {
 //         Map<ModelIdentifier, BakedModel> modelRegistry = event.getModels();
@@ -27,23 +27,23 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 //         swapModels(modelRegistry, ModelIdentifier.inventory(SPECTRAL_WEAPON_LAUNCHER));
 //         swapModels(modelRegistry, ModelIdentifier.inventory(SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED));
 //     }
-//
+
 //     public static void swapModels(Map<ModelIdentifier, BakedModel> modelRegistry, ModelIdentifier modelLocation) {
 //         BakedModel model = modelRegistry.get(modelLocation);
 //         CustomRenderedModelWrapper wrapper = new CustomRenderedModelWrapper(model);
 //         modelRegistry.put(modelLocation, wrapper);
 //     }
-//
+
 //     public static class CustomRenderedModelWrapper extends BakedModelWrapper<BakedModel> {
 //         public CustomRenderedModelWrapper(BakedModel originalModel) {
 //             super(originalModel);
 //         }
-//
+
 //         @Override
 //         public boolean isCustomRenderer() {
 //             return true;
 //         }
-//
+
 //         // 谢谢你，西米不比！
 //         // Method copied from Create Mod
 //         @Override

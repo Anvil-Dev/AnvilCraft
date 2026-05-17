@@ -61,7 +61,6 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
         return this.use(state, level, pos, player, InteractionHand.MAIN_HAND, hitResult);
     }
 
-    @SuppressWarnings("UnreachableCode")
     public InteractionResult use(
         BlockState state,
         Level level,

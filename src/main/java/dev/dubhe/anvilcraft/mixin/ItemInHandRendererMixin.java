@@ -30,7 +30,6 @@ abstract class ItemInHandRendererMixin {
     @Shadow
     private ItemStack mainHandItem;
 
-    @Shadow
     public abstract void renderItem(
         LivingEntity entity,
         ItemStack itemStack,
@@ -62,20 +61,6 @@ abstract class ItemInHandRendererMixin {
         return original.call(instance);
     }
 
-    @Inject(
-        method = "renderArmWithItem",
-        at =
-        @At(
-            value = "INVOKE",
-            ordinal = 1,
-            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;"
-                     + "renderItem(Lnet/minecraft/world/entity/LivingEntity;"
-                     + "Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;"
-                     + "ZLcom/mojang/blaze3d/vertex/PoseStack;"
-                     + "Lnet/minecraft/client/renderer/MultiBufferSource;I)V"
-        ),
-        cancellable = true
-    )
     private void renderArmWithItem(
         AbstractClientPlayer player,
         float partialTicks,

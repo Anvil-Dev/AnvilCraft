@@ -122,7 +122,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
         this.cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
-            .addItemStack(recipe.value().getResult().copy());
+            .addItemStack(recipe.value().getResult().create());
 
         List<ItemStack> ingredientList = recipe.value().getPattern().toIngredientList();
         ingredientList.sort(BY_COUNT_DECREASING);
@@ -131,8 +131,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             ItemStack stack = ingredientList.get(i);
             int row = i / 9;
             int col = i % 9;
-            builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1)
-                .addItemStack(stack);
+            builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1).add(stack);
         }
     }
 

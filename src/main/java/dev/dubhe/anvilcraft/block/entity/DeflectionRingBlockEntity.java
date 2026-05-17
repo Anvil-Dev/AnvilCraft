@@ -301,7 +301,6 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert level != null;
         if (

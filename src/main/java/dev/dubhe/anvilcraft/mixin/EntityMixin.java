@@ -171,8 +171,8 @@ public abstract class EntityMixin implements IEntityExtension {
             value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0
         )
     )
-    public boolean anvilcraft$cancelCollision1(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || original.call(x, y);
+    public boolean anvilcraft$cancelCollision1(double a, double b, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
+        return isFixed.get() || original.call(a, b);
     }
 
     @WrapOperation(
@@ -181,8 +181,8 @@ public abstract class EntityMixin implements IEntityExtension {
             value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1
         )
     )
-    public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || original.call(x, y);
+    public boolean anvilcraft$cancelCollision2(double a, double b, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
+        return isFixed.get() || original.call(a, b);
     }
 
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
@@ -226,8 +226,8 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Inject(method = "move", at = @At("HEAD"))
     public void anvil$recordMovement(
-        MoverType type,
-        Vec3 pos,
+        MoverType moverType,
+        Vec3 delta,
         CallbackInfo ci,
         @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
     ) {
@@ -236,8 +236,8 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Inject(method = "move", at = @At("RETURN"))
     public void anvil$collisionCraft(
-        MoverType type,
-        Vec3 pos,
+        MoverType moverType,
+        Vec3 delta,
         CallbackInfo ci,
         @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
     ) {

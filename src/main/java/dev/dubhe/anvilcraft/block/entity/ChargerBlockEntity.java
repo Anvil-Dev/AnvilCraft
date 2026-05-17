@@ -118,8 +118,8 @@ public class ChargerBlockEntity extends BlockEntity
             serverLevel
         );
         if (recipe.isEmpty()) return false;
-        if (recipe.get().value().power == 0) return false;
-        return this.isCharger == recipe.get().value().power < 0;
+        if (recipe.get().value().power() == 0) return false;
+        return this.isCharger == recipe.get().value().power() < 0;
     }
 
     @Nullable
@@ -136,8 +136,8 @@ public class ChargerBlockEntity extends BlockEntity
 
     private boolean checkRecipeItemNotValid(@Nullable ChargerChargingRecipe recipe) {
         if (recipe == null) return true;
-        if (recipe.power == 0) return true;
-        return this.isCharger != recipe.power < 0;
+        if (recipe.power() == 0) return true;
+        return this.isCharger != recipe.power() < 0;
     }
 
     private void moveItemToTransformingSlot() {
@@ -150,12 +150,12 @@ public class ChargerBlockEntity extends BlockEntity
         if (this.isCharger) {
             this.itemHandler.set(1, resource, 1);
         } else {
-            ItemStackTemplate transformed = recipe.getResult();
+            ItemStackTemplate transformed = recipe.result();
             this.itemHandler.set(1, ItemResource.of(transformed), transformed.count());
         }
-        this.timeLeft = recipe.time + 1; // since there is a "timeLeft--" after this, here +1 to negate
-        this.timeTotalCache = recipe.time; // make a total time cache for client display
-        this.powerValue = recipe.power;
+        this.timeLeft = recipe.time() + 1; // since there is a "timeLeft--" after this, here +1 to negate
+        this.timeTotalCache = recipe.time(); // make a total time cache for client display
+        this.powerValue = recipe.power();
         if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
@@ -174,7 +174,7 @@ public class ChargerBlockEntity extends BlockEntity
         if (this.isCharger) {
             ChargerChargingRecipe recipe = this.getItemRecipe(resource);
             if (this.checkRecipeItemNotValid(recipe)) return;
-            ItemStackTemplate transformed = recipe.getResult();
+            ItemStackTemplate transformed = recipe.result();
             this.itemHandler.set(2, ItemResource.of(transformed), transformed.count());
         } else {
             this.itemHandler.set(2, resource, 1);

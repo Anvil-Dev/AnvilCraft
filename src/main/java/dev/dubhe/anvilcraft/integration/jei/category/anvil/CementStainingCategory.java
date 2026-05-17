@@ -84,15 +84,12 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     public void setRecipe(IRecipeLayoutBuilder builder, CementStainingRecipe recipe, IFocusGroup focuses) {
         JeiSlotUtil.addInputSlots(builder, recipe.ingredients());
 
-        // 将水泥锅里面的流体加入输入输出(在别处写CauldronFluidContent不保证能正常运行
-        // TODO: 等流体系统出来后可能要重写
-        if (recipe.resultBlock() != null) {
-            CauldronFluidContent cauldronFluidContent = CauldronFluidContent.getForBlock(recipe.resultBlock());
-            if (cauldronFluidContent == null) return;
-            Fluid fluid = cauldronFluidContent.fluid;
-            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addFluidStack(fluid);
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addFluidStack(fluid);
-        }
+        // 将水泥锅里面的流体加入输入输出
+        CauldronFluidContent cauldronFluidContent = CauldronFluidContent.getForBlock(recipe.resultBlock());
+        if (cauldronFluidContent == null) return;
+        Fluid fluid = cauldronFluidContent.fluid;
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(fluid);
+        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(fluid);
     }
 
     @Override

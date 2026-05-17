@@ -34,7 +34,7 @@ abstract class DispenseItemEmptyBottleBehaviorMixin extends OptionalDispenseItem
         ),
         cancellable = true
     )
-    public void takeLiquidFromCauldron(BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
+    public void takeLiquidFromCauldron(BlockSource source, ItemStack dispensed, CallbackInfoReturnable<ItemStack> cir) {
         ServerLevel serverLevel = source.level();
         BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
         BlockState state = serverLevel.getBlockState(blockPos);
@@ -43,7 +43,7 @@ abstract class DispenseItemEmptyBottleBehaviorMixin extends OptionalDispenseItem
             LayeredCauldronBlock.lowerFillLevel(state, serverLevel, blockPos);
             cir.setReturnValue(this.takeLiquid(
                 source,
-                stack,
+                dispensed,
                 PotionContents.createItemStack(Items.POTION.getDefaultInstance().getItem(), Potions.WATER)
             ));
         }

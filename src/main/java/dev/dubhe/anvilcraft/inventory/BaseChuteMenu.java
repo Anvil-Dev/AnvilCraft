@@ -60,7 +60,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
@@ -69,7 +68,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
@@ -94,7 +92,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);

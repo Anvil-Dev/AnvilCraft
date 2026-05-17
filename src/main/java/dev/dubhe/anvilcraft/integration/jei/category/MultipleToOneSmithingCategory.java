@@ -81,17 +81,15 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe, IFocusGroup focuses) {
         BaseMultipleToOneSmithingRecipe smithingRecipe = recipe.value();
-        builder.addSlot(RecipeIngredientRole.CATALYST, TEMPLATE_X, TEMPLATE_Y)
-            .addIngredients(Ingredient.of(smithingRecipe.getTemplate().getItems()))
+        builder.addSlot(RecipeIngredientRole.CATALYST, TEMPLATE_X, TEMPLATE_Y).add(Ingredient.of(smithingRecipe.getTemplate().getItems()))
             .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(TOOLTIP_NOT_CONSUMED));
-        builder.addSlot(RecipeIngredientRole.INPUT, CENTER_INPUT_X, CENTER_INPUT_Y)
-            .addIngredients(Ingredient.of(smithingRecipe.getMaterial().getItems()));
+        builder.addSlot(RecipeIngredientRole.INPUT, CENTER_INPUT_X, CENTER_INPUT_Y).add(
+            Ingredient.of(smithingRecipe.getMaterial().getItems()));
         for (int i = 0; i < Math.min(8, smithingRecipe.getInputs().size()); i++) {
-            builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X[i], INPUT_Y[i])
-                .addIngredients(Ingredient.of(smithingRecipe.getInputs().get(i).getItems()));
+            builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X[i], INPUT_Y[i]).add(
+                Ingredient.of(smithingRecipe.getInputs().get(i).getItems()));
         }
-        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
-            .addItemStack(smithingRecipe.getResult().result().getDefaultInstance());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y).add(smithingRecipe.getResult().result().create());
     }
 
     @Override

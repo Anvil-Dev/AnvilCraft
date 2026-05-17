@@ -57,7 +57,7 @@ public class ChargeCollectorManager {
         Collection<Entry> chargeCollectorCollection = this.getNearestChargeCollect(blockPos);
         double surplus = chargeNum;
         for (Entry entry : chargeCollectorCollection) {
-            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
+            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.blockEntity();
             if (!this.canCollect(chargeCollectorBlockEntity, blockPos)) return;
             surplus = chargeCollectorBlockEntity.incomingCharge(surplus, blockPos);
             if (surplus == 0) return;
@@ -95,7 +95,7 @@ public class ChargeCollectorManager {
             distanceList.add(new Entry(distance, entry.getValue()));
         }
         return distanceList.stream()
-            .sorted(Comparator.comparing(Entry::getDistance))
+            .sorted(Comparator.comparing(Entry::distance))
             .collect(Collectors.toList());
     }
 
@@ -115,14 +115,6 @@ public class ChargeCollectorManager {
             && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
     }
 
-    @Getter
-    public static class Entry {
-        public final double distance;
-        public final ChargeCollectorBlockEntity blockEntity;
-
-        public Entry(Double distance, ChargeCollectorBlockEntity blockEntity) {
-            this.distance = distance;
-            this.blockEntity = blockEntity;
-        }
+    public record Entry(double distance, ChargeCollectorBlockEntity blockEntity) {
     }
 }

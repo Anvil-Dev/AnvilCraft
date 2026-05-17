@@ -88,7 +88,7 @@ abstract class ExplosionMixin implements IExplosionExtension {
     private void anvilcraft$explosionBlockTransform0(
         CallbackInfoReturnable<List<BlockPos>> cir,
         @Share("isExplosionBlockTransformed") LocalBooleanRef isExplosionBlockTransformed,
-        @Local(index = 22) BlockPos pos
+        @Local(name = "pos") BlockPos pos
     ) {
         Block block = this.level.getBlockState(pos).getBlock();
         ArrayList<BlockTransform> blockTransforms = new ArrayList<>(this.anvilcraft$blockTransformMap.get(block));
@@ -123,14 +123,14 @@ abstract class ExplosionMixin implements IExplosionExtension {
     private boolean anvilcraft$explosionBlockTransform(
         ExplosionDamageCalculator instance,
         Explosion explosion,
-        BlockGetter reader,
+        BlockGetter level,
         BlockPos pos,
         BlockState state,
         float power,
         Operation<Boolean> original,
         @Share("isExplosionBlockTransformed") LocalBooleanRef isExplosionBlockTransformed
     ) {
-        return !isExplosionBlockTransformed.get() && original.call(instance, explosion, reader, pos, state, power);
+        return !isExplosionBlockTransformed.get() && original.call(instance, explosion, level, pos, state, power);
     }
 
     @Override

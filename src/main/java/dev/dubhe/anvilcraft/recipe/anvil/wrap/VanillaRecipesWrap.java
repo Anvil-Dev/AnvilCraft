@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@SuppressWarnings("DuplicatedCode")
 public class VanillaRecipesWrap {
     public static Multimap<Item, ShapelessRecipe> shapelessRecipes;
     public static Multimap<Item, ShapedRecipe> shapedRecipes;

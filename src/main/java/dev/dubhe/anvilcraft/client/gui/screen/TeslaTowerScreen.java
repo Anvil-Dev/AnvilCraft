@@ -303,7 +303,6 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
      * 鼠标拖动事件
      */
     @Override
-    @SuppressWarnings("DuplicatedCode")
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;

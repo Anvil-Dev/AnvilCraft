@@ -18,7 +18,7 @@ public class IdDispatchCodecMixin {
             target = "Lio/netty/handler/codec/EncoderException;<init>(Ljava/lang/String;Ljava/lang/Throwable;)V"
         )
     )
-    private <B extends ByteBuf, V> void encode(B buffer, V value, CallbackInfo ci, @Local Exception exception) {
-        AnvilCraft.LOGGER.error(exception.getLocalizedMessage(), exception);
+    private <B extends ByteBuf, V> void encode(B output, V value, CallbackInfo ci, @Local(name = "var7") Exception var7) {
+        AnvilCraft.LOGGER.error(var7.getLocalizedMessage(), var7);
     }
 }

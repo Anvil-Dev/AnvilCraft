@@ -69,8 +69,7 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
     public void setRecipe(IRecipeLayoutBuilder builder, TranscendiumRecipe recipe, IFocusGroup focuses) {
         int recipeId = recipe.recipeId();
         // 输入
-        builder.addInputSlot(21, 24)
-            .addItemStack(ModItems.CHARGED_NEUTRONIUM_INGOT.asStack())
+        builder.addInputSlot(21, 24).add(ModItems.CHARGED_NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                 switch (recipeId) {
                     case 0 -> tooltip.add(Component.translatable(
@@ -93,33 +92,33 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
                 }
             });
         switch (recipeId) {
-            case 0 -> builder.addOutputSlot(125, 24).addItemStack(ModItems.TRANSCENDIUM_INGOT.asStack(4));
+            case 0 -> builder.addOutputSlot(125, 24).add(ModItems.TRANSCENDIUM_INGOT.asStack(4));
             case 1 -> {
-                builder.addOutputSlot(116, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack())
+                builder.addOutputSlot(116, 15).add(ModItems.NEUTRONIUM_INGOT.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
                         tooltip.add(Component.translatable(
                             "gui.anvilcraft.category.transcendium_recipe.probability"
                         ).withStyle(ChatFormatting.GRAY)));
-                builder.addOutputSlot(134, 15).addItemStack(ModItems.TRANSCENDIUM_INGOT.asStack(4));
-                builder.addOutputSlot(116, 33).addItemStack(ModItems.TRANSCENDIUM_NUGGET.asStack())
+                builder.addOutputSlot(134, 15).add(ModItems.TRANSCENDIUM_INGOT.asStack(4));
+                builder.addOutputSlot(116, 33).add(ModItems.TRANSCENDIUM_NUGGET.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
                         tooltip.add(Component.translatable(
                             "gui.anvilcraft.category.transcendium_recipe.amount_is_3"
                         ).withStyle(ChatFormatting.GOLD)));
             }
             case 2 -> {
-                builder.addOutputSlot(116, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack());
-                builder.addOutputSlot(134, 15).addItemStack(ModItems.TRANSCENDIUM_INGOT.asStack(4));
-                builder.addOutputSlot(116, 33).addItemStack(ModItems.TRANSCENDIUM_NUGGET.asStack())
+                builder.addOutputSlot(116, 15).add(ModItems.NEUTRONIUM_INGOT.asStack());
+                builder.addOutputSlot(134, 15).add(ModItems.TRANSCENDIUM_INGOT.asStack(4));
+                builder.addOutputSlot(116, 33).add(ModItems.TRANSCENDIUM_NUGGET.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
                         tooltip.add(Component.translatable(
                             "gui.anvilcraft.category.transcendium_recipe.amount_is_3"
                         ).withStyle(ChatFormatting.GOLD)));
             }
-            case 3 -> builder.addOutputSlot(125, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack());
+            case 3 -> builder.addOutputSlot(125, 15).add(ModItems.NEUTRONIUM_INGOT.asStack());
             case 4 -> {
-                builder.addOutputSlot(116, 15).addItemStack(ModItems.NEUTRONIUM_INGOT.asStack());
-                builder.addOutputSlot(134, 15).addItemStack(ModItems.TRANSCENDIUM_NUGGET.asStack())
+                builder.addOutputSlot(116, 15).add(ModItems.NEUTRONIUM_INGOT.asStack());
+                builder.addOutputSlot(134, 15).add(ModItems.TRANSCENDIUM_NUGGET.asStack())
                     .addRichTooltipCallback((recipeSlotView, tooltip) ->
                         tooltip.add(Component.translatable(
                             "gui.anvilcraft.category.transcendium_recipe.amount_is_1"

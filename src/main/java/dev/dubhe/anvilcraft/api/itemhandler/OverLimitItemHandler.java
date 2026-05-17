@@ -59,4 +59,9 @@ public class OverLimitItemHandler extends StacksResourceHandler<UnlimitedItemSta
                ? this.getResource(index).getMaxStackSize() * this.baseLimit
                : Item.ABSOLUTE_MAX_STACK_SIZE * this.baseLimit;
     }
+
+    public UnlimitedItemStack peek(int index) {
+        ItemResource resource = this.getResource(index);
+        return new UnlimitedItemStack(resource.typeHolder(), this.getAmountAsInt(index), resource.getComponentsPatch());
+    }
 }

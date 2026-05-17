@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.HolderGetter;
@@ -34,48 +33,43 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-@Getter
-public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
+/**
+ * 充放电器配方
+ *
+ * @param power units: kW, positive for discharge and negative for charge
+ * @param time  units: tick
+ */
+public record ChargerChargingRecipe(Ingredient ingredient, ItemStackTemplate result, int power, int time) implements
+    Recipe<SingleRecipeInput> {
     private static final MapCodec<ChargerChargingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Ingredient.CODEC
             .fieldOf("ingredient")
-            .forGetter(ChargerChargingRecipe::getIngredient),
+            .forGetter(ChargerChargingRecipe::ingredient),
         ItemStackTemplate.CODEC
             .fieldOf("result")
-            .forGetter(ChargerChargingRecipe::getResult),
+            .forGetter(ChargerChargingRecipe::result),
         Codec.INT
             .fieldOf("power")
-            .forGetter(ChargerChargingRecipe::getPower),
+            .forGetter(ChargerChargingRecipe::power),
         Codec.INT
             .fieldOf("time")
-            .forGetter(ChargerChargingRecipe::getTime)
+            .forGetter(ChargerChargingRecipe::time)
     ).apply(ins, ChargerChargingRecipe::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ChargerChargingRecipe> STREAM_CODEC = StreamCodec.composite(
         Ingredient.CONTENTS_STREAM_CODEC,
-        ChargerChargingRecipe::getIngredient,
+        ChargerChargingRecipe::ingredient,
         ItemStackTemplate.STREAM_CODEC,
-        ChargerChargingRecipe::getResult,
+        ChargerChargingRecipe::result,
         ByteBufCodecs.VAR_INT,
-        ChargerChargingRecipe::getPower,
+        ChargerChargingRecipe::power,
         ByteBufCodecs.VAR_INT,
-        ChargerChargingRecipe::getTime,
+        ChargerChargingRecipe::time,
         ChargerChargingRecipe::new
     );
     public static final RecipeSerializer<ChargerChargingRecipe> SERIALIZER = new RecipeSerializer<>(
         ChargerChargingRecipe.CODEC,
         ChargerChargingRecipe.STREAM_CODEC
     );
-    public final Ingredient ingredient;
-    public final ItemStackTemplate result;
-    public final int power; // units: kW, positive for discharge and negative for charge
-    public final int time; // units: tick
-
-    public ChargerChargingRecipe(Ingredient input, ItemStackTemplate result, int power, int time) {
-        this.ingredient = input;
-        this.result = result;
-        this.power = power;
-        this.time = time;
-    }
 
     public static Builder builder(HolderGetter<Item> items) {
         return new Builder(items);

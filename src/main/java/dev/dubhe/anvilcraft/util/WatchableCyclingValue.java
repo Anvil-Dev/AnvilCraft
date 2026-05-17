@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import lombok.Getter;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Consumer;
 

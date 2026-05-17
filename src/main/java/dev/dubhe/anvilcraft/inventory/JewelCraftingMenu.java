@@ -79,7 +79,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         this.addPlayerHotbar(inventory);
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
@@ -88,7 +87,6 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));

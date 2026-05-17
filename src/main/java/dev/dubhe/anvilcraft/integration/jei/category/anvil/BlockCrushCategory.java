@@ -78,8 +78,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         BlockCrushRecipe recipe = recipeHolder.value();
         builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
             .addItemStacks(recipe.getFirstInputBlock().getBlocks().stream().map(holder -> new ItemStack(holder.value())).toList());
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
     }
 
     @Override
@@ -136,7 +135,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         IRecipeSlotsView recipeSlotsView,
         double mouseX,
         double mouseY) {
-        Identifier id = getRegistryName(recipe);
+        Identifier id = this.getIdentifier(recipe);
         IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 42 && mouseY <= 52) {

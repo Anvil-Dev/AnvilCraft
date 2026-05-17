@@ -22,6 +22,7 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -80,12 +81,11 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockCompressRecipe> recipeHolder, IFocusGroup focuses) {
         BlockCompressRecipe recipe = recipeHolder.value();
         for (BlockStatePredicate input : recipe.getInputBlocks()) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-                .addIngredients(Ingredient.of(
-                    input.getBlocks().stream().map(holder -> new ItemStack(holder.value())).toArray(ItemStack[]::new)));
+            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(Ingredient.of(
+                input.getBlocks().stream().map(Holder::value)
+            ));
         }
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     ) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         BlockCompressRecipe recipe = recipeHolder.value();
-        Identifier id = getRegistryName(recipeHolder);
+        Identifier id = this.getIdentifier(recipeHolder);
 
         if (mouseX >= 40 && mouseX <= 58) {
             if (mouseY >= 24 && mouseY < 42) {

@@ -89,10 +89,8 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     public void setRecipe(
         IRecipeLayoutBuilder builder, RecipeHolder<MassInjectRecipe> recipeHolder, IFocusGroup focuses) {
         MassInjectRecipe recipe = recipeHolder.value();
-        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24)
-            .addIngredients(recipe.getIngredient());
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24)
-            .addItemStack(ModItems.NEUTRONIUM_INGOT.asStack())
+        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(recipe.getIngredient());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24).add(ModItems.NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback(
                 (recipeSlotView, tooltip) -> tooltip.add(
                     Component.translatable(KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)

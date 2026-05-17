@@ -19,8 +19,8 @@ public abstract class VaultBlockEntityServerMixin {
                      + "Lnet/minecraft/world/item/ItemStack;)Z"
         )
     )
-    private static boolean validKeyItemOnly(ItemStack stack, ItemStack other, Operation<Boolean> original) {
-        if (other.getComponentsPatch().isEmpty()) return stack.is(other.getItem());
-        return original.call(stack, other);
+    private static boolean validKeyItemOnly(ItemStack a, ItemStack b, Operation<Boolean> original) {
+        if (b.getComponentsPatch().isEmpty()) return a.is(b.getItem());
+        return original.call(a, b);
     }
 }

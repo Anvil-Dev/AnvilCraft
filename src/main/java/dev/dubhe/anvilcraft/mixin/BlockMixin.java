@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.TriState;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,7 +52,7 @@ abstract class BlockMixin implements IBlockExtension {
         BlockState neighborState,
         Direction direction,
         CallbackInfoReturnable<Boolean> cir,
-        @Local(index = 5) VoxelShape occluder
+        @Local(name = "occluder") VoxelShape occluder
     ) {
         if (state.getBlock() instanceof INegativeShapeBlock<?> block) {
             boolean b = anvilcraft$NegativeShapeFaceSkip(

@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -31,41 +30,32 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-@Getter
-public class MineralFountainChanceRecipe implements Recipe<MineralFountainChanceRecipe.Input> {
+public record MineralFountainChanceRecipe(Identifier dimension, BlockStatePredicate fromBlock, ChanceBlockState toBlock) implements
+    Recipe<MineralFountainChanceRecipe.Input> {
     private static final MapCodec<MineralFountainChanceRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Identifier.CODEC
             .fieldOf("dimension")
-            .forGetter(MineralFountainChanceRecipe::getDimension),
+            .forGetter(MineralFountainChanceRecipe::dimension),
         BlockStatePredicate.CODEC
             .fieldOf("from_block")
-            .forGetter(MineralFountainChanceRecipe::getFromBlock),
+            .forGetter(MineralFountainChanceRecipe::fromBlock),
         ChanceBlockState.CODEC
             .fieldOf("to_block")
-            .forGetter(MineralFountainChanceRecipe::getToBlock)
+            .forGetter(MineralFountainChanceRecipe::toBlock)
     ).apply(ins, MineralFountainChanceRecipe::new));
     private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainChanceRecipe> STREAM_CODEC = StreamCodec.composite(
         Identifier.STREAM_CODEC,
-        MineralFountainChanceRecipe::getDimension,
+        MineralFountainChanceRecipe::dimension,
         BlockStatePredicate.STREAM_CODEC,
-        MineralFountainChanceRecipe::getFromBlock,
+        MineralFountainChanceRecipe::fromBlock,
         ChanceBlockState.STREAM_CODEC,
-        MineralFountainChanceRecipe::getToBlock,
+        MineralFountainChanceRecipe::toBlock,
         MineralFountainChanceRecipe::new
     );
     public static final RecipeSerializer<MineralFountainChanceRecipe> SERIALIZER = new RecipeSerializer<>(
         MineralFountainChanceRecipe.CODEC,
         MineralFountainChanceRecipe.STREAM_CODEC
     );
-    private final Identifier dimension;
-    private final BlockStatePredicate fromBlock;
-    private final ChanceBlockState toBlock;
-
-    public MineralFountainChanceRecipe(Identifier dimension, BlockStatePredicate fromBlock, ChanceBlockState toBlock) {
-        this.dimension = dimension;
-        this.fromBlock = fromBlock;
-        this.toBlock = toBlock;
-    }
 
     public double getChance(ServerLevel level) {
         return this.toBlock.chance().getFloat(RecipeUtil.emptyLootContext(level));
@@ -160,6 +150,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
          * 添加结果方块
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder toBlock(ChanceBlockState result) {
@@ -172,6 +163,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
          *
          * @param result 结果方块
          * @param chance 概率
+         *
          * @return 构建器实例
          */
         public Builder toBlock(Block result, float chance) {
@@ -182,6 +174,7 @@ public class MineralFountainChanceRecipe implements Recipe<MineralFountainChance
          * 添加结果方块（默认概率为1.0F）
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder toBlock(Block result) {

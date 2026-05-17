@@ -34,7 +34,6 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
     }
 
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-    @SuppressWarnings("UnreachableCode")
     private void onFlyingHitBlock(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         Optional<ServerPlayer> playerOp = Util.castSafely(this, ServerPlayer.class);
         if (playerOp.isEmpty()) return;
