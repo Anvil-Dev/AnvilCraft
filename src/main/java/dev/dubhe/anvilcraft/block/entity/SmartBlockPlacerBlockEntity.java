@@ -192,7 +192,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean isNewCycle = this.placeCooldown > this.lastPlaceCooldown 
             && this.placeCooldown >= PLACEMENT_INTERVAL;
         
-        if (isNewCycle) {
+        // 额外检测：如果 placeCooldown 从 0 变为非 0，也视为新周期
+        // 这样可以处理目标位置被玩家手动放置后又拆除的情况
+        boolean wasIdle = this.lastPlaceCooldown == 0;
+        boolean isNowWorking = this.placeCooldown > 0;
+        boolean becameActive = wasIdle && isNowWorking;
+        
+        if (isNewCycle || becameActive) {
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
         }

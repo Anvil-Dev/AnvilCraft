@@ -28,6 +28,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     // 位置列表缓存，避免每帧重新分配
     private final Map<String, List<BlockPos>> positionCache = new HashMap<>();
     
+    // 放置间隔（与 SmartBlockPlacerBlockEntity 中的 PLACEMENT_INTERVAL 保持一致）
+    private static final int PLACEMENT_INTERVAL = 20;
+    
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_base")
     );
@@ -335,7 +338,45 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
-            // 如果动画未开始，查找目标位置并初始化
+            // 检查是否需要重置动画：如果动画已完成且超过停顿间隔，查找新目标
+            if (animStartTime != 0 && animTargetPos != null) {
+                long elapsedTicks = currentTime - animStartTime;
+                boolean animationCompleted = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
+                
+                if (animationCompleted) {
+                    // 动画已完成且停顿间隔已过，检查是否有新目标
+                    BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+                    if (targetPos == null || targetPos.equals(animTargetPos)) {
+                        // 没有新目标或目标相同，保持动画结束状态
+                        // 但如果 placeCooldown 重新开始了，说明有新工作，重置动画
+                        if (entity.getPlaceCooldown() >= PLACEMENT_INTERVAL - 2) {
+                            // 新的工作周期开始，重置动画状态
+                            entity.setClientAnimationStartTime(0);
+                            entity.setClientLastTargetPos(null);
+                            animStartTime = 0;
+                            animTargetPos = null;
+                        } else {
+                            // 保持最终位置
+                            animationProgress = 1.0f;
+                            float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                                animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
+                            );
+                            baseSwingAngle = angles[0];
+                            upperArmAngle = angles[1];
+                            forearmAngle = angles[2];
+                            clawAngle = angles[3];
+                        }
+                    } else {
+                        // 有新目标，重置动画
+                        entity.setClientAnimationStartTime(currentTime);
+                        entity.setClientLastTargetPos(targetPos);
+                        animStartTime = currentTime;
+                        animTargetPos = targetPos;
+                    }
+                }
+            }
+            
+            // 如果动画未开始或刚被重置，查找目标位置并初始化
             if (animStartTime == 0) {
                 BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                 if (targetPos != null) {
@@ -351,33 +392,15 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 isAnimationPlaying = true;
                 long elapsedTicks = currentTime - animStartTime;
 
-                // 动画完成后，查找新的目标位置（添加停顿间隔）
-                if (elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
-                    // 动画完成后等待5 tick再检查新目标（避免连续重置）
-                    boolean shouldCheckNewTarget = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
-                    
-                    if (shouldCheckNewTarget) {
-                        BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
-                        if (targetPos != null && !targetPos.equals(animTargetPos)) {
-                            // 新目标：重置动画
-                            entity.setClientAnimationStartTime(currentTime);
-                            entity.setClientLastTargetPos(targetPos);
-                            animTargetPos = targetPos;
-                            elapsedTicks = 0;
-                        } else {
-                            // 无新目标：保持在最终位置
-                            elapsedTicks = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks();
-                        }
-                    } else {
-                        // 动画刚完成，等待停顿期间保持最终位置
-                        elapsedTicks = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks();
-                    }
+                // 动画进行中
+                if (elapsedTicks < WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
+                    animationProgress = Math.min(
+                        1.0f,
+                        (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
+                    );
+                } else {
+                    animationProgress = 1.0f;
                 }
-                
-                animationProgress = Math.min(
-                    1.0f,
-                    (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
-                );
 
                 // 计算当前角度
                 float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
