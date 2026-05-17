@@ -48,6 +48,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
@@ -112,7 +113,8 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             this.tryIgnite(level, pos);
         }
         ResourceHandler<ItemResource> items = level.getCapability(Capabilities.Item.BLOCK, pos, null);
-        FishTankBlockEntity.insertToTank(items, itemEntity.getItem());
+        if (!(items instanceof ItemStacksResourceHandler stacks)) return;
+        FishTankBlockEntity.insertToTank(stacks, stacks::set, itemEntity);
     }
 
     @Override
@@ -136,18 +138,13 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             this.tryIgnite(level, pos);
         }
         ResourceHandler<ItemResource> items = level.getCapability(Capabilities.Item.BLOCK, pos, null);
-        FishTankBlockEntity.insertToTank(items, itemEntity.getItem());
+        if (!(items instanceof ItemStacksResourceHandler stacks)) return;
+        FishTankBlockEntity.insertToTank(stacks, stacks::set, itemEntity);
     }
 
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
-        BlockState newState = level.getBlockState(pos);
-        if (!level.isClientSide() && !state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof FishTankBlockEntity tank) {
-
-            }
-        }
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Override

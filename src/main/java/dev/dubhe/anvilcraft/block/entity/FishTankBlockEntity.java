@@ -6,19 +6,25 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
+import dev.dubhe.anvilcraft.block.workstation.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -31,6 +37,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
@@ -88,6 +95,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
             super.onContentsChanged(index, previousContents);
+            if (index < 8) this.tryPopoutResults(index);
             FishTankBlockEntity.this.setChanged();
             Level level = FishTankBlockEntity.this.getLevel();
             if (level == null) return;
@@ -97,6 +105,24 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                 FishTankBlockEntity.this.getBlockState(),
                 Block.UPDATE_CLIENTS
             );
+        }
+
+        private void tryPopoutResults(int index) {
+            if (!FishTankBlockEntity.this.getBlockState().getValue(FishTankBlock.OUTLET)) return;
+            ItemResource resource = this.getResource(index);
+            if (resource.isEmpty()) return;
+            Direction outletDir = getBlockState().getValue(FishTankBlock.FACING);
+            if (FishTankBlockEntity.this.level == null) return;
+            try (Transaction transaction = Transaction.openRoot()) {
+                int extracted = this.extract(index, resource, Integer.MAX_VALUE, transaction);
+                if (extracted == 0) return;
+                FishTankBlockEntity.popResource(
+                    FishTankBlockEntity.this.level,
+                    FishTankBlockEntity.this.getBlockPos(),
+                    outletDir,
+                    resource.toStack(extracted)
+                );
+            }
         }
     };
     /// 输出产物的存储代理，用于炼药锅配方输出
@@ -203,6 +229,48 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
      * 向鱼缸中放入物品
      *
      * @param handler 鱼缸物品处理器
+     * @param entity  要放入的物品实体
+     */
+    public static void insertToTank(
+        @Nullable ResourceHandler<ItemResource> handler,
+        IndexModifier<ItemResource> modifier,
+        ItemEntity entity
+    ) {
+        ItemStack stack = entity.getItem();
+        if (entity.anvilcraft$isAdsorbable()) {
+            FishTankBlockEntity.insertToTank(handler, stack);
+            return;
+        }
+        int remaining = stack.getCount();
+        while (remaining > 0) {
+            int slot = -1;
+            ItemResource resource = null;
+            int limit = 0;
+            int existing = 0;
+            for (int i = 0; i < 8; i++) {
+                resource = handler.getResource(i);
+                if (!resource.isEmpty() && !resource.matches(stack)) continue;
+                limit = Math.min(
+                    resource.isEmpty() ? Item.DEFAULT_MAX_STACK_SIZE : resource.getMaxStackSize(),
+                    handler.getCapacityAsInt(slot, resource)
+                );
+                existing = handler.getAmountAsInt(i);
+                if (existing >= limit) continue;
+                slot = i;
+                break;
+            }
+            if (slot < 0) return;
+            entity.discard();
+            int storing = Math.min(remaining, limit - existing);
+            remaining -= storing;
+            modifier.set(slot, resource, existing + storing);
+        }
+    }
+
+    /**
+     * 向鱼缸中放入物品
+     *
+     * @param handler 鱼缸物品处理器
      * @param stack 要放入的物品
      * @return 是否放入成功
      */
@@ -284,5 +352,22 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     public static boolean shouldIgnite(FluidStack cur) {
         return cur.is(ModFluidTags.IGNITABLE);
+    }
+
+    private static void popResource(Level level, BlockPos pos, Direction direction, ItemStack stack) {
+        int stepX = direction.getStepX();
+        int stepZ = direction.getStepZ();
+        double halfWidth = (double) EntityType.ITEM.getWidth() / 2.0;
+        double posX = (double) pos.getX() + 0.5
+                      + (stepX == 0 ? Mth.nextDouble(level.getRandom(), -0.25, 0.25) : (double) stepX * (0.5 + halfWidth));
+        double posY = pos.getY() + 0.5;
+        double posZ = (double) pos.getZ() + 0.5
+                      + (stepZ == 0 ? Mth.nextDouble(level.getRandom(), -0.25, 0.25) : (double) stepZ * (0.5 + halfWidth));
+        double deltaX = stepX == 0 ? Mth.nextDouble(level.getRandom(), -0.1, 0.1) : (double) stepX * 0.1;
+        double deltaY = Mth.nextDouble(level.getRandom(), 0.0, 0.1);
+        double deltaZ = stepZ == 0 ? Mth.nextDouble(level.getRandom(), -0.1, 0.1) : (double) stepZ * 0.1;
+        ItemEntity entity = new ItemEntity(level, posX, posY, posZ, stack, deltaX, deltaY, deltaZ);
+        entity.setDefaultPickUpDelay();
+        level.addFreshEntity(entity);
     }
 }
