@@ -223,7 +223,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    @SuppressWarnings(
+        {
+            "checkstyle:VariableDeclarationUsageDistance",
+            "checkstyle:Indentation"
+        }
+    )
     @Override
     public void render(
         SmartBlockPlacerBlockEntity entity,
@@ -339,6 +344,56 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 如果没有手持物品且动画还没开始，说明工作条件不满足
             boolean hasValidWorkItem = !entity.getCurrentHeldBlock().isEmpty() || animStartTime != 0;
             
+            // 物品耗尽时，立即触发收回动画
+            if (entity.getCurrentHeldBlock().isEmpty() && !entity.isClientIsRetracting()) {
+                // 如果正在播放动画，触发收回
+                if (animStartTime != 0 && animTargetPos != null) {
+                    entity.setClientIsRetracting(true);
+                    entity.setClientRetractStartTime(currentTime);
+                    
+                    // 计算当前中断位置的角度和进度
+                    long elapsedTicks = currentTime - animStartTime;
+                    float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
+                        .getAnimationDurationTicks());
+                    float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                        animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
+                    );
+                    entity.setClientRetractStartAngles(angles);
+                    entity.setClientRetractStartProgress(interruptProgress);
+                    
+                    // 清除工作动画状态
+                    entity.setClientAnimationStartTime(0);
+                    entity.setClientLastTargetPos(null);
+                    
+                    // 立即开始播放收回动画（在当前帧）
+                    long elapsedRetractTicks = 0;
+                    float remainingProgress = 1.0f - interruptProgress;
+                    float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
+                    
+                    if (retractDuration > 0) {
+                        float retractProgress = Math.min(
+                            1.0f,
+                            (elapsedRetractTicks + partialTick) / retractDuration
+                        );
+                        
+                        // 从起始角度线性插值到零
+                        baseSwingAngle = angles[0] * (1f - retractProgress);
+                        upperArmAngle = angles[1] * (1f - retractProgress);
+                        forearmAngle = angles[2] * (1f - retractProgress);
+                        clawAngle = angles[3] * (1f - retractProgress);
+                    }
+                } else {
+                    // 没有正在进行的动画，清除状态
+                    entity.setClientAnimationStartTime(0);
+                    entity.setClientLastTargetPos(null);
+                }
+                // 设置为非工作状态，让后续逻辑处理收回动画
+                isWorking = false;
+            }
+                    
+            // 只有在工作状态且物品有效时才继续执行工作动画逻辑
+            if (isWorking) {
+            
             // 如果动画已播放完成，检查工作条件
             if (animStartTime != 0 && animTargetPos != null) {
                 long elapsedTicks = currentTime - animStartTime;
@@ -410,6 +465,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 forearmAngle = angles[2];
                 clawAngle = angles[3];
             }
+        } // 闭合 if (isWorking)
         }
         
         // 渲染底座

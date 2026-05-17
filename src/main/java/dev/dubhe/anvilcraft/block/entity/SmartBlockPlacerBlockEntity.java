@@ -198,19 +198,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean isNowWorking = this.placeCooldown > 0;
         boolean becameActive = wasIdle && isNowWorking;
         
-        // 检测工作周期结束：placeCooldown 从非 0 变为 0
-        boolean workCycleEnded = this.lastPlaceCooldown > 0 && this.placeCooldown == 0;
-        
         if (isNewCycle || becameActive) {
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
+            // 新周期开始时取消收回状态
+            this.clientIsRetracting = false;
         }
         
-        // 当工作周期结束时，清除动画状态
-        if (workCycleEnded) {
-            this.clientAnimationStartTime = 0;
-            this.clientLastTargetPos = null;
-        }
+        // 注意：当工作周期结束时，不立即清除动画状态
+        // 让渲染器先播放收回动画，收回完成后再清除
+        // 动画状态由渲染器在收回完成后清除
         
         this.lastPlaceCooldown = this.placeCooldown;
     }
@@ -234,14 +231,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean needsPlacement = this.hasEmptyPositions(level, pos);
         boolean hasBlocksInContainer = this.hasBlockItemsInContainer(level, pos);
         
-        // 当没有物品时，清空 currentHeldBlock 以确保客户端能正确同步
-        if (!hasBlocksInContainer && !this.currentHeldBlock.isEmpty()) {
-            this.currentHeldBlock = ItemStack.EMPTY;
+        // 当没有物品时，清空 currentHeldBlock 并立即停止工作周期
+        if (!hasBlocksInContainer) {
+            if (!this.currentHeldBlock.isEmpty()) {
+                this.currentHeldBlock = ItemStack.EMPTY;
+            }
+            // 立即重置 cooldown，让客户端知道工作已停止
+            if (this.placeCooldown > 0) {
+                this.placeCooldown = 0;
+            }
             this.onChanged();
+            return; // 直接返回，不继续执行后续逻辑
         }
         
-        tickCommonCooldownLogic(level, 
-            needsPlacement && hasBlocksInContainer,
+        tickCommonCooldownLogic(level,
+            needsPlacement,
             () -> this.placeBlocks(level, pos),
             () -> {
                 // 新周期开始，预览要放置的方块
@@ -426,20 +430,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         
         executeBlockOperation(level, placerPos, facing, upsideDown,
-            () -> this.peekBlockItemFromContainer(level, placerPos),
+            () -> this.extractBlockItemFromContainer(level, placerPos),
             (blockItem, blockItemObj, targetPos) -> {
-                // 放置成功后从容器中提取物品
-                ItemStack extracted = this.extractBlockItemFromContainer(level, placerPos);
-                if (extracted.isEmpty()) {
-                    this.currentPlacementIndex = 0;
-                    this.currentHeldBlock = ItemStack.EMPTY;
-                    this.onChanged();
-                    return false;
-                }
-                
-                // 放置成功，清空钳子中的方块
-                this.currentHeldBlock = ItemStack.EMPTY;
-                
+                // 放置成功后，物品已经在执行前被提取了
                 // 检查是否可以继续堆叠
                 BlockState newState = level.getBlockState(targetPos);
                 return !newState.isAir() && !this.canNotBePlaced(level, newState, blockItemObj);
