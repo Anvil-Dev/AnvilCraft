@@ -107,7 +107,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             this.tryIgnite(level, pos);
         }
         IItemHandler items = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-        FishTankBlockEntity.insertToTank(items, itemEntity.getItem());
+        FishTankBlockEntity.insertToTank(items, itemEntity);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             this.tryIgnite(level, pos);
         }
         IItemHandler items = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
-        FishTankBlockEntity.insertToTank(items, itemEntity.getItem());
+        FishTankBlockEntity.insertToTank(items, itemEntity);
     }
 
     @Override
