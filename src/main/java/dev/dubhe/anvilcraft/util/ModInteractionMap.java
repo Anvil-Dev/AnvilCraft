@@ -162,7 +162,7 @@ public class ModInteractionMap {
             oil,
             ModItems.MULTITOOL_ITEM.asItem(),
             (state, level, pos, player, hand, stack) -> {
-                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)) return InteractionResult.SUCCESS;
+                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)) return InteractionResult.SUCCESS;
                 OilCauldronBlock.ignite(level, pos, state);
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
@@ -265,7 +265,7 @@ public class ModInteractionMap {
             fishTank,
             ModItems.MULTITOOL_ITEM.asItem(),
             (state, level, pos, player, hand, stack) -> {
-                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL_MODE)) return InteractionResult.SUCCESS;
+                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)) return InteractionResult.SUCCESS;
                 if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);

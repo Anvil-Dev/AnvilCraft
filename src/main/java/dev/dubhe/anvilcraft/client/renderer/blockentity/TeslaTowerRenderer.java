@@ -60,7 +60,7 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
         BlockPos pos = blockEntity.getBlockPos();
         Vec3 localCamera = cameraPos.subtract(pos.getX(), pos.getY(), pos.getZ());
 
-        renderLightning(poseStack, bufferSource, start, end, localCamera, LIGHTNING_WIDTH, 0.7F);
+        this.renderLightning(poseStack, bufferSource, start, end, localCamera, LIGHTNING_WIDTH, 0.7F);
 
         poseStack.popPose();
     }

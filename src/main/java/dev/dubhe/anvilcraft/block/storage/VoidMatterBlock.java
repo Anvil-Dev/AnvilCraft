@@ -26,11 +26,11 @@ public class VoidMatterBlock extends Block {
         Block randomBlock = null;
         for (Holder<Block> blockHolder : tagOrEmpty) {
             count++;
-            if (level.getRandom().nextInt(count) == 0){
+            if (level.getRandom().nextInt(count) == 0) {
                 randomBlock = blockHolder.value();
             }
         }
-        if (randomBlock == null)return Blocks.AIR.defaultBlockState();
+        if (randomBlock == null) return Blocks.AIR.defaultBlockState();
         return randomBlock.defaultBlockState();
     }
 

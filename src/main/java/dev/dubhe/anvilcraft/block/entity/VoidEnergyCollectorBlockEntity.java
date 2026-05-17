@@ -112,18 +112,18 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         if (this.cooldownCount-- > 1) return;
         this.cooldownCount = COOLDOWN;
         final int oldPower = this.power;
-        this.blockCount = countBlocksInRange();
+        this.blockCount = this.countBlocksInRange();
         this.power = getPowerFromBlockCount(this.blockCount);
         if (this.power > 0 && this.getBlockState().getBlock() instanceof VoidEnergyCollectorBlock voidEnergyCollector) {
             voidEnergyCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
             if (this.decayCooldownCount-- <= 1) {
-                makeBlocksDecay();
+                this.makeBlocksDecay();
                 this.decayCooldownCount = level.getRandom().nextInt(0, 60);
             }
         }
-        if (power != oldPower && grid != null) grid.markChanged();
+        if (this.power != oldPower && this.grid != null) this.grid.markChanged();
         this.blockCount = 0;
-        time++;
+        this.time++;
     }
 
     public static boolean isOutOfBuildLimits(Level level, BlockPos pos) {
@@ -220,6 +220,6 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     public void clientTick() {
-        rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
     }
 }

@@ -65,7 +65,7 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
         }
 
         boolean accept(long l, long r) {
-            return fn.apply(l, r);
+            return this.fn.apply(l, r);
         }
 
         @Override
@@ -118,7 +118,7 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
         }
 
         public NumericTagValuePredicate build() {
-            return new NumericTagValuePredicate(tagKeyPath, requirement, expected);
+            return new NumericTagValuePredicate(this.tagKeyPath, this.requirement, this.expected);
         }
     }
 

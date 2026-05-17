@@ -64,7 +64,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        ModMenuTypes.open((ServerPlayer) player, getMenuProvider(state, level, pos));
+        ModMenuTypes.open((ServerPlayer) player, this.getMenuProvider(state, level, pos));
         player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
         return InteractionResult.SUCCESS;
     }
@@ -90,7 +90,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
                 BlockState adjacentState = level.getBlockState(poz);
                 return adjacentState.is(this) && adjacentState.getValue(TYPE) != Type.SINGLE;
             })
-            .forEach(poz -> deformMatrix(level, poz));
+            .forEach(poz -> this.deformMatrix(level, poz));
     }
 
     @Override
@@ -123,7 +123,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         if (this.tryFormMatrix(actualLevel, pos)) {
             return state;
         }
-        if (state.getValue(TYPE) != Type.SINGLE && !isValidMatrixBlock(neighborState, false)) {
+        if (state.getValue(TYPE) != Type.SINGLE && !this.isValidMatrixBlock(neighborState, false)) {
             this.deformMatrix(actualLevel, pos);
             return state;
         }
@@ -139,7 +139,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
      * @return 是否成功构建透明工作台矩阵
      */
     private boolean tryFormMatrix(Level level, BlockPos pos) {
-        if (!isValidMatrixBlock(level.getBlockState(pos), false)) return false;
+        if (!this.isValidMatrixBlock(level.getBlockState(pos), false)) return false;
         int maxSize = AnvilCraft.CONFIG.transparentCraftingTableMaxMatrixSize;
         int x0 = pos.getX();
         int y0 = pos.getY();
@@ -148,20 +148,20 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         // 以放置方块为起始点，向正负x、z轴逐个延申并进行检测，扩充至最大作为矩阵尺寸。
         int minX = x0;
         int maxX = x0;
-        while ((maxX - minX < maxSize) && isValidMatrixBlock(level.getBlockState(mpos.set(minX - 1, y0, z0)), false)) {
+        while ((maxX - minX < maxSize) && this.isValidMatrixBlock(level.getBlockState(mpos.set(minX - 1, y0, z0)), false)) {
             minX--;
         }
-        while ((maxX - minX < maxSize) && isValidMatrixBlock(level.getBlockState(mpos.set(maxX + 1, y0, z0)), false)) {
+        while ((maxX - minX < maxSize) && this.isValidMatrixBlock(level.getBlockState(mpos.set(maxX + 1, y0, z0)), false)) {
             maxX++;
         }
         int sizeX = maxX - minX + 1;
         if (sizeX < 2 || sizeX > maxSize) return false;
         int minZ = z0;
         int maxZ = z0;
-        while ((maxZ - minZ < maxSize) && isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, minZ - 1)), false)) {
+        while ((maxZ - minZ < maxSize) && this.isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, minZ - 1)), false)) {
             minZ--;
         }
-        while ((maxZ - minZ < maxSize) && isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, maxZ + 1)), false)) {
+        while ((maxZ - minZ < maxSize) && this.isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, maxZ + 1)), false)) {
             maxZ++;
         }
         int sizeZ = maxZ - minZ + 1;
@@ -171,17 +171,17 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
             if (x == x0) continue;
             for (int z = minZ; z <= maxZ; z++) {
                 if (z == z0) continue;
-                if (!isValidMatrixBlock(level.getBlockState(mpos.set(x, y0, z)), false)) return false;
+                if (!this.isValidMatrixBlock(level.getBlockState(mpos.set(x, y0, z)), false)) return false;
             }
         }
         // 向矩阵外圈检测是否有多余的方块
         for (int x = minX; x <= maxX; x++) {
-            if (isValidMatrixBlock(level.getBlockState(mpos.set(x, y0, minZ - 1)), true)) return false;
-            if (isValidMatrixBlock(level.getBlockState(mpos.set(x, y0, maxZ + 1)), true)) return false;
+            if (this.isValidMatrixBlock(level.getBlockState(mpos.set(x, y0, minZ - 1)), true)) return false;
+            if (this.isValidMatrixBlock(level.getBlockState(mpos.set(x, y0, maxZ + 1)), true)) return false;
         }
         for (int z = minZ; z <= maxZ; z++) {
-            if (isValidMatrixBlock(level.getBlockState(mpos.set(minX - 1, y0, z)), true)) return false;
-            if (isValidMatrixBlock(level.getBlockState(mpos.set(maxX + 1, y0, z)), true)) return false;
+            if (this.isValidMatrixBlock(level.getBlockState(mpos.set(minX - 1, y0, z)), true)) return false;
+            if (this.isValidMatrixBlock(level.getBlockState(mpos.set(maxX + 1, y0, z)), true)) return false;
         }
         // 将矩阵内的通透工作台转换为连接状态
         for (int x = minX; x <= maxX; x++) {
@@ -210,18 +210,18 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
 
         int minX = x0;
         int maxX = x0;
-        while (isValidMatrixBlock(level.getBlockState(mpos.set(minX - 1, y0, z0)), false)) {
+        while (this.isValidMatrixBlock(level.getBlockState(mpos.set(minX - 1, y0, z0)), false)) {
             minX--;
         }
-        while (isValidMatrixBlock(level.getBlockState(mpos.set(maxX + 1, y0, z0)), false)) {
+        while (this.isValidMatrixBlock(level.getBlockState(mpos.set(maxX + 1, y0, z0)), false)) {
             maxX++;
         }
         int minZ = z0;
         int maxZ = z0;
-        while (isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, minZ - 1)), false)) {
+        while (this.isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, minZ - 1)), false)) {
             minZ--;
         }
-        while (isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, maxZ + 1)), false)) {
+        while (this.isValidMatrixBlock(level.getBlockState(mpos.set(x0, y0, maxZ + 1)), false)) {
             maxZ++;
         }
 
@@ -283,12 +283,12 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
 
         @Override
         public String getSerializedName() {
-            return serializedName;
+            return this.serializedName;
         }
 
         @Override
         public String toString() {
-            return getSerializedName();
+            return this.getSerializedName();
         }
     }
 }
