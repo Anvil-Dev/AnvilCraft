@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
-import dev.dubhe.anvilcraft.item.utility.CrabClawItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.server.level.ServerPlayer;
