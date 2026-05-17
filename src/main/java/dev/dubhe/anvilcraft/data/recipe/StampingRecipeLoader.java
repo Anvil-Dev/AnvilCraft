@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
@@ -37,7 +36,7 @@ public class StampingRecipeLoader {
 
         StampingRecipe.builder()
             .requires(Items.MILK_BUCKET)
-            .result(ModFoodItems.CREAM, 4)
+            .result(ModItems.CREAM, 4)
             .result(Items.BUCKET)
             .save(provider, AnvilCraft.of("stamping/cream"));
         StampingRecipe.builder()
@@ -72,8 +71,8 @@ public class StampingRecipeLoader {
             .save(provider, AnvilCraft.of("stamping/geode_gems"));
         StampingRecipe.builder()
             .requires(Items.COCOA_BEANS)
-            .result(ModFoodItems.COCOA_BUTTER)
-            .result(ModFoodItems.COCOA_POWDER)
+            .result(ModItems.COCOA_BUTTER)
+            .result(ModItems.COCOA_POWDER)
             .save(provider);
         StampingRecipe.builder()
             .requires(ModItems.PRISMARINE_CLUSTER)

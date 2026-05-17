@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvi
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.HolderLookup;
@@ -119,8 +118,8 @@ public class VanillaRecipesLoader {
             0.35F,
             600
         ).unlockedBy(
-            AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()),
-            AnvilCraftDatagen.has(lookup, ModFoodItems.DOUGH)
+            AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()),
+            AnvilCraftDatagen.has(lookup, ModItems.DOUGH)
         ).save(provider, AnvilCraft.recipe("campfire_cooking_bread"));
         SimpleCookingRecipeBuilder.smoking(
             Ingredient.of(lookup.getOrThrow(ModItemTags.DOUGH)),
@@ -129,8 +128,8 @@ public class VanillaRecipesLoader {
             0.35F,
             100
         ).unlockedBy(
-            AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()),
-            AnvilCraftDatagen.has(lookup, ModFoodItems.DOUGH)
+            AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()),
+            AnvilCraftDatagen.has(lookup, ModItems.DOUGH)
         ).save(provider, AnvilCraft.recipe("smoking_bread"));
         SimpleCookingRecipeBuilder.smelting(
             Ingredient.of(lookup.getOrThrow(ModItemTags.DOUGH)),
@@ -140,8 +139,8 @@ public class VanillaRecipesLoader {
             0.35F,
             200
         ).unlockedBy(
-            AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()),
-            AnvilCraftDatagen.has(lookup, ModFoodItems.DOUGH)
+            AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()),
+            AnvilCraftDatagen.has(lookup, ModItems.DOUGH)
         ).save(provider, AnvilCraft.recipe("smelting_cooking_bread"));
     }
 }

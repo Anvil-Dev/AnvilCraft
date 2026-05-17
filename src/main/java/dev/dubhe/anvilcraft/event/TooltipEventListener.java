@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponentType;
@@ -66,6 +67,8 @@ public class TooltipEventListener {
         stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.FLIGHT_TIME, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.SIGNED_PLAYERS, ctx, display, consumer, flag);
+        stack.addToTooltip(ModComponents.BOX_CONTENTS, ctx, display, consumer, flag);
+        TooltipEventListener.addSpecialItemTooltips(stack, ctx, display, consumer, flag);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -82,6 +85,19 @@ public class TooltipEventListener {
             stack.addUnitComponentToTooltip(type, normal, display, consumer);
         } else {
             stack.addUnitComponentToTooltip(type, shift, display, consumer);
+        }
+    }
+
+    private static void addSpecialItemTooltips(
+        ItemStack stack,
+        AttributeTooltipContext ctx,
+        TooltipDisplay display,
+        Consumer<Component> builder,
+        TooltipFlag flag
+    ) {
+        switch (stack.getItem()) {
+            case PillBoxItem _ -> PillBoxItem.appendHoverText(builder, flag);
+            default -> {}
         }
     }
 }

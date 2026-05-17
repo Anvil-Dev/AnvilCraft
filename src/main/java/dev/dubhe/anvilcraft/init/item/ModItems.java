@@ -892,6 +892,28 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> SEA_HEART_SHELL_SHARD = REGISTRUM.item("sea_heart_shell_shard", Item::new)
         .register();
+    public static final ItemEntry<Item> CREAM = REGISTRUM
+        .item("cream", Item::new)
+        .tag(ModItemTags.CREAM)
+        .register();
+    public static final ItemEntry<Item> FLOUR = REGISTRUM
+        .item("flour", Item::new)
+        .tag(ModItemTags.FLOUR, ModItemTags.WHEAT_FLOUR)
+        .register();
+    public static final ItemEntry<Item> DOUGH = REGISTRUM
+        .item("dough", Item::new)
+        .tag(ModItemTags.DOUGH, ModItemTags.WHEAT_DOUGH)
+        .register();
+    public static final ItemEntry<Item> COCOA_LIQUOR = REGISTRUM
+        .item("cocoa_liquor", Item::new)
+        .recipe(RegistrumItemRecipeLoader::cocoaLiquor)
+        .register();
+    public static final ItemEntry<Item> COCOA_BUTTER = REGISTRUM
+        .item("cocoa_butter", Item::new)
+        .register();
+    public static final ItemEntry<Item> COCOA_POWDER = REGISTRUM
+        .item("cocoa_powder", Item::new)
+        .register();
 
     public static final ItemEntry<Item> TUNGSTEN_NUGGET = REGISTRUM.item("tungsten_nugget", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())

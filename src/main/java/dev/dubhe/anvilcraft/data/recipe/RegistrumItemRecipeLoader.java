@@ -1351,11 +1351,11 @@ public class RegistrumItemRecipeLoader {
     public static <T extends Item> void cocoaLiquor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get(), 2)
-            .requires(ModFoodItems.COCOA_POWDER)
-            .requires(ModFoodItems.COCOA_POWDER)
-            .requires(ModFoodItems.COCOA_BUTTER)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.COCOA_POWDER), AnvilCraftDatagen.has(lookup, ModFoodItems.COCOA_POWDER))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.COCOA_BUTTER), AnvilCraftDatagen.has(lookup, ModFoodItems.COCOA_BUTTER))
+            .requires(ModItems.COCOA_POWDER)
+            .requires(ModItems.COCOA_POWDER)
+            .requires(ModItems.COCOA_BUTTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.COCOA_POWDER), AnvilCraftDatagen.has(lookup, ModItems.COCOA_POWDER))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.COCOA_BUTTER), AnvilCraftDatagen.has(lookup, ModItems.COCOA_BUTTER))
             .save(provider);
     }
 
@@ -1365,13 +1365,13 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("CDC")
             .pattern("ABA")
-            .define('A', ModFoodItems.COCOA_LIQUOR)
-            .define('B', ModFoodItems.COCOA_BUTTER)
-            .define('C', ModFoodItems.CREAM)
+            .define('A', ModItems.COCOA_LIQUOR)
+            .define('B', ModItems.COCOA_BUTTER)
+            .define('C', ModItems.CREAM)
             .define('D', Items.SUGAR)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.COCOA_LIQUOR), AnvilCraftDatagen.has(lookup, ModFoodItems.COCOA_LIQUOR))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.COCOA_BUTTER), AnvilCraftDatagen.has(lookup, ModFoodItems.COCOA_BUTTER))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CREAM), AnvilCraftDatagen.has(lookup, ModFoodItems.CREAM))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.COCOA_LIQUOR), AnvilCraftDatagen.has(lookup, ModItems.COCOA_LIQUOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.COCOA_BUTTER), AnvilCraftDatagen.has(lookup, ModItems.COCOA_BUTTER))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CREAM), AnvilCraftDatagen.has(lookup, ModItems.CREAM))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUGAR), AnvilCraftDatagen.has(lookup, Items.SUGAR))
             .save(provider);
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get(), 9)
@@ -1386,11 +1386,11 @@ public class RegistrumItemRecipeLoader {
             .pattern("AAA")
             .pattern("BCB")
             .pattern("AAA")
-            .define('A', ModFoodItems.COCOA_LIQUOR)
-            .define('B', ModFoodItems.COCOA_BUTTER)
+            .define('A', ModItems.COCOA_LIQUOR)
+            .define('B', ModItems.COCOA_BUTTER)
             .define('C', Items.SUGAR)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.COCOA_LIQUOR), AnvilCraftDatagen.has(lookup, ModFoodItems.COCOA_LIQUOR))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CREAM), AnvilCraftDatagen.has(lookup, ModFoodItems.CREAM))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.COCOA_LIQUOR), AnvilCraftDatagen.has(lookup, ModItems.COCOA_LIQUOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CREAM), AnvilCraftDatagen.has(lookup, ModItems.CREAM))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUGAR), AnvilCraftDatagen.has(lookup, Items.SUGAR))
             .save(provider);
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get(), 9)
@@ -1408,11 +1408,11 @@ public class RegistrumItemRecipeLoader {
             .pattern("AAA")
             .pattern("BCB")
             .pattern("AAA")
-            .define('A', ModFoodItems.COCOA_BUTTER)
-            .define('B', ModFoodItems.CREAM)
+            .define('A', ModItems.COCOA_BUTTER)
+            .define('B', ModItems.CREAM)
             .define('C', Items.SUGAR)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.COCOA_BUTTER), AnvilCraftDatagen.has(lookup, ModFoodItems.COCOA_BUTTER))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CREAM), AnvilCraftDatagen.has(lookup, ModFoodItems.CREAM))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.COCOA_BUTTER), AnvilCraftDatagen.has(lookup, ModItems.COCOA_BUTTER))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CREAM), AnvilCraftDatagen.has(lookup, ModItems.CREAM))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUGAR), AnvilCraftDatagen.has(lookup, Items.SUGAR))
             .save(provider);
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get(), 9)
@@ -1429,8 +1429,8 @@ public class RegistrumItemRecipeLoader {
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get())
             .requires(Items.BREAD)
             .requires(Items.SUGAR)
-            .requires(ModFoodItems.CREAM)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CREAM), AnvilCraftDatagen.has(lookup, ModFoodItems.CREAM))
+            .requires(ModItems.CREAM)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CREAM), AnvilCraftDatagen.has(lookup, ModItems.CREAM))
             .save(provider);
     }
 

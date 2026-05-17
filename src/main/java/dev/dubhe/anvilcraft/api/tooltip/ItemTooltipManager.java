@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ItemTooltipManager {
-
+    public static final Component SHIFT_TIP = Component.translatable(
+        "tooltip.anvilcraft.press_key",
+        "Shift"
+    ).withStyle(ChatFormatting.GRAY);
     private static final Map<Item, String> NORMAL = Maps.newHashMap();
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
 
@@ -179,6 +182,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Explosion proof");
+        NORMAL.put(ModFoodItems.PILL.asItem(), "Pills made together with potion to achieve corresponding effects, can be taken quickly");
 
         SHIFT.put(ModBlocks.SPECTRAL_ANVIL.asItem(),
             "When the upper magnet is demagnetized, a phantom shadow is created and falls downward. "
@@ -221,6 +225,10 @@ public class ItemTooltipManager {
         SHIFT.put(ModItems.TOTEM_OF_RAGE.asItem(),
                   "Grants invulnerability and berserk on fatal damage. Death is inevitable after 1 minute");
         SHIFT.put(ModItems.COMRADE_AMULET.asItem(), "Signable by players via right-click. Prevents damage from signed players");
+        SHIFT.put(ModItems.AMULET_BOX.asItem(), """
+            Stores multiple active amulets or totems
+            Right-click to store Totems in your inventory, and shift-right-click to retrieve the totems;
+            When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift.""");
 
         Map<Item, String> allTooltips = Maps.newHashMap();
         allTooltips.putAll(NORMAL);
@@ -246,7 +254,7 @@ public class ItemTooltipManager {
             if (flags.hasShiftDown()) {
                 tooltip.add(1, ItemTooltipManager.getItemTooltip(item));
             } else {
-                tooltip.add(1, Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
+                tooltip.add(1, SHIFT_TIP);
             }
         }
         if (stack.is(ModItemTags.REINFORCED_CONCRETE)) {

@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
@@ -29,7 +28,7 @@ public class BulgingRecipeLoader {
         BulgingRecipeLoader.bulging(provider, Items.HORN_CORAL, Items.HORN_CORAL_BLOCK);
         BulgingRecipeLoader.bulging(provider, Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK);
         BulgingRecipeLoader.bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 250);
-        BulgingRecipeLoader.bulging(provider, ModItemTags.FLOUR, ModFoodItems.DOUGH);
+        BulgingRecipeLoader.bulging(provider, ModItemTags.FLOUR, ModItems.DOUGH);
         BulgingRecipeLoader.bulging(provider, Items.DRIED_KELP, Items.KELP);
         BulgingRecipeLoader.crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 250);
 

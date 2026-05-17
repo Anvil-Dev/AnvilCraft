@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
-import dev.dubhe.anvilcraft.item.food.PillItem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -80,7 +80,7 @@ public record PillBoxContents(int index, List<ItemStack> pills) {
                         } else {
                             pill.grow(itemStack.getCount());
                         }
-                        pills.set(i, pill);
+                        this.pills.set(i, pill);
                         return true;
                     }
                 }
@@ -105,8 +105,8 @@ public record PillBoxContents(int index, List<ItemStack> pills) {
             Iterator<ItemStack> iterator = this.pills.iterator();
             while (iterator.hasNext()) {
                 ItemStack pill = iterator.next();
-                if (pill.is(ModFoodItems.PILL)) {
-                    PillItem.use(pill, player);
+                if (pill.has(DataComponents.POTION_CONTENTS) && pill.has(DataComponents.CONSUMABLE)) {
+                    pill.get(DataComponents.POTION_CONTENTS).onConsume(player.level(), player, pill, pill.get(DataComponents.CONSUMABLE));
                     pill.shrink(1);
                     if (pill.getCount() <= 0) {
                         iterator.remove();

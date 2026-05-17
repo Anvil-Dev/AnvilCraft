@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.recipe;
 
 import com.mojang.serialization.MapCodec;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import net.minecraft.core.Holder;
@@ -65,9 +64,9 @@ public class PillRecipe extends CustomRecipe {
         int pillCount = 0;
         int potionCount = 0;
         for (ItemStack item : items) {
-            if (validatePill(item)) {
+            if (this.validatePill(item)) {
                 pillCount++;
-            } else if (validatePotion(item)) {
+            } else if (this.validatePotion(item)) {
                 potionCount++;
             }
         }
@@ -82,9 +81,7 @@ public class PillRecipe extends CustomRecipe {
                 || item.is(Items.LINGERING_POTION)) {
                 ItemStack stack = ModFoodItems.PILL.asStack();
                 stack.set(DataComponents.POTION_CONTENTS, item.get(DataComponents.POTION_CONTENTS));
-                if (item.is(Items.LINGERING_POTION)) {
-                    stack.set(ModComponents.WEAKENING, true);
-                }
+                if (item.is(Items.LINGERING_POTION)) stack.set(DataComponents.POTION_DURATION_SCALE, 0.25F);
                 return stack;
             }
         }

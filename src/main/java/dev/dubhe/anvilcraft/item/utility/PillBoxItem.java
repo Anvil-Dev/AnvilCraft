@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.item.utility;
 
+import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -15,12 +17,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class PillBoxItem extends Item {
     public PillBoxItem(Properties properties) {
-        super(properties.component(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY));
+        super(
+            properties
+                .component(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY)
+                .useCooldown(2)
+        );
     }
 
     @Override
@@ -40,7 +46,6 @@ public class PillBoxItem extends Item {
         PillBoxContents.Mutable mutable = contents.mutable();
         mutable.useAll(player);
         pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
-        player.getCooldowns().addCooldown(ModItems.PILL_BOX.asItem(), 40);
         return InteractionResult.SUCCESS;
     }
 
@@ -114,15 +119,14 @@ public class PillBoxItem extends Item {
         return false;
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        if (tooltipFlag.hasShiftDown()) {
-            tooltipComponents.add(
-                Component.translatable("tooltip.anvilcraft.pill_box", Component.keybind("key.anvilcraft.use_pill_box"))
-                    .withStyle(ChatFormatting.GRAY)
-            );
+    public static void appendHoverText(Consumer<Component> builder, TooltipFlag flag) {
+        if (flag.hasShiftDown()) {
+            builder.accept(Component.translatable(
+                "tooltip.anvilcraft.pill_box",
+                Component.keybind("key.anvilcraft.use_pill_box")
+            ).withStyle(ChatFormatting.GRAY));
         } else {
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
+            builder.accept(ItemTooltipManager.SHIFT_TIP);
         }
     }
 }

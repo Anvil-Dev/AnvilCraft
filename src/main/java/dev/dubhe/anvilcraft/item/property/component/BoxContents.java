@@ -3,24 +3,33 @@ package dev.dubhe.anvilcraft.item.property.component;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
-import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.ToIntFunction;
 
 @SuppressWarnings("unused")
-public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int selection, int usage) implements TooltipComponent {
+public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int selection, int usage)
+    implements TooltipComponent, TooltipProvider {
+    public static final int CAPACITY = 16;
     public static final BoxContents EMPTY = new BoxContents(List.of(), List.of(), 0);
     public static final Codec<BoxContents> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         ItemStack.CODEC.listOf().fieldOf("amulets").forGetter(BoxContents::amulets),
@@ -74,6 +83,16 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
         return this.amulets.size() + this.totems.size(); // this makes sense
     }
 
+    @Override
+    public void addToTooltip(Item.TooltipContext ctx, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter getter) {
+        BoxContents contents = getter.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
+        consumer.accept(Component.translatable(
+            "tooltip.anvilcraft.property.box_contents",
+            contents.usage(),
+            BoxContents.CAPACITY
+        ).withStyle(ChatFormatting.GRAY));
+    }
+
     public static class Mutable {
         private final List<ItemStack> amulets;
         private final List<ItemStack> totems;
@@ -90,7 +109,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
         public Optional<ItemStack> tryInsert(ItemStack itemStack) {
             if (itemStack.isEmpty()) return Optional.of(ItemStack.EMPTY);
             if (itemStack.getItem() instanceof AmuletItem item) {
-                if (this.usage + item.getWeight() > AmuletBoxItem.CAPACITY) return Optional.empty();
+                if (this.usage + item.getWeight() > BoxContents.CAPACITY) return Optional.empty();
                 for (ItemStack amulet : this.amulets) {
                     if (amulet.getItem() instanceof BigAmuletItem) return Optional.empty();
                 }
@@ -98,7 +117,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
                 this.amulets.add(itemStack.split(1));
                 return Optional.of(itemStack);
             } else if (itemStack.is(ModItemTags.TOTEM)) {
-                if (this.usage + 1 > AmuletBoxItem.CAPACITY) return Optional.empty();
+                if (this.usage + 1 > BoxContents.CAPACITY) return Optional.empty();
                 this.usage++;
                 this.totems.add(itemStack.split(1));
                 return Optional.of(itemStack);
@@ -121,7 +140,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
                 }
             }
 
-            this.usage = Math.clamp(this.usage, 0, AmuletBoxItem.CAPACITY);
+            this.usage = Math.clamp(this.usage, 0, BoxContents.CAPACITY);
             return stack.copy();
         }
 
@@ -139,7 +158,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             if (first.is(ModItemTags.TOTEM)) {
                 this.usage--;
             }
-            this.usage = Math.clamp(this.usage, 0, AmuletBoxItem.CAPACITY);
+            this.usage = Math.clamp(this.usage, 0, BoxContents.CAPACITY);
             return first;
         }
     }
