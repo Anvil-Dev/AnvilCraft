@@ -28,9 +28,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     // 位置列表缓存，避免每帧重新分配
     private final Map<String, List<BlockPos>> positionCache = new HashMap<>();
     
-    // 放置间隔（与 SmartBlockPlacerBlockEntity 中的 PLACEMENT_INTERVAL 保持一致）
-    private static final int PLACEMENT_INTERVAL = 20;
-    
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_base")
     );
@@ -338,7 +335,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
-            // 检查是否需要重置动画：如果动画已完成且超过停顿间隔，查找新目标
+            // 检测工作条件是否仍然满足：检查是否有手持物品
+            // 如果没有手持物品且动画还没开始，说明工作条件不满足
+            boolean hasValidWorkItem = !entity.getCurrentHeldBlock().isEmpty() || animStartTime != 0;
+            
+            // 如果动画已播放完成，检查工作条件
             if (animStartTime != 0 && animTargetPos != null) {
                 long elapsedTicks = currentTime - animStartTime;
                 boolean animationCompleted = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
@@ -347,24 +348,22 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     // 动画已完成且停顿间隔已过，检查是否有新目标
                     BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                     if (targetPos == null || targetPos.equals(animTargetPos)) {
-                        // 没有新目标或目标相同，保持动画结束状态
-                        // 但如果 placeCooldown 重新开始了，说明有新工作，重置动画
-                        if (entity.getPlaceCooldown() >= PLACEMENT_INTERVAL - 2) {
-                            // 新的工作周期开始，重置动画状态
+                        // 没有新目标或目标相同，不应该继续工作动画
+                        // 触发收回动画，让机械臂归位
+                        if (!entity.isClientIsRetracting()) {
+                            entity.setClientIsRetracting(true);
+                            entity.setClientRetractStartTime(currentTime);
+                            
+                            // 保存当前角度（动画结束时的角度）
+                            float[] endAngles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                                animTargetPos, entity.getBlockPos(), facing, upsideDown, 1.0f
+                            );
+                            entity.setClientRetractStartAngles(endAngles);
+                            entity.setClientRetractStartProgress(1.0f);
+                            
+                            // 清除工作动画状态
                             entity.setClientAnimationStartTime(0);
                             entity.setClientLastTargetPos(null);
-                            animStartTime = 0;
-                            animTargetPos = null;
-                        } else {
-                            // 保持最终位置
-                            animationProgress = 1.0f;
-                            float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                                animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
-                            );
-                            baseSwingAngle = angles[0];
-                            upperArmAngle = angles[1];
-                            forearmAngle = angles[2];
-                            clawAngle = angles[3];
                         }
                     } else {
                         // 有新目标，重置动画
@@ -377,7 +376,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
             
             // 如果动画未开始或刚被重置，查找目标位置并初始化
-            if (animStartTime == 0) {
+            if (animStartTime == 0 && hasValidWorkItem) {
                 BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                 if (targetPos != null) {
                     entity.setClientAnimationStartTime(currentTime);
@@ -455,10 +454,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         } else if (isAnimationPlaying) {
             // 工作动画期间，进度 < 1.0 时钳子打开
             shouldClawBeOpen = animationProgress < 1.0f;
-        } else if (!entity.getCurrentHeldBlock().isEmpty()) {
-            // 如果有手持物品，钳子也应该打开（动画初始化前的情况）
-            shouldClawBeOpen = true;
         }
+        // 移除了 "如果有手持物品，钳子也应该打开" 的逻辑
+        // 因为这会导致动画还没开始就渲染方块
         
         ModelResourceLocation currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;
         renderModel(poseStack, buffer, currentClawModel, packedLight, packedOverlay);

@@ -198,10 +198,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean isNowWorking = this.placeCooldown > 0;
         boolean becameActive = wasIdle && isNowWorking;
         
+        // 检测工作周期结束：placeCooldown 从非 0 变为 0
+        boolean workCycleEnded = this.lastPlaceCooldown > 0 && this.placeCooldown == 0;
+        
         if (isNewCycle || becameActive) {
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
         }
+        
+        // 当工作周期结束时，清除动画状态
+        if (workCycleEnded) {
+            this.clientAnimationStartTime = 0;
+            this.clientLastTargetPos = null;
+        }
+        
         this.lastPlaceCooldown = this.placeCooldown;
     }
     
@@ -223,6 +233,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private void tickPickupMode(Level level, BlockPos pos) {
         boolean needsPlacement = this.hasEmptyPositions(level, pos);
         boolean hasBlocksInContainer = this.hasBlockItemsInContainer(level, pos);
+        
+        // 当没有物品时，清空 currentHeldBlock 以确保客户端能正确同步
+        if (!hasBlocksInContainer && !this.currentHeldBlock.isEmpty()) {
+            this.currentHeldBlock = ItemStack.EMPTY;
+            this.onChanged();
+        }
         
         tickCommonCooldownLogic(level, 
             needsPlacement && hasBlocksInContainer,
