@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity> {
-    // 位置列表缓存，避免每帧重新分配
+    // 位置列表缓存
     private final Map<String, List<BlockPos>> positionCache = new HashMap<>();
     
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
@@ -48,7 +48,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
     @SuppressWarnings("unused")
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
-        // 不需要初始化，使用静态常量
     }
 
     /**
@@ -62,13 +61,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         private static final int ANIMATION_DURATION_TICKS = 20; // 动画总持续时间：20tick = 1秒
         
         /**
-         * 计算机械臂角度以指向目标位置
-         * 
-         * @param targetPos 目标位置（世界坐标）
-         * @param placerPos 放置器位置（世界坐标）
-         * @param facing 放置器朝向
-         * @param upsideDown 是否倒挂
-         * @param animationProgress 动画进度（0-1）
+         * 计算机械臂角度
+         *
          * @return float[]{baseSwingAngle, upperArmAngle, forearmAngle, clawAngle}
          */
         @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
@@ -79,113 +73,96 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             boolean upsideDown,
             float animationProgress
         ) {
-            // 计算目标角度
             float[] targetAngles = this.calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
         
-            // 根据动画进度计算当前角度
             float baseAngle;
             float upperArmAngle;
             float forearmAngle;
             float clawAngle;
         
             if (animationProgress <= 0.2f) {
-                // 阶段1：底盘旋转 + 小臂和钳子指向目标
-                // 大臂不动(0°)，小臂需要补偿角度以指向目标
+                // 阶段1：底盘旋转 + 小臂补偿
                 float phase1Progress = animationProgress / 0.2f;
         
                 baseAngle = targetAngles[0] * phase1Progress;
-                upperArmAngle = 0f; // 大臂不动
+                upperArmAngle = 0f;
         
-                // 计算补偿角度：当大臂为0时，小臂需要多少度才能让钳子指向目标
-                // 使用简化补偿：小臂角度 = 目标大臂角度 + 目标小臂角度
                 float compensationAngle = targetAngles[1] + targetAngles[2];
                 forearmAngle = compensationAngle * phase1Progress;
                 clawAngle = targetAngles[3] * phase1Progress;
         
             } else if (animationProgress <= 0.3f) {
-                // 阶段2：停顿，保持指向目标
+                // 阶段2：停顿
                 baseAngle = targetAngles[0];
                 upperArmAngle = 0f;
-                forearmAngle = targetAngles[1] + targetAngles[2]; // 补偿角度
+                forearmAngle = targetAngles[1] + targetAngles[2];
                 clawAngle = targetAngles[3];
         
             } else if (animationProgress <= 0.7f) {
-                // 阶段3：大臂推出（延长），小臂持续补偿
+                // 阶段3：大臂推出
                 float phase3Progress = (animationProgress - 0.3f) / 0.4f;
         
                 baseAngle = targetAngles[0];
                 upperArmAngle = targetAngles[1] * phase3Progress;
         
-                // 小臂补偿：从"补偿角度"渐变到"目标角度"
-                // 当大臂到位时，小臂也应该是目标角度
-                float startForearmAngle = targetAngles[1] + targetAngles[2]; // 起始补偿角度
-                float endForearmAngle = targetAngles[2]; // 结束目标角度
+                float startForearmAngle = targetAngles[1] + targetAngles[2];
+                float endForearmAngle = targetAngles[2];
                 forearmAngle = startForearmAngle + (endForearmAngle - startForearmAngle) * phase3Progress;
         
                 clawAngle = targetAngles[3];
         
             } else {
-                // 阶段4：收回动画 - 合并为一个平滑的过程
-                // 底盘、大臂、小臂同时归零
+                // 阶段4：收回
                 float phase4Progress = (animationProgress - 0.7f) / 0.3f;
                         
-                baseAngle = targetAngles[0] * (1f - phase4Progress); // 底盘归零
-                upperArmAngle = targetAngles[1] * (1f - phase4Progress); // 大臂归零
-                forearmAngle = targetAngles[2] * (1f - phase4Progress); // 小臂直接归零
-                clawAngle = targetAngles[3] * (1f - phase4Progress); // 钳子归零
+                baseAngle = targetAngles[0] * (1f - phase4Progress);
+                upperArmAngle = targetAngles[1] * (1f - phase4Progress);
+                forearmAngle = targetAngles[2] * (1f - phase4Progress);
+                clawAngle = targetAngles[3] * (1f - phase4Progress);
             }
         
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
         
-        /**
-         * 计算目标角度（不考虑动画进度）
-         */
+        @SuppressWarnings(
+            {
+            "checkstyle:OneStatementPerLine",
+            "checkstyle:LineLength"
+            }
+        )
         private float[] calculateTargetAngles(
             BlockPos targetPos,
             BlockPos placerPos,
             Direction facing,
             boolean upsideDown
         ) {
-            // 1. 计算目标位置相对于放置器的偏移
             double dx = targetPos.getX() - placerPos.getX();
             double dy = targetPos.getY() - placerPos.getY();
             double dz = targetPos.getZ() - placerPos.getZ();
 
-            // 2. 根据朝向转换到局部坐标系
             Direction right = facing.getCounterClockWise();
 
-            // 计算在局部坐标系中的位置
             double forwardDist = dx * facing.getStepX() + dz * facing.getStepZ();
             double rightDist = dx * right.getStepX() + dz * right.getStepZ();
 
-            // 3. 计算底座旋转角度（水平面内）
             final float baseAngle = (float) Math.toDegrees(Math.atan2(rightDist, forwardDist));
-
-            // 4. 计算水平距离
             final float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
 
-            // 5. 计算垂直距离（倒挂时需要翻转）
             float targetHeight = (float) dy - BASE_HEIGHT;
             if (upsideDown) {
                 targetHeight = -(float) dy - BASE_HEIGHT;
             }
 
-            // 6. 计算仰角
             final float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
-
-            // 7. 计算机械臂关节角度（逆运动学）
             final float distToTarget = (float) Math.sqrt(horizontalDist * horizontalDist + targetHeight * targetHeight);
             final boolean isOverRange = distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH;
 
             float upperArmAngle;
             float forearmAngle;
             if (isOverRange) {
-                // 超距情况：机械臂完全伸直指向目标
                 upperArmAngle = elevationAngle - 74f;
                 forearmAngle = 85f;
             } else {
-                // 正常情况：使用余弦定理计算关节角度
                 float clampedDist = Math.max(0.01f, distToTarget);
 
                 float cosForearm = (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - clampedDist * clampedDist)
@@ -196,27 +173,23 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH)
                     / (2 * clampedDist * UPPER_ARM_LENGTH);
                 cosUpperArm = Math.max(-1.0f, Math.min(1.0f, cosUpperArm));
-                float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
-
-                upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
+                float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));                upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
                 forearmAngle = forearmAngleFromUpper * 0.8f - 10f;
             }
 
-            // 应用距离修正
             upperArmAngle += horizontalDist <= 2.0f ? -10f :
                            (horizontalDist >= 4.0f ? -66f :
                            -10f + (-50f) * (horizontalDist - 2.0f) / 2.0f);
 
             forearmAngle += horizontalDist >= 4.0f ? 40f : 0f;
 
-            // 钳子角度（随高度变化，超距时额外修正）
             float clawAngle = 45f - elevationAngle * -0.4f + (isOverRange ? -10f : 0f);
 
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
 
         /**
-         * 获取动画持续时间（tick）
+         * 获取动画持续时间
          */
         public int getAnimationDurationTicks() {
             return ANIMATION_DURATION_TICKS;
@@ -244,7 +217,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         
-        // 应用变换：居中 -> 倒置 -> 水平旋转 -> 贴地
+        // 应用变换
         poseStack.pushPose();
         poseStack.translate(0.5, 1.5, 0.5);
         if (upsideDown) {
@@ -253,14 +226,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
 
-        // 计算动画时间
         boolean isCurrentlyPowered = entity.isPowered();
         boolean hasRedstoneSignal = entity.isHasRedstoneSignal();
         
-        // 更新BlockEntity的动画状态
         entity.updateClientAnimationState(isCurrentlyPowered, hasRedstoneSignal);
         
-        // 计算动画角度
+        // 初始化动画变量
         float baseSwingAngle = 0f;
         float upperArmAngle = 0f;
         float forearmAngle = 0f;
@@ -268,22 +239,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float animationProgress = 0f;
         boolean isAnimationPlaying = false;
         
-        // 判断是否处于工作状态
         boolean isWorking = entity.getPlaceCooldown() > 0;
         
-        // 检测是否需要开始收回动画：从工作状态切换到非工作状态
+        // 检测是否需要开始收回动画
         boolean wasWorkingLastFrame = entity.getClientAnimationStartTime() != 0;
         boolean shouldStartRetract = wasWorkingLastFrame && !isWorking && !entity.isClientIsRetracting();
         if (shouldStartRetract && entity.getLevel() != null) {
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
-            // 如果有动画状态，保存当前角度用于收回
             if (animStartTime != 0 && animTargetPos != null) {
                 entity.setClientIsRetracting(true);
                 entity.setClientRetractStartTime(entity.getLevel().getGameTime());
                 
-                // 计算当前中断位置的角度和进度
                 long elapsedTicks = entity.getLevel().getGameTime() - animStartTime;
                 float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
                     .getAnimationDurationTicks());
@@ -295,22 +263,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
         }
         
-        // 如果重新开始工作，取消收回状态
+        // 重新开始工作时取消收回状态
         if (isCurrentlyPowered && !hasRedstoneSignal && isWorking) {
             entity.setClientIsRetracting(false);
         }
         
         if (entity.isClientIsRetracting() && entity.getLevel() != null) {
-            // 收回动画：从保存的起始角度平滑归零
             long currentTime = entity.getLevel().getGameTime();
             long elapsedRetractTicks = currentTime - entity.getClientRetractStartTime();
             
-            // 收回动画的时长 = 总时长 * (1 - 中断进度)
             float startProgress = entity.getClientRetractStartProgress();
             float remainingProgress = 1.0f - startProgress;
             float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
             
-            // 避免除以零：如果已经完成动画，立即归零
             if (retractDuration <= 0) {
                 entity.setClientIsRetracting(false);
                 entity.setClientAnimationStartTime(0);
@@ -321,14 +286,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     (elapsedRetractTicks + partialTick) / retractDuration
                 );
                 
-                // 从起始角度线性插值到零
                 float[] startAngles = entity.getClientRetractStartAngles();
                 baseSwingAngle = startAngles[0] * (1f - retractProgress);
                 upperArmAngle = startAngles[1] * (1f - retractProgress);
                 forearmAngle = startAngles[2] * (1f - retractProgress);
                 clawAngle = startAngles[3] * (1f - retractProgress);
                 
-                // 收回完成后重置状态
                 if (retractProgress >= 1.0f) {
                     entity.setClientIsRetracting(false);
                     entity.setClientAnimationStartTime(0);
@@ -340,59 +303,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
-            // 检测工作条件是否仍然满足：检查是否有手持物品
-            // 如果没有手持物品且动画还没开始，说明工作条件不满足
             boolean hasValidWorkItem = !entity.getCurrentHeldBlock().isEmpty() || animStartTime != 0;
-            
-            // 物品耗尽时，立即触发收回动画
-            if (entity.getCurrentHeldBlock().isEmpty() && !entity.isClientIsRetracting()) {
-                // 如果正在播放动画，触发收回
-                if (animStartTime != 0 && animTargetPos != null) {
-                    entity.setClientIsRetracting(true);
-                    entity.setClientRetractStartTime(currentTime);
-                    
-                    // 计算当前中断位置的角度和进度
-                    long elapsedTicks = currentTime - animStartTime;
-                    float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
-                        .getAnimationDurationTicks());
-                    float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                        animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
-                    );
-                    entity.setClientRetractStartAngles(angles);
-                    entity.setClientRetractStartProgress(interruptProgress);
-                    
-                    // 清除工作动画状态
-                    entity.setClientAnimationStartTime(0);
-                    entity.setClientLastTargetPos(null);
-                    
-                    // 立即开始播放收回动画（在当前帧）
-                    long elapsedRetractTicks = 0;
-                    float remainingProgress = 1.0f - interruptProgress;
-                    float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
-                    
-                    if (retractDuration > 0) {
-                        float retractProgress = Math.min(
-                            1.0f,
-                            (elapsedRetractTicks + partialTick) / retractDuration
-                        );
-                        
-                        // 从起始角度线性插值到零
-                        baseSwingAngle = angles[0] * (1f - retractProgress);
-                        upperArmAngle = angles[1] * (1f - retractProgress);
-                        forearmAngle = angles[2] * (1f - retractProgress);
-                        clawAngle = angles[3] * (1f - retractProgress);
-                    }
-                } else {
-                    // 没有正在进行的动画，清除状态
-                    entity.setClientAnimationStartTime(0);
-                    entity.setClientLastTargetPos(null);
-                }
-                // 设置为非工作状态，让后续逻辑处理收回动画
-                isWorking = false;
-            }
-                    
-            // 只有在工作状态且物品有效时才继续执行工作动画逻辑
-            if (isWorking) {
             
             // 如果动画已播放完成，检查工作条件
             if (animStartTime != 0 && animTargetPos != null) {
@@ -400,28 +311,22 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 boolean animationCompleted = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
                 
                 if (animationCompleted) {
-                    // 动画已完成且停顿间隔已过，检查是否有新目标
                     BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                     if (targetPos == null || targetPos.equals(animTargetPos)) {
-                        // 没有新目标或目标相同，不应该继续工作动画
-                        // 触发收回动画，让机械臂归位
                         if (!entity.isClientIsRetracting()) {
                             entity.setClientIsRetracting(true);
                             entity.setClientRetractStartTime(currentTime);
                             
-                            // 保存当前角度（动画结束时的角度）
                             float[] endAngles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
                                 animTargetPos, entity.getBlockPos(), facing, upsideDown, 1.0f
                             );
                             entity.setClientRetractStartAngles(endAngles);
                             entity.setClientRetractStartProgress(1.0f);
                             
-                            // 清除工作动画状态
                             entity.setClientAnimationStartTime(0);
                             entity.setClientLastTargetPos(null);
                         }
                     } else {
-                        // 有新目标，重置动画
                         entity.setClientAnimationStartTime(currentTime);
                         entity.setClientLastTargetPos(targetPos);
                         animStartTime = currentTime;
@@ -430,7 +335,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 }
             }
             
-            // 如果动画未开始或刚被重置，查找目标位置并初始化
             if (animStartTime == 0 && hasValidWorkItem) {
                 BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                 if (targetPos != null) {
@@ -446,7 +350,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 isAnimationPlaying = true;
                 long elapsedTicks = currentTime - animStartTime;
 
-                // 动画进行中
                 if (elapsedTicks < WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
                     animationProgress = Math.min(
                         1.0f,
@@ -456,7 +359,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     animationProgress = 1.0f;
                 }
 
-                // 计算当前角度
                 float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
                     animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
                 );
@@ -465,22 +367,18 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 forearmAngle = angles[2];
                 clawAngle = angles[3];
             }
-        } // 闭合 if (isWorking)
         }
         
         // 渲染底座
         poseStack.pushPose();
-        // 倒挂时X轴翻转180度，Y轴方向反转，需要使用Axis.YN来保持正常的水平旋转方向
         poseStack.mulPose((upsideDown ? Axis.YN : Axis.YP).rotationDegrees(baseSwingAngle));
         poseStack.translate(-0.5, 0.0, -0.5);
         renderModel(poseStack, buffer, BASE_MODEL, packedLight, packedOverlay);
         poseStack.popPose();
         
-        // 渲染大臂（跟随底座旋转）
+        // 渲染大臂
         poseStack.pushPose();
-        // 倒挂时X轴翻转180度，Y轴方向反转，需要使用Axis.YN来保持正常的水平旋转方向
         poseStack.mulPose((upsideDown ? Axis.YN : Axis.YP).rotationDegrees(baseSwingAngle));
-        // 大臂的旋转中心Y轴在 10/16=0.625
         poseStack.translate(0, 0.625, 0);
         poseStack.mulPose(Axis.XP.rotationDegrees(upperArmAngle));
         poseStack.translate(0, -0.625, 0);
@@ -489,35 +387,27 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         
         // 渲染小臂和钳子
         poseStack.pushPose();
-        // 小臂的旋转中心在 (0.6875, 1.0625, 0.9375) 即 (11/16, 17/16, 15/16)
         poseStack.translate(0.6875, 1.0625, 0.9375);
         poseStack.mulPose(Axis.XP.rotationDegrees(forearmAngle));
         poseStack.translate(-0.6875, -1.0625, -0.9375);
         renderModel(poseStack, buffer, FOREARM_MODEL, packedLight, packedOverlay);
         poseStack.pushPose();
-        // 钳子的旋转中心在 (0.5, 1.3125, 0.375) 即 (8/16, 21/16, 6/16)
         poseStack.translate(0.5, 1.3125, 0.375);
         poseStack.mulPose(Axis.XP.rotationDegrees(clawAngle));
         poseStack.translate(-0.5, -1.3125, -0.375);
         
-        // 根据动画进度切换钳子模型
-        // 工作动画播放期间（进度 < 1.0）或收回动画期间，钳子打开
-        // 彻底归中后（进度 = 1.0 且无收回动画）钳子闭合
+        // 切换钳子模型
         boolean shouldClawBeOpen = false;
         if (entity.isClientIsRetracting()) {
-            // 收回动画期间，钳子保持打开
             shouldClawBeOpen = true;
         } else if (isAnimationPlaying) {
-            // 工作动画期间，进度 < 1.0 时钳子打开
             shouldClawBeOpen = animationProgress < 1.0f;
         }
-        // 移除了 "如果有手持物品，钳子也应该打开" 的逻辑
-        // 因为这会导致动画还没开始就渲染方块
         
         ModelResourceLocation currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;
         renderModel(poseStack, buffer, currentClawModel, packedLight, packedOverlay);
         
-        // 如果钳子打开，渲染要放置的方块
+        // 渲染钳子中的方块
         if (shouldClawBeOpen && entity.getLevel() != null) {
             renderHeldBlock(poseStack, buffer, entity, packedLight, packedOverlay);
         }
@@ -535,43 +425,29 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             case EAST -> 270f;
             default -> 0f; // NORTH
         };
-        // 倒挂时，南北朝向需要额外旋转180度来修正模型翻转
         if (upsideDown && (facing == Direction.NORTH || facing == Direction.SOUTH)) {
             rotation = (rotation + 180f) % 360f;
         }
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
     }
     
-    /**
-     * 检查方块是否可以继续堆叠
-     * 
-     * @param state 当前方块状态
-     * @param blockItem 要放置的方块物品（可选，用于检查类型匹配）
-     * @return 是否可以继续堆叠
-     */
     private boolean canBeStacked(net.minecraft.world.level.block.state.BlockState state,
         @Nullable net.minecraft.world.item.BlockItem blockItem) {
-        // 海龟蛋：最多4个
         if (state.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG)) {
             if (state.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS) < 4) {
-                // 如果要放置的是海龟蛋，检查类型是否匹配
-                return blockItem == null || state.getBlock() == blockItem.getBlock(); // 类型不匹配
+                return blockItem == null || state.getBlock() == blockItem.getBlock();
             }
             return false;
         }
-        // 海泡菜：最多4个
         if (state.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE)) {
             if (state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES) < 4) {
-                // 如果要放置的是海泡菜，检查类型是否匹配
-                return blockItem == null || state.getBlock() == blockItem.getBlock(); // 类型不匹配
+                return blockItem == null || state.getBlock() == blockItem.getBlock();
             }
             return false;
         }
-        // 蜡烛：最多4个
         if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
             if (state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES) < 4) {
-                // 如果要放置的是蜡烛，检查类型是否匹配
-                return blockItem == null || state.getBlock() == blockItem.getBlock(); // 类型不匹配
+                return blockItem == null || state.getBlock() == blockItem.getBlock();
             }
             return false;
         }
@@ -579,60 +455,51 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     }
     
     /**
-     * 获取下一个要放置的目标位置
+     * 获取下一个放置目标位置
      */
     @Nullable
     private BlockPos getNextTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown) {
-        // 计算基准位置（放置器前方4格，水平方向）
         BlockPos basePos = entity.getBlockPos().relative(facing.getOpposite(), -4);
         
-        // 获取所有配置的位置
         Map<Integer, Set<Integer>> layerPositions = entity.getLayerPositions();
         
-        // 构建有序的放置位置列表（与BlockEntity保持一致）
         List<BlockPos> allPositions = buildOrderedPositionsForRenderer(basePos, facing, layerPositions, upsideDown);
         
-        // 如果没有配置任何位置，返回null
         if (allPositions.isEmpty()) {
             return null;
         }
         
-        // 获取当前放置索引
         int currentIndex = entity.getCurrentPlacementIndex();
         if (currentIndex >= allPositions.size()) {
             currentIndex = 0;
         }
         
-        // 从当前索引开始查找第一个空位或可放置位置
+        // 查找第一个空位或可放置位置
         for (int i = 0; i < allPositions.size(); i++) {
             int index = (currentIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
             
-            if (entity.getLevel() == null) continue;
+            if (entity.getLevel() == null) {
+                return null;
+            }
             
             net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
             
-            // 如果目标位置为空，返回该位置
             if (targetState.isAir()) {
                 return targetPos;
             }
             
-            // 检查是否是流体（水、岩浆等），流体可以被直接替换
             if (!targetState.getFluidState().isEmpty()) {
                 return targetPos;
             }
             
-            // 检查是否是可堆叠位置（海龟蛋、海泡菜、蜡烛等）
             if (!targetState.isAir()) {
-                // 使用 currentHeldBlock 来检查类型匹配
                 net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
                 if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
-                    // 检查类型是否匹配且可以继续堆叠
                     if (canBeStacked(targetState, heldBlockItem)) {
                         return targetPos;
                     }
                 } else if (heldItem.isEmpty()) {
-                    // 如果没有手持物品，仍然检查是否可以堆叠（用于动画初始化）
                     if (canBeStacked(targetState, null)) {
                         return targetPos;
                     }
@@ -640,28 +507,22 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
         }
         
-        // 所有位置都已有方块，返回null
         return null;
     }
     
     /**
-     * 构建有序的放置位置列表（渲染器使用）
-     * 顺序：从最下面一层开始，每一层从最远离放置器的位置开始，从左到右，然后逐渐向下
+     * 构建有序的放置位置列表
      */
     private List<BlockPos> buildOrderedPositionsForRenderer(
         BlockPos basePos, Direction facing, Map<Integer, Set<Integer>> layerPositions, boolean upsideDown) {
-        // 使用缓存的 key：放置器位置 + 朝向 + 倒挂状态 + layerPositions 的哈希
         String cacheKey = basePos.toShortString() + "_" + facing.getName() + "_" + upsideDown + "_" + layerPositions.hashCode();
         
-        // 检查缓存
         if (this.positionCache.containsKey(cacheKey)) {
             return this.positionCache.get(cacheKey);
         }
         
-        // 调用 BlockEntity 的静态方法计算位置列表
         List<BlockPos> positions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, layerPositions, upsideDown);
         
-        // 更新缓存
         this.positionCache.put(cacheKey, positions);
         
         return positions;
@@ -685,26 +546,18 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         );
     }
     
-    /**
-     * 渲染钳子中持有的方块
-     */
-    @SuppressWarnings({"checkstyle:EmptyLineSeparator", "deprecation"})
     private void renderHeldBlock(
         PoseStack poseStack, MultiBufferSource buffer, SmartBlockPlacerBlockEntity entity, int packedLight, int packedOverlay) {
-        // 使用 currentHeldBlock 字段（已同步到客户端）来获取要渲染的方块
         ItemStack stack = entity.getCurrentHeldBlock();
         
         if (stack.isEmpty()) {
             return;
         }
         
-        // 渲染物品模型（会自动选择正确的模型：方块模型或物品模型）
         poseStack.pushPose();
-        // 方块在钳子开口位置（相对于钳子旋转中心）
         poseStack.translate(0.5, 0.95, 0.0);
         poseStack.scale(0.65f, 0.65f, 0.65f);
         
-        // 使用 ItemRenderer 渲染物品，这样会正确处理方块物品和普通物品
         net.minecraft.client.renderer.entity.ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         itemRenderer.renderStatic(
             stack,
