@@ -2,19 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "anvilcraft:magnetoelectric_core"
-    },
-    "B": {
-      "item": "minecraft:copper_block"
-    }
+    "A": "anvilcraft:magnetoelectric_core",
+    "B": "minecraft:copper_block"
   },
   "pattern": [
     "A",
     "B"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:power_converter_big"
   }
 }

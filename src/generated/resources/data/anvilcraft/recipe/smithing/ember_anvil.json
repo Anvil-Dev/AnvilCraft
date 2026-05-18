@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:ember_metal_block"
-  },
-  "base": {
-    "item": "anvilcraft:royal_anvil"
-  },
+  "addition": "anvilcraft:ember_metal_block",
+  "base": "anvilcraft:royal_anvil",
   "result": {
-    "count": 1,
     "id": "anvilcraft:ember_anvil"
   },
-  "template": {
-    "item": "anvilcraft:ember_metal_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:ember_metal_upgrade_smithing_template"
 }

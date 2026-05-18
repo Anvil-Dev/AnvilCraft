@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:obsidian"
-    },
-    "B": {
-      "item": "minecraft:ender_eye"
-    },
-    "C": {
-      "item": "anvilcraft:royal_steel_block"
-    }
+    "A": "minecraft:obsidian",
+    "B": "minecraft:ender_eye",
+    "C": "anvilcraft:royal_steel_block"
   },
   "pattern": [
     "ABA",
@@ -18,7 +12,6 @@
     "CBC"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:overseer"
   }
 }

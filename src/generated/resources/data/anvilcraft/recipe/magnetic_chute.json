@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "anvilcraft:magnet_ingot"
-    },
-    "B": {
-      "item": "minecraft:dropper"
-    }
+    "A": "anvilcraft:magnet_ingot",
+    "B": "minecraft:dropper"
   },
   "pattern": [
     " A ",

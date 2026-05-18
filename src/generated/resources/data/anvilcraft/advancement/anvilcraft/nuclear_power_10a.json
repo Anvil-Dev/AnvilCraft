@@ -3,9 +3,7 @@
   "criteria": {
     "collect_overheated": {
       "conditions": {
-        "collecting": {
-          "blocks": "#anvilcraft:overheated_blocks"
-        }
+        "collecting": {}
       },
       "trigger": "anvilcraft:heat_collector_collect"
     }
@@ -16,7 +14,6 @@
     },
     "frame": "challenge",
     "icon": {
-      "count": 1,
       "id": "anvilcraft:heat_collector"
     },
     "title": {

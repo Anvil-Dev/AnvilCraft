@@ -156,7 +156,9 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::guideBook)
         .register();
     // 工具
-    public static final ItemEntry<MagnetItem> MAGNET = REGISTRUM.item("magnet", properties -> new MagnetItem(properties.durability(255)))
+    public static final ItemEntry<MagnetItem> MAGNET = REGISTRUM
+        .item("magnet", properties -> new MagnetItem(properties.durability(255)))
+        .tag(ModItemTags.MAGNET_INGOTS)
         .recipe(RegistrumItemRecipeLoader::magnet)
         .register();
     public static final ItemEntry<GeodeItem> GEODE = REGISTRUM.item("geode", GeodeItem::new).register();
@@ -314,7 +316,7 @@ public class ModItems {
         .properties(properties -> properties
             .durability(150)
             .enchantable(7)
-            .repairable(ModItems.ROYAL_STEEL_INGOT.asItem())
+            .repairable(ModItemTags.ROYAL_STEEL_TOOL_MATERIALS)
         )
         .model(DataGenUtil::onlyInfo)
         .register();
@@ -326,7 +328,7 @@ public class ModItems {
         .properties(properties -> properties
             .durability(2031)
             .enchantable(22)
-            .repairable(ModItems.EMBER_METAL_INGOT.asItem())
+            .repairable(ModItemTags.EMBER_METAL_TOOL_MATERIALS)
         )
         .recipe(RegistrumItemRecipeLoader::emberAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
@@ -340,7 +342,7 @@ public class ModItems {
         .properties(properties -> properties
             .durability(3156)
             .enchantable(28)
-            .repairable(ModItems.TRANSCENDIUM_INGOT.asItem())
+            .repairable(ModItemTags.TRANSCENDIUM_TOOL_MATERIALS)
         )
         .recipe(RegistrumItemRecipeLoader::transcendenceAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
@@ -363,7 +365,7 @@ public class ModItems {
         .properties(properties -> properties
             .durability(150)
             .enchantable(6)
-            .repairable(ModItems.ROYAL_STEEL_INGOT.asItem())
+            .repairable(ModItemTags.ROYAL_STEEL_TOOL_MATERIALS)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(20, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
@@ -375,7 +377,7 @@ public class ModItems {
         .properties(properties -> properties
             .durability(2031)
             .enchantable(9)
-            .repairable(ModItems.EMBER_METAL_INGOT.asItem())
+            .repairable(ModItemTags.EMBER_METAL_TOOL_MATERIALS)
             .fireResistant()
             .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(20, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
@@ -389,7 +391,7 @@ public class ModItems {
         .properties(properties -> properties
             .durability(3156)
             .enchantable(13)
-            .repairable(ModItems.TRANSCENDIUM_INGOT.asItem())
+            .repairable(ModItemTags.TRANSCENDIUM_TOOL_MATERIALS)
             .fireResistant()
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)

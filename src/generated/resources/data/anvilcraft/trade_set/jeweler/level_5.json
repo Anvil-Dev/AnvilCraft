@@ -1,0 +1,8 @@
+{
+  "amount": 2.0,
+  "random_sequence": "anvilcraft:trade_set/jeweler/level_5",
+  "trades": [
+    "anvilcraft:jeweler/emerald_for_geode",
+    "anvilcraft:jeweler/emerald_for_amulet_box"
+  ]
+}

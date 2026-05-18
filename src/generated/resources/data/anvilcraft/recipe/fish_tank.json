@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:iron_ingot"
-    },
-    "B": {
-      "tag": "c:glass_panes"
-    }
+    "A": "minecraft:iron_ingot",
+    "B": "#c:glass_panes"
   },
   "pattern": [
     "A A",
@@ -15,7 +11,6 @@
     "BBB"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:fish_tank"
   }
 }

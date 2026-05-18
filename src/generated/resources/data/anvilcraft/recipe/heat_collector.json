@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "anvilcraft:sapphire"
-    },
-    "C": {
-      "tag": "c:plates/copper"
-    },
-    "H": {
-      "item": "anvilcraft:charge_collector"
-    },
-    "I": {
-      "item": "minecraft:blue_ice"
-    },
-    "R": {
-      "item": "anvilcraft:royal_steel_ingot"
-    }
+    "B": "anvilcraft:sapphire",
+    "C": "#c:plates/copper",
+    "H": "anvilcraft:charge_collector",
+    "I": "minecraft:blue_ice",
+    "R": "anvilcraft:royal_steel_ingot"
   },
   "pattern": [
     "CBC",
@@ -24,7 +14,6 @@
     "RHR"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:heat_collector"
   }
 }

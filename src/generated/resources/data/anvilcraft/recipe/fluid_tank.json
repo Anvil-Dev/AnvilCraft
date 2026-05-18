@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:plates/brass"
-    },
-    {
-      "item": "anvilcraft:fish_tank"
-    }
+    "#c:plates/brass",
+    "anvilcraft:fish_tank"
   ],
   "result": {
     "count": 2,

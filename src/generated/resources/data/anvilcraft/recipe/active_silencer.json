@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:amethyst_block"
-    },
-    "B": {
-      "item": "minecraft:note_block"
-    },
-    "C": {
-      "item": "anvilcraft:processor"
-    },
-    "D": {
-      "item": "anvilcraft:piezoelectric_crystal"
-    }
+    "A": "minecraft:amethyst_block",
+    "B": "minecraft:note_block",
+    "C": "anvilcraft:processor",
+    "D": "anvilcraft:piezoelectric_crystal"
   },
   "pattern": [
     "ABA",
@@ -21,7 +13,6 @@
     "BDB"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:active_silencer"
   }
 }

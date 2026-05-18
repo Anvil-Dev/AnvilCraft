@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.utility;
 
 import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.MagnetUtil;
 import net.minecraft.world.InteractionHand;
@@ -13,7 +14,7 @@ import net.minecraft.world.level.Level;
 
 public class MagnetItem extends Item implements IChargerChargeable {
     public MagnetItem(Properties properties) {
-        super(properties.repairable(ModItems.MAGNET_INGOT.asItem()).enchantable(1));
+        super(properties.repairable(ModItemTags.MAGNET_INGOTS).enchantable(1));
     }
 
     @Override

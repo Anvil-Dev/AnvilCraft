@@ -1,0 +1,12 @@
+{
+  "gives": {
+    "count": 8,
+    "id": "minecraft:emerald"
+  },
+  "max_uses": 2.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "id": "anvilcraft:mob_amber_block"
+  },
+  "xp": 10.0
+}

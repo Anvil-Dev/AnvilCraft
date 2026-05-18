@@ -2,12 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:discharger"
-    }
+    "anvilcraft:discharger"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:charger"
   }
 }

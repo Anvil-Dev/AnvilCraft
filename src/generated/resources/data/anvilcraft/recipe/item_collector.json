@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:iron_ingot"
-    },
-    "B": {
-      "item": "anvilcraft:magnet"
-    },
-    "C": {
-      "item": "minecraft:hopper"
-    },
-    "D": {
-      "item": "anvilcraft:magnetoelectric_core"
-    }
+    "A": "minecraft:iron_ingot",
+    "B": "anvilcraft:magnet",
+    "C": "minecraft:hopper",
+    "D": "anvilcraft:magnetoelectric_core"
   },
   "pattern": [
     "ABA",
@@ -21,7 +13,6 @@
     "ACA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:item_collector"
   }
 }

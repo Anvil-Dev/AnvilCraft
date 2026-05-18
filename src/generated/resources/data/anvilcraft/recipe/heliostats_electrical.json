@@ -3,18 +3,10 @@
   "category": "misc",
   "group": "anvilcraft:heliostats",
   "key": {
-    "C": {
-      "item": "anvilcraft:processor"
-    },
-    "D": {
-      "item": "minecraft:daylight_detector"
-    },
-    "I": {
-      "item": "minecraft:iron_block"
-    },
-    "S": {
-      "tag": "c:plates/silver"
-    }
+    "C": "anvilcraft:processor",
+    "D": "minecraft:daylight_detector",
+    "I": "minecraft:iron_block",
+    "S": "#c:plates/silver"
   },
   "pattern": [
     "SDS",

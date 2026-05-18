@@ -12,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.joml.Matrix3x2fStack;
 
 import java.util.function.Consumer;
 
@@ -23,7 +24,7 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
     }
 
     public static void renderGuiExtra(
-        PoseStack pose,
+        Matrix3x2fStack pose,
         IGuiItemRenderer itemRenderer,
         LivingEntity entity,
         Level level,
@@ -40,13 +41,13 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         ItemStack innerStack = item.getDisplayedItem(stack);
         if (innerStack.isEmpty()) return;
         recursionSetter.accept(recursion + 1);
-        pose.pushPose();
-        pose.translate(x + item.offsetX(stack), y + item.offsetY(stack), 0);
+        pose.pushMatrix();
+        pose.translate(x + item.offsetX(stack), y + item.offsetY(stack));
         float scale = item.scale(stack);
-        pose.scale(scale, scale, 1.0F);
+        pose.scale(scale, scale);
         itemRenderer.renderItem(entity, level, innerStack, 0, 0, seed/*, guiOffset + 10*/);
         recursionSetter.accept(recursion - 1);
-        pose.popPose();
+        pose.popMatrix();
     }
 
     @Override

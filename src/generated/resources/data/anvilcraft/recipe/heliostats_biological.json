@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "anvilcraft:heliostats",
   "key": {
-    "F": {
-      "item": "minecraft:sunflower"
-    },
-    "I": {
-      "item": "minecraft:iron_block"
-    },
-    "S": {
-      "tag": "c:plates/silver"
-    }
+    "F": "minecraft:sunflower",
+    "I": "minecraft:iron_block",
+    "S": "#c:plates/silver"
   },
   "pattern": [
     "S S",

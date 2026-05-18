@@ -2878,35 +2878,38 @@ public class ModBlocks {
     }
 
     private static BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(Color color) {
-        return REGISTRUM.block("reinforced_concrete_" + color, ReinforcedConcreteBlock::new)
+        return REGISTRUM.block(color + "_reinforced_concrete", ReinforcedConcreteBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
             .blockstate(() -> (ctx, generator) -> {
-                DataGenUtil.<ReinforcedConcreteBlock>simpleBlock().accept(ctx, generator);
-                generator.withParent(ModelTemplates.CUBE_COLUMN)
+                Identifier singleModel = generator.withParent(ModelTemplates.CUBE_ALL)
+                    .texture(TextureSlot.ALL, generator.modLoc("block/reinforced_concrete_" + color), false)
+                    .build(generator.modLoc("reinforced_concrete_single_" + color));
+                Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
                     .texture(TextureSlot.END, generator.modLoc("block/reinforced_concrete_" + color), false)
                     .texture(TextureSlot.SIDE, generator.modLoc("block/reinforced_concrete_" + color + "_top"), false)
                     .build(generator.modLoc("reinforced_concrete_top_" + color));
-                generator.withParent(ModelTemplates.CUBE_COLUMN)
+                Identifier bottomModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
                     .texture(TextureSlot.END, generator.modLoc("block/reinforced_concrete_" + color), false)
                     .texture(TextureSlot.SIDE, generator.modLoc("block/reinforced_concrete_" + color + "_bottom"), false)
                     .build(generator.modLoc("reinforced_concrete_bottom_" + color));
-                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get()).with(
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                    .with(
                     PropertyDispatch.initial(ReinforcedConcreteBlock.HALF)
                         .select(
                             ReinforcedConcreteHalf.TOP,
-                            BlockModelGenerators.plainVariant(AnvilCraft.of("block/reinforced_concrete_top_" + color))
+                            BlockModelGenerators.plainVariant(topModel)
                         )
                         .select(
                             ReinforcedConcreteHalf.SINGLE,
-                            BlockModelGenerators.plainVariant(AnvilCraft.of("block/reinforced_concrete_" + color))
+                            BlockModelGenerators.plainVariant(singleModel)
                         )
                         .select(
                             ReinforcedConcreteHalf.BOTTOM,
-                            BlockModelGenerators.plainVariant(AnvilCraft.of("block/reinforced_concrete_bottom_" + color))
+                            BlockModelGenerators.plainVariant(bottomModel)
                         )
                 ));
             })
@@ -2924,7 +2927,7 @@ public class ModBlocks {
     }
 
     private static BlockEntry<SlabBlock> registerReinforcedConcreteSlabBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
-        return REGISTRUM.block("reinforced_concrete_" + color + "_slab", SlabBlock::new)
+        return REGISTRUM.block(color + "_reinforced_concrete_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
@@ -2948,7 +2951,7 @@ public class ModBlocks {
 
     private static BlockEntry<StairBlock> registerReinforcedConcreteStairBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRUM.block(
-                "reinforced_concrete_" + color + "_stair",
+                color + "_reinforced_concrete_stair",
                 properties -> new StairBlock(parent.getDefaultState(), properties)
             )
             .initialProperties(() -> Blocks.TERRACOTTA)
@@ -2972,7 +2975,7 @@ public class ModBlocks {
     }
 
     private static BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
-        return REGISTRUM.block("reinforced_concrete_" + color + "_wall", WallBlock::new)
+        return REGISTRUM.block(color +"_reinforced_concrete_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
@@ -2994,7 +2997,7 @@ public class ModBlocks {
     }
 
     private static BlockEntry<CementCauldronBlock> registerCementCauldron(Color color) {
-        return REGISTRUM.block("%s_cement_cauldron".formatted(color), p -> new CementCauldronBlock(p, color))
+        return REGISTRUM.block(color + "_cement_cauldron", p -> new CementCauldronBlock(p, color))
             .initialProperties(() -> Blocks.CAULDRON)
             .blockstate(() -> (ctx, generator) -> {
                 TextureMapping mapping = new TextureMapping()
@@ -3004,7 +3007,6 @@ public class ModBlocks {
                     .put(TextureSlot.TOP, new Material(generator.mcLoc("block/cauldron_top")))
                     .put(TextureSlot.PARTICLE, new Material(generator.mcLoc("block/cauldron_side")))
                     .put(TextureSlot.CONTENT, new Material(generator.modLoc("block/%s_cement".formatted(color))));
-                generator.withParent(ModelTemplates.CAULDRON_FULL, mapping).build(ctx.get());
                 generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
                     ctx.get(),
                     BlockModelGenerators.plainVariant(generator.withParent(ModelTemplates.CAULDRON_FULL, mapping).build(ctx.get()))
@@ -3022,7 +3024,7 @@ public class ModBlocks {
         int tickCount
     ) {
         Identifier location = BuiltInRegistries.BLOCK.getKey(block);
-        String id = prefix + "copper" + "_pressure_plate";
+        String id = prefix + "copper_pressure_plate";
         return REGISTRUM.block(id, properties -> new TimeCountedPressurePlateBlock(BlockSetType.IRON, properties, tickCount))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.PRESSURE_PLATES)
             .initialProperties(() -> block)
@@ -3321,18 +3323,22 @@ public class ModBlocks {
             var sugarBlock = generator.getBuilder()
                 .parent(Identifier.withDefaultNamespace("block/cube_all"))
                 .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block"), false)
+                .suffix("_0")
                 .build(ctx.get());
             var sugarBlock1 = generator.getBuilder()
                 .parent(Identifier.withDefaultNamespace("block/cube_all"))
                 .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_1"), false)
+                .suffix("_1")
                 .build(ctx.get());
             var sugarBlock2 = generator.getBuilder()
                 .parent(Identifier.withDefaultNamespace("block/cube_all"))
                 .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_2"), false)
+                .suffix("_2")
                 .build(ctx.get());
             var sugarBlock3 = generator.getBuilder()
                 .parent(Identifier.withDefaultNamespace("block/cube_all"))
                 .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_3"), false)
+                .suffix("_3")
                 .build(ctx.get());
             generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
                 .with(PropertyDispatch.initial(SugarBlock.FRAGMENTATION_DEGREE)

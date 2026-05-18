@@ -24,7 +24,6 @@
       "translate": "advancements.anvilcraft.not_beacon.description"
     },
     "icon": {
-      "count": 1,
       "id": "anvilcraft:charge_collector"
     },
     "title": {

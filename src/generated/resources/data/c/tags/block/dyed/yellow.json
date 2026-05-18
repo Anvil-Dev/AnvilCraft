@@ -1,8 +1,8 @@
 {
   "values": [
-    "anvilcraft:reinforced_concrete_yellow",
-    "anvilcraft:reinforced_concrete_yellow_slab",
-    "anvilcraft:reinforced_concrete_yellow_stair",
-    "anvilcraft:reinforced_concrete_yellow_wall"
+    "anvilcraft:yellow_reinforced_concrete",
+    "anvilcraft:yellow_reinforced_concrete_slab",
+    "anvilcraft:yellow_reinforced_concrete_stair",
+    "anvilcraft:yellow_reinforced_concrete_wall"
   ]
 }

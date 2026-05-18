@@ -1,0 +1,8 @@
+{
+  "amount": 2.0,
+  "random_sequence": "anvilcraft:trade_set/jeweler/level_2",
+  "trades": [
+    "anvilcraft:jeweler/sea_lantern_for_emerald",
+    "anvilcraft:jeweler/amber_for_emerald"
+  ]
+}

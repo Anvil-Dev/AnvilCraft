@@ -15,6 +15,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
@@ -100,6 +101,19 @@ public class ModFluids {
             "flowing_oil",
             () -> new BaseFlowingFluid.Flowing(ModFluids.OIL_PROPERTIES)
         );
+
+    public static final DeferredHolder<Fluid, BaseFlowingFluid> BURNING_OIL = FLUIDS
+        .register(
+            "burning_oil",
+            () -> new BaseFlowingFluid.Flowing(new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)
+//                .bucket(() -> Items.AIR)
+//                .block(() -> Fluids.EMPTY)
+                .tickRate(10)
+                .slopeFindDistance(3)
+                .explosionResistance(100)
+            )
+        );
+
     public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)
         .bucket(ModItems.OIL_BUCKET)
         .block(ModBlocks.OIL)
@@ -277,7 +291,7 @@ public class ModFluids {
         for (Color color : Color.values()) {
             e.registerFluidType(
                 new ModClientFluidTypeExtensionImpl(
-                    ColorUtil.mulValue(color.dyeItem().getDefaultInstance().get(DataComponents.DYE).getTextColor(), 0.6F),
+                    ColorUtil.mulValue(color.color().getTextColor(), 0.6F),
                     1.0F
                 ), CEMENT_TYPES.get(color)
             );

@@ -24,10 +24,6 @@ import java.util.function.Consumer;
 public class TooltipEventListener {
     private static final Component FIRE_REFORGING = Component.translatable("tooltip.anvilcraft.property.fire_reforging")
         .withStyle(ChatFormatting.GOLD);
-    private static final Component PROVIDENCE = Component.translatable(
-        "tooltip.anvilcraft.property.providence",
-        Minecraft.getInstance().options.keyShift.getKey().getDisplayName()
-    ).withColor(0xFFCB62);
     private static final Component PROVIDENCE_SHIFT = Component.translatable(
         "tooltip.anvilcraft.property.providence.shifting",
         ComponentUtils.formatList(
@@ -62,7 +58,11 @@ public class TooltipEventListener {
         stack.addToTooltip(ModComponents.MERCILESS, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.FEROCIOUS, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.ETERNAL, ctx, display, consumer, flag);
-        TooltipEventListener.addShiftUnitTooltip(ModComponents.PROVIDENCE, PROVIDENCE, PROVIDENCE_SHIFT, stack, shift, display, consumer);
+        Component providence = Component.translatable(
+            "tooltip.anvilcraft.property.providence",
+            /*TODO Minecraft.getInstance().options.keyShift.getKey().getDisplayName()*/"Shift"
+        ).withColor(0xFFCB62);
+        TooltipEventListener.addShiftUnitTooltip(ModComponents.PROVIDENCE, providence, PROVIDENCE_SHIFT, stack, shift, display, consumer);
         stack.addToTooltip(ModComponents.MULTIPHASE, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.FLIGHT_TIME, ctx, display, consumer, flag);

@@ -12,13 +12,13 @@ import net.neoforged.neoforge.fluids.RegisterCauldronFluidContentEvent;
 public class CauldronFluidContentEventListener {
     @SubscribeEvent
     public static void registerCauldronFluidContent(RegisterCauldronFluidContentEvent event) {
-        event.register(ModBlocks.OIL_CAULDRON.get(), ModFluids.OIL.get(), 1000, OilCauldronBlock.LEVEL);
-        ModBlocks.CEMENT_CAULDRONS.forEach((key, value) -> event.register(
-            value.get(),
-            ModFluids.SOURCE_CEMENTS.get(key).get(),
-            1000,
-            null
-        ));
-        event.register(ModBlocks.MELT_GEM_CAULDRON.get(), ModFluids.MELT_GEM.get(), 1000, null);
+//        event.register(ModBlocks.OIL_CAULDRON.get(), ModFluids.OIL.get(), 1000, OilCauldronBlock.LEVEL);
+//        ModBlocks.CEMENT_CAULDRONS.forEach((key, value) -> event.register(
+//            value.get(),
+//            ModFluids.SOURCE_CEMENTS.get(key).get(),
+//            1000,
+//            null
+//        ));
+//        event.register(ModBlocks.MELT_GEM_CAULDRON.get(), ModFluids.MELT_GEM.get(), 1000, null);
     }
 }

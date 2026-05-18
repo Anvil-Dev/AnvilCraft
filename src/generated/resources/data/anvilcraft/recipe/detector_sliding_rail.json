@@ -3,16 +3,10 @@
   "category": "redstone",
   "key": {
     "P": [
-      {
-        "item": "minecraft:stone_pressure_plate"
-      },
-      {
-        "item": "minecraft:polished_blackstone_pressure_plate"
-      }
+      "minecraft:stone_pressure_plate",
+      "minecraft:polished_blackstone_pressure_plate"
     ],
-    "S": {
-      "item": "anvilcraft:sliding_rail"
-    }
+    "S": "anvilcraft:sliding_rail"
   },
   "pattern": [
     "SSS",

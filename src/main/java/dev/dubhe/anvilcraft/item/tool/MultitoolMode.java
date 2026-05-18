@@ -12,6 +12,7 @@ import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.function.Supplier;
 
 public enum MultitoolMode implements StringRepresentable {
     ALL,
@@ -19,7 +20,7 @@ public enum MultitoolMode implements StringRepresentable {
     FLINT_AND_STEEL(Items.FLINT_AND_STEEL),
     BRUSH(Items.BRUSH),
     SPYGLASS(Items.SPYGLASS),
-    MAGNET(ModItems.MAGNET.get()),
+    MAGNET(ModItems.MAGNET::get),
     FISHING_ROD(Items.FISHING_ROD),
     CARROT_ON_A_STICK(Items.CARROT_ON_A_STICK),
     WARPED_FUNGUS_ON_A_STICK(Items.WARPED_FUNGUS_ON_A_STICK),
@@ -27,13 +28,17 @@ public enum MultitoolMode implements StringRepresentable {
 
     public static final Codec<MultitoolMode> CODEC = StringRepresentable.fromEnum(MultitoolMode::values);
     public static final StreamCodec<ByteBuf, MultitoolMode> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(MultitoolMode.class);
-    private final @Nullable Item acting;
+    private final @Nullable Supplier<Item> acting;
 
     MultitoolMode() {
-        this(null);
+        this((Item) null);
     }
 
     MultitoolMode(@Nullable Item acting) {
+        this.acting = () -> acting;
+    }
+
+    MultitoolMode(@Nullable Supplier<Item> acting) {
         this.acting = acting;
     }
 
@@ -42,7 +47,7 @@ public enum MultitoolMode implements StringRepresentable {
     }
 
     public boolean isActing(ItemStack stack) {
-        return stack.is(this.acting);
+        return stack.is(this.acting.get());
     }
 
     @Override

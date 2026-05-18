@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.IInventoryCarriedAware;
 import dev.dubhe.anvilcraft.item.property.component.FlightTime;
@@ -49,7 +50,7 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     public IonoCraftBackpackItem(Properties properties) {
         super(
             properties
-                .repairable(ModItems.TIN_INGOT.asItem())
+                .repairable(ModItemTags.TIN_INGOTS)
                 .component(ModComponents.FLIGHT_TIME, FlightTime.EMPTY)
         );
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));

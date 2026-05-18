@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "B": {
-      "item": "anvilcraft:circuit_board"
-    },
-    "C": {
-      "tag": "c:ingots/copper"
-    },
-    "I": {
-      "tag": "c:ingots/iron"
-    },
-    "R": {
-      "item": "minecraft:comparator"
-    }
+    "B": "anvilcraft:circuit_board",
+    "C": "#c:ingots/copper",
+    "I": "#c:ingots/iron",
+    "R": "minecraft:comparator"
   },
   "pattern": [
     "CC ",
@@ -21,7 +13,6 @@
     "III"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:item_detector"
   }
 }

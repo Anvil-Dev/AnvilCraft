@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "anvilcraft:magnetoelectric_core"
-    },
-    "B": {
-      "item": "minecraft:lightning_rod"
-    },
-    "C": {
-      "item": "minecraft:iron_block"
-    }
+    "A": "anvilcraft:magnetoelectric_core",
+    "B": "minecraft:lightning_rod",
+    "C": "minecraft:iron_block"
   },
   "pattern": [
     "A",
@@ -18,7 +12,6 @@
     "C"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:transmission_pole"
   }
 }

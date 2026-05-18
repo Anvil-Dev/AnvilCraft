@@ -67,7 +67,6 @@
       "translate": "advancements.anvilcraft.recycling_diamonds.description"
     },
     "icon": {
-      "count": 1,
       "id": "minecraft:diamond"
     },
     "title": {

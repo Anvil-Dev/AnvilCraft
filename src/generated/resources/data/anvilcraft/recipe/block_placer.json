@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "minecraft:cobblestone"
-    },
-    "B": {
-      "item": "anvilcraft:crab_claw"
-    },
-    "C": {
-      "item": "minecraft:redstone"
-    },
-    "D": {
-      "item": "minecraft:hopper"
-    }
+    "A": "minecraft:cobblestone",
+    "B": "anvilcraft:crab_claw",
+    "C": "minecraft:redstone",
+    "D": "minecraft:hopper"
   },
   "pattern": [
     "AAA",
@@ -21,7 +13,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:block_placer"
   }
 }

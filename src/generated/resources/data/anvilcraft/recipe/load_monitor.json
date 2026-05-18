@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:compass"
-    },
-    "B": {
-      "item": "anvilcraft:magnetoelectric_core"
-    }
+    "A": "minecraft:compass",
+    "B": "anvilcraft:magnetoelectric_core"
   },
   "pattern": [
     "A",

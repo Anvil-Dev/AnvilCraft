@@ -1,0 +1,9 @@
+{
+  "amount": 2.0,
+  "random_sequence": "anvilcraft:trade_set/jeweler/level_4",
+  "trades": [
+    "anvilcraft:jeweler/nautilus_shell_for_emerald",
+    "anvilcraft:jeweler/mob_amber_for_emerald",
+    "anvilcraft:jeweler/resentful_amber_for_emerald"
+  ]
+}

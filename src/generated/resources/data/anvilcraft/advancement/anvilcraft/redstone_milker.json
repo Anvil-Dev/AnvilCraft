@@ -10,7 +10,6 @@
       "translate": "advancements.anvilcraft.redstone_milker.description"
     },
     "icon": {
-      "count": 1,
       "id": "minecraft:dispenser"
     },
     "title": {

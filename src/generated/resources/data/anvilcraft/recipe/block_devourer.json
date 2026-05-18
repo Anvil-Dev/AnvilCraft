@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "minecraft:netherite_ingot"
-    },
-    "B": {
-      "item": "minecraft:dragon_head"
-    },
-    "C": {
-      "item": "minecraft:redstone"
-    },
-    "D": {
-      "item": "minecraft:cobblestone"
-    }
+    "A": "minecraft:netherite_ingot",
+    "B": "minecraft:dragon_head",
+    "C": "minecraft:redstone",
+    "D": "minecraft:cobblestone"
   },
   "pattern": [
     "DA ",
@@ -21,7 +13,6 @@
     "DA "
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:block_devourer"
   }
 }

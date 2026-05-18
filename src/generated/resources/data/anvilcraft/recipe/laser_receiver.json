@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "anvilcraft:ruby"
-    },
-    "B": {
-      "item": "anvilcraft:magnetoelectric_core"
-    },
-    "C": {
-      "item": "minecraft:redstone"
-    },
-    "D": {
-      "item": "anvilcraft:royal_steel_ingot"
-    }
+    "A": "anvilcraft:ruby",
+    "B": "anvilcraft:magnetoelectric_core",
+    "C": "minecraft:redstone",
+    "D": "anvilcraft:royal_steel_ingot"
   },
   "pattern": [
     "AAA",
@@ -21,7 +13,6 @@
     "DCD"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:laser_receiver"
   }
 }

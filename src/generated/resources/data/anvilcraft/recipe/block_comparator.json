@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "minecraft:observer"
-    },
-    "B": {
-      "item": "minecraft:comparator"
-    },
-    "C": {
-      "item": "anvilcraft:circuit_board"
-    },
-    "D": {
-      "tag": "c:dusts/redstone"
-    }
+    "A": "minecraft:observer",
+    "B": "minecraft:comparator",
+    "C": "anvilcraft:circuit_board",
+    "D": "#c:dusts/redstone"
   },
   "pattern": [
     "ABA",
@@ -21,7 +13,6 @@
     " D "
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:block_comparator"
   }
 }
