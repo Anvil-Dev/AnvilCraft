@@ -458,7 +458,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
                 break;
             }
             if (slot < 0) return;
-            entity.discard();
             ItemStack stackInSlot = handler.getStackInSlot(slot);
             int limit = Math.min(
                 stackInSlot.isEmpty() ? Item.DEFAULT_MAX_STACK_SIZE : stackInSlot.getMaxStackSize(),
@@ -469,6 +468,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             remaining -= storing;
             modifiable.setStackInSlot(slot, stack.copyWithCount(existing + storing));
         }
+        entity.discard();
     }
 
     /**
