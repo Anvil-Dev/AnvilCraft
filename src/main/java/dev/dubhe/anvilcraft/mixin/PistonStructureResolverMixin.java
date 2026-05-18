@@ -66,8 +66,8 @@ abstract class PistonStructureResolverMixin {
         Operation<Boolean> original,
         @Local(name = "pos") BlockPos pos
     ) {
-        BlockPos pos = pos.relative(this.pushDirection);
-        return instance.anvilcraft$canStickTo(pos, pos, state);
+        BlockPos relativePos = pos.relative(this.pushDirection);
+        return instance.anvilcraft$canStickTo(pos, relativePos, state);
     }
 
     @WrapOperation(

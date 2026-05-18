@@ -7,17 +7,17 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLLoader;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public interface Thinkable {
     @OnlyIn(Dist.CLIENT)
-    default void appendHoverText(List<Component> tooltipComponents) {
+    default void appendHoverText(Consumer<Component> consumer) {
         if (!FMLLoader.getCurrent().getDist().isClient()) {
             return;
         }
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime <= 0) {
-            tooltipComponents.add(
+            consumer.accept(
                 Component.translatable(
                     "tooltip.anvilcraft.thought",
                     Component.keybind("key.anvilcraft.thought")
@@ -35,7 +35,7 @@ public interface Thinkable {
         StringBuilder builder = new StringBuilder("[");
         builder.repeat("||", Math.max(0, placeholderCount));
         builder.repeat(" ", Math.max(0, blankCount));
-        tooltipComponents.add(Component.literal(builder.append("]").toString()).withStyle(ChatFormatting.GRAY));
+        consumer.accept(Component.literal(builder.append("]").toString()).withStyle(ChatFormatting.GRAY));
     }
 
     @OnlyIn(Dist.CLIENT)

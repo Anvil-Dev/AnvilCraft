@@ -48,7 +48,9 @@ public class JewelInputSlot extends Slot {
             } else {
                 var entry = mergedIngredients.get(getSlotIndex());
                 this.ingredient = entry.getKey();
-                this.ingredientItems = this.ingredient.getItems();
+                this.ingredientItems = this.ingredient.items()
+                    .map(holder -> holder.value().getDefaultInstance())
+                    .toArray(ItemStack[]::new);
                 this.hintCount = entry.getIntValue();
             }
         } else {

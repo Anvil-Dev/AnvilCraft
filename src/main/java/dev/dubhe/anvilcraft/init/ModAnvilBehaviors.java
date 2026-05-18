@@ -34,7 +34,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class ModAnvilBehaviors {
     @SubscribeEvent
     public static void register(AnvilBehaviorRegisterEvent event) {
-        event.registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
+        event.registerBehavior(state -> state.is(Blocks.REDSTONE_BLOCK), new RedstoneEMPBehavior());
         event.registerBehavior(
             state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST),
             new HitBeeNestBehavior()
@@ -54,7 +54,7 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpPlayerBehavior());
         event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());
-        event.registerBehavior(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get(), new TranscendiumBehavior());
+        event.registerBehavior(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK, new TranscendiumBehavior());
         event.registerBehavior(
             state -> state.is(ModBlocks.MAGNET_BLOCK.get()) || state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get()),
             new MagnetBlockBehavior()

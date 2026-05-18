@@ -35,16 +35,11 @@ public class TranscendiumUpgradeTemplateItem extends SmithingTemplateItem {
         super(
             APPLIES_TO,
             UPGRADE_INGREDIENTS,
-            UPGRADE,
             UPGRADE_BASE_SLOT_DESCRIPTION,
             UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
             List.of(EMPTY_SLOT_PICKAXE, EMPTY_SLOT_HAMMER),
-            List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_BLOCK)
+            List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_BLOCK),
+            properties
         );
-    }
-
-    @Override
-    public String getDescriptionId() {
-        return this.getOrCreateDescriptionId();
     }
 }

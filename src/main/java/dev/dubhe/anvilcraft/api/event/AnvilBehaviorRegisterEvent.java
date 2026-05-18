@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.event;
 
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.Event;
@@ -14,6 +15,10 @@ public class AnvilBehaviorRegisterEvent extends Event {
     public AnvilBehaviorRegisterEvent(BlockBehaviorRegister blockBehaviorRegister, StateBehaviorRegister stateBehaviorRegister) {
         this.blockBehaviorRegister = blockBehaviorRegister;
         this.stateBehaviorRegister = stateBehaviorRegister;
+    }
+
+    public void registerBehavior(Holder<Block> matchingBlock, IAnvilBehavior behavior) {
+        this.blockBehaviorRegister.register(matchingBlock.value(), behavior);
     }
 
     public void registerBehavior(Block matchingBlock, IAnvilBehavior behavior) {

@@ -19,12 +19,12 @@ public class ModLootModifierProvider extends GlobalLootModifierProvider {
         this.add(
             "smelting_loot_modifier",
             new SmeltingLootModifier(new LootItemCondition[]{
-            })
+            }, 0)
         );
         this.add(
             "disintegration_loot_modifier",
             new DisintegrationLootModifier(new LootItemCondition[]{
-            })
+            }, 0)
         );
     }
 }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.init;
 
 import com.mojang.blaze3d.platform.InputConstants.Type;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
@@ -8,6 +9,8 @@ import net.neoforged.neoforge.common.util.Lazy;
 import org.lwjgl.glfw.GLFW;
 
 public class ModKeyMappings {
+    public static final KeyMapping.Category ANVILCRAFT_CATEGORY = KeyMapping.Category.register(AnvilCraft.of("anvilcraft"));
+
     public static final Lazy<KeyMapping> SWITCH_PHASE = register(
         "switch_phase",
         KeyConflictContext.IN_GAME,
@@ -41,7 +44,7 @@ public class ModKeyMappings {
 
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {
-        return Lazy.of(() -> new KeyMapping("key.anvilcraft." + name, context, type, key, "key.categories.anvilcraft"));
+        return Lazy.of(() -> new KeyMapping("key.anvilcraft." + name, context, type, key, ANVILCRAFT_CATEGORY));
     }
 
     public static void register(RegisterKeyMappingsEvent event) {

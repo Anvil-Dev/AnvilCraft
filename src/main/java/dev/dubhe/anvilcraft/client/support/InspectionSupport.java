@@ -20,12 +20,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class InspectionSupport {
@@ -37,22 +39,24 @@ public class InspectionSupport {
         INSTANCE.registerActionClient(AnvilCraft.of("silencer"), (p, r, c, d) -> {
             Map<ResourceKey<Level>, List<ISoundEventListener>> map = SoundHelper.INSTANCE.getEventListeners();
             List<ISoundEventListener> listeners = map.get(Minecraft.getInstance().level.dimension());
-            MultiBufferSource.BufferSource buf = r.renderBuffers.bufferSource();
-            VertexConsumer vertex = buf.getBuffer(RenderTypes.lines());
-            if (listeners == null || listeners.isEmpty()) return;
-            listeners.stream().filter(it -> it instanceof IHasAffectRange)
-                .map(it -> ((IHasAffectRange) it).shape())
-                .forEach(it -> TooltipRenderHelper.renderOutline(
-                    p,
-                    vertex,
-                    c.x,
-                    c.y,
-                    c.z,
-                    BlockPos.ZERO,
-                    Shapes.create(it),
-                    0xff00Ffcc
-                ));
-            buf.endBatch();
+            List<AABB> snapshottedBoxes = listeners.stream().filter(it -> it instanceof IHasAffectRange)
+                .map(it -> ((IHasAffectRange) it).shape()).filter(Objects::nonNull)
+                .toList();
+            if (snapshottedBoxes.isEmpty())return;
+            r.submitCustomGeometry(p, RenderTypes.lines(), ((pose, buffer) -> {
+                for (AABB it : snapshottedBoxes) {
+                    TooltipRenderHelper.renderOutline(
+                        pose,
+                        buffer,
+                        c.x,
+                        c.y,
+                        c.z,
+                        BlockPos.ZERO,
+                        Shapes.create(it),
+                        0xff00Ffcc
+                    );
+                }
+            }));
         });
     }
 

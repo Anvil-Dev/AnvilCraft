@@ -19,9 +19,6 @@ public class RoyalSteelUpgradeTemplateItem extends SmithingTemplateItem {
         Component.translatable("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template"
                 + ".upgrade_ingredients")
             .withStyle(DESCRIPTION_FORMAT);
-    private static final Component UPGRADE = Component.translatable(
-            "screen.anvilcraft.royal_steel_upgrade_smithing_template")
-        .withStyle(TITLE_FORMAT);
     private static final Component UPGRADE_BASE_SLOT_DESCRIPTION = Component.translatable(
         "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description");
     private static final Component UPGRADE_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(
@@ -33,19 +30,14 @@ public class RoyalSteelUpgradeTemplateItem extends SmithingTemplateItem {
     private static final Identifier EMPTY_SLOT_HAMMER = AnvilCraft.of("item/empty_slot_hammer");
     private static final Identifier EMPTY_SLOT_BLOCK = AnvilCraft.of("item/empty_slot_block");
 
-    public RoyalSteelUpgradeTemplateItem(@SuppressWarnings("unused") Properties properties) {
+    public RoyalSteelUpgradeTemplateItem(Properties properties) {
         super(
             APPLIES_TO,
             UPGRADE_INGREDIENTS,
-            UPGRADE,
             UPGRADE_BASE_SLOT_DESCRIPTION,
             UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
             List.of(EMPTY_SLOT_PICKAXE, EMPTY_SLOT_HAMMER),
-            List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_BLOCK));
-    }
-
-    @Override
-    public String getDescriptionId() {
-        return this.getOrCreateDescriptionId();
+            List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_BLOCK),
+            properties);
     }
 }

@@ -53,10 +53,10 @@ public class TopazItem extends Item {
                         player.getX(),
                         player.getY(),
                         player.getZ(),
-                        SoundEvents.ITEM_BREAK,
+                        SoundEvents.ITEM_BREAK.value(),
                         player.getSoundSource(),
                         0.8F,
-                        0.8F + player.level().random.nextFloat() * 0.4F,
+                        0.8F + player.level().getRandom().nextFloat() * 0.4F,
                         false);
             }
             this.spawnItemParticles(player, stack);
@@ -75,7 +75,7 @@ public class TopazItem extends Item {
             vec32 = vec32.add(player.getX(), player.getEyeY(), player.getZ());
             player.level()
                 .addParticle(
-                    new ItemParticleOption(ParticleTypes.ITEM, stack),
+                    new ItemParticleOption(ParticleTypes.ITEM, stack.getItem()),
                     vec32.x,
                     vec32.y,
                     vec32.z,

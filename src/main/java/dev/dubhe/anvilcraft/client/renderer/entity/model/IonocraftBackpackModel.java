@@ -9,10 +9,10 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 
 @Getter
-public class IonocraftBackpackModel extends HumanoidModel<LivingEntity> {
+public class IonocraftBackpackModel extends HumanoidModel<HumanoidRenderState> {
     private final ModelPart root;
 
     public IonocraftBackpackModel(ModelPart root) {

@@ -35,10 +35,10 @@ public class DamageEntityMixin {
     ) {
         float result = original.call(random, min, maxExclusive);
         if (!ProvidenceRef.shouldItTrigger()) return result;
-        float random = random.nextFloat();
-        if (random >= 0.25F) return result;
+        float randomValue = random.nextFloat();
+        if (randomValue >= 0.25F) return result;
         result += original.call(random, this.minDamage.calculate(enchantmentLevel), this.maxDamage.calculate(enchantmentLevel));
-        if (random >= 0.05F) return result;
+        if (randomValue >= 0.05F) return result;
         result += original.call(random, this.minDamage.calculate(enchantmentLevel), this.maxDamage.calculate(enchantmentLevel));
         return result;
     }

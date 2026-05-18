@@ -14,7 +14,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public record DiskData(CompoundTag tag) implements TooltipProvider {
@@ -31,9 +30,9 @@ public record DiskData(CompoundTag tag) implements TooltipProvider {
 
     @Override
     public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
-        Optional<String> storedType = this.tag.getStringOr("StoredFrom", "");
+        String storedType = this.tag.getStringOr("StoredFrom", "");
         if (storedType.isEmpty()) return;
-        Identifier storedFrom = Identifier.parse(storedType.get());
+        Identifier storedFrom = Identifier.parse(storedType);
         Component name = Component.translatable("block." + storedFrom.toLanguageKey());
         consumer.accept(Component.translatable("item.anvilcraft.disk.stored_from", name).withStyle(ChatFormatting.GRAY));
         consumer.accept(Component.translatable("tooltip.anvilcraft.item.disk.clear").withStyle(ChatFormatting.GRAY));

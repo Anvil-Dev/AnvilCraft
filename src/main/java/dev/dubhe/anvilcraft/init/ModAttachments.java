@@ -15,7 +15,7 @@ public class ModAttachments {
     );
 
     public static final Supplier<AttachmentType<DfuMetadata>> DFU = ATTACHMENT_TYPES.register(
-        "dfu_metadata", () -> AttachmentType.builder(() -> DfuMetadata.DEFAULT).serialize(DfuMetadata.CODEC).build()
+        "dfu_metadata", () -> AttachmentType.builder(() -> DfuMetadata.DEFAULT).serialize(DfuMetadata.CODEC.fieldOf("value")).build()
     );
 
     public static void register(IEventBus eventBus) {

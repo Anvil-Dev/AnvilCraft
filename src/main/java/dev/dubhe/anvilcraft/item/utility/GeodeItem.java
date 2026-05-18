@@ -31,7 +31,7 @@ public class GeodeItem extends Item {
         super.use(level, player, usedHand);
         ItemStack itemStack = player.getItemInHand(usedHand);
         BlockPos pos = player.getOnPos().below();
-        player.getCooldowns().addCooldown(itemStack.getItem(), AnvilCraft.CONFIG.geodeCooldown * 20);
+        player.getCooldowns().addCooldown(itemStack, AnvilCraft.CONFIG.geodeCooldown * 20);
         if (!level.isClientSide()) return InteractionResult.SUCCESS;
         int interval = AnvilCraft.CONFIG.geodeInterval;
         int radius = AnvilCraft.CONFIG.geodeRadius;
@@ -46,16 +46,14 @@ public class GeodeItem extends Item {
                     MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable(
                             "chat.coordinates", offsetPos.getX(), offsetPos.getY(), offsetPos.getZ()))
                         .withStyle(text -> text.withColor(ChatFormatting.GREEN)
-                            .withClickEvent(new ClickEvent(
-                                ClickEvent.Action.SUGGEST_COMMAND,
+                            .withClickEvent(new ClickEvent.SuggestCommand(
                                 "/tp @s "
                                     + offsetPos.getX()
                                     + " "
                                     + offsetPos.getY()
                                     + " "
                                     + offsetPos.getZ()))
-                            .withHoverEvent(new HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT,
+                            .withHoverEvent(new HoverEvent.ShowText(
                                 Component.translatable("chat.coordinates.tooltip"))));
                     player.sendSystemMessage(Component.translatable("item.anvilcraft.geode.find", component));
                     BlockHighlightUtil.highlightBlock(level, offsetPos);

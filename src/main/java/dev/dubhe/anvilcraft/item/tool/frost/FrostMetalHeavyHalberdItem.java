@@ -16,11 +16,6 @@ public class FrostMetalHeavyHalberdItem extends HeavyHalberdItem {
     }
 
     @Override
-    protected double getBaseAttackDamage() {
-        return 13;
-    }
-
-    @Override
     public ThrownHeavyHalberdEntity createThrown(Level level, LivingEntity shooter, ItemStack pickupItemStack) {
         return new ThrownFrostMetalHeavyHalberdEntity(level, shooter, pickupItemStack);
     }

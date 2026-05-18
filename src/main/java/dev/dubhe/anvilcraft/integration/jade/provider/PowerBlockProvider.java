@@ -17,6 +17,7 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.JadeIds;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.BoxStyle;
+import snownee.jade.api.ui.ColorPalette;
 import snownee.jade.api.ui.JadeUI;
 import snownee.jade.api.view.ProgressView;
 
@@ -46,9 +47,8 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
                 Component.translatable("tooltip.anvilcraft.jade.power_information", UnitUtil.electricityUnit(consume, generate, original)),
                 JadeUI.progressStyle().fitContentX(false).fitContentY(false),
                 Util.make(STYLE, boxStyle -> {
-                    boxStyle.boxProgressColors = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
-                    boxStyle.borderWidth = 1.0F;
-                    boxStyle.bgColor = 0xFF32CD32;
+                    boxStyle.boxProgressColors = new ColorPalette(0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0);
+                    boxStyle.borderWidth = 1;
                 })
             )));
         }

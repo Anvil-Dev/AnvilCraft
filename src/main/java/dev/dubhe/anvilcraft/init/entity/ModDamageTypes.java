@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -37,7 +38,7 @@ public class ModDamageTypes {
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {
-        Registry<DamageType> registry = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
-        return new DamageSource(registry.getHolderOrThrow(key));
+        Holder.Reference<DamageType> holder = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(key);
+        return new DamageSource(holder);
     }
 }

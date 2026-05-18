@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.item.tool.ember;
 
-import com.mojang.datafixers.util.Unit;
+import net.minecraft.util.Unit;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModToolMaterials;
 import net.minecraft.world.item.AxeItem;

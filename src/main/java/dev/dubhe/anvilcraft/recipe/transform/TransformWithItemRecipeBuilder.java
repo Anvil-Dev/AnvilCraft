@@ -98,7 +98,7 @@ public class TransformWithItemRecipeBuilder {
             recipeOutput,
             AnvilCraft.of(
                 BuiltInRegistries.ENTITY_TYPE.getKey(this.inputType).getPath()
-                + "_to_" + BuiltInRegistries.ITEM.getKey(this.itemResult.getItem()).getPath()
+                + "_to_" + BuiltInRegistries.ITEM.getKey(this.itemResult.item().value()).getPath()
             ).withPrefix("mob_transform_with_item/")
         );
     }

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.item.tool.ember;
 
-import com.mojang.datafixers.util.Unit;
+import net.minecraft.util.Unit;
 import dev.dubhe.anvilcraft.entity.ThrownEmberMetalHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;

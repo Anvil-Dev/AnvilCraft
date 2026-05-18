@@ -5,15 +5,16 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import lombok.Getter;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.function.Consumer;
 
 @Getter
 public class CannedFoodItem extends Item implements IExtraItemDisplay {
@@ -22,18 +23,9 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
     }
 
     @Override
-    public void verifyComponentsAfterLoad(ItemStack stack) {
-        if (!stack.has(ModComponents.DISPLAY_ITEM)) {
-            this.setFood(stack, ModFoodItems.BEEF_MUSHROOM_STEW.asStack());
-        }
-        super.verifyComponentsAfterLoad(stack);
-    }
-
-    @Override
     public ItemStack getDisplayedItem(ItemStack stack) {
-        return Optional.ofNullable(stack.get(ModComponents.DISPLAY_ITEM))
-            .map(StoredItem::stored)
-            .orElse(ItemStack.EMPTY);
+        StoredItem displayItem = stack.get(ModComponents.DISPLAY_ITEM);
+        return displayItem != null ? displayItem.stored() : ItemStack.EMPTY;
     }
 
     public ItemStack setFood(ItemStack canStack, ItemStack foodStack) {
@@ -42,7 +34,7 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
             canStack.set(DataComponents.RARITY, displayStack.get(DataComponents.RARITY));
         }
         canStack.set(ModComponents.DISPLAY_ITEM, new StoredItem(displayStack));
-        FoodProperties copiedFood = displayStack.getFoodProperties(null);
+        FoodProperties copiedFood = displayStack.get(DataComponents.FOOD);
         if (copiedFood != null) {
             int nutrition = copiedFood.nutrition();
             float magnification = switch (foodStack.getCount()) {
@@ -56,24 +48,21 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
             canStack.set(DataComponents.FOOD, new FoodProperties(
                 (int) (nutrition * magnification),
                 copiedFood.saturation() * magnification,
-                false,
-                0.8F,
-                Optional.empty(),
-                List.of()
+                false
             ));
         }
         return canStack;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag flag) {
         StoredItem foodInfo = stack.getOrDefault(ModComponents.DISPLAY_ITEM, new StoredItem(ItemStack.EMPTY));
         ItemStack food = foodInfo.stored();
         if (!food.isEmpty()) {
             if (food.getCount() == 1) {
-                tooltipComponents.add(food.getHoverName());
+                consumer.accept(food.getHoverName());
             } else {
-                tooltipComponents.add(food.getHoverName().copy().append(" x").append(String.valueOf(food.getCount())));
+                consumer.accept(food.getHoverName().copy().append(" x").append(String.valueOf(food.getCount())));
             }
         }
     }

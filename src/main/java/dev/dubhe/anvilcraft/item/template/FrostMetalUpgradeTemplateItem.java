@@ -18,9 +18,6 @@ public class FrostMetalUpgradeTemplateItem extends SmithingTemplateItem {
         Component.translatable("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template"
                 + ".upgrade_ingredients")
             .withStyle(DESCRIPTION_FORMAT);
-    private static final Component UPGRADE = Component.translatable(
-            "screen.anvilcraft.frost_metal_upgrade_smithing_template")
-        .withStyle(TITLE_FORMAT);
     private static final Component UPGRADE_BASE_SLOT_DESCRIPTION = Component.translatable(
         "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description");
     private static final Component UPGRADE_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(
@@ -30,19 +27,14 @@ public class FrostMetalUpgradeTemplateItem extends SmithingTemplateItem {
     private static final Identifier EMPTY_SLOT_INGOT =
         Identifier.withDefaultNamespace("item/empty_slot_ingot");
 
-    public FrostMetalUpgradeTemplateItem(@SuppressWarnings("unused") Properties properties) {
+    public FrostMetalUpgradeTemplateItem(Properties properties) {
         super(
             APPLIES_TO,
             UPGRADE_INGREDIENTS,
-            UPGRADE,
             UPGRADE_BASE_SLOT_DESCRIPTION,
             UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
             List.of(EMPTY_SLOT_PICKAXE),
-            List.of(EMPTY_SLOT_INGOT));
-    }
-
-    @Override
-    public String getDescriptionId() {
-        return this.getOrCreateDescriptionId();
+            List.of(EMPTY_SLOT_INGOT),
+            properties);
     }
 }
