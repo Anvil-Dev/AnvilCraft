@@ -86,7 +86,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         @Override
         protected void onContentsChanged() {
             FishTankBlockEntity.this.setChanged();
-            if (!FishTankBlockEntity.shouldIgnite(this.getFluid())) FishTankBlockEntity.this.setIgnited(false);
+            FishTankBlockEntity.this.refreshIgnited();
             sendUpdate();
             if (!isWaterArea(this)) {
                 FishTankBlockEntity.this.dropFish();
@@ -150,8 +150,65 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
-            FishTankBlockEntity.this.itemHandler.setStackInSlot(slot, super.getStackInSlot(slot));
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (stack.isEmpty()) {
+                return ItemStack.EMPTY;
+            } else if (!this.isItemValid(slot, stack)) {
+                return stack;
+            } else {
+                this.validateSlotIndex(slot);
+                ItemStack existing = this.getStackInSlot(slot);
+                int limit = this.getStackLimit(slot, stack);
+                if (!existing.isEmpty()) {
+                    if (!ItemStack.isSameItemSameComponents(stack, existing)) {
+                        return stack;
+                    }
+
+                    limit -= existing.getCount();
+                }
+
+                if (limit <= 0) {
+                    return stack;
+                } else {
+                    boolean reachedLimit = stack.getCount() > limit;
+                    if (!simulate) {
+                        if (existing.isEmpty()) {
+                            this.setStackInSlot(slot, reachedLimit ? stack.copyWithCount(limit) : stack);
+                        } else {
+                            existing.grow(reachedLimit ? limit : stack.getCount());
+                        }
+
+                        this.onContentsChanged(slot);
+                    }
+
+                    return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
+                }
+            }
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            if (amount == 0) return ItemStack.EMPTY;
+            this.validateSlotIndex(slot);
+            ItemStack existing = this.getStackInSlot(slot);
+            if (existing.isEmpty()) return ItemStack.EMPTY;
+            int toExtract = Math.min(amount, existing.getMaxStackSize());
+            if (existing.getCount() <= toExtract) {
+                if (simulate) return existing.copy();
+                this.setStackInSlot(slot, ItemStack.EMPTY);
+                this.onContentsChanged(slot);
+                return existing;
+            } else {
+                if (simulate) return existing.copyWithCount(toExtract);
+                this.setStackInSlot(slot, existing.copyWithCount(existing.getCount() - toExtract));
+                this.onContentsChanged(slot);
+                return existing.copyWithCount(toExtract);
+            }
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack) {
+            FishTankBlockEntity.this.itemHandler.setStackInSlot(slot, stack);
         }
     };
     private boolean ignited = false;
@@ -167,6 +224,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     public void setIgnited(boolean ignited) {
+        if (this.ignited == ignited) return;
         this.ignited = ignited;
         this.setChanged();
         sendUpdate();
@@ -219,7 +277,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         super.loadAdditional(tag, provider);
         this.fluidHandler.readFromNBT(provider, tag.getCompound("Fluid"));
         this.itemHandler.deserializeNBT(provider, tag.getCompound("Items"));
-        this.ignited = tag.getBoolean("ignited") && FishTankBlockEntity.shouldIgnite(this.fluidHandler.getFluid());
+        this.ignited = tag.getBoolean("ignited") && FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid());
 
         this.tropicalFishData.clear();
         if (tag.contains(TAG_TROPICAL_FISH_DATA, Tag.TAG_LIST)) {
@@ -394,7 +452,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             for (int i = 0; i < 8; i++) {
                 ItemStack stackInSlot = handler.getStackInSlot(i);
                 if (!stackInSlot.isEmpty() && !ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
-                int limit = Math.min(stackInSlot.getMaxStackSize(), handler.getSlotLimit(slot));
+                int limit = Math.min(stackInSlot.getMaxStackSize(), handler.getSlotLimit(i));
                 if (stackInSlot.getCount() >= limit) continue;
                 slot = i;
                 break;
@@ -476,8 +534,22 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         return ImmutableList.copyOf(result);
     }
 
-    public static boolean shouldIgnite(FluidStack cur) {
+    public static boolean canIgnite(FluidStack cur) {
         return cur.is(ModFluidTags.IGNITABLE);
+    }
+
+    public void refreshIgnited() {
+        if (!FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid())) this.setIgnited(false);
+        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+            ItemStack stack = this.itemHandler.getStackInSlot(i);
+            if (stack.is(ModItemTags.FIRE_STARTER)) {
+                stack.shrink(1);
+                this.setIgnited(true);
+            } else if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
+                this.setIgnited(true);
+            }
+        }
+        this.setIgnited(false);
     }
 
     private static void popResourceFromFace(Level level, BlockPos pos, Direction direction, ItemStack stack) {

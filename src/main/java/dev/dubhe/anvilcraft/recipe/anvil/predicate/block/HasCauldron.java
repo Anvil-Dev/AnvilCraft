@@ -199,10 +199,13 @@ public record HasCauldron(
      *
      * @return 炼药锅方块
      */
+    @SuppressWarnings("deprecation")
     public static ResourceLocation getCurFluid(BlockCache cache, BlockPos pos) {
         return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder
                ? holder.getFluidHandler().getFluidInTank(0).getFluidHolder().getKey().location()
-               : WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
+               : cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron
+                 ? cauldron.getFluid(cache, pos).builtInRegistryHolder().key().location()
+                 : WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
     }
 
     /**
