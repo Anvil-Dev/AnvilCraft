@@ -135,6 +135,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
                 }
             }
             FishTankBlockEntity.this.setChanged();
+            FishTankBlockEntity.this.refreshIgnited();
             sendUpdate();
         }
     };
@@ -540,16 +541,17 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
     public void refreshIgnited() {
         if (!FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid())) this.setIgnited(false);
-        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-            ItemStack stack = this.itemHandler.getStackInSlot(i);
-            if (stack.is(ModItemTags.FIRE_STARTER)) {
-                stack.shrink(1);
-                this.setIgnited(true);
-            } else if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
-                this.setIgnited(true);
+        if (!this.isIgnited()) {
+            for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                ItemStack stack = this.itemHandler.getStackInSlot(i);
+                if (stack.is(ModItemTags.FIRE_STARTER)) {
+                    stack.shrink(1);
+                    this.setIgnited(true);
+                } else if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
+                    this.setIgnited(true);
+                }
             }
         }
-        this.setIgnited(false);
     }
 
     private static void popResourceFromFace(Level level, BlockPos pos, Direction direction, ItemStack stack) {
