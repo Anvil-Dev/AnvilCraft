@@ -117,6 +117,7 @@ import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.StepEffectBlock;
 import dev.dubhe.anvilcraft.block.StepEffectSlabBlock;
 import dev.dubhe.anvilcraft.block.StepEffectStairBlock;
+import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
@@ -3643,6 +3644,15 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM.block("structure_scanner", StructureScannerBlock::new)
+        .lang("Structure Scanner")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .register();
 
     public static void register() {
