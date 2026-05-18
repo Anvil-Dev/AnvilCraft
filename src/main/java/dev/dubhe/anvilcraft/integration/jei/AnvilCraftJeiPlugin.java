@@ -101,7 +101,6 @@ import net.minecraft.world.level.ItemLike;
 
 @JeiPlugin
 public class AnvilCraftJeiPlugin implements IModPlugin {
-
     public static final ImmutableList<ItemLike> ANVIL_PROCESSING_CATALYSTS = ImmutableList.of(
         Items.ANVIL,
         ModBlocks.ROYAL_ANVIL,
@@ -109,7 +108,15 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ModBlocks.FROST_ANVIL,
         ModBlocks.TRANSCENDENCE_ANVIL,
         ModBlocks.SPECTRAL_ANVIL,
-        ModBlocks.GIANT_ANVIL
+        ModBlocks.GIANT_ANVIL,
+        ModItems.ANVIL_HAMMER,
+        ModItems.ROYAL_ANVIL_HAMMER,
+        ModItems.EMBER_ANVIL_HAMMER,
+        ModItems.TRANSCENDENCE_ANVIL_HAMMER
+    );
+    public static final ImmutableList<ItemLike> CAULDRON_CATALYSTS = ImmutableList.of(
+        Items.CAULDRON,
+        ModBlocks.FISH_TANK
     );
 
     public static final IRecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
@@ -365,6 +372,10 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     }
 
     public static void addAnvilProcessingCatalysts(IRecipeCatalystRegistration registration, IRecipeType<?> recipeType) {
-        ANVIL_PROCESSING_CATALYSTS.forEach(item -> registration.addCraftingStation(recipeType, new ItemStack(item)));
+        AnvilCraftJeiPlugin.ANVIL_PROCESSING_CATALYSTS.forEach(item -> registration.addCraftingStation(recipeType, item));
+    }
+
+    public static void addCauldronCatalysts(IRecipeCatalystRegistration registration, IRecipeType<?> recipeType) {
+        AnvilCraftJeiPlugin.CAULDRON_CATALYSTS.forEach(item -> registration.addCraftingStation(recipeType, item));
     }
 }

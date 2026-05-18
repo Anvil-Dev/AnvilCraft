@@ -15,7 +15,6 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -77,75 +76,49 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockSmearRecipe> recipeHolder, IFocusGroup focuses) {
         BlockSmearRecipe recipe = recipeHolder.value();
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStacks(
-            recipe.getInputBlocks().stream().flatMap(
-                blockStatePredicate -> blockStatePredicate.getBlocks().stream().map(
-                    blockHolder -> new ItemStack(blockHolder.value())
-                )
-            ).toList()
-        );
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        JeiRecipeUtil.addInvisibleInputs(builder, recipe.getInputBlocks());
+        JeiRecipeUtil.addInvisibleOutput(builder, recipe.getFirstResultBlock());
     }
 
     @Override
     public void draw(
         RecipeHolder<BlockSmearRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         BlockSmearRecipe recipe = recipeHolder.value();
 
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        this.arrowDefault.draw(guiGraphics, 73, 35);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        this.arrowDefault.draw(graphics, 73, 35);
 
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            50,
-            12 + anvilYOffset,
-            12
-        );
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 50, 12 + anvilYOffset, 12);
 
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) continue;
-            RenderSupport.renderBlock(
-                guiGraphics,
-                renderedState,
-                50,
-                30 + 10 * i,
-                12
-            );
+            RenderSupport.renderBlock(graphics, renderedState, 50, 30 + 10 * i, 12);
         }
 
-        RenderSupport.renderBlock(
-            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 12
-        );
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 12);
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-        RenderSupport.renderBlock(
-            guiGraphics,
-            renderedState,
-            110,
-            30,
-            12
-        );
-        RenderSupport.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 12
-        );
+        RenderSupport.renderBlock(graphics, renderedState, 110, 30, 12);
+        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 110, 40, 12);
     }
 
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
         RecipeHolder<BlockSmearRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
+        IRecipeSlotsView view,
         double mouseX,
-        double mouseY) {
-        IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
+        double mouseY
+    ) {
+        IRecipeCategory.super.getTooltip(tooltip, recipeHolder, view, mouseX, mouseY);
         BlockSmearRecipe recipe = recipeHolder.value();
         Identifier id = this.getIdentifier(recipeHolder);
 
@@ -175,7 +148,8 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.BLOCK_SMEAR,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_SMEAR.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_SMEAR.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

@@ -82,7 +82,7 @@ public class HudTooltipManager {
      * 渲染方块的tooltip
      */
     public void renderTooltip(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         Level level,
         BlockPos pos,
         BlockState state,
@@ -98,7 +98,7 @@ public class HudTooltipManager {
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
         if (tooltip.isEmpty()) return;
         TooltipRenderHelper.renderTooltipWithItemIcon(
-            guiGraphics,
+            graphics,
             font,
             currentProvider.icon(level, pos, state),
             tooltip,
@@ -114,7 +114,7 @@ public class HudTooltipManager {
      * 渲染方块实体的tooltip
      */
     public void renderTooltip(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         BlockEntity entity,
         float partialTick,
         int screenWidth,
@@ -128,7 +128,7 @@ public class HudTooltipManager {
         List<Component> tooltip = currentProvider.tooltip(entity);
         if (tooltip.isEmpty()) return;
         TooltipRenderHelper.renderTooltipWithItemIcon(
-            guiGraphics,
+            graphics,
             font,
             currentProvider.icon(entity),
             tooltip,
@@ -160,7 +160,7 @@ public class HudTooltipManager {
      * 渲染手持物品Hud Tooltip
      */
     public void renderHandItemHudTooltip(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         ItemStack itemStack,
         float partialTick,
         int screenWidth,
@@ -168,7 +168,7 @@ public class HudTooltipManager {
     ) {
         IHandHeldItemTooltipProvider pv = this.determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) return;
-        pv.renderTooltip(guiGraphics, screenWidth, screenHeight);
+        pv.renderTooltip(graphics, screenWidth, screenHeight);
     }
 
     /**

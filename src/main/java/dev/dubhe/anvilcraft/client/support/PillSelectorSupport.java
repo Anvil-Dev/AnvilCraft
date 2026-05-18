@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.client.support;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix3x2fStack;
 
 public class PillSelectorSupport {
     public static final PillSelectorSupport INSTANCE = new PillSelectorSupport();
@@ -39,40 +39,31 @@ public class PillSelectorSupport {
         }
     }
 
-    public void render(GuiGraphicsExtractor guiGraphics, int x, int y) {
+    public void render(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.pillBox.isEmpty() || this.contents.pills().isEmpty()) {
             return;
         }
         final int left = x - 78 / 2;
         final int top = y - 44 - 5;
-        RenderSystem.disableDepthTest();
-        guiGraphics.blit(
+        graphics.blit(
             BACKGROUND,
             left, top,
             0, 0,
             78, 44,
             78, 44
         );
-        PoseStack pose = guiGraphics.pose();
-        pose.popPose();
-        pose.translate(0, 0, 1000);
+        Matrix3x2fStack pose = graphics.pose();
+        pose.popMatrix();
+        pose.translate(0, 0);
         for (int i = 0; i < this.contents.pills().size(); i++) {
-            ItemStack itemStack = this.contents.pills().get(i);
-            guiGraphics.renderFakeItem(
-                itemStack,
-                left + 4 + i % 4 * 18,
-                top + 4 + i / 4 * 18
-            );
-            guiGraphics.renderItemDecorations(
-                Minecraft.getInstance().font,
-                itemStack,
-                left + 4 + i % 4 * 18,
-                top + 4 + i / 4 * 18
-            );
+            ItemStack stack = this.contents.pills().get(i);
+            graphics.fakeItem(stack, left + 4 + i % 4 * 18, top + 4 + i / 4 * 18);
+            graphics.itemDecorations(Minecraft.getInstance().font, stack, left + 4 + i % 4 * 18, top + 4 + i / 4 * 18);
         }
         int index = this.contents.index();
         if (index >= 0) {
-            guiGraphics.blit(
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
                 SharedTextures.BOX_SELECTION,
                 left + 3 + index % 4 * 18,
                 top + 3 + index / 4 * 18,
@@ -81,7 +72,7 @@ public class PillSelectorSupport {
                 18, 18
             );
         }
-        pose.pushPose();
+        pose.pushMatrix();
     }
 
     public boolean hasItem() {

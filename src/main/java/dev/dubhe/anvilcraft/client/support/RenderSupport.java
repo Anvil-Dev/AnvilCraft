@@ -37,14 +37,14 @@ public class RenderSupport {
     }
 
     public static void renderBlock(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         BlockState block,
         int x,
         int y,
         int size
     ) {
         GuiRenderExtras.tessellateBlock(
-            guiGraphics,
+            graphics,
             block,
             null,
             null,
@@ -60,7 +60,7 @@ public class RenderSupport {
 
     public static void renderLevelLike(
         LevelLike level,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         int posX,
         int posY,
         float scaleFactor,
@@ -70,12 +70,12 @@ public class RenderSupport {
 
     public static void renderLevelLike(
         LevelLike level,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         int posX,
         int posY,
         float scale
     ) {
-        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0F);
+        renderLevelLike(level, graphics, posX, posY, scale, 0.0F);
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {

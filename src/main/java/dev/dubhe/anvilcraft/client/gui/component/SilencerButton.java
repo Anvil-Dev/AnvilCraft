@@ -93,6 +93,7 @@ public class SilencerButton extends Button {
         String original,
         String hightlighted,
         ChatFormatting originalFormatting,
+        @SuppressWarnings("SameParameterValue")
         ChatFormatting highlightFormatting
     ) {
         try {
@@ -111,7 +112,7 @@ public class SilencerButton extends Button {
     }
 
     public void renderTexture(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         Identifier texture,
         int x,
         int y,
@@ -127,6 +128,6 @@ public class SilencerButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
+        graphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 }

@@ -5,11 +5,11 @@ import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class ClientFilterTooltip implements ClientTooltipComponent {
-    public static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/container/bundle.png");
     private final FilterContent content;
 
     public ClientFilterTooltip(FilterTooltip tooltip) {
@@ -17,7 +17,7 @@ public class ClientFilterTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(Font font) {
         return 18 * 3 + 4;
     }
 
@@ -27,7 +27,7 @@ public class ClientFilterTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(Font font, int x, int y, GuiGraphicsExtractor guiGraphics) {
+    public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
         int i = 0;
         for (ItemStack stack : this.content.list()) {
             if (i >= 18) break;
@@ -35,17 +35,18 @@ public class ClientFilterTooltip implements ClientTooltipComponent {
             int col = i % 6;
             int itemX = x + col * 18;
             int itemY = y + row * 18;
-            this.renderSlot(itemX, itemY, guiGraphics);
+            this.extractSlot(itemX, itemY, graphics);
             if (!stack.isEmpty()) {
-                guiGraphics.renderItem(stack, itemX + 1, itemY + 1);
-                guiGraphics.renderItemDecorations(font, stack, itemX + 1, itemY + 1);
+                graphics.item(stack, itemX + 1, itemY + 1);
+                graphics.itemDecorations(font, stack, itemX + 1, itemY + 1);
             }
             i++;
         }
     }
 
-    private void renderSlot(int x, int y, GuiGraphicsExtractor guiGraphics) {
-        guiGraphics.blitSprite(
+    private void extractSlot(int x, int y, GuiGraphicsExtractor graphics) {
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED,
             Identifier.withDefaultNamespace("container/bundle/slot"),
             x,
             y,

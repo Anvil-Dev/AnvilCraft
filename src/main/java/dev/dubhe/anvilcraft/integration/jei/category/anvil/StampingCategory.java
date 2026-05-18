@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -12,15 +11,16 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BaseStampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
@@ -39,41 +39,42 @@ public class StampingCategory extends AbstractProgressCategory<BaseStampingRecip
     }
 
     @Override
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BaseStampingRecipe<?>> recipeHolder, IFocusGroup focuses) {
+        BaseStampingRecipe<?> recipe = recipeHolder.value();
+        switch (recipe) {
+            case StampingRecipe normal -> JeiSlotUtil.addInputSlots(builder, normal.getInputItems());
+            case StampingDiffRecipe diff -> JeiSlotUtil.addDiffInputSlots(builder, diff.getDiffInputItems().getFirst());
+            default -> {}
+        }
+        JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
+    }
+
+    @Override
     public void draw(
         RecipeHolder<BaseStampingRecipe<?>> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         final BaseStampingRecipe<?> recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            22 + anvilYOffset,
-            12
-        );
-        RenderSupport.renderBlock(
-            guiGraphics, ModBlocks.STAMPING_PLATFORM.getDefaultState(), 81, 40, 12);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
+        RenderSupport.renderBlock(graphics, ModBlocks.STAMPING_PLATFORM.getDefaultState(), 81, 40, 12);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOutputFromBelow.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOutFromBelow.draw(graphics, 92, 29);
 
         if (recipe instanceof StampingDiffRecipe) {
-            for (ItemIngredientPredicate diff : recipe.getDiffInputItems()) {
-                ItemStackTemplate input = diff.getItems()[(int) System.currentTimeMillis() / 1000 % diff.count()];
-            }
-            JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getDiffInputItems().size());
+            JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getDiffInputItems().size());
         } else {
-            JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+            JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         }
 
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
         }
     }
 
@@ -90,6 +91,6 @@ public class StampingCategory extends AbstractProgressCategory<BaseStampingRecip
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.STAMPING);
-        registration.addCraftingStation(AnvilCraftJeiPlugin.STAMPING, new ItemStack(ModBlocks.STAMPING_PLATFORM));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.STAMPING, ModBlocks.STAMPING_PLATFORM);
     }
 }

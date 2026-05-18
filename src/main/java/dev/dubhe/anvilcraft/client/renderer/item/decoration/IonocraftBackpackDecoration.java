@@ -7,18 +7,18 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.IItemDecorator;
 
-public class IonoCraftBackpackDecoration implements IItemDecorator {
+public class IonocraftBackpackDecoration implements IItemDecorator {
     @Override
-    public boolean render(GuiGraphicsExtractor guiGraphics, Font font, ItemStack stack, int offsetX, int offsetY) {
+    public boolean render(GuiGraphicsExtractor graphics, Font font, ItemStack stack, int offsetX, int offsetY) {
         int flightTime = IonoCraftBackpackItem.getFlightTime(stack);
         if (flightTime > 0) {
             final int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);
 
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(offsetX, offsetY, 200.0F);
-            guiGraphics.pose().scale(0.5F, 0.5F, 0.5F);
-            guiGraphics.drawString(font, "%d%%".formatted(percent), 0, 0, 0xFF00FF80, true);
-            guiGraphics.pose().popPose();
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(offsetX, offsetY);
+            graphics.pose().scale(0.5F, 0.5F);
+            graphics.text(font, "%d%%".formatted(percent), 0, 0, 0xFF00FF80, true);
+            graphics.pose().popMatrix();
 
             return true;
         }

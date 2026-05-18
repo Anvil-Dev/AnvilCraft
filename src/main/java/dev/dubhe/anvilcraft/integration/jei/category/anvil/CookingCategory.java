@@ -15,7 +15,6 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
@@ -39,46 +38,35 @@ public class CookingCategory extends AbstractProgressCategory<CookingRecipe> {
     @Override
     public void draw(
         RecipeHolder<CookingRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         final CookingRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            12 + anvilYOffset,
-            12);
-        RenderSupport.renderBlock(
-            guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true),
-            81,
-            40,
-            12);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);
+        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
+        RenderSupport.renderBlock(graphics, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true), 81, 40, 12);
 
-        arrowIn.draw(guiGraphics, 54, 20);
-        arrowOut.draw(guiGraphics, 92, 19);
+        this.arrowIn.draw(graphics, 54, 20);
+        this.arrowOut.draw(graphics, 92, 19);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
         }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.COOKING, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.COOKING.get()));
+        registration.addRecipes(AnvilCraftJeiPlugin.COOKING, JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.COOKING.get()));
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.COOKING);
-        registration.addCraftingStation(AnvilCraftJeiPlugin.COOKING, new ItemStack(Items.CAULDRON));
-        registration.addCraftingStation(AnvilCraftJeiPlugin.COOKING, new ItemStack(Items.CAMPFIRE));
+        AnvilCraftJeiPlugin.addCauldronCatalysts(registration, AnvilCraftJeiPlugin.COOKING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.COOKING, Items.CAMPFIRE);
     }
 }

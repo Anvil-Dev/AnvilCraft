@@ -20,7 +20,7 @@ public interface IHandHeldItemTooltipProvider {
         double camZ
     );
 
-    void renderTooltip(GuiGraphicsExtractor guiGraphics, int screenWidth, int screenHeight);
+    void renderTooltip(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight);
 
     int priority();
 }

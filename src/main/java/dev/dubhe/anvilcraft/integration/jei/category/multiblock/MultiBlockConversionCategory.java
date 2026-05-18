@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.JeiButton;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiTextures;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
@@ -81,43 +81,43 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         this.arrowOut = JeiRenderHelper.getArrowDefault(helper);
         this.slot = JeiRenderHelper.getSlotDefault(helper);
         this.timer = helper.createTickTimer(30, 60, true);
-        this.conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_CONVERSION, 0, 0, 594, 418)
+        this.conversion = helper.drawableBuilder(JeiTextures.BLOCK_CONVERSION, 0, 0, 594, 418)
             .setTextureSize(594, 418)
             .build();
-        this.layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
+        this.layerUp = helper.drawableBuilder(JeiTextures.LAYER_UP, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        this.layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
+        this.layerUpHovered = helper.drawableBuilder(JeiTextures.LAYER_UP, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        this.layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
+        this.layerDown = helper.drawableBuilder(JeiTextures.LAYER_DOWN, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        this.layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
+        this.layerDownHovered = helper.drawableBuilder(JeiTextures.LAYER_DOWN, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        this.modeOverview = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 0, 10, 10)
+        this.modeOverview = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 0, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        this.modeOverviewHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 10, 10, 10)
+        this.modeOverviewHovered = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 0, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        this.modeInput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 0, 10, 10)
+        this.modeInput = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 10, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        this.modeInputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 10, 10, 10)
+        this.modeInputHovered = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 10, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        this.modeOutput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 0, 10, 10)
+        this.modeOutput = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 20, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        this.modeOutputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 10, 10, 10)
+        this.modeOutputHovered = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 20, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        this.renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
+        this.renderSwitchOff = helper.drawableBuilder(JeiTextures.LAYER_SWITCH, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        this.renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
+        this.renderSwitchOn = helper.drawableBuilder(JeiTextures.LAYER_SWITCH, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
     }
@@ -196,12 +196,12 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     public void draw(
         RecipeHolder<MultiblockConversionRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         Minecraft minecraft = Minecraft.getInstance();
-        Matrix3x2fStack pose = guiGraphics.pose();
+        Matrix3x2fStack pose = graphics.pose();
         Component currentModeTooltip =
             Component.translatable(
                 "gui.anvilcraft.category.multiblock_conversion.current_mode",
@@ -210,9 +210,9 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
         int textX = Math.round(WIDTH / 0.8F - minecraft.font.width(currentModeTooltip) - 5);
-        guiGraphics.text(minecraft.font, currentModeTooltip, textX, 0, 0xFF000000, false);
+        graphics.text(minecraft.font, currentModeTooltip, textX, 0, 0xFF000000, false);
         pose.popMatrix();
-        this.displayModeButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
+        this.displayModeButton(mouseX, mouseY).draw(graphics, 149, 10);
 
         LevelLike input = this.cacheInput.computeIfAbsent(
             recipe,
@@ -241,8 +241,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 final boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
-                RenderSupport.renderLevelLike(input, guiGraphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0F);
-                RenderSupport.renderLevelLike(output, guiGraphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0F);
+                RenderSupport.renderLevelLike(input, graphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0F);
+                RenderSupport.renderLevelLike(output, graphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0F);
                 if (modifiedInput) {
                     input.setAllLayersVisible(false);
                 }
@@ -250,28 +250,28 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     output.setAllLayersVisible(false);
                 }
                 for (int i = 0; i < 12; i++) {
-                    this.slot.draw(guiGraphics, this.inputSlotPosX(i), this.slotPosY(i));
-                    this.slot.draw(guiGraphics, this.outputSlotPosX(i), this.slotPosY(i));
+                    this.slot.draw(graphics, this.inputSlotPosX(i), this.slotPosY(i));
+                    this.slot.draw(graphics, this.outputSlotPosX(i), this.slotPosY(i));
                 }
-                this.arrowOut.draw(guiGraphics, 73, 40);
+                this.arrowOut.draw(graphics, 73, 40);
                 pose.pushMatrix();
                 pose.scale(0.03F, 0.03F);
-                this.conversion.draw(guiGraphics, 2375, 875);
+                this.conversion.draw(graphics, 2375, 875);
                 pose.popMatrix();
-                float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
+                int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
                 RenderSupport.renderBlock(
-                    guiGraphics,
+                    graphics,
                     ModBlocks.GIANT_ANVIL.getDefaultState()
                         .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                         .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
                     80,
-                    19.8F + anvilYOffset,
+                    19 + anvilYOffset,
                     5
                 );
                 pose.pushMatrix();
                 pose.scale(0.8F, 0.8F);
                 int size = recipe.value().getSize();
-                guiGraphics.text(
+                graphics.text(
                     minecraft.font,
                     Component.translatable("gui.anvilcraft.category.multiblock.size", size, size),
                     85,
@@ -295,17 +295,17 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderSupport.renderLevelLike(rendered, guiGraphics, 80, 86, SCALE_FAC_LARGE, 2.0F);
+        RenderSupport.renderLevelLike(rendered, graphics, 80, 86, SCALE_FAC_LARGE, 2.0F);
         Component component = this.layerTooltip(rendered);
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
         textX = Math.round(WIDTH / 0.8F - minecraft.font.width(component) - 5);
-        guiGraphics.text(minecraft.font, component, textX, 25, 0xFF000000, false);
+        graphics.text(minecraft.font, component, textX, 25, 0xFF000000, false);
         pose.popMatrix();
-        this.renderSwitchButton(rendered).draw(guiGraphics, 125, 30);
+        this.renderSwitchButton(rendered).draw(graphics, 125, 30);
         if (!rendered.isAllLayersVisible()) {
-            this.layerUpButton(mouseX, mouseY).draw(guiGraphics, 137, 30);
-            this.layerDownButton(mouseX, mouseY).draw(guiGraphics, 149, 30);
+            this.layerUpButton(mouseX, mouseY).draw(graphics, 137, 30);
+            this.layerDownButton(mouseX, mouseY).draw(graphics, 149, 30);
         }
     }
 

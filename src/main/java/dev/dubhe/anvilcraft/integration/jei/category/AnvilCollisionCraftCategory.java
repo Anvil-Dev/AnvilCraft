@@ -151,13 +151,13 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     public void draw(
         RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
 
         // explosion
-        this.explosion.draw(guiGraphics, 72, 16);
+        this.explosion.draw(graphics, 72, 16);
 
         for (int i = recipe.hitBlock().getBlocks().size() - 1; i >= 0; i--) {
             List<BlockState> input = recipe.hitBlock().constructStatesForRender();
@@ -175,7 +175,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             }
 
             RenderSupport.renderBlock(
-                guiGraphics,
+                graphics,
                 renderedState,
                 80,
                 28,
@@ -194,7 +194,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         (int) ((System.currentTimeMillis() / 1000) % inputBlockState.size())
                     );
                     RenderSupport.renderBlock(
-                        guiGraphics,
+                        graphics,
                         inputBlockRenderedState,
                         120,
                         5,
@@ -204,19 +204,19 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     ChanceBlockState outputBlock = blockTransform.outputBlock();
                     BlockState outputBlockState = outputBlock.state();
                     RenderSupport.renderBlock(
-                        guiGraphics,
+                        graphics,
                         outputBlockState,
                         120,
                         48,
                         12
                     );
 
-                    this.blockConversion.draw(guiGraphics, 113, 19);
+                    this.blockConversion.draw(graphics, 113, 19);
 
-                    Matrix3x2fStack pose = guiGraphics.pose();
+                    Matrix3x2fStack pose = graphics.pose();
                     pose.pushMatrix();
                     pose.scale(0.8F, 0.8F);
-                    guiGraphics.text(
+                    graphics.text(
                         Minecraft.getInstance().font,
                         Component.translatable("gui.anvilcraft.category.anvil_collision.maxcount", blockTransform.maxCount()),
                         135,
@@ -237,7 +237,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         (int) ((System.currentTimeMillis() / 1000) % inputBlockState.size())
                     );
                     RenderSupport.renderBlock(
-                        guiGraphics,
+                        graphics,
                         inputBlockRenderedState,
                         110,
                         3,
@@ -247,18 +247,18 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     ChanceBlockState outputBlock = blockTransform.outputBlock();
                     BlockState outputBlockState = outputBlock.state();
                     RenderSupport.renderBlock(
-                        guiGraphics,
+                        graphics,
                         outputBlockState,
                         110,
                         13,
                         8
                     );
-                    this.blockConversion.draw(guiGraphics, 86, 6);
-                    this.arrowDefault.draw(guiGraphics, 98, 26);
-                    Matrix3x2fStack pose = guiGraphics.pose();
+                    this.blockConversion.draw(graphics, 86, 6);
+                    this.arrowDefault.draw(graphics, 98, 26);
+                    Matrix3x2fStack pose = graphics.pose();
                     pose.pushMatrix();
                     pose.scale(0.8F, 0.8F);
-                    guiGraphics.text(
+                    graphics.text(
                         Minecraft.getInstance().font,
                         Component.translatable("gui.anvilcraft.category.anvil_collision.maxcount", blockTransform.maxCount()),
                         135,
@@ -270,29 +270,29 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                 }
             }
             if (!recipe.outputItems().isEmpty() && recipe.transformBlocks().isEmpty()) {
-                this.arrowDefault.draw(guiGraphics, 98, 27);
+                this.arrowDefault.draw(graphics, 98, 27);
             }
         }
 
         // 绘制输入输出槽
-        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 1);
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 1);
         if (!recipe.outputItems().isEmpty()) {
             if (JeiRecipeUtil.isChance(recipe.outputItems())) {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotProbability, recipe.outputItems().size());
+                JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.outputItems().size());
             } else {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, recipe.outputItems().size());
+                JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.outputItems().size());
             }
         }
 
         // 添加消耗/速度的信息
-        Matrix3x2fStack pose = guiGraphics.pose();
+        Matrix3x2fStack pose = graphics.pose();
         for (int i = 0; i < 7; i++) {
             ItemStack stack = new ItemStack(Blocks.ANVIL);
-            GuiRenderExtras.itemWithTransparency(guiGraphics, stack, 55 - i * 3, 24, 1F - (float) i / 10);
+            GuiRenderExtras.itemWithTransparency(graphics, stack, 55 - i * 3, 24, 1F - (float) i / 10);
         }
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
-        guiGraphics.text(
+        graphics.text(
             Minecraft.getInstance().font,
             Component.translatable("gui.anvilcraft.category.anvil_collision.consume", recipe.consume()),
             0,
@@ -300,7 +300,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             0xFF000000,
             false
         );
-        guiGraphics.text(
+        graphics.text(
             Minecraft.getInstance().font,
             Component.translatable("gui.anvilcraft.category.anvil_collision.speed", recipe.speed()),
             0,

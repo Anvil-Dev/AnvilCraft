@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.TooltipUtil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -23,8 +25,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -37,6 +38,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
 
     private final IDrawable slotDefault;
     private final IDrawable slotProbability;
+    private final IDrawable icon;
     private final Component title;
     private final ITickTimer timer;
     private final IDrawable arrowIn;
@@ -45,6 +47,10 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     public NeutronIrradiationCategory(IGuiHelper helper) {
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
+        this.icon = new DrawableBlockStateIcon(
+            Blocks.CAULDRON.defaultBlockState(),
+            ModBlocks.NEUTRON_IRRADIATOR.get().defaultBlockState()
+        );
         this.title = Component.translatable("gui.anvilcraft.category.neutron_irradiation");
         this.timer = helper.createTickTimer(30, 60, true);
         this.arrowIn = JeiRenderHelper.getArrowInput(helper);
@@ -73,12 +79,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return new DrawableBlockStateIcon(
-            Blocks.CAULDRON.defaultBlockState(),
-            ModBlocks.NEUTRON_IRRADIATOR
-                .get()
-                .defaultBlockState()
-        );
+        return this.icon;
     }
 
     @Override
@@ -94,55 +95,32 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     @Override
     public void draw(
         RecipeHolder<NeutronIrradiationRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         NeutronIrradiationRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            12 + anvilYOffset,
-            12
-        );
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);
         Block material = recipe.getHasCauldron().getFluidCauldron();
-        RenderSupport.renderBlock(
-            guiGraphics,
-            CauldronUtil.fullState(material),
-            81,
-            30,
-            12
-        );
+        RenderSupport.renderBlock(graphics, CauldronUtil.fullState(material), 81, 30, 12);
 
-        BlockState block = ModBlocks.NEUTRON_IRRADIATOR
-            .get()
-            .defaultBlockState();
+        RenderSupport.renderBlock(graphics, ModBlocks.NEUTRON_IRRADIATOR.getDefaultState(), 81, 40, 12);
 
-        RenderSupport.renderBlock(
-            guiGraphics,
-            block,
-            81,
-            40,
-            12
-        );
+        this.arrowIn.draw(graphics, 54, 20);
+        this.arrowOut.draw(graphics, 92, 19);
 
-        this.arrowIn.draw(guiGraphics, 54, 20);
-        this.arrowOut.draw(guiGraphics, 92, 19);
-
-        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         if (!recipe.getResultItems().isEmpty()) {
             if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotProbability, recipe.getResultItems().size());
+                JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
             } else {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, recipe.getResultItems().size());
+                JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
             }
         } else {
             BlockState cauldronState = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
-
-            RenderSupport.renderBlock(guiGraphics, cauldronState, 133, 30, 12);
+            RenderSupport.renderBlock(graphics, cauldronState, 133, 30, 12);
         }
     }
 
@@ -150,41 +128,39 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     public void getTooltip(
         ITooltipBuilder tooltip,
         RecipeHolder<NeutronIrradiationRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
+        IRecipeSlotsView view,
         double mouseX,
         double mouseY
     ) {
         NeutronIrradiationRecipe recipe = recipeHolder.value();
-        if (mouseX >= 72 && mouseX <= 90) {
-            if (mouseY >= 24 && mouseY <= 43) {
+        if (MathUtil.isInRange(mouseX, 72, 90)) {
+            if (MathUtil.isInRange(mouseY, 24, 43)) {
                 Component text;
                 text = Blocks.CAULDRON.getName();
                 tooltip.add(text);
             }
-            if (mouseY >= 34 && mouseY <= 53) {
+            if (MathUtil.isInRange(mouseY, 34, 53)) {
                 tooltip.add(ModBlocks.NEUTRON_IRRADIATOR.get().getName());
             }
         }
-        if (mouseX >= 124 && mouseX <= 140) {
-            if (mouseY >= 24 && mouseY <= 42) {
-                Component text;
-                if (recipe.getResultItems().isEmpty()) {
-                    text = recipe.getHasCauldron().getTransformCauldron().getName();
-                    tooltip.add(text);
-                }
-            }
+        if (MathUtil.isInRange(mouseX, mouseY, 124, 24, 140, 42)) {
+            Identifier id = this.getIdentifier(recipeHolder);
+            if (id == null) return;
+            if (!recipe.getResultItems().isEmpty()) return;
+            tooltip.addAll(TooltipUtil.recipeIDTooltip(recipe.getHasCauldron().getTransformCauldron(), id));
         }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.NEUTRON_IRRADIATION,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.NEUTRON_IRRADIATION.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.NEUTRON_IRRADIATION.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.NEUTRON_IRRADIATION);
-        registration.addCraftingStation(AnvilCraftJeiPlugin.NEUTRON_IRRADIATION, new ItemStack(Items.CAULDRON));
-        registration.addCraftingStation(AnvilCraftJeiPlugin.NEUTRON_IRRADIATION, new ItemStack(ModBlocks.NEUTRON_IRRADIATOR));
+        AnvilCraftJeiPlugin.addCauldronCatalysts(registration, AnvilCraftJeiPlugin.NEUTRON_IRRADIATION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.NEUTRON_IRRADIATION, ModBlocks.NEUTRON_IRRADIATOR);
     }
 }

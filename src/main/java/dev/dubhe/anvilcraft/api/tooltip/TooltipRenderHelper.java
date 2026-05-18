@@ -90,7 +90,7 @@ public class TooltipRenderHelper {
     /**
      * 渲染带图标的Tooltip
      *
-     * @param guiGraphics      GuiGraphicsExtractor
+     * @param graphics      GuiGraphicsExtractor
      * @param font      字体
      * @param itemStack 图标物品
      * @param lines     Tooltip内容
@@ -98,7 +98,7 @@ public class TooltipRenderHelper {
      * @param y         y坐标
      */
     public static void renderTooltipWithItemIcon(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         Font font,
         ItemStack itemStack,
         List<Component> lines,
@@ -122,38 +122,38 @@ public class TooltipRenderHelper {
             height += component.getHeight(font);
         }
 
-        Vector2ic vector2ic = tooltipPositioner.positionTooltip(guiGraphics.guiWidth(), guiGraphics.guiHeight(), x, y, width, height);
+        Vector2ic vector2ic = tooltipPositioner.positionTooltip(graphics.guiWidth(), graphics.guiHeight(), x, y, width, height);
         int vx = vector2ic.x();
         int vy = vector2ic.y();
-        guiGraphics.pose().pushMatrix();
+        graphics.pose().pushMatrix();
 
         int finalVy = vy;
         int finalWidth = width;
         int finalHeight = height + 16;
-        renderTooltipBackground(guiGraphics, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor);
+        renderTooltipBackground(graphics, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor);
 
-        guiGraphics.item(itemStack, vx, vy);
+        graphics.item(itemStack, vx, vy);
 
         vy += 16;
 
         ClientTooltipComponent component;
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
-            component.extractText(guiGraphics, font, vx, q);
+            component.extractText(graphics, font, vx, q);
             q += component.getHeight(font) + (i == 0 ? 2 : 0);
         }
 
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
-            component.extractImage(font, vx, q, finalWidth, finalHeight, guiGraphics);
+            component.extractImage(font, vx, q, finalWidth, finalHeight, graphics);
             q += component.getHeight(font) + (i == 0 ? 2 : 0);
         }
 
-        guiGraphics.pose().popMatrix();
+        graphics.pose().popMatrix();
     }
 
     private static void renderTooltipBackground(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         int x,
         int y,
         int width,
@@ -166,45 +166,42 @@ public class TooltipRenderHelper {
         int j = y - 3;
         int k = width + 3 + 3;
         int l = height + 3 + 3;
-        renderHorizontalLine(guiGraphics, i, j - 1, k, 400, backgroundColor);
-        renderHorizontalLine(guiGraphics, i, j + l, k, 400, backgroundColor);
-        renderRectangle(guiGraphics, i, j, k, l, 400, backgroundColor);
-        renderVerticalLine(guiGraphics, i - 1, j, l, 400, backgroundColor);
-        renderVerticalLine(guiGraphics, i + k, j, l, 400, backgroundColor);
-        renderFrameGradient(guiGraphics, i, j + 1, k, l, 400, borderTopColor, borderBottomColor);
+        renderHorizontalLine(graphics, i, j - 1, k, backgroundColor);
+        renderHorizontalLine(graphics, i, j + l, k, backgroundColor);
+        renderRectangle(graphics, i, j, k, l, backgroundColor);
+        renderVerticalLine(graphics, i - 1, j, l, backgroundColor);
+        renderVerticalLine(graphics, i + k, j, l, backgroundColor);
+        renderFrameGradient(graphics, i, j + 1, k, l, borderTopColor, borderBottomColor);
     }
 
     private static void renderFrameGradient(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         int x,
         int y,
         int width,
         int height,
-        int z,
         int topColor,
         int bottomColor
     ) {
-        renderVerticalLineGradient(guiGraphics, x, y, height - 2, z, topColor, bottomColor);
-        renderVerticalLineGradient(guiGraphics, x + width - 1, y, height - 2, z, topColor, bottomColor);
-        renderHorizontalLine(guiGraphics, x, y - 1, width, z, topColor);
-        renderHorizontalLine(guiGraphics, x, y - 1 + height - 1, width, z, bottomColor);
+        renderVerticalLineGradient(graphics, x, y, height - 2, topColor, bottomColor);
+        renderVerticalLineGradient(graphics, x + width - 1, y, height - 2, topColor, bottomColor);
+        renderHorizontalLine(graphics, x, y - 1, width, topColor);
+        renderHorizontalLine(graphics, x, y - 1 + height - 1, width, bottomColor);
     }
 
-    private static void renderVerticalLine(GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int color) {
-        guiGraphics.fill(x, y, x + 1, y + length, color);
+    private static void renderVerticalLine(GuiGraphicsExtractor graphics, int x, int y, int length, int color) {
+        graphics.fill(x, y, x + 1, y + length, color);
     }
 
-    private static void renderVerticalLineGradient(
-        GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int topColor, int bottomColor) {
-        guiGraphics.fillGradient(x, y, x + 1, y + length, topColor, bottomColor);
+    private static void renderVerticalLineGradient(GuiGraphicsExtractor graphics, int x, int y, int length, int topColor, int bottomColor) {
+        graphics.fillGradient(x, y, x + 1, y + length, topColor, bottomColor);
     }
 
-    private static void renderHorizontalLine(GuiGraphicsExtractor guiGraphics, int x, int y, int length, int z, int color) {
-        guiGraphics.fill(x, y, x + length, y + 1, color);
+    private static void renderHorizontalLine(GuiGraphicsExtractor graphics, int x, int y, int length, int color) {
+        graphics.fill(x, y, x + length, y + 1, color);
     }
 
-    private static void renderRectangle(
-        GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height, int z, int color) {
-        guiGraphics.fill(x, y, x + width, y + height, color);
+    private static void renderRectangle(GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
+        graphics.fill(x, y, x + width, y + height, color);
     }
 }

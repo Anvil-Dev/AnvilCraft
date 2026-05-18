@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -14,7 +15,6 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -76,75 +76,56 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockCrushRecipe> recipeHolder, IFocusGroup focuses) {
         BlockCrushRecipe recipe = recipeHolder.value();
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-            .addItemStacks(recipe.getFirstInputBlock().getBlocks().stream().map(holder -> new ItemStack(holder.value())).toList());
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        JeiRecipeUtil.addInvisibleInput(builder, recipe.getFirstInputBlock());
+        JeiRecipeUtil.addInvisibleOutput(builder, recipe.getFirstResultBlock());
     }
 
     @Override
     public void draw(
         RecipeHolder<BlockCrushRecipe> recipe,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        this.arrowDefault.draw(guiGraphics, 73, 35);
+        double mouseY
+    ) {
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        this.arrowDefault.draw(graphics, 73, 35);
 
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            50,
-            22 + anvilYOffset,
-            12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 50, 22 + anvilYOffset, 12);
 
         renderInput: {
             List<BlockState> input = recipe.value().getFirstInputBlock().constructStatesForRender();
             if (input.isEmpty()) break renderInput;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) break renderInput;
-            RenderSupport.renderBlock(guiGraphics, renderedState, 50, 40, 12);
+            RenderSupport.renderBlock(graphics, renderedState, 50, 40, 12);
         }
 
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            110,
-            30,
-            12
-        );
-        RenderSupport.renderBlock(
-            guiGraphics,
-            recipe.value().getFirstResultBlock().state(),
-            110,
-            40,
-            12
-        );
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 12);
+        RenderSupport.renderBlock(graphics, recipe.value().getFirstResultBlock().state(), 110, 40, 12);
     }
 
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
-        RecipeHolder<BlockCrushRecipe> recipe,
-        IRecipeSlotsView recipeSlotsView,
+        RecipeHolder<BlockCrushRecipe> recipeHolder,
+        IRecipeSlotsView view,
         double mouseX,
-        double mouseY) {
-        Identifier id = this.getIdentifier(recipe);
-        IRecipeCategory.super.getTooltip(tooltip, recipe, recipeSlotsView, mouseX, mouseY);
-        if (mouseX >= 40 && mouseX <= 58) {
-            if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.addAll(TooltipUtil.tooltip(recipe.value().getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));
-            }
-        }
-        if (mouseX >= 100 && mouseX <= 120) {
-            if (mouseY >= 42 && mouseY <= 52) {
-                Block block = recipe.value().getFirstResultBlock().state().getBlock();
-                if (id != null) {
-                    tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
-                } else {
-                    tooltip.addAll(TooltipUtil.tooltip(block));
-                }
+        double mouseY
+    ) {
+        IRecipeCategory.super.getTooltip(tooltip, recipeHolder, view, mouseX, mouseY);
+        BlockCrushRecipe recipe = recipeHolder.value();
+        Identifier id = this.getIdentifier(recipeHolder);
 
+        if (MathUtil.isInRange(mouseX, mouseY, 40, 42, 58, 52)) {
+            tooltip.addAll(TooltipUtil.tooltip(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));
+        }
+        if (MathUtil.isInRange(mouseX, mouseY, 100, 42, 120, 52)) {
+            Block block = recipe.getFirstResultBlock().state().getBlock();
+            if (id != null) {
+                tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
+            } else {
+                tooltip.addAll(TooltipUtil.tooltip(block));
             }
         }
     }
@@ -152,7 +133,8 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.BLOCK_CRUSH,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_CRUSH.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_CRUSH.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

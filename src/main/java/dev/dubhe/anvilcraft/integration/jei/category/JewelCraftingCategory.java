@@ -82,28 +82,29 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     public void draw(
         RecipeHolder<JewelCraftingRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         // source
-        this.slotDefault.draw(guiGraphics, 58, 10);
+        this.slotDefault.draw(graphics, 58, 10);
         // result
-        this.slotDefault.draw(guiGraphics, 134, 23);
+        this.slotDefault.draw(graphics, 134, 23);
         // input
         for (int i = 0; i < 4; i++) {
-            this.slotDefault.draw(guiGraphics, 4 + i * 18, 36);
+            this.slotDefault.draw(graphics, 4 + i * 18, 36);
         }
-        this.arrowDefault.draw(guiGraphics, 100, 27);
+        this.arrowDefault.draw(graphics, 100, 27);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.JEWEL_CRAFTING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(AnvilCraftJeiPlugin.JEWEL_CRAFTING, new ItemStack(ModBlocks.JEWEL_CRAFTING_TABLE));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.JEWEL_CRAFTING, ModBlocks.JEWEL_CRAFTING_TABLE);
     }
 }

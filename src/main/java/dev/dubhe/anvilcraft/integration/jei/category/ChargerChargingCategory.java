@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.TooltipUtil;
 import dev.dubhe.anvilcraft.block.power.generator.ChargerBlock;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -24,8 +25,8 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import org.joml.Matrix3x2fStack;
 
 public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<ChargerChargingRecipe>> {
     public static final int WIDTH = 162;
@@ -91,34 +92,45 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     public void draw(
         RecipeHolder<ChargerChargingRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         ChargerChargingRecipe recipe = recipeHolder.value();
         RenderSupport.renderBlock(
-            guiGraphics,
+            graphics,
             recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false),
             81,
             40,
-            12);
+            12
+        );
 
-        this.arrowIn.draw(guiGraphics, 54, 30);
-        this.arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOut.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 1);
-        JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, 1);
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 1);
 
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.scale(0.8F, 0.8F, 1.0F);
-        guiGraphics.drawString(Minecraft.getInstance().font,
-            Component.translatable(recipe.power() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE,
-                Math.abs(recipe.power())),
-            0, 10, 0xFF000000, false);
-        guiGraphics.drawString(Minecraft.getInstance().font,
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.scale(0.8F, 0.8F);
+        graphics.text(
+            Minecraft.getInstance().font,
+            Component.translatable(recipe.power() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE, Math.abs(recipe.power())),
+            0,
+            10,
+            0xFF000000,
+            false
+        );
+        graphics.text(
+            Minecraft.getInstance().font,
             Component.translatable(KEY_TIME, 0.05 * recipe.time()),
-            0, 70, 0xFF000000, false);
-        pose.popPose();
+            0,
+            70,
+            0xFF000000,
+            false
+        );
+        pose.popMatrix();
     }
 
     @Override
@@ -127,23 +139,23 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         RecipeHolder<ChargerChargingRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         ChargerChargingRecipe recipe = recipeHolder.value();
-        if (mouseX >= 72 && mouseX <= 90) {
-            if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(recipe.getProcessingBlock().getName());
-            }
+        if (MathUtil.isInRange(mouseX, mouseY, 72, 34, 90, 53)) {
+            tooltip.addAll(TooltipUtil.tooltip(recipe.getProcessingBlock()));
         }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.CHARGER_CHARGING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.CHARGER_CHARGING.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.CHARGER_CHARGING.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(AnvilCraftJeiPlugin.CHARGER_CHARGING, new ItemStack(ModBlocks.CHARGER));
-        registration.addCraftingStation(AnvilCraftJeiPlugin.CHARGER_CHARGING, new ItemStack(ModBlocks.DISCHARGER));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.CHARGER_CHARGING, ModBlocks.CHARGER);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.CHARGER_CHARGING, ModBlocks.DISCHARGER);
     }
 }

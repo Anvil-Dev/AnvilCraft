@@ -71,7 +71,7 @@ public class OutputDirectionButton extends Button {
     }
 
     public void renderTexture(
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         Identifier texture,
         int x,
         int y,
@@ -87,7 +87,7 @@ public class OutputDirectionButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
+        graphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 
     public Direction next() {

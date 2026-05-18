@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -29,6 +28,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+import org.joml.Matrix3x2fStack;
 
 import java.util.Comparator;
 import java.util.List;
@@ -50,8 +50,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     private final IDrawable arrowOutputFromBelow;
 
     public MassInjectCategory(IGuiHelper helper) {
-        this.icon = new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(),
-            ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState());
+        this.icon = new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState());
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.title = Component.translatable("gui.anvilcraft.category.mass_inject");
         this.timer = helper.createTickTimer(30, 60, true);
@@ -86,52 +85,54 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     }
 
     @Override
-    public void setRecipe(
-        IRecipeLayoutBuilder builder, RecipeHolder<MassInjectRecipe> recipeHolder, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MassInjectRecipe> recipeHolder, IFocusGroup focuses) {
         MassInjectRecipe recipe = recipeHolder.value();
         builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(recipe.getIngredient());
         builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24).add(ModItems.NEUTRONIUM_INGOT.asStack())
-            .addRichTooltipCallback(
-                (recipeSlotView, tooltip) -> tooltip.add(
-                    Component.translatable(KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
-                ));
+            .addRichTooltipCallback((_, tooltip) -> tooltip.add(
+                Component.translatable(KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
+            ));
     }
 
     @Override
     public void draw(
         RecipeHolder<MassInjectRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         final MassInjectRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            22 + anvilYOffset,
-            12);
-        RenderSupport.renderBlock(guiGraphics, ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState(),
-            81, 40, 12);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
+        RenderSupport.renderBlock(graphics, ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState(), 81, 40, 12);
 
-        this.arrowIn.draw(guiGraphics, 54, 30);
-        this.arrowOutputFromBelow.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOutputFromBelow.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 1);
-        JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, 1);
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 1);
 
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.scale(0.8F, 0.8F, 1.0F);
-        guiGraphics.drawString(Minecraft.getInstance().font,
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.scale(0.8F, 0.8F);
+        graphics.text(
+            Minecraft.getInstance().font,
             Component.translatable(KEY_MASS_VALUE, recipe.displayMassValue()),
-            0, 10, 0xFF000000, false);
-        guiGraphics.drawString(Minecraft.getInstance().font,
+            0,
+            10,
+            0xFF000000,
+            false
+        );
+        graphics.text(
+            Minecraft.getInstance().font,
             Component.translatable(KEY_ITEMS_NEEDED, Math.ceilDiv(SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS, recipe.getMass())),
-            0, 70, 0xFF000000, false);
-        pose.popPose();
+            0,
+            70,
+            0xFF000000,
+            false
+        );
+        pose.popMatrix();
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

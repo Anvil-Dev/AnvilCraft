@@ -37,7 +37,7 @@ public class HeliostatsTooltip implements IHandHeldItemTooltipProvider {
     }
 
     @Override
-    public void renderTooltip(GuiGraphicsExtractor guiGraphics, int screenWidth, int screenHeight) {
+    public void renderTooltip(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight) {
     }
 
     @Override

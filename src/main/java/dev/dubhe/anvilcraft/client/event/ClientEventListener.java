@@ -151,7 +151,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onRenderTooltip(RenderTooltipEvent.Pre event) {
-        GuiGraphicsExtractor guiGraphics = event.getGraphics();
+        GuiGraphicsExtractor graphics = event.getGraphics();
         int x = event.getX();
         int y = event.getY();
 
@@ -159,10 +159,10 @@ public class ClientEventListener {
         if (itemStack.is(ModItems.AMULET_BOX)) {
             event.setY(y + 13);
             AmuletSelectorSupport.setCurrentHoveringItemStack(itemStack);
-            AmuletSelectorSupport.render(guiGraphics, x, y);
+            AmuletSelectorSupport.render(graphics, x, y);
         } else if (itemStack.is(ModItems.PILL_BOX)) {
             event.setY(y + 13);
-            AnvilCraftClient.pillSelectorSupport.render(guiGraphics, x, y);
+            AnvilCraftClient.pillSelectorSupport.render(graphics, x, y);
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
         }

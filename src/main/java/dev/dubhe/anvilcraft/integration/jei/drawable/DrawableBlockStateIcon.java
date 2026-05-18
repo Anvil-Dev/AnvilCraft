@@ -25,8 +25,8 @@ public class DrawableBlockStateIcon implements IDrawable {
     }
 
     @Override
-    public void draw(GuiGraphicsExtractor guiGraphics, int offsetX, int offsetY) {
-        RenderSupport.renderBlock(guiGraphics, this.upState, offsetX + 8, offsetY + 3, 7);
-        RenderSupport.renderBlock(guiGraphics, this.downState, offsetX + 8, offsetY + 9, 7);
+    public void draw(GuiGraphicsExtractor graphics, int offsetX, int offsetY) {
+        RenderSupport.renderBlock(graphics, this.upState, offsetX + 8, offsetY + 3, 7);
+        RenderSupport.renderBlock(graphics, this.downState, offsetX + 8, offsetY + 9, 7);
     }
 }

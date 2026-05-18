@@ -44,6 +44,7 @@ import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
+import dev.dubhe.anvilcraft.init.recipe.ModSlotDisplays;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import lombok.Getter;
 import net.minecraft.resources.Identifier;
@@ -122,6 +123,7 @@ public class AnvilCraft {
         LOGGER.info("let's 0721");
 
         ModRecipeInits.init(modEventBus);
+        ModSlotDisplays.register(modEventBus);
 
         ModResultModifierTypes.register(modEventBus);
         ModCustomDataComponents.register(modEventBus);

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -16,22 +16,25 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.core.component.DataComponentPredicate;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentExactPredicate;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -91,17 +94,25 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
         RecipeHolder<MobTransformWithItemRecipe> recipe,
         IFocusGroup focuses
     ) {
-
         List<ItemIngredientPredicate> inputIngredients = new ArrayList<>();
-        SpawnEggItem spawnEggItemInput = SpawnEggItem.byId(recipe.value().input());
+        SpawnEggItem spawnEggItemInput = SpawnEggItem.byId(recipe.value().input())
+            .map(Holder::value)
+            .map(Util::<SpawnEggItem>cast)
+            .orElse(null);
         if (spawnEggItemInput == null) {
             inputIngredients.add(
-                ItemIngredientPredicate.Builder.item().of(Items.BARRIER)
+                ItemIngredientPredicate.Builder.item()
+                    .of(Items.BARRIER)
                     .hasComponents(
-                        DataComponentPredicate.builder()
-                            .expect(DataComponents.CUSTOM_NAME, Component.literal(recipe.value().input().toShortString()))
-                            .build())
-                    .build());
+                        DataComponentMatchers.Builder.components()
+                            .exact(DataComponentExactPredicate.expect(
+                                DataComponents.CUSTOM_NAME,
+                                Component.literal(recipe.value().input().toShortString())
+                            ))
+                            .build()
+                    )
+                    .build()
+            );
         } else {
             inputIngredients.add(ItemIngredientPredicate.Builder.item().of(spawnEggItemInput).build());
         }
@@ -109,19 +120,20 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
         JeiSlotUtil.addInputSlots(builder, inputIngredients);
 
         List<ChanceItemStack> outputStacks = new ArrayList<>();
-        SpawnEggItem spawnEggItemOutput = SpawnEggItem.byId(recipe.value().specialResult().resultEntityType());
+        SpawnEggItem spawnEggItemOutput = SpawnEggItem.byId(recipe.value().specialResult().resultEntityType())
+            .map(Holder::value)
+            .map(Util::<SpawnEggItem>cast)
+            .orElse(null);
         if (spawnEggItemOutput == null) {
             String name = recipe.value().specialResult().resultEntityType().toShortString();
             ItemStack x = Items.BARRIER.getDefaultInstance();
             x.set(DataComponents.CUSTOM_NAME, Component.literal(name));
-            outputStacks.add(ChanceItemStack.of(x.copyWithCount(1)));
+            outputStacks.add(ChanceItemStack.of(ItemStackTemplate.fromNonEmptyStack(x).withCount(1)));
         } else {
-            outputStacks.add(ChanceItemStack.of(spawnEggItemOutput.getDefaultInstance().copyWithCount(1)));
+            outputStacks.add(ChanceItemStack.of(new ItemStackTemplate(spawnEggItemOutput, 1)));
         }
-        outputStacks.add(ChanceItemStack.of(recipe.value().itemResult().copyWithCount(1)));
+        outputStacks.add(ChanceItemStack.of(recipe.value().itemResult().withCount(1)));
         JeiSlotUtil.addOutputSlots(builder, outputStacks);
-
-        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).add(ModBlocks.CORRUPTED_BEACON.asStack());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
@@ -132,50 +144,43 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(AnvilCraftJeiPlugin.MOB_TRANSFORM_WITH_ITEM, new ItemStack(ModBlocks.CORRUPTED_BEACON));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MOB_TRANSFORM_WITH_ITEM, ModBlocks.CORRUPTED_BEACON);
     }
 
     @Override
     public void draw(
         RecipeHolder<MobTransformWithItemRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         final MobTransformWithItemRecipe recipe = recipeHolder.value();
 
         BlockState block = ModBlocks.CORRUPTED_BEACON
-            .get()
-            .defaultBlockState()
+            .getDefaultState()
             .trySetValue(BlockStateProperties.WATERLOGGED, false);
 
-        RenderSupport.renderBlock(
-            guiGraphics,
-            block,
-            81,
-            40,
-            12
-        );
+        RenderSupport.renderBlock(graphics, block, 81, 40, 12);
 
-        this.arrowDefault.draw(guiGraphics, 74, 22);
+        this.arrowDefault.draw(graphics, 74, 22);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 2);
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 2);
         if (recipe.chancePercentPerItem() == 0) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotDefault, 2);
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 2);
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotProbability, 2);
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, 2);
         }
 
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.scale(0.8F, 0.8F, 1.0F);
-        guiGraphics.drawString(
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.scale(0.8F, 0.8F);
+        graphics.text(
             Minecraft.getInstance().font,
             Component.translatable(KEY_CHANCE, recipe.chancePercentPerItem()),
             0, 70, 0xFF000000, false
         );
-        pose.popPose();
+        pose.popMatrix();
     }
 }
 

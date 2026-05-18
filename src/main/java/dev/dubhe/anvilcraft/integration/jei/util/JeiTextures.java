@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.resources.Identifier;
 
-public class JeiTextureConstants {
+public class JeiTextures {
     // Arrow
     public static final Identifier ARROW_DEFAULT = texture("arrow_default");
     public static final Identifier ARROW_BLOCK_CONVERSION = texture("arrow_block_conversion");
@@ -21,14 +21,18 @@ public class JeiTextureConstants {
     public static final Identifier LAYER_UP = texture("multiblock/layer_up");
     public static final Identifier LAYER_DOWN = texture("multiblock/layer_down");
     public static final Identifier LAYER_SWITCH = texture("multiblock/layer_switch");
+    public static final Identifier BLOCK_CONVERSION = texture("multiblock/multiblock_conversion");
+    public static final Identifier BLOCK_CRAFTING = texture("multiblock/multiblock_crafting");
 
     // Other
     public static final Identifier EXPLOSION = texture("explosion");
     public static final Identifier PRE_RENDERED_END_PORTAL = texture("pre_rendered_end_portal");
-    public static final Identifier BLOCK_CONVERSION = texture("multiblock/multiblock_conversion");
-    public static final Identifier BLOCK_CRAFTING = texture("multiblock/multiblock_crafting");
 
-    private static Identifier texture(String path) {
-        return AnvilCraft.of("textures/gui/jei/" + path + ".png");
+    public static Identifier texture(String path) {
+        return SharedTextures.textureGui("jei/" + path);
+    }
+
+    public static Identifier bg(String id) {
+        return SharedTextures.bg("jei", id);
     }
 }

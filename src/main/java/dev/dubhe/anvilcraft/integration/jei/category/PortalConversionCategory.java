@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
@@ -18,12 +17,13 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -48,7 +48,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     }
 
     @Override
-    public IIRecipeHolderType<PortalConversionRecipe> getRecipeType() {
+    public IRecipeHolderType<PortalConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.PORTAL_CONVERSION;
     }
 
@@ -88,8 +88,8 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     @Override
     public void draw(
         RecipeHolder<PortalConversionRecipe> holder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
@@ -100,27 +100,25 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) break RENDER_INPUT;
             JeiRenderHelper.renderBlockWithSlot(
-                guiGraphics,
+                graphics,
                 this.slotDefault,
                 renderedState,
                 4,
-                4,
-                20
+                4
             );
         }
 
-        guiGraphics.drawCenteredString(Minecraft.getInstance().font, "WIP", 81, 32, 0xFFFFFF);
+        graphics.centeredText(Minecraft.getInstance().font, "WIP", 81, 32, 0xFFFFFF);
 
         List<WeightedChanceBlockStates.Entry> results = recipe.getResults().states();
         if (results.size() == 1) {
             WeightedChanceBlockStates.Entry result = results.getFirst();
             JeiRenderHelper.renderBlockWithSlot(
-                guiGraphics,
+                graphics,
                 result.state().chance() instanceof ConstantValue(float value) && value == 1.0F ? this.slotDefault : this.slotProbability,
                 result.state().state(),
                 142,
-                4,
-                20
+                4
             );
         }
     }
@@ -152,7 +150,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         if (results.size() == 1) {
             if (!MathUtil.isInRange(mouseX, mouseY, 142, 4, 159, 21)) return;
             WeightedChanceBlockStates.Entry result = results.getFirst();
-            List<Component> tooltips = TooltipUtil.recipeIDTooltip(result.state().state().getBlock(), recipe.id());
+            List<Component> tooltips = TooltipUtil.recipeIDTooltip(result.state().state().getBlock(), recipe.id().identifier());
             tooltips.addAll(tooltips.size() - 1, JeiRecipeUtil.getTooltips(result.state().chance()));
             tooltip.addAll(tooltips);
         }
@@ -166,7 +164,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, new ItemStack(Blocks.END_PORTAL_FRAME));
-        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, new ItemStack(Blocks.OBSIDIAN));
+        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, Blocks.END_PORTAL_FRAME);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, Blocks.OBSIDIAN);
     }
 }

@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.client.event;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -15,8 +15,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -34,6 +33,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 
 import java.util.List;
 
@@ -60,72 +60,69 @@ public class LargeBlockPlacePreviewEventListener {
     );
 
     @SubscribeEvent
-    public static void renderHighlight(RenderHighlightEvent.Block event) {
+    public static void renderHighlight(ExtractBlockOutlineRenderStateEvent event) {
         boundColor = 0xffffffff;
-        Minecraft mc = Minecraft.getInstance();
-        ClientLevel level = mc.level;
-        LocalPlayer player = mc.player;
-        if (player == null) {
-            return;
-        }
-        if (level == null) {
-            return;
-        }
-        if (failBoundCooldown > 0) {
-            failBoundCooldown--;
-            animationActuator.execute();
-        }
-        if (failBoundErrorCooldown > 0) {
-            failBoundErrorCooldown--;
-        }
-        PoseStack poseStack = event.getPoseStack();
-        Vec3 position = event.getCamera().getPosition();
-        MultiBufferSource.BufferSource bufferSource = event.getLevelRenderer().renderBuffers.bufferSource();
-        BlockHitResult target = event.getTarget();
-        Direction direction = target.getDirection();
-        BlockPos pos = target.getBlockPos().relative(direction);
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
-        Inventory inventory = player.getInventory();
-        ItemStack item = inventory.getItem(inventory.selected);
-        if (!(item.getItem() instanceof BlockItem)) {
-            item = player.getItemInHand(InteractionHand.OFF_HAND);
-        }
-        if (item.getItem() instanceof BlockItem blockItem) {
-            if (blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block) {
-                validateCanRender(item, blockItem, pos);
-                // Build the actual placement state from the hit result
-                BlockPlaceContext context = new BlockPlaceContext(player, player.getUsedItemHand(), item, new BlockHitResult(
-                    event.getTarget().getLocation(),
-                    direction,
-                    target.getBlockPos(),
-                    target.isInside()
-                ));
-                BlockState state = getPlacementState(block, blockItem, context);
-                Pair<VoxelShape, List<BlockPos>> pair = getShapeAndErrorPosList(level, block, pos, state);
-                if (!pair.second().isEmpty()) {
-                    if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
-                        int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
-                        pos = pos.relative(direction, distance - 1);
-                    }
-                    if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
-                        int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(state, direction);
-                        pos = pos.relative(direction, distance - 1);
-                    }
-                    pair = getShapeAndErrorPosList(level, block, pos, state);
-                }
-                TooltipRenderHelper.renderOutline(
-                    poseStack,
-                    vertexConsumer,
-                    position.x,
-                    position.y,
-                    position.z,
-                    pos,
-                    pair.first(),
-                    boundColor
-                );
-                renderErrorBound(poseStack, vertexConsumer, event.getCamera());
+        event.addCustomRenderer((state, source, pose, translucentPass, levelRenderState) -> {
+            Minecraft mc = Minecraft.getInstance();
+            ClientLevel level = mc.level;
+            LocalPlayer player = mc.player;
+            if (player == null) return false;
+            if (level == null) return false;
+            if (failBoundCooldown > 0) {
+                failBoundCooldown--;
+                animationActuator.execute();
             }
-        }
+            if (failBoundErrorCooldown > 0) {
+                failBoundErrorCooldown--;
+            }
+            Vec3 position = event.getCamera().position();
+            BlockHitResult target = event.getHitResult();
+            Direction direction = target.getDirection();
+            BlockPos pos = target.getBlockPos().relative(direction);
+            VertexConsumer consumer = source.getBuffer(RenderTypes.lines());
+            Inventory inventory = player.getInventory();
+            ItemStack item = inventory.getSelectedItem();
+            if (!(item.getItem() instanceof BlockItem)) {
+                item = player.getItemInHand(InteractionHand.OFF_HAND);
+            }
+            if (item.getItem() instanceof BlockItem blockItem) {
+                if (blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block) {
+                    validateCanRender(item, blockItem, pos);
+                    // Build the actual placement state from the hit result
+                    BlockPlaceContext context = new BlockPlaceContext(player, player.getUsedItemHand(), item, new BlockHitResult(
+                        target.getLocation(),
+                        direction,
+                        target.getBlockPos(),
+                        target.isInside()
+                    ));
+                    BlockState placementState = getPlacementState(block, blockItem, context);
+                    Pair<VoxelShape, List<BlockPos>> pair = getShapeAndErrorPosList(level, block, pos, placementState);
+                    if (!pair.second().isEmpty()) {
+                        if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
+                            int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
+                            pos = pos.relative(direction, distance - 1);
+                        }
+                        if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
+                            int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(placementState, direction);
+                            pos = pos.relative(direction, distance - 1);
+                        }
+                        pair = getShapeAndErrorPosList(level, block, pos, placementState);
+                    }
+                    TooltipRenderHelper.renderOutline(
+                        pose,
+                        consumer,
+                        position.x,
+                        position.y,
+                        position.z,
+                        pos,
+                        pair.first(),
+                        boundColor
+                    );
+                    renderErrorBound(pose, consumer, event.getCamera());
+                }
+            }
+            return true;
+        });
     }
 
     private static Pair<VoxelShape, List<BlockPos>> getShapeAndErrorPosList(
@@ -137,7 +134,7 @@ public class LargeBlockPlacePreviewEventListener {
         VoxelShape combinedShape = Shapes.empty();
         List<BlockPos> errorBlockPosList = new ObjectArrayList<>();
         for (Enum<?> part : block.getParts()) {
-            BlockPos offset = pos.offset(block.offsetFrom(state, cast(part)));
+            BlockPos offset = pos.offset(block.offsetFrom(state, Util.cast(part)));
             BlockState blockState = level.getBlockState(offset);
             if (!blockState.canBeReplaced() || level.isOutsideBuildHeight(offset)) {
                 errorBlockPosList.add(offset);
@@ -171,10 +168,8 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     private static void renderErrorBound(PoseStack poseStack, VertexConsumer vertexConsumer, Camera camera) {
-        Vec3 position = camera.getPosition();
+        Vec3 position = camera.position();
         if (failBoundErrorCooldown > 0) {
-            RenderSystem.disableDepthTest();
-            RenderSystem.depthMask(false);
             for (BlockPos blockPos : cachedErrorPosList) {
                 TooltipRenderHelper.renderOutline(
                     poseStack,
@@ -187,14 +182,7 @@ public class LargeBlockPlacePreviewEventListener {
                     0xffff0000
                 );
             }
-            RenderSystem.depthMask(true);
-            RenderSystem.enableDepthTest();
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <P extends Enum<P>> P cast(Enum<?> e) {
-        return (P) e;
     }
 
     private static BlockState getPlacementState(AbstractMultiPartBlock<?> block, BlockItem blockItem, BlockPlaceContext context) {

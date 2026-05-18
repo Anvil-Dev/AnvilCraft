@@ -3,14 +3,13 @@ package dev.dubhe.anvilcraft.client;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
-import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
@@ -61,8 +60,14 @@ public class AnvilCraftClient {
         IntegrationHook.setModContainer(modContainer);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
         event.enqueueWork(() -> {
-            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(ModBlockEntities.RUBY_LASER.get(), new CachedLaserBlockEntityRenderer<>());
-            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(ModBlockEntities.RUBY_PRISM.get(), new CachedLaserBlockEntityRenderer<>());
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.RUBY_LASER.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.RUBY_PRISM.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
         });
     }
 
@@ -73,7 +78,7 @@ public class AnvilCraftClient {
     }
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        e.register(ModItems.IONOCRAFT_BACKPACK, new IonoCraftBackpackDecoration());
+        e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
     }
 
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {

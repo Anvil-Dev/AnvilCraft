@@ -1,12 +1,8 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
-import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -14,13 +10,8 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jspecify.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?>> implements IRecipeCategory<RecipeHolder<T>> {
     public static final int WIDTH = 162;
@@ -35,7 +26,7 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     protected final IDrawable arrowIn;
     protected final IDrawable arrowOut;
     protected final IDrawable arrowDefault;
-    protected final IDrawable arrowOutputFromBelow;
+    protected final IDrawable arrowOutFromBelow;
 
     public AbstractProgressCategory(IGuiHelper helper, IDrawable icon, Component title) {
         this.icon = icon;
@@ -47,7 +38,7 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
         this.arrowIn = JeiRenderHelper.getArrowInput(helper);
         this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
         this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
-        this.arrowOutputFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
+        this.arrowOutFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
     }
 
     @Override
@@ -68,23 +59,6 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     @Override
     public @Nullable IDrawable getIcon() {
         return this.icon;
-    }
-
-    protected List<ChanceItemStack> getResults(T recipe) {
-        List<ChanceItemStack> results = new ArrayList<>(recipe.getResultItems());
-        Object2IntMap<Item> remains = new Object2IntArrayMap<>();
-        for (ItemIngredientPredicate ingredient : recipe.getInputItems()) {
-            for (ItemStack stack : ingredient.getItems()) {
-                if (stack.hasCraftingRemainingItem()) {
-                    ItemStack remain = stack.getCraftingRemainingItem();
-                    remains.mergeInt(remain.getItem(), remain.getCount(), Integer::sum);
-                }
-            }
-        }
-        remains.object2IntEntrySet().forEach(entry ->
-            results.add(ChanceItemStack.of(new ItemStack(entry.getKey(), entry.getIntValue()), 1))
-        );
-        return results;
     }
 
     @Override

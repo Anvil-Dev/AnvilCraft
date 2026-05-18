@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -22,12 +22,13 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -86,52 +87,43 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
     }
 
     @Override
-    public void setRecipe(
-        IRecipeLayoutBuilder builder,
-        RecipeHolder<MobTransformRecipe> recipe,
-        IFocusGroup focuses) {
-
-        Ingredient inputIngredient;
-        SpawnEggItem spawnEggItemInput = SpawnEggItem.byId(recipe.value().input());
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MobTransformRecipe> recipe, IFocusGroup focuses) {
+        SpawnEggItem spawnEggItemInput = SpawnEggItem.byId(recipe.value().input())
+            .map(Holder::value)
+            .map(Util::<SpawnEggItem>cast)
+            .orElse(null);
         if (spawnEggItemInput == null) {
             String name = recipe.value().input().toShortString();
             ItemStack x = Items.BARRIER.getDefaultInstance();
             x.set(DataComponents.CUSTOM_NAME, Component.literal(name));
-            inputIngredient = Ingredient.of(x);
-        } else inputIngredient = Ingredient.of(spawnEggItemInput);
-
-        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(inputIngredient);
+            builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(new ItemStackTemplate(x.typeHolder(), 1, x.getComponentsPatch()));
+        } else {
+            builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(spawnEggItemInput);
+        }
 
         List<ChanceItemStack> outputStacks = new ArrayList<>();
         for (TransformResult result : recipe.value().results()) {
-            SpawnEggItem spawnEggOutput = SpawnEggItem.byId(result.resultEntityType());
+            SpawnEggItem spawnEggOutput = SpawnEggItem.byId(result.resultEntityType())
+                .map(Holder::value)
+                .map(Util::<SpawnEggItem>cast)
+                .orElse(null);
             if (spawnEggOutput == null) {
                 String name = result.resultEntityType().toShortString();
                 ItemStack x = Items.BARRIER.getDefaultInstance();
                 x.set(DataComponents.CUSTOM_NAME, Component.literal(name));
-                outputStacks.add(ChanceItemStack.of(x, (float) result.probability()));
-            } else outputStacks.add(ChanceItemStack.of(spawnEggOutput.getDefaultInstance(), (float) result.probability()));
+                outputStacks.add(ChanceItemStack.of(ItemStackTemplate.fromNonEmptyStack(x), (float) result.probability()));
+            } else {
+                outputStacks.add(ChanceItemStack.of(new ItemStackTemplate(spawnEggOutput, 1), (float) result.probability()));
+            }
         }
         JeiSlotUtil.addOutputSlots(builder, outputStacks);
-
-        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).add(ModBlocks.CORRUPTED_BEACON.asStack());
-    }
-
-    public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.MOB_TRANSFORM,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MOB_TRANSFORM.get()));
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(AnvilCraftJeiPlugin.MOB_TRANSFORM, new ItemStack(ModBlocks.CORRUPTED_BEACON));
     }
 
     @Override
     public void draw(
         RecipeHolder<MobTransformRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY) {
         final MobTransformRecipe recipe = recipeHolder.value();
@@ -142,25 +134,31 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
             .trySetValue(BlockStateProperties.WATERLOGGED, false);
 
         RenderSupport.renderBlock(
-            guiGraphics,
+            graphics,
             block,
             81,
             40,
             12);
 
-        this.arrowDefault.draw(guiGraphics, 74, 22);
+        this.arrowDefault.draw(graphics, 74, 22);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, this.slotDefault, 1);
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 1);
         if (this.isChance(recipe.results())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotChoice, recipe.results().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotChoice, recipe.results().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, this.slotProbability, recipe.results().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.results().size());
         }
+    }
 
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.scale(0.8F, 0.8F, 1.0F);
-        pose.popPose();
+    public static void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.MOB_TRANSFORM,
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MOB_TRANSFORM.get())
+        );
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MOB_TRANSFORM, ModBlocks.CORRUPTED_BEACON);
     }
 
     private boolean isChance(List<TransformResult> results) {

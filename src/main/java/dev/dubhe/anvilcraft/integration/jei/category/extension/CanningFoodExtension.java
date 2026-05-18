@@ -3,48 +3,28 @@ package dev.dubhe.anvilcraft.integration.jei.category.extension;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
-import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
 import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
-import mezz.jei.common.util.RegistryUtil;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.List;
 import java.util.Optional;
 
 public class CanningFoodExtension implements ICraftingCategoryExtension<CanningFoodRecipe> {
-
     public static CanningFoodExtension INSTANCE = new CanningFoodExtension();
 
     @Override
-    public void setRecipe(
-        RecipeHolder<CanningFoodRecipe> recipeHolder,
-        IRecipeLayoutBuilder builder,
-        ICraftingGridHelper craftingGridHelper,
-        IFocusGroup focuses) {
-        CanningFoodRecipe recipe = recipeHolder.value();
-        craftingGridHelper.createAndSetIngredients(builder, List.of(
-            Ingredient.of(ModItems.TIN_CAN),
-            Ingredient.of(RegistryUtil.getRegistry(Registries.ITEM)
-                .getTag(Tags.Items.FOODS)
-                .orElseThrow()
-                .stream()
-                .map(Holder::value)
-                .map(Item::getDefaultInstance)
-                .filter(recipe::isFood)
-            )
-        ), 0, 0);
-        craftingGridHelper.createAndSetOutputs(builder, List.of(ModFoodItems.CANNED_FOOD.asStack()));
+    public List<SlotDisplay> getIngredients(RecipeHolder<CanningFoodRecipe> recipeHolder) {
+        return List.of(
+            new SlotDisplay.ItemSlotDisplay(ModItems.TIN_CAN),
+            new SlotDisplay.TagSlotDisplay(Tags.Items.FOODS)
+        );
     }
 
     @Override
