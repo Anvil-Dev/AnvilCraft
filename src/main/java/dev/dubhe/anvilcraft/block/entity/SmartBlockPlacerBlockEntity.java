@@ -2,12 +2,14 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +42,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -51,7 +54,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable {
+public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemHandlerHolder {
     private static final int POWER = 16;
     private static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
@@ -76,6 +79,24 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         public void setChanged() {
             super.setChanged();
             SmartBlockPlacerBlockEntity.this.setChanged();
+        }
+    };
+    
+    // Disk物品栏的ItemHandler包装器,带物品验证
+    private final IItemHandler diskItemHandler = new InvWrapper(diskInventory) {
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            // 只允许放入结构磁盘
+            if (!stack.is(ModItems.STRUCTURE_DISK.get())) {
+                return stack;
+            }
+            return super.insertItem(slot, stack, simulate);
+        }
+        
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            // 只允许结构磁盘
+            return stack.is(ModItems.STRUCTURE_DISK.get());
         }
     };
 
@@ -141,6 +162,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         loadLayerPositions(tag);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+    }
+    
+    @Override
+    public IItemHandler getItemHandler() {
+        return diskItemHandler;
     }
 
     public void tickServer(Level level, BlockPos pos) {

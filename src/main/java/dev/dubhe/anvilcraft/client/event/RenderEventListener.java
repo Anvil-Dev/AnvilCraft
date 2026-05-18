@@ -80,6 +80,7 @@ public class RenderEventListener {
         Optional<BlockHitResult> hitResult = Util.castSafely(Minecraft.getInstance().hitResult, BlockHitResult.class);
         hitResult.ifPresent(hit -> renderDragonRodOutline(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
         hitResult.ifPresent(hit -> renderSmartBlockPlacerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
+        hitResult.ifPresent(hit -> renderStructureScannerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
         if (!AnvilHammerItem.shouldRenderEffect(player)) return;
         PowerGridSupport.render(pose, bufferSource, vec3);
         hitResult.ifPresent(hit -> renderAffectRange(pose, hit, vertexConsumer3, camX, camY, camZ));
@@ -153,6 +154,43 @@ public class RenderEventListener {
             basePos.getX() + 3, basePos.getY() + 5 + yOffset, basePos.getZ() + 3
         );
 
+        TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
+    }
+    
+    /**
+     * 渲染 Structure Scanner 的边框
+     */
+    @SuppressWarnings("checkstyle:LocalVariableName")
+    private static void renderStructureScannerRange(
+        PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer,
+        double camX, double camY, double camZ
+    ) {
+        Player player = Minecraft.getInstance().player;
+        if (player == null || !AnvilHammerItem.shouldRenderEffect(player)) return;
+        if (hitResult.miss) return;
+
+        BlockPos hitPos = hitResult.getBlockPos();
+        if (Minecraft.getInstance().level == null) return;
+
+        var blockState = Minecraft.getInstance().level.getBlockState(hitPos);
+        if (!blockState.is(ModBlocks.STRUCTURE_SCANNER.get())) return;
+
+        // 获取 Structure Scanner 的朝向
+        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        
+        // 计算边框位置：紧贴 Structure Scanner 背后（3x3x3 区域）
+        BlockPos scannerPos = hitPos;
+        
+        // 根据朝向计算背后的位置
+        BlockPos behindPos = scannerPos.relative(scannerFacing.getOpposite(), 2);
+        
+        // 创建 3x3x3 边框
+        VoxelShape rangeShape = Shapes.create(
+            behindPos.getX() - 1, behindPos.getY(), behindPos.getZ() - 1,
+            behindPos.getX() + 2, behindPos.getY() + 3, behindPos.getZ() + 2
+        );
+
+        // 渲染青色边框（与智能放置器一致）
         TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
     }
 }

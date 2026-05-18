@@ -1,11 +1,11 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "anvilcraft:block/structure_scanner"
-    },
     "facing=east": {
       "model": "anvilcraft:block/structure_scanner",
       "y": 90
+    },
+    "facing=north": {
+      "model": "anvilcraft:block/structure_scanner"
     },
     "facing=south": {
       "model": "anvilcraft:block/structure_scanner",

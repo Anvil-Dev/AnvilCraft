@@ -41,6 +41,7 @@
     "anvilcraft:active_silencer",
     "anvilcraft:block_placer",
     "anvilcraft:block_devourer",
+    "anvilcraft:structure_scanner",
     "anvilcraft:smart_block_placer",
     "anvilcraft:ruby_laser",
     "anvilcraft:ruby_prism",
@@ -278,7 +279,6 @@
     "anvilcraft:uranium_pressure_plate",
     "anvilcraft:plutonium_pressure_plate",
     "anvilcraft:brass_pressure_plate",
-    "anvilcraft:bronze_pressure_plate",
-    "anvilcraft:structure_scanner"
+    "anvilcraft:bronze_pressure_plate"
   ]
 }
