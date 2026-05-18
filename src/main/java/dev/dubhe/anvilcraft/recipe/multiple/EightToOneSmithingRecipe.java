@@ -41,7 +41,7 @@ public class EightToOneSmithingRecipe extends BaseMultipleToOneSmithingRecipe {
 
     @Override
     public RecipeSerializer<EightToOneSmithingRecipe> getSerializer() {
-        return ModRecipeSerializers._821.get();
+        return SERIALIZER;
     }
 
     public static class Builder extends BaseBuilder<EightToOneSmithingRecipe> {

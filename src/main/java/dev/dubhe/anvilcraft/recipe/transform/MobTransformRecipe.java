@@ -107,7 +107,7 @@ public record MobTransformRecipe(
 
     @Override
     public RecipeSerializer<MobTransformRecipe> getSerializer() {
-        return ModRecipeSerializers.MOB_TRANSFORM.get();
+        return SERIALIZER;
     }
 
     @Override

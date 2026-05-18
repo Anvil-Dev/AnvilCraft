@@ -145,7 +145,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
      */
     @Override
     public RecipeSerializer<MassInjectRecipe> getSerializer() {
-        return ModRecipeSerializers.MASS_INJECT.get();
+        return SERIALIZER;
     }
 
     /**

@@ -89,7 +89,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
     @Override
     public RecipeSerializer<JewelCraftingRecipe> getSerializer() {
-        return ModRecipeSerializers.JEWEL_CRAFTING.get();
+        return SERIALIZER;
     }
 
     @Override

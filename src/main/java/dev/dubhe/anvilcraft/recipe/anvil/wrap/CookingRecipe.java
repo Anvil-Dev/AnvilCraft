@@ -61,7 +61,7 @@ public class CookingRecipe extends AbstractProcessRecipe<CookingRecipe> {
 
     @Override
     public RecipeSerializer<CookingRecipe> getSerializer() {
-        return ModRecipeSerializers.COOKING.get();
+        return SERIALIZER;
     }
 
     /**

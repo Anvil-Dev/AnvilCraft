@@ -51,7 +51,7 @@ public class ItemCompressRecipe extends AbstractProcessRecipe<ItemCompressRecipe
 
     @Override
     public RecipeSerializer<ItemCompressRecipe> getSerializer() {
-        return ModRecipeSerializers.ITEM_COMPRESS.get();
+        return SERIALIZER;
     }
 
     /**

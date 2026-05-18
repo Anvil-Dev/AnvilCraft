@@ -55,7 +55,7 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
 
     @Override
     public RecipeSerializer<MeshRecipe> getSerializer() {
-        return ModRecipeSerializers.MESH.get();
+        return SERIALIZER;
     }
 
     /**

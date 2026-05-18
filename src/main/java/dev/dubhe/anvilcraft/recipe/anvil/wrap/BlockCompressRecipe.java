@@ -68,7 +68,7 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
 
     @Override
     public RecipeSerializer<BlockCompressRecipe> getSerializer() {
-        return ModRecipeSerializers.BLOCK_COMPRESS.get();
+        return SERIALIZER;
     }
 
     @Override

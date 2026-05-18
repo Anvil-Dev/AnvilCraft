@@ -39,7 +39,7 @@ public interface IPowerProducer extends IPowerComponent {
     /**
      * 实际电量
      */
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     default int getServerPower() {
         Optional<SimplePowerGrid> s = SimplePowerGrid.findPowerGrid(getPos());
         if (s.isPresent()) {

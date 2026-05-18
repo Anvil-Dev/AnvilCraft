@@ -67,7 +67,7 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
 
     @Override
     public RecipeSerializer<BlockCrushRecipe> getSerializer() {
-        return ModRecipeSerializers.BLOCK_CRUSH.get();
+        return SERIALIZER;
     }
 
     /**

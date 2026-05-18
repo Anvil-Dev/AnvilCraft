@@ -140,7 +140,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         this.provideCharge(level);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     private void clientTick(ClientLevel level) {
         this.refreshCauldronPos(level);
         this.summonParticles(level);
@@ -222,7 +222,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     protected void summonParticles(ClientLevel level) {
         Vec3 start = this.getParticleStartPos(level);
         Vec3 vector = start.vectorTo(this.getParticleEndPos());

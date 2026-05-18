@@ -42,6 +42,7 @@ import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
 import dev.dubhe.anvilcraft.init.loot.ModLootItemFunctions;
 import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeInits;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModSlotDisplays;
@@ -108,6 +109,9 @@ public class AnvilCraft {
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
         ModConsumeEffects.register(modEventBus);
+        //TODO ADD THIS BACK
+        // ModRecipeSerializers.register(modEventBus);
+
         // datagen
         AnvilCraftDatagen.init();
 

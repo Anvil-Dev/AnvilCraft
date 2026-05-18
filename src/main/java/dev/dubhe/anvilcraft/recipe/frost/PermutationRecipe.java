@@ -69,7 +69,7 @@ public record PermutationRecipe(
 
     @Override
     public RecipeSerializer<PermutationRecipe> getSerializer() {
-        return ModRecipeSerializers.PERMUTATION.get();
+        return SERIALIZER;
     }
 
     public static class Builder extends BaseBuilder<Builder, PermutationRecipe> {

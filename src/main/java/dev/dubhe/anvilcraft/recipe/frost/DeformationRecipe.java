@@ -65,7 +65,7 @@ public record DeformationRecipe(
 
     @Override
     public RecipeSerializer<DeformationRecipe> getSerializer() {
-        return ModRecipeSerializers.DEFORMATION.get();
+        return SERIALIZER;
     }
 
     @Override

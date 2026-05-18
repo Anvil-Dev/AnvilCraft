@@ -60,7 +60,7 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
 
     @Override
     public RecipeSerializer<UnpackRecipe> getSerializer() {
-        return ModRecipeSerializers.UNPACK.get();
+        return SERIALIZER;
     }
 
     /**

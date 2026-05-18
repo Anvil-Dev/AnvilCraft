@@ -39,14 +39,14 @@ public class GuideBookItem extends Item implements Thinkable {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, display, consumer, tooltipFlag);
         this.appendHoverText(consumer);
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     public void onThought() {
         IntegrationUtil.openIntegrationScreen();
     }

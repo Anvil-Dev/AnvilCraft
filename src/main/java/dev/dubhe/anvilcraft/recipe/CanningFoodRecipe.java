@@ -98,6 +98,6 @@ public class CanningFoodRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<CanningFoodRecipe> getSerializer() {
-        return ModRecipeSerializers.CANNING_FOOD.get();
+        return SERIALIZER;
     }
 }

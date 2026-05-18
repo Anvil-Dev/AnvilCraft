@@ -10,7 +10,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import java.util.function.Consumer;
 
 public interface Thinkable {
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     default void appendHoverText(Consumer<Component> consumer) {
         if (!FMLLoader.getCurrent().getDist().isClient()) {
             return;
@@ -38,7 +38,7 @@ public interface Thinkable {
         consumer.accept(Component.literal(builder.append("]").toString()).withStyle(ChatFormatting.GRAY));
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     default void onThought() {
     }
 }

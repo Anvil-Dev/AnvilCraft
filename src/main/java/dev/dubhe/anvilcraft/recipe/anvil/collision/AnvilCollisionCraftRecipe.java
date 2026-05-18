@@ -132,7 +132,7 @@ public record AnvilCollisionCraftRecipe(
      */
     @Override
     public RecipeSerializer<AnvilCollisionCraftRecipe> getSerializer() {
-        return ModRecipeSerializers.ANVIL_COLLISION_CRAFT.get();
+        return SERIALIZER;
     }
 
     /**

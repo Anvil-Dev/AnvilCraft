@@ -90,7 +90,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
 
     @Override
     public RecipeSerializer<SqueezingRecipe> getSerializer() {
-        return ModRecipeSerializers.SQUEEZING.get();
+        return SERIALIZER;
     }
 
     /**

@@ -106,7 +106,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
     @Override
     public RecipeSerializer<MultiblockConversionRecipe> getSerializer() {
-        return ModRecipeSerializers.MULTIBLOCK_CONVERSION.get();
+        return SERIALIZER;
     }
 
     @SuppressWarnings("deprecation")

@@ -56,7 +56,7 @@ public class ItemCrushRecipe extends AbstractProcessRecipe<ItemCrushRecipe> {
 
     @Override
     public RecipeSerializer<ItemCrushRecipe> getSerializer() {
-        return ModRecipeSerializers.ITEM_CRUSH.get();
+        return SERIALIZER;
     }
 
     /**

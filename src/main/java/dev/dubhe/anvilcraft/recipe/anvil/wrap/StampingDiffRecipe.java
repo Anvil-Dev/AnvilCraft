@@ -49,7 +49,7 @@ public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
 
     @Override
     public RecipeSerializer<StampingDiffRecipe> getSerializer() {
-        return ModRecipeSerializers.STAMPING_DIFF.get();
+        return SERIALIZER;
     }
 
     /**

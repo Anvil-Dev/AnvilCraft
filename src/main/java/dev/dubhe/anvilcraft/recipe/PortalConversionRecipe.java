@@ -107,7 +107,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
 
     @Override
     public RecipeSerializer<PortalConversionRecipe> getSerializer() {
-        return ModRecipeSerializers.PORTAL_CONVERSION.get();
+        return SERIALIZER;
     }
 
     @Override

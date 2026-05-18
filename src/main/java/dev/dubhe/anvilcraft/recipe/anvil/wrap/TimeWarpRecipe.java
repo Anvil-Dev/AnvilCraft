@@ -100,7 +100,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
 
     @Override
     public RecipeSerializer<TimeWarpRecipe> getSerializer() {
-        return ModRecipeSerializers.TIME_WARP.get();
+        return SERIALIZER;
     }
 
     /**

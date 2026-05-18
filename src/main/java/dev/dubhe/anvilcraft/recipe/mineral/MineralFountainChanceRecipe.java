@@ -82,7 +82,7 @@ public record MineralFountainChanceRecipe(Identifier dimension, BlockStatePredic
 
     @Override
     public RecipeSerializer<MineralFountainChanceRecipe> getSerializer() {
-        return ModRecipeSerializers.MINERAL_FOUNTAIN_CHANCE.get();
+        return SERIALIZER;
     }
 
     @Override

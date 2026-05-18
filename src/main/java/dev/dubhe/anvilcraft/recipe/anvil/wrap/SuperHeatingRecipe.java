@@ -105,7 +105,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
 
     @Override
     public RecipeSerializer<SuperHeatingRecipe> getSerializer() {
-        return ModRecipeSerializers.SUPER_HEATING.get();
+        return SERIALIZER;
     }
 
     /**

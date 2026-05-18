@@ -56,7 +56,7 @@ public class StampingRecipe extends BaseStampingRecipe<StampingRecipe> {
 
     @Override
     public RecipeSerializer<StampingRecipe> getSerializer() {
-        return ModRecipeSerializers.STAMPING.get();
+        return SERIALIZER;
     }
 
     /**

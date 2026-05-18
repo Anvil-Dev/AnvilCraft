@@ -85,7 +85,7 @@ public record EnergyWeaponMakeRecipe(
 
     @Override
     public RecipeSerializer<EnergyWeaponMakeRecipe> getSerializer() {
-        return ModRecipeSerializers.ENERGY_WEAPON_MAKE.get();
+        return SERIALIZER;
     }
 
     @Override

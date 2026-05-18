@@ -82,7 +82,7 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
 
     @Override
     public RecipeSerializer<BulgingRecipe> getSerializer() {
-        return ModRecipeSerializers.BULGING.get();
+        return SERIALIZER;
     }
 
     /**

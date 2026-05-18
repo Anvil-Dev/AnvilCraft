@@ -108,6 +108,6 @@ public class PillRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<PillRecipe> getSerializer() {
-        return ModRecipeSerializers.PILL.get();
+        return SERIALIZER;
     }
 }

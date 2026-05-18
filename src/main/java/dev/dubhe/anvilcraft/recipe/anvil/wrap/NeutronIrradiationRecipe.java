@@ -75,7 +75,7 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
 
     @Override
     public RecipeSerializer<NeutronIrradiationRecipe> getSerializer() {
-        return ModRecipeSerializers.NEUTRON_IRRADIATION.get();
+        return SERIALIZER;
     }
 
     public static Builder builder() {

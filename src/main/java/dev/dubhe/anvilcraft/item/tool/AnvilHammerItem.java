@@ -221,7 +221,7 @@ public class AnvilHammerItem extends Item {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean shouldRenderEffect(Player player) {
         return switch (AnvilCraftClient.CONFIG.goggleMode) {

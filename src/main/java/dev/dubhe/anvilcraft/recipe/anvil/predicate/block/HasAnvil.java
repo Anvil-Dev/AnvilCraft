@@ -14,6 +14,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 
+import java.util.function.Supplier;
+
 /**
  * 铁砧条件谓词
  *

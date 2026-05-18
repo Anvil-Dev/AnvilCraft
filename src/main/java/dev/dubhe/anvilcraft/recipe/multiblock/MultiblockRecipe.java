@@ -88,7 +88,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
 
     @Override
     public RecipeSerializer<MultiblockRecipe> getSerializer() {
-        return ModRecipeSerializers.MULTIBLOCK.get();
+        return SERIALIZER;
     }
 
     @SuppressWarnings("deprecation")

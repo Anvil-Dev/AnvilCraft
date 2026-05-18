@@ -92,7 +92,7 @@ public record ChargerChargingRecipe(Ingredient ingredient, ItemStackTemplate res
 
     @Override
     public RecipeSerializer<ChargerChargingRecipe> getSerializer() {
-        return ModRecipeSerializers.CHARGER_CHARGING.get();
+        return SERIALIZER;
     }
 
     @Override
