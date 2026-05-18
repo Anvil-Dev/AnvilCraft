@@ -3,21 +3,21 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
-import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
-import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.TeslaTowerRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 
-public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEntity> {
+public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEntity, TeslaTowerRenderState> {
     private static final float LIGHTNING_WIDTH = 1F;
     private static final AABB BASE_RENDER_BBOX = new AABB(BlockPos.ZERO).inflate(17, 17, 17);
 
@@ -26,58 +26,61 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
     }
 
     @Override
-    public void render(
-        TeslaTowerBlockEntity blockEntity,
-        float partialTick,
-        PoseStack poseStack,
-        MultiBufferSource bufferSource,
-        int packedLight,
-        int packedOverlay
+    public TeslaTowerRenderState createRenderState() {
+        return new TeslaTowerRenderState();
+    }
+
+    @Override
+    public void extractRenderState(
+        TeslaTowerBlockEntity be,
+        TeslaTowerRenderState state,
+        float partialTicks,
+        Vec3 cameraPosition,
+        ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        if (blockEntity.getBlockState().getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM) {
-            return;
-        }
-        Level level = blockEntity.getLevel();
-        if (level == null) {
-            return;
-        }
-        Vec3 end;
-        if (blockEntity.getTargetEntityUUID() != null) {
-            Entity entity = level.getEntities().get(blockEntity.getTargetEntityUUID());
-            if (entity == null) {
-                return;
-            }
-            end = entity.getEyePosition();
-        } else if (blockEntity.getTargetLightningRod() != null) {
-            end = blockEntity.getTargetLightningRod().getCenter().add(0.0, 0.3, 0.0);
+        BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.setStart(new Vec3(0.5, 3.5, 0.5));
+        if (be.getTargetEntityUUID() != null) {
+            Entity entity = be.getLevel().getEntities().get(be.getTargetEntityUUID());
+            if (entity == null) return;
+            state.setEnd(entity.getEyePosition());
+        } else if (be.getTargetLightningRod() != null) {
+            state.setEnd(be.getTargetLightningRod().getCenter().add(0.0, 0.3, 0.0));
         } else {
             return;
         }
-        end = end.subtract(blockEntity.getBlockPos().getCenter().subtract(0.5, 0.5, 0.5));
-        poseStack.pushPose();
-        Vec3 start = new Vec3(0.5, 3.5, 0.5);
-        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        BlockPos pos = blockEntity.getBlockPos();
-        Vec3 localCamera = cameraPos.subtract(pos.getX(), pos.getY(), pos.getZ());
+        BlockPos pos = be.getBlockPos();
+        state.setEnd(state.getEnd().subtract(pos.getCenter().subtract(0.5, 0.5, 0.5)));
+        state.setCamera(cameraPosition.subtract(pos.getX(), pos.getY(), pos.getZ()));
+    }
 
-        this.renderLightning(poseStack, bufferSource, start, end, localCamera, LIGHTNING_WIDTH, 0.7F);
-
-        poseStack.popPose();
+    @Override
+    public void submit(TeslaTowerRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        collector.submitCustomGeometry(
+            pose,
+            ModRenderTypes.LIGHTNING,
+            (last, consumer) -> this.submitLightning(
+                last.pose(),
+                consumer,
+                state.getStart(),
+                state.getEnd(),
+                state.getCamera(),
+                LIGHTNING_WIDTH,
+                0.7F
+            )
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
-    public void renderLightning(
-        PoseStack poseStack,
-        MultiBufferSource buffer,
+    public void submitLightning(
+        Matrix4f matrix,
+        VertexConsumer consumer,
         Vec3 start,
         Vec3 end,
         Vec3 localCamera,
         float width,
         float alpha
     ) {
-        VertexConsumer consumer = buffer.getBuffer(ModRenderTypes.LIGHTNING);
-        Matrix4f matrix = poseStack.last().pose();
-
         Vec3 dir = end.subtract(start).normalize();
         Vec3 mid = start.add(end).scale(0.5);
         Vec3 toCamera = localCamera.subtract(mid).normalize();
@@ -123,14 +126,14 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
     }
 
     @Override
-    public boolean shouldRenderOffScreen(TeslaTowerBlockEntity blockEntity) {
+    public boolean shouldRenderOffScreen() {
         return true;
     }
 
     @Override
     public AABB getRenderBoundingBox(TeslaTowerBlockEntity blockEntity) {
         return TeslaTowerRenderer.BASE_RENDER_BBOX
-            .move(blockEntity.getPos())
+            .move(blockEntity.getBlockPos())
             .move(0, 4, 0);
     }
 }
