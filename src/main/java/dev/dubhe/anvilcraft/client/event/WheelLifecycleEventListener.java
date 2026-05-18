@@ -1,16 +1,26 @@
 package dev.dubhe.anvilcraft.client.event;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
+import dev.anvilcraft.lib.v2.util.Util;
+import dev.anvilcraft.lib.v2.wheel.api.WheelEntryAction;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
+import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
+import dev.dubhe.anvilcraft.network.HammerChangeFlexibleMultiPartBlockPacket;
+import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
@@ -19,9 +29,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec2;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -32,7 +49,9 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -61,38 +80,52 @@ public class WheelLifecycleEventListener {
         ClientLevel level = client.level;
         if (level == null) return;
         long gameTime = level.getGameTime();
-        WheelLifecycleEventListener.openHammerWheel(gameTime);
         WheelLifecycleEventListener.openMultiphaseWheel(gameTime);
         WheelLifecycleEventListener.openResonatorWheel(gameTime);
         WheelLifecycleEventListener.openMultitoolWheel(gameTime);
     }
 
-    private static void openHammerWheel(long gameTime) {
-        if (
-            WheelLifecycleEventListener.hammerKeyTime > 0
-            && gameTime - WheelLifecycleEventListener.hammerKeyTime > 4
-        ) {
-            if (WheelLifecycleEventListener.hammerWheelCache == null) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) return;
-                InteractionHand hand = InteractionHand.MAIN_HAND;
-                ItemStack stack = player.getMainHandItem();
-                if (!stack.has(ModComponents.HAMMER)) {
-                    hand = InteractionHand.OFF_HAND;
-                    stack = player.getOffhandItem();
-                }
-                if (!stack.has(ModComponents.HAMMER)) return;
-                HammerRef ref = stack.get(ModComponents.HAMMER);
-                if (ref.isEmpty()) return;
-                ClientPacketDistributor.sendToServer(new HammerPackets.SingleSync(stack.get(ModComponents.HAMMER).id().get()));
-                WheelLifecycleEventListener.hammerWheelCache = Optional.ofNullable(
-                    WheelLifecycleEventListener.getHammerWheel(hand, stack, ref.toHammer())
-                );
-            }
-            if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return;
-            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
-            WheelLifecycleEventListener.hammerKeyWasDown = true;
+    public static boolean openHammerWheel(
+        long gameTime,
+        Level level,
+        BlockPos targetPos,
+        InteractionHand hand,
+        @Nullable Property<?> property,
+        Supplier<List<BlockState>> possibleStatesFac,
+        BlockHitResult hitVec
+    ) {
+        if (WheelLifecycleEventListener.hammerKeyTime <= 0) return false;
+        if (property == null) {
+            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
+            return false;
         }
+        if (gameTime - WheelLifecycleEventListener.hammerKeyTime <= 4) {
+            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
+            return false;
+        }
+        Minecraft client = Minecraft.getInstance();
+        LocalPlayer player = client.player;
+        if (player == null) return false;
+        if (WheelLifecycleEventListener.hammerWheelCache == null) {
+            if (player.isShiftKeyDown()) {
+                ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
+                return false;
+            }
+            if (!player.getAbilities().mayBuild) return false;
+            if (!AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player)) return false;
+            List<BlockState> possibleStates = possibleStatesFac.get();
+            if (possibleStates.isEmpty()) return true;
+            WheelLifecycleEventListener.hammerWheelCache = Optional.ofNullable(WheelLifecycleEventListener.getHammerWheel(
+                targetPos,
+                property,
+                possibleStates,
+                client.getCameraEntity().getRotationVector()
+            ));
+        }
+        if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return false;
+        CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
+        WheelLifecycleEventListener.hammerKeyWasDown = true;
+        return true;
     }
 
     private static void openMultiphaseWheel(long gameTime) {
@@ -124,71 +157,105 @@ public class WheelLifecycleEventListener {
     }
 
     private static void openResonatorWheel(long gameTime) {
-        if (
-            WheelLifecycleEventListener.resonatorKeyTime > 0
-            && gameTime - WheelLifecycleEventListener.resonatorKeyTime > 4
-        ) {
-            if (WheelLifecycleEventListener.resonatorWheelCache == null) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) return;
-                InteractionHand hand = InteractionHand.MAIN_HAND;
-                ItemStack stack = player.getMainHandItem();
-                if (!(stack.getItem() instanceof ResonatorItem)) {
-                    hand = InteractionHand.OFF_HAND;
-                    stack = player.getOffhandItem();
-                }
-                if (!(stack.getItem() instanceof ResonatorItem)) return;
-                WheelLifecycleEventListener.resonatorWheelCache = Optional.ofNullable(
-                    WheelLifecycleEventListener.getResonatorWheel(hand, stack)
-                );
+        if (WheelLifecycleEventListener.resonatorKeyTime <= 0) return;
+        if (WheelLifecycleEventListener.resonatorWheelCache == null) {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player == null) return;
+            InteractionHand hand = InteractionHand.MAIN_HAND;
+            ItemStack stack = player.getMainHandItem();
+            if (!(stack.getItem() instanceof ResonatorItem)) {
+                hand = InteractionHand.OFF_HAND;
+                stack = player.getOffhandItem();
             }
+            if (!(stack.getItem() instanceof ResonatorItem)) return;
+            WheelLifecycleEventListener.resonatorWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.getResonatorWheel(hand, stack)
+            );
+        }
+        if (gameTime - WheelLifecycleEventListener.resonatorKeyTime > 4) {
             if (WheelLifecycleEventListener.resonatorWheelCache.isEmpty()) return;
             CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.resonatorWheelCache.get());
             WheelLifecycleEventListener.resonatorKeyWasDown = true;
+        } else {
+            if (WheelLifecycleEventListener.resonatorWheelCache.isEmpty()) return;
+            CONTROLLER.openTap(WheelLifecycleEventListener.resonatorWheelCache.get());
         }
     }
 
     private static void openMultitoolWheel(long gameTime) {
-        if (
-            WheelLifecycleEventListener.multitoolKeyTime > 0
-            && gameTime - WheelLifecycleEventListener.multitoolKeyTime > 4
-        ) {
-            if (WheelLifecycleEventListener.multitoolWheelCache == null) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player == null) return;
-                InteractionHand hand = InteractionHand.MAIN_HAND;
-                ItemStack stack = player.getMainHandItem();
-                if (!(stack.getItem() instanceof MultitoolItem)) {
-                    hand = InteractionHand.OFF_HAND;
-                    stack = player.getOffhandItem();
-                }
-                if (!(stack.getItem() instanceof MultitoolItem)) return;
-                WheelLifecycleEventListener.multitoolWheelCache = Optional.ofNullable(
-                    WheelLifecycleEventListener.getMultitoolWheel(hand, stack)
-                );
+        if (WheelLifecycleEventListener.multitoolKeyTime <= 0) return;
+        if (WheelLifecycleEventListener.multitoolWheelCache == null) {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player == null) return;
+            InteractionHand hand = InteractionHand.MAIN_HAND;
+            ItemStack stack = player.getMainHandItem();
+            if (!(stack.getItem() instanceof MultitoolItem)) {
+                hand = InteractionHand.OFF_HAND;
+                stack = player.getOffhandItem();
             }
+            if (!(stack.getItem() instanceof MultitoolItem)) return;
+            WheelLifecycleEventListener.multitoolWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.getMultitoolWheel(hand, stack)
+            );
+        }
+        if (gameTime - WheelLifecycleEventListener.multitoolKeyTime > 4) {
             if (WheelLifecycleEventListener.multitoolWheelCache.isEmpty()) return;
             CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.multitoolWheelCache.get());
             WheelLifecycleEventListener.multitoolKeyWasDown = true;
+        } else {
+            if (WheelLifecycleEventListener.multitoolWheelCache.isEmpty()) return;
+            CONTROLLER.openTap(WheelLifecycleEventListener.multitoolWheelCache.get());
         }
     }
 
-    private static @Nullable WheelMenuModel getHammerWheel(InteractionHand hand, ItemStack holding, Hammer hammer) {
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(hammer.phases().size());
-        hammer.phases().stream()
-            .sorted(Comparator.comparingInt(Hammer.Phase::index))
-            .forEachOrdered(phase -> builder.action(
-                "" + Hammer.DEFAULT_SUFFIXES.charAt(phase.index()),
-                phase.phaseName(),
-                (graphics, pose, width, height) -> {
-                    ItemStack copied = holding.copy();
-                    phase.applyToStack(copied);
-                    graphics.item(copied, 2, 2, 9910597);
-                },
-                ctx -> ClientPacketDistributor.sendToServer(
-                    new HammerPackets.ChangePhase(hand, ctx.slotIndex())
-                )
-            ));
+    private static @Nullable WheelMenuModel getHammerWheel(
+        BlockPos targetPos,
+        Property<?> property,
+        List<BlockState> possibleStates,
+        Vec2 camera
+    ) {
+        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(possibleStates.size());
+        possibleStates
+            .forEach(state -> {
+                String name = property.getName(Util.cast(state.getValue(property)));
+                WheelEntryAction action;
+                if (state.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
+                    if (state.hasProperty(BlockStateProperties.FACING)) {
+                        action = _ -> ClientPacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
+                            targetPos,
+                            state,
+                            state.getValue(BlockStateProperties.FACING)
+                        ));
+                    } else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+                        action = _ -> ClientPacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
+                            targetPos,
+                            state,
+                            state.getValue(BlockStateProperties.HORIZONTAL_FACING)
+                        ));
+                    } else {
+                        action = _ -> {
+                        };
+                    }
+                } else {
+                    action = _ -> ClientPacketDistributor.sendToServer(new HammerChangeBlockPacket(
+                        targetPos,
+                        state
+                    ));
+                }
+                builder.action(
+                    name,
+                    Component.literal(name),
+                    (graphics, _, _, _) -> {
+                        PoseStack pose = new PoseStack();
+                        pose.translate(0.5F, 0.5F, 0.5F);
+                        pose.mulPose(Axis.XP.rotationDegrees(camera.x));
+                        pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180F));
+                        pose.translate(-0.5F, -0.5F, -0.5F);
+                        GuiRenderExtras.tessellateBlock(graphics, state, 0, 0, pose);
+                    },
+                    action
+                );
+            });
         return builder.build();
     }
 
@@ -199,7 +266,7 @@ public class WheelLifecycleEventListener {
             .forEachOrdered(phase -> builder.action(
                 "" + Multiphase.DEFAULT_SUFFIXES.charAt(phase.index()),
                 phase.phaseName(),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     phase.applyToStack(copied);
                     graphics.item(copied, 2, 2, 9910597);
@@ -217,7 +284,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "auto",
                 Component.translatable("screen.anvilcraft.resonator.auto"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.AUTO);
                     graphics.item(copied, 2, 2, 9910597);
@@ -229,7 +296,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "axe",
                 Component.translatable("screen.anvilcraft.resonator.axe"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.AXE);
                     graphics.item(copied, 2, 2, 9910597);
@@ -241,7 +308,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "shovel",
                 Component.translatable("screen.anvilcraft.resonator.shovel"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.SHOVEL);
                     graphics.item(copied, 2, 2, 9910597);
@@ -253,7 +320,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "hoe",
                 Component.translatable("screen.anvilcraft.resonator.hoe"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.HOE);
                     graphics.item(copied, 2, 2, 9910597);
@@ -265,7 +332,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "pickaxe",
                 Component.translatable("screen.anvilcraft.resonator.pickaxe"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.PICKAXE);
                     graphics.item(copied, 2, 2, 9910597);
@@ -283,7 +350,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "all",
                 Component.translatable("screen.anvilcraft.multitool.all"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.ALL);
                     graphics.item(copied, 2, 2, 9910597);
@@ -295,7 +362,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "shears",
                 Component.translatable("item.minecraft.shears"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.SHEARS);
                     graphics.item(copied, 2, 2, 9910597);
@@ -307,7 +374,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "flint_and_steel",
                 Component.translatable("item.minecraft.flint_and_steel"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.FLINT_AND_STEEL);
                     graphics.item(copied, 2, 2, 9910597);
@@ -319,7 +386,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "brush",
                 Component.translatable("item.minecraft.brush"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.BRUSH);
                     graphics.item(copied, 2, 2, 9910597);
@@ -331,7 +398,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "spyglass",
                 Component.translatable("item.minecraft.spyglass"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.SPYGLASS);
                     graphics.item(copied, 2, 2, 9910597);
@@ -343,7 +410,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "magnet",
                 Component.translatable("item.anvilcraft.magnet"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.MAGNET);
                     graphics.item(copied, 2, 2, 9910597);
@@ -355,7 +422,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "fishing_rod",
                 Component.translatable("item.minecraft.fishing_rod"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.FISHING_ROD);
                     graphics.item(copied, 2, 2, 9910597);
@@ -367,7 +434,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "carrot_on_a_stick",
                 Component.translatable("item.minecraft.carrot_on_a_stick"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.CARROT_ON_A_STICK);
                     graphics.item(copied, 2, 2, 9910597);
@@ -379,7 +446,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "warped_fungus_on_a_stick",
                 Component.translatable("item.minecraft.warped_fungus_on_a_stick"),
-                (graphics, pose, width, height) -> {
+                (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.WARPED_FUNGUS_ON_A_STICK);
                     graphics.item(copied, 2, 2, 9910597);
@@ -408,6 +475,9 @@ public class WheelLifecycleEventListener {
     public static void onKeyInput(InputEvent.MouseButton.Post event) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
+        if (client.options.keyUse.matchesMouse(new MouseButtonEvent(0, 0, event.getMouseButtonInfo()))) {
+            WheelLifecycleEventListener.processHammerPress(client, event.getAction());
+        }
         if (ModKeyMappings.SWITCH_PHASE.get().matchesMouse(new MouseButtonEvent(0, 0, event.getMouseButtonInfo()))) {
             WheelLifecycleEventListener.processMultiphasePress(client, event.getAction());
         }
@@ -422,8 +492,6 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.hammerKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
-            } else {
-                ClientPacketDistributor.sendToServer(new HammerPackets.SwitchPhase());
             }
             WheelLifecycleEventListener.hammerKeyWasDown = false;
             WheelLifecycleEventListener.hammerKeyTime = -1L;
