@@ -1,14 +1,10 @@
 package dev.dubhe.anvilcraft.item.tool;
 
-import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.entity.SpectralProjectileEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -30,9 +26,7 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
@@ -74,14 +68,6 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     public Predicate<ItemStack> getAllSupportedProjectiles() {
         return _ -> true;
     }
-
-    // 第一人称的手持动画、装填弹药的额外渲染等特殊代码在SpectralSlingshotRenderer等类中
-    // @Override
-    // @OnlyIn(Dist.CLIENT)
-    // @SuppressWarnings({"removal"})
-    // public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-    //     consumer.accept(SpectralSlingshotRenderer.SpectralSlingshotExtensions.of(SpectralSlingshotRenderer.getInstance()));
-    // }
 
     /**
      * 检查物品是否可以被装载（用于判断箭矢或具有攻击伤害的物品）
@@ -125,7 +111,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     }
 
     public static void setCanTakeOutAmmo(ItemStack stack, boolean can) {
-        stack.set(ModComponents.CAN_TAKE_OUT_AMMO, can);
+        stack.set(ModComponents.CAN_TAKE_OUT_AMMO, new CanTakeOutAmmo(can));
     }
 
     public boolean unableToUse(ItemStack stack) {
@@ -217,7 +203,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
             if (!list.isEmpty()) {
                 crossbowStack.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.ofNonEmpty(list));
                 // 有无限的话填进去的是拿不出来的物品
-                crossbowStack.set(ModComponents.CAN_TAKE_OUT_AMMO, notHasInfinity);
+                crossbowStack.set(ModComponents.CAN_TAKE_OUT_AMMO, new CanTakeOutAmmo(notHasInfinity));
                 return true;
             } else {
                 return false;
@@ -410,37 +396,6 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         }
 
         return f;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        ChargedProjectiles chargedprojectiles = stack.get(DataComponents.CHARGED_PROJECTILES);
-        if (chargedprojectiles != null && !chargedprojectiles.isEmpty()) {
-            ItemStack itemstack = chargedprojectiles.getItems().getFirst();
-            tooltipComponents.add(
-                Component.translatable("item.minecraft.crossbow.projectile")
-                    .append(CommonComponents.SPACE)
-                    .append(itemstack.getDisplayName())
-            );
-            if (tooltipFlag.isAdvanced() && itemstack.is(Items.FIREWORK_ROCKET)) {
-                List<Component> list = Lists.newArrayList();
-                Items.FIREWORK_ROCKET.appendHoverText(itemstack, context, list, tooltipFlag);
-                if (!list.isEmpty()) {
-                    list.replaceAll(sibling -> Component.literal("  ").append(sibling).withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.addAll(list);
-                }
-            }
-            tooltipComponents.add(
-                Component
-                    .literal("  ")
-                    .append(
-                        canTakeOutAmmo(stack)
-                            ? Component.translatable("item.anvilcraft.spectral_slingshot.unload_return")
-                            : Component.translatable("item.anvilcraft.spectral_slingshot.unload_vanish")
-                    )
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        }
     }
 
     @Override

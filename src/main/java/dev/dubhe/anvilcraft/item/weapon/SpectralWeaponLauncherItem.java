@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
-import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
@@ -12,12 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jspecify.annotations.Nullable;
-
-import java.util.function.Consumer;
 
 public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     public static final int SHOOT_CONSUME = 800;
@@ -30,13 +24,6 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
             properties
                 .component(ModComponents.STORED_ENERGY, new StoredEnergy(SpectralWeaponLauncherItem.MAX_ENERGY))
         );
-    }
-
-    // 第一人称的手持动画、装填弹药的额外渲染等特殊代码在SpectralWeaponLauncherRenderer等类中
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(SpectralWeaponLauncherRenderer.SpectralWeaponLauncherExtensions.of(SpectralWeaponLauncherRenderer.getInstance()));
     }
 
     @Override

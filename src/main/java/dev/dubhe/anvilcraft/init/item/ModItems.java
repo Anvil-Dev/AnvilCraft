@@ -10,6 +10,8 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
@@ -36,6 +38,7 @@ import dev.dubhe.anvilcraft.item.ingredients.RoyalSteelIngotItem;
 import dev.dubhe.anvilcraft.item.ingredients.SuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.ingredients.TopazItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.RoyalSteelUpgradeTemplateItem;
@@ -96,11 +99,16 @@ import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
+import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
@@ -504,7 +512,10 @@ public class ModItems {
             ItemTags.CROSSBOW_ENCHANTABLE
         )
         .properties(properties -> properties.durability(1561))
-        .model(DataGenUtil::onlyInfo)
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ctx.get()), SpectralSlingshotRenderer.Unbaked.INSTANCE)
+        ))
         .recipe(RegistrumItemRecipeLoader::spectralSlingshot)
         .register();
 
@@ -516,7 +527,28 @@ public class ModItems {
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.CROSSBOW_ENCHANTABLE
         )
-        .model(DataGenUtil::energyWeapon)
+        .model(() -> (ctx, generator) -> {
+            Item item = ctx.get();
+            ItemModel.Unbaked normal = ItemModelUtils.specialModel(
+                ModelLocationUtils.getModelLocation(item),
+                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+            );
+            ItemModel.Unbaked off = ItemModelUtils.specialModel(
+                generator.createFlatItemModel(item, "_off", ModelTemplates.FLAT_ITEM),
+                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+            );
+            generator.itemModelOutput.accept(
+                item,
+                ItemModelUtils.conditional(
+                    new ComponentMatches(new DataComponentPredicate.Single<>(
+                        ModDataComponentPredicates.INT_COMP.get(),
+                        new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
+                    )),
+                    off,
+                    normal
+                )
+            );
+        })
         .register();
 
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM

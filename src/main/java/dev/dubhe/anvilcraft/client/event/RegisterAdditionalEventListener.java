@@ -9,10 +9,13 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -80,5 +83,11 @@ public class RegisterAdditionalEventListener {
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
         );
+    }
+
+    @SubscribeEvent
+    public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("spectral_weapon_launcher"), SpectralWeaponLauncherRenderer.Unbaked.CODEC);
     }
 }
