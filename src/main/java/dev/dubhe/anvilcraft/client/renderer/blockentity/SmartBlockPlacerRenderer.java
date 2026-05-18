@@ -397,13 +397,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.translate(-0.5, -1.3125, -0.375);
         
         // 切换钳子模型
-        boolean shouldClawBeOpen = false;
-        if (entity.isClientIsRetracting()) {
-            shouldClawBeOpen = true;
-        } else if (isAnimationPlaying) {
-            shouldClawBeOpen = animationProgress < 1.0f;
-        }
-        
+        // 全新逻辑：钳子只在动画的伸出阶段（0-70%）打开，收回阶段（70-100%）闭合
+        boolean shouldClawBeOpen = isAnimationPlaying && animationProgress > 0f && animationProgress <= 0.7f;
+
+        // 正在播放工作动画且处于伸出阶段（0-70%）：钳子打开
+
         ModelResourceLocation currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;
         renderModel(poseStack, buffer, currentClawModel, packedLight, packedOverlay);
         
