@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.client.gui.component.CycleFilterModeButton;
-import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
+import dev.dubhe.anvilcraft.client.gui.component.Texture10xButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
@@ -30,8 +30,9 @@ import java.util.Optional;
 
 public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu>
     implements IFilterScreen<ItemDetectorMenu> {
-
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "item_detector");
+    private static final String TEXTURES_PREFIX = "machine/item_collector/button_";
+
     private final Component scrollToChangeTooltip =
         Component.translatable("screen.anvilcraft.filter.scroll_to_change")
             .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
@@ -86,10 +87,11 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
                 String.valueOf(this.menu.getBlockEntity().getRange()))
         ));
         // range - +
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new Texture10xButton(
             leftPos + 43,
             topPos + 23,
-            "minus",
+            TEXTURES_PREFIX + "minus",
+            (ignore) -> Component.literal("Reduce Detection Range"),
             (b) -> {
                 this.menu.getBlockEntity().decreaseRange();
                 PacketDistributor.sendToServer(
@@ -97,10 +99,11 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
                 );
             }
         ));
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new Texture10xButton(
             leftPos + 81,
             topPos + 23,
-            "add",
+            TEXTURES_PREFIX + "add",
+            (ignore) -> Component.literal("Add Detection Range"),
             (b) -> {
                 this.menu.getBlockEntity().increaseRange();
                 PacketDistributor.sendToServer(

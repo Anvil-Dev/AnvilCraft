@@ -1,74 +1,75 @@
 {
-	"format_version": "1.9.0",
-	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube",
-	"textures": {
-		"particle": "anvilcraft:block/exp_collector_bottom",
-		"bottom": "anvilcraft:block/exp_collector_bottom",
-		"side": "anvilcraft:block/exp_collector_side",
-		"top": "anvilcraft:block/exp_collector_top"
-	},
-	"elements": [
-		{
-			"from": [0, 0, 0],
-			"to": [16, 2, 16],
-			"faces": {
-				"north": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "north"},
-				"east": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "east"},
-				"south": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "south"},
-				"west": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "west"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"}
-			}
-		},
-		{
-			"from": [0, 2, 15],
-			"to": [16, 12, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
-			"faces": {
-				"north": {"uv": [0, 4, 16, 14], "texture": "#side"},
-				"south": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "south"}
-			}
-		},
-		{
-			"from": [0, 2, 0],
-			"to": [1, 12, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
-			"faces": {
-				"east": {"uv": [0, 4, 16, 14], "texture": "#side"},
-				"west": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "west"}
-			}
-		},
-		{
-			"from": [0, 2, 0],
-			"to": [16, 12, 1],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
-			"faces": {
-				"north": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "north"},
-				"south": {"uv": [0, 4, 16, 14], "texture": "#side"}
-			}
-		},
-		{
-			"from": [15, 2, 0],
-			"to": [16, 12, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
-			"faces": {
-				"east": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "east"},
-				"west": {"uv": [0, 4, 16, 14], "texture": "#side"}
-			}
-		},
-		{
-			"from": [0, 12, 0],
-			"to": [16, 16, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [0, 12, 0]},
-			"faces": {
-				"north": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "north"},
-				"east": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "east"},
-				"south": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "south"},
-				"west": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "west"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#top", "cullface": "up"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom"}
-			}
-		}
-	]
+  "format_version": "1.9.0",
+  "credit": "Made by XeKr with Blockbench",
+  "parent": "minecraft:block/cube",
+  "render_type": "cutout",
+  "textures": {
+    "particle": "anvilcraft:block/exp_collector_bottom",
+    "bottom": "anvilcraft:block/exp_collector_bottom",
+    "side": "anvilcraft:block/exp_collector_side",
+    "top": "anvilcraft:block/exp_collector_top"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 2, 16],
+      "faces": {
+        "north": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "north"},
+        "east": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "east"},
+        "south": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "south"},
+        "west": {"uv": [0, 14, 16, 16], "texture": "#side", "cullface": "west"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"}
+      }
+    },
+    {
+      "from": [0, 2, 15],
+      "to": [16, 12, 16],
+      "rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+      "faces": {
+        "north": {"uv": [0, 4, 16, 14], "texture": "#side"},
+        "south": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "south"}
+      }
+    },
+    {
+      "from": [0, 2, 0],
+      "to": [1, 12, 16],
+      "rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+      "faces": {
+        "east": {"uv": [0, 4, 16, 14], "texture": "#side"},
+        "west": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "west"}
+      }
+    },
+    {
+      "from": [0, 2, 0],
+      "to": [16, 12, 1],
+      "rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+      "faces": {
+        "north": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "north"},
+        "south": {"uv": [0, 4, 16, 14], "texture": "#side"}
+      }
+    },
+    {
+      "from": [15, 2, 0],
+      "to": [16, 12, 16],
+      "rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+      "faces": {
+        "east": {"uv": [0, 4, 16, 14], "texture": "#side", "cullface": "east"},
+        "west": {"uv": [0, 4, 16, 14], "texture": "#side"}
+      }
+    },
+    {
+      "from": [0, 12, 0],
+      "to": [16, 16, 16],
+      "rotation": {"angle": 0, "axis": "y", "origin": [0, 12, 0]},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "north"},
+        "east": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "east"},
+        "south": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "south"},
+        "west": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "west"},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#top", "cullface": "up"},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#bottom"}
+      }
+    }
+  ]
 }

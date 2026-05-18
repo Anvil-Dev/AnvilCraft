@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
-import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
+import dev.dubhe.anvilcraft.client.gui.component.Texture10xButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -32,6 +32,7 @@ import java.util.function.BiFunction;
 public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu> implements IFilterScreen<ItemCollectorMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "item_collector");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(75, 54);
+    private static final String TEXTURES_PREFIX = "machine/item_collector/button_";
 
     @Getter
     private EnableFilterButton enableFilterButton = null;
@@ -87,31 +88,55 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             () -> Component.literal(Integer.toString(this.menu.getBlockEntity().getInputPower()))
         ));
         // range - +
-        this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 43, this.topPos + 23, "minus", (b) -> {
-            this.menu.getBlockEntity().getRangeRadius().previous();
-            this.menu.getBlockEntity().getRangeRadius().notifyServer();
-        }
-        ));
-        this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 81, this.topPos + 23, "add", (b) -> {
-            this.menu.getBlockEntity().getRangeRadius().next();
-            this.menu.getBlockEntity().getRangeRadius().notifyServer();
-        }
-        ));
+        this.addRenderableWidget(
+            new Texture10xButton(
+                this.leftPos + 43,
+                this.topPos + 23,
+                TEXTURES_PREFIX + "minus",
+                (ignore) -> Component.literal("Reduce Item Collect Range"),
+                (btn) -> {
+                    this.menu.getBlockEntity().getRangeRadius().previous();
+                    this.menu.getBlockEntity().getRangeRadius().notifyServer();
+                }
+            )
+        );
+        this.addRenderableWidget(
+            new Texture10xButton(
+                this.leftPos + 81,
+                this.topPos + 23,
+                TEXTURES_PREFIX + "add",
+                (ignore) -> Component.literal("Add Item Collect Range"),
+                (btn) -> {
+                    this.menu.getBlockEntity().getRangeRadius().next();
+                    this.menu.getBlockEntity().getRangeRadius().notifyServer();
+                }
+            )
+        );
         // cooldown - +
-        this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 43, this.topPos + 37, "minus", (b) -> {
-            this.menu.getBlockEntity().getCooldown().previous();
-            this.menu.getBlockEntity().getCooldown().notifyServer();
-        }
-        ));
-        this.addRenderableWidget(new ItemCollectorButton(
-            leftPos + 81, topPos + 37, "add", (b) -> {
-            this.menu.getBlockEntity().getCooldown().next();
-            this.menu.getBlockEntity().getCooldown().notifyServer();
-        }
-        ));
+        this.addRenderableWidget(
+            new Texture10xButton(
+                this.leftPos + 43,
+                this.topPos + 37,
+                 TEXTURES_PREFIX + "minus",
+                (ignore) -> Component.literal("Reduce Item Collect Cooldown"),
+                (btn) -> {
+                    this.menu.getBlockEntity().getCooldown().previous();
+                    this.menu.getBlockEntity().getCooldown().notifyServer();
+                }
+            )
+        );
+        this.addRenderableWidget(
+            new Texture10xButton(
+                leftPos + 81,
+                topPos + 37,
+                 TEXTURES_PREFIX + "add",
+                (ignore) -> Component.literal("Add Item Collect Cooldown"),
+                (btn) -> {
+                    this.menu.getBlockEntity().getCooldown().next();
+                    this.menu.getBlockEntity().getCooldown().notifyServer();
+                }
+            )
+        );
     }
 
     @Override

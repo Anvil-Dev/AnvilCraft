@@ -202,5 +202,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
+
+        provider.add("screen.anvilcraft.exp_collector.tooltip", "Exp: %s/%smB");
     }
 }

@@ -18,9 +18,9 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.FluidTankRenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -82,26 +82,7 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
         }
 
         // 使用平移复制裁切方式渲染液体材质
-        renderFluidCube(ps, mbs, light, sprite, color, minX, minY, minZ, maxX, maxY, maxZ);
-    }
-
-    public static void renderFluidCube(
-        PoseStack ps,
-        MultiBufferSource mbs,
-        int light,
-        TextureAtlasSprite sprite,
-        int color,
-        float minX,
-        float minY,
-        float minZ,
-        float maxX,
-        float maxY,
-        float maxZ
-    ) {
-        VertexConsumer consumer = mbs.getBuffer(RenderType.translucent());
-        Matrix4f pose = ps.last().pose();
-        RenderManager renderManager = new RenderManager(consumer, light, sprite, pose, color, minX, minY, minZ, maxX, maxY, maxZ);
-        renderManager.render();
+        FluidTankRenderUtil.renderFluidCube(ps, mbs, light, sprite, color, minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     public static class RenderManager {

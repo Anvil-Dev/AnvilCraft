@@ -37,6 +37,25 @@ public class RegistrumBlockRecipeLoader {
     public static <T extends Block> void recipe(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
     }
 
+    public static <T extends Block> void expCollectorBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern(" C ")
+            .pattern("ADA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            .define('C', Blocks.SCULK_CATALYST)
+            .define('D', ModBlocks.FLUID_TANK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SCULK_CATALYST), AnvilCraftDatagen.has(Blocks.SCULK_CATALYST))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.FLUID_TANK))
+            .save(provider);
+    }
+
     public static <T extends Block> void neoforge(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")

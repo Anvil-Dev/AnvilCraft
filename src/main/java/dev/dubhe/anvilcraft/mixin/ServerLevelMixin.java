@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +27,9 @@ public class ServerLevelMixin {
     public void poachItemEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof ItemEntity e1) {
             e1.anvilcraft$poach();
+        }
+        if (entity instanceof ExperienceOrb experienceOrb) {
+            experienceOrb.anvilcraft$poach();
         }
     }
 
