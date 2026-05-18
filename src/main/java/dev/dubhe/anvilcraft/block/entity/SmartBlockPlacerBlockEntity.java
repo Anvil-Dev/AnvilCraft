@@ -56,6 +56,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
     
+    // 标记当前是否有方块正在被智能放置器移动
+    private static final ThreadLocal<Boolean> IS_BEING_MOVED_BY_PLACER = ThreadLocal.withInitial(() -> false);
+    
     private PowerGrid grid = null;
     private boolean isPowered = false;
     private boolean hasRedstoneSignal = false;
@@ -479,7 +482,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     }
                 }
                 
-                level.removeBlock(sourcePos, false);
+                // 设置标志：方块正在被智能放置器移动
+                IS_BEING_MOVED_BY_PLACER.set(true);
+                try {
+                    level.removeBlock(sourcePos, false);
+                } finally {
+                    // 确保标志被重置
+                    IS_BEING_MOVED_BY_PLACER.set(false);
+                }
                 
                 this.currentHeldBlock = ItemStack.EMPTY;
                 
@@ -555,6 +565,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean handle(ItemStack blockItem, BlockItem blockItemObj, BlockPos targetPos);
     }
 
+    /**
+     * 检查方块是否正在被智能放置器移动
+     * 
+     * @return 是否正在被移动
+     */
+    public static boolean isBlockBeingMovedByPlacer() {
+        return IS_BEING_MOVED_BY_PLACER.get();
+    }
+    
     /**
      * 构建有序的放置位置列表
      * 顺序：从最下面一层开始，每一层从最远离放置器的位置开始，从左到右，然后逐渐向下

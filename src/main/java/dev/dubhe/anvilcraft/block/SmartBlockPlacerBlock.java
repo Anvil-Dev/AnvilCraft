@@ -16,6 +16,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -190,6 +192,32 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
             return;
         }
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
+                // 掉落Disk物品栏中的物品
+                for (int i = 0; i < placerEntity.getDiskInventory().getContainerSize(); i++) {
+                    ItemStack stack = placerEntity.getDiskInventory().getItem(i);
+                    if (!stack.isEmpty()) {
+                        Vec3 vec3 = pos.getCenter();
+                        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                            level,
+                            vec3.x,
+                            vec3.y,
+                            vec3.z,
+                            stack
+                        );
+                        itemEntity.setDefaultPickUpDelay();
+                        level.addFreshEntity(itemEntity);
+                    }
+                }
+            }
+            super.onRemove(state, level, pos, newState, movedByPiston);
+        }
     }
 
     @Override
