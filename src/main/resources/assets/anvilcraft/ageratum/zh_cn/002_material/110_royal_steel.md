@@ -2,7 +2,6 @@
 navigation:
   title: "§2皇家钢"
   icon: "anvilcraft:royal_steel_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:
@@ -38,6 +37,13 @@ items:
 <recipe id="anvilcraft:super_heating/royal_steel_block_bonus_2"/>
 </row>
 
+- 可以被紫水晶增产
+- 皇家喜好：根据地图种子随机选取除了绿宝石外的一种[宝石](000_gems.md)，当使用该宝石参与皇家钢合成时，产量翻倍！
+
+<warning>
+注意：无法通过JEI查看，只能尝试出来
+</warning>
+
 # 功能
 
 - 用于合成机器
@@ -56,5 +62,5 @@ items:
 
 # 相关
 
-- [铁砧锤](../004_tool/000_anvil_hammer.md)
-- [龙杖](../004_tool/101_dragon_rod.md)
+- [铁砧锤](../005_tool/000_anvil_hammer.md)
+- [龙杖](../005_tool/101_dragon_rod.md)

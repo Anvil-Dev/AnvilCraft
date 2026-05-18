@@ -2,7 +2,6 @@
 navigation:
   title: "飘浮粉"
   icon: "anvilcraft:levitation_powder"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:levitation_powder
   - anvilcraft:levitation_powder_block
@@ -28,5 +27,5 @@ items:
 
 # 功能
 
-- 可用于制作 [<translate key="block.anvilcraft.controllable_sand"/>](../005_block/003_controllable_sand.md)
+- 可用于制作 [<translate key="block.anvilcraft.controllable_sand"/>](../004_block/003_controllable_sand.md)
 

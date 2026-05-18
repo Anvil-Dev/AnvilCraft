@@ -20,15 +20,19 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
     private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
+    private final Set<BlockPos> alwaysRenderBlocks = new HashSet<>();  // 始终渲染的方块
     private final ClientLevel parent;
 
+    @Setter
     @Getter
     private int currentVisibleLayer = 0;
 
@@ -70,6 +74,15 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public void setBlockState(BlockPos pos, BlockState state) {
+        setBlockStateWithAlpha(pos, state);
+    }
+    
+    public void setBlockStateAlwaysRender(BlockPos pos, BlockState state) {
+        setBlockStateWithAlpha(pos, state);
+        alwaysRenderBlocks.add(pos);
+    }
+    
+    public void setBlockStateWithAlpha(BlockPos pos, BlockState state) {
         blockEntities.remove(pos);
         blocks.put(pos, state);
         // BlockEntities stored in LevelLike is only for render
@@ -79,12 +92,21 @@ public class LevelLike implements BlockAndTintGetter {
             if (blockEntity == null) return;
             if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
             blockEntity.setLevel(this.parent);
+            // noinspection deprecation
             blockEntity.setBlockState(state);
             blockEntities.put(pos, blockEntity);
         }
     }
+    
+    public Set<BlockPos> getAlwaysRenderBlocks() {
+        return Collections.unmodifiableSet(alwaysRenderBlocks);
+    }
 
     public BlockState getBlockState(BlockPos pos) {
+        // 始终渲染的方块不受分层限制
+        if (alwaysRenderBlocks.contains(pos)) {
+            return blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
+        }
         if (!allLayersVisible && pos.getY() != currentVisibleLayer) return Blocks.AIR.defaultBlockState();
         return blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
     }
@@ -111,7 +133,7 @@ public class LevelLike implements BlockAndTintGetter {
 
     @Override
     public LevelLightEngine getLightEngine() {
-        return null;
+        return this.parent.getLightEngine();
     }
 
     @Override

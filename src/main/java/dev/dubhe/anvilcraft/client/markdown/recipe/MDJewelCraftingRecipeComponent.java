@@ -13,8 +13,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import java.util.List;
 
 public class MDJewelCraftingRecipeComponent extends MDRecipeComponent {
-    public static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath(AnvilCraft.MOD_ID, "textures/gui/ageratum/jewelcrafting_table.png");
+    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/gui/ageratum/jewelcrafting_table.png");
 
     private final ItemStack result;
     private final List<Object2IntMap.Entry<Ingredient>> ingredients;

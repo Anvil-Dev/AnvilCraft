@@ -6,46 +6,43 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import lombok.Getter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class MDBulgingRecipeComponent extends MDBaseAnvilRecipeComponent {
     @Getter
-    @Nullable
     private final List<ItemIngredientPredicate> ingredients;
 
     @Getter
-    @Nullable
     private final List<ChanceItemStack> resultItems;
 
     @Getter
     private final List<BlockState> inputBlockStates;
 
     @Getter
-    private final BlockState outputBlockState;
+    private final BulgingRecipe recipe;
 
     public MDBulgingRecipeComponent(BulgingRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
         ingredients = recipe.getInputItems();
         resultItems = recipe.getResultItems();
         inputBlockStates = List.of(
-            getInputCauldron(recipe),
-            Blocks.SCAFFOLDING.defaultBlockState()
+            getInputCauldron(recipe)
         );
-        outputBlockState = !resultItems.isEmpty() ? Blocks.AIR.defaultBlockState() : getResultCauldron(recipe);
+        this.recipe = recipe;
+    }
+
+    protected BlockState getOutputBlockState() {
+        if (resultItems.isEmpty()) {
+            return getResultCauldron(recipe);
+        }
+        return super.getOutputBlockState();
     }
 
     public static BlockState getInputCauldron(BulgingRecipe recipe) {
-        if (recipe.isFromWater()) {
-            return CauldronUtil.fullState(Blocks.WATER_CAULDRON);
-        } else if (recipe.isProduceFluid()) {
-            return Blocks.CAULDRON.defaultBlockState();
-        } else {
-            return recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
-        }
+        Block material = recipe.getHasCauldron().getFluidCauldron();
+        return CauldronUtil.fullState(material);
     }
 
     static BlockState getResultCauldron(BulgingRecipe recipe) {

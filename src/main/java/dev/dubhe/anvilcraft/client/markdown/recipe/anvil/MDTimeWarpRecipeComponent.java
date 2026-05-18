@@ -12,7 +12,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -20,19 +19,13 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
     public static final int INFO_X = 12;
     public static final int INFO_Y = 106;
     @Getter
-    @Nullable
     private final List<ItemIngredientPredicate> ingredients;
 
     @Getter
-    @Nullable
     private final List<ChanceItemStack> resultItems;
 
     @Getter
     private final List<BlockState> inputBlockStates;
-
-    @Getter
-    @Nullable
-    private final BlockState outputCauldron;
 
     @Getter
     private final TimeWarpRecipe recipe;
@@ -45,33 +38,35 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
             getInputCauldron(recipe),
             ModBlocks.CORRUPTED_BEACON.getDefaultState()
         );
-        outputCauldron = !resultItems.isEmpty() ? null : getResultCauldron(recipe);
         this.recipe = recipe;
+    }
+
+    protected BlockState getOutputBlockState() {
+        if (resultItems.isEmpty()) {
+            return getResultCauldron(recipe);
+        }
+        return super.getOutputBlockState();
     }
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         super.renderRecipe(context, mouseX, mouseY);
         GuiGraphics graphics = context.graphics();
-        if (outputCauldron != null) {
-            AgeratumUtil.renderBlock(context, outputCauldron, mouseX, mouseY, 90, 29, 10);
-        }
 
-        Block material = recipe.getHasCauldron().getFluidCauldron();
         if (recipe.isConsumeFluid()) {
-            AgeratumUtil.renderText(graphics,
-                Component.translatable(
-                    "gui.anvilcraft.category.time_warp.consume_fluid",
-                    recipe.getHasCauldron().consume(),
-                    material.getName()),
-                INFO_X, INFO_Y);
+            Component text = Component.translatable(
+                "gui.anvilcraft.category.time_warp.consume_fluid",
+                recipe.getHasCauldron().consume(),
+                recipe.getHasCauldron().getFluidCauldron().getName()
+            );
+            AgeratumUtil.renderText(graphics, text, INFO_X, INFO_Y);
         } else if (recipe.isProduceFluid()) {
-            AgeratumUtil.renderText(graphics,
-                Component.translatable(
-                    "gui.anvilcraft.category.time_warp.produce_fluid",
-                    -recipe.getHasCauldron().consume(),
-                    recipe.getHasCauldron().getTransformCauldron().getName()),
-                INFO_X, INFO_Y);
+            Component text = Component.translatable(
+                "gui.anvilcraft.category.time_warp.produce_fluid",
+                recipe.getHasCauldron().produce(),
+                recipe.getHasCauldron().getTransformCauldron().getName()
+            );
+            AgeratumUtil.renderText(graphics, text, INFO_X, INFO_Y);
         }
     }
 
@@ -80,7 +75,7 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
         return CauldronUtil.fullState(material);
     }
 
-    static BlockState getResultCauldron(TimeWarpRecipe recipe) {
+    public static BlockState getResultCauldron(TimeWarpRecipe recipe) {
         Block result = recipe.getHasCauldron().getTransformCauldron();
         if (recipe.isConsumeFluid()) {
             return CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);

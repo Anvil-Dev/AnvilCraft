@@ -425,7 +425,6 @@ public class IntegrationScreen extends Screen {
             integrations.compatible().forEach(integration -> this.addEntry(new IntegrationEntry(integration)));
             this.addEntry(new CategoryIntegrationEntry(IntegrationScreen.CATEGORY_ADDITIONAL));
             root.additional().forEach(integration -> this.addEntry(new AdditionalEntry(integration)));
-
         }
 
         @Override

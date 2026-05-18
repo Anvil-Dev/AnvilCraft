@@ -2,7 +2,6 @@
 navigation:
   title: "§2热能系统"
   icon: "anvilcraft:redhot_tungsten_block"
-  parent: anvilcraft_guideme:feature.md
 items:
   - anvilcraft:heated_tungsten_block
   - anvilcraft:redhot_tungsten_block
@@ -81,8 +80,8 @@ items:
 
 |                     加热方式                      |                加热能力                 | 提升时间(s) |
 |:---------------------------------------------:|:-----------------------------------:|:--------|
-|      [<translate key="block.anvilcraft.heater"/>](../005_block/100_heater.md)      | <color=#661111>高温</color> | 0.1     |
-| [<translate key="block.anvilcraft.mineral_fountain"/>](../006_struct/130_mineral_fountain.md) | <color=#aa2222>红热</color> | 1       |
-|    [<translate key="block.anvilcraft.heliostats"/>](../005_block/110_heliostats.md)    |                 可变                  | 4       |
-|    [<translate key="block.anvilcraft.ruby_laser"/>](../005_block/201_basic_laser.md)    |                 可变                  | 0.1     |
-|       [等离子喷流](../006_struct/201_plasma_jets.md)       | <color=#cc5533>炽热</color> | 0.1 / 1 |
+|      [<translate key="block.anvilcraft.heater"/>](../004_block/100_heater.md)      | <color=#661111>高温</color> | 0.1     |
+| [<translate key="block.anvilcraft.mineral_fountain"/>](../007_struct/130_mineral_fountain.md) | <color=#aa2222>红热</color> | 1       |
+|    [<translate key="block.anvilcraft.heliostats"/>](../004_block/110_heliostats.md)    |                 可变                  | 4       |
+|    [<translate key="block.anvilcraft.ruby_laser"/>](../004_block/201_basic_laser.md)    |                 可变                  | 0.1     |
+|       [等离子喷流](../007_struct/201_plasma_jets.md)       | <color=#cc5533>炽热</color> | 0.1 / 1 |

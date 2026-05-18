@@ -2,7 +2,6 @@
 navigation:
   title: "转化村民&游商"
   icon: "minecraft:villager_spawn_egg"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 转化村民&游商

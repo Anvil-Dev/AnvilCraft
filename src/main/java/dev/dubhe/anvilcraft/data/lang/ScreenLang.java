@@ -204,5 +204,19 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
 
         provider.add("screen.anvilcraft.exp_collector.tooltip", "Exp: %s/%smB");
+
+        provider.add("screen.anvilcraft.smart_block_placer.layer.1", "Layer 1");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.2", "Layer 2");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.3", "Layer 3");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.4", "Layer 4");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.5", "Layer 5");
+        provider.add("screen.anvilcraft.smart_block_placer.layer_mode.all", "Show All Layers");
+        provider.add("screen.anvilcraft.smart_block_placer.layer_mode.single", "Show Layer %s / 5");
+        provider.add("screen.anvilcraft.smart_block_placer.operation_mode.pickup", "Pickup Mode: Retrieve blocks from containers behind");
+        provider.add("screen.anvilcraft.smart_block_placer.operation_mode.move", "Move Mode: Move the blocks behind to the placement position.");
+        provider.add("screen.anvilcraft.smart_block_placer.position.selected", "Position (%s, %s) - Selected");
+        provider.add("screen.anvilcraft.smart_block_placer.position.unselected", "Position (%s, %s) - Not selected");
+        provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");
+        provider.add("screen.anvilcraft.smart_block_placer.disk_slot", "Disk Slot: Place Disk and enable blueprint mode");
     }
 }

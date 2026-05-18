@@ -2,7 +2,6 @@
 navigation:
   title: "强制刷怪笼工作"
   icon: "minecraft:spawner"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 强制刷怪笼工作

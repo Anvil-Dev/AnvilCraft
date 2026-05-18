@@ -2,7 +2,6 @@
 navigation:
   title: "§2虚空物质"
   icon: "anvilcraft:void_matter"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:void_matter
   - anvilcraft:void_matter_block
@@ -19,7 +18,7 @@ items:
 
 # 获得
 
-- 通过[<translate key="block.anvilcraft.mineral_fountain"/>](../006_struct/130_mineral_fountain.md)生产
+- 通过[<translate key="block.anvilcraft.mineral_fountain"/>](../007_struct/130_mineral_fountain.md)生产
 
 # 功能
 

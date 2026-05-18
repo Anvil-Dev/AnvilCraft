@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -128,7 +129,8 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!level.isClientSide && !state.is(newState.getBlock())) {
+        if (!level.isClientSide && !state.is(newState.getBlock()) && !movedByPiston
+            && !SmartBlockPlacerBlockEntity.isBlockBeingMovedByPlacer()) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof FishTankBlockEntity tank) {
                 IItemHandler handler = tank.getItemHandler();
@@ -136,7 +138,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
                     ItemStack stack = handler.extractItem(slot, Integer.MAX_VALUE, false);
                     if (!stack.isEmpty()) Block.popResource(level, pos, stack);
                 }
-
+                tank.dropFish();
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

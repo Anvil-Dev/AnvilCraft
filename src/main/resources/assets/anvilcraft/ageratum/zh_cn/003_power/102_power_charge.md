@@ -2,7 +2,6 @@
 navigation:
   title: "§2充电与放电"
   icon: "anvilcraft:charger"
-  parent: anvilcraft_guideme:power.md
 items:
   - anvilcraft:charger
   - anvilcraft:discharger

@@ -2,7 +2,6 @@
 navigation:
   title: "§6余烬金属"
   icon: "anvilcraft:ember_metal_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:
@@ -59,7 +58,7 @@ items:
 
 # 相关
 
-- [铁砧锤](../004_tool/000_anvil_hammer.md)
-- [龙杖](../004_tool/101_dragon_rod.md)
+- [铁砧锤](../005_tool/000_anvil_hammer.md)
+- [龙杖](../005_tool/101_dragon_rod.md)
 - [皇家钢工具](110_royal_steel.md)
-- [共振器](../004_tool/301_resonator.md)
+- [共振器](../005_tool/301_resonator.md)

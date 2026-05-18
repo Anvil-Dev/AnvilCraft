@@ -2,7 +2,6 @@
 navigation:
   title: "水泥"
   icon: "anvilcraft:gray_cement_bucket"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:gray_cement_bucket
 ---
@@ -20,4 +19,4 @@ items:
 
 # 功能
 
-- 可以用来[合成混凝土](../007_recipe/005_concrete.md)
+- 可以用来[合成混凝土](../008_recipe/005_concrete.md)

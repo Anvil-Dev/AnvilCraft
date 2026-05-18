@@ -2,7 +2,6 @@
 navigation:
   title: "红石EMP"
   icon: "minecraft:redstone_block"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 红石EMP
@@ -15,7 +14,7 @@ navigation:
 
 # 特性
 
-被铁砧砸中的<translate key="block.minecraft.redstone_block"/>，会让同水平的，一定距离内的<translate key="item.minecraft.redstone_torch"/>熄灭1gt
+被铁砧砸中的<translate key="block.minecraft.redstone_block"/>，会让同水平的，一定距离内的<translate key="block.minecraft.redstone_torch"/>熄灭1gt
 
 <structure id="../structures/redstone_emp.snbt"/>
 

@@ -2,7 +2,6 @@
 navigation:
   title: "§5钚"
   icon: "anvilcraft:plutonium_ingot"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:plutonium_block
   - anvilcraft:plutonium_ingot
@@ -19,8 +18,8 @@ items:
 
 # 获得
 
-- 通过[<translate key="block.anvilcraft.neutron_irradiator"/>](../005_block/320_neutron_irradiator.md)生产
-- 过于活跃而没有粗矿形式，无法通过[矿物涌泉](../006_struct/130_mineral_fountain.md)量产
+- 通过[<translate key="block.anvilcraft.neutron_irradiator"/>](../004_block/320_neutron_irradiator.md)生产
+- 过于活跃而没有粗矿形式，无法通过[矿物涌泉](../007_struct/130_mineral_fountain.md)量产
 
 <row halign="center">
 <recipe id="anvilcraft:neutron_irradiation/plutonium_nugget"/>

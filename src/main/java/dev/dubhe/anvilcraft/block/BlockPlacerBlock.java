@@ -274,6 +274,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             } while (itemEntity == null && i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
         }
         if (placeItem == null) return;
+        
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
         BlockItem blockItem = (BlockItem) placeItem.getItem();
         boolean isInvalidBlock = blockState.is(Blocks.TURTLE_EGG)
@@ -294,18 +295,31 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         ) {
             return;
         }
-        // 清除消耗的物品
+        
+        // 放置成功后，清除消耗的物品
+        boolean isPowderSnowBucket = placeItem.is(Items.POWDER_SNOW_BUCKET);
         if (itemHandler == null) {
+            // 掉落物模式
             int count = itemEntity.getItem().getCount();
-            // 处理细雪桶
-            if (itemEntity.getItem().is(Items.POWDER_SNOW_BUCKET)) {
+            if (isPowderSnowBucket) {
+                // 细雪桶：替换为桶
                 itemEntity.setItem(new ItemStack(Items.BUCKET, count));
+                itemEntity.setDeltaMovement(0, 0, 0);
+            } else {
+                // 普通物品：减少数量或移除实体
+                if (count > 1) {
+                    itemEntity.getItem().setCount(count - 1);
+                } else {
+                    itemEntity.discard();
+                }
             }
         } else {
-            if (itemHandler.getStackInSlot(slot).is(Items.POWDER_SNOW_BUCKET)) {
+            // 容器模式：提取物品并处理细雪桶
+            ItemStack extracted = itemHandler.extractItem(slot, 1, false);
+            // 处理细雪桶：替换为桶
+            if (extracted.is(Items.POWDER_SNOW_BUCKET)) {
                 itemHandler.insertItem(slot, new ItemStack(Items.BUCKET), false);
             }
-            itemHandler.extractItem(slot, 1, false);
         }
     }
 

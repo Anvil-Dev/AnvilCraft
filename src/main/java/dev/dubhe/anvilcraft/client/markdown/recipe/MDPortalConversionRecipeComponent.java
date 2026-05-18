@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.markdown.recipe;
 
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,8 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class MDPortalConversionRecipeComponent extends MDRecipeComponent {
-    public static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/128back.png");
+    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/gui/ageratum/128back.png");
     public static final String FALL_THROUGH = "gui.anvilcraft.category.portal_conversion.fall_through";
     private final PortalConversionRecipe recipe;
 

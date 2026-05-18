@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.markdown.recipe;
 
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
@@ -11,8 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MDChargerChargingRecipeComponent extends MDRecipeComponent {
-    public static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/128back.png");
+    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/gui/ageratum/128back.png");
 
     public static final String KEY_CATEGORY = "gui.anvilcraft.category.charger_charging";
     public static final String KEY_POWER_CONSUME = KEY_CATEGORY + ".power_consume";
@@ -42,6 +42,6 @@ public class MDChargerChargingRecipeComponent extends MDRecipeComponent {
         AgeratumUtil.renderText(graphics, power, 10, 8);
 
         Component time = Component.translatable(KEY_TIME, 0.05 * recipe.getTime());
-        AgeratumUtil.renderText(graphics, time, 10, 58);
+        AgeratumUtil.renderText(graphics, time, 10, 48);
     }
 }

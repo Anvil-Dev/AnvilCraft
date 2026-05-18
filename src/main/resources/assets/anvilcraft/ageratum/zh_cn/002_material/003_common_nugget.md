@@ -2,7 +2,6 @@
 navigation:
   title: "一般金属(粒)"
   icon: "anvilcraft:lead_ingot"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:tungsten_nugget
   - anvilcraft:titanium_nugget

@@ -2,13 +2,13 @@
 navigation:
   title: "树脂"
   icon: "anvilcraft:resin"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:
   - anvilcraft:resin
   - anvilcraft:hardend_resin
   - anvilcraft:circuit_board
+  - anvilcraft:processor
 ---
 
 # 树脂
@@ -26,7 +26,7 @@ items:
 
 ## 作用
 
-可以用来合成[<translate key="block.anvilcraft.resin_block"/>](../004_prop/000_resin_block.md)、[<translate key="item.anvilcraft.hardend_resin"/>](002_resin.md)、<translate key="item.minecraft.slime_ball"/>等...
+可以用来合成[<translate key="block.anvilcraft.resin_block"/>](../006_prop/000_resin_block.md)、[<translate key="item.anvilcraft.hardend_resin"/>](002_resin.md)、<translate key="item.minecraft.slime_ball"/>等...
 
 <row halign="center">
 <recipe id="anvilcraft:resin_block"/>

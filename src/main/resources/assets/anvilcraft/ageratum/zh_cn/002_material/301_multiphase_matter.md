@@ -2,7 +2,6 @@
 navigation:
   title: "§5多相物质"
   icon: "anvilcraft:multiphase_matter"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:multiphase_matter
   - anvilcraft:multiphase_matter_block
@@ -22,11 +21,11 @@ items:
 
 <recipe id="anvilcraft:anvil_collision/ember_anvil_and_frost_metal_block_32"/>
 
-> [铁砧撞击合成](../005_block/215_large_electromagnet.md#铁砧撞击合成)
+> [铁砧撞击合成](../004_block/215_large_electromagnet.md#铁砧撞击合成)
 
 # 用途
 
-- [<translate key="item.anvilcraft.ember_metal_resonator"/>](../004_tool/301_resonator.md)
-- [<translate key="item.anvilcraft.ember_metal_heavy_halberd"/>](../004_tool/301_heavy_halberd.md)
-- [<translate key="item.anvilcraft.multitool"/>](../004_tool/301_multitool.md)
+- [<translate key="item.anvilcraft.ember_metal_resonator"/>](../005_tool/301_resonator.md)
+- [<translate key="item.anvilcraft.ember_metal_heavy_halberd"/>](../005_tool/301_heavy_halberd.md)
+- [<translate key="item.anvilcraft.multitool"/>](../005_tool/301_multitool.md)
 
