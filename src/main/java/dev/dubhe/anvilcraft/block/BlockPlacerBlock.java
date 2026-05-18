@@ -275,13 +275,6 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         if (placeItem == null) return;
         
-        // 处理细雪桶：在放置前就替换掉落物中的细雪桶为桶
-        boolean isPowderSnowBucket = placeItem.is(Items.POWDER_SNOW_BUCKET);
-        if (isPowderSnowBucket && itemEntity != null) {
-            int count = itemEntity.getItem().getCount();
-            itemEntity.setItem(new ItemStack(Items.BUCKET, count));
-            itemEntity.setDeltaMovement(0, 0, 0);
-        }
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置
         BlockItem blockItem = (BlockItem) placeItem.getItem();
         boolean isInvalidBlock = blockState.is(Blocks.TURTLE_EGG)
@@ -302,12 +295,18 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         ) {
             return;
         }
-        // 清除消耗的物品
+        
+        // 放置成功后，清除消耗的物品
+        boolean isPowderSnowBucket = placeItem.is(Items.POWDER_SNOW_BUCKET);
         if (itemHandler == null) {
-            // 掉落物模式：细雪桶已经在前面替换了，这里不需处理
-            // 普通物品：减少数量或移除实体
-            if (!isPowderSnowBucket) {
-                int count = itemEntity.getItem().getCount();
+            // 掉落物模式
+            int count = itemEntity.getItem().getCount();
+            if (isPowderSnowBucket) {
+                // 细雪桶：替换为桶
+                itemEntity.setItem(new ItemStack(Items.BUCKET, count));
+                itemEntity.setDeltaMovement(0, 0, 0);
+            } else {
+                // 普通物品：减少数量或移除实体
                 if (count > 1) {
                     itemEntity.getItem().setCount(count - 1);
                 } else {

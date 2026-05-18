@@ -430,6 +430,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         executeBlockOperation(level, placerPos, facing, upsideDown,
             () -> this.extractBlockItemFromContainer(level, placerPos),
+            () -> this.peekBlockItemFromContainer(level, placerPos),
+            false, // pickup模式允许堆叠到非空气方块
             (blockItem, blockItemObj, targetPos) -> {
                 this.currentHeldBlock = ItemStack.EMPTY;
                 
@@ -460,9 +462,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         final BlockState finalSourceState = sourceState;
+        final ItemStack sourceItem = finalSourceState.getBlock().asItem().getDefaultInstance();
         
         executeBlockOperation(level, placerPos, facing, upsideDown,
-            () -> finalSourceState.getBlock().asItem().getDefaultInstance(),
+            () -> sourceItem,
+            () -> sourceItem,
+            true, // move模式严格要求目标位置为空
             (blockItem, blockItemObj, targetPos) -> {
                 BlockState stateToPlace = finalSourceState;
                 if (finalSourceState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
@@ -501,9 +506,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     /**
      * 执行方块操作的通用逻辑
+     * 
+     * @param level 世界
+     * @param placerPos 放置器位置
+     * @param facing 朝向
+     * @param upsideDown 是否倒挂
+     * @param itemExtractor 物品提取器
+     * @param itemPeeker 物品预览器
+     * @param requireEmptyTarget 是否要求目标位置必须为空（move模式为true，pickup模式为false）
+     * @param onSuccess 成功回调
      */
     private void executeBlockOperation(Level level, BlockPos placerPos, Direction facing, boolean upsideDown,
-        java.util.function.Supplier<ItemStack> itemSupplier,
+        java.util.function.Supplier<ItemStack> itemExtractor,
+        java.util.function.Supplier<ItemStack> itemPeeker,
+        boolean requireEmptyTarget,
         BlockOperationSuccessHandler onSuccess) {
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
         List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
@@ -521,15 +537,36 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = allPositions.get(index);
 
             BlockState targetState = level.getBlockState(targetPos);
-            if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
-                ItemStack blockItem = itemSupplier.get();
-                if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
+            
+            // 根据模式选择目标检查逻辑
+            boolean isValidTarget;
+            if (requireEmptyTarget) {
+                // move模式：只接受空气方块
+                isValidTarget = targetState.isAir();
+            } else {
+                // pickup模式：接受空气或可堆叠方块
+                isValidTarget = targetState.isAir() || !this.canNotBePlaced(level, targetState, null);
+            }
+            
+            if (isValidTarget) {
+                // 先预览物品进行检查，不实际提取
+                ItemStack peekedBlockItem = itemPeeker.get();
+                if (peekedBlockItem.isEmpty() || !(peekedBlockItem.getItem() instanceof BlockItem peekedBlockItemObj)) {
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.onChanged();
                     return;
                 }
                 
-                if (!targetState.isAir() && this.canNotBePlaced(level, targetState, blockItemObj)) {
+                // 使用预览的物品进行放置合法性检查
+                if (!targetState.isAir() && this.canNotBePlaced(level, targetState, peekedBlockItemObj)) {
+                    this.currentPlacementIndex = (index + 1) % allPositions.size();
+                    this.onChanged();
+                    return;
+                }
+                
+                // 所有检查通过，现在才真正提取物品
+                ItemStack blockItem = itemExtractor.get();
+                if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.onChanged();
                     return;
@@ -539,6 +576,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
                 if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
                     level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
+                    // 放置失败，需要回滚物品
+                    this.rollbackExtractedItem(level, placerPos, blockItem);
                     this.onChanged();
                     return;
                 }
@@ -726,6 +765,42 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             case EAST -> upsideDown ? Orientation.WEST_UP : Orientation.EAST_UP;
             default -> Orientation.NORTH_UP;
         };
+    }
+    
+    /**
+     * 回滚已提取的物品到原容器
+     * 
+     * @param level 世界
+     * @param placerPos 放置器位置
+     * @param extractedItem 已提取的物品
+     */
+    private void rollbackExtractedItem(Level level, BlockPos placerPos, ItemStack extractedItem) {
+        if (extractedItem.isEmpty()) {
+            return;
+        }
+        
+        Direction facing = this.getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
+        
+        // 尝试将物品放回容器
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        if (itemHandler != null) {
+            ItemStack remaining = extractedItem.copy();
+            for (int slot = 0; slot < itemHandler.getSlots() && !remaining.isEmpty(); slot++) {
+                remaining = itemHandler.insertItem(slot, remaining, false);
+            }
+            // 如果还有剩余物品，生成ItemEntity
+            if (!remaining.isEmpty()) {
+                ItemEntity itemEntity = new ItemEntity(level,
+                    inputPos.getX() + 0.5, inputPos.getY() + 0.5, inputPos.getZ() + 0.5, remaining);
+                level.addFreshEntity(itemEntity);
+            }
+            return;
+        }
+        
+        // 如果没有ItemHandler，直接生成ItemEntity
+        ItemEntity itemEntity = new ItemEntity(level, inputPos.getX() + 0.5, inputPos.getY() + 0.5, inputPos.getZ() + 0.5, extractedItem);
+        level.addFreshEntity(itemEntity);
     }
     
     /**

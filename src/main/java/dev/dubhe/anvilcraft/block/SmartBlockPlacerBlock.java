@@ -197,22 +197,25 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
-                // 掉落Disk物品栏中的物品
-                for (int i = 0; i < placerEntity.getDiskInventory().getContainerSize(); i++) {
-                    ItemStack stack = placerEntity.getDiskInventory().getItem(i);
-                    if (!stack.isEmpty()) {
-                        Vec3 vec3 = pos.getCenter();
-                        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                            level,
-                            vec3.x,
-                            vec3.y,
-                            vec3.z,
-                            stack
-                        );
-                        itemEntity.setDefaultPickUpDelay();
-                        level.addFreshEntity(itemEntity);
+            if (!level.isClientSide) {
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
+                    // 掉落Disk物品栏中的物品
+                    for (int i = 0; i < placerEntity.getDiskInventory().getContainerSize(); i++) {
+                        ItemStack stack = placerEntity.getDiskInventory().getItem(i);
+                        if (!stack.isEmpty()) {
+                            Vec3 vec3 = pos.getCenter();
+                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                                level,
+                                vec3.x,
+                                vec3.y,
+                                vec3.z,
+                                stack
+                            );
+                            itemEntity.setDefaultPickUpDelay();
+                            level.addFreshEntity(itemEntity);
+                        }
+
                     }
                 }
             }
