@@ -3646,7 +3646,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM.block("structure_scanner", StructureScannerBlock::new)
+    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
         .lang("Structure Scanner")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))

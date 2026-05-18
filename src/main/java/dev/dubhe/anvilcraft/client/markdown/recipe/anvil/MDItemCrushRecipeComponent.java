@@ -10,7 +10,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class MDItemCrushRecipeComponent extends MDBaseAnvilRecipeComponent {@Getter
+public class MDItemCrushRecipeComponent extends MDBaseAnvilRecipeComponent {
+    @Getter
     @Nullable private final List<ItemIngredientPredicate> ingredients;
 
     @Getter
