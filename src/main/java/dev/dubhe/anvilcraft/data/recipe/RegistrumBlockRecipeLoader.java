@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -1084,9 +1085,16 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void propelPiston(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
-        ItemStack stack = new ItemStack(ctx.get());
-        stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(4000));
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ItemStackTemplate.fromNonEmptyStack(stack))
+        ShapedRecipeBuilder.shaped(
+            lookup,
+            RecipeCategory.REDSTONE,
+            new ItemStackTemplate(
+                BuiltInRegistries.ITEM.get(ctx.getId()).orElseThrow(),
+                1,
+                DataComponentPatch.builder()
+                    .set(ModComponents.STORED_ENERGY, new StoredEnergy(4000))
+                    .build()
+            ))
             .pattern("CDC")
             .pattern("ABA")
             .pattern("AEA")
