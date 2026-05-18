@@ -3,19 +3,21 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
 
 public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
+    private final ItemStackRenderState itemRenderState = new ItemStackRenderState();
+
     protected ExtraItemDisplayRenderer(ItemModelResolver resolver, IItemRenderer renderer) {
         super(resolver, renderer);
     }
@@ -57,9 +59,8 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         ItemStack stack,
         float equippedProgress,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int combinedLight,
-        CallbackInfo ci
+        SubmitNodeCollector collector,
+        int lightCoords
     ) {
         if (!(stack.getItem() instanceof IExtraItemDisplay display)) return;
         HumanoidArm humanoidarm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
@@ -75,10 +76,9 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
             player,
             display.getDisplayedItem(stack),
             ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-            flag,
             poseStack,
-            buffer,
-            combinedLight
+            collector,
+            lightCoords
         );
         poseStack.popPose();
     }

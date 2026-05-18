@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.InteractionHand;
@@ -34,10 +34,9 @@ abstract class ItemInHandRendererMixin {
         LivingEntity entity,
         ItemStack itemStack,
         ItemDisplayContext displayContext,
-        boolean leftHand,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int seed
+        SubmitNodeCollector collector,
+        int lightCoords
     );
 
     @Unique
@@ -57,10 +56,22 @@ abstract class ItemInHandRendererMixin {
         )
     )
     private boolean isEmpty(ItemStack instance, Operation<Boolean> original) {
-        if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) return false;
+        if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) {
+            return false;
+        }
         return original.call(instance);
     }
 
+    @Inject(
+        method = "renderArmWithItem",
+        at =
+        @At(
+            value = "INVOKE",
+            ordinal = 1,
+            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"
+        ),
+        cancellable = true
+    )
     private void renderArmWithItem(
         AbstractClientPlayer player,
         float partialTicks,
@@ -70,8 +81,8 @@ abstract class ItemInHandRendererMixin {
         ItemStack stack,
         float equippedProgress,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int combinedLight,
+        SubmitNodeCollector collector,
+        int lightCoords,
         CallbackInfo ci
     ) {
         if (this.anvilcraft$manager == null) return;
@@ -86,9 +97,10 @@ abstract class ItemInHandRendererMixin {
             stack,
             equippedProgress,
             poseStack,
-            buffer,
-            combinedLight,
-            ci
+            collector,
+            lightCoords
         );
+        // TODO is cancel needed
+//        ci.cancel();
     }
 }

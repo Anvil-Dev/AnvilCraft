@@ -8,7 +8,9 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import net.neoforged.api.distmarker.Dist;
@@ -27,9 +29,11 @@ public class RegisterAdditionalEventListener {
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterStandalone event) {
         event.register(
+            CrabClawItemInHandRenderer.HOLDING_BLOCK,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("item/crab_claw_holding_block"))
         );
         event.register(
+            CrabClawItemInHandRenderer.HOLDING_ITEM,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("item/crab_claw_holding_item"))
         );
         event.register(
@@ -55,9 +59,6 @@ public class RegisterAdditionalEventListener {
         event.register(
             VoidEnergyCollectorRenderer.HEAD,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/void_energy_collector_head"))
-        );
-        event.register(
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/laser"))
         );
         event.register(
             HammerEffectRenderEventListener.MODEL,
