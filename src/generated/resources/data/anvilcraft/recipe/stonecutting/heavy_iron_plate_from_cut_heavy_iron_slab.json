@@ -1,10 +1,7 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "anvilcraft:cut_heavy_iron_slab"
-  },
+  "ingredient": "anvilcraft:cut_heavy_iron_slab",
   "result": {
-    "count": 1,
     "id": "anvilcraft:heavy_iron_plate"
   }
 }

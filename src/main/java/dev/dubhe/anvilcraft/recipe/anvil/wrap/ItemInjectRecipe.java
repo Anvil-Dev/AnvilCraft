@@ -93,7 +93,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
 
     @Override
     public RecipeSerializer<ItemInjectRecipe> getSerializer() {
-        return ModRecipeSerializers.ITEM_INJECT.get();
+        return ItemInjectRecipe.SERIALIZER;
     }
 
     /**

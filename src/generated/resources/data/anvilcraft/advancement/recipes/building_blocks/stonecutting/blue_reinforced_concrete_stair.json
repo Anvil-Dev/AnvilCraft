@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_blue_reinforced_concrete": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:blue_reinforced_concrete"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:stonecutting/blue_reinforced_concrete_stair"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_blue_reinforced_concrete"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:stonecutting/blue_reinforced_concrete_stair"
+    ]
+  }
+}

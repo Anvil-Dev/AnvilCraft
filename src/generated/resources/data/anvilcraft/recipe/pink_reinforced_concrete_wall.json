@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "A": "anvilcraft:pink_reinforced_concrete"
+  },
+  "pattern": [
+    "AAA",
+    "AAA"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:pink_reinforced_concrete_wall"
+  }
+}

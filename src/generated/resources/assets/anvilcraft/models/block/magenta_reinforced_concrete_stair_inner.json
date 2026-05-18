@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "anvilcraft:block/reinforced_concrete_magenta",
+    "side": "anvilcraft:block/reinforced_concrete_magenta",
+    "top": "anvilcraft:block/reinforced_concrete_magenta"
+  }
+}

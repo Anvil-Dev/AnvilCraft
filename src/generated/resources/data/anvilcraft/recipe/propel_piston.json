@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "anvilcraft:ionocraft"
-    },
-    "B": {
-      "item": "anvilcraft:capacitor"
-    },
-    "C": {
-      "item": "minecraft:iron_ingot"
-    },
-    "D": {
-      "item": "minecraft:piston"
-    },
-    "E": {
-      "item": "anvilcraft:ruby"
-    }
+    "A": "anvilcraft:ionocraft",
+    "B": "anvilcraft:capacitor",
+    "C": "minecraft:iron_ingot",
+    "D": "minecraft:piston",
+    "E": "anvilcraft:ruby"
   },
   "pattern": [
     "CDC",
@@ -25,9 +15,10 @@
   ],
   "result": {
     "components": {
-      "anvilcraft:stored_energy": 4000
+      "anvilcraft:stored_energy": {
+        "energy": 4000
+      }
     },
-    "count": 1,
     "id": "anvilcraft:propel_piston"
   }
 }

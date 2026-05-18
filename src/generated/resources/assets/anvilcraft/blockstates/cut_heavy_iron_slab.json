@@ -4,7 +4,7 @@
       "model": "anvilcraft:block/cut_heavy_iron_slab"
     },
     "type=double": {
-      "model": "anvilcraft:block/cut_heavy_iron_block"
+      "model": "anvilcraft:cut_heavy_iron"
     },
     "type=top": {
       "model": "anvilcraft:block/cut_heavy_iron_slab_top"

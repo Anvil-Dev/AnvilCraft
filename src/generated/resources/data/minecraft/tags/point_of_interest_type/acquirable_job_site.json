@@ -1,8 +1,5 @@
 {
   "values": [
-    {
-      "id": "anvilcraft:jeweler_poi",
-      "required": false
-    }
+    "anvilcraft:jeweler_poi"
   ]
 }

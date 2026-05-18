@@ -5,7 +5,7 @@
       "y": 270
     },
     "facing=east,powered=true": {
-      "model": "anvilcraft:block/item_detector_on",
+      "model": "anvilcraft:block/item_detector",
       "y": 270
     },
     "facing=north,powered=false": {
@@ -13,21 +13,21 @@
       "y": 180
     },
     "facing=north,powered=true": {
-      "model": "anvilcraft:block/item_detector_on",
+      "model": "anvilcraft:block/item_detector",
       "y": 180
     },
     "facing=south,powered=false": {
       "model": "anvilcraft:block/item_detector"
     },
     "facing=south,powered=true": {
-      "model": "anvilcraft:block/item_detector_on"
+      "model": "anvilcraft:block/item_detector"
     },
     "facing=west,powered=false": {
       "model": "anvilcraft:block/item_detector",
       "y": 90
     },
     "facing=west,powered=true": {
-      "model": "anvilcraft:block/item_detector_on",
+      "model": "anvilcraft:block/item_detector",
       "y": 90
     }
   }

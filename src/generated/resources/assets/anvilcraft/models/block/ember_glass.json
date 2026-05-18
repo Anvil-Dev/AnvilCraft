@@ -1,7 +1,9 @@
 {
   "parent": "minecraft:block/cube_all",
-  "render_type": "minecraft:translucent",
   "textures": {
-    "all": "anvilcraft:block/ember_glass"
+    "all": {
+      "force_translucent": true,
+      "sprite": "anvilcraft:block/"
+    }
   }
 }

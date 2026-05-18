@@ -1,0 +1,14 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/frost_metal_heavy_halberd"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/frost_metal_heavy_halberd_throwing"
+    },
+    "property": "minecraft:using_item"
+  }
+}

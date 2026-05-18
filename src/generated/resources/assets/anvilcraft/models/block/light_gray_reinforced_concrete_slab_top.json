@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "anvilcraft:block/reinforced_concrete_light_gray",
+    "side": "anvilcraft:block/reinforced_concrete_light_gray",
+    "top": "anvilcraft:block/reinforced_concrete_light_gray"
+  }
+}

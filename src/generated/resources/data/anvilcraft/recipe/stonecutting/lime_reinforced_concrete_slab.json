@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "anvilcraft:lime_reinforced_concrete",
+  "result": {
+    "count": 2,
+    "id": "anvilcraft:lime_reinforced_concrete_slab"
+  }
+}

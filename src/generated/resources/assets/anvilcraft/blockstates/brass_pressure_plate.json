@@ -1,52 +1,52 @@
 {
   "variants": {
     "power=0": {
-      "model": "anvilcraft:block/brass_pressure_plate"
+      "model": "anvilcraft:block/brass_block_down"
     },
     "power=1": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=10": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=11": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=12": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=13": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=14": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=15": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=2": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=3": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=4": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=5": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=6": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=7": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=8": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     },
     "power=9": {
-      "model": "anvilcraft:block/brass_pressure_plate_down"
+      "model": "anvilcraft:block/brass_block"
     }
   }
 }

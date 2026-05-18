@@ -1,8 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "anvilcraft:black_chocolate_block"
-  },
+  "ingredient": "anvilcraft:black_chocolate_block",
   "result": {
     "count": 2,
     "id": "anvilcraft:black_chocolate_slab"

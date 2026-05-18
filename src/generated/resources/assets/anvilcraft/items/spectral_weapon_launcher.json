@@ -1,0 +1,25 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:special",
+      "base": "anvilcraft:item/spectral_weapon_launcher",
+      "model": {
+        "type": "anvilcraft:spectral_weapon_launcher"
+      }
+    },
+    "on_true": {
+      "type": "minecraft:special",
+      "base": "anvilcraft:item/spectral_weapon_launcher_off",
+      "model": {
+        "type": "anvilcraft:spectral_weapon_launcher"
+      }
+    },
+    "predicate": "anvilcraft:integer_component",
+    "property": "minecraft:component",
+    "value": {
+      "type": "anvilcraft:stored_energy",
+      "value": 0
+    }
+  }
+}
