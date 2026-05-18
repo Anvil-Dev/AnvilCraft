@@ -453,10 +453,21 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 渲染3D预览
         this.renderPreview(guiGraphics);
 
+        // 检查鼠标是否在Disk槽位上
+        int diskSlotX = this.leftPos + 8;
+        int diskSlotY = this.topPos + 119;
+        int diskSlotWidth = 16;
+        int diskSlotHeight = 16;
+        boolean isMouseOnDiskSlot = mouseX >= diskSlotX && mouseX < diskSlotX + diskSlotWidth
+            && mouseY >= diskSlotY && mouseY < diskSlotY + diskSlotHeight;
+        
+        // 如果鼠标在Disk槽位上，不渲染默认tooltip
+        if (!isMouseOnDiskSlot) {
+            this.renderTooltip(guiGraphics, mouseX, mouseY);
+        }
+        
         // 渲染Disk槽位的tooltip
         this.renderDiskSlotTooltip(guiGraphics, mouseX, mouseY);
-
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
     
     /**
