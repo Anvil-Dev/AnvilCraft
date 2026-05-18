@@ -2,9 +2,12 @@ package dev.dubhe.anvilcraft.client.renderer.laser;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LaserRenderState;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ARGB;
 
@@ -29,11 +32,14 @@ public class LaserCompiler {
         PoseStack poseStack,
         LaserRenderState state,
         SubmitNodeCollector nodeCollector,
-        boolean markCached
+        boolean bloomed
     ) {
         if (state.laserLevel <= 0) return;
         float width = laserWidth(state);
-        nodeCollector.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), ((pose, buffer) -> {
+        nodeCollector.submitCustomGeometry(
+            poseStack,
+            ModRenderTypes.LASER_SOLID,
+            ((pose, buffer) -> {
             renderBox(
                 buffer,
                 pose,
@@ -48,8 +54,10 @@ public class LaserCompiler {
                 state.solidAtlasSprite
             );
         }));
-        //TODO use custom rendertype
-        nodeCollector.submitCustomGeometry(poseStack, Sheets.translucentBlockSheet(), ((pose, buffer) -> {
+        nodeCollector.submitCustomGeometry(
+            poseStack,
+            bloomed ? ModRenderTypes.LASER_TRANSLUCENT_BLOOM : ModRenderTypes.LASER_TRANSLUCENT,
+            ((pose, buffer) -> {
             float outerWidth = width + HALF_PIXEL;
             renderBox(
                 buffer,

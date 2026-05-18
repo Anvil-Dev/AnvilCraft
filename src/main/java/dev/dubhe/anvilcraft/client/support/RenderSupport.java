@@ -6,14 +6,13 @@ import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.joml.Vector3f;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -23,9 +22,10 @@ import java.util.Optional;
 public class RenderSupport {
     private static final int MAX_CACHE_SIZE = 64;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
-    private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
-    public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
-    public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
+//    private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
+//    public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
+//    public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
+    public static final int SIZE_DEFAULT = 64;
     private static final PoseStack.Pose BLOCK_DISPLAY_POSE;
     private static ClientLevel currentClientLevel = null;
     private static LevelLike.AirLevelLike airLevelLike = null;
@@ -63,19 +63,30 @@ public class RenderSupport {
         GuiGraphicsExtractor graphics,
         int posX,
         int posY,
-        float scaleFactor,
+        float scale,
         float rotationSpeed
     ) {
-    }
-
-    public static void renderLevelLike(
-        LevelLike level,
-        GuiGraphicsExtractor graphics,
-        int posX,
-        int posY,
-        float scale
-    ) {
-        renderLevelLike(level, graphics, posX, posY, scale, 0.0F);
+        Optional<BlockPos> minPos = level.getMinPos();
+        Optional<BlockPos> maxPos = level.getMaxPos();
+        if (minPos.isEmpty() || maxPos.isEmpty()) return;
+        PoseStack poseStack = new PoseStack();
+        poseStack.last().set(BLOCK_DISPLAY_POSE);
+        Minecraft minecraft = Minecraft.getInstance();
+        float gameTime = (minecraft.level.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
+        poseStack.mulPose(Axis.YP.rotation(gameTime * rotationSpeed));
+        GuiRenderExtras.submitStructure(
+            graphics,
+            level,
+            minPos.get(),
+            maxPos.get(),
+            (float) posX,
+            (float) posY,
+            posX + scale,
+            posY + scale,
+            scale,
+            true,
+            poseStack
+        );
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {

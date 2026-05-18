@@ -60,14 +60,16 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         return armorType == EquipmentSlot.CHEST;
     }
 
-    @Override
-    public @Nullable Identifier getArmorTexture(
-        ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
-        if (getFlightTime(stack) > 0) {
-            return TEXTURE;
-        }
-        return TEXTURE_OFF;
-    }
+//    @Override
+//    public @Nullable Identifier getArmorTexture(
+//        ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+//        if (getFlightTime(stack) > 0) {
+//            return TEXTURE;
+//        }
+//        return TEXTURE_OFF;
+//    }
+
+
 
     public static int getFlightTime(ItemStack stack) {
         return stack.getOrDefault(ModComponents.FLIGHT_TIME, FlightTime.EMPTY).value();

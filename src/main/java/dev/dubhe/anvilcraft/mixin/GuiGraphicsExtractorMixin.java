@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.client.renderer.item.IExtraItemDisplayRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.ExtraItemDisplayRenderer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +36,7 @@ public abstract class GuiGraphicsExtractorMixin {
         )
     )
     private void renderExtra(LivingEntity owner, Level level, ItemStack itemStack, int x, int y, int seed, CallbackInfo ci) {
-        IExtraItemDisplayRenderer.renderGuiExtra(
+        ExtraItemDisplayRenderer.renderGuiExtra(
             this.pose,
             this::item,
             owner,

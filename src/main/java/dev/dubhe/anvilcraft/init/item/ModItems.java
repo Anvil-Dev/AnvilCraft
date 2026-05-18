@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
@@ -110,8 +111,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -123,6 +126,8 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -567,6 +572,14 @@ public class ModItems {
         .item("ionocraft_backpack", IonoCraftBackpackItem::new)
         .properties(properties -> properties
             .humanoidArmor(ArmorMaterials.IRON, ArmorType.CHESTPLATE)
+            .component(
+                DataComponents.EQUIPPABLE,
+                Equippable.builder(EquipmentSlot.CHEST)
+                    .setEquipSound(SoundEvents.ARMOR_EQUIP_ELYTRA)
+                    .setAsset(ModEquipmentAssets.IONOCRAFT_BACKPACK)
+                    .setDamageOnHurt(false)
+                    .build()
+            )
             .enchantable(15)
         )
         .model(DataGenUtil::ionocraftBackpack)

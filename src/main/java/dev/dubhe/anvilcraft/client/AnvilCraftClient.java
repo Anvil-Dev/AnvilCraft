@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
-import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
@@ -18,8 +17,10 @@ import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -30,6 +31,7 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import org.jspecify.annotations.Nullable;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 public class AnvilCraftClient {
@@ -46,7 +48,6 @@ public class AnvilCraftClient {
         modBus.addListener(AnvilCraftClient::registerClientExtensions);
         modBus.addListener(AnvilCraftClient::registerCustomItemDecorations);
         modBus.addListener(AnvilCraftClient::registerParticleProviders);
-        modBus.addListener(ModShaders::register);
         modBus.addListener(ModModelLayers::register);
         modBus.addListener(ModModelLayers::createModel);
         modBus.addListener(ModTooltipComponents::register);
@@ -94,6 +95,17 @@ public class AnvilCraftClient {
                 return ModModelLayers.getIonocraftBackpackModel();
             }
             return IClientItemExtensions.super.getHumanoidArmorModel(itemStack, layerType, original);
+        }
+
+        @Override
+        public @Nullable Identifier getArmorTexture(ItemStack itemStack, EquipmentClientInfo.LayerType type, EquipmentClientInfo.Layer layer, Identifier _default) {
+            if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
+                if (IonoCraftBackpackItem.getFlightTime(itemStack) > 0){
+                    return IonoCraftBackpackItem.TEXTURE;
+                }
+                return IonoCraftBackpackItem.TEXTURE_OFF;
+            }
+            return IClientItemExtensions.super.getArmorTexture(itemStack, type, layer, _default);
         }
     }
 }

@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,13 +16,13 @@ import java.util.Set;
 public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
     private final Set<AbstractItemInHandRenderer> renderers = new HashSet<>();
     public final CrabClawItemInHandRenderer crabClawItemRenderer;
-    public final IExtraItemDisplayRenderer extraItemRenderer;
+    public final ExtraItemDisplayRenderer extraItemRenderer;
 
-    public ItemInHandRendererManager(ItemRenderer itemRenderer, IItemRenderer renderer) {
-        super(itemRenderer, renderer);
-        this.crabClawItemRenderer = new CrabClawItemInHandRenderer(itemRenderer, renderer);
+    public ItemInHandRendererManager(ItemModelResolver resolver, IItemRenderer renderer) {
+        super(resolver, renderer);
+        this.crabClawItemRenderer = new CrabClawItemInHandRenderer(resolver, renderer);
         this.renderers.add(this.crabClawItemRenderer);
-        this.extraItemRenderer = new IExtraItemDisplayRenderer(itemRenderer, renderer);
+        this.extraItemRenderer = new ExtraItemDisplayRenderer(resolver, renderer);
         this.renderers.add(this.extraItemRenderer);
     }
 

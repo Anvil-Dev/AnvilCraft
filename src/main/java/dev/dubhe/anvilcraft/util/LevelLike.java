@@ -4,9 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.BlockAndLightGetter;
+import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,9 +24,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
-public class LevelLike implements BlockAndLightGetter {
+public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
     private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
     private final ClientLevel parent;
@@ -34,6 +42,46 @@ public class LevelLike implements BlockAndLightGetter {
 
     public LevelLike(ClientLevel parent) {
         this.parent = parent;
+    }
+
+    public Optional<BlockPos> getMinPos() {
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int minZ = Integer.MAX_VALUE;
+        boolean hasAny = false;
+        for (BlockPos pos : this.blocks.keySet()) {
+            hasAny = true;
+            minX = Math.min(minX, pos.getX());
+            minY = Math.min(minY, pos.getY());
+            minZ = Math.min(minZ, pos.getZ());
+        }
+        for (BlockPos pos : this.blockEntities.keySet()) {
+            hasAny = true;
+            minX = Math.min(minX, pos.getX());
+            minY = Math.min(minY, pos.getY());
+            minZ = Math.min(minZ, pos.getZ());
+        }
+        return hasAny ? Optional.of(new BlockPos(minX, minY, minZ)) : Optional.empty();
+    }
+
+    public Optional<BlockPos> getMaxPos() {
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        int maxZ = Integer.MIN_VALUE;
+        boolean hasAny = false;
+        for (BlockPos pos : this.blocks.keySet()) {
+            hasAny = true;
+            maxX = Math.max(maxX, pos.getX());
+            maxY = Math.max(maxY, pos.getY());
+            maxZ = Math.max(maxZ, pos.getZ());
+        }
+        for (BlockPos pos : this.blockEntities.keySet()) {
+            hasAny = true;
+            maxX = Math.max(maxX, pos.getX());
+            maxY = Math.max(maxY, pos.getY());
+            maxZ = Math.max(maxZ, pos.getZ());
+        }
+        return hasAny ? Optional.of(new BlockPos(maxX, maxY, maxZ)) : Optional.empty();
     }
 
     public int horizontalSize() {
@@ -107,7 +155,7 @@ public class LevelLike implements BlockAndLightGetter {
 
     @Override
     public LevelLightEngine getLightEngine() {
-        return null;
+        return LevelLightEngine.EMPTY;
     }
 
     // @Override
@@ -150,6 +198,17 @@ public class LevelLike implements BlockAndLightGetter {
         } else {
             this.currentVisibleLayer--;
         }
+    }
+
+    @Override
+    public CardinalLighting cardinalLighting() {
+        return CardinalLighting.DEFAULT;
+    }
+
+    @Override
+    public int getBlockTint(BlockPos pos, ColorResolver color) {
+        Biome value = this.parent.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.PLAINS);
+        return color.getColor(value, pos.getX(), pos.getZ());
     }
 
     public static class AirLevelLike extends LevelLike {

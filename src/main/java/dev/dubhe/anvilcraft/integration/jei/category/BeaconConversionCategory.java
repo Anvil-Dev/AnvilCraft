@@ -136,7 +136,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
             level = beaconBase;
         }
 
-        RenderSupport.renderLevelLike(level, graphics, 84, 54, 90);
+        RenderSupport.renderLevelLike(level, graphics, 84, 54, 90, 0f);
 
         this.slotDefault.draw(graphics, 47, 7);
         this.slotDefault.draw(graphics, 9, 109);

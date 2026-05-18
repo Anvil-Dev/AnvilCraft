@@ -10,7 +10,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -44,8 +44,8 @@ abstract class ItemInHandRendererMixin {
     private ItemInHandRendererManager anvilcraft$manager = null;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(Minecraft minecraft, EntityRenderDispatcher entityRenderDispatcher, ItemRenderer itemRenderer, CallbackInfo ci) {
-        this.anvilcraft$manager = new ItemInHandRendererManager(itemRenderer, this::renderItem);
+    private void init(Minecraft minecraft, EntityRenderDispatcher entityRenderDispatcher, ItemModelResolver itemModelResolver, CallbackInfo ci) {
+        this.anvilcraft$manager = new ItemInHandRendererManager(itemModelResolver, this::renderItem);
     }
 
     @WrapOperation(

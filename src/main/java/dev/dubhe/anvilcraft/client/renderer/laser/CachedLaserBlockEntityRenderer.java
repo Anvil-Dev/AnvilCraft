@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LaserRenderState;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 
 public class CachedLaserBlockEntityRenderer<T extends BaseLaserBlockEntity> implements CachedBlockEntityRenderer<T, LaserRenderState> {

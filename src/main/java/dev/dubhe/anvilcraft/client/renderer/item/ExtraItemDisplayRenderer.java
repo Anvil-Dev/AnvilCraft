@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,9 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Consumer;
 
-public class IExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
-    protected IExtraItemDisplayRenderer(IItemRenderer renderer) {
-        super(renderer);
+public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
+    protected ExtraItemDisplayRenderer(ItemModelResolver resolver, IItemRenderer renderer) {
+        super(resolver, renderer);
     }
 
     public static void renderGuiExtra(
