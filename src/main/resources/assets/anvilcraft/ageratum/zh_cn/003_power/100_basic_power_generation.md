@@ -2,7 +2,6 @@
 navigation:
   title: "§2基础发电"
   icon: "anvilcraft:charge_collector"
-  parent: anvilcraft_guideme:power.md
 items:
   - anvilcraft:charge_collector
   - anvilcraft:piezoelectric_crystal
@@ -48,15 +47,15 @@ items:
 
 |                       铁砧种类                       | 高度=1 | 高度=2 | 高度=3 | 高度≥4 |
 |:------------------------------------------------:|:-----|:-----|:-----|:-----|
-|   [<translate key="block.anvilcraft.spectral_anvil"/>](../005_block/105_spectral_anvil.md)    | 1    | 2    | 3    | 4    |
+|   [<translate key="block.anvilcraft.spectral_anvil"/>](../004_block/105_spectral_anvil.md)    | 1    | 2    | 3    | 4    |
 |        <translate key="block.minecraft.anvil"/>         | 1    | 2    | 4    | 8    |
-|     [<translate key="block.anvilcraft.royal_anvil"/>](../005_block/103_royal_anvil.md)     | 1    | 2    | 4    | 8    |
-|     [<translate key="block.anvilcraft.ember_anvil"/>](../005_block/223_ember_anvil.md)     | 1    | 2    | 5    | 12   |
-| [<translate key="block.anvilcraft.transcendence_anvil"/>](../005_block/311_transcendence_anvil.md) | 2    | 5    | 15   | 60   |
+|     [<translate key="block.anvilcraft.royal_anvil"/>](../004_block/103_royal_anvil.md)     | 1    | 2    | 4    | 8    |
+|     [<translate key="block.anvilcraft.ember_anvil"/>](../004_block/223_ember_anvil.md)     | 1    | 2    | 5    | 12   |
+| [<translate key="block.anvilcraft.transcendence_anvil"/>](../004_block/311_transcendence_anvil.md) | 2    | 5    | 15   | 60   |
 
 |                   铁砧种类                   | 高度=1 | 高度=2 | 高度=3 | 高度=4 | 高度=5 | 高度=6 | 高度=7 | 高度≥8 | 
 |:----------------------------------------:|:-----|:-----|:-----|:-----|:-----|:-----|:-----|:-----|
-| [<translate key="block.anvilcraft.giant_anvil"/>](../005_block/210_giant_anvil.md) | 1    | 2    | 3    | 4    | 5    | 6    | 7    | 8    |
+| [<translate key="block.anvilcraft.giant_anvil"/>](../004_block/210_giant_anvil.md) | 1    | 2    | 3    | 4    | 5    | 6    | 7    | 8    |
 
 ## 摩擦生产电荷
 

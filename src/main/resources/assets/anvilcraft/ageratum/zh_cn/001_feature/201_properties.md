@@ -2,7 +2,6 @@
 navigation:
   title: "§6属性"
   icon: "minecraft:enchanted_book"
-  parent: anvilcraft_guideme:feature.md
 ---
 
 # 属性

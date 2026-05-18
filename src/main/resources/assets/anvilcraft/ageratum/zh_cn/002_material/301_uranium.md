@@ -2,7 +2,6 @@
 navigation:
   title: "§5铀"
   icon: "anvilcraft:uranium_ingot"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:uranium_block
   - anvilcraft:uranium_ingot
@@ -25,8 +24,8 @@ items:
 
 # 获得
 
-- 首次获得通过[铁砧撞击合成](../005_block/215_large_electromagnet.md#铁砧撞击合成)
-- 后续通过[矿物涌泉](../006_struct/130_mineral_fountain.md)量产
+- 首次获得通过[铁砧撞击合成](../004_block/215_large_electromagnet.md#铁砧撞击合成)
+- 后续通过[矿物涌泉](../007_struct/130_mineral_fountain.md)量产
 
 <row halign="center">
 <recipe id="anvilcraft:anvil_collision/anvil_tier_1_and_redstone_block_32"/>

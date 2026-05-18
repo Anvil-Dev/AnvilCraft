@@ -2,7 +2,6 @@
 navigation:
   title: "§5超限合金"
   icon: "anvilcraft:transcendium_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:
@@ -41,12 +40,12 @@ items:
 将[<translate key="item.anvilcraft.charged_neutronium_ingot"/>](221_neutronium_ingot.md)用铁砧压入[<translate key="block.anvilcraft.overheated_ember_metal_block"/>](../001_feature/301_overheated_block.md)，
 根据[<translate key="item.anvilcraft.charged_neutronium_ingot"/>](221_neutronium_ingot.md)上的附魔数量，决定输出超限合金的产量
 
-|  附魔数量 n  | 返还[<translate key="item.anvilcraft.neutronium_ingot"/>](221_neutronium_ingot.md)概率 |                                                    产量                                                     |
-|:--------:|:-------------------------------------------------:|:---------------------------------------------------------------------------------------------------------:|
-| [0, 10]  |                      n * 10%                      | 4 <translate key="item.anvilcraft.transcendium_ingot"/> + 3*n <translate key="item.anvilcraft.transcendium_nugget"/> |
-| [11, 14] |                       100%                        | 4 <translate key="item.anvilcraft.transcendium_ingot"/> + 3*n <translate key="item.anvilcraft.transcendium_nugget"/>  |
-|    15    |                       100%                        |                         1 <translate key="block.anvilcraft.transcendium_block"/>                          |
-| [16, +∞) |                       100%                        |       1 <translate key="block.anvilcraft.transcendium_block"/> + n <translate key="item.anvilcraft.transcendium_nugget"/>         |
+|  附魔数量 n  | 返还[<translate key="item.anvilcraft.neutronium_ingot"/>](221_neutronium_ingot.md)概率 |                                                          产量                                                          |
+|:--------:|:----------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------:|
+| [0, 10]  |                                      n * 10%                                       | 4 <translate key="item.anvilcraft.transcendium_ingot"/> + 3*n <translate key="item.anvilcraft.transcendium_nugget"/> |
+| [11, 14] |                                        100%                                        | 4 <translate key="item.anvilcraft.transcendium_ingot"/> + 3*n <translate key="item.anvilcraft.transcendium_nugget"/> |
+|    15    |                                        100%                                        |                               1 <translate key="block.anvilcraft.transcendium_block"/>                               |
+| [16, +∞) |                                        100%                                        | 1 <translate key="block.anvilcraft.transcendium_block"/> + n <translate key="item.anvilcraft.transcendium_nugget"/>  |
 
 <info>
 锭和粒以掉落物形式产生；块生成于原方块的位置
@@ -78,7 +77,7 @@ items:
 
 # 相关
 
-- [铁砧锤](../004_tool/000_anvil_hammer.md)
-- [龙杖](../004_tool/101_dragon_rod.md)
+- [铁砧锤](../005_tool/000_anvil_hammer.md)
+- [龙杖](../005_tool/101_dragon_rod.md)
 - [余烬工具](211_ember_metal.md)
-- [共振器](../004_tool/301_resonator.md)
+- [共振器](../005_tool/301_resonator.md)

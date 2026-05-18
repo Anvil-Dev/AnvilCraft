@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.markdown.recipe;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
@@ -45,10 +46,8 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
     public static final int INFO_Y = 100;
     public static final int INFO_Y_OFFSET = 8;
 
-    public static final Identifier TEXTURE =
-        Identifier.fromNamespaceAndPath("anvilcraft", "textures/gui/ageratum/256back.png");
-    public static final Identifier EXPLOSION =
-        Identifier.fromNamespaceAndPath("anvilcraft", "textures/gui/jei/explosion.png");
+    public static final Identifier TEXTURE = AnvilCraft.of("textures/gui/ageratum/256back.png");
+    public static final Identifier EXPLOSION = AnvilCraft.of("textures/gui/jei/explosion.png");
 
     private final AnvilCollisionCraftRecipe recipe;
 

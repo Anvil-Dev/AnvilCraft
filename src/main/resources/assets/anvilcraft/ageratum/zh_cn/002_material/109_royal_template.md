@@ -2,7 +2,6 @@
 navigation:
   title: "§2皇家锻造模板"
   icon: "anvilcraft:royal_steel_upgrade_smithing_template"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:royal_steel_upgrade_smithing_template
 ---

@@ -2,7 +2,6 @@
 navigation:
   title: "§6中子物质"
   icon: "anvilcraft:neutronium_ingot"
-  parent: anvilcraft_guideme:material.md
 categories:
   - misc ingredients blocks
 items:
@@ -22,9 +21,9 @@ items:
 ## <translate key="item.anvilcraft.neutronium_ingot"/>
 ### 合成
 
-1. 将任意金属块/锭/粒置于[<translate key="block.anvilcraft.space_overcompressor"/>](../005_block/220_space_overcompressor.md)之上
+1. 将任意金属块/锭/粒置于[<translate key="block.anvilcraft.space_overcompressor"/>](../004_block/220_space_overcompressor.md)之上
 2. 用铁砧砸入，转化为质量值
-3. 当[<translate key="block.anvilcraft.space_overcompressor"/>](../005_block/220_space_overcompressor.md)的积攒了足够的质量值后，在下方输出一个[<translate key="item.anvilcraft.neutronium_ingot"/>](221_neutronium_ingot.md)
+3. 当[<translate key="block.anvilcraft.space_overcompressor"/>](../004_block/220_space_overcompressor.md)的积攒了足够的质量值后，在下方输出一个[<translate key="item.anvilcraft.neutronium_ingot"/>](221_neutronium_ingot.md)
 
 ### 特性
 

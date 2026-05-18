@@ -2,7 +2,6 @@
 navigation:
   title: "§6热能收集"
   icon: "anvilcraft:heat_collector"
-  parent: anvilcraft_guideme:power.md
 items:
   - anvilcraft:heat_collector
 ---
@@ -40,13 +39,13 @@ items:
 
 ## 太阳能发电
 
-- 通过[<translate key="block.anvilcraft.heliostats"/>](../005_block/110_heliostats.md)将太阳能收集到可加热方块上，集热器再吸收热能发电
+- 通过[<translate key="block.anvilcraft.heliostats"/>](../004_block/110_heliostats.md)将太阳能收集到可加热方块上，集热器再吸收热能发电
 - 优点：耗材简单，且无须后续投入
 - 缺点：但是占地较大，且光路上不可有方块阻挡
 
 ## 油离子发电
 
-- [燃烧原油发热](../006_struct/201_plasma_jets.md)需要大量的肉，但是发电量绝对够本
+- [燃烧原油发热](../007_struct/201_plasma_jets.md)需要大量的肉，但是发电量绝对够本
 - 优点：占地面积小，效率高
 - 缺点：持续消耗肉类，难以自动运行，需要配套的牧场/刷怪塔/刷怪笼
 

@@ -11,8 +11,7 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 public class MDJewelCraftingRecipeComponent extends MDRecipeComponent {
-    public static final Identifier TEXTURE =
-        Identifier.fromNamespaceAndPath(AnvilCraft.MOD_ID, "textures/gui/ageratum/jewelcrafting_table.png");
+    public static final Identifier TEXTURE = AnvilCraft.of("textures/gui/ageratum/jewelcrafting_table.png");
 
     private final ItemIngredientPredicate result;
     private final List<ItemIngredientPredicate> ingredients;

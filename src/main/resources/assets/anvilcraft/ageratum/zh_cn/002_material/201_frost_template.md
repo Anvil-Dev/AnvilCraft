@@ -2,7 +2,6 @@
 navigation:
   title: "§6浮霜锻造模板"
   icon: "anvilcraft:frost_metal_upgrade_smithing_template"
-  parent: anvilcraft_guideme:material.md
 items:
   - anvilcraft:frost_metal_upgrade_smithing_template
 ---
