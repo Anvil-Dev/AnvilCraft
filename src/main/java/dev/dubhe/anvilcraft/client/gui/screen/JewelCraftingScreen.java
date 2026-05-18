@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
@@ -66,11 +66,11 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             Slot slot = this.menu.getSlot(i);
             if (!slot.hasItem() && slot instanceof JewelInputSlot inputSlot) {
                 int count = inputSlot.getHintCount();
-                ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
+                ItemStack[] ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
                     int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     ItemStack stack = ingredientItems[index];
-                    RenderSupport.renderItemWithTransparency(stack, graphics, slot.x, slot.y, 0.52F);
+                    GuiRenderExtras.itemWithTransparency(graphics, stack, slot.x, slot.y, 0.52F);
                     graphics.itemDecorations(this.font, stack.copyWithCount(count), slot.x, slot.y);
                 }
             }
@@ -85,7 +85,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             if (this.hoveredSlot.hasItem()) {
                 itemstack = this.hoveredSlot.getItem();
             } else if (this.hoveredSlot instanceof JewelInputSlot inputSlot) {
-                ItemStack @Nullable [] ingredientItems = inputSlot.getIngredientItems();
+                ItemStack[] ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
                     int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
                     itemstack = ingredientItems[index];

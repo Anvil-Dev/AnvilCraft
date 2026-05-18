@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
+import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
@@ -286,13 +287,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         // 添加消耗/速度的信息
         Matrix3x2fStack pose = guiGraphics.pose();
         for (int i = 0; i < 7; i++) {
-            RenderSupport.renderItemWithTransparency(
-                new ItemStack(Blocks.ANVIL),
-                guiGraphics,
-                55 - i * 3,
-                24,
-                1F - (float) i / 10
-            );
+            ItemStack stack = new ItemStack(Blocks.ANVIL);
+            GuiRenderExtras.itemWithTransparency(guiGraphics, stack, 55 - i * 3, 24, 1F - (float) i / 10);
         }
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);

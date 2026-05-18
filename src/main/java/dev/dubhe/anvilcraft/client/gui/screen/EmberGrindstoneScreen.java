@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
@@ -166,13 +166,8 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             this.getImageWidth(),
             this.getImageHeight()
         );
-        RenderSupport.renderItemWithTransparency(
-            Items.BOOK.getDefaultInstance(),
-            graphics,
-            this.leftPos + 25,
-            this.topPos + 42,
-            0.5F
-        );
+        ItemStack stack = Items.BOOK.getDefaultInstance();
+        GuiRenderExtras.itemWithTransparency(graphics, stack, this.leftPos + 25, this.topPos + 42, 0.5F);
 
         if (this.menu.canScroll()) {
             int left = this.leftPos + 122;

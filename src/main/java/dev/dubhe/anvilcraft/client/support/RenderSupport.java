@@ -6,12 +6,10 @@ import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,8 +18,7 @@ import org.joml.Vector3f;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
-//TODO
-@SuppressWarnings("deprecation")
+// TODO:
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RenderSupport {
     private static final int MAX_CACHE_SIZE = 64;
@@ -94,9 +91,5 @@ public class RenderSupport {
             }
         });
         return opt;
-    }
-
-    public static void renderItemWithTransparency(ItemStack stack, GuiGraphicsExtractor guiGraphicsExtractor, int x, int y, float alpha) {
-        GuiRenderExtras.itemWithTransparency(guiGraphicsExtractor, stack, x, y, alpha);
     }
 }

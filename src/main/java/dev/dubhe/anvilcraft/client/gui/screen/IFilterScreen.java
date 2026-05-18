@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.IFilterMenu;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
@@ -185,7 +185,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     default void extractFilterItem(GuiGraphicsExtractor graphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;
-        RenderSupport.renderItemWithTransparency(stack, graphics, i, j, 0.52F);
+        GuiRenderExtras.itemWithTransparency(graphics, stack, i, j, 0.52F);
         graphics.fill(i, j, i + 16, j + 16, 0x60Ffaaaa);
     }
 
