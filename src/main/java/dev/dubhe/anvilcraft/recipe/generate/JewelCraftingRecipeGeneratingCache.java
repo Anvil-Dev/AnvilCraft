@@ -28,23 +28,30 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
 
     public JewelCraftingRecipeGeneratingCache(HolderLookup.Provider registries) {
         super(registries, "jewel_crafting", "jewel crafting recipe");
+
+    }
+
+    private void prepareRun() {
         for (Holder.Reference<Item> holder : registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
             if (holder.value().components().has(DataComponents.PROVIDES_BANNER_PATTERNS)) {
                 logger.debug(
                     "Add a banner pattern {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
                 );
                 this.bannerPatterns.add(holder.value());
-            } else if (holder.value().components().has(DataComponents.JUKEBOX_PLAYABLE)) {
+            }
+            if (holder.value().components().has(DataComponents.JUKEBOX_PLAYABLE)) {
                 logger.debug(
                     "Add a music disc {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
                 );
                 this.musicDiscs.add(holder.value());
-            } else if (DecoratedPotPatterns.getPatternFromItem(holder.value()) != null && !holder.value().equals(Items.BRICK)) {
+            }
+            if (DecoratedPotPatterns.getPatternFromItem(holder.value()) != null && !holder.value().equals(Items.BRICK)) {
                 logger.debug(
                     "Add a pottery sherd {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
                 );
                 this.potterySherds.add(holder.value());
-            } else if (holder.key().identifier().getPath().endsWith("trim_smithing_template")) {
+            }
+            if (holder.key().identifier().getPath().endsWith("trim_smithing_template")) {
                 logger.debug(
                     "Add a trim template {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
                 );
@@ -55,6 +62,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
 
     @Override
     public Optional<List<RecipeHolder<JewelCraftingRecipe>>> buildRecipes() {
+        prepareRun();
         if (this.bannerPatterns.isEmpty()
             && this.musicDiscs.isEmpty()
             && this.potterySherds.isEmpty()

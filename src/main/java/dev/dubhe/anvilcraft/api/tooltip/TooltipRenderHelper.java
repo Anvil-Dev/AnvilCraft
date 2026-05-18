@@ -80,9 +80,11 @@ public class TooltipRenderHelper {
             float distance = Mth.sqrt(dx * dx + dy * dy + dz * dz);
             consumer.addVertex(pose.pose(), (float) (minX + x), (float) (minY + y), (float) (minZ + z))
                 .setColor(color)
+                .setLineWidth(4f)
                 .setNormal(pose.copy(), dx /= distance, dy /= distance, dz /= distance);
             consumer.addVertex(pose.pose(), (float) (maxX + x), (float) (maxY + y), (float) (maxZ + z))
                 .setColor(color)
+                .setLineWidth(4f)
                 .setNormal(pose.copy(), dx, dy, dz);
         });
     }

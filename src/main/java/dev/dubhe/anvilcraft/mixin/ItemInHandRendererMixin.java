@@ -30,6 +30,7 @@ abstract class ItemInHandRendererMixin {
     @Shadow
     private ItemStack mainHandItem;
 
+    @Shadow
     public abstract void renderItem(
         LivingEntity entity,
         ItemStack itemStack,

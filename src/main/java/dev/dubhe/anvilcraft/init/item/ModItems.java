@@ -529,7 +529,8 @@ public class ModItems {
     public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
         .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        //TODO IS THIS NEEDED?
+//        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.CROSSBOW_ENCHANTABLE
@@ -561,7 +562,8 @@ public class ModItems {
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        // TODO IS THIS NEEDED?
+        // .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::energyWeapon)
         .register();
 

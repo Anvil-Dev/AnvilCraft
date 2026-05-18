@@ -7,7 +7,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -19,6 +21,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +32,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterTextureAtlasesEvent;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderItemInFrameEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
@@ -70,6 +74,17 @@ public class ClientEventListener {
         ) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void on(RegisterTextureAtlasesEvent event) {
+        event.register(
+            new AtlasManager.AtlasConfig(
+                ModTextureAtlases.LOCATION_LASER,
+                ModAtlasIds.LASER,
+                false
+            )
+        );
     }
 
     @SubscribeEvent

@@ -4,7 +4,7 @@
       "model": "anvilcraft:reinforced_concrete_bottom_yellow"
     },
     "half=single": {
-      "model": "anvilcraft:reinforced_concrete_single_yellow"
+      "model": "anvilcraft:reinforced_concrete_yellow"
     },
     "half=top": {
       "model": "anvilcraft:reinforced_concrete_top_yellow"

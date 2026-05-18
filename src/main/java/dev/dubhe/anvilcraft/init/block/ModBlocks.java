@@ -2887,7 +2887,7 @@ public class ModBlocks {
             .blockstate(() -> (ctx, generator) -> {
                 Identifier singleModel = generator.withParent(ModelTemplates.CUBE_ALL)
                     .texture(TextureSlot.ALL, generator.modLoc("block/reinforced_concrete_" + color), false)
-                    .build(generator.modLoc("reinforced_concrete_single_" + color));
+                    .build(generator.modLoc("reinforced_concrete_" + color));
                 Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
                     .texture(TextureSlot.END, generator.modLoc("block/reinforced_concrete_" + color), false)
                     .texture(TextureSlot.SIDE, generator.modLoc("block/reinforced_concrete_" + color + "_top"), false)

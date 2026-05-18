@@ -4,7 +4,7 @@
       "model": "anvilcraft:reinforced_concrete_bottom_black"
     },
     "half=single": {
-      "model": "anvilcraft:reinforced_concrete_single_black"
+      "model": "anvilcraft:reinforced_concrete_black"
     },
     "half=top": {
       "model": "anvilcraft:reinforced_concrete_top_black"

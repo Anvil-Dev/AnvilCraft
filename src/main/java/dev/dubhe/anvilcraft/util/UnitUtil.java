@@ -10,10 +10,11 @@ public class UnitUtil {
         } else {
             double mjValue = (double) energy / 1000;
             double truncated = Math.floor(mjValue * 100) / 100;
+            // TODO CHECK THIS CHANGE CORRECT: "%.0F MJ" -> "%.0f MJ"
             if (truncated == Math.floor(truncated)) {
-                return String.format("%.0F MJ", truncated);
+                return String.format("%.0f MJ", truncated);
             } else {
-                return String.format("%.2F MJ", truncated);
+                return String.format("%.2f MJ", truncated);
             }
         }
     }

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity.state;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderState;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -31,7 +32,7 @@ public class LaserRenderState extends CachedBlockEntityRenderState {
             .distanceTo(blockEntity.getBlockPos().getCenter()) - 0.5);
 
         TextureAtlas atlas = Minecraft.getInstance().getAtlasManager()
-            .getAtlasOrThrow(ModTextureAtlases.LOCATION_LASER);
+            .getAtlasOrThrow(ModAtlasIds.LASER);
 
         this.blockEntity = blockEntity;
         this.length = length;

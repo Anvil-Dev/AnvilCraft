@@ -54,7 +54,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     protected HashSet<BaseLaserBlockEntity> irradiateSelfLaserBlockSet = new HashSet<>();
     protected boolean changed = false;
     @Getter
-    protected @UnknownNullability BlockPos irradiateBlockPos = null;
+    protected @Nullable BlockPos irradiateBlockPos = null;
     @Getter
     protected int laserLevel = 0;
 
@@ -151,11 +151,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void emitLaser(Direction direction) {
         if (this.level == null) return;
         BlockPos tempIrradiateBlockPos = this.getIrradiateBlockPos(this.maxTransmissionDistance, direction, this.getBlockPos());
-        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
-            if (
-                this.level.getBlockEntity(this.irradiateBlockPos)
-                instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity
-            ) {
+        if (this.irradiateBlockPos != null && !tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
+            if (this.level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity) {
                 lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
             }
         }

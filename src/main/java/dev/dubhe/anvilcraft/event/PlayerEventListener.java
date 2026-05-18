@@ -152,12 +152,13 @@ public class PlayerEventListener {
     @SubscribeEvent
     public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            RecipeCaches.sync(serverPlayer);
-            RecipesRecord.sync2C(
-                (packet, packets) -> PacketDistributor.sendToPlayer(serverPlayer, packet, packets),
-                serverPlayer.level().recipeAccess().getRecipes(),
-                serverPlayer.registryAccess()
-            );
+            //TODO MAKE THIS WORK DEPENDS ON RECIPE SERIALIZER
+//            RecipeCaches.sync(serverPlayer);
+//            RecipesRecord.sync2C(
+//                (packet, packets) -> PacketDistributor.sendToPlayer(serverPlayer, packet, packets),
+//                serverPlayer.level().recipeAccess().getRecipes(),
+//                serverPlayer.registryAccess()
+//            );
         }
     }
 

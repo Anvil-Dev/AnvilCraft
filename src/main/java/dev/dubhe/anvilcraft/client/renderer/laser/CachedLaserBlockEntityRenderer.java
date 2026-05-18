@@ -34,7 +34,7 @@ public class CachedLaserBlockEntityRenderer<T extends BaseLaserBlockEntity> impl
             poseStack,
             state,
             submitNodeCollector,
-            false
+            true
         );
         poseStack.popPose();
     }
