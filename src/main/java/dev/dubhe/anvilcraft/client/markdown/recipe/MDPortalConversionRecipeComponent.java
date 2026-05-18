@@ -27,7 +27,7 @@ public class MDPortalConversionRecipeComponent extends MDRecipeComponent {
         GuiGraphics graphics = context.graphics();
         AgeratumUtil.renderBlock(context, recipe.getInput(), mouseX, mouseY, 28, 20, 0);
         AgeratumUtil.renderArrow(graphics, 46, 10);
-        AgeratumUtil.renderBlock(context, recipe.getResults(), mouseX, mouseY, 96, 20, 0);
+        AgeratumUtil.renderBlock(context, recipe.getResult(), mouseX, mouseY, 96, 20, 0);
 
         // 在没有其他tooltip的情况下添加一个tooltip，显示传送门类型的名称
         if (AgeratumUtil.isHover(0, 0, 128, 64, mouseX, mouseY)) {

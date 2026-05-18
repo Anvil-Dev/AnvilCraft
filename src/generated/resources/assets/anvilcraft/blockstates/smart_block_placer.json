@@ -10,29 +10,29 @@
       "y": 270
     },
     "facing=east,overload=false,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 90
     },
     "facing=east,overload=false,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 270
     },
     "facing=east,overload=true,powered=false,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 90
     },
     "facing=east,overload=true,powered=false,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 270
     },
     "facing=east,overload=true,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 90
     },
     "facing=east,overload=true,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 270
     },
@@ -45,26 +45,26 @@
       "y": 180
     },
     "facing=north,overload=false,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off"
+      "model": "anvilcraft:block/smart_block_placer_bottom"
     },
     "facing=north,overload=false,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 180
     },
     "facing=north,overload=true,powered=false,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload"
+      "model": "anvilcraft:block/smart_block_placer_bottom"
     },
     "facing=north,overload=true,powered=false,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 180
     },
     "facing=north,overload=true,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload"
+      "model": "anvilcraft:block/smart_block_placer_bottom"
     },
     "facing=north,overload=true,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 180
     },
@@ -77,27 +77,27 @@
       "x": 180
     },
     "facing=south,overload=false,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 180
     },
     "facing=south,overload=false,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180
     },
     "facing=south,overload=true,powered=false,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 180
     },
     "facing=south,overload=true,powered=false,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180
     },
     "facing=south,overload=true,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 180
     },
     "facing=south,overload=true,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180
     },
     "facing=west,overload=false,powered=false,upside_down=false": {
@@ -110,29 +110,29 @@
       "y": 90
     },
     "facing=west,overload=false,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 270
     },
     "facing=west,overload=false,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_off",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 90
     },
     "facing=west,overload=true,powered=false,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 270
     },
     "facing=west,overload=true,powered=false,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 90
     },
     "facing=west,overload=true,powered=true,upside_down=false": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "y": 270
     },
     "facing=west,overload=true,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/smart_block_placer_bottom_overload",
+      "model": "anvilcraft:block/smart_block_placer_bottom",
       "x": 180,
       "y": 90
     }
