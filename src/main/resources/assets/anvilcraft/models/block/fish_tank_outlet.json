@@ -1,7 +1,6 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube_all",
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"5": "anvilcraft:block/fish_tank_outlet",

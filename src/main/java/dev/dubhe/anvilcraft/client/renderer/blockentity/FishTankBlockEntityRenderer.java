@@ -42,6 +42,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
     public static final float FISH_SCALE = 0.5F;
     private static final ModelResourceLocation FIRE = ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4"));
     private final RandomSource random = RandomSource.create();
+    private final RandomSource fishRandom = RandomSource.create();
     private final BlockRenderDispatcher dispatcher;
 
     private final Map<Long, FishCacheEntry> fishCache = new HashMap<>();
@@ -244,7 +245,8 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
         }
 
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        float ticks = ClientTickRecorder.getTicks() + partialTick;
+        this.fishRandom.setSeed(cachedFishes.hashCode() + tank.getBlockPos().hashCode());
+        float ticks = ClientTickRecorder.getTicks() + partialTick + this.fishRandom.nextInt(1297361);
         float height = 1 - 2 * TANK_W;
         int count = cachedFishes.size();
 

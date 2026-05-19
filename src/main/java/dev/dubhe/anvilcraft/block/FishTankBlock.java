@@ -94,6 +94,11 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         return level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
             .map(FishTankBlockEntity::getSignal)
@@ -175,6 +180,8 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             BlockState newState = state.setValue(FishTankBlock.OUTLET, hasOutlet).setValue(FishTankBlock.FACING, outletDir);
 
             level.setBlock(pos, newState, 3);
+            level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
+                .ifPresent(FishTankBlockEntity::tryAutoOutputResults);
         }
         level.playSound(player, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
         return ItemInteractionResult.SUCCESS;
