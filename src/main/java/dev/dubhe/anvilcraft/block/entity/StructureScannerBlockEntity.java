@@ -10,8 +10,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,6 +28,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StructureScannerBlockEntity extends BaseMachineBlockEntity implements MenuProvider {
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(0);
@@ -88,6 +98,39 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         thiz -> this.setChanged(),
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
     );
+    
+    // 扫描结果缓存（逐层扫描）
+    private boolean isScanning = false;
+    @Getter
+    private int currentScanLayer = 0;  // 当前扫描的层
+    private final List<CachedBlockData> scannedBlocks = new ArrayList<>();
+    private long lastScanTick = 0;  // 上次扫描的tick
+    
+    /**
+     * 缓存的方块数据
+     */
+    public record CachedBlockData(int x, int y, int z, net.minecraft.world.level.block.state.BlockState state) {}
+    
+    /**
+     * 是否正在扫描或已完成扫描
+     */
+    public boolean hasStartedScanning() {
+        return this.isScanning || !this.scannedBlocks.isEmpty();
+    }
+    
+    /**
+     * 是否完成所有扫描
+     */
+    public boolean isScanComplete() {
+        return !this.isScanning && !this.scannedBlocks.isEmpty();
+    }
+    
+    /**
+     * 是否正在扫描
+     */
+    public boolean isScanning() {
+        return this.isScanning;
+    }
 
     public StructureScannerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -95,6 +138,121 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.rangeX.fromIndex(4);
         this.rangeY.fromIndex(4);
         this.rangeZ.fromIndex(4);
+    }
+    
+    public void tickServer(net.minecraft.world.level.Level level, BlockPos pos) {
+        // 每2 tick扫描一层
+        if (this.isScanning && level.getGameTime() - this.lastScanTick >= 2) {
+            this.scanNextLayer();
+        }
+    }
+    
+    /**
+     * 开始扫描流程
+     */
+    public void startScanning() {
+        if (this.level == null) {
+            return;
+        }
+        
+        // 如果已经在扫描中，重置扫描
+        this.isScanning = true;
+        this.currentScanLayer = 0;
+        this.scannedBlocks.clear();
+        this.lastScanTick = this.level.getGameTime();
+        this.setChanged();
+        
+        // 同步到客户端（包括范围数据）
+        if (!this.level.isClientSide) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+    
+    /**
+     * 停止扫描
+     */
+    public void stopScanning() {
+        this.isScanning = false;
+        this.setChanged();
+        
+        // 同步到客户端
+        if (this.level != null && !this.level.isClientSide) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+    
+    /**
+     * 扫描下一层
+     */
+    private void scanNextLayer() {
+        if (this.level == null) {
+            return;
+        }
+        
+        int rangeX = this.rangeX.get();
+        int rangeY = this.rangeY.get();
+        int rangeZ = this.rangeZ.get();
+        int halfRangeX = rangeX / 2;
+        int halfRangeZ = (rangeZ - 1) / 2;
+        
+        int blocksFound = 0;
+        // 扫描当前层的所有方块
+        for (int x = 0; x < rangeX; x++) {
+            for (int z = 1; z < rangeZ + 1; z++) {
+                BlockPos worldPos = calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX, halfRangeZ, rangeZ);
+                net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
+                
+                if (!blockState.isAir()) {
+                    this.scannedBlocks.add(new CachedBlockData(x, this.currentScanLayer, z, blockState));
+                    blocksFound++;
+                }
+            }
+        }
+        
+        this.lastScanTick = this.level.getGameTime();
+        this.setChanged();
+        
+        // 每扫描一层就同步到客户端
+        if (this.level != null && !this.level.isClientSide) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+        }
+        
+        // 移动到下一层
+        this.currentScanLayer++;
+        
+        // 检查是否完成所有层
+        if (this.currentScanLayer >= rangeY) {
+            this.isScanning = false;
+        }
+    }
+    
+    /**
+     * 计算世界坐标
+     */
+    private BlockPos calculateWorldPos(int previewX, int previewY, int previewZ,
+                                       int halfRangeX, int halfRangeZ, int rangeZ) {
+        BlockPos scannerPos = this.getBlockPos();
+        var blockState = this.level.getBlockState(scannerPos);
+        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        
+        int localX = previewX - halfRangeX;
+        int localY = previewY;
+        int localZ = previewZ;
+        
+        return switch (scannerFacing) {
+            case NORTH -> scannerPos.offset(localX, localY, localZ + 1);
+            case SOUTH -> scannerPos.offset(-localX, localY, -(localZ + 1));
+            case WEST -> scannerPos.offset(localZ + 1, localY, -localX);
+            case EAST -> scannerPos.offset(-(localZ + 1), localY, localX);
+            default -> scannerPos.offset(localX, localY, localZ);
+        };
+    }
+    
+    /**
+     * 获取扫描到的方块列表
+     */
+    public List<CachedBlockData> getScannedBlocks() {
+        return this.scannedBlocks;
     }
 
     @Override
@@ -122,6 +280,19 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         return diskItemHandler;
     }
 
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag, provider);
+        return tag;
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
@@ -131,6 +302,22 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         tag.putInt("rangeX", this.rangeX.index());
         tag.putInt("rangeY", this.rangeY.index());
         tag.putInt("rangeZ", this.rangeZ.index());
+        // 保存扫描状态
+        tag.putBoolean("isScanning", this.isScanning);
+        tag.putInt("currentScanLayer", this.currentScanLayer);
+        // 保存扫描结果
+        if (!this.scannedBlocks.isEmpty()) {
+            ListTag blocksTag = new ListTag();
+            for (CachedBlockData data : this.scannedBlocks) {
+                CompoundTag blockTag = new CompoundTag();
+                blockTag.putInt("x", data.x());
+                blockTag.putInt("y", data.y());
+                blockTag.putInt("z", data.z());
+                blockTag.put("state", net.minecraft.nbt.NbtUtils.writeBlockState(data.state()));
+                blocksTag.add(blockTag);
+            }
+            tag.put("scannedBlocks", blocksTag);
+        }
     }
     
     @Override
@@ -142,5 +329,24 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.rangeX.fromIndex(tag.getInt("rangeX"));
         this.rangeY.fromIndex(tag.getInt("rangeY"));
         this.rangeZ.fromIndex(tag.getInt("rangeZ"));
+        // 加载扫描状态
+        this.isScanning = tag.getBoolean("isScanning");
+        this.currentScanLayer = tag.getInt("currentScanLayer");
+        // 加载扫描结果
+        this.scannedBlocks.clear();
+        if (tag.contains("scannedBlocks", Tag.TAG_LIST)) {
+            ListTag blocksTag = tag.getList("scannedBlocks", Tag.TAG_COMPOUND);
+            for (int i = 0; i < blocksTag.size(); i++) {
+                CompoundTag blockTag = blocksTag.getCompound(i);
+                int x = blockTag.getInt("x");
+                int y = blockTag.getInt("y");
+                int z = blockTag.getInt("z");
+                net.minecraft.world.level.block.state.BlockState state = net.minecraft.nbt.NbtUtils.readBlockState(
+                    this.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BLOCK),
+                    blockTag.getCompound("state")
+                );
+                this.scannedBlocks.add(new CachedBlockData(x, y, z, state));
+            }
+        }
     }
 }

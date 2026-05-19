@@ -160,7 +160,6 @@ public class RenderEventListener {
     /**
      * 渲染 Structure Scanner 的边框
      */
-    @SuppressWarnings("checkstyle:LocalVariableName")
     private static void renderStructureScannerRange(
         PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer,
         double camX, double camY, double camZ
@@ -175,9 +174,6 @@ public class RenderEventListener {
         var blockState = Minecraft.getInstance().level.getBlockState(hitPos);
         if (!blockState.is(ModBlocks.STRUCTURE_SCANNER.get())) return;
 
-        // 获取 Structure Scanner 的朝向
-        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
-        
         // 获取 BlockEntity 以读取范围值
         var blockEntity = Minecraft.getInstance().level.getBlockEntity(hitPos);
         if (!(blockEntity instanceof dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity scannerBE)) return;
@@ -185,65 +181,50 @@ public class RenderEventListener {
         int rangeX = scannerBE.getRangeX().get();
         int rangeY = scannerBE.getRangeY().get();
         int rangeZ = scannerBE.getRangeZ().get();
+                
+        int halfRangeX = (rangeX - 1) / 2;
+        int halfRangeZ = (rangeZ - 1) / 2;
         
-        // 计算边框位置：在 Structure Scanner 的扫描方向前方
-        BlockPos scannerPos = hitPos;
+        // 获取 Structure Scanner 的朝向
+        final Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
         
-        // 根据 rangeX, rangeY, rangeZ 创建动态边框
-        // 边框在 Scanner 前方，紧贴 Scanner
-        int halfRangeX = rangeX / 2;
-        int halfRangeZ = rangeZ / 2;
-        
-        // 根据朝向计算边框的世界坐标范围
-        int minX, maxX, minY, maxY, minZ, maxZ;
-        
-        // Y轴始终从 Scanner 的 Y 坐标开始，向上延伸 rangeY
-        minY = scannerPos.getY();
-        maxY = scannerPos.getY() + rangeY;
+        final int minY = hitPos.getY();
+        final int maxY = hitPos.getY() + rangeY;
+        final int minX;
+        final int maxX;
+        final int minZ;
+        final int maxZ;
         
         switch (scannerFacing) {
             case NORTH -> {
-                // 朝北：Scanner 面向 -Z，扫描区域在背后（+Z 方向）
-                // X轴：以 Scanner 的 X 为中心，左右各扩展 rangeX/2
-                // Z轴：从 Scanner 的 Z 开始，向 +Z 方向（背后）延伸 rangeZ
-                minX = scannerPos.getX() - halfRangeX;
-                maxX = scannerPos.getX() + rangeX - halfRangeX;
-                minZ = scannerPos.getZ() + 1;
-                maxZ = scannerPos.getZ() + rangeZ + 1;
+                minX = hitPos.getX() - halfRangeX;
+                maxX = hitPos.getX() + rangeX - halfRangeX;
+                minZ = hitPos.getZ() + 1;
+                maxZ = hitPos.getZ() + rangeZ + 1;
             }
             case SOUTH -> {
-                // 朝南：Scanner 面向 +Z，扫描区域在背后（-Z 方向）
-                // X轴：以 Scanner 的 X 为中心，左右各扩展 rangeX/2
-                // Z轴：从 Scanner 的 Z 开始，向 -Z 方向（背后）延伸 rangeZ
-                minX = scannerPos.getX() - halfRangeX;
-                maxX = scannerPos.getX() + rangeX - halfRangeX;
-                minZ = scannerPos.getZ() - rangeZ;
-                maxZ = scannerPos.getZ();
+                minX = hitPos.getX() - halfRangeX;
+                maxX = hitPos.getX() + rangeX - halfRangeX;
+                minZ = hitPos.getZ() - rangeZ;
+                maxZ = hitPos.getZ();
             }
             case WEST -> {
-                // 朝西：Scanner 面向 -X，扫描区域在背后（+X 方向）
-                // X轴：从 Scanner 的 X 开始，向 +X 方向（背后）延伸 rangeZ
-                // Z轴：以 Scanner 的 Z 为中心，左右各扩展 rangeX/2
-                minX = scannerPos.getX() + 1;
-                maxX = scannerPos.getX() + rangeZ + 1;
-                minZ = scannerPos.getZ() - halfRangeX;
-                maxZ = scannerPos.getZ() + rangeX - halfRangeX;
+                minX = hitPos.getX() + 1;
+                maxX = hitPos.getX() + rangeZ + 1;
+                minZ = hitPos.getZ() - halfRangeX;
+                maxZ = hitPos.getZ() + rangeX - halfRangeX;
             }
             case EAST -> {
-                // 朝东：Scanner 面向 +X，扫描区域在背后（-X 方向）
-                // X轴：从 Scanner 的 X 开始，向 -X 方向（背后）延伸 rangeZ
-                // Z轴：以 Scanner 的 Z 为中心，左右各扩展 rangeX/2
-                minX = scannerPos.getX() - rangeZ;
-                maxX = scannerPos.getX();
-                minZ = scannerPos.getZ() - halfRangeX;
-                maxZ = scannerPos.getZ() + rangeX - halfRangeX;
+                minX = hitPos.getX() - rangeZ;
+                maxX = hitPos.getX();
+                minZ = hitPos.getZ() - halfRangeX;
+                maxZ = hitPos.getZ() + rangeX - halfRangeX;
             }
             default -> {
-                // UP 或 DOWN（不应该出现，但作为默认处理）
-                minX = scannerPos.getX() - halfRangeX;
-                maxX = scannerPos.getX() + rangeX - halfRangeX;
-                minZ = scannerPos.getZ() - halfRangeZ;
-                maxZ = scannerPos.getZ() + rangeZ - halfRangeZ;
+                minX = hitPos.getX() - halfRangeX;
+                maxX = hitPos.getX() + rangeX - halfRangeX;
+                minZ = hitPos.getZ() - halfRangeZ;
+                maxZ = hitPos.getZ() + rangeZ - halfRangeZ;
             }
         }
         

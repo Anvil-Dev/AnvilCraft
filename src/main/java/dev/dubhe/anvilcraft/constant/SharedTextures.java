@@ -31,6 +31,8 @@ public class SharedTextures {
     public static final ResourceLocation BUTTON_REDSTONE_CONTROL_OFF = textureGui("machine/button_redstone_control_off");
     public static final ResourceLocation BUTTON_REVERSE_ON = textureGui("machine/button_reverse_on");
     public static final ResourceLocation BUTTON_REVERSE_OFF = textureGui("machine/button_reverse_off");
+    public static final ResourceLocation BUTTON_REDO = textureGui("machine/redo");
+    public static final ResourceLocation BUTTON_STOP = textureGui("machine/stop");
     public static final ResourceLocation CONFIRM = textureGui("machine/confirm");
     public static final ResourceLocation DISABLED_SLOT = textureGui("machine/disabled_slot");
     public static final ResourceLocation PLAYER_ALLOW = textureGui("machine/player_allow");

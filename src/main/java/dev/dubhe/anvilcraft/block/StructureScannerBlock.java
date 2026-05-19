@@ -15,6 +15,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -50,6 +52,23 @@ public class StructureScannerBlock extends BaseEntityBlock {
     @Nullable
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new StructureScannerBlockEntity(ModBlockEntities.STRUCTURE_SCANNER.get(), pos, state);
+    }
+    
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level level,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
+        if (level.isClientSide()) {
+            return null;
+        }
+        return (level1, pos, state1, entity) -> {
+            if (entity instanceof StructureScannerBlockEntity be) {
+                be.tickServer(level1, pos);
+            }
+        };
     }
 
     @Override
