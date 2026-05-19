@@ -38,12 +38,6 @@ public record StructureScannerActionPacket(String action, int value, String name
         this(action, 0, "");
     }
 
-    public StructureScannerActionPacket(String action, int value, String name) {
-        this.action = action;
-        this.value = value;
-        this.name = name;
-    }
-
     @Override
     public Type<StructureScannerActionPacket> type() {
         return TYPE;
@@ -76,10 +70,12 @@ public record StructureScannerActionPacket(String action, int value, String name
                     case "rangeX" -> blockEntity.getRangeX().fromIndex(value);
                     case "rangeY" -> blockEntity.getRangeY().fromIndex(value);
                     case "rangeZ" -> blockEntity.getRangeZ().fromIndex(value);
+                    default -> {}
                 }
                 // 同步范围到客户端
                 syncRangeToClient(player, blockEntity);
             }
+            default -> {}
         }
     }
     

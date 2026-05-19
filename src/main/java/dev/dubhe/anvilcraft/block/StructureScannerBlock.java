@@ -82,7 +82,10 @@ public class StructureScannerBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
         if (player instanceof ServerPlayer serverPlayer) {
-            ModMenuTypes.open(serverPlayer, state.getMenuProvider(level, pos), pos);
+            var menuProvider = state.getMenuProvider(level, pos);
+            if (menuProvider != null) {
+                ModMenuTypes.open(serverPlayer, menuProvider, pos);
+            }
         }
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
