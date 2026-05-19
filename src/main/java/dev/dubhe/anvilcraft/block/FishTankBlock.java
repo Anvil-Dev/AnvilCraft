@@ -94,6 +94,13 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        return level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
+            .map(FishTankBlockEntity::getSignal)
+            .orElse(0);
+    }
+
+    @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
             this.tryIgnite(level, pos);
