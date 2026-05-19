@@ -91,6 +91,6 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 }

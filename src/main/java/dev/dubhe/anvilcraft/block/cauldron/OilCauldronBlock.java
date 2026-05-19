@@ -13,7 +13,9 @@ import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Fluid;
 
@@ -22,6 +24,7 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
 
     public OilCauldronBlock(Properties properties) {
         super(properties, ModInteractionMap.OIL);
+        this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 1).setValue(OilCauldronBlock.IGNITED, false));
     }
 
     public static void ignite(LevelAccessor level, BlockPos pos) {
@@ -51,6 +54,12 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
         if (itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
             ignite(level, pos);
         }
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(OilCauldronBlock.IGNITED);
     }
 
     @Override

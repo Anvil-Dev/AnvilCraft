@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.anvilcraft.lib.v2.util.Util;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelResultSlot;
 import dev.dubhe.anvilcraft.inventory.container.JewelSourceContainer;
 import dev.dubhe.anvilcraft.network.JewelCraftingAutoFillPacket;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,9 +23,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.TransientCraftingContainer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
@@ -32,6 +32,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class JewelCraftingMenu extends AbstractContainerMenu {
     public static final int RESULT_SLOT = 0;
@@ -59,19 +60,21 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         this.player = inventory.player;
 
         // result
-        addSlot(new JewelResultSlot(this.sourceContainer, this.craftingContainer, this.resultContainer, 0, 134, 51));
+        this.addSlot(new JewelResultSlot(this.resultContainer, this.craftingContainer, this.resultContainer, 0, 134, 51));
 
-        // source
-        addSlot(new Slot(this.sourceContainer, 0, 80, 19) {
+        // result
+        this.addSlot(new Slot(this.sourceContainer, 0, 80, 19) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return RecipeCaches.getAllJewelResultItem().contains(stack.getItem());
+                return RecipesRecord.RECIPES.byType(ModRecipeTypes.JEWEL_CRAFTING.get())
+                    .stream()
+                    .anyMatch(holder -> holder.value().source().test(stack));
             }
         });
 
         // craft
         for (int i = 0; i < 4; i++) {
-            addSlot(new JewelInputSlot(this.sourceContainer, this.craftingContainer, i, 26 + i * 18, 51));
+            this.addSlot(new JewelInputSlot(this.resultContainer, this.craftingContainer, i, 26 + i * 18, 51));
         }
 
         // player
@@ -106,7 +109,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         if (sourceSlot == null || !sourceSlot.hasItem()) return sourceStack;
 
         if (index >= RESULT_SLOT && index < CRAFT_SLOT_END) {
-            if (!moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+            if (!this.moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
                 return ItemStack.EMPTY;
             }
         } else if (index >= INV_SLOT_START && index < USE_ROW_SLOT_END) {
@@ -178,34 +181,38 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         CraftingContainer craftingContainer,
         ResultContainer resultContainer
     ) {
-        if (!level.isClientSide()) {
-            ItemStack itemStack = ItemStack.EMPTY;
-            ServerPlayer serverPlayer = (ServerPlayer) player;
-            RecipeHolder<JewelCraftingRecipe> recipeHolder = sourceContainer.getRecipe();
-            if (recipeHolder != null) {
-                JewelCraftingRecipe recipe = recipeHolder.value();
-                var input = new JewelCraftingRecipe.Input(sourceContainer.getItem(0), craftingContainer.getItems());
-                if (recipe.matches(input, level)) {
-                    if (resultContainer.setRecipeUsed(serverPlayer, recipeHolder)) {
-                        ItemStack result = recipe.assemble(input);
-                        if (result.isItemEnabled(level.enabledFeatures())) {
-                            itemStack = result;
-                            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-                            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
-                            itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
-                        }
+        if (level.isClientSide()) return;
+        ItemStack itemStack = ItemStack.EMPTY;
+        ServerPlayer serverPlayer = (ServerPlayer) player;
+        var input = new JewelCraftingRecipe.Input(sourceContainer.getItem(0), craftingContainer.getItems());
+        Optional<RecipeHolder<JewelCraftingRecipe>> recipeOp = RecipesRecord.RECIPES.getRecipeFor(
+            ModRecipeTypes.JEWEL_CRAFTING.get(),
+            input,
+            serverPlayer.level()
+        );
+        if (recipeOp.isPresent()) {
+            RecipeHolder<JewelCraftingRecipe> holder = recipeOp.get();
+            JewelCraftingRecipe recipe = holder.value();
+            if (recipe.matches(input, level)) {
+                if (resultContainer.setRecipeUsed(serverPlayer, holder)) {
+                    ItemStack result = recipe.assemble(input);
+                    if (result.isItemEnabled(level.enabledFeatures())) {
+                        itemStack = result;
+                        ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+                        enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
+                        itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
                     }
                 }
             }
-            resultContainer.setItem(0, itemStack);
-            menu.setRemoteSlot(RESULT_SLOT, itemStack);
-            serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
-                menu.containerId,
-                menu.incrementStateId(),
-                RESULT_SLOT,
-                itemStack
-            ));
         }
+        resultContainer.setItem(0, itemStack);
+        menu.setRemoteSlot(RESULT_SLOT, itemStack);
+        serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
+            menu.containerId,
+            menu.incrementStateId(),
+            RESULT_SLOT,
+            itemStack
+        ));
     }
 
     /**
@@ -218,26 +225,24 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             return;
         }
 
-        RecipeHolder<JewelCraftingRecipe> recipe = this.sourceContainer.getRecipe();
+        JewelCraftingRecipe recipe = Optional.ofNullable(this.resultContainer.getRecipeUsed())
+            .flatMap(holder -> Util.castSafely(holder.value(), JewelCraftingRecipe.class))
+            .orElse(null);
         if (recipe == null) return;
 
-        List<Object2IntMap.Entry<Ingredient>> mergedIngredients = recipe.value().mergedIngredients;
-        for (int i = 0; i < Math.min(mergedIngredients.size(), 4); i++) {
-            Object2IntMap.Entry<Ingredient> entry = mergedIngredients.get(i);
-            Ingredient ingredient = entry.getKey();
-            Item item = ingredient.getValues().get(0).value();
+        List<ItemIngredientPredicate> ingredients = recipe.ingredients();
+        for (int i = 0; i < Math.min(ingredients.size(), 4); i++) {
             this.quickMoveStack(this.player, CRAFT_SLOT_START + i);
-            this.moveInvItemTo(item, CRAFT_SLOT_START + i);
+            this.moveInvItemTo(ingredients.get(i), CRAFT_SLOT_START + i);
         }
     }
 
-    protected void moveInvItemTo(Item needItem, int targetIndex) {
+    protected void moveInvItemTo(ItemIngredientPredicate needItem, int targetIndex) {
         for (int i = INV_SLOT_START; i < USE_ROW_SLOT_END; i++) {
             Slot slot = slots.get(i);
-            if (slot.getItem().getItem() == needItem) {
-                if (!this.moveItemStackTo(slot.getItem(), targetIndex, targetIndex + 1, false)) {
-                    return;
-                }
+            if (!needItem.test(slot.getItem())) continue;
+            if (!this.moveItemStackTo(slot.getItem(), targetIndex, targetIndex + 1, false)) {
+                return;
             }
         }
     }

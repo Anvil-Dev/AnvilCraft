@@ -1,13 +1,15 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "minecraft:name_tag",
-    "minecraft:name_tag",
-    "minecraft:name_tag",
-    "minecraft:name_tag"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "count": 4,
+      "items": "minecraft:name_tag"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:comrade_amulet"
+  "source": {
+    "items": "anvilcraft:comrade_amulet"
   }
 }

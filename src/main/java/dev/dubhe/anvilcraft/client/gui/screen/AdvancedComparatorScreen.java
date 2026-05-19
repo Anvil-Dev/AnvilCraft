@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -125,16 +126,27 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 256);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            256,
+            256
+        );
         int slider1OffsetY = this.isInSlider(mouseX, mouseY, this.slider1X, this.sliderY) ? 11 : 0;
         int slider2OffsetY = this.isInSlider(mouseX, mouseY, this.slider2X, this.sliderY) ? 11 : 0;
-        graphics.blit(SLIDER, this.slider1X, this.sliderY, 0, slider1OffsetY, 7, 11, 7, 22);
-        graphics.blit(SLIDER, this.slider2X, this.sliderY, 0, slider2OffsetY, 7, 11, 7, 22);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, this.slider1X, this.sliderY, 0, slider1OffsetY, 7, 11, 7, 22);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, this.slider2X, this.sliderY, 0, slider2OffsetY, 7, 11, 7, 22);
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         pose.scale(0.5F, 0.5F);

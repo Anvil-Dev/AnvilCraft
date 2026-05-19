@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
-import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -38,7 +38,7 @@ public class ServerLifecycleEventListener {
     public static void onServerStopped(ServerStoppedEvent event) {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
-        RecipeCaches.unload();
+        RecipesRecord.RECIPES.clear();
         SoundHelper.INSTANCE.clear();
     }
 

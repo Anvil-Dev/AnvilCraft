@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -58,7 +59,18 @@ public class TexturedButton extends Button {
         if (this.isHovered) {
             offsetV = this.texYDiff;
         }
-        graphics.blit(this.texture, this.getX(), this.getY(), 0, offsetV, width, height, this.textureWidth, this.textureHeight);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            this.texture,
+            this.getX(),
+            this.getY(),
+            0,
+            offsetV,
+            this.width,
+            this.height,
+            this.textureWidth,
+            this.textureHeight
+        );
     }
 
     public void renderContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {

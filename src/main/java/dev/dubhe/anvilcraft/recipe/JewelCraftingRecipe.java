@@ -1,25 +1,22 @@
 package dev.dubhe.anvilcraft.recipe;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
-import dev.dubhe.anvilcraft.util.RecipeUtil;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategories;
@@ -34,36 +31,39 @@ import net.neoforged.neoforge.common.conditions.ICondition;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
+public record JewelCraftingRecipe(
+    List<ICondition> conditions,
+    ItemIngredientPredicate source,
+    List<ItemIngredientPredicate> ingredients
+) implements Recipe<JewelCraftingRecipe.Input> {
     public static final RecipeSerializer<JewelCraftingRecipe> SERIALIZER = new RecipeSerializer<>(
         RecordCodecBuilder.mapCodec(ins -> ins.group(
             ICondition.LIST_CODEC
                 .optionalFieldOf("neoforge:conditions", new ArrayList<>())
-                .forGetter(JewelCraftingRecipe::getConditions),
-            CodecUtil.createIngredientListCodec("ingredients", 256, "jewel_crafting")
-                .forGetter(JewelCraftingRecipe::getIngredients),
-            ItemStackTemplate.CODEC
-                .fieldOf("result")
-                .forGetter(JewelCraftingRecipe::getResult)
+                .forGetter(JewelCraftingRecipe::conditions),
+            ItemIngredientPredicate.CODEC
+                .fieldOf("source")
+                .forGetter(JewelCraftingRecipe::source),
+            ItemIngredientPredicate.CODEC
+                .listOf(0, 4)
+                .fieldOf("ingredients")
+                .forGetter(JewelCraftingRecipe::ingredients)
         ).apply(ins, JewelCraftingRecipe::new)),
-        StreamCodec.of(Serializer::encode, Serializer::decode)
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC,
+            JewelCraftingRecipe::source,
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list(4)),
+            JewelCraftingRecipe::ingredients,
+            JewelCraftingRecipe::new
+        )
     );
-    public final List<ICondition> conditions;
-    public final NonNullList<Ingredient> ingredients;
-    public final ItemStackTemplate result;
-    public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
-    public Input cache;
-    public int cacheTimes;
 
-    public JewelCraftingRecipe(List<ICondition> conditions, NonNullList<Ingredient> ingredients, ItemStackTemplate result) {
-        this.conditions = conditions;
-        this.ingredients = ingredients;
-        this.result = result;
-        this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
-        if (this.mergedIngredients.size() > 4) {
-            throw new IllegalArgumentException("Too many different ingredients");
-        }
+    public JewelCraftingRecipe {
+        if (ingredients.size() > 4) throw new IllegalArgumentException("Too many different ingredients");
+    }
+
+    public JewelCraftingRecipe(ItemIngredientPredicate source, List<ItemIngredientPredicate> ingredients) {
+        this(List.of(), source, ingredients);
     }
 
     public static Builder builder(HolderGetter<Item> items) {
@@ -92,18 +92,17 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
     @Override
     public ItemStack assemble(Input input) {
-        return this.result.create();
+        return input.source;
     }
 
     @Override
     public boolean matches(Input input, Level level) {
-        if (input == this.cache) {
-            return this.cacheTimes >= 1;
+        if (!this.source.test(input.source)) return false;
+        if (input.size() != this.ingredients.size()) return false;
+        for (int i = 0; i < this.ingredients.size(); i++) {
+            if (!this.ingredients.get(i).test(input.getItem(i))) return false;
         }
-        int times = RecipeUtil.getMaxCraftTime(input, this.ingredients);
-        this.cache = input;
-        this.cacheTimes = times;
-        return this.cacheTimes >= 1;
+        return true;
     }
 
     @Override
@@ -122,7 +121,6 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     }
 
     public record Input(ItemStack source, List<ItemStack> items) implements RecipeInput, IItemsInput {
-
         @Override
         public ItemStack getItem(int index) {
             return this.items.get(index);
@@ -134,31 +132,13 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
     }
 
-    public static class Serializer {
-        private static void encode(RegistryFriendlyByteBuf buf, JewelCraftingRecipe recipe) {
-            buf.writeVarInt(recipe.ingredients.size());
-            for (Ingredient ingredient : recipe.ingredients) {
-                Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
-            }
-            ItemStackTemplate.STREAM_CODEC.encode(buf, recipe.result);
-        }
-
-        private static JewelCraftingRecipe decode(RegistryFriendlyByteBuf buf) {
-            int size = buf.readVarInt();
-            NonNullList<Ingredient> ingredients = NonNullList.withSize(size, null);
-            ingredients.replaceAll(_ -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
-            ItemStackTemplate result = ItemStackTemplate.STREAM_CODEC.decode(buf);
-            return new JewelCraftingRecipe(new ArrayList<>(), ingredients, result);
-        }
-    }
-
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<JewelCraftingRecipe> {
         private final HolderGetter<Item> items;
-        private List<ICondition> conditions = new ArrayList<>();
-        private NonNullList<Ingredient> ingredients = NonNullList.create();
-        private ItemStackTemplate result = null;
+        private final List<ICondition> conditions = new ArrayList<>();
+        private ItemIngredientPredicate source = null;
+        private final List<ItemIngredientPredicate> ingredients = new ArrayList<>();
 
         public Builder(HolderGetter<Item> items) {
             this.items = items;
@@ -169,19 +149,13 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             return this;
         }
 
-        public Builder requires(Ingredient ingredient, int count) {
-            for (int i = 0; i < count; i++) {
-                this.ingredients.add(ingredient);
-            }
+        public Builder requires(ItemIngredientPredicate.Builder ingredient) {
+            this.ingredients.add(ingredient.build());
             return this;
         }
 
-        public Builder requires(Ingredient ingredient) {
-            return this.requires(ingredient, 1);
-        }
-
         public Builder requires(ItemLike item, int count) {
-            return this.requires(Ingredient.of(item), count);
+            return this.requires(ItemIngredientPredicate.of(item).withCount(count));
         }
 
         public Builder requires(ItemLike item) {
@@ -189,34 +163,34 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
 
         public Builder requires(TagKey<Item> tag, int count) {
-            return this.requires(Ingredient.of(this.items.getOrThrow(tag)), count);
+            return this.requires(ItemIngredientPredicate.of(this.items, tag).withCount(count));
         }
 
         public Builder requires(TagKey<Item> tag) {
             return this.requires(tag, 1);
         }
 
-        public Builder result(ItemStackTemplate result) {
-            this.result = result;
+        public Builder source(ItemIngredientPredicate.Builder source) {
+            this.source = source.build();
             return this;
         }
 
-        public Builder result(ItemLike result) {
-            return this.result(new ItemStackTemplate(result.asItem()));
+        public Builder source(ItemLike... sources) {
+            return this.source(ItemIngredientPredicate.of(sources));
         }
 
         @Override
         public JewelCraftingRecipe buildRecipe() {
-            return new JewelCraftingRecipe(this.conditions, this.ingredients, this.result);
+            return new JewelCraftingRecipe(this.conditions, this.source, this.ingredients);
         }
 
         @Override
         public void validate(Identifier id) {
-            if (this.ingredients.isEmpty() || this.ingredients.size() > 256) {
-                throw new IllegalArgumentException("Recipe ingredients size must in 0-256, RecipeId: " + id);
-            }
-            if (this.result == null) {
+            if (this.source == null) {
                 throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
+            }
+            if (this.ingredients.isEmpty() || this.ingredients.size() > 4) {
+                throw new IllegalArgumentException("Recipe ingredients size must in 1-4, RecipeId: " + id);
             }
         }
 
@@ -226,8 +200,15 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
 
         @Override
+        @SneakyThrows
         public ItemStackTemplate getResult() {
-            return this.result;
+            throw new IllegalAccessException("Could not invoke 'JewelCraftingRecipe$Builder#getResult()'");
+        }
+
+        @Override
+        @SneakyThrows
+        public ResourceKey<Recipe<?>> defaultId() {
+            throw new IllegalAccessException("Could not invoke 'JewelCraftingRecipe$Builder#defaultId()'");
         }
     }
 

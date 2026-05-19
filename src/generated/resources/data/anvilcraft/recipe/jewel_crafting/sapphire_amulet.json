@@ -1,10 +1,14 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "anvilcraft:sapphire_block"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "items": "anvilcraft:sapphire_block"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:sapphire_amulet"
+  "source": {
+    "items": "anvilcraft:sapphire_amulet"
   }
 }

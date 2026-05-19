@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -163,6 +164,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
      */
     default void extractDisabledSlot(GuiGraphicsExtractor graphics, Slot crafterSlot) {
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             SharedTextures.DISABLED_SLOT,
             crafterSlot.x,
             crafterSlot.y,

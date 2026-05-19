@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "items": "minecraft:paper"
+    },
+    {
+      "items": "minecraft:ink_sac"
+    }
+  ],
+  "source": {
+    "components": {
+      "predicates": {
+        "minecraft:provides_banner_patterns": {}
+      }
+    }
+  }
+}

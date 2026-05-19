@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.component;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -40,6 +41,6 @@ public class ItemCollectorButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        graphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 }

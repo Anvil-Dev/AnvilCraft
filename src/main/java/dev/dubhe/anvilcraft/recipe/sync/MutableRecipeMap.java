@@ -132,4 +132,9 @@ public class MutableRecipeMap {
     public <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> getRecipeFor(RecipeType<T> type, I input, Level level) {
         return this.getRecipesFor(type, input, level).findFirst();
     }
+
+    public void clear() {
+        this.byType.clear();
+        this.byKey.clear();
+    }
 }

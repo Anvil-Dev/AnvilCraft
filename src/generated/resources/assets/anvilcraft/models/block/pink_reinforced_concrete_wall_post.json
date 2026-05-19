@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/template_wall_post",
   "textures": {
-    "wall": "anvilcraft:block/reinforced_concrete_pink_wall"
+    "wall": "anvilcraft:block/pink_reinforced_concrete_wall"
   }
 }

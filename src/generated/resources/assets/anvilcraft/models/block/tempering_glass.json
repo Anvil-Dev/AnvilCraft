@@ -3,7 +3,7 @@
   "textures": {
     "all": {
       "force_translucent": true,
-      "sprite": "anvilcraft:block/"
+      "sprite": "anvilcraft:block/tempering_glass"
     }
   }
 }

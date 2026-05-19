@@ -1121,7 +1121,7 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy("has_item", AnvilCraftDatagen.has(lookup, Items.IRON_INGOT))
             .unlockedBy("has_item", AnvilCraftDatagen.has(lookup, Items.PISTON))
             .unlockedBy("has_item", AnvilCraftDatagen.has(lookup, ModItems.RUBY))
-            .save(provider, "empty_propel_piston");
+            .save(provider, AnvilCraft.recipe("empty_propel_piston"));
     }
 
     public static <T extends Block> void royalSteelBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -2107,7 +2107,9 @@ public class RegistrumBlockRecipeLoader {
             Items.NETHERRACK,
             0.0F,
             200
-        ).unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get())).save(provider);
+        )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get()))
+            .save(provider, AnvilCraft.recipe("netherrack"));
     }
 
     public static <T extends Block> void flintBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {

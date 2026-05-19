@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.inventory.container.FilterContainer;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,7 +39,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
@@ -88,6 +89,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
             this.leftPos,
             this.topPos,

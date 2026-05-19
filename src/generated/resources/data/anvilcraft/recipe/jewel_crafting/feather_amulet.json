@@ -1,29 +1,19 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:feather",
-    "minecraft:phantom_membrane",
-    "minecraft:phantom_membrane",
-    "minecraft:phantom_membrane",
-    "minecraft:phantom_membrane"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "count": 16,
+      "items": "minecraft:feather"
+    },
+    {
+      "count": 4,
+      "items": "minecraft:phantom_membrane"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:feather_amulet"
+  "source": {
+    "items": "anvilcraft:feather_amulet"
   }
 }

@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -52,10 +53,12 @@ abstract class RecipeManagerMixin {
     @Inject(method = "finalizeRecipeLoading", at = @At("RETURN"))
     private void sendRecipes2C(FeatureFlagSet enabledFlags, CallbackInfo ci) {
         RecipesRecord.RECIPES.syncFrom(this.recipes);
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return;
         RecipesRecord.sync2C(
             PacketDistributor::sendToAllPlayers,
             this.recipes.values(),
-            ServerLifecycleHooks.getCurrentServer().registryAccess()
+            server.registryAccess()
         );
     }
 }

@@ -1,41 +1,19 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "minecraft:bone",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat",
-    "#minecraft:meat"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "count": 16,
+      "items": "minecraft:bone"
+    },
+    {
+      "count": 16,
+      "items": "#minecraft:meat"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:dog_amulet"
+  "source": {
+    "items": "anvilcraft:dog_amulet"
   }
 }

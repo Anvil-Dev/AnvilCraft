@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
-import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -152,7 +151,6 @@ public class PlayerEventListener {
     @SubscribeEvent
     public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            RecipeCaches.sync(serverPlayer);
             RecipesRecord.sync2C(
                 (packet, packets) -> PacketDistributor.sendToPlayer(serverPlayer, packet, packets),
                 serverPlayer.level().recipeAccess().getRecipes(),

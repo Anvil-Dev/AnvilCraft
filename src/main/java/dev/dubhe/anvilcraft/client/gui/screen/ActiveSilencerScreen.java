@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -350,9 +351,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             int scrollY = (int) (posY + (scrollOff / (float) totalCount) * SCROLL_BAR_HEIGHT);
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
-            graphics.blit(SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
         } else {
-            graphics.blit(SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
         }
     }
 
@@ -379,12 +380,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             ActiveSilencerScreen.BACKGROUND,
             this.leftPos,
             this.topPos,

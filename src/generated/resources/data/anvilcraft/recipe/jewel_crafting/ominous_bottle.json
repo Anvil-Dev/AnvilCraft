@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "count": 16,
+      "items": "minecraft:experience_bottle"
+    },
+    {
+      "count": 2,
+      "items": "anvilcraft:cursed_gold_ingot"
+    },
+    {
+      "items": "minecraft:glass_bottle"
+    }
+  ],
+  "source": {
+    "items": "minecraft:ominous_bottle"
+  }
+}

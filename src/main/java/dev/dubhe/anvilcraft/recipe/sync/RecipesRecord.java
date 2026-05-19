@@ -37,6 +37,8 @@ public class RecipesRecord {
             );
             packet = new RecipesSyncPacket(new ArrayList<>(), buf);
         }
+        if (buf.writerIndex() > 0) packets.add(packet);
+        if (packets.isEmpty()) return;
         RecipesSyncPacket[] dest = new RecipesSyncPacket[packets.size() - 1];
         System.arraycopy(packets.toArray(RecipesSyncPacket[]::new), 1, dest, 0, packets.size() - 1);
         sender.accept(packets.getFirst(), dest);

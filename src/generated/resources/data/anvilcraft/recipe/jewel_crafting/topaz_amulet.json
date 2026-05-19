@@ -1,10 +1,14 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "anvilcraft:topaz_block"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "items": "anvilcraft:topaz_block"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:topaz_amulet"
+  "source": {
+    "items": "anvilcraft:topaz_amulet"
   }
 }

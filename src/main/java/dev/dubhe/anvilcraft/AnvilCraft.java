@@ -46,18 +46,14 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModSlotDisplays;
-import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import lombok.Getter;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Unit;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -134,7 +130,6 @@ public class AnvilCraft {
 
     private static void registerEvents(IEventBus eventBus) {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
-        NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addItemTooltips);
 
         eventBus.addListener(AnvilCraft::registerPayload);
@@ -166,17 +161,6 @@ public class AnvilCraft {
 
     public static void addItemTooltips(ItemTooltipEvent event) {
         ItemTooltipManager.addTooltip(event.getItemStack(), event.getToolTip(), event.getFlags());
-    }
-
-    public static void addReloadListeners(AddServerReloadListenersEvent event) {
-        RecipeManager recipeManager = event.getServerResources().getRecipeManager();
-        event.addListener(AnvilCraft.of("on_reload"), (
-            _,
-            _,
-            prepBarrier,
-            reloadExecutor
-        ) -> prepBarrier.wait(Unit.INSTANCE)
-            .thenRunAsync(() -> RecipeCaches.reload(recipeManager), reloadExecutor));
     }
 
     public static void loadComplete(FMLLoadCompleteEvent event) {

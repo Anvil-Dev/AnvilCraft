@@ -1,25 +1,15 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard",
-    "minecraft:echo_shard"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "count": 16,
+      "items": "minecraft:echo_shard"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:silence_amulet"
+  "source": {
+    "items": "anvilcraft:silence_amulet"
   }
 }

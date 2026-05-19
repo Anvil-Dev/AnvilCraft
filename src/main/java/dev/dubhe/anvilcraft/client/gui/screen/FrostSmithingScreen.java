@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.network.multiple.FrostSmithingPackets;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -85,7 +86,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
@@ -258,7 +259,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             (this.menu.getSlot(0).hasItem() && this.menu.getSlot(2).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
         ) {
-            graphics.blit(SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 

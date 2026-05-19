@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "count": 16,
+      "items": "minecraft:experience_bottle"
+    },
+    {
+      "count": 8,
+      "items": "minecraft:gold_block"
+    },
+    {
+      "items": "minecraft:golden_apple"
+    }
+  ],
+  "source": {
+    "items": "minecraft:enchanted_golden_apple"
+  }
+}

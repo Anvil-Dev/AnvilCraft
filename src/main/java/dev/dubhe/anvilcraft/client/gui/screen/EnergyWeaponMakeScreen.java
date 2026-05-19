@@ -66,7 +66,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
                 selected = true;
             }
 
-            graphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
             graphics.item(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
         }
     }
@@ -223,6 +223,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
             this.leftPos,
             this.topPos,

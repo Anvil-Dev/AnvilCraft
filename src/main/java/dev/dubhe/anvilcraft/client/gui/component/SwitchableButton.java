@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -59,7 +60,18 @@ public class SwitchableButton extends Button {
             offsetV = this.texYDiff;
         }
         if (this.current < this.textures.size()) {
-            graphics.blit(this.textures.get(this.current), this.getX(), this.getY(), 0, offsetV, width, height, this.textureWidth, this.textureHeight);
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                this.textures.get(this.current),
+                this.getX(),
+                this.getY(),
+                0,
+                offsetV,
+                this.width,
+                this.height,
+                this.textureWidth,
+                this.textureHeight
+            );
         }
         if (MathUtil.isInRange(mouseX, this.getX(), this.getX() + this.width)
             && MathUtil.isInRange(mouseY, this.getY(), this.getY() + this.height)

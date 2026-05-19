@@ -7,7 +7,7 @@
       "model": "anvilcraft:block/blue_reinforced_concrete"
     },
     "half=top": {
-      "model": "anvilcraft:block/blue_reinforced_concrete_top_"
+      "model": "anvilcraft:block/blue_reinforced_concrete_top"
     }
   }
 }

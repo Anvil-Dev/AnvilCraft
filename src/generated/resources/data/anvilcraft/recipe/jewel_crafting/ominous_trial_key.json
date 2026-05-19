@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "count": 3,
+      "items": "minecraft:polished_tuff"
+    },
+    {
+      "items": "minecraft:oxidized_copper"
+    },
+    {
+      "items": "minecraft:ominous_bottle"
+    }
+  ],
+  "source": {
+    "items": "minecraft:ominous_trial_key"
+  }
+}

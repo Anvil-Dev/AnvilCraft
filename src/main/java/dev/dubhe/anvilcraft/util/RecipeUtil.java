@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
@@ -13,16 +15,20 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,5 +110,25 @@ public class RecipeUtil {
         }
 
         return levelLike;
+    }
+
+    private static final Int2ObjectMap<List<ItemStack>> INGREDIENT_CACHE = new Int2ObjectArrayMap<>();
+
+    public static List<ItemStack> getItems(ItemIngredientPredicate predicate, HolderLookup<Item> items) {
+        int hash = predicate.hashCode();
+        if (!INGREDIENT_CACHE.containsKey(hash)) {
+            if (predicate.items().isPresent()) {
+                INGREDIENT_CACHE.put(hash, Arrays.stream(predicate.getItems()).map(ItemStackTemplate::create).toList());
+            } else {
+                List<ItemStack> stacks = new ArrayList<>();
+                items.listElements()
+                    .map(Holder.Reference::value)
+                    .map(Item::getDefaultInstance)
+                    .filter(predicate)
+                    .forEach(stacks::add);
+                INGREDIENT_CACHE.put(hash, List.copyOf(stacks));
+            }
+        }
+        return INGREDIENT_CACHE.get(hash);
     }
 }

@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -363,9 +364,9 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             int scrollY = (int) (posY + (scrollOff / (float) totalCount) * SCROLL_BAR_HEIGHT);
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
-            graphics.blit(SharedTextures.SMALL_SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SMALL_SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
         } else {
-            graphics.blit(SharedTextures.SMALL_SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SMALL_SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
         }
     }
 
@@ -389,12 +390,13 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
             this.leftPos,
             this.topPos,

@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,7 +30,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
         if (this.menu.getSlot(2).hasItem()) {
             Component removedText = Component.translatable("screen.anvilcraft.royal_grindstone.will_remove");
             this.drawLabel(
@@ -82,6 +83,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
             this.leftPos,
             this.topPos,

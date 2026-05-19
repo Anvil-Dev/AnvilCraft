@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "count": 4,
+      "items": "anvilcraft:hardend_resin"
+    },
+    {
+      "items": "minecraft:paper"
+    }
+  ],
+  "source": {
+    "components": {
+      "predicates": {
+        "minecraft:jukebox_playable": {}
+      }
+    }
+  }
+}

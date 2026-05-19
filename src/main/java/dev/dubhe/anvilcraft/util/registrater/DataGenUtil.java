@@ -73,7 +73,7 @@ public class DataGenUtil {
     public static <T extends Item> void energy(DataGenContext<Item, T> ctx, CreativeModeTabModifier modifier) {
         ItemStack stack = ctx.get().getDefaultInstance();
         stack.set(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY);
-        modifier.accept(stack.copy());
+        modifier.accept(stack);
         modifier.accept(ctx.get().getDefaultInstance());
     }
 
@@ -189,7 +189,7 @@ public class DataGenUtil {
         return (ctx, generator) -> {
             Item item = ctx.get();
             ItemModel.Unbaked normal = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item));
-            ItemModel.Unbaked off = ItemModelUtils.plainModel(generator.createFlatItemModel(item, "_off", ModelTemplates.FLAT_ITEM));
+            ItemModel.Unbaked off = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item).withSuffix("_exhausted"));
             generator.itemModelOutput.accept(
                 item,
                 ItemModelUtils.conditional(
@@ -228,7 +228,7 @@ public class DataGenUtil {
             generator.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
                 block,
                 BlockModelGenerators.plainVariant(new TexturedModel(
-                    new TextureMapping().put(TextureSlot.ALL, new Material(ctx.getId().withPath("block/"), true)),
+                    new TextureMapping().put(TextureSlot.ALL, new Material(ctx.getId().withPrefix("block/"), true)),
                     ModelTemplates.CUBE_ALL
                 ).create(block, generator.modelOutput))
             ));

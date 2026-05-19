@@ -1,0 +1,24 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "count": 8,
+      "items": "minecraft:phantom_membrane"
+    },
+    {
+      "count": 8,
+      "items": "#c:feathers"
+    },
+    {
+      "count": 2,
+      "items": "#c:leathers"
+    },
+    {
+      "count": 16,
+      "items": "minecraft:bamboo"
+    }
+  ],
+  "source": {
+    "items": "minecraft:elytra"
+  }
+}

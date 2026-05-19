@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,6 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.List;
 
 public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "jewelcrafting_table");
@@ -26,7 +29,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
@@ -40,6 +43,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
             this.leftPos,
             this.topPos,
@@ -66,10 +70,10 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             Slot slot = this.menu.getSlot(i);
             if (!slot.hasItem() && slot instanceof JewelInputSlot inputSlot) {
                 int count = inputSlot.getHintCount();
-                ItemStack[] ingredientItems = inputSlot.getIngredientItems();
+                List<ItemStack> ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
-                    int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
-                    ItemStack stack = ingredientItems[index];
+                    int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.size());
+                    ItemStack stack = ingredientItems.get(index);
                     GuiRenderExtras.itemWithTransparency(graphics, stack, slot.x, slot.y, 0.52F);
                     graphics.itemDecorations(this.font, stack.copyWithCount(count), slot.x, slot.y);
                 }
@@ -85,10 +89,10 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             if (this.hoveredSlot.hasItem()) {
                 itemstack = this.hoveredSlot.getItem();
             } else if (this.hoveredSlot instanceof JewelInputSlot inputSlot) {
-                ItemStack[] ingredientItems = inputSlot.getIngredientItems();
+                List<ItemStack> ingredientItems = inputSlot.getIngredientItems();
                 if (ingredientItems != null) {
-                    int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.length);
-                    itemstack = ingredientItems[index];
+                    int index = (int) ((System.currentTimeMillis() / 1000) % ingredientItems.size());
+                    itemstack = ingredientItems.get(index);
                 }
             }
             if (itemstack != null) {

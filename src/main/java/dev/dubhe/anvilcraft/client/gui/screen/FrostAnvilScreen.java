@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
@@ -98,7 +99,7 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
             this.title,
             this.titleLabelX,
             this.titleLabelY,
-            4210752,
+            0xFF404040,
             false
         );
         int i = this.menu.getCost();
@@ -126,7 +127,7 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
         Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
                              ? SharedTextures.TEXT_FIELD_DISABLE
                              : SharedTextures.TEXT_FIELD;
-        graphics.blit(texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
         this.name.extractWidgetRenderState(graphics, mouseX, mouseY, a);
     }
 
@@ -136,7 +137,7 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
             (this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
         ) {
-            graphics.blit(SharedTextures.ERROR_SPRITE, x + 103, y + 47, 0, 0, 16, 16, 16, 16);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.ERROR_SPRITE, x + 103, y + 47, 0, 0, 16, 16, 16, 16);
         }
     }
 

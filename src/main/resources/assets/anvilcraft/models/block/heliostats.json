@@ -3,7 +3,8 @@
 	"parent": "minecraft:block/block",
 	"texture_size": [64, 64],
 	"textures": {
-		"3": "anvilcraft:block/heliostats"
+		"3": "anvilcraft:block/heliostats",
+		"particle": "anvilcraft:block/heliostats"
 	},
 	"elements": [
 		{

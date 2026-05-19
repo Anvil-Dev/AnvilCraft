@@ -5,9 +5,10 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.util.RecipeUtil;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -17,12 +18,15 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.common.gui.elements.DrawableText;
+import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<JewelCraftingRecipe>> {
     public static final int WIDTH = 162;
@@ -67,15 +71,13 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<JewelCraftingRecipe> recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).add(recipe.value().result.create().copyWithCount(1));
-        for (int i = 0; i < recipe.value().mergedIngredients.size(); i++) {
-            var entry = recipe.value().mergedIngredients.get(i);
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, 5 + i * 18, 37).add(entry.getKey());
-            if (entry.getIntValue() > 1) {
-                slot.setOverlay(new DrawableText("" + entry.getIntValue(), 2, 2, 0xFFFFFFFF), 12, 12);
-            }
-        }
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).add(recipe.value().result.create());
+        List<ItemStack> source = RecipeUtil.getItems(
+            recipe.value().source(),
+            RegistryUtil.getRegistryAccess().lookupOrThrow(Registries.ITEM)
+        );
+        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).addItemStacks(source);
+        JeiSlotUtil.addInputSlots(builder, recipe.value().ingredients());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).addItemStacks(source);
     }
 
     @Override
@@ -86,7 +88,7 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
         double mouseX,
         double mouseY
     ) {
-        // source
+        // result
         this.slotDefault.draw(graphics, 58, 10);
         // result
         this.slotDefault.draw(graphics, 134, 23);

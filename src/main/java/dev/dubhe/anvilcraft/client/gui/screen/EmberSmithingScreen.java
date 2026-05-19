@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -70,7 +71,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
@@ -133,7 +134,18 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
         for (int i = 2; i < 10; i++) {
             if (this.isSlotEnabled(i)) continue;
             Slot slot = this.menu.getSlot(i);
-            graphics.blit(SharedTextures.DISABLED_SLOT, this.leftPos + slot.x, this.topPos + slot.y, 0, 0, 16, 16, 16, 16);
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                SharedTextures.DISABLED_SLOT,
+                this.leftPos + slot.x,
+                this.topPos + slot.y,
+                0,
+                0,
+                16,
+                16,
+                16,
+                16
+            );
         }
     }
 
@@ -144,7 +156,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     @Override
     protected void extractErrorIcon(GuiGraphicsExtractor graphics, int xo, int yo) {
         if (this.menu.canCreateResult()) return;
-        graphics.blit(SharedTextures.ERROR_SPRITE, xo + 123, yo + 48, 0, 0, 16, 16, 16, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.ERROR_SPRITE, xo + 123, yo + 48, 0, 0, 16, 16, 16, 16);
     }
 
     private void extractOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {

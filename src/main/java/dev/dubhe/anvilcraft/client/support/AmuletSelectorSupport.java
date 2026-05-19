@@ -29,6 +29,7 @@ public class AmuletSelectorSupport {
         int left = x - BACKGROUND_WIDTH / 2;
         int top = y - BACKGROUND_HEIGHT - 5;
         graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
             left,
             top,

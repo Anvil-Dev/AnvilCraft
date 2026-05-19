@@ -1,41 +1,19 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:salmon",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod",
-    "minecraft:cod"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "count": 16,
+      "items": "minecraft:salmon"
+    },
+    {
+      "count": 16,
+      "items": "minecraft:cod"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:cat_amulet"
+  "source": {
+    "items": "anvilcraft:cat_amulet"
   }
 }

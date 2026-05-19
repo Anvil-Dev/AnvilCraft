@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -148,7 +149,7 @@ public class SliderWidget extends AbstractWidget {
                 this.scroll = true;
                 scrolling = false;
             }
-            double offset = (dx - 8 - this.posX) / this.length;
+            double offset = (event.x() - 8 - this.posX) / this.length;
             this.setProportion(offset);
         }
         if (this.scroll) this.update();
@@ -171,7 +172,7 @@ public class SliderWidget extends AbstractWidget {
         this.isHovered = this.isInSlider(mouseX, mouseY);
         double prop = this.getProportion();
         int offsetX = this.posX + (int) ((this.length) * prop);
-        graphics.blit(SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
     }
 
     @Override

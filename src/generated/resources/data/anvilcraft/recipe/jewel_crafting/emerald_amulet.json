@@ -1,10 +1,14 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "minecraft:emerald_block"
+    {
+      "items": "anvilcraft:silver_ingot"
+    },
+    {
+      "items": "minecraft:emerald_block"
+    }
   ],
-  "result": {
-    "id": "anvilcraft:emerald_amulet"
+  "source": {
+    "items": "anvilcraft:emerald_amulet"
   }
 }

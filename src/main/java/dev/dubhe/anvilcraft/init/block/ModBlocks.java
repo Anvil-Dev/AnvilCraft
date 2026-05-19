@@ -204,6 +204,7 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
@@ -306,7 +307,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::horizontalFacingBlock)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::stampingPlatform)
@@ -978,7 +979,7 @@ public class ModBlocks {
     public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRUM.block("impact_pile", ImpactPileBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .recipe(RegistrumBlockRecipeLoader::impactPile)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -1090,7 +1091,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
         .properties(p -> p.noLootTable().isValidSpawn(Blocks::never))
         .simpleItem()
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .register();
 
     public static final BlockEntry<SpaceOvercompressorBlock> SPACE_OVERCOMPRESSOR = REGISTRUM.block(
@@ -1467,7 +1468,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_FROST_METAL
         )
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item(FrostMetalBlockItem::new)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_FROST_METAL, ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -1492,7 +1493,7 @@ public class ModBlocks {
                 .emissiveRendering(ModBlocks::always)
                 .explosionResistance(1200)
         )
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -1592,7 +1593,7 @@ public class ModBlocks {
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.HEATABLE_BLOCKS
         )
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.HEATABLE_BLOCKS)
@@ -1608,7 +1609,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .build()
@@ -1688,7 +1689,7 @@ public class ModBlocks {
             ModBlockTags.STORAGE_BLOCKS_TRANSCENDIUM,
             ModBlockTags.COLLISION_IMMUNE
         )
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.EXPLOSION_PROOF, Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
@@ -1699,7 +1700,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.noOcclusion().strength(5.0F, 1200F))
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::heavyIronBlock)
@@ -2881,7 +2882,7 @@ public class ModBlocks {
                 Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
                     .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
                     .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)), false)
-                    .build(generator.modLoc("block/%s_reinforced_concrete_top_".formatted(color)));
+                    .build(generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)));
                 Identifier bottomModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
                     .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
                     .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
@@ -2923,7 +2924,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/reinforced_concrete_" + color)))
+            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
             .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteSlab(parent))
@@ -2949,7 +2950,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/reinforced_concrete_" + color)))
+            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteStair(parent))
             .register();
@@ -2968,7 +2969,7 @@ public class ModBlocks {
         return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))
+            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall".formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
             .item()
@@ -3215,7 +3216,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3228,7 +3229,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3241,7 +3242,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3254,7 +3255,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3267,7 +3268,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item(SuperHeavyBlockItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(16))
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3281,7 +3282,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -3291,7 +3292,7 @@ public class ModBlocks {
 
     public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK)
             .lightLevel(state -> 15)
             .noOcclusion()
@@ -3310,40 +3311,34 @@ public class ModBlocks {
         .loot(SugarBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_SUGAR, Tags.Blocks.STORAGE_BLOCKS)
         .blockstate(() -> (ctx, generator) -> {
-            var sugarBlock = generator.getBuilder()
-                .parent(Identifier.withDefaultNamespace("block/cube_all"))
-                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block"), false)
-                .suffix("_0")
-                .build(ctx.get());
-            var sugarBlock1 = generator.getBuilder()
-                .parent(Identifier.withDefaultNamespace("block/cube_all"))
-                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_1"), false)
-                .suffix("_1")
-                .build(ctx.get());
-            var sugarBlock2 = generator.getBuilder()
-                .parent(Identifier.withDefaultNamespace("block/cube_all"))
-                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_2"), false)
-                .suffix("_2")
-                .build(ctx.get());
-            var sugarBlock3 = generator.getBuilder()
-                .parent(Identifier.withDefaultNamespace("block/cube_all"))
-                .texture(TextureSlot.ALL, generator.modLoc("block/sugar_block_3"), false)
-                .suffix("_3")
-                .build(ctx.get());
-            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
-                .with(PropertyDispatch.initial(SugarBlock.FRAGMENTATION_DEGREE)
-                    .select(FragmentationDegree.ZERO, new MultiVariant(WeightedList.<Variant>builder()
-                        .add(new Variant(sugarBlock))
-                        .build()))
-                    .select(FragmentationDegree.ONE, new MultiVariant(WeightedList.<Variant>builder()
-                        .add(new Variant(sugarBlock1))
-                        .build()))
-                    .select(FragmentationDegree.TWO, new MultiVariant(WeightedList.<Variant>builder()
-                        .add(new Variant(sugarBlock2))
-                        .build()))
-                    .select(FragmentationDegree.THREE, new MultiVariant(WeightedList.<Variant>builder()
-                        .add(new Variant(sugarBlock3))
-                        .build()))));
+            Identifier block = ModelLocationUtils.getModelLocation(ctx.get());
+            Identifier stage0 = ModelTemplates.CUBE_ALL.create(
+                block,
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block"), false)),
+                generator.modelOutput
+            );
+            Identifier stage1 = ModelTemplates.CUBE_ALL.create(
+                block.withSuffix("_1"),
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_1"), false)),
+                generator.modelOutput
+            );
+            Identifier stage2 = ModelTemplates.CUBE_ALL.create(
+                block.withSuffix("_2"),
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_2"), false)),
+                generator.modelOutput
+            );
+            Identifier stage3 = ModelTemplates.CUBE_ALL.create(
+                block.withSuffix("_3"),
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_3"), false)),
+                generator.modelOutput
+            );
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get()).with(
+                PropertyDispatch.initial(SugarBlock.FRAGMENTATION_DEGREE)
+                    .select(FragmentationDegree.ZERO, BlockModelGenerators.plainVariant(stage0))
+                    .select(FragmentationDegree.ONE, BlockModelGenerators.plainVariant(stage1))
+                    .select(FragmentationDegree.TWO, BlockModelGenerators.plainVariant(stage2))
+                    .select(FragmentationDegree.THREE, BlockModelGenerators.plainVariant(stage3))
+            ));
         })
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_SUGAR, Tags.Items.STORAGE_BLOCKS)

@@ -111,7 +111,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
     public ResourceKey<Recipe<?>> defaultId() {
         return ResourceKey.create(
             Registries.RECIPE,
-            this.getResult().typeHolder().unwrapKey().orElseThrow().identifier().withPrefix(this.getType() + "/")
+            AnvilCraft.of(this.getResult().typeHolder().unwrapKey().orElseThrow().identifier().getPath()).withPrefix(this.getType() + "/")
         );
     }
 

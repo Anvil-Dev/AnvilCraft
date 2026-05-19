@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "count": 64,
+      "items": "anvilcraft:heavy_iron_block"
+    },
+    {
+      "count": 64,
+      "items": "#c:storage_blocks/lead"
+    },
+    {
+      "items": "anvilcraft:space_overcompressor"
+    }
+  ],
+  "source": {
+    "items": "minecraft:heavy_core"
+  }
+}
