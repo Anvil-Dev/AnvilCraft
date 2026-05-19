@@ -17,7 +17,7 @@ items:
 - <translate key="block.minecraft.damaged_anvil"/>：1%
 - <translate key="block.minecraft.chipped_anvil"/>：2%
 - <translate key="block.minecraft.anvil"/>：3%
-- [<translate key="block.anvilcraft.royal_anvil"/>](103_royal_anvil.md)：50%
+- [<translate key="block.anvilcraft.royal_anvil"/>](113_royal_anvil.md)：50%
 - [<translate key="block.anvilcraft.ember_anvil"/>](223_ember_anvil.md)：100%
 - [<translate key="block.anvilcraft.transcendence_anvil"/>](311_transcendence_anvil.md)：100%
 

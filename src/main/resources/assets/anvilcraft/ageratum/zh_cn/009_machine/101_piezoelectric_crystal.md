@@ -28,7 +28,7 @@ navigation:
 # 皇家铁砧下弹压电发电机
 
 - 随着进一步的发展，第一台发电机的电量很可能不够用了，是时候进行升级了
-- 铁砧从高处落下的撞击会穿透多层压电晶体，产生更多电量。[<translate key="block.anvilcraft.royal_anvil"/>](../004_block/103_royal_anvil.md)从高处落下不会摔碎，正是合适的选择
+- 铁砧从高处落下的撞击会穿透多层压电晶体，产生更多电量。[<translate key="block.anvilcraft.royal_anvil"/>](../004_block/113_royal_anvil.md)从高处落下不会摔碎，正是合适的选择
 - 虽然高处落下的铁砧发电量更多，但从高处落下也需要更长的时间。有什么办法可以让铁砧更快下落呢？答案是用 <translate key="block.minecraft.slime_block"/> 向下弹射
 
 发电量 15kW/个铁砧；共计 150kW

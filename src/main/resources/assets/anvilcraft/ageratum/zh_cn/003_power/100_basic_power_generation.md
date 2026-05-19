@@ -49,7 +49,7 @@ items:
 |:------------------------------------------------:|:-----|:-----|:-----|:-----|
 |   [<translate key="block.anvilcraft.spectral_anvil"/>](../004_block/105_spectral_anvil.md)    | 1    | 2    | 3    | 4    |
 |        <translate key="block.minecraft.anvil"/>         | 1    | 2    | 4    | 8    |
-|     [<translate key="block.anvilcraft.royal_anvil"/>](../004_block/103_royal_anvil.md)     | 1    | 2    | 4    | 8    |
+|     [<translate key="block.anvilcraft.royal_anvil"/>](../004_block/113_royal_anvil.md)     | 1    | 2    | 4    | 8    |
 |     [<translate key="block.anvilcraft.ember_anvil"/>](../004_block/223_ember_anvil.md)     | 1    | 2    | 5    | 12   |
 | [<translate key="block.anvilcraft.transcendence_anvil"/>](../004_block/311_transcendence_anvil.md) | 2    | 5    | 15   | 60   |
 

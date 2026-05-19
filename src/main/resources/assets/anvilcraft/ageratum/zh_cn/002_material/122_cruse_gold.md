@@ -22,7 +22,7 @@ items:
 
 # 获取
 
-在[<translate key="block.anvilcraft.royal_grindstone"/>](../004_block/102_royal_grindstone.md)上使用金锭(块)驱除诅咒附魔或附魔惩罚以获得
+在[<translate key="block.anvilcraft.royal_grindstone"/>](../004_block/112_royal_grindstone.md)上使用金锭(块)驱除诅咒附魔或附魔惩罚以获得
 
 # 功能
 

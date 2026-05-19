@@ -13,7 +13,7 @@ items:
 ## 功能
 
 - [<translate key="block.anvilcraft.frost_anvil"/>](233_frost_anvil.md)永远不会损坏
-- 具有[<translate key="block.anvilcraft.royal_anvil"/>](103_royal_anvil.md)的一切锻造能力
+- 具有[<translate key="block.anvilcraft.royal_anvil"/>](113_royal_anvil.md)的一切锻造能力
 - 合并附魔时，铁砧惩罚增长更缓慢，每次+1(原版为*2)
 - 可以消耗浮霜金属修复任意工具，且不增加铁砧惩罚
 - 命名物品不消耗经验且不增加铁砧惩罚
