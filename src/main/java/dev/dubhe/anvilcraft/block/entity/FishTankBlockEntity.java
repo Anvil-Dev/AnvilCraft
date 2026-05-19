@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +32,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -38,13 +42,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
@@ -57,10 +61,6 @@ import javax.annotation.Nullable;
 @Getter
 public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder {
     private static final double EPSILON = 1.0 / 1024.0;
-    public static final AABB FISH_TANK_INNER_WALL = new AABB(
-        new Vec3(0.0625, 0.0625, 0.0625),
-        new Vec3(15.9375, 16, 15.9375)
-    );
     public static final int CAPACITY = FluidType.BUCKET_VOLUME;
     public static final int MAX_TROPICAL_FISH = 4;
     public static final Double FISH_HEIGHT = 0.75D;
@@ -344,7 +344,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         if (FishTankBlockEntity.isLowerSideArea(hitResult) && level != null) {
             if (this.interactWithFish(level, player, hand)) return true;
         }
-        if (FluidUtil.interactWithFluidHandler(player, hand, this.fluidHandler)) return true;
+        if (this.interactWithFluid(player, hand)) return true;
         if (inHand.isEmpty()) {
             List<ItemStack> stacks = FishTankBlockEntity.extractAllFromTank(this.itemHandler, TriState.TRUE);
             if (stacks.isEmpty()) return false;
@@ -393,6 +393,44 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
         if (Math.abs(z - 0.125) < FishTankBlockEntity.EPSILON || Math.abs(z - 0.875) < FishTankBlockEntity.EPSILON) {
             return MathUtil.isInRange(x, y, 0.124, 0.874, 0.876, 1.001);
+        }
+        return false;
+    }
+
+    private boolean interactWithFluid(Player player, InteractionHand hand) {
+        if (FluidUtil.interactWithFluidHandler(player, hand, this.fluidHandler)) return true;
+        ItemStack inHand = player.getItemInHand(hand);
+        if (inHand.is(Items.GLASS_BOTTLE)) {
+            FluidStack stack = this.fluidHandler.getFluid();
+            if (stack.is(Fluids.WATER)) {
+                FluidStack drained = this.fluidHandler.drain(250, IFluidHandler.FluidAction.SIMULATE);
+                if (drained.getAmount() != 250) return false;
+                this.fluidHandler.drain(250, IFluidHandler.FluidAction.EXECUTE);
+                if (!player.hasInfiniteMaterials()) inHand.shrink(1);
+                if (inHand.isEmpty()) {
+                    player.setItemInHand(hand, Items.POTION.getDefaultInstance());
+                } else {
+                    if (!player.hasInfiniteMaterials()) player.addItem(Items.POTION.getDefaultInstance());
+                }
+                return true;
+            }
+        } else if (inHand.has(DataComponents.POTION_CONTENTS)) {
+            PotionContents contents = inHand.get(DataComponents.POTION_CONTENTS);
+            if (contents.potion().isEmpty()) return false;
+            Holder<Potion> potion = contents.potion().get();
+            if (potion == Potions.WATER) {
+                FluidStack stack = new FluidStack(Fluids.WATER, 250);
+                int filled = this.fluidHandler.fill(stack, IFluidHandler.FluidAction.SIMULATE);
+                if (filled != 250) return false;
+                this.fluidHandler.fill(stack, IFluidHandler.FluidAction.EXECUTE);
+                if (!player.hasInfiniteMaterials()) inHand.shrink(1);
+                if (inHand.isEmpty()) {
+                    player.setItemInHand(hand, Items.GLASS_BOTTLE.getDefaultInstance());
+                } else {
+                    if (!player.hasInfiniteMaterials()) player.addItem(Items.GLASS_BOTTLE.getDefaultInstance());
+                }
+                return true;
+            }
         }
         return false;
     }
