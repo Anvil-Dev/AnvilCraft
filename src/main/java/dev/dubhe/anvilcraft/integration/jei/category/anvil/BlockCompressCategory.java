@@ -92,21 +92,20 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     ) {
         BlockCompressRecipe recipe = recipeHolder.value();
 
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         this.arrowDefault.draw(graphics, 73, 35);
-
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 50, 12 + anvilYOffset, 12);
 
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) continue;
-            RenderSupport.renderBlock(graphics, renderedState, 50, 30 + 10 * i, 12);
+            RenderSupport.renderBlock(graphics, renderedState, 40, 30 + 10 * i, 20);
         }
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 40, 12 + anvilYOffset, 20);
 
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 12);
-        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 110, 40, 12);
+        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 100, 40, 20);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 100, 30, 20);
     }
 
     @Override

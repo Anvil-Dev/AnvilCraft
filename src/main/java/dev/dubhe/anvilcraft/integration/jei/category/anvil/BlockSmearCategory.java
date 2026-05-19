@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -90,24 +91,23 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     ) {
         BlockSmearRecipe recipe = recipeHolder.value();
 
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         this.arrowDefault.draw(graphics, 73, 35);
-
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 50, 12 + anvilYOffset, 12);
 
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) continue;
-            RenderSupport.renderBlock(graphics, renderedState, 50, 30 + 10 * i, 12);
+            RenderSupport.renderBlock(graphics, renderedState, 40, 30 + 10 * i, 20);
         }
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 40, 12 + anvilYOffset, 20);
 
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 12);
+        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 100, 40, 20);
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-        RenderSupport.renderBlock(graphics, renderedState, 110, 30, 12);
-        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 110, 40, 12);
+        RenderSupport.renderBlock(graphics, renderedState, 100, 30, 20);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 100, 20, 20);
     }
 
     @Override
@@ -122,19 +122,19 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
         BlockSmearRecipe recipe = recipeHolder.value();
         Identifier id = this.getIdentifier(recipeHolder);
 
-        if (mouseX >= 40 && mouseX <= 58) {
-            if (mouseY >= 24 && mouseY < 42) {
+        if (MathUtil.isInRange(mouseX, 40, 58)) {
+            if (MathUtil.isInRange(mouseY, 24, 42)) {
                 tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getFirst()));
             }
-            if (mouseY >= 42 && mouseY <= 52) {
+            if (MathUtil.isInRange(mouseY, 42, 52)) {
                 tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getLast()));
             }
         }
-        if (mouseX >= 100 && mouseX <= 118) {
-            if (mouseY >= 24 && mouseY < 42) {
+        if (MathUtil.isInRange(mouseX, 100, 118)) {
+            if (MathUtil.isInRange(mouseY, 24, 42)) {
                 tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getFirst()));
             }
-            if (mouseY >= 42 && mouseY <= 52) {
+            if (MathUtil.isInRange(mouseY, 42, 52)) {
                 Block block = recipe.getFirstResultBlock().state().getBlock();
                 if (id != null) {
                     tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));

@@ -57,9 +57,9 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
     ) {
         final SuperHeatingRecipe recipe = recipeHolder.value();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);
-        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
-        RenderSupport.renderBlock(graphics, ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false), 81, 40, 12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 20);
+        RenderSupport.renderBlock(graphics, ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false), 81, 40, 20);
 
         arrowIn.draw(graphics, 54, 20);
         arrowOut.draw(graphics, 92, 19);
@@ -74,7 +74,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
         HasCauldronSimple hasCauldron = recipe.getHasCauldron();
         if (!HasCauldron.isNotEmpty(hasCauldron.transform())) return;
         BlockState cauldron = CauldronUtil.fullState(hasCauldron.getTransformCauldron());
-        RenderSupport.renderBlock(graphics, cauldron, 133, 30, 12);
+        RenderSupport.renderBlock(graphics, cauldron, 133, 30, 20);
 
         if (recipe.isConsumeFluid()) {
             Matrix3x2fStack pose = graphics.pose();

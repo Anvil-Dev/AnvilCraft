@@ -161,7 +161,7 @@ public class MobTransformWithItemCategory implements IRecipeCategory<RecipeHolde
             .getDefaultState()
             .trySetValue(BlockStateProperties.WATERLOGGED, false);
 
-        RenderSupport.renderBlock(graphics, block, 81, 40, 12);
+        RenderSupport.renderBlock(graphics, block, 81, 40, 20);
 
         this.arrowDefault.draw(graphics, 74, 22);
 

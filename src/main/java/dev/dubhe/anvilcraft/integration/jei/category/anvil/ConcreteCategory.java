@@ -98,8 +98,8 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         double mouseY
     ) {
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
-        RenderSupport.renderBlock(graphics, ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(), 81, 40, 12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(), 81, 40, 20);
 
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);

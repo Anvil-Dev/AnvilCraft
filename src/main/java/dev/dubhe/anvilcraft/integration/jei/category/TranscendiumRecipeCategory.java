@@ -142,8 +142,8 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
     ) {
         final int recipeId = recipe.recipeId();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
-        RenderSupport.renderBlock(graphics, ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getDefaultState(), 81, 40, 12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getDefaultState(), 81, 40, 20);
         this.slotDefault.draw(graphics, 20, 23);
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOut.draw(graphics, 92, 29);
@@ -161,12 +161,12 @@ public class TranscendiumRecipeCategory implements IRecipeCategory<TranscendiumR
             }
             case 3 -> {
                 this.slotDefault.draw(graphics, 124, 14);
-                RenderSupport.renderBlock(graphics, ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(), 133, 45, 12);
+                RenderSupport.renderBlock(graphics, ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(), 133, 45, 20);
             }
             case 4 -> {
                 this.slotDefault.draw(graphics, 115, 14);
                 this.slotDefault.draw(graphics, 133, 14);
-                RenderSupport.renderBlock(graphics, ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(), 133, 45, 12);
+                RenderSupport.renderBlock(graphics, ModBlocks.TRANSCENDIUM_BLOCK.getDefaultState(), 133, 45, 20);
             }
             default -> {
             }

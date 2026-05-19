@@ -198,7 +198,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         inputBlockRenderedState,
                         120,
                         5,
-                        12
+                        20
                     );
 
                     ChanceBlockState outputBlock = blockTransform.outputBlock();
@@ -208,7 +208,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         outputBlockState,
                         120,
                         48,
-                        12
+                        20
                     );
 
                     this.blockConversion.draw(graphics, 113, 19);

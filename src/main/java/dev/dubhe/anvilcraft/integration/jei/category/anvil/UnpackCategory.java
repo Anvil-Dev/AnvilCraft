@@ -48,8 +48,8 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     ) {
         final UnpackRecipe recipe = recipeHolder.value();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
-        RenderSupport.renderBlock(graphics, Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP), 81, 40, 12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP), 81, 40, 20);
 
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);

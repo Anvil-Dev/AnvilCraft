@@ -102,11 +102,11 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     ) {
         NeutronIrradiationRecipe recipe = recipeHolder.value();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 20);
         Block material = recipe.getHasCauldron().getFluidCauldron();
-        RenderSupport.renderBlock(graphics, CauldronUtil.fullState(material), 81, 30, 12);
+        RenderSupport.renderBlock(graphics, CauldronUtil.fullState(material), 81, 30, 20);
 
-        RenderSupport.renderBlock(graphics, ModBlocks.NEUTRON_IRRADIATOR.getDefaultState(), 81, 40, 12);
+        RenderSupport.renderBlock(graphics, ModBlocks.NEUTRON_IRRADIATOR.getDefaultState(), 81, 40, 20);
 
         this.arrowIn.draw(graphics, 54, 20);
         this.arrowOut.draw(graphics, 92, 19);
@@ -120,7 +120,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
             }
         } else {
             BlockState cauldronState = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
-            RenderSupport.renderBlock(graphics, cauldronState, 133, 30, 12);
+            RenderSupport.renderBlock(graphics, cauldronState, 133, 30, 20);
         }
     }
 

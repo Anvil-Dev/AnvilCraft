@@ -82,27 +82,28 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
 
     @Override
     public void draw(
-        RecipeHolder<BlockCrushRecipe> recipe,
+        RecipeHolder<BlockCrushRecipe> recipeHolder,
         IRecipeSlotsView view,
         GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        BlockCrushRecipe recipe = recipeHolder.value();
+
         this.arrowDefault.draw(graphics, 73, 35);
 
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 50, 22 + anvilYOffset, 12);
-
         renderInput: {
-            List<BlockState> input = recipe.value().getFirstInputBlock().constructStatesForRender();
+            List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
             if (input.isEmpty()) break renderInput;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) break renderInput;
-            RenderSupport.renderBlock(graphics, renderedState, 50, 40, 12);
+            RenderSupport.renderBlock(graphics, renderedState, 40, 40, 20);
         }
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 40, 22 + anvilYOffset, 20);
 
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 110, 30, 12);
-        RenderSupport.renderBlock(graphics, recipe.value().getFirstResultBlock().state(), 110, 40, 12);
+        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 100, 40, 20);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 100, 30, 20);
     }
 
     @Override
@@ -117,10 +118,10 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         BlockCrushRecipe recipe = recipeHolder.value();
         Identifier id = this.getIdentifier(recipeHolder);
 
-        if (MathUtil.isInRange(mouseX, mouseY, 40, 42, 58, 52)) {
+        if (MathUtil.isInRange(mouseX, mouseY, 41, 39, 58, 58)) {
             tooltip.addAll(TooltipUtil.tooltip(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));
         }
-        if (MathUtil.isInRange(mouseX, mouseY, 100, 42, 120, 52)) {
+        if (MathUtil.isInRange(mouseX, mouseY, 101, 39, 118, 58)) {
             Block block = recipe.getFirstResultBlock().state().getBlock();
             if (id != null) {
                 tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));

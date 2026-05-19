@@ -138,7 +138,7 @@ public class MobTransformCategory implements IRecipeCategory<RecipeHolder<MobTra
             block,
             81,
             40,
-            12);
+            20);
 
         this.arrowDefault.draw(graphics, 74, 22);
 

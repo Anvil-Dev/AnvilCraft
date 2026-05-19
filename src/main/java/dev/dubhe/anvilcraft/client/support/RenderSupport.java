@@ -25,7 +25,6 @@ public class RenderSupport {
 //    private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
 //    public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
 //    public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
-    public static final int SIZE_DEFAULT = 64;
     private static final PoseStack.Pose BLOCK_DISPLAY_POSE;
     private static ClientLevel currentClientLevel = null;
     private static LevelLike.AirLevelLike airLevelLike = null;
@@ -36,16 +35,7 @@ public class RenderSupport {
         BLOCK_DISPLAY_POSE.rotate(Axis.YP.rotationDegrees(45));
     }
 
-    public static void renderBlock(
-        GuiGraphicsExtractor graphics,
-        BlockState block,
-        int x,
-        int y,
-        int size
-    ) {
-        PoseStack pose = new PoseStack();
-        pose.last().rotate(Axis.XP.rotationDegrees(30));
-        pose.last().rotate(Axis.YP.rotationDegrees(45));
+    public static void renderBlock(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float size) {
         GuiRenderExtras.tessellateBlock(
             graphics,
             block,
@@ -53,9 +43,11 @@ public class RenderSupport {
             null,
             x,
             y,
-            size,
+            x + size,
+            y + size,
+            -1,
             true,
-            pose
+            BLOCK_DISPLAY_POSE.copy()
         );
     }
 

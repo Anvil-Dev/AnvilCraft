@@ -51,9 +51,9 @@ public class BoilingCategory extends AbstractProgressCategory<BoilingRecipe> {
     ) {
         final BoilingRecipe recipe = recipeHolder.value();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);
-        RenderSupport.renderBlock(graphics, CauldronUtil.fullState(Blocks.WATER_CAULDRON), 81, 30, 12);
-        RenderSupport.renderBlock(graphics, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true), 81, 40, 12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, CauldronUtil.fullState(Blocks.WATER_CAULDRON), 81, 30, 20);
+        RenderSupport.renderBlock(graphics, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true), 81, 40, 20);
 
         this.arrowIn.draw(graphics, 54, 20);
         this.arrowOutFromBelow.draw(graphics, 92, 19);

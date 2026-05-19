@@ -72,7 +72,7 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
     ) {
         BulgingRecipe recipe = recipeHolder.value();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
         BlockState state;
         if (recipe.isFromWater()) {
             state = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
@@ -81,7 +81,7 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
         } else {
             state = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
         }
-        RenderSupport.renderBlock(graphics, state, 81, 40, 12);
+        RenderSupport.renderBlock(graphics, state, 81, 40, 20);
 
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);
@@ -138,7 +138,7 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
             } else {
                 state = CauldronUtil.fullState(result);
             }
-            RenderSupport.renderBlock(graphics, state, 133, 30, 12);
+            RenderSupport.renderBlock(graphics, state, 133, 30, 20);
         }
     }
 
