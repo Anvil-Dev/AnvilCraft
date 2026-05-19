@@ -4,7 +4,7 @@
       "model": "anvilcraft:block/white_reinforced_concrete_slab"
     },
     "type=double": {
-      "model": "anvilcraft:white_reinforced_concrete"
+      "model": "anvilcraft:block/white_reinforced_concrete"
     },
     "type=top": {
       "model": "anvilcraft:block/white_reinforced_concrete_slab_top"

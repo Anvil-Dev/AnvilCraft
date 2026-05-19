@@ -33,6 +33,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 
 import java.util.List;
@@ -53,28 +54,33 @@ public class LargeBlockPlacePreviewEventListener {
     private static List<BlockPos> cachedErrorPosList = new ObjectArrayList<>();
 
     private static final SegmentedActuator animationActuator = new SegmentedActuator(
-        new SegmentedActuator.Task(20, changeBoundColorRed),
-        new SegmentedActuator.Task(20, changeBoundColorWhite),
-        new SegmentedActuator.Task(20, changeBoundColorRed),
-        new SegmentedActuator.Task(20, changeBoundColorWhite)
+        new SegmentedActuator.Task(2, changeBoundColorRed),
+        new SegmentedActuator.Task(2, changeBoundColorWhite),
+        new SegmentedActuator.Task(2, changeBoundColorRed),
+        new SegmentedActuator.Task(2, changeBoundColorWhite)
     );
 
     @SubscribeEvent
-    public static void renderHighlight(ExtractBlockOutlineRenderStateEvent event) {
+    public static void on(ClientTickEvent.Pre event){
         boundColor = 0xffffffff;
+        if (failBoundCooldown > 0) {
+            failBoundCooldown--;
+            animationActuator.execute();
+        }
+        if (failBoundErrorCooldown > 0) {
+            failBoundErrorCooldown--;
+        }
+    }
+
+    @SubscribeEvent
+    public static void renderHighlight(ExtractBlockOutlineRenderStateEvent event) {
+
         event.addCustomRenderer((state, source, pose, translucentPass, levelRenderState) -> {
             Minecraft mc = Minecraft.getInstance();
             ClientLevel level = mc.level;
             LocalPlayer player = mc.player;
             if (player == null) return false;
             if (level == null) return false;
-            if (failBoundCooldown > 0) {
-                failBoundCooldown--;
-                animationActuator.execute();
-            }
-            if (failBoundErrorCooldown > 0) {
-                failBoundErrorCooldown--;
-            }
             Vec3 position = event.getCamera().position();
             BlockHitResult target = event.getHitResult();
             Direction direction = target.getDirection();
@@ -121,7 +127,7 @@ public class LargeBlockPlacePreviewEventListener {
                     renderErrorBound(pose, consumer, event.getCamera());
                 }
             }
-            return true;
+            return false;
         });
     }
 
@@ -169,19 +175,20 @@ public class LargeBlockPlacePreviewEventListener {
 
     private static void renderErrorBound(PoseStack poseStack, VertexConsumer vertexConsumer, Camera camera) {
         Vec3 position = camera.position();
-        if (failBoundErrorCooldown > 0) {
-            for (BlockPos blockPos : cachedErrorPosList) {
-                TooltipRenderHelper.renderOutline(
-                    poseStack,
-                    vertexConsumer,
-                    position.x,
-                    position.y,
-                    position.z,
-                    blockPos,
-                    Shapes.block(),
-                    0xffff0000
-                );
-            }
+        if (failBoundErrorCooldown <= 0) {
+            return;
+        }
+        for (BlockPos blockPos : cachedErrorPosList) {
+            TooltipRenderHelper.renderOutline(
+                poseStack,
+                vertexConsumer,
+                position.x,
+                position.y,
+                position.z,
+                blockPos,
+                Shapes.block(),
+                0xffff0000
+            );
         }
     }
 
@@ -197,12 +204,12 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     public static void startFailBoundCooldown() {
-        failBoundCooldown = 80;
+        failBoundCooldown = 8;
         animationActuator.reset();
     }
 
     public static void startFailBoundErrorCooldown(List<BlockPos> errorPosList) {
-        failBoundErrorCooldown = 60;
+        failBoundErrorCooldown = 6;
         cachedErrorPosList = new ObjectArrayList<>(errorPosList);
     }
 }

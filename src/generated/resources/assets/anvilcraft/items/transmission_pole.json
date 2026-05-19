@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "anvilcraft:block/transmission_pole"
+    "model": "anvilcraft:item/transmission_pole"
   }
 }

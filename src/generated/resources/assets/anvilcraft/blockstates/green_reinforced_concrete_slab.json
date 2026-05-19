@@ -4,7 +4,7 @@
       "model": "anvilcraft:block/green_reinforced_concrete_slab"
     },
     "type=double": {
-      "model": "anvilcraft:green_reinforced_concrete"
+      "model": "anvilcraft:block/green_reinforced_concrete"
     },
     "type=top": {
       "model": "anvilcraft:block/green_reinforced_concrete_slab_top"

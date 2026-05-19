@@ -597,7 +597,7 @@ public class ModBlocks {
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(SimpleMultiPartBlockItem<Vertical3PartHalf>::new)
-        .model(DataGenUtil::noExtraModelOrState)
+        .model(DataGenUtil::onlyInfo)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::transmissionPole)
@@ -618,7 +618,7 @@ public class ModBlocks {
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(SimpleMultiPartBlockItem<Vertical4PartHalf>::new)
-        .model(DataGenUtil::noExtraModelOrState)
+        .model(DataGenUtil::onlyInfo)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::remoteTransmissionPole)
@@ -992,7 +992,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Vertical3PartHalf>::new)
-        .model(DataGenUtil::noExtraModelOrState)
+        .model(DataGenUtil::onlyInfo)
         .build()
         .recipe(RegistrumBlockRecipeLoader::overseerBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1419,7 +1419,12 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_royal_steel_block")))
+        .blockstate(() -> DataGenUtil.slabBlock(
+            _ -> new Material(AnvilCraft.of("block/cut_royal_steel_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_royal_steel_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_royal_steel_block")),
+            _ -> AnvilCraft.of("block/cut_royal_steel_block")
+        ))
         .item()
         .tag(ItemTags.SLABS)
         .build()
@@ -1717,7 +1722,12 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRUM.block("polished_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/polished_heavy_iron_block")))
+        .blockstate(() -> DataGenUtil.slabBlock(
+            _ -> new Material(AnvilCraft.of("block/polished_heavy_iron_block")),
+            _ -> new Material(AnvilCraft.of("block/polished_heavy_iron_block")),
+            _ -> new Material(AnvilCraft.of("block/polished_heavy_iron_block")),
+            ctx -> AnvilCraft.of("block/polished_heavy_iron_block")
+        ))
         .item()
         .tag(ItemTags.SLABS)
         .build()
@@ -1751,7 +1761,12 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRUM.block("cut_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
-        .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_heavy_iron_block")))
+        .blockstate(() -> DataGenUtil.slabBlock(
+           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+           _ -> AnvilCraft.of("block/cut_heavy_iron_block")
+            ))
         .item()
         .tag(ItemTags.SLABS)
         .build()
@@ -1797,7 +1812,7 @@ public class ModBlocks {
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .model(DataGenUtil::noExtraModelOrState)
+        .model(DataGenUtil::onlyInfo)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::heavyIronBeam)
@@ -2877,32 +2892,32 @@ public class ModBlocks {
             .build()
             .blockstate(() -> (ctx, generator) -> {
                 Identifier singleModel = generator.withParent(ModelTemplates.CUBE_ALL)
-                    .texture(TextureSlot.ALL, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
-                    .build(generator.modLoc("block/%s_reinforced_concrete".formatted(color)));
+                    .texture(TextureSlot.ALL, generator.modLoc("block/%s_reinforced_concrete" .formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete" .formatted(color)));
                 Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
-                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)), false)
-                    .build(generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)));
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete" .formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top" .formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_top" .formatted(color)));
                 Identifier bottomModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
-                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
-                    .build(generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)));
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete" .formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom" .formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_bottom" .formatted(color)));
                 generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
                     .with(
-                    PropertyDispatch.initial(ReinforcedConcreteBlock.HALF)
-                        .select(
-                            ReinforcedConcreteHalf.TOP,
-                            BlockModelGenerators.plainVariant(topModel)
-                        )
-                        .select(
-                            ReinforcedConcreteHalf.SINGLE,
-                            BlockModelGenerators.plainVariant(singleModel)
-                        )
-                        .select(
-                            ReinforcedConcreteHalf.BOTTOM,
-                            BlockModelGenerators.plainVariant(bottomModel)
-                        )
-                ));
+                        PropertyDispatch.initial(ReinforcedConcreteBlock.HALF)
+                            .select(
+                                ReinforcedConcreteHalf.TOP,
+                                BlockModelGenerators.plainVariant(topModel)
+                            )
+                            .select(
+                                ReinforcedConcreteHalf.SINGLE,
+                                BlockModelGenerators.plainVariant(singleModel)
+                            )
+                            .select(
+                                ReinforcedConcreteHalf.BOTTOM,
+                                BlockModelGenerators.plainVariant(bottomModel)
+                            )
+                    ));
             })
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .register();
@@ -2924,7 +2939,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
+            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/%s_reinforced_concrete" .formatted(color))))
             .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteSlab(parent))
@@ -2950,7 +2965,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
+            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/%s_reinforced_concrete" .formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteStair(parent))
             .register();
@@ -2969,7 +2984,7 @@ public class ModBlocks {
         return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall".formatted(color))))
+            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall" .formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
             .item()
@@ -2997,7 +3012,7 @@ public class ModBlocks {
                     .put(TextureSlot.SIDE, new Material(generator.mcLoc("block/cauldron_side")))
                     .put(TextureSlot.TOP, new Material(generator.mcLoc("block/cauldron_top")))
                     .put(TextureSlot.PARTICLE, new Material(generator.mcLoc("block/cauldron_side")))
-                    .put(TextureSlot.CONTENT, new Material(generator.modLoc("block/%s_cement".formatted(color))));
+                    .put(TextureSlot.CONTENT, new Material(generator.modLoc("block/%s_cement" .formatted(color))));
                 generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
                     ctx.get(),
                     BlockModelGenerators.plainVariant(generator.withParent(ModelTemplates.CAULDRON_FULL, mapping).build(ctx.get()))
@@ -3183,7 +3198,7 @@ public class ModBlocks {
     }
 
     private static BlockEntry<LiquidBlock> registerCementLiquidBlock(Color color) {
-        return REGISTRUM.block("%s_cement".formatted(color), p -> new LiquidBlock(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
+        return REGISTRUM.block("%s_cement" .formatted(color), p -> new LiquidBlock(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
             .properties(it -> it.mapColor(DyeColor.byName(color.getSerializedName(), DyeColor.GRAY))
                 .replaceable()
                 .noCollision()

@@ -279,6 +279,20 @@ public class DataGenUtil {
         NonNullFunction<DataGenContext<Block, ?>, Material> bottom,
         NonNullFunction<DataGenContext<Block, ?>, Material> side
     ) {
+        return slabBlock(
+            top,
+            bottom,
+            side,
+            ctx -> ctx.getId().withPath(path -> "block/" + path.replace("_slab", ""))
+        );
+    }
+
+    public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> slabBlock(
+        NonNullFunction<DataGenContext<Block, ?>, Material> top,
+        NonNullFunction<DataGenContext<Block, ?>, Material> bottom,
+        NonNullFunction<DataGenContext<Block, ?>, Material> side,
+        NonNullFunction<DataGenContext<Block, ?>, Identifier> blockModel
+    ) {
         return (ctx, generator) -> {
             Block slab = ctx.get();
             TextureMapping mapping = new TextureMapping()
@@ -291,7 +305,7 @@ public class DataGenUtil {
                 slab,
                 BlockModelGenerators.plainVariant(bottomModel),
                 topVa,
-                BlockModelGenerators.plainVariant(ctx.getId().withPath(path -> path.substring(0, path.length() - 5))) // 移除_slab
+                BlockModelGenerators.plainVariant(blockModel.apply(ctx)) // 移除_slab
             ));
             generator.registerSimpleItemModel(slab, bottomModel);
         };

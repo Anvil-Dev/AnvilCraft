@@ -4,7 +4,7 @@
       "model": "anvilcraft:block/black_chocolate_slab"
     },
     "type=double": {
-      "model": "anvilcraft:black_chocolate"
+      "model": "anvilcraft:block/black_chocolate"
     },
     "type=top": {
       "model": "anvilcraft:block/black_chocolate_slab_top"

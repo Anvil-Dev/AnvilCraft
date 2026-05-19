@@ -94,7 +94,6 @@
     "accessor.LevelRendererAccessor",
     "accessor.MultiPlayerGameModeAccessor",
     "accessor.ScreenAccessor",
-    "workaround.RegistrumModelProviderMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {

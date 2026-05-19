@@ -4,7 +4,7 @@
       "model": "anvilcraft:block/cut_royal_steel_slab"
     },
     "type=double": {
-      "model": "anvilcraft:cut_royal_steel"
+      "model": "anvilcraft:block/cut_royal_steel"
     },
     "type=top": {
       "model": "anvilcraft:block/cut_royal_steel_slab_top"
