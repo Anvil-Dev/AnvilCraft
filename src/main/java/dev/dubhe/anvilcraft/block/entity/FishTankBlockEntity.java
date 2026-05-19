@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
@@ -55,6 +56,7 @@ import javax.annotation.Nullable;
 
 @Getter
 public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder {
+    private static final double EPSILON = 1.0 / 1024.0;
     public static final AABB FISH_TANK_INNER_WALL = new AABB(
         new Vec3(0.0625, 0.0625, 0.0625),
         new Vec3(15.9375, 16, 15.9375)
@@ -351,14 +353,48 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             }
             return true;
         } else {
-            if (
-                hitResult.getLocation().y - hitResult.getBlockPos().getY() < 5 / 8F
-                || FishTankBlockEntity.FISH_TANK_INNER_WALL.move(this.getBlockPos()).contains(hitResult.getLocation())
-            ) {
-                return false;
-            }
+            if (!this.shouldInsert(hitResult.getLocation())) return false;
             return FishTankBlockEntity.insertToTank(this.itemHandler, inHand);
         }
+    }
+
+    private boolean shouldInsert(Vec3 hitLoc) {
+        double x = hitLoc.x - this.getBlockPos().getX();
+        double y = hitLoc.y - this.getBlockPos().getY();
+        double z = hitLoc.z - this.getBlockPos().getZ();
+
+        // wall
+        if (Math.abs(x - 0) < FishTankBlockEntity.EPSILON || Math.abs(x - 1) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(y, 0.624, 1.001);
+        }
+        if (Math.abs(z - 0) < FishTankBlockEntity.EPSILON || Math.abs(z - 1) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(y, 0.624, 1.001);
+        }
+        if (Math.abs(x - 0.0625) < FishTankBlockEntity.EPSILON || Math.abs(x - 0.9375) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(z, y, 0.0624, 0.0624, 0.9376, 1.001);
+        }
+        if (Math.abs(y - 0.0625) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(x, z, 0.0624, 0.0624, 0.9376, 0.9376);
+        }
+        if (Math.abs(z - 0.0625) < FishTankBlockEntity.EPSILON || Math.abs(z - 0.9375) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(x, y, 0.0624, 0.0624, 0.9376, 1.001);
+        }
+
+        // port
+        if (Math.abs(x - 0.125) < FishTankBlockEntity.EPSILON || Math.abs(x - 0.875) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(z, y, 0.124, 0.874, 0.876, 1.001);
+        }
+        if (Math.abs(y - 0.875) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(x, z, 0.0624, 0.0624, 0.9376, 0.9376)
+                   && !MathUtil.isInRange(x, z, 0.124, 0.124, 0.876, 0.876);
+        }
+        if (Math.abs(y - 1) < FishTankBlockEntity.EPSILON) {
+            return !MathUtil.isInRange(x, z, 0.124, 0.124, 0.876, 0.876);
+        }
+        if (Math.abs(z - 0.125) < FishTankBlockEntity.EPSILON || Math.abs(z - 0.875) < FishTankBlockEntity.EPSILON) {
+            return MathUtil.isInRange(x, y, 0.124, 0.874, 0.876, 1.001);
+        }
+        return false;
     }
 
     public boolean interactWithFish(Level level, Player player, InteractionHand hand) {
