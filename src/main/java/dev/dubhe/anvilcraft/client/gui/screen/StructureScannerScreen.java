@@ -4,11 +4,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
-import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -232,9 +232,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 this.modeToggleButton.setSelected(false);
                 this.modeToggleButton.setTexture(STOP_TEXTURE);
             }
-        }
         // 如果扫描完成，切换回 redo 状态
-        else if (blockEntity.isScanComplete()) {
+        } else if (blockEntity.isScanComplete()) {
             if (!this.isScanMode) {
                 this.isScanMode = true;
                 this.modeToggleButton.setSelected(true);
@@ -295,7 +294,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             // 计算选区的实际尺寸（忽略 Scanner）
             int rangeX = blockEntity.getRangeX().get();
             int rangeY = blockEntity.getRangeY().get();
-            int rangeZ = blockEntity.getRangeZ().get();
             
             // 使用选区范围作为缩放基准，忽略 Scanner 的影响
             int sizeX = Math.max(1, rangeX);
@@ -331,13 +329,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         
         // 获取扫描范围
         int rangeX = blockEntity.getRangeX().get();
-        int rangeY = blockEntity.getRangeY().get();
-        int rangeZ = blockEntity.getRangeZ().get();
-        
-        int halfRangeX = rangeX / 2;  // 偶数时优先向右扩展
         
         // Scanner在预览中的位置：X居中，Y=0，Z=0（选区前面）
-        int scannerX = halfRangeX;
+        int scannerX = rangeX / 2;
         int scannerY = 0;
         int scannerZ = 0;  // 选区前面
         
@@ -370,61 +364,19 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
     
     /**
-     * 计算预览坐标对应的世界坐标
-     * @param scannerPos Structure Scanner 的世界坐标
-     * @param scannerFacing Structure Scanner 的朝向
-     * @param previewX 预览中选区的X坐标 (0到rangeX-1)
-     * @param previewY 预览中选区的Y坐标 (0到rangeY-1)
-     * @param previewZ 预览中选区的Z坐标 (0到rangeZ-1)
-     * @param halfRangeX X轴半范围
-     * @param halfRangeZ Z轴半范围
-     * @param rangeZ Z轴范围
-     * @return 世界坐标
-     */
-    private BlockPos calculateWorldPos(BlockPos scannerPos, Direction scannerFacing, 
-                                       int previewX, int previewY, int previewZ,
-                                       int halfRangeX, int halfRangeZ, int rangeZ) {
-        // 预览坐标系：选区在 (0,0,0) 到 (rangeX-1, rangeY-1, rangeZ-1)
-        // 世界坐标系：选区总是在 Scanner 的前方（面向的方向）
-        
-        // 计算相对于选区起点的偏移
-        int localX = previewX - halfRangeX;  // 相对于中心的X偏移
-        int localY = previewY;               // Y偏移（从0开始）
-        int localZ = previewZ;               // Z偏移（从选区起点开始）
-        
-        // 根据Scanner的实际朝向，将预览坐标转换到世界坐标
-        // 选区总是在 Scanner 前方1格开始
-        return switch (scannerFacing) {
-            // 朝北：选区在北侧（Z+方向），从 Z+1 到 Z+rangeZ
-            case NORTH -> scannerPos.offset(localX, localY, localZ + 1);
-            // 朝南：选区在南侧（Z-方向），从 Z-1 到 Z-rangeZ
-            case SOUTH -> scannerPos.offset(-localX, localY, -(localZ + 1));
-            // 朝西：选区在西侧（X+方向），从 X+1 到 X+rangeZ
-            case WEST -> scannerPos.offset(localZ + 1, localY, -localX);
-            // 朝东：选区在东侧（X-方向），从 X-1 到 X-rangeZ
-            case EAST -> scannerPos.offset(-(localZ + 1), localY, localX);
-            default -> scannerPos.offset(localX, localY, localZ);
-        };
-    }
-    
-    /**
      * 根据 Scanner 朝向旋转方块状态
-     * 用于将世界中的方块状态转换到预览坐标系中
      */
     private BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
-        // 只有当 Scanner 不是朝北时才需要旋转
         if (scannerFacing == Direction.NORTH) {
             return state;
         }
         
-        // 尝试旋转方块的朝向属性
         if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)) {
             Direction blockFacing = state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
             Direction rotatedFacing = rotateDirection(blockFacing, scannerFacing);
             return state.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
         }
         
-        // 尝试 FACING 属性
         if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
             Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
             Direction rotatedFacing = rotateDirection(blockFacing, scannerFacing);
@@ -439,19 +391,18 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
      */
     private Direction rotateDirection(Direction blockFacing, Direction scannerFacing) {
         return switch (scannerFacing) {
-            case NORTH -> blockFacing;  // 不需要旋转
-            case SOUTH -> blockFacing.getOpposite();  // 180度旋转
-            case WEST -> blockFacing.getClockWise();  // 顺时针90度
-            case EAST -> blockFacing.getCounterClockWise();  // 逆时针90度
+            case SOUTH -> blockFacing.getOpposite();
+            case WEST -> blockFacing.getClockWise();
+            case EAST -> blockFacing.getCounterClockWise();
             default -> blockFacing;
         };
     }
     
     /**
      * 获取朝向对应的Y轴偏移角度
-     * 目标：让 Scanner 始终面向玩家（离视角最近）
      */
-    private float getFacingYawOffset(Direction facing) {
+    @SuppressWarnings("unused")
+    private float getFacingYawOffset(Direction scannerFacing) {
         return 270f;
     }
     
@@ -517,7 +468,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 所以边框应该从 Z=1 到 Z=rangeZ+1
         final VoxelShape borderShape = Shapes.create(
             0.0, 0.0, 1.0,
-            (double) rangeX, (double) rangeY, (double) (rangeZ + 1)
+            rangeX, rangeY, rangeZ + 1
         );
             
         // 8. 渲染边框（青色）
@@ -604,21 +555,15 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         
         // 如果是 redo 状态，点击后开始/重新开始扫描
         if (this.isScanMode) {
-            // 发送网络包通知服务端开始扫描
             PacketDistributor.sendToServer(new StructureScannerActionPacket("start"));
             
-            // 客户端立即更新按钮状态
             this.isScanMode = false;
             this.modeToggleButton.setSelected(false);
             this.modeToggleButton.setTexture(STOP_TEXTURE);
-            return;
-        }
-        
         // 如果正在扫描（stop 状态），点击后停止扫描
-        if (!this.isScanMode) {
+        } else {
             PacketDistributor.sendToServer(new StructureScannerActionPacket("stop"));
             
-            // 客户端立即更新按钮状态
             this.isScanMode = true;
             this.modeToggleButton.setSelected(true);
             this.modeToggleButton.setTexture(REDO_TEXTURE);
