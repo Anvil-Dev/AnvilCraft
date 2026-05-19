@@ -4,12 +4,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
+import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.util.LevelLike;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -62,6 +65,74 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 初始化预览窗口位置（与智能放置器一致）
         this.previewWindowX = this.leftPos + 136;
         this.previewWindowY = this.topPos + 18;
+        
+        if (this.minecraft == null) return;
+        
+        // 添加X轴范围控制按钮和数值显示
+        this.addRenderableWidget(new TextWidget(
+            this.leftPos + 97,
+            this.topPos + 49,
+            20,
+            8,
+            this.minecraft.font,
+            () -> Component.literal(this.menu.getBlockEntity().getRangeX().get().toString())
+        ));
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 84, this.topPos + 48, "minus", (b) -> {
+            this.menu.getBlockEntity().getRangeX().previous();
+            this.menu.getBlockEntity().getRangeX().notifyServer();
+        }
+        ));
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 122, this.topPos + 48, "add", (b) -> {
+            this.menu.getBlockEntity().getRangeX().next();
+            this.menu.getBlockEntity().getRangeX().notifyServer();
+        }
+        ));
+        
+        // 添加Z轴范围控制按钮和数值显示
+        this.addRenderableWidget(new TextWidget(
+            this.leftPos + 97,
+            this.topPos + 63,
+            20,
+            8,
+            this.minecraft.font,
+            () -> Component.literal(this.menu.getBlockEntity().getRangeZ().get().toString())
+        ));
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 84, this.topPos + 62, "minus", (b) -> {
+            this.menu.getBlockEntity().getRangeZ().previous();
+            this.menu.getBlockEntity().getRangeZ().notifyServer();
+        }
+        ));
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 122, this.topPos + 62, "add", (b) -> {
+            this.menu.getBlockEntity().getRangeZ().next();
+            this.menu.getBlockEntity().getRangeZ().notifyServer();
+        }
+        ));
+        
+        // 添加Y轴范围控制按钮和数值显示
+        this.addRenderableWidget(new TextWidget(
+            this.leftPos + 97,
+            this.topPos + 77,
+            20,
+            8,
+            this.minecraft.font,
+            () -> Component.literal(this.menu.getBlockEntity().getRangeY().get().toString())
+        ));
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 84, this.topPos + 76, "minus", (b) -> {
+            this.menu.getBlockEntity().getRangeY().previous();
+            this.menu.getBlockEntity().getRangeY().notifyServer();
+        }
+        ));
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 122, this.topPos + 76, "add", (b) -> {
+            this.menu.getBlockEntity().getRangeY().next();
+            this.menu.getBlockEntity().getRangeY().notifyServer();
+        }
+        ));
     }
 
     @Override

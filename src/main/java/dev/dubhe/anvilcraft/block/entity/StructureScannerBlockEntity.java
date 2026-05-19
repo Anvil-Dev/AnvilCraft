@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
+import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -63,9 +64,37 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             return ItemStack.EMPTY;
         }
     };
+    
+    // 扫描范围 - X轴
+    @Getter
+    private final WatchableCyclingValue<Integer> rangeX = new WatchableCyclingValue<>(
+        "rangeX",
+        thiz -> this.setChanged(),
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+    );
+    
+    // 扫描范围 - Y轴
+    @Getter
+    private final WatchableCyclingValue<Integer> rangeY = new WatchableCyclingValue<>(
+        "rangeY",
+        thiz -> this.setChanged(),
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+    );
+    
+    // 扫描范围 - Z轴
+    @Getter
+    private final WatchableCyclingValue<Integer> rangeZ = new WatchableCyclingValue<>(
+        "rangeZ",
+        thiz -> this.setChanged(),
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+    );
 
     public StructureScannerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        // 设置默认值为 5 (index = 4)
+        this.rangeX.fromIndex(4);
+        this.rangeY.fromIndex(4);
+        this.rangeZ.fromIndex(4);
     }
 
     @Override
@@ -98,6 +127,10 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         super.saveAdditional(tag, provider);
         // 保存Disk物品栏
         tag.put("diskInventory", this.diskInventory.createTag(provider));
+        // 保存扫描范围
+        tag.putInt("rangeX", this.rangeX.index());
+        tag.putInt("rangeY", this.rangeY.index());
+        tag.putInt("rangeZ", this.rangeZ.index());
     }
     
     @Override
@@ -105,5 +138,9 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         super.loadAdditional(tag, provider);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+        // 加载扫描范围
+        this.rangeX.fromIndex(tag.getInt("rangeX"));
+        this.rangeY.fromIndex(tag.getInt("rangeY"));
+        this.rangeZ.fromIndex(tag.getInt("rangeZ"));
     }
 }

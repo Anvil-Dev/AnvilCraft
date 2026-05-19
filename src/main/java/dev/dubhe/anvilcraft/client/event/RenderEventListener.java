@@ -178,16 +178,78 @@ public class RenderEventListener {
         // 获取 Structure Scanner 的朝向
         Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
         
-        // 计算边框位置：紧贴 Structure Scanner 背后（3x3x3 区域）
+        // 获取 BlockEntity 以读取范围值
+        var blockEntity = Minecraft.getInstance().level.getBlockEntity(hitPos);
+        if (!(blockEntity instanceof dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity scannerBE)) return;
+        
+        int rangeX = scannerBE.getRangeX().get();
+        int rangeY = scannerBE.getRangeY().get();
+        int rangeZ = scannerBE.getRangeZ().get();
+        
+        // 计算边框位置：在 Structure Scanner 的扫描方向前方
         BlockPos scannerPos = hitPos;
         
-        // 根据朝向计算背后的位置
-        BlockPos behindPos = scannerPos.relative(scannerFacing.getOpposite(), 2);
+        // 根据 rangeX, rangeY, rangeZ 创建动态边框
+        // 边框在 Scanner 前方，紧贴 Scanner
+        int halfRangeX = rangeX / 2;
+        int halfRangeZ = rangeZ / 2;
         
-        // 创建 3x3x3 边框
+        // 根据朝向计算边框的世界坐标范围
+        int minX, maxX, minY, maxY, minZ, maxZ;
+        
+        // Y轴始终从 Scanner 的 Y 坐标开始，向上延伸 rangeY
+        minY = scannerPos.getY();
+        maxY = scannerPos.getY() + rangeY;
+        
+        switch (scannerFacing) {
+            case NORTH -> {
+                // 朝北：Scanner 面向 -Z，扫描区域在背后（+Z 方向）
+                // X轴：以 Scanner 的 X 为中心，左右各扩展 rangeX/2
+                // Z轴：从 Scanner 的 Z 开始，向 +Z 方向（背后）延伸 rangeZ
+                minX = scannerPos.getX() - halfRangeX;
+                maxX = scannerPos.getX() + rangeX - halfRangeX;
+                minZ = scannerPos.getZ() + 1;
+                maxZ = scannerPos.getZ() + rangeZ + 1;
+            }
+            case SOUTH -> {
+                // 朝南：Scanner 面向 +Z，扫描区域在背后（-Z 方向）
+                // X轴：以 Scanner 的 X 为中心，左右各扩展 rangeX/2
+                // Z轴：从 Scanner 的 Z 开始，向 -Z 方向（背后）延伸 rangeZ
+                minX = scannerPos.getX() - halfRangeX;
+                maxX = scannerPos.getX() + rangeX - halfRangeX;
+                minZ = scannerPos.getZ() - rangeZ;
+                maxZ = scannerPos.getZ();
+            }
+            case WEST -> {
+                // 朝西：Scanner 面向 -X，扫描区域在背后（+X 方向）
+                // X轴：从 Scanner 的 X 开始，向 +X 方向（背后）延伸 rangeZ
+                // Z轴：以 Scanner 的 Z 为中心，左右各扩展 rangeX/2
+                minX = scannerPos.getX() + 1;
+                maxX = scannerPos.getX() + rangeZ + 1;
+                minZ = scannerPos.getZ() - halfRangeX;
+                maxZ = scannerPos.getZ() + rangeX - halfRangeX;
+            }
+            case EAST -> {
+                // 朝东：Scanner 面向 +X，扫描区域在背后（-X 方向）
+                // X轴：从 Scanner 的 X 开始，向 -X 方向（背后）延伸 rangeZ
+                // Z轴：以 Scanner 的 Z 为中心，左右各扩展 rangeX/2
+                minX = scannerPos.getX() - rangeZ;
+                maxX = scannerPos.getX();
+                minZ = scannerPos.getZ() - halfRangeX;
+                maxZ = scannerPos.getZ() + rangeX - halfRangeX;
+            }
+            default -> {
+                // UP 或 DOWN（不应该出现，但作为默认处理）
+                minX = scannerPos.getX() - halfRangeX;
+                maxX = scannerPos.getX() + rangeX - halfRangeX;
+                minZ = scannerPos.getZ() - halfRangeZ;
+                maxZ = scannerPos.getZ() + rangeZ - halfRangeZ;
+            }
+        }
+        
         VoxelShape rangeShape = Shapes.create(
-            behindPos.getX() - 1, behindPos.getY(), behindPos.getZ() - 1,
-            behindPos.getX() + 2, behindPos.getY() + 3, behindPos.getZ() + 2
+            minX, minY, minZ,
+            maxX, maxY, maxZ
         );
 
         // 渲染青色边框（与智能放置器一致）
