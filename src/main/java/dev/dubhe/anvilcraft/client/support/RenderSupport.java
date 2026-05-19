@@ -32,8 +32,8 @@ public class RenderSupport {
 
     static {
         BLOCK_DISPLAY_POSE = new PoseStack.Pose();
-        BLOCK_DISPLAY_POSE.rotate(Axis.XP.rotation(30));
-        BLOCK_DISPLAY_POSE.rotate(Axis.YP.rotation(45));
+        BLOCK_DISPLAY_POSE.rotate(Axis.XP.rotationDegrees(30));
+        BLOCK_DISPLAY_POSE.rotate(Axis.YP.rotationDegrees(45));
     }
 
     public static void renderBlock(
@@ -43,6 +43,9 @@ public class RenderSupport {
         int y,
         int size
     ) {
+        PoseStack pose = new PoseStack();
+        pose.last().rotate(Axis.XP.rotationDegrees(30));
+        pose.last().rotate(Axis.YP.rotationDegrees(45));
         GuiRenderExtras.tessellateBlock(
             graphics,
             block,
@@ -50,11 +53,9 @@ public class RenderSupport {
             null,
             x,
             y,
-            x + size,
-            y + size,
-            -1,
+            size,
             true,
-            BLOCK_DISPLAY_POSE.copy()
+            pose
         );
     }
 
