@@ -12,12 +12,14 @@ import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.criterion.MinMaxBounds;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
@@ -26,8 +28,9 @@ public class ModAdvancementsHandler {
     @SuppressWarnings("unused")
     public static void init(RegistrumAdvancementProvider provider) {
         HolderLookup.Provider registries = provider.getProvider();
-        HolderLookup<Item> itemLookup = registries.lookupOrThrow(Registries.ITEM);
-        HolderLookup<EntityType<?>> entityTypeLookup = registries.lookupOrThrow(Registries.ENTITY_TYPE);
+        HolderGetter<Item> itemLookup = registries.lookupOrThrow(Registries.ITEM);
+        HolderGetter<Block> blockLookup = registries.lookupOrThrow(Registries.BLOCK);
+        HolderGetter<EntityType<?>> entityTypeLookup = registries.lookupOrThrow(Registries.ENTITY_TYPE);
         AdvancementLineHelper mainLine = new AdvancementLineHelper();
         AdvancementHolder root = mainLine.next()
             .display(
@@ -816,7 +819,7 @@ public class ModAdvancementsHandler {
                 true,
                 false
             )
-            .heatCollectOn("collect_overheated", BlockStatePredicate.builder().of(ModBlockTags.OVERHEATED_BLOCKS))
+            .heatCollectOn("collect_overheated", BlockStatePredicate.builder().of(blockLookup, ModBlockTags.OVERHEATED_BLOCKS))
             .save(provider, "nuclear_power_10a");
 
         AdvancementHolder transcendence = mainLine.next()

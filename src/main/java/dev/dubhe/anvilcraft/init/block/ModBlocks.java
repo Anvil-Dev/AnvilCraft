@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.block.cake.StepEffectSlabBlock;
 import dev.dubhe.anvilcraft.block.cake.StepEffectStairBlock;
 import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ExpFluidCauldronBlock;
-import dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.MeltGemCauldronBlock;
@@ -2857,15 +2856,6 @@ public class ModBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
-    public static final BlockEntry<FireCauldronBlock> FIRE_CAULDRON = REGISTRUM.block("fire_cauldron", FireCauldronBlock::new)
-        .initialProperties(() -> Blocks.CAULDRON)
-        .properties(properties -> properties.lightLevel(state -> 15))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
-        .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
-        .register();
-
     public static final Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> CEMENT_CAULDRONS = registerAllCementCauldrons();
 
     private static Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> registerReinforcedConcretes() {
@@ -2886,16 +2876,16 @@ public class ModBlocks {
             .build()
             .blockstate(() -> (ctx, generator) -> {
                 Identifier singleModel = generator.withParent(ModelTemplates.CUBE_ALL)
-                    .texture(TextureSlot.ALL, generator.modLoc("block/reinforced_concrete_" + color), false)
-                    .build(generator.modLoc("reinforced_concrete_" + color));
+                    .texture(TextureSlot.ALL, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete".formatted(color)));
                 Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                    .texture(TextureSlot.END, generator.modLoc("block/reinforced_concrete_" + color), false)
-                    .texture(TextureSlot.SIDE, generator.modLoc("block/reinforced_concrete_" + color + "_top"), false)
-                    .build(generator.modLoc("reinforced_concrete_top_" + color));
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_top_".formatted(color)));
                 Identifier bottomModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                    .texture(TextureSlot.END, generator.modLoc("block/reinforced_concrete_" + color), false)
-                    .texture(TextureSlot.SIDE, generator.modLoc("block/reinforced_concrete_" + color + "_bottom"), false)
-                    .build(generator.modLoc("reinforced_concrete_bottom_" + color));
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)));
                 generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
                     .with(
                     PropertyDispatch.initial(ReinforcedConcreteBlock.HALF)
@@ -2975,7 +2965,7 @@ public class ModBlocks {
     }
 
     private static BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
-        return REGISTRUM.block(color +"_reinforced_concrete_wall", WallBlock::new)
+        return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/reinforced_concrete_" + color + "_wall")))

@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:transcendium_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:transcendium_block"
-    }
+    "anvilcraft:transcendium_block"
   ],
   "result": {
     "count": 9,

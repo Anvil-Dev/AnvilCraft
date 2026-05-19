@@ -1,13 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:stonecutting/cut_flint_block_from_flint_block"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "hasitem": {
+    "has_flint_block": {
       "conditions": {
         "items": [
           {
@@ -16,12 +10,18 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:stonecutting/cut_flint_block_from_flint_block"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "hasitem"
+      "has_flint_block"
     ]
   ],
   "rewards": {

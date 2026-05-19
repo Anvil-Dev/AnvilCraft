@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.recipe;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
@@ -20,7 +19,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
@@ -160,7 +158,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         private final HolderGetter<Item> items;
         private List<ICondition> conditions = new ArrayList<>();
         private NonNullList<Ingredient> ingredients = NonNullList.create();
-        private ItemStackTemplate result = new ItemStackTemplate(Items.AIR);
+        private ItemStackTemplate result = null;
 
         public Builder(HolderGetter<Item> items) {
             this.items = items;
@@ -217,7 +215,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             if (this.ingredients.isEmpty() || this.ingredients.size() > 256) {
                 throw new IllegalArgumentException("Recipe ingredients size must in 0-256, RecipeId: " + id);
             }
-            if (this.result.is(Items.AIR)) {
+            if (this.result == null) {
                 throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }

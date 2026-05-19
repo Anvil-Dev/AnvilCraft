@@ -10,7 +10,9 @@
           ]
         }
       ],
-      "result": "anvilcraft:frost_metal_resonator"
+      "result": {
+        "id": "anvilcraft:frost_metal_resonator"
+      }
     },
     {
       "modifiers": [
@@ -37,10 +39,15 @@
           ]
         }
       ],
-      "result": "anvilcraft:ember_metal_resonator"
+      "result": {
+        "id": "anvilcraft:ember_metal_resonator"
+      }
     }
   ],
   "material": {
     "items": "anvilcraft:multiphase_matter"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

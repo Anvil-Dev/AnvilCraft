@@ -12,9 +12,8 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -32,7 +31,7 @@ import net.neoforged.neoforge.common.Tags;
 
 public class RegistrumItemRecipeLoader {
     public static <T extends Item> void guideBook(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
             .requires(Ingredient.of(Items.ANVIL, Items.CHIPPED_ANVIL, Items.DAMAGED_ANVIL))
             .requires(Items.BOOK)
@@ -44,7 +43,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void magnet(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
             .pattern(" A ")
             .pattern("BCB")
@@ -57,7 +56,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalSteelPickaxe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.ROYAL_STEEL_PICKAXE_BASE)),
@@ -70,7 +69,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalSteelAxe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.ROYAL_STEEL_AXE_BASE)),
@@ -83,7 +82,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalSteelShovel(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.ROYAL_STEEL_SHOVEL_BASE)),
@@ -96,7 +95,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalSteelHoe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.ROYAL_STEEL_HOE_BASE)),
@@ -109,7 +108,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalSteelSword(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.ROYAL_STEEL_SWORD_BASE)),
@@ -122,7 +121,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void frostMetalPickaxe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.FROST_METAL_PICKAXE_BASE)),
@@ -135,7 +134,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void frostMetalAxe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.FROST_METAL_AXE_BASE)),
@@ -148,7 +147,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void frostMetalShovel(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.FROST_METAL_SHOVEL_BASE)),
@@ -161,7 +160,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void frostMetalHoe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.FROST_METAL_HOE_BASE)),
@@ -174,7 +173,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void frostMetalSword(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.FROST_METAL_SWORD_BASE)),
@@ -187,7 +186,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberMetalPickaxe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.EMBER_METAL_PICKAXE_BASE)),
@@ -200,7 +199,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberMetalAxe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.EMBER_METAL_AXE_BASE)),
@@ -213,7 +212,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberMetalShovel(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.EMBER_METAL_SHOVEL_BASE)),
@@ -226,7 +225,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberMetalHoe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.EMBER_METAL_HOE_BASE)),
@@ -239,7 +238,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberMetalSword(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(lookup.getOrThrow(ModItemTags.EMBER_METAL_SWORD_BASE)),
@@ -252,7 +251,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void anvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
             .pattern("A")
             .pattern("B")
@@ -267,7 +266,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItems.ANVIL_HAMMER),
@@ -280,7 +279,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItems.ROYAL_ANVIL_HAMMER),
@@ -293,7 +292,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void transcendenceAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItems.EMBER_ANVIL_HAMMER),
@@ -306,7 +305,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void dragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
             .requires(ModBlocks.BLOCK_DEVOURER)
             .requires(ModItems.ANVIL_HAMMER)
@@ -316,7 +315,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalDragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
             .requires(ModBlocks.BLOCK_DEVOURER)
             .requires(ModItems.ROYAL_ANVIL_HAMMER)
@@ -345,7 +344,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberDragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
             .requires(ModBlocks.BLOCK_DEVOURER)
             .requires(ModItems.EMBER_ANVIL_HAMMER)
@@ -365,7 +364,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void transcendenceDragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
             .requires(ModBlocks.BLOCK_DEVOURER)
             .requires(ModItems.TRANSCENDENCE_ANVIL_HAMMER)
@@ -388,7 +387,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void energyWeaponPlatform(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ASS")
             .pattern("ASS")
@@ -411,7 +410,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void spectralSlingshot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
             .pattern("B B")
@@ -427,7 +426,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void ionocraft(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
             .pattern("BBB")
@@ -443,7 +442,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void ionocraftBackpack(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("ABA")
@@ -461,7 +460,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void permutationTemplateItem(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("EEE")
             .pattern("ETV")
@@ -486,7 +485,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void deformationTemplateItem(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("VVV")
             .pattern("VTE")
@@ -511,7 +510,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void disk(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
             .pattern("ABA")
             .pattern("ACA")
@@ -526,7 +525,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void filter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
             .pattern("ACA")
             .pattern("ABA")
@@ -541,7 +540,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void totemOfRecovery(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("CCC")
             .pattern("BAB")
@@ -556,7 +555,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void totemOfRage(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("BBB")
             .pattern("CAC")
@@ -571,7 +570,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void capacitorEmpty(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("A")
             .pattern("B")
@@ -584,7 +583,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void recoveryPearl(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
             .pattern(" B ")
             .pattern("BAB")
@@ -596,7 +595,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void pillBox(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
             .pattern("ABA")
@@ -621,7 +620,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void magnetIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.MAGNET_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MAGNET_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.MAGNET_BLOCK))
@@ -638,7 +637,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalSteelIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.ROYAL_STEEL_BLOCK)
             .group(ctx.getId().toString())
@@ -658,7 +657,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void royalSteelNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItems.ROYAL_STEEL_INGOT)
             .unlockedBy(
@@ -669,7 +668,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void frostMetalIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.FROST_METAL_BLOCK)
             .group(ctx.getId().toString())
@@ -692,7 +691,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void frostMetalNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItems.FROST_METAL_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.FROST_METAL_INGOT))
@@ -700,7 +699,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberMetalIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.EMBER_METAL_BLOCK)
             .group(ctx.getId().toString())
@@ -723,7 +722,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void emberMetalNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItems.EMBER_METAL_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.EMBER_METAL_INGOT))
@@ -731,7 +730,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void transcendiumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.TRANSCENDIUM_BLOCK)
             .group(ctx.getId().toString())
@@ -754,7 +753,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void transcendiumNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItems.TRANSCENDIUM_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT))
@@ -762,7 +761,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void cursedGoldIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.CURSED_GOLD_BLOCK)
             .group(ctx.getId().toString())
@@ -785,7 +784,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void cursedGoldNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItems.CURSED_GOLD_INGOT)
             .unlockedBy(
@@ -796,7 +795,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void topaz(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.TOPAZ_BLOCK)
             .unlockedBy(
@@ -807,7 +806,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void ruby(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RUBY_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RUBY_BLOCK))
@@ -815,7 +814,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void sapphire(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.SAPPHIRE_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SAPPHIRE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.SAPPHIRE_BLOCK))
@@ -823,7 +822,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void expGem(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.EXP_GEM_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.EXP_GEM_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.EXP_GEM_BLOCK))
@@ -831,7 +830,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void resin(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RESIN_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RESIN_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RESIN_BLOCK))
@@ -839,7 +838,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void amber(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.AMBER_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.AMBER_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.AMBER_BLOCK))
@@ -847,7 +846,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void circuitBoard(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
             .requires(ModItemTags.COPPER_PLATES)
             .requires(ModItems.HARDEND_RESIN)
@@ -859,7 +858,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void processor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("   ")
             .pattern("CAC")
@@ -873,7 +872,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void tungstenNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.TUNGSTEN_INGOTS)
             .unlockedBy(
@@ -891,7 +890,7 @@ public class RegistrumItemRecipeLoader {
         ItemLike rawMaterial,
         ItemLike deepslateOre
     ) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(block)
             .group(ctx.getId().toString())
@@ -935,7 +934,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void titaniumNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.TITANIUM_INGOTS)
             .unlockedBy(
@@ -957,7 +956,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void zincNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.ZINC_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.ZINC_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.ZINC_INGOTS))
@@ -976,7 +975,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void tinNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.TIN_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.TIN_INGOTS))
@@ -995,7 +994,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void leadNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.LEAD_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.LEAD_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.LEAD_INGOTS))
@@ -1014,7 +1013,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void silverNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.SILVER_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.SILVER_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.SILVER_INGOTS))
@@ -1033,7 +1032,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void uraniumNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.URANIUM_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.URANIUM_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.URANIUM_INGOTS))
@@ -1052,7 +1051,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void plutoniumNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.PLUTONIUM_INGOTS)
             .unlockedBy(
@@ -1063,7 +1062,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void plutoniumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.PLUTONIUM_BLOCK)
             .group(ctx.getId().toString())
@@ -1086,7 +1085,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void copperNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(Ingredient.of(Items.COPPER_INGOT))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(lookup, Items.COPPER_INGOT))
@@ -1098,7 +1097,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void bronzeIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.BRONZE_BLOCK)
             .group(ctx.getId().toString())
@@ -1115,7 +1114,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void bronzeNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.BRONZE_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.BRONZE_INGOTS))
@@ -1123,7 +1122,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void brassIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.BRASS_BLOCK)
             .group(ctx.getId().toString())
@@ -1140,7 +1139,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void brassNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItemTags.BRASS_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.BRASS_INGOTS))
@@ -1148,7 +1147,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void netheriteCrystalNucleus(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .define('A', ModItemTags.TUNGSTEN_PLATES)
@@ -1162,7 +1161,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void levitationPowder(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.LEVITATION_POWDER_BLOCK)
             .unlockedBy(
@@ -1173,7 +1172,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void rawZinc(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_ZINC_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_ZINC_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RAW_ZINC_BLOCK))
@@ -1181,7 +1180,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void rawTin(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_TIN_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_TIN_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RAW_TIN_BLOCK))
@@ -1189,7 +1188,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void rawTitanium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_TITANIUM_BLOCK)
             .unlockedBy(
@@ -1200,7 +1199,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void rawTungsten(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_TUNGSTEN_BLOCK)
             .unlockedBy(
@@ -1211,7 +1210,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void rawLead(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_LEAD_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_LEAD_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RAW_LEAD_BLOCK))
@@ -1219,7 +1218,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void rawSilver(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_SILVER_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_SILVER_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RAW_SILVER_BLOCK))
@@ -1227,7 +1226,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void rawUranium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.RAW_URANIUM_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_URANIUM_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.RAW_URANIUM_BLOCK))
@@ -1235,7 +1234,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void voidMatter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.VOID_MATTER_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.VOID_MATTER_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.VOID_MATTER_BLOCK))
@@ -1243,7 +1242,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void earthCoreShard(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.EARTH_CORE_SHARD_BLOCK)
             .unlockedBy(
@@ -1254,7 +1253,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void multiphaseMatter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.MULTIPHASE_MATTER_BLOCK)
             .unlockedBy(
@@ -1265,7 +1264,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void heavyHalberdCore(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("HHH")
             .pattern("HMH")
@@ -1278,7 +1277,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void resonatorCore(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("AEA")
             .pattern("EME")
@@ -1293,7 +1292,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void multiphaseTranscendium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItems.MULTIPHASE_MATTER),
@@ -1311,7 +1310,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void negativeMatter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.NEGATIVE_MATTER_BLOCK)
             .unlockedBy(
@@ -1332,7 +1331,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void negativeMatterNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModItems.NEGATIVE_MATTER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEGATIVE_MATTER), AnvilCraftDatagen.has(lookup, ModItems.NEGATIVE_MATTER))
@@ -1340,7 +1339,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void stableNeutroniumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 1)
             .requires(ModItems.NEUTRONIUM_INGOT)
             .requires(ModItems.LEVITATION_POWDER)
@@ -1349,7 +1348,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void cocoaLiquor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get(), 2)
             .requires(ModItems.COCOA_POWDER)
             .requires(ModItems.COCOA_POWDER)
@@ -1360,7 +1359,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void chocolate(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.FOOD, ctx.get(), 4)
             .pattern("ABA")
             .pattern("CDC")
@@ -1381,7 +1380,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void chocolateBlack(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.FOOD, ctx.get(), 4)
             .pattern("AAA")
             .pattern("BCB")
@@ -1403,7 +1402,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void chocolateWhite(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.FOOD, ctx.get(), 4)
             .pattern("AAA")
             .pattern("BCB")
@@ -1425,7 +1424,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void creamyBreadRoll(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get())
             .requires(Items.BREAD)
             .requires(Items.SUGAR)
@@ -1436,7 +1435,7 @@ public class RegistrumItemRecipeLoader {
 
     @SuppressWarnings("unused")
     public static <T extends Item> void recipe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> axe(
@@ -1512,7 +1511,7 @@ public class RegistrumItemRecipeLoader {
         NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStackTemplate> result
     ) {
         return (ctx, provider) -> {
-            HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+            HolderGetter<Item> lookup = provider.getItems();
             ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, result.apply(ctx, provider))
                 .pattern(pattern1)
                 .pattern(pattern2)

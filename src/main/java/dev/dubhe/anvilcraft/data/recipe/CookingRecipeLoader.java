@@ -7,24 +7,27 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 public class CookingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         CookingRecipe.builder()
-            .requires(ModItemTags.RESIN)
+            .requires(items, ModItemTags.RESIN)
             .result(ModItems.HARDEND_RESIN)
             .save(provider);
 
         CookingRecipe.builder()
-            .requires(ModItemTags.DOUGH)
+            .requires(items, ModItemTags.DOUGH)
             .requires(Items.EGG)
             .requires(Items.SUGAR)
             .result(ModBlocks.CAKE_BASE_BLOCK)
             .save(provider);
 
         BoilingRecipe.builder()
-            .requires(ModItemTags.RESIN)
+            .requires(items, ModItemTags.RESIN)
             .result(Items.SLIME_BALL)
             .save(provider);
 

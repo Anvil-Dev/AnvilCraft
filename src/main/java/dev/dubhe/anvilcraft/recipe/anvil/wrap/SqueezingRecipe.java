@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
@@ -11,6 +10,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -166,8 +166,8 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          *
          * @return 构建器实例
          */
-        public Builder requires(TagKey<Block> ingredient) {
-            return this.requires(BlockStatePredicate.builder().of(ingredient).build());
+        public Builder requires(HolderGetter<Block> blocks, TagKey<Block> ingredient) {
+            return this.requires(BlockStatePredicate.builder().of(blocks, ingredient).build());
         }
 
         /**
@@ -321,8 +321,8 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          *
          * @return 构建器实例
          */
-        public Builder anvil(TagKey<Block> anvil) {
-            this.hasAnvil = new HasAnvil(BlockStatePredicate.builder().of(anvil));
+        public Builder anvil(HolderGetter<Block> blocks, TagKey<Block> anvil) {
+            this.hasAnvil = new HasAnvil(BlockStatePredicate.builder().of(blocks, anvil));
             return this;
         }
 

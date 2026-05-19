@@ -1,12 +1,23 @@
 {
   "type": "anvilcraft:permutation",
   "inputs": [
-    "anvilcraft:emerald_amulet",
-    "anvilcraft:topaz_amulet",
-    "anvilcraft:ruby_amulet",
-    "anvilcraft:sapphire_amulet"
+    {
+      "id": "anvilcraft:emerald_amulet"
+    },
+    {
+      "id": "anvilcraft:topaz_amulet"
+    },
+    {
+      "id": "anvilcraft:ruby_amulet"
+    },
+    {
+      "id": "anvilcraft:sapphire_amulet"
+    }
   ],
   "material": {
     "items": "anvilcraft:chromatic_stone"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

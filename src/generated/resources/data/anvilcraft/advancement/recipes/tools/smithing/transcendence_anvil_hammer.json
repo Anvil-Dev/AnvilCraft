@@ -7,7 +7,7 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "hasitem": {
+    "has_transcendium_block": {
       "conditions": {
         "items": [
           {
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "hasitem"
+      "has_transcendium_block"
     ]
   ],
   "rewards": {

@@ -9,8 +9,6 @@
     }
   ],
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "tag": "c:nuggets/gold"
-  },
+  "ingredient": "#c:nuggets/gold",
   "mass": 19
 }

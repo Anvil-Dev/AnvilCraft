@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_coco_butter": {
+    "has_cocoa_butter": {
       "conditions": {
         "items": [
           {
@@ -11,7 +11,7 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_coco_powder": {
+    "has_cocoa_powder": {
       "conditions": {
         "items": [
           {
@@ -31,8 +31,8 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_coco_powder",
-      "has_coco_butter"
+      "has_cocoa_powder",
+      "has_cocoa_butter"
     ]
   ],
   "rewards": {

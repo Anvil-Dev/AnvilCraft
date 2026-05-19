@@ -49,11 +49,10 @@ public abstract class FallingBlockMixin extends Block {
         }
 
         // 2. 寻找主受力方向
-        Direction primaryDir = Direction.getNearest(
+        Direction primaryDir = Direction.getApproximateNearest(
             Mth.ceil(netGravity.x),
             Mth.ceil(netGravity.y),
-            Mth.ceil(netGravity.z),
-            Direction.NORTH
+            Mth.ceil(netGravity.z)
         );
         BlockPos targetPos = pos.relative(primaryDir);
         BlockState targetState = level.getBlockState(targetPos);

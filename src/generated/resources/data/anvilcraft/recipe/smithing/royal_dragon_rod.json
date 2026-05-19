@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:royal_steel_block"
-  },
-  "base": {
-    "item": "anvilcraft:dragon_rod"
-  },
+  "addition": "anvilcraft:royal_steel_block",
+  "base": "anvilcraft:dragon_rod",
   "result": {
-    "count": 1,
     "id": "anvilcraft:royal_dragon_rod"
   },
-  "template": {
-    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:royal_steel_upgrade_smithing_template"
 }

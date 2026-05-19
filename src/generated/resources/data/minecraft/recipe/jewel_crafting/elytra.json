@@ -1,0 +1,42 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "#c:feathers",
+    "#c:feathers",
+    "#c:feathers",
+    "#c:feathers",
+    "#c:feathers",
+    "#c:feathers",
+    "#c:feathers",
+    "#c:feathers",
+    "#c:leathers",
+    "#c:leathers",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo",
+    "minecraft:bamboo"
+  ],
+  "result": {
+    "id": "minecraft:elytra"
+  }
+}

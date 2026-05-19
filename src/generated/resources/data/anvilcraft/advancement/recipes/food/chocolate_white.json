@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_butter": {
+    "has_cocoa_butter": {
       "conditions": {
         "items": [
           {
@@ -41,7 +41,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_butter",
+      "has_cocoa_butter",
       "has_cream",
       "has_sugar"
     ]

@@ -112,6 +112,6 @@ public class TransformWithItemRecipeBuilder {
             .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(advancement::addCriterion);
         MobTransformWithItemRecipe recipe = this.create();
-        output.accept(key, recipe, advancement.build(id.withPrefix("recipe/")));
+        output.accept(key, recipe, advancement.build(id.withPrefix("recipes/")));
     }
 }

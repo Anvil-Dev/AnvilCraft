@@ -51,18 +51,20 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
 
     @Override
     public void submit(S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        FluidResource resource = state.getResource();
+        if (resource == null) return;
         FluidModel model = FluidRenderHelper.getModel(
             Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
-            state.getResource().getFluid()
+            resource.getFluid()
         );
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        int tintColor = model.fluidTintSource().colorAsStack(state.getResource().toStack(1));
+        int tintColor = model.fluidTintSource().colorAsStack(resource.toStack(1));
         submitNodeCollector.submitCustomGeometry(
             poseStack,
             RenderTypes.entityTranslucent(sprite.atlasLocation()),
             (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                 sprite,
-                state.getResource(),
+                resource,
                 state.getMinX(),
                 state.getMinY(),
                 state.getMinZ(),

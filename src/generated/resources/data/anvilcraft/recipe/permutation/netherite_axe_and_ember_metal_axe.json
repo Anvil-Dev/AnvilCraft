@@ -10,11 +10,18 @@
           ]
         }
       ],
-      "result": "minecraft:netherite_axe"
+      "result": {
+        "id": "minecraft:netherite_axe"
+      }
     },
-    "anvilcraft:ember_metal_axe"
+    {
+      "id": "anvilcraft:ember_metal_axe"
+    }
   ],
   "material": {
     "items": "anvilcraft:ember_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

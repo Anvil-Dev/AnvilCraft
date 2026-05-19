@@ -1,17 +1,37 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_echo_shard": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:echo_shard"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_recovery_pearl": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:recovery_pearl"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "anvilcraft:totem_of_recovery"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "hasitem": {
+    "has_totem_of_undying": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:echo_shard"
+            "items": "minecraft:totem_of_undying"
           }
         ]
       },
@@ -21,7 +41,9 @@
   "requirements": [
     [
       "has_the_recipe",
-      "hasitem"
+      "has_totem_of_undying",
+      "has_recovery_pearl",
+      "has_echo_shard"
     ]
   ],
   "rewards": {

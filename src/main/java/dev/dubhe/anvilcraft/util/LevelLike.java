@@ -7,7 +7,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.BlockAndLightGetter;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.LightLayer;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
@@ -123,6 +121,7 @@ public class LevelLike implements BlockAndTintGetter {
             if (blockEntity == null) return;
             if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
             blockEntity.setLevel(this.parent);
+            // noinspection deprecation
             blockEntity.setBlockState(state);
             this.blockEntities.put(pos, blockEntity);
         }

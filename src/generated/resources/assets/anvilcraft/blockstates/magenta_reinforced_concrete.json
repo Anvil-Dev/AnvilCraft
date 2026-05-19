@@ -1,13 +1,13 @@
 {
   "variants": {
     "half=bottom": {
-      "model": "anvilcraft:reinforced_concrete_bottom_magenta"
+      "model": "anvilcraft:block/magenta_reinforced_concrete_bottom"
     },
     "half=single": {
-      "model": "anvilcraft:reinforced_concrete_magenta"
+      "model": "anvilcraft:block/magenta_reinforced_concrete"
     },
     "half=top": {
-      "model": "anvilcraft:reinforced_concrete_top_magenta"
+      "model": "anvilcraft:block/magenta_reinforced_concrete_top_"
     }
   }
 }

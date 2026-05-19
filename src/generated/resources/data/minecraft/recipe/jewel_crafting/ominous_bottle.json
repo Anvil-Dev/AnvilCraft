@@ -1,0 +1,27 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "minecraft:experience_bottle",
+    "anvilcraft:cursed_gold_ingot",
+    "anvilcraft:cursed_gold_ingot",
+    "minecraft:glass_bottle"
+  ],
+  "result": {
+    "id": "minecraft:ominous_bottle"
+  }
+}

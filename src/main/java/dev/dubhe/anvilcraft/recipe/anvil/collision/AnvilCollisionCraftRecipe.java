@@ -6,12 +6,12 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -310,8 +310,8 @@ public record AnvilCollisionCraftRecipe(
          *
          * @return 构建器实例
          */
-        public Builder anvil(TagKey<Block> anvil) {
-            this.anvil = BlockStatePredicate.builder().of(anvil).build();
+        public Builder anvil(HolderGetter<Block> blocks, TagKey<Block> anvil) {
+            this.anvil = BlockStatePredicate.builder().of(blocks, anvil).build();
             return this;
         }
 
@@ -346,8 +346,8 @@ public record AnvilCollisionCraftRecipe(
          *
          * @return 构建器实例
          */
-        public Builder hitBlock(TagKey<Block> blockTagKey) {
-            return this.hitBlock(BlockStatePredicate.builder().of(blockTagKey).build());
+        public Builder hitBlock(HolderGetter<Block> blocks, TagKey<Block> blockTagKey) {
+            return this.hitBlock(BlockStatePredicate.builder().of(blocks, blockTagKey).build());
         }
 
         /**

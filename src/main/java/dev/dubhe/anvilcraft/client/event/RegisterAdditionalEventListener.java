@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
@@ -82,7 +81,7 @@ public class RegisterAdditionalEventListener {
         );
         event.register(
             FishTankRenderer.FIRE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))
         );
     }
 

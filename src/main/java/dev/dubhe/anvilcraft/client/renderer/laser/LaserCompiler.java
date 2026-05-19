@@ -2,12 +2,9 @@ package dev.dubhe.anvilcraft.client.renderer.laser;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LaserRenderState;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ARGB;
 
@@ -39,8 +36,7 @@ public class LaserCompiler {
         nodeCollector.submitCustomGeometry(
             poseStack,
             ModRenderTypes.LASER_SOLID,
-            ((pose, buffer) -> {
-            renderBox(
+            (pose, buffer) -> renderBox(
                 buffer,
                 pose,
                 -width,
@@ -52,8 +48,8 @@ public class LaserCompiler {
                 ARGB.color(1, state.color),
                 state.laserAtlasSprite,
                 state.solidAtlasSprite
-            );
-        }));
+            )
+        );
         nodeCollector.submitCustomGeometry(
             poseStack,
             bloomed ? ModRenderTypes.LASER_TRANSLUCENT_BLOOM : ModRenderTypes.LASER_TRANSLUCENT,

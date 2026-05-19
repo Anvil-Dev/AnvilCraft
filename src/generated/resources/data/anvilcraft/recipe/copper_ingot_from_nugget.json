@@ -2,36 +2,17 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    },
-    {
-      "item": "anvilcraft:copper_nugget"
-    }
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget",
+    "anvilcraft:copper_nugget"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:copper_ingot"
   }
 }

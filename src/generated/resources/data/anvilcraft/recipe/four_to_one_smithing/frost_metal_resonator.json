@@ -69,7 +69,9 @@
       ]
     }
   ],
-  "result": "anvilcraft:frost_metal_resonator",
+  "result": {
+    "id": "anvilcraft:frost_metal_resonator"
+  },
   "template": {
     "items": "anvilcraft:four_to_one_smithing_template"
   }

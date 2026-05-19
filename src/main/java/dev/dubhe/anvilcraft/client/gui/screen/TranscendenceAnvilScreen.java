@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
@@ -98,7 +99,7 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
         int i = this.menu.getCost();
         if (this.menu.result.noCostInRenaming && this.menu.result.onlyRenaming || i > 0) {
             Component component;
@@ -125,8 +126,8 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
         Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
                              ? SharedTextures.TEXT_FIELD_DISABLE
                              : SharedTextures.TEXT_FIELD;
-        graphics.blit(texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
-        this.name.extractWidgetRenderState(graphics, mouseX, mouseY, a);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
+        // this.name.extractWidgetRenderState(graphics, mouseX, mouseY, a);
     }
 
     @Override

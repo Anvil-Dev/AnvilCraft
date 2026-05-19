@@ -1,108 +1,41 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    {
-      "item": "anvilcraft:silver_ingot"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    },
-    {
-      "tag": "minecraft:meat"
-    }
+    "anvilcraft:silver_ingot",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "minecraft:bone",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat",
+    "#minecraft:meat"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:dog_amulet"
   }
 }

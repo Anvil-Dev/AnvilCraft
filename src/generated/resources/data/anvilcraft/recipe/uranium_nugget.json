@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:ingots/uranium"
-    }
+    "#c:ingots/uranium"
   ],
   "result": {
     "count": 9,

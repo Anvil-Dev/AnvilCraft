@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.recipe.anvil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
@@ -71,7 +71,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
         super(
             new CommonInfo(false),
             ingredient,
-            new ItemStackTemplate(Items.AIR)
+            new ItemStackTemplate(ModItems.NEUTRONIUM_INGOT)
         );
         this.mass = mass;
     }

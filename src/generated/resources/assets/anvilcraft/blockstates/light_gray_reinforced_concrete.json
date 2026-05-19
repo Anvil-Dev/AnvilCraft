@@ -1,13 +1,13 @@
 {
   "variants": {
     "half=bottom": {
-      "model": "anvilcraft:reinforced_concrete_bottom_light_gray"
+      "model": "anvilcraft:block/light_gray_reinforced_concrete_bottom"
     },
     "half=single": {
-      "model": "anvilcraft:reinforced_concrete_light_gray"
+      "model": "anvilcraft:block/light_gray_reinforced_concrete"
     },
     "half=top": {
-      "model": "anvilcraft:reinforced_concrete_top_light_gray"
+      "model": "anvilcraft:block/light_gray_reinforced_concrete_top_"
     }
   }
 }

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": {
-      "item": "anvilcraft:prismarine_blade"
-    },
-    "B": {
-      "item": "minecraft:prismarine_bricks"
-    }
+    "A": "anvilcraft:prismarine_blade",
+    "B": "minecraft:prismarine_bricks"
   },
   "pattern": [
     " AA",
@@ -15,7 +11,6 @@
     "B  "
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:trident"
   }
 }

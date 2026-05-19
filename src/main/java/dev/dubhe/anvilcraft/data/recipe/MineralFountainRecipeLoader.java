@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -51,8 +53,9 @@ public class MineralFountainRecipeLoader {
     }
 
     private static void mineralFountainDeepslate(RegistrumRecipeProvider provider, TagKey<Block> require, Block result) {
+        HolderGetter<Block> blocks = provider.getRegistries().lookupOrThrow(Registries.BLOCK);
         MineralFountainRecipe.builder()
-            .needBlock(require)
+            .needBlock(blocks, require)
             .fromBlock(Blocks.DEEPSLATE)
             .toBlock(result)
             .save(provider);

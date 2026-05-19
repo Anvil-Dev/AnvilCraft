@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:chainmail_boots"
+    }
+  ],
+  "results": [
+    {
+      "count": {
+        "type": "minecraft:uniform",
+        "max": 2.0,
+        "min": 0.0
+      },
+      "id": "minecraft:iron_chain"
+    }
+  ]
+}

@@ -1,7 +1,5 @@
 {
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "item": "anvilcraft:cursed_gold_block"
-  },
+  "ingredient": "anvilcraft:cursed_gold_block",
   "mass": 2500
 }

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "anvilcraft:ember_metal_upgrade_smithing_template"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:netherite_upgrade_smithing_template"
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.ItemLike;
 
 public class StampingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        final HolderGetter<Item> items = provider.getItems();
         stamping(provider, Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
         stamping(provider, Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
         stamping(provider, Items.COPPER_INGOT, ModBlocks.COPPER_PRESSURE_PLATE);
@@ -57,7 +59,7 @@ public class StampingRecipeLoader {
             .result(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE)
             .save(provider);
         StampingRecipe.builder()
-            .requires(ModItemTags.TIN_PLATES)
+            .requires(items, ModItemTags.TIN_PLATES)
             .requires(ModItems.ROYAL_STEEL_INGOT)
             .result(ModItems.TIN_CAN)
             .result(ModItems.ROYAL_STEEL_INGOT)
@@ -102,15 +104,15 @@ public class StampingRecipeLoader {
             .save(provider, AnvilCraft.of("stamping/shulker_box_from_supercritical_nesting_shulker_box"));
 
         StampingDiffRecipe.builder()
-            .requires(ModItemTags.TEMPLATES, 2)
+            .requires(items, ModItemTags.TEMPLATES, 2)
             .result(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
         StampingDiffRecipe.builder()
-            .requires(ModItemTags.TEMPLATES, 4)
+            .requires(items, ModItemTags.TEMPLATES, 4)
             .result(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
         StampingDiffRecipe.builder()
-            .requires(ModItemTags.TEMPLATES, 8)
+            .requires(items, ModItemTags.TEMPLATES, 8)
             .result(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
     }
@@ -128,8 +130,9 @@ public class StampingRecipeLoader {
     }
 
     private static void stamping(RegistrumRecipeProvider provider, TagKey<Item> input, ItemLike result) {
+        HolderGetter<Item> items = provider.getItems();
         StampingRecipe.builder()
-            .requires(input)
+            .requires(items, input)
             .result(result, 1)
             .save(provider);
     }

@@ -4,11 +4,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -136,8 +136,8 @@ public record MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePre
             return this;
         }
 
-        public Builder needBlock(TagKey<Block> needBlock) {
-            this.needBlock = BlockStatePredicate.builder().of(needBlock).build();
+        public Builder needBlock(HolderGetter<Block> blocks, TagKey<Block> needBlock) {
+            this.needBlock = BlockStatePredicate.builder().of(blocks, needBlock).build();
             return this;
         }
 
@@ -146,8 +146,8 @@ public record MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePre
             return this;
         }
 
-        public Builder fromBlock(TagKey<Block> fromBlock) {
-            this.fromBlock = BlockStatePredicate.builder().of(fromBlock).build();
+        public Builder fromBlock(HolderGetter<Block> blocks, TagKey<Block> fromBlock) {
+            this.fromBlock = BlockStatePredicate.builder().of(blocks, fromBlock).build();
             return this;
         }
 

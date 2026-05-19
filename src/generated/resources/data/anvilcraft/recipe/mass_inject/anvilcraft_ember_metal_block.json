@@ -1,7 +1,5 @@
 {
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "item": "anvilcraft:ember_metal_block"
-  },
+  "ingredient": "anvilcraft:ember_metal_block",
   "mass": 20000
 }

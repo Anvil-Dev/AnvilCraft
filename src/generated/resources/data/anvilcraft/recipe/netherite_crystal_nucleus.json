@@ -2,18 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:plates/tungsten"
-    },
-    "B": {
-      "item": "minecraft:netherite_scrap"
-    }
+    "A": "#c:plates/tungsten",
+    "B": "minecraft:netherite_scrap"
   },
   "pattern": [
     "ABA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:netherite_crystal_nucleus"
   }
 }

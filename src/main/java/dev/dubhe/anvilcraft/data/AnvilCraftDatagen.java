@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.init.entity.ModVillagerTrades;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -91,11 +92,11 @@ public class AnvilCraftDatagen {
         );
     }
 
-    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(HolderLookup<Item> lookup, ItemLike itemLike) {
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(HolderGetter<Item> lookup, ItemLike itemLike) {
         return RegistrumRecipeProvider.inventoryTrigger(ItemPredicate.Builder.item().of(lookup, itemLike));
     }
 
-    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(HolderLookup<Item> lookup, TagKey<Item> tag) {
+    public static Criterion<InventoryChangeTrigger.TriggerInstance> has(HolderGetter<Item> lookup, TagKey<Item> tag) {
         return RegistrumRecipeProvider.inventoryTrigger(ItemPredicate.Builder.item().of(lookup, tag));
     }
 

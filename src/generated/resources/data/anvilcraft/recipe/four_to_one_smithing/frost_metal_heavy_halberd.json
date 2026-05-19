@@ -69,7 +69,9 @@
       ]
     }
   ],
-  "result": "anvilcraft:frost_metal_heavy_halberd",
+  "result": {
+    "id": "anvilcraft:frost_metal_heavy_halberd"
+  },
   "template": {
     "items": "anvilcraft:four_to_one_smithing_template"
   }

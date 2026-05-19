@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.ISoundEventListener;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
@@ -13,7 +12,6 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
@@ -42,7 +40,7 @@ public class InspectionSupport {
             List<AABB> snapshottedBoxes = listeners.stream().filter(it -> it instanceof IHasAffectRange)
                 .map(it -> ((IHasAffectRange) it).shape()).filter(Objects::nonNull)
                 .toList();
-            if (snapshottedBoxes.isEmpty())return;
+            if (snapshottedBoxes.isEmpty()) return;
             r.submitCustomGeometry(p, RenderTypes.lines(), ((pose, buffer) -> {
                 for (AABB it : snapshottedBoxes) {
                     TooltipRenderHelper.renderOutline(

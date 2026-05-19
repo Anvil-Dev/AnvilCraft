@@ -3,11 +3,8 @@
   "category": "food",
   "cookingtime": 200,
   "experience": 0.35,
-  "ingredient": {
-    "tag": "c:foods/dough"
-  },
+  "ingredient": "#c:foods/dough",
   "result": {
-    "count": 1,
     "id": "minecraft:bread"
   }
 }

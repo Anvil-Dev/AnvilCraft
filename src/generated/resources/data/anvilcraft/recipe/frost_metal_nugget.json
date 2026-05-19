@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:frost_metal_ingot"
-    }
+    "anvilcraft:frost_metal_ingot"
   ],
   "result": {
     "count": 9,

@@ -44,20 +44,18 @@ abstract class RecipeManagerMixin {
         CallbackInfoReturnable<RecipeMap> cir,
         @Local(name = "recipeHolders") List<RecipeHolder<?>> recipeHolders
     ) {
-        //TODO MAKE THIS WORK
-//        new JewelCraftingRecipeGeneratingCache(this.registries)
-//            .buildRecipes()
-//            .ifPresent(recipeHolders::addAll);
+        new JewelCraftingRecipeGeneratingCache(this.registries)
+            .buildRecipes()
+            .ifPresent(recipeHolders::addAll);
     }
 
     @Inject(method = "finalizeRecipeLoading", at = @At("RETURN"))
     private void sendRecipes2C(FeatureFlagSet enabledFlags, CallbackInfo ci) {
-        //TODO ALSO MAKE THIS WORK
-//        RecipesRecord.RECIPES.syncFrom(this.recipes);
-//        RecipesRecord.sync2C(
-//            PacketDistributor::sendToAllPlayers,
-//            this.recipes.values(),
-//            ServerLifecycleHooks.getCurrentServer().registryAccess()
-//        );
+        RecipesRecord.RECIPES.syncFrom(this.recipes);
+        RecipesRecord.sync2C(
+            PacketDistributor::sendToAllPlayers,
+            this.recipes.values(),
+            ServerLifecycleHooks.getCurrentServer().registryAccess()
+        );
     }
 }

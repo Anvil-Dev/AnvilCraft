@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.item.property.component.FlightTime;
 import net.minecraft.network.HashedStack;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -22,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForgeMod;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -61,16 +59,14 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         return armorType == EquipmentSlot.CHEST;
     }
 
-//    @Override
-//    public @Nullable Identifier getArmorTexture(
-//        ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
-//        if (getFlightTime(stack) > 0) {
-//            return TEXTURE;
-//        }
-//        return TEXTURE_OFF;
-//    }
-
-
+    // @Override
+    // public @Nullable Identifier getArmorTexture(
+    //     ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+    //     if (getFlightTime(stack) > 0) {
+    //         return TEXTURE;
+    //     }
+    //     return TEXTURE_OFF;
+    // }
 
     public static int getFlightTime(ItemStack stack) {
         return stack.getOrDefault(ModComponents.FLIGHT_TIME, FlightTime.EMPTY).value();

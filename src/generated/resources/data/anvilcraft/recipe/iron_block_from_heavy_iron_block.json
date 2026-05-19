@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "anvilcraft:heavy_iron_block"
-    }
+    "anvilcraft:heavy_iron_block"
   ],
   "result": {
     "count": 9,

@@ -98,6 +98,7 @@ public class ItemHandlerUtil {
         try (Transaction root = Transaction.openRoot()) {
             for (int srcIndex = 0; srcIndex < source.size(); srcIndex++) {
                 ItemResource resource = source.getResource(srcIndex);
+                if (resource.isEmpty()) continue;
                 try (Transaction transaction = Transaction.open(root)) {
                     int extracted = source.extract(srcIndex, resource, Integer.MAX_VALUE, transaction);
                     if (extracted != 0) items.add(resource.toStack(extracted));

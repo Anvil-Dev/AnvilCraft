@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -219,12 +220,12 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
             return this.material(1, materials);
         }
 
-        public final BaseBuilder<R> material(int count, TagKey<Item> materialTag) {
-            return this.material(ItemIngredientPredicate.of(materialTag).withCount(count));
+        public final BaseBuilder<R> material(int count, HolderGetter<Item> items, TagKey<Item> materialTag) {
+            return this.material(ItemIngredientPredicate.of(items, materialTag).withCount(count));
         }
 
-        public final BaseBuilder<R> material(TagKey<Item> materialTag) {
-            return this.material(1, materialTag);
+        public final BaseBuilder<R> material(HolderGetter<Item> items, TagKey<Item> materialTag) {
+            return this.material(1, items, materialTag);
         }
 
         public final BaseBuilder<R> input(ItemIngredientPredicate.Builder inputBuilder) {
@@ -240,12 +241,12 @@ public abstract class BaseMultipleToOneSmithingRecipe implements Recipe<Multiple
             return this.input(1, inputs);
         }
 
-        public final BaseBuilder<R> input(int count, TagKey<Item> inputTag) {
-            return this.input(ItemIngredientPredicate.of(inputTag).withCount(count));
+        public final BaseBuilder<R> input(int count, HolderGetter<Item> items, TagKey<Item> inputTag) {
+            return this.input(ItemIngredientPredicate.of(items, inputTag).withCount(count));
         }
 
-        public final BaseBuilder<R> input(TagKey<Item> inputTag) {
-            return this.input(1, inputTag);
+        public final BaseBuilder<R> input(HolderGetter<Item> items, TagKey<Item> inputTag) {
+            return this.input(1, items, inputTag);
         }
 
         public final BaseBuilder<R> result(RecipeResult.Builder resultBuilder) {

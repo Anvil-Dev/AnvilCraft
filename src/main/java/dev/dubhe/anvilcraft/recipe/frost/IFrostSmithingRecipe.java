@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
 import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -123,12 +124,12 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
             return this.template(1, templates);
         }
 
-        public B template(int count, TagKey<Item> templateTag) {
-            return this.template(ItemIngredientPredicate.of(templateTag).withCount(count));
+        public B template(int count, HolderGetter<Item> items, TagKey<Item> templateTag) {
+            return this.template(ItemIngredientPredicate.of(items, templateTag).withCount(count));
         }
 
-        public B template(TagKey<Item> templateTag) {
-            return this.template(1, templateTag);
+        public B template(HolderGetter<Item> items, TagKey<Item> templateTag) {
+            return this.template(1, items, templateTag);
         }
 
         public B material(ItemIngredientPredicate material) {
@@ -148,12 +149,12 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
             return this.material(1, materials);
         }
 
-        public B material(int count, TagKey<Item> materialTag) {
-            return this.material(ItemIngredientPredicate.of(materialTag).withCount(count));
+        public B material(int count, HolderGetter<Item> items, TagKey<Item> materialTag) {
+            return this.material(ItemIngredientPredicate.of(items, materialTag).withCount(count));
         }
 
-        public B material(TagKey<Item> materialTag) {
-            return this.material(1, materialTag);
+        public B material(HolderGetter<Item> items, TagKey<Item> materialTag) {
+            return this.material(1, items, materialTag);
         }
 
         public B input(RecipeResult.Builder input) {

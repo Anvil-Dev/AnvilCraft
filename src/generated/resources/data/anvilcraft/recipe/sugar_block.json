@@ -2,36 +2,17 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:sugar"
-    }
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:sugar"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:sugar_block"
   }
 }

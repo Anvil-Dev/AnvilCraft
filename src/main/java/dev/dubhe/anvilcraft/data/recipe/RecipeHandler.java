@@ -32,7 +32,6 @@ public class RecipeHandler {
         ChargerChargingRecipeLoader.init(provider);
         AnvilCollisionCraftRecipeLoader.init(provider);
         MultipleToOneSmithingRecipeLoader.init(provider);
-        CoolingRecipeLoader.init(provider);
         PermutationRecipeLoader.init(provider);
         DeformationRecipeLoader.init(provider);
         EnergyWeaponMakeRecipeLoader.init(provider);

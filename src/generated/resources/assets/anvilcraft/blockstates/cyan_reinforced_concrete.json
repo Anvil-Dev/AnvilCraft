@@ -1,13 +1,13 @@
 {
   "variants": {
     "half=bottom": {
-      "model": "anvilcraft:reinforced_concrete_bottom_cyan"
+      "model": "anvilcraft:block/cyan_reinforced_concrete_bottom"
     },
     "half=single": {
-      "model": "anvilcraft:reinforced_concrete_cyan"
+      "model": "anvilcraft:block/cyan_reinforced_concrete"
     },
     "half=top": {
-      "model": "anvilcraft:reinforced_concrete_top_cyan"
+      "model": "anvilcraft:block/cyan_reinforced_concrete_top_"
     }
   }
 }

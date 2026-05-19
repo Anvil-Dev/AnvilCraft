@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "E": {
-      "item": "anvilcraft:earth_core_shard"
-    },
-    "T": {
-      "tag": "anvilcraft:templates"
-    },
-    "V": {
-      "item": "anvilcraft:void_matter"
-    }
+    "E": "anvilcraft:earth_core_shard",
+    "T": "#anvilcraft:templates",
+    "V": "anvilcraft:void_matter"
   },
   "pattern": [
     "VVV",
@@ -18,7 +12,6 @@
     "EEE"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:deformation_smithing_template"
   }
 }

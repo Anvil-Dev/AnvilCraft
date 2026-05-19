@@ -76,7 +76,9 @@
       ]
     }
   ],
-  "result": "anvilcraft:multitool",
+  "result": {
+    "id": "anvilcraft:multitool"
+  },
   "template": {
     "items": "anvilcraft:eight_to_one_smithing_template"
   }

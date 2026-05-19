@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.api.thought.Thinkable;
 import dev.dubhe.anvilcraft.integration.IntegrationUtil;
 import dev.dubhe.anvilcraft.network.OpenIntegrationScreenPacket;
 import dev.dubhe.anvilcraft.util.ModEventUtil;
-import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -15,8 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.function.Consumer;
 
@@ -39,14 +36,19 @@ public class GuideBookItem extends Item implements Thinkable {
     }
 
     @Override
-    // @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, display, consumer, tooltipFlag);
+    @SuppressWarnings("deprecation")
+    public void appendHoverText(
+        ItemStack stack,
+        TooltipContext context,
+        TooltipDisplay display,
+        Consumer<Component> consumer,
+        TooltipFlag flag
+    ) {
+        super.appendHoverText(stack, context, display, consumer, flag);
         this.appendHoverText(consumer);
     }
 
     @Override
-    // @OnlyIn(Dist.CLIENT)
     public void onThought() {
         IntegrationUtil.openIntegrationScreen();
     }

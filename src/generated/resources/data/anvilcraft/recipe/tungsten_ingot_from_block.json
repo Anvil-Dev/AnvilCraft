@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:tungsten_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:tungsten_block"
-    }
+    "anvilcraft:tungsten_block"
   ],
   "result": {
     "count": 9,

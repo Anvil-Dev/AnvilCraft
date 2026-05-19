@@ -2,19 +2,12 @@ package dev.dubhe.anvilcraft.item.food;
 
 import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import lombok.Getter;
-import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
-
-import java.util.function.Consumer;
 
 @Getter
 public class CannedFoodItem extends Item implements IExtraItemDisplay {
@@ -52,19 +45,6 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
             ));
         }
         return canStack;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> consumer, TooltipFlag flag) {
-        StoredItem foodInfo = stack.getOrDefault(ModComponents.DISPLAY_ITEM, new StoredItem(ItemStack.EMPTY));
-        ItemStack food = foodInfo.stored();
-        if (!food.isEmpty()) {
-            if (food.getCount() == 1) {
-                consumer.accept(food.getHoverName());
-            } else {
-                consumer.accept(food.getHoverName().copy().append(" x").append(String.valueOf(food.getCount())));
-            }
-        }
     }
 
     @Override

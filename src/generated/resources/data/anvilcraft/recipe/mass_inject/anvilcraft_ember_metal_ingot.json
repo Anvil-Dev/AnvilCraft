@@ -1,7 +1,5 @@
 {
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "item": "anvilcraft:ember_metal_ingot"
-  },
+  "ingredient": "anvilcraft:ember_metal_ingot",
   "mass": 2000
 }

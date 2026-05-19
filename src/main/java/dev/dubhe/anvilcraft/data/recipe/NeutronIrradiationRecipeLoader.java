@@ -8,14 +8,17 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
 
 public class NeutronIrradiationRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         NeutronIrradiationRecipe.builder()
-            .requires(ModItemTags.URANIUM_INGOTS)
+            .requires(items, ModItemTags.URANIUM_INGOTS)
             .result(ModItems.PLUTONIUM_NUGGET, 6)
             .save(provider);
 

@@ -92,6 +92,7 @@ public class AnvilCraft {
         ModMenuTypes.register();
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
+        ModRecipeSerializers.register(modEventBus);
         ModRecipeTypes.register(modEventBus);
         ModDataAttachments.register(modEventBus);
         ModParticles.register(modEventBus);
@@ -109,8 +110,6 @@ public class AnvilCraft {
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
         ModConsumeEffects.register(modEventBus);
-        //TODO ADD THIS BACK
-        // ModRecipeSerializers.register(modEventBus);
 
         // datagen
         AnvilCraftDatagen.init();

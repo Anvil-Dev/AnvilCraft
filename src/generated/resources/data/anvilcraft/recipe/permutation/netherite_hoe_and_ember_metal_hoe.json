@@ -10,11 +10,18 @@
           ]
         }
       ],
-      "result": "minecraft:netherite_hoe"
+      "result": {
+        "id": "minecraft:netherite_hoe"
+      }
     },
-    "anvilcraft:ember_metal_hoe"
+    {
+      "id": "anvilcraft:ember_metal_hoe"
+    }
   ],
   "material": {
     "items": "anvilcraft:ember_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

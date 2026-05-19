@@ -78,7 +78,7 @@ public class ModFoodItems {
         )
         .recipe((_, provider) -> {
             StampingRecipe.builder()
-                .requires(ModItemTags.FLOUR)
+                .requires(provider.getItems(), ModItemTags.FLOUR)
                 .result(ModFoodItems.PILL, 4)
                 .save(provider);
         })

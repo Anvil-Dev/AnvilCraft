@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:silver_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:silver_block"
-    }
+    "anvilcraft:silver_block"
   ],
   "result": {
     "count": 9,

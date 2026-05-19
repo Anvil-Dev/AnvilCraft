@@ -42,7 +42,7 @@ public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig
     public ChangeDataType(Identifier origId, ICustomDataComponent<T> dest, RecipeInputSlot slot) {
         this(
             slot,
-            Util.cast(BuiltInRegistries.DATA_COMPONENT_TYPE.get(origId)),
+            Util.cast(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(origId)),
             dest
         );
     }

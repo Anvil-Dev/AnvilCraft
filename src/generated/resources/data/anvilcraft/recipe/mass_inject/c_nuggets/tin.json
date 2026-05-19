@@ -9,8 +9,6 @@
     }
   ],
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "tag": "c:nuggets/tin"
-  },
+  "ingredient": "#c:nuggets/tin",
   "mass": 7
 }

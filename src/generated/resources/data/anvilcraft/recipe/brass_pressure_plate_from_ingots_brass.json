@@ -2,15 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "tag": "c:ingots/brass"
-    }
+    "A": "#c:ingots/brass"
   },
   "pattern": [
     "AA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:brass_pressure_plate"
   }
 }

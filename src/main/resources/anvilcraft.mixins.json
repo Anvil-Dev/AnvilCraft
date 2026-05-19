@@ -13,6 +13,7 @@
     "BlockStateMixin",
     "BucketResourceHandlerMixin",
     "CandleCakeBlockMixin",
+    "CauldronFluidContentMixin",
     "ComparatorBlockEntityMixin",
     "CraftingMenuMixin",
     "DefaultDispenseItemBehaviorMixin",

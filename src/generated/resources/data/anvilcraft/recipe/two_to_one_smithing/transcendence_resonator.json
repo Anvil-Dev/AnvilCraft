@@ -22,7 +22,9 @@
       ]
     }
   ],
-  "result": "anvilcraft:transcendence_resonator",
+  "result": {
+    "id": "anvilcraft:transcendence_resonator"
+  },
   "template": {
     "items": "anvilcraft:two_to_one_smithing_template"
   }

@@ -1,13 +1,13 @@
 {
   "variants": {
     "half=bottom": {
-      "model": "anvilcraft:reinforced_concrete_bottom_pink"
+      "model": "anvilcraft:block/pink_reinforced_concrete_bottom"
     },
     "half=single": {
-      "model": "anvilcraft:reinforced_concrete_pink"
+      "model": "anvilcraft:block/pink_reinforced_concrete"
     },
     "half=top": {
-      "model": "anvilcraft:reinforced_concrete_top_pink"
+      "model": "anvilcraft:block/pink_reinforced_concrete_top_"
     }
   }
 }

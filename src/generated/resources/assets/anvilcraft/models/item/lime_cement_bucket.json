@@ -1,5 +1,0 @@
-{
-  "parent": "neoforge:item/bucket_drip",
-  "fluid": "anvilcraft:lime_cement",
-  "loader": "neoforge:fluid_container"
-}

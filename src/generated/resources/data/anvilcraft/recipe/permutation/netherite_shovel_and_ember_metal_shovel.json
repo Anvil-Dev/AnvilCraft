@@ -10,11 +10,18 @@
           ]
         }
       ],
-      "result": "minecraft:netherite_shovel"
+      "result": {
+        "id": "minecraft:netherite_shovel"
+      }
     },
-    "anvilcraft:ember_metal_shovel"
+    {
+      "id": "anvilcraft:ember_metal_shovel"
+    }
   ],
   "material": {
     "items": "anvilcraft:ember_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

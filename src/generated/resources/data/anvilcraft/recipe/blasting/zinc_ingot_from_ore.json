@@ -4,11 +4,8 @@
   "cookingtime": 100,
   "experience": 1.0,
   "group": "anvilcraft:zinc_ingot",
-  "ingredient": {
-    "item": "anvilcraft:deepslate_zinc_ore"
-  },
+  "ingredient": "anvilcraft:deepslate_zinc_ore",
   "result": {
-    "count": 1,
     "id": "anvilcraft:zinc_ingot"
   }
 }

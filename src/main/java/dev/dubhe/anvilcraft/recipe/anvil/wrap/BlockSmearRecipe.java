@@ -3,10 +3,10 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -116,8 +116,8 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
          *
          * @return 构建器实例
          */
-        public Builder input(TagKey<Block> input) {
-            this.inputs.add(BlockStatePredicate.builder().of(input).build());
+        public Builder input(HolderGetter<Block> blocks, TagKey<Block> input) {
+            this.inputs.add(BlockStatePredicate.builder().of(blocks, input).build());
             return this;
         }
 

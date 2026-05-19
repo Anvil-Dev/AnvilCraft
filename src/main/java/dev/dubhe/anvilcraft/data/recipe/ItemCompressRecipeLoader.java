@@ -18,8 +18,10 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentExactPredicate;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -30,33 +32,34 @@ import java.util.Map;
 
 public class ItemCompressRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         ItemCompressRecipe.builder()
             .requires(Items.BONE, 3)
             .result(Items.BONE_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(ModItemTags.CREAM, 4)
+            .requires(items, ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
             .result(ModBlocks.CREAM_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(ModItemTags.CREAM, 4)
+            .requires(items, ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
             .requires(Items.SWEET_BERRIES)
             .result(ModBlocks.BERRY_CREAM_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(ModItemTags.CREAM, 4)
+            .requires(items, ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
             .requires(ModFoodItems.CHOCOLATE)
             .result(ModBlocks.CHOCOLATE_CREAM_BLOCK)
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(ModItemTags.IRON_PLATES, 2)
+            .requires(items, ModItemTags.IRON_PLATES, 2)
             .requires(
                 ItemIngredientPredicate
                     .of(ModBlocks.RESIN_BLOCK.asItem())
@@ -108,7 +111,7 @@ public class ItemCompressRecipeLoader {
                 .range(0.75, 0.75, 0.75)
             )
             .hasItemIngredient(builder -> builder
-                .of(ModItemTags.IRON_PLATES)
+                .of(items, ModItemTags.IRON_PLATES)
                 .count(2)
                 .offset(0.0, -0.375, 0.0)
                 .range(0.75, 0.75, 0.75)
@@ -128,15 +131,14 @@ public class ItemCompressRecipeLoader {
                 )
                 .choice(
                     SpawnItem.builder()
-                        .item(
-                            ItemStackTemplate.fromNonEmptyStack(ModItems.SUPER_CAPACITOR.asStack()))
+                        .item(new ItemStackTemplate(ModItems.SUPER_CAPACITOR))
                         .offset(new Vec3(0.0, -0.75, 0.0))
                         .build(),
                     0.5F
                 )
             )
             .group("item_compress")
-            .icon(ItemStackTemplate.fromNonEmptyStack(ModItems.SUPER_CAPACITOR.asStack()))
+            .icon(new ItemStackTemplate(ModItems.SUPER_CAPACITOR))
             .save(provider, AnvilCraft.of("supercapacitor"));
     }
 }

@@ -6,13 +6,13 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -171,8 +171,8 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
             return this;
         }
 
-        public Builder input(TagKey<Block> tag) {
-            this.input.of(tag);
+        public Builder input(HolderGetter<Block> blocks, TagKey<Block> tag) {
+            this.input.of(blocks, tag);
             return this;
         }
 

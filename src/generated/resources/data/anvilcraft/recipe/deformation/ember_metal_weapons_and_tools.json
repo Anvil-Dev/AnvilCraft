@@ -1,10 +1,26 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "anvilcraft:ember_metal_sword",
-    "anvilcraft:ember_metal_axe",
-    "anvilcraft:ember_metal_pickaxe",
-    "anvilcraft:ember_metal_shovel",
-    "anvilcraft:ember_metal_hoe"
-  ]
+    {
+      "id": "anvilcraft:ember_metal_sword"
+    },
+    {
+      "id": "anvilcraft:ember_metal_axe"
+    },
+    {
+      "id": "anvilcraft:ember_metal_pickaxe"
+    },
+    {
+      "id": "anvilcraft:ember_metal_shovel"
+    },
+    {
+      "id": "anvilcraft:ember_metal_hoe"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }

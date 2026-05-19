@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -24,6 +23,8 @@ import java.util.function.Consumer;
 public class TooltipEventListener {
     private static final Component FIRE_REFORGING = Component.translatable("tooltip.anvilcraft.property.fire_reforging")
         .withStyle(ChatFormatting.GOLD);
+    private static final Component PROVIDENCE = Component.translatable("tooltip.anvilcraft.property.providence", "Shift")
+        .withColor(0xFFCB62);
     private static final Component PROVIDENCE_SHIFT = Component.translatable(
         "tooltip.anvilcraft.property.providence.shifting",
         ComponentUtils.formatList(
@@ -58,11 +59,7 @@ public class TooltipEventListener {
         stack.addToTooltip(ModComponents.MERCILESS, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.FEROCIOUS, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.ETERNAL, ctx, display, consumer, flag);
-        Component providence = Component.translatable(
-            "tooltip.anvilcraft.property.providence",
-            /*TODO Minecraft.getInstance().options.keyShift.getKey().getDisplayName()*/"Shift"
-        ).withColor(0xFFCB62);
-        TooltipEventListener.addShiftUnitTooltip(ModComponents.PROVIDENCE, providence, PROVIDENCE_SHIFT, stack, shift, display, consumer);
+        TooltipEventListener.addShiftUnitTooltip(ModComponents.PROVIDENCE, PROVIDENCE, PROVIDENCE_SHIFT, stack, shift, display, consumer);
         stack.addToTooltip(ModComponents.MULTIPHASE, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.FLIGHT_TIME, ctx, display, consumer, flag);

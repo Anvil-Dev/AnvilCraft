@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Objects;
-
 @Mixin(SoundEngine.class)
 abstract class SoundEngineMixin {
     @Inject(method = "play", at = @At(value = "HEAD"), cancellable = true)

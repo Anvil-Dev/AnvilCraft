@@ -9,8 +9,6 @@
     }
   ],
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "tag": "c:storage_blocks/silver"
-  },
+  "ingredient": "#c:storage_blocks/silver",
   "mass": 1000
 }

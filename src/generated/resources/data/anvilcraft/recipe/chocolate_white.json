@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "anvilcraft:cocoa_butter"
-    },
-    "B": {
-      "item": "anvilcraft:cream"
-    },
-    "C": {
-      "item": "minecraft:sugar"
-    }
+    "A": "anvilcraft:cocoa_butter",
+    "B": "anvilcraft:cream",
+    "C": "minecraft:sugar"
   },
   "pattern": [
     "AAA",

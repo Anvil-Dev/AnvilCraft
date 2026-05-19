@@ -1,10 +1,26 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "minecraft:diamond_sword",
-    "minecraft:diamond_axe",
-    "minecraft:diamond_pickaxe",
-    "minecraft:diamond_shovel",
-    "minecraft:diamond_hoe"
-  ]
+    {
+      "id": "minecraft:diamond_sword"
+    },
+    {
+      "id": "minecraft:diamond_axe"
+    },
+    {
+      "id": "minecraft:diamond_pickaxe"
+    },
+    {
+      "id": "minecraft:diamond_shovel"
+    },
+    {
+      "id": "minecraft:diamond_hoe"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }

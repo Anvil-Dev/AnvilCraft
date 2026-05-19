@@ -10,11 +10,18 @@
           ]
         }
       ],
-      "result": "minecraft:netherite_sword"
+      "result": {
+        "id": "minecraft:netherite_sword"
+      }
     },
-    "anvilcraft:ember_metal_sword"
+    {
+      "id": "anvilcraft:ember_metal_sword"
+    }
   ],
   "material": {
     "items": "anvilcraft:ember_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

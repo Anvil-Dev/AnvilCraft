@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.cauldron.Layered4LevelCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -16,8 +15,6 @@ public class ModCauldronFluidContents {
     @SubscribeEvent
     public static void register(RegisterCauldronFluidContentEvent event) {
         event.register(ModBlocks.MELT_GEM_CAULDRON.get(), ModFluids.MELT_GEM.get(), FluidType.BUCKET_VOLUME, null);
-        //TODO new fluid burning_oil
-        event.register(ModBlocks.FIRE_CAULDRON.get(), ModFluids.BURNING_OIL.get(), FluidType.BUCKET_VOLUME, Layered4LevelCauldronBlock.LEVEL);
         event.register(ModBlocks.OIL_CAULDRON.get(), ModFluids.OIL.get(), FluidType.BUCKET_VOLUME, Layered4LevelCauldronBlock.LEVEL);
         event.register(
             ModBlocks.EXP_FLUID_CAULDRON.get(),
@@ -25,7 +22,6 @@ public class ModCauldronFluidContents {
             FluidType.BUCKET_VOLUME,
             Layered4LevelCauldronBlock.LEVEL
         );
-//        event.register(ModBlocks.LAVA_CAULDRON.get(), Fluids.LAVA, FluidType.BUCKET_VOLUME, Layered4LevelCauldronBlock.LEVEL);
         for (Color color : ModBlocks.CEMENT_CAULDRONS.keySet()) {
             event.register(
                 ModBlocks.CEMENT_CAULDRONS.get(color).get(),

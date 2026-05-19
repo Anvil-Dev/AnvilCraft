@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "anvilcraft:block/pink_reinforced_concrete",
+    "side": "anvilcraft:block/pink_reinforced_concrete_bottom"
+  }
+}

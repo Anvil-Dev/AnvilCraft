@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.recipe;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;

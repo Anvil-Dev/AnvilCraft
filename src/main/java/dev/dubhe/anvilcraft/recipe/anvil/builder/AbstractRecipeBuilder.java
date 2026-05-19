@@ -109,7 +109,10 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
 
     @Override
     public ResourceKey<Recipe<?>> defaultId() {
-        return RecipeBuilder.getDefaultRecipeId(this.getResult());
+        return ResourceKey.create(
+            Registries.RECIPE,
+            this.getResult().typeHolder().unwrapKey().orElseThrow().identifier().withPrefix(this.getType() + "/")
+        );
     }
 
     /**

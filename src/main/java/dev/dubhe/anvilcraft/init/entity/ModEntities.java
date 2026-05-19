@@ -28,45 +28,49 @@ import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownTranscendenceHeavyHalberdEntity;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
 public class ModEntities {
     public static final EntityEntry<? extends AnimateAscendingBlockEntity> ASCENDING_BLOCK_ENTITY = AnvilCraft.REGISTRUM
         .entity("animate_ascending_block", AnimateAscendingBlockEntity::new, MobCategory.MISC)
+        .properties(EntityType.Builder::noLootTable)
         .renderer(() -> AscendingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends FallingGiantAnvilEntity> FALLING_GIANT_ANVIL = AnvilCraft.REGISTRUM
         .entity("falling_giant_anvil", FallingGiantAnvilEntity::new, MobCategory.MISC)
+        .properties(EntityType.Builder::noLootTable)
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends FallingSpectralBlockEntity> FALLING_SPECTRAL_BLOCK = AnvilCraft.REGISTRUM
         .entity("falling_spectral_block", FallingSpectralBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98F, 0.98F))
+        .properties(builder -> builder.sized(0.98F, 0.98F).noLootTable())
         .renderer(() -> SpectralBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends FloatingBlockEntity> FLOATING_BLOCK = AnvilCraft.REGISTRUM
         .entity("floating_block", FloatingBlockEntity::new, MobCategory.MISC)
+        .properties(EntityType.Builder::noLootTable)
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends LevitatingBlockEntity> LEVITATING_BLOCK = AnvilCraft.REGISTRUM
         .entity("levitating_block", LevitatingBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98F, 0.98F))
+        .properties(builder -> builder.sized(0.98F, 0.98F).noLootTable())
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends StandableFallingBlockEntity> STANDABLE_FALLING_BLOCK = AnvilCraft.REGISTRUM
         .entity("standable_falling_block", StandableFallingBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98F, 0.98F))
+        .properties(builder -> builder.sized(0.98F, 0.98F).noLootTable())
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends StandableLevitatingBlockEntity> STANDABLE_LEVITATING_BLOCK = AnvilCraft.REGISTRUM
         .entity("standable_levitating_block", StandableLevitatingBlockEntity::new, MobCategory.MISC)
-        .properties(builder -> builder.sized(0.98F, 0.98F))
+        .properties(builder -> builder.sized(0.98F, 0.98F).noLootTable())
         .renderer(() -> FallingBlockRenderer::new)
         .register();
 
@@ -75,7 +79,9 @@ public class ModEntities {
         .properties(it -> it.sized(0.75F, 0.75F)
             .eyeHeight(0.5625F)
             .clientTrackingRange(10)
-        ).renderer(() -> IonocraftRenderer::new)
+            .noLootTable()
+        )
+        .renderer(() -> IonocraftRenderer::new)
         .register();
 
     public static final EntityEntry<? extends ThrownFrostMetalHeavyHalberdEntity> THROWN_FROST_METAL_HEAVY_HALBERD = AnvilCraft.REGISTRUM
@@ -87,7 +93,9 @@ public class ModEntities {
         .properties(it -> it.sized(0.5F, 0.5F)
             .eyeHeight(0.13F)
             .clientTrackingRange(4)
-            .updateInterval(20))
+            .updateInterval(20)
+            .noLootTable()
+        )
         .renderer(() -> ThrownHeavyHalberdRenderer::new)
         .register();
 
@@ -100,7 +108,9 @@ public class ModEntities {
         .properties(it -> it.sized(0.5F, 0.5F)
             .eyeHeight(0.13F)
             .clientTrackingRange(4)
-            .updateInterval(20))
+            .updateInterval(20)
+            .noLootTable()
+        )
         .renderer(() -> ThrownHeavyHalberdRenderer::new)
         .register();
 
@@ -114,24 +124,27 @@ public class ModEntities {
             .properties(it -> it.sized(0.5F, 0.5F)
                 .eyeHeight(0.13F)
                 .clientTrackingRange(4)
-                .updateInterval(20))
+                .updateInterval(20)
+                .noLootTable()
+            )
             .renderer(() -> ThrownHeavyHalberdRenderer::new)
             .register();
 
     public static final EntityEntry<? extends SlidingBlockEntity> SLIDING_BLOCK = AnvilCraft.REGISTRUM
         .<SlidingBlockEntity>entity("sliding_block", SlidingBlockEntity::new, MobCategory.MISC)
+        .properties(EntityType.Builder::noLootTable)
         .renderer(() -> SlidingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends MagnetizedNodeEntity> MAGNETIZED_NODE = AnvilCraft.REGISTRUM
         .<MagnetizedNodeEntity>entity("magnetized_node", MagnetizedNodeEntity::new, MobCategory.MISC)
-        .properties(it -> it.eyeHeight(0F))
+        .properties(it -> it.eyeHeight(0F).noLootTable())
         .renderer(() -> MagnetizedNodeEntityRenderer::new)
         .register();
 
     public static final EntityEntry<? extends CauldronOutletEntity> CAULDRON_OUTLET = AnvilCraft.REGISTRUM
         .<CauldronOutletEntity>entity("cauldron_outlet", CauldronOutletEntity::new, MobCategory.MISC)
-        .properties(it -> it.eyeHeight(0F))
+        .properties(it -> it.eyeHeight(0F).noLootTable())
         .renderer(() -> CauldronOutletRenderer::new)
         .register();
 
@@ -140,7 +153,9 @@ public class ModEntities {
         .properties(it -> it.sized(0.5F, 0.5F)
             .eyeHeight(0.13F)
             .clientTrackingRange(4)
-            .updateInterval(20))
+            .updateInterval(20)
+            .noLootTable()
+        )
         .renderer(() -> SpectralProjectileRenderer::new)
         .tag(EntityTypeTags.ARROWS)
         .register();

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -16,6 +17,7 @@ import net.neoforged.neoforge.common.Tags;
 
 public class SuperHeatingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         SuperHeatingRecipe.builder()
             .transform(Blocks.LAVA_CAULDRON)
             .produce(1000)
@@ -25,7 +27,7 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .transform(Blocks.LAVA_CAULDRON)
             .produce(1000)
-            .requires(Tags.Items.STONES, 4)
+            .requires(items, Tags.Items.STONES, 4)
             .requires(ModItems.LIME_POWDER)
             .save(provider, AnvilCraft.of("super_heating/lava_from_stone"));
 
@@ -33,14 +35,14 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .requires(Items.IRON_INGOT, 2)
             .requires(Items.DIAMOND)
-            .requires(ModItemTags.GEMS)
+            .requires(items, ModItemTags.GEMS)
             .result(ModItems.ROYAL_STEEL_INGOT, 1)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_base"));
 
         SuperHeatingRecipe.builder()
             .requires(Items.IRON_INGOT, 2)
             .requires(Items.DIAMOND)
-            .requires(ModItemTags.GEMS)
+            .requires(items, ModItemTags.GEMS)
             .requires(Items.AMETHYST_SHARD)
             .result(ModItems.ROYAL_STEEL_INGOT, 2)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_bonus_1"));
@@ -48,7 +50,7 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .requires(Items.IRON_INGOT, 2)
             .requires(Items.DIAMOND)
-            .requires(ModItemTags.GEMS)
+            .requires(items, ModItemTags.GEMS)
             .requires(Items.AMETHYST_SHARD, 2)
             .result(ModItems.ROYAL_STEEL_INGOT, 3)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_bonus_2"));
@@ -57,14 +59,14 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .requires(Blocks.IRON_BLOCK, 2)
             .requires(Blocks.DIAMOND_BLOCK)
-            .requires(ModItemTags.GEM_BLOCKS)
+            .requires(items, ModItemTags.GEM_BLOCKS)
             .result(ModBlocks.ROYAL_STEEL_BLOCK, 1)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_block_base"));
 
         SuperHeatingRecipe.builder()
             .requires(Blocks.IRON_BLOCK, 2)
             .requires(Blocks.DIAMOND_BLOCK)
-            .requires(ModItemTags.GEM_BLOCKS)
+            .requires(items, ModItemTags.GEM_BLOCKS)
             .requires(Blocks.AMETHYST_BLOCK)
             .result(ModBlocks.ROYAL_STEEL_BLOCK, 2)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_block_bonus_1"));
@@ -72,7 +74,7 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .requires(Blocks.IRON_BLOCK, 2)
             .requires(Blocks.DIAMOND_BLOCK)
-            .requires(ModItemTags.GEM_BLOCKS)
+            .requires(items, ModItemTags.GEM_BLOCKS)
             .requires(Blocks.AMETHYST_BLOCK, 2)
             .result(ModBlocks.ROYAL_STEEL_BLOCK, 3)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_block_bonus_2"));
@@ -95,12 +97,12 @@ public class SuperHeatingRecipeLoader {
 
         SuperHeatingRecipe.builder()
             .requires(Items.COPPER_INGOT, 2)
-            .requires(ModItemTags.ZINC_INGOTS)
+            .requires(items, ModItemTags.ZINC_INGOTS)
             .result(ModItems.BRASS_INGOT, 3)
             .save(provider);
         SuperHeatingRecipe.builder()
             .requires(Items.COPPER_INGOT, 2)
-            .requires(ModItemTags.TIN_INGOTS)
+            .requires(items, ModItemTags.TIN_INGOTS)
             .result(ModItems.BRONZE_INGOT, 3)
             .save(provider);
 
@@ -121,7 +123,7 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .transform(ModBlocks.MELT_GEM_CAULDRON.get())
             .produce(1000)
-            .requires(ModItemTags.GEM_BLOCKS)
+            .requires(items, ModItemTags.GEM_BLOCKS)
             .save(provider, AnvilCraft.of("super_heating/melt_gem_cauldron_from_gem_block"));
         SuperHeatingRecipe.builder()
             .transform(ModBlocks.MELT_GEM_CAULDRON.get())
@@ -164,15 +166,23 @@ public class SuperHeatingRecipeLoader {
     }
 
     private static void metalBlockFromRaw(RegistrumRecipeProvider provider, TagKey<Item> raw, ItemLike result) {
+        HolderGetter<Item> items = provider.getItems();
         SuperHeatingRecipe.builder()
-            .requires(raw)
+            .requires(items, raw)
             .result(result, 2)
-            .save(provider, AnvilCraft.of("super_heating/metal_block/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(raw))));
+            .save(
+                provider,
+                AnvilCraft.of("super_heating/metal_block/%s_from_%s".formatted(
+                    RecipeLoaderUtil.getName(result),
+                    RecipeLoaderUtil.getName(raw)
+                ))
+            );
     }
 
     private static void ingotFromEarth(RegistrumRecipeProvider provider, TagKey<Item> raw, ItemLike result) {
+        HolderGetter<Item> items = provider.getItems();
         SuperHeatingRecipe.builder()
-            .requires(raw, 8)
+            .requires(items, raw, 8)
             .requires(ModItems.EARTH_CORE_SHARD)
             .result(result, 24)
             .save(provider, AnvilCraft.of("super_heating/raw/%s".formatted(RecipeLoaderUtil.getName(result))));
@@ -186,8 +196,9 @@ public class SuperHeatingRecipeLoader {
     }
 
     private static void limePowder(RegistrumRecipeProvider provider, TagKey<Item> tag, int resultCount) {
+        HolderGetter<Item> items = provider.getItems();
         SuperHeatingRecipe.builder()
-            .requires(tag)
+            .requires(items, tag)
             .result(ModItems.LIME_POWDER, resultCount)
             .save(provider, AnvilCraft.of("super_heating/lime_powder/%s_from_%s".formatted("lime_powder", RecipeLoaderUtil.getName(tag))));
     }

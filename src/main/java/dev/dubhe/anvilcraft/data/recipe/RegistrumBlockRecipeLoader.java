@@ -14,10 +14,9 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -28,7 +27,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
@@ -41,11 +39,11 @@ import net.neoforged.neoforge.common.Tags;
 public class RegistrumBlockRecipeLoader {
     @SuppressWarnings("unused")
     public static <T extends Block> void recipe(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
     }
 
     public static <T extends Block> void neoforge(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
             .pattern(" B ")
@@ -61,7 +59,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void frostAnvil(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModBlocks.ROYAL_ANVIL),
@@ -75,7 +73,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void frostGrindstone(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModBlocks.ROYAL_GRINDSTONE),
@@ -89,7 +87,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void frostSmithingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModBlocks.ROYAL_SMITHING_TABLE),
@@ -103,7 +101,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void multiphaseMatterBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -117,7 +115,7 @@ public class RegistrumBlockRecipeLoader {
         BlockEntry<? extends Block> parent
     ) {
         return (ctx, provider) -> {
-            HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+            HolderGetter<Item> lookup = provider.getItems();
             ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
                 .pattern("AAA")
                 .define('A', parent)
@@ -133,7 +131,7 @@ public class RegistrumBlockRecipeLoader {
         BlockEntry<? extends Block> parent
     ) {
         return (ctx, provider) -> {
-            HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+            HolderGetter<Item> lookup = provider.getItems();
             ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
                 .pattern("A  ")
                 .pattern("AA ")
@@ -151,7 +149,7 @@ public class RegistrumBlockRecipeLoader {
         BlockEntry<? extends Block> parent
     ) {
         return (ctx, provider) -> {
-            HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+            HolderGetter<Item> lookup = provider.getItems();
             ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
                 .pattern("AAA")
                 .pattern("AAA")
@@ -169,7 +167,7 @@ public class RegistrumBlockRecipeLoader {
         Item... ingredients
     ) {
         return (ctx, provider) -> {
-            HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+            HolderGetter<Item> lookup = provider.getItems();
             for (Item ingredient : ingredients) {
                 Identifier location1 = BuiltInRegistries.ITEM.getKey(ingredient);
                 ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 1)
@@ -187,7 +185,7 @@ public class RegistrumBlockRecipeLoader {
         TagKey<Item>... ingredients
     ) {
         return (ctx, provider) -> {
-            HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+            HolderGetter<Item> lookup = provider.getItems();
             for (TagKey<Item> ingredient : ingredients) {
                 ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 1)
                     .pattern("AA")
@@ -199,7 +197,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void magnetBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -210,7 +208,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void hollowMagnetBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("AAA")
             .pattern("A A")
@@ -221,7 +219,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void ferriteCoreMagnetBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("AAA")
             .pattern("ABA")
@@ -234,7 +232,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void stampingPlatform(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("BAB")
             .pattern("B B")
@@ -247,7 +245,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void crushingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
             .requires(ModBlocks.STAMPING_PLATFORM)
             .requires(Items.GRINDSTONE)
@@ -266,7 +264,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void fishTank(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("A A")
             .pattern("B B")
@@ -278,7 +276,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void fluidTank(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 2)
             .requires(ModItemTags.BRASS_PLATES)
             .requires(ModBlocks.FISH_TANK)
@@ -287,7 +285,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void neutronIrradiator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern(" A ")
             .pattern("BCB")
@@ -313,7 +311,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void royalAnvil(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(Items.ANVIL),
@@ -327,7 +325,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void royalGrindstone(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(Items.GRINDSTONE),
@@ -341,7 +339,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void royalSmithingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
            Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
            Ingredient.of(Items.SMITHING_TABLE),
@@ -355,7 +353,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void emberAnvil(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModBlocks.ROYAL_ANVIL),
@@ -369,7 +367,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void emberGrindstone(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModBlocks.ROYAL_GRINDSTONE),
@@ -383,7 +381,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void emberSmithingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModBlocks.ROYAL_SMITHING_TABLE),
@@ -397,7 +395,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void transcendenceAnvil(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModBlocks.EMBER_ANVIL),
@@ -411,7 +409,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heater(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("BCB")
@@ -429,7 +427,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void transmissionPole(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("A")
             .pattern("B")
@@ -447,7 +445,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void remoteTransmissionPole(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("A")
             .pattern("B")
@@ -464,7 +462,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void teslaTower(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("ACA")
@@ -480,7 +478,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void inductionLight(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
             .pattern("A")
             .pattern("B")
@@ -496,7 +494,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void chargeCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern(" A ")
             .pattern("B B")
@@ -514,7 +512,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heliostats(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
             .pattern("S S")
             .pattern("SFS")
@@ -541,7 +539,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void loadMonitor(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern("A")
             .pattern("B")
@@ -556,7 +554,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void powerConverterSmall(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 9)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_BIG),
@@ -572,7 +570,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void powerConverterMiddle(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("A")
             .pattern("A")
@@ -592,7 +590,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void powerConverterBig(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("A")
             .pattern("B")
@@ -626,7 +624,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void piezoelectricCrystal(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern("ABA")
             .pattern(" B ")
@@ -650,7 +648,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void batchCrafter(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("ABA")
             .pattern("ADA")
@@ -670,7 +668,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void batchCutter(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("ABA")
             .pattern("ADA")
@@ -690,7 +688,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void itemCollector(DataGenContext<Block, T> c, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, c.get())
             .pattern("ABA")
             .pattern("CDC")
@@ -710,7 +708,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heatCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("CBC")
             .pattern("BIB")
@@ -729,7 +727,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void charger(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ADA")
             .pattern("ABA")
@@ -752,7 +750,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void discharger(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
             .requires(ModBlocks.CHARGER)
             .unlockedBy("has_item", AnvilCraftDatagen.has(lookup, ModBlocks.CHARGER))
@@ -760,7 +758,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void activeSilencer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("ACA")
@@ -790,7 +788,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void blockPlacer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("AAA")
             .pattern("DCB")
@@ -804,7 +802,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void blockDevourer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("DA ")
             .pattern("CBA")
@@ -821,7 +819,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rubyLaser(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern("AEA")
             .pattern("BDB")
@@ -840,7 +838,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rubyPrism(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ACA")
             .pattern("CBC")
@@ -855,7 +853,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void laserReceiver(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("AAA")
             .pattern("ABA")
@@ -872,7 +870,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void blockComparator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("ABA")
             .pattern(" C ")
@@ -886,7 +884,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void itemDetector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("CC ")
             .pattern("CBR")
@@ -900,7 +898,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void impactPile(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern(" A ")
             .pattern(" B ")
@@ -913,7 +911,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void overseerBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("ABA")
@@ -927,7 +925,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void jewelCraftingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABC")
             .pattern("DDD")
@@ -943,7 +941,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void transparentCraftingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern(" A ")
             .pattern("ABA")
@@ -955,7 +953,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void crabTrap(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("B B")
@@ -967,7 +965,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void chute(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern("A A")
             .pattern("ABA")
@@ -980,7 +978,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void magneticChute(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern(" A ")
             .pattern("ABA")
@@ -993,7 +991,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void slidingRail(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 16)
             .pattern("A A")
             .pattern("BAB")
@@ -1005,7 +1003,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void poweredSlidingRail(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 8)
             .pattern("SSS")
             .pattern("SPS")
@@ -1017,7 +1015,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void activatorSlidingRail(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 8)
             .pattern("SSS")
             .pattern("SRS")
@@ -1029,7 +1027,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void detectorSlidingRail(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 8)
             .pattern("SSS")
             .pattern("SPS")
@@ -1041,7 +1039,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void slidingRailStop(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern("A A")
             .pattern("BAB")
@@ -1053,7 +1051,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void voidEnergyCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
             .pattern("ABA")
@@ -1068,7 +1066,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void magnetoElectricCoreBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("BCB")
@@ -1084,7 +1082,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void propelPiston(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(
             lookup,
             RecipeCategory.REDSTONE,
@@ -1127,7 +1125,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void royalSteelBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1138,21 +1136,21 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void smoothRoyalSteelBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/smooth_royal_steel_block"));
     }
 
     public static <T extends Block> void cutRoyalSteelBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_block"));
     }
 
     public static <T extends Block> void cutRoyalSteelPillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_pillar_from_cut_royal_steel_block"));
@@ -1162,7 +1160,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutRoyalSteelSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_slab_from_royal_steel_block"));
@@ -1172,7 +1170,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutRoyalSteelStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_stairs_from_royal_steel_block"));
@@ -1182,7 +1180,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void frostMetalBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1193,14 +1191,14 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutFrostMetalBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_block"));
     }
 
     public static <T extends Block> void cutFrostMetalPillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_pillar_from_frost_metal_block"));
@@ -1210,7 +1208,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutFrostMetalSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_slab_from_frost_metal_block"));
@@ -1220,7 +1218,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutFrostMetalStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_stairs_from_frost_metal_block"));
@@ -1230,7 +1228,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void emberMetalBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1241,14 +1239,14 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutEmberMetalBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.EMBER_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_ember_metal_block"));
     }
 
     public static <T extends Block> void cutEmberMetalPillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.EMBER_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_ember_metal_pillar_from_ember_metal_block"));
@@ -1258,7 +1256,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutEmberMetalSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 8)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK),
@@ -1274,7 +1272,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutEmberMetalStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_EMBER_METAL_BLOCK),
@@ -1290,7 +1288,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void transcendiumBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1301,7 +1299,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heavyIronBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1315,14 +1313,14 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void polishedHeavyIronBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
     }
 
     public static <T extends Block> void polishedHeavyIronSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
@@ -1340,7 +1338,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void polishedHeavyIronStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 2)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK),
@@ -1356,7 +1354,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutHeavyIronBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
@@ -1373,7 +1371,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutHeavyIronSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 16)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
@@ -1395,7 +1393,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutHeavyIronStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
@@ -1417,7 +1415,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heavyIronPlate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 16)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
@@ -1458,7 +1456,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heavyIronColumn(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
@@ -1482,7 +1480,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heavyIronBeam(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
@@ -1506,7 +1504,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heavyIronWall(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
@@ -1530,7 +1528,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heavyIronDoor(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
@@ -1548,7 +1546,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void heavyIronTrapdoor(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
@@ -1572,7 +1570,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cursedGoldBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1583,7 +1581,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void zincBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1594,7 +1592,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void tinBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1605,7 +1603,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void titaniumBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1616,7 +1614,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void tungstenBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1627,7 +1625,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void leadBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1638,7 +1636,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void silverBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1649,7 +1647,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void uraniumBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1660,7 +1658,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void plutoniumBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1674,7 +1672,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void bronzeBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1685,7 +1683,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void brassBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1696,7 +1694,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void topazBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1707,7 +1705,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rubyBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1718,7 +1716,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void sapphireBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1729,7 +1727,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void expGemBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1740,7 +1738,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void resinBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1751,7 +1749,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void amberBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1762,7 +1760,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Item> void levitationPowderBlock(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.DECORATIONS, ctx.get())
             .requires(ModItems.LEVITATION_POWDER, 9)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.LEVITATION_POWDER), AnvilCraftDatagen.has(lookup, ModItems.LEVITATION_POWDER))
@@ -1770,7 +1768,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void controllableSand(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.DECORATIONS, ctx.get())
             .pattern("LRL")
             .pattern("RSR")
@@ -1783,7 +1781,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void chocolateBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1794,7 +1792,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void blackChocolateBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1808,7 +1806,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void whiteChocolateBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1822,7 +1820,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void chocolateSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
             .pattern("AAA")
             .define('A', ModBlocks.CHOCOLATE_BLOCK)
@@ -1834,7 +1832,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void blackChocolateSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
             .pattern("AAA")
             .define('A', ModBlocks.BLACK_CHOCOLATE_BLOCK)
@@ -1852,7 +1850,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void whiteChocolateSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
             .pattern("AAA")
             .define('A', ModBlocks.WHITE_CHOCOLATE_BLOCK)
@@ -1870,7 +1868,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void chocolateStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
             .pattern("A  ")
             .pattern("AA ")
@@ -1884,7 +1882,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void blackChocolateStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
             .pattern("A  ")
             .pattern("AA ")
@@ -1904,7 +1902,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void whiteChocolateStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
             .pattern("A  ")
             .pattern("AA ")
@@ -1924,7 +1922,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rawZincBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1935,7 +1933,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rawTinBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1946,7 +1944,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rawTitaniumBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1957,7 +1955,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rawTungstenBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1968,7 +1966,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rawLeadBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1979,7 +1977,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rawSilverBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -1990,7 +1988,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rawUraniumBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -2001,7 +1999,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void voidMatterBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -2012,7 +2010,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void earthCoreShardBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -2023,7 +2021,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void negativeMatterBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
@@ -2042,7 +2040,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void confinementChamber(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("B B")
@@ -2068,7 +2066,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void sugarBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .requires(Items.SUGAR, 9)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SUGAR), AnvilCraftDatagen.has(lookup, Items.SUGAR))
@@ -2081,7 +2079,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void gunpowerBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .requires(Items.GUNPOWDER, 9)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.GUNPOWDER), AnvilCraftDatagen.has(lookup, Items.GUNPOWDER))
@@ -2093,7 +2091,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void rottenFleshBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .requires(Items.ROTTEN_FLESH, 9)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.ROTTEN_FLESH), AnvilCraftDatagen.has(lookup, Items.ROTTEN_FLESH))
@@ -2113,7 +2111,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void flintBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .requires(Items.FLINT, 9)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.FLINT), AnvilCraftDatagen.has(lookup, Items.FLINT))
@@ -2125,7 +2123,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void polishedFlintBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
             .pattern("AA")
             .pattern("AA")
@@ -2139,7 +2137,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutFlintBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
             .pattern("AA")
             .pattern("AA")
@@ -2166,7 +2164,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutFlintSlabBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
             .pattern("AAA")
             .define('A', ModBlocks.CUT_FLINT_BLOCK)
@@ -2195,7 +2193,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutFlintStairsBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
             .pattern("A  ")
             .pattern("AA ")
@@ -2221,7 +2219,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void cutFlintPillarBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
             .pattern("A")
             .pattern("A")
@@ -2246,7 +2244,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void pulseGenerator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("BCR")
             .pattern("III")
@@ -2259,7 +2257,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void advancedComparator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern(" R ")
             .pattern("CBC")
@@ -2273,7 +2271,7 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void copperPressurePlate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderLookup.RegistryLookup<Item> lookup = provider.getRegistries().lookupOrThrow(Registries.ITEM);
+        HolderGetter<Item> lookup = provider.getItems();
         Identifier location1 = BuiltInRegistries.ITEM.getKey(Items.COPPER_INGOT);
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 1)
             .pattern("AA")

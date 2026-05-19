@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:amber_block"
-    }
+    "anvilcraft:amber_block"
   ],
   "result": {
     "count": 9,

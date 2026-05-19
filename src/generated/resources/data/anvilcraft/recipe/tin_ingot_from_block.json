@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:tin_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:tin_block"
-    }
+    "anvilcraft:tin_block"
   ],
   "result": {
     "count": 9,

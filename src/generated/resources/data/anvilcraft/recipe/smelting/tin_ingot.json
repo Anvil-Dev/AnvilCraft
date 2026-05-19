@@ -4,11 +4,8 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:tin_ingot",
-  "ingredient": {
-    "item": "anvilcraft:raw_tin"
-  },
+  "ingredient": "anvilcraft:raw_tin",
   "result": {
-    "count": 1,
     "id": "anvilcraft:tin_ingot"
   }
 }

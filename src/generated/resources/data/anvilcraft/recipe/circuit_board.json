@@ -2,21 +2,12 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:plates/copper"
-    },
-    {
-      "item": "anvilcraft:hardend_resin"
-    },
-    {
-      "item": "anvilcraft:hardend_resin"
-    },
-    {
-      "item": "anvilcraft:hardend_resin"
-    }
+    "#c:plates/copper",
+    "anvilcraft:hardend_resin",
+    "anvilcraft:hardend_resin",
+    "anvilcraft:hardend_resin"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:circuit_board"
   }
 }

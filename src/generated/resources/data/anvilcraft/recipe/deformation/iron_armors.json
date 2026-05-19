@@ -1,9 +1,23 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "minecraft:iron_helmet",
-    "minecraft:iron_chestplate",
-    "minecraft:iron_leggings",
-    "minecraft:iron_boots"
-  ]
+    {
+      "id": "minecraft:iron_helmet"
+    },
+    {
+      "id": "minecraft:iron_chestplate"
+    },
+    {
+      "id": "minecraft:iron_leggings"
+    },
+    {
+      "id": "minecraft:iron_boots"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }

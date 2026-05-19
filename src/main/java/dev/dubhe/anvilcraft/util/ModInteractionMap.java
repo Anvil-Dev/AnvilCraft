@@ -141,8 +141,8 @@ public class ModInteractionMap {
         event.register(
             oil,
             Items.FLINT_AND_STEEL,
-            (state, level, pos, player, hand, stack) -> {
-                OilCauldronBlock.ignite(level, pos, state);
+            (_, level, pos, player, hand, stack) -> {
+                OilCauldronBlock.ignite(level, pos);
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                 return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
@@ -151,8 +151,8 @@ public class ModInteractionMap {
         event.register(
             oil,
             Items.FIRE_CHARGE,
-            (state, level, pos, _, _, stack) -> {
-                OilCauldronBlock.ignite(level, pos, state);
+            (_, level, pos, _, _, stack) -> {
+                OilCauldronBlock.ignite(level, pos);
                 stack.shrink(1);
                 level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
                 return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
@@ -161,9 +161,9 @@ public class ModInteractionMap {
         event.register(
             oil,
             ModItems.MULTITOOL_ITEM.asItem(),
-            (state, level, pos, player, hand, stack) -> {
+            (_, level, pos, player, hand, stack) -> {
                 if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)) return InteractionResult.SUCCESS;
-                OilCauldronBlock.ignite(level, pos, state);
+                OilCauldronBlock.ignite(level, pos);
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                 return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
@@ -326,16 +326,7 @@ public class ModInteractionMap {
                     player,
                     hand,
                     stack,
-                    ModBlocks.OIL_CAULDRON.get().fullFilled(),
-                    SoundEvents.BUCKET_EMPTY
-                );
-                case BlockState it when it.is(ModBlocks.FIRE_CAULDRON) -> CauldronInteractions.emptyBucket(
-                    level,
-                    pos,
-                    player,
-                    hand,
-                    stack,
-                    ModBlocks.FIRE_CAULDRON.get().fullFilled(),
+                    ModBlocks.OIL_CAULDRON.get().fullFilled().setValue(OilCauldronBlock.IGNITED, it.getValue(OilCauldronBlock.IGNITED)),
                     SoundEvents.BUCKET_EMPTY
                 );
                 case BlockState it when it.is(Blocks.CAULDRON) -> {
@@ -347,7 +338,7 @@ public class ModInteractionMap {
                                 player,
                                 hand,
                                 stack,
-                                ModBlocks.FIRE_CAULDRON.get().fullFilled(),
+                                ModBlocks.OIL_CAULDRON.get().fullFilled().setValue(OilCauldronBlock.IGNITED, true),
                                 SoundEvents.BUCKET_EMPTY
                             );
                         }

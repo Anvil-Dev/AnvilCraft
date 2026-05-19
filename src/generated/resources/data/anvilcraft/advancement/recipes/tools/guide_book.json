@@ -1,13 +1,17 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
+    "has_anvil": {
       "conditions": {
-        "recipe": "anvilcraft:guide_book"
+        "items": [
+          {
+            "items": "minecraft:anvil"
+          }
+        ]
       },
-      "trigger": "minecraft:recipe_unlocked"
+      "trigger": "minecraft:inventory_changed"
     },
-    "hasitem": {
+    "has_book": {
       "conditions": {
         "items": [
           {
@@ -16,12 +20,41 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_chipped_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:chipped_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_damaged_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:damaged_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:guide_book"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "hasitem"
+      "has_anvil",
+      "has_chipped_anvil",
+      "has_damaged_anvil",
+      "has_book"
     ]
   ],
   "rewards": {

@@ -1,7 +1,5 @@
 {
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "item": "anvilcraft:royal_steel_block"
-  },
+  "ingredient": "anvilcraft:royal_steel_block",
   "mass": 4000
 }

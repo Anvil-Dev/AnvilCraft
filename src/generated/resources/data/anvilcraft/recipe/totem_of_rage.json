@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:totem_of_undying"
-    },
-    "B": {
-      "item": "anvilcraft:cursed_gold_block"
-    },
-    "C": {
-      "item": "anvilcraft:ember_metal_nugget"
-    }
+    "A": "minecraft:totem_of_undying",
+    "B": "anvilcraft:cursed_gold_block",
+    "C": "anvilcraft:ember_metal_nugget"
   },
   "pattern": [
     "BBB",
@@ -18,7 +12,6 @@
     "BBB"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:totem_of_rage"
   }
 }

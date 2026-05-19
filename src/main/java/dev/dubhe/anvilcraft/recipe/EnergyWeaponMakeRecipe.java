@@ -3,13 +3,13 @@ package dev.dubhe.anvilcraft.recipe;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -163,12 +163,12 @@ public record EnergyWeaponMakeRecipe(
             return this.requires(item, 1);
         }
 
-        public Builder requires(TagKey<Item> tag, int count) {
-            return this.requires(ItemIngredientPredicate.of(tag).withCount(count));
+        public Builder requires(HolderGetter<Item> items, TagKey<Item> tag, int count) {
+            return this.requires(ItemIngredientPredicate.of(items, tag).withCount(count));
         }
 
-        public Builder requires(TagKey<Item> tag) {
-            return this.requires(tag, 1);
+        public Builder requires(HolderGetter<Item> items, TagKey<Item> tag) {
+            return this.requires(items, tag, 1);
         }
 
         @Override

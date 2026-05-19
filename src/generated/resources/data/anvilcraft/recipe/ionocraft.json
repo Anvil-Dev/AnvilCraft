@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "anvilcraft:ionocraft",
   "key": {
-    "A": {
-      "tag": "c:nuggets/copper"
-    },
-    "B": {
-      "tag": "c:rods/wooden"
-    },
-    "C": {
-      "tag": "c:plates/tin"
-    }
+    "A": "#c:nuggets/copper",
+    "B": "#c:rods/wooden",
+    "C": "#c:plates/tin"
   },
   "pattern": [
     "AAA",
@@ -19,7 +13,6 @@
     " C "
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:ionocraft"
   }
 }

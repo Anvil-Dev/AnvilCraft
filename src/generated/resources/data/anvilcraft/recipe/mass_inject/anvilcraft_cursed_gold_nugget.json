@@ -1,7 +1,5 @@
 {
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "item": "anvilcraft:cursed_gold_nugget"
-  },
+  "ingredient": "anvilcraft:cursed_gold_nugget",
   "mass": 25
 }

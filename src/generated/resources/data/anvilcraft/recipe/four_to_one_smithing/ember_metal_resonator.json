@@ -49,7 +49,9 @@
       ]
     }
   ],
-  "result": "anvilcraft:ember_metal_resonator",
+  "result": {
+    "id": "anvilcraft:ember_metal_resonator"
+  },
   "template": {
     "items": "anvilcraft:four_to_one_smithing_template"
   }

@@ -22,8 +22,8 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasDiffItems;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -247,8 +247,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @return 构建器实例
          */
-        public B requires(TagKey<Item> ingredient, int count) {
-            this.itemIngredients.add(ItemIngredientPredicate.Builder.item().of(ingredient).withCount(count).build());
+        public B requires(HolderGetter<Item> items, TagKey<Item> ingredient, int count) {
+            this.itemIngredients.add(ItemIngredientPredicate.Builder.item().of(items, ingredient).withCount(count).build());
             return this.getThis();
         }
 
@@ -259,8 +259,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          *
          * @return 构建器实例
          */
-        public B requires(TagKey<Item> ingredient) {
-            return this.requires(ingredient, 1);
+        public B requires(HolderGetter<Item> items, TagKey<Item> ingredient) {
+            return this.requires(items, ingredient, 1);
         }
 
         /**
@@ -398,11 +398,6 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         @Override
         public ItemStackTemplate getResult() {
             return this.results.isEmpty() ? new ItemStackTemplate(Items.ANVIL) : this.results.getFirst().stack();
-        }
-
-        @Override
-        public void save(RecipeOutput recipeOutput) {
-            super.save(recipeOutput);
         }
     }
 

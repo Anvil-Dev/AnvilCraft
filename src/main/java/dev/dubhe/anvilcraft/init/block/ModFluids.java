@@ -11,11 +11,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
@@ -100,18 +98,6 @@ public class ModFluids {
         .register(
             "flowing_oil",
             () -> new BaseFlowingFluid.Flowing(ModFluids.OIL_PROPERTIES)
-        );
-
-    public static final DeferredHolder<Fluid, BaseFlowingFluid> BURNING_OIL = FLUIDS
-        .register(
-            "burning_oil",
-            () -> new BaseFlowingFluid.Flowing(new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)
-//                .bucket(() -> Items.AIR)
-//                .block(() -> Fluids.EMPTY)
-                .tickRate(10)
-                .slopeFindDistance(3)
-                .explosionResistance(100)
-            )
         );
 
     public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)

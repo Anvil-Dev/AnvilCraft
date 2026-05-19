@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.init.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;

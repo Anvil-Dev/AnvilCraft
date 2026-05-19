@@ -8,6 +8,8 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.FourToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.TwoToOneSmithingRecipe;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 
@@ -34,12 +36,13 @@ public class MultipleToOneSmithingRecipeLoader {
     }
 
     public static void four(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         FourToOneSmithingRecipe.builder()
             .material(ModItems.HEAVY_HALBERD_CORE)
             .input(ModItems.FROST_METAL_SWORD)
             .input(ModItems.FROST_METAL_AXE)
             .input(Items.TRIDENT)
-            .input(Tags.Items.TOOLS_MACE)
+            .input(items, Tags.Items.TOOLS_MACE)
             .resultMerge(ModItems.FROST_METAL_HEAVY_HALBERD, NormalDataComponent.frostFour())
             .save(provider);
         FourToOneSmithingRecipe.builder()
@@ -47,7 +50,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .input(ModItems.EMBER_METAL_SWORD)
             .input(ModItems.EMBER_METAL_AXE)
             .input(Items.TRIDENT)
-            .input(Tags.Items.TOOLS_MACE)
+            .input(items, Tags.Items.TOOLS_MACE)
             .resultMerge(ModItems.EMBER_METAL_HEAVY_HALBERD, NormalDataComponent.emberFour())
             .save(provider);
         FourToOneSmithingRecipe.builder()

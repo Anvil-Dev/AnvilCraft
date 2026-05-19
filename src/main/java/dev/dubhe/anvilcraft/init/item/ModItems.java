@@ -107,8 +107,8 @@ import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
@@ -126,7 +126,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
@@ -529,8 +528,7 @@ public class ModItems {
     public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
         .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
         .properties(properties -> properties.stacksTo(1))
-        //TODO IS THIS NEEDED?
-//        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.CROSSBOW_ENCHANTABLE
@@ -562,8 +560,7 @@ public class ModItems {
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
-        // TODO IS THIS NEEDED?
-        // .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::energyWeapon)
         .register();
 
@@ -1237,16 +1234,17 @@ public class ModItems {
         int level,
         HolderLookup.Provider registries
     ) {
-        var holder0 = registries.holder(enchKey);
-        if (holder0.isEmpty()) {
+        var holder = registries.holder(enchKey);
+        if (holder.isEmpty()) {
             AnvilCraft.LOGGER.error("", new NoSuchElementException(enchKey.identifier().toString()));
             return new ItemStackTemplate(item.asItem());
         }
         ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-        mutable.set(holder0.get(), level);
-        PatchedDataComponentMap components = new PatchedDataComponentMap(item.asItem().components());
-        components.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
-        return new ItemStackTemplate(item.asItem(), components.asPatch());
+        mutable.set(holder.get(), level);
+        return new ItemStackTemplate(
+            item.asItem(),
+            DataComponentPatch.builder().set(DataComponents.ENCHANTMENTS, mutable.toImmutable()).build()
+        );
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, CreativeModeTabModifier> enchanting(

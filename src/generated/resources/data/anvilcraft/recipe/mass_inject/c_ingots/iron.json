@@ -9,8 +9,6 @@
     }
   ],
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "tag": "c:ingots/iron"
-  },
+  "ingredient": "#c:ingots/iron",
   "mass": 80
 }

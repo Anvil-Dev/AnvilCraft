@@ -1,7 +1,17 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "minecraft:bow",
-    "minecraft:crossbow"
-  ]
+    {
+      "id": "minecraft:bow"
+    },
+    {
+      "id": "minecraft:crossbow"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }

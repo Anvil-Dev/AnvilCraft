@@ -4,11 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
 public class FluidHandlerRenderState extends BlockEntityRenderState {
-    private FluidResource resource;
+    private @Nullable FluidResource resource;
     private float fill;
     private float minX;
     private float minY;

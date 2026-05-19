@@ -1,10 +1,26 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "minecraft:wooden_sword",
-    "minecraft:wooden_axe",
-    "minecraft:wooden_pickaxe",
-    "minecraft:wooden_shovel",
-    "minecraft:wooden_hoe"
-  ]
+    {
+      "id": "minecraft:wooden_sword"
+    },
+    {
+      "id": "minecraft:wooden_axe"
+    },
+    {
+      "id": "minecraft:wooden_pickaxe"
+    },
+    {
+      "id": "minecraft:wooden_shovel"
+    },
+    {
+      "id": "minecraft:wooden_hoe"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }

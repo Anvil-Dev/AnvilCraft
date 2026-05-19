@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:plates/copper"
-    },
-    "B": {
-      "item": "anvilcraft:resin"
-    }
+    "A": "#c:plates/copper",
+    "B": "anvilcraft:resin"
   },
   "pattern": [
     "A",
@@ -15,7 +11,6 @@
     "A"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:capacitor_empty"
   }
 }

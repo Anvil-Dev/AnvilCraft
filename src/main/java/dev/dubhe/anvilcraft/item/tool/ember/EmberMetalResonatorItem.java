@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.item.tool.ember;
 
-import net.minecraft.util.Unit;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModToolMaterials;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
+import net.minecraft.util.Unit;
 
 public class EmberMetalResonatorItem extends ResonatorItem {
     public EmberMetalResonatorItem(Properties properties) {

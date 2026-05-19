@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "anvilcraft:spectral_slingshot",
   "key": {
-    "A": {
-      "item": "minecraft:phantom_membrane"
-    },
-    "B": {
-      "item": "anvilcraft:spectral_anvil"
-    },
-    "C": {
-      "item": "minecraft:crossbow"
-    }
+    "A": "minecraft:phantom_membrane",
+    "B": "anvilcraft:spectral_anvil",
+    "C": "minecraft:crossbow"
   },
   "pattern": [
     "AAA",
@@ -19,7 +13,6 @@
     " C "
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:spectral_slingshot"
   }
 }

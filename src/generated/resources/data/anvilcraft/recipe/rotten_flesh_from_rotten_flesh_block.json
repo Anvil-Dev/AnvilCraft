@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "anvilcraft:rotten_flesh_block"
-    }
+    "anvilcraft:rotten_flesh_block"
   ],
   "result": {
     "count": 9,

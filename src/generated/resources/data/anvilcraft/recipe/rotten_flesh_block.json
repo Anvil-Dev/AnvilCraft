@@ -2,36 +2,17 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    }
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:rotten_flesh_block"
   }
 }

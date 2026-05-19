@@ -1,8 +1,5 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 import java.util.Optional;
 
 /**

@@ -45,7 +45,7 @@ public class FlintBlock extends Block {
                         BlockPos offset = pos.offset(x, y, z);
                         BlockState blockState = level.getBlockState(offset);
                         if (blockState.is(ModBlocks.OIL_CAULDRON)) {
-                            OilCauldronBlock.ignite(level, offset, blockState);
+                            OilCauldronBlock.ignite(level, offset);
                             return;
                         } else if (blockState.getBlock() instanceof CampfireBlock) {
                             if (!blockState.getValue(CampfireBlock.LIT)) {

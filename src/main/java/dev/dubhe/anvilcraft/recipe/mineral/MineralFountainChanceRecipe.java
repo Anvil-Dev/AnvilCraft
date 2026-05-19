@@ -5,12 +5,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -141,8 +141,8 @@ public record MineralFountainChanceRecipe(Identifier dimension, BlockStatePredic
             return this;
         }
 
-        public Builder fromBlock(TagKey<Block> fromBlock) {
-            this.fromBlock = BlockStatePredicate.builder().of(fromBlock).build();
+        public Builder fromBlock(HolderGetter<Block> blocks, TagKey<Block> fromBlock) {
+            this.fromBlock = BlockStatePredicate.builder().of(blocks, fromBlock).build();
             return this;
         }
 

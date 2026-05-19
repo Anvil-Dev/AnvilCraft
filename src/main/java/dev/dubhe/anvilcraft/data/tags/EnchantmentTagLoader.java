@@ -15,7 +15,7 @@ public class EnchantmentTagLoader {
      */
     public static void init(RegistrumTagsProvider<Enchantment> provider) {
         provider.rawBuilder(Tags.Enchantments.INCREASE_BLOCK_DROPS)
-            .addElement(ModEnchantments.HARVEST_KEY.identifier());
+            .addOptionalElement(ModEnchantments.HARVEST_KEY.identifier());
 
         provider.rawBuilder(ModEnchantmentTags.DISABLED_PASSED)
             .addElement(Enchantments.MENDING.identifier());
@@ -23,9 +23,9 @@ public class EnchantmentTagLoader {
         provider.rawBuilder(ModEnchantmentTags.PROVIDENCE_BONUS)
             .addElement(Enchantments.FORTUNE.identifier())
             .addElement(Enchantments.LOOTING.identifier())
-            .addElement(ModEnchantments.BEHEADING_KEY.identifier())
+            .addOptionalElement(ModEnchantments.BEHEADING_KEY.identifier())
             .addElement(Enchantments.THORNS.identifier())
             .addElement(Enchantments.LUCK_OF_THE_SEA.identifier())
-            .addElement(ModEnchantments.DISINTEGRATION_KEY.identifier());
+            .addOptionalElement(ModEnchantments.DISINTEGRATION_KEY.identifier());
     }
 }

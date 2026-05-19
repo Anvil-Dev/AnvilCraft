@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:lead_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:lead_block"
-    }
+    "anvilcraft:lead_block"
   ],
   "result": {
     "count": 9,

@@ -9,7 +9,9 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -18,13 +20,14 @@ import net.neoforged.neoforge.common.Tags;
 
 public class ItemCrushRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         ItemCrushRecipe.builder()
-            .requires(Tags.Items.CROPS_WHEAT)
+            .requires(items, Tags.Items.CROPS_WHEAT)
             .result(ModItems.FLOUR)
             .result(ModItems.FLOUR, 0.5F)
             .save(provider);
         ItemCrushRecipe.builder()
-            .requires(ItemTags.LOGS)
+            .requires(items, ItemTags.LOGS)
             .result(ModItems.WOOD_FIBER)
             .result(ModItems.RESIN)
             .save(provider);
@@ -34,7 +37,7 @@ public class ItemCrushRecipeLoader {
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("item_crush/red_dye_from_beetroot"));
         ItemCrushRecipe.builder()
-            .requires(ItemTags.WOOL)
+            .requires(items, ItemTags.WOOL)
             .result(Items.STRING, 4)
             .save(provider);
         ItemCrushRecipe.builder()

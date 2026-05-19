@@ -3,18 +3,13 @@ package dev.dubhe.anvilcraft.api.thought;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLLoader;
 
 import java.util.function.Consumer;
 
 public interface Thinkable {
-    // @OnlyIn(Dist.CLIENT)
     default void appendHoverText(Consumer<Component> consumer) {
-        if (!FMLLoader.getCurrent().getDist().isClient()) {
-            return;
-        }
+        if (!FMLLoader.getCurrent().getDist().isClient()) return;
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime <= 0) {
             consumer.accept(
@@ -38,7 +33,6 @@ public interface Thinkable {
         consumer.accept(Component.literal(builder.append("]").toString()).withStyle(ChatFormatting.GRAY));
     }
 
-    // @OnlyIn(Dist.CLIENT)
     default void onThought() {
     }
 }

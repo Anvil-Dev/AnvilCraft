@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -30,6 +31,7 @@ public class BulgingRecipeLoader {
         BulgingRecipeLoader.bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 250);
         BulgingRecipeLoader.bulging(provider, ModItemTags.FLOUR, ModItems.DOUGH);
         BulgingRecipeLoader.bulging(provider, Items.DRIED_KELP, Items.KELP);
+        BulgingRecipeLoader.bulging(provider, ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE, Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
         BulgingRecipeLoader.crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 250);
 
         VanillaConstants.CONCRETE_POWDERS.forEach(block -> bulging(provider, block, block.concrete));
@@ -90,9 +92,10 @@ public class BulgingRecipeLoader {
 
     @SuppressWarnings("SameParameterValue")
     private static void bulging(RegistrumRecipeProvider provider, TagKey<Item> input, ItemLike result, int consume) {
+        HolderGetter<Item> items = provider.getItems();
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
-            .requires(input)
+            .requires(items, input)
             .result(result)
             .consume(consume)
             .save(provider);

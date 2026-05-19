@@ -1,10 +1,26 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "minecraft:golden_sword",
-    "minecraft:golden_axe",
-    "minecraft:golden_pickaxe",
-    "minecraft:golden_shovel",
-    "minecraft:golden_hoe"
-  ]
+    {
+      "id": "minecraft:golden_sword"
+    },
+    {
+      "id": "minecraft:golden_axe"
+    },
+    {
+      "id": "minecraft:golden_pickaxe"
+    },
+    {
+      "id": "minecraft:golden_shovel"
+    },
+    {
+      "id": "minecraft:golden_hoe"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }
