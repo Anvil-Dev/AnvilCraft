@@ -65,4 +65,5 @@ jobs:
           minecraft_version: '26.1.2'
           mod_loader: 'neoforge'
           loader_version: '26.1.2.59-beta'
+          extra-mods: 'anvil-lib:2.0.0+snapshot.384'
           quiet-setup: 'True'
