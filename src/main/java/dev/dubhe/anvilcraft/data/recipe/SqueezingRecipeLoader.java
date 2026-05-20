@@ -40,6 +40,9 @@ public class SqueezingRecipeLoader {
             .result(result)
             .transform(cauldron)
             .produce(produce)
-            .save(provider, AnvilCraft.of("squeezing/%s_from_%s".formatted(RecipeLoaderUtil.getName(cauldron), RecipeLoaderUtil.getName(requires))));
+            .save(
+                provider,
+                AnvilCraft.of("squeezing/%s_from_%s".formatted(RecipeLoaderUtil.getName(cauldron), RecipeLoaderUtil.getName(requires)))
+            );
     }
 }

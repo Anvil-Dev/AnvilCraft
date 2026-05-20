@@ -118,8 +118,9 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
         ItemStack result = recipes.get(this.selecting).value().assemble(this.createInput());
         this.displayingStack = result.copy();
-        if (!level.isClientSide())
+        if (!level.isClientSide()) {
             PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        }
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
         int times = IntStream.range(0, this.handler.size())
@@ -231,8 +232,9 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         public boolean test(PollableFilteredItemStackHandler container) {
             if (container.size() != this.container.getContainerSize()) return false;
             for (int i = 0; i < this.container.getContainerSize(); i++) {
-                if (!ItemStack.isSameItemSameComponents(ItemUtil.getStack(container, i), this.container.getItem(i)))
+                if (!ItemStack.isSameItemSameComponents(ItemUtil.getStack(container, i), this.container.getItem(i))) {
                     return false;
+                }
             }
             return true;
         }

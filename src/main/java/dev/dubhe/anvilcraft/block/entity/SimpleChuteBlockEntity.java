@@ -73,8 +73,9 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
         if (this.level == null) return;
         if (this.cooldown > 0) this.cooldown--;
         this.tickedGameTime = this.level.getGameTime();
-        if (this.cooldown == 0 && !this.itemHandler.getResource(0).isEmpty())
+        if (this.cooldown == 0 && !this.itemHandler.getResource(0).isEmpty()) {
             this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
+        }
         if (this.cooldown == 1) {
             BlockPos targetPos = this.getBlockPos().relative(this.getOutputDirection());
             BlockEntity targetBE = this.level.getBlockEntity(targetPos);

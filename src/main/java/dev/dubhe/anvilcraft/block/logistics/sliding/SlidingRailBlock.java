@@ -101,7 +101,16 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
+    protected BlockState updateShape(
+        BlockState state,
+        LevelReader level,
+        ScheduledTickAccess ticks,
+        BlockPos pos,
+        Direction directionToNeighbour,
+        BlockPos neighbourPos,
+        BlockState neighbourState,
+        RandomSource random
+    ) {
         BlockState newState = state;
         if (this.isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
             || this.isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE
