@@ -23,7 +23,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -38,11 +37,13 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,10 +108,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
-            this.tryIgnite(level, pos);
-            return;
-        }
+        if (entity.isOnFire()) this.tryIgnite(level, pos);
         if (!(entity instanceof ItemEntity itemEntity)) return;
         if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
             this.tryIgnite(level, pos);
@@ -124,24 +122,10 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
-            this.tryIgnite(level, pos);
-            return;
-        }
+        if (entity.isOnFire()) this.tryIgnite(level, pos);
         if (!(entity instanceof ItemEntity itemEntity)) {
-            boolean ignited = level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
-                .map(FishTankBlockEntity::isIgnited)
-                .orElse(false);
-            if (ignited) {
-                if (!entity.fireImmune()) {
-                    entity.setRemainingFireTicks(entity.getRemainingFireTicks() + 1);
-                    if (entity.getRemainingFireTicks() == 0) {
-                        entity.igniteForSeconds(8.0F);
-                    }
-                }
-
-                entity.hurt(level.damageSources().inFire(), 1.0F);
-            }
+            FishTankBlockEntity be = level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get()).orElse(null);
+            this.entityInsideContent(level, pos, be, entity);
             return;
         }
         if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
@@ -152,6 +136,24 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         }
         IItemHandler items = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
         FishTankBlockEntity.insertToTank(items, itemEntity);
+    }
+
+    private void entityInsideContent(Level level, BlockPos pos, FishTankBlockEntity be, Entity entity) {
+        if (level.isClientSide()) return;
+        if (!be.getFluidContentArea().intersects(entity.getBoundingBox())) return;
+
+        if (be.isIgnited()) {
+            if (!entity.fireImmune()) {
+                entity.setRemainingFireTicks(entity.getRemainingFireTicks() + 1);
+                if (entity.getRemainingFireTicks() == 0) entity.igniteForSeconds(8.0F);
+            }
+            entity.hurt(level.damageSources().inFire(), 1.0F);
+        } else if (be.getFluidHandler().getFluid().is(Fluids.LAVA)) {
+            entity.lavaHurt();
+        } else if (entity.canFluidExtinguish(be.getFluidHandler().getFluid().getFluidType()) && entity.isOnFire()) {
+            entity.clearFire();
+            if (entity.mayInteract(level, pos)) be.getFluidHandler().drain(250, IFluidHandler.FluidAction.EXECUTE);
+        }
     }
 
     @Override

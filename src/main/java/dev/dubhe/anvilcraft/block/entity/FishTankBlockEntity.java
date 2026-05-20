@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
@@ -42,8 +43,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -65,6 +68,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     public static final int MAX_TROPICAL_FISH = 4;
     public static final Double FISH_HEIGHT = 0.75D;
 
+    private static final Vec3 FLUID_CONTENT_AREA_MIN = new Vec3(0.0625, 0.0625, 0.0625);
+    private static final Vec3 FLUID_CONTENT_AREA_MAX = new Vec3(0.9375, 0.9375, 0.9375);
+    private static final double FLUID_CONTENT_AREA_HEIGHT = 7.0 / 8;
     private static final String TAG_TROPICAL_FISH_DATA = "TropicalFishData";
 
     private final List<CompoundTag> tropicalFishData = new ArrayList<>() {
@@ -93,6 +99,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             super.clear();
         }
     };
+    private AABB fluidContentArea = new AABB(FLUID_CONTENT_AREA_MIN, FLUID_CONTENT_AREA_MAX);
     private final FluidTank fluidHandler = new FluidTank(CAPACITY) {
         @Override
         protected void onContentsChanged() {
@@ -100,10 +107,27 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             FishTankBlockEntity.this.refreshIgnited();
             sendUpdate();
             sendNeighbourUpdate();
+            this.updateContentArea();
             if (!isWaterArea(this)) {
                 FishTankBlockEntity.this.dropFish();
                 FishTankBlockEntity.this.updateFishState();
             }
+        }
+
+        @Override
+        public FluidTank readFromNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
+            FluidTank tank = super.readFromNBT(lookupProvider, nbt);
+            this.onContentsChanged();
+            return tank;
+        }
+
+        private void updateContentArea() {
+            double diffY = FLUID_CONTENT_AREA_HEIGHT * (1.0 - (double) this.getFluidAmount() / this.getCapacity());
+            Vec3 pos = getBlockPos().getBottomCenter().subtract(0.5, 0, 0.5);
+            fluidContentArea = new AABB(
+                FLUID_CONTENT_AREA_MIN.add(pos),
+                FLUID_CONTENT_AREA_MAX.subtract(0, diffY, 0).add(pos)
+            );
         }
     };
 
@@ -135,20 +159,33 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
         @Override
         protected void onContentsChanged(int slot) {
-            if (
-                slot < 8
-                && getBlockState().getValue(FishTankBlock.OUTLET)
-                && !this.getStackInSlot(slot).isEmpty()
-            ) {
-                Direction outletDir = getBlockState().getValue(FishTankBlock.FACING);
-                if (level != null) {
-                    ItemStack stack = this.extractItem(slot, Integer.MAX_VALUE, false);
-                    if (!stack.isEmpty()) FishTankBlockEntity.popResourceFromFace(level, getBlockPos(), outletDir, stack);
-                }
-            }
+            this.checkAutoOutput(slot);
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.refreshIgnited();
             sendUpdate();
+        }
+
+        private void checkAutoOutput(int slot) {
+            if (level == null) return;
+            if (slot >= 8) return;
+            if (!getBlockState().getValue(FishTankBlock.OUTLET)) return;
+            ItemStack stack = this.extractItem(slot, Integer.MAX_VALUE, true);
+            if (stack.isEmpty()) return;
+            Direction outletDir = getBlockState().getValue(FishTankBlock.FACING);
+
+            IItemHandler target = level.getCapability(Capabilities.ItemHandler.BLOCK, getBlockPos().relative(outletDir), null);
+            if (target == null) {
+                FishTankBlockEntity.popResourceFromFace(level, getBlockPos(), outletDir, this.extractItem(slot, Integer.MAX_VALUE, false));
+            }
+            ItemStack remaining = ItemHandlerUtil.insertItem(target, stack, false);
+            if (remaining.getCount() == stack.getCount()) return;
+            remaining = ItemHandlerUtil.insertItem(
+                target,
+                this.extractItem(slot, Integer.MAX_VALUE, false),
+                false
+            );
+            if (remaining.isEmpty()) return;
+            this.setStackInSlot(slot, remaining);
         }
     };
     private final PollableItemHandler outputProxy = new PollableItemHandler(8) {
@@ -595,9 +632,26 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     public void tryAutoOutputResults() {
         if (this.level == null) return;
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
-        for (int i = 0; i < 8; i++) {
-            ItemStack stack = this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
-            if (!stack.isEmpty()) FishTankBlockEntity.popResourceFromFace(this.level, this.getBlockPos(), outletDir, stack);
+        IItemHandler target = this.level.getCapability(Capabilities.ItemHandler.BLOCK, this.getBlockPos().relative(outletDir), null);
+        if (target != null) {
+            for (int i = 0; i < 8; i++) {
+                ItemStack extracted = this.itemHandler.extractItem(i, Integer.MAX_VALUE, true);
+                if (extracted.isEmpty()) continue;
+                ItemStack remaining = ItemHandlerUtil.insertItem(target, extracted, true);
+                if (remaining.getCount() == extracted.getCount()) continue;
+                remaining = ItemHandlerUtil.insertItem(
+                    target,
+                    this.itemHandler.extractItem(i, Integer.MAX_VALUE, false),
+                    false
+                );
+                if (remaining.isEmpty()) continue;
+                ItemHandlerUtil.insertItem(this.outputProxy, remaining, false);
+            }
+        } else {
+            for (int i = 0; i < 8; i++) {
+                ItemStack stack = this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
+                if (!stack.isEmpty()) FishTankBlockEntity.popResourceFromFace(this.level, this.getBlockPos(), outletDir, stack);
+            }
         }
         this.setChanged();
         this.refreshIgnited();
