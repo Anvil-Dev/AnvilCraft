@@ -61,6 +61,7 @@
     "accessor.BaseSpawnerAccessor",
     "accessor.CropBlockAccessor",
     "accessor.GrowingPlantAccessor",
+    "accessor.ICacheInputOutputImplAccessor",
     "accessor.PortalProcessorAccessor",
     "accessor.ShapedRecipePatternAccessor",
     "accessor.StacksResourceHandlerAccessor",
@@ -93,7 +94,7 @@
     "accessor.FluidStateModelSetAccessor",
     "accessor.LevelRendererAccessor",
     "accessor.MultiPlayerGameModeAccessor",
-    "accessor.ScreenAccessor",
+    "accessor.ScreenAccessor"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {

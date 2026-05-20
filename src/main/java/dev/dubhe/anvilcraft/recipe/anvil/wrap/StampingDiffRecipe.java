@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.phys.Vec3;
@@ -13,7 +16,23 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
-    public static final RecipeSerializer<StampingDiffRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(StampingDiffRecipe::new);
+    public static final RecipeSerializer<StampingDiffRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemIngredientPredicate.CODEC.listOf()
+                .optionalFieldOf("ingredients", List.of())
+                .forGetter(AbstractProcessRecipe::getDiffInputItems),
+            ChanceItemStack.CODEC.listOf()
+                .optionalFieldOf("results", List.of())
+                .forGetter(AbstractProcessRecipe::getResultItems)
+        ).apply(instance, StampingDiffRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            AbstractProcessRecipe::getDiffInputItems,
+            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            AbstractProcessRecipe::getResultItems,
+            StampingDiffRecipe::new
+        )
+    );
 
     /**
      * 构造一个差异冲压配方
