@@ -69,6 +69,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean isPickupMode = true;
 
     private Boolean dragTargetState = null;
+    
+    // 蓝图模式标志（当加载了结构磁盘时为 true）
+    private boolean isBlueprintMode = false;
 
     private int previewWindowX;
     private int previewWindowY;
@@ -91,6 +94,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private int cachedViewLayer = -1;
     private boolean cachedShowAllLayers = true;
     private boolean cachedPickupMode = true;
+    private boolean cachedBlueprintMode = false;  // 缓存蓝图模式状态
+    private String cachedStructureUuid = "";  // 缓存结构UUID，用于检测结构变化
     private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
@@ -113,6 +118,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 this.layerPositions.put(entry.getKey(), new HashSet<>(entry.getValue()));
             }
             this.isPickupMode = this.menu.getBlockEntity().isPickupMode();
+            // 检查是否处于蓝图模式(直接检查磁盘槽位)
+            this.isBlueprintMode = !this.menu.getBlockEntity().getDiskInventory().getItem(0).isEmpty();
         }
 
         this.previewWindowX = this.leftPos + 136;
@@ -141,6 +148,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 List.of(Component.translatable("screen.anvilcraft.smart_block_placer.layer." + (i + 1)))
             );
             button.setSelected(i == this.currentViewLayer);
+            // Layer 按钮始终可用，蓝图模式下也可以分层查看结构
+            button.active = true;
             this.layerButtons.add(button);
             this.addRenderableWidget(button);
         }
@@ -149,7 +158,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private void initPositionButtons() {
         int gridStartX = this.leftPos + 33;
         int gridStartY = this.topPos + 18;
-        Set<Integer> currentPositions = this.layerPositions.getOrDefault(this.currentViewLayer, new HashSet<>());
+        // 蓝图模式下清空选区
+        Set<Integer> currentPositions = this.isBlueprintMode 
+            ? new HashSet<>() 
+            : this.layerPositions.getOrDefault(this.currentViewLayer, new HashSet<>());
 
         for (int row = 0; row < 5; row++) {
             for (int col = 0; col < 5; col++) {
@@ -157,6 +169,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 boolean isSelected = currentPositions.contains(positionIndex);
 
                 TriStateButton button = this.createPositionButton(row, col, positionIndex, gridStartX, gridStartY, isSelected);
+                // 蓝图模式下禁用位置按钮
+                button.active = !this.isBlueprintMode;
                 this.positionButtons[row][col] = button;
                 this.addRenderableWidget(button);
             }
@@ -209,6 +223,35 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             return Component.translatable("screen.anvilcraft.smart_block_placer.operation_mode.pickup");
         } else {
             return Component.translatable("screen.anvilcraft.smart_block_placer.operation_mode.move");
+        }
+    }
+    
+    /**
+     * 根据蓝图模式更新按钮状态
+     */
+    private void updateButtonsForBlueprintMode() {
+        // Layer 按钮在蓝图模式下保持可用，用于分层查看结构
+        // for (TriStateButton button : this.layerButtons) {
+        //     button.active = !this.isBlueprintMode;
+        // }
+        
+        // 更新位置按钮
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 5; col++) {
+                TriStateButton button = this.positionButtons[row][col];
+                if (button != null) {
+                    button.active = !this.isBlueprintMode;
+                    // 蓝图模式下清空选择状态
+                    if (this.isBlueprintMode) {
+                        button.setSelected(false);
+                    }
+                }
+            }
+        }
+        
+        // 蓝图模式下清空本地 layerPositions
+        if (this.isBlueprintMode) {
+            this.layerPositions.clear();
         }
     }
     
@@ -444,10 +487,74 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // 只渲染标题（方块名称），不渲染"物品栏"文字
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        
+        // 渲染已加载的结构名称
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null) {
+            String structureName = blockEntity.getLoadedStructureName();
+            if (structureName != null && !structureName.isEmpty()) {
+                Component structureText = Component.literal("Loaded: " + structureName);
+                guiGraphics.drawString(this.font, structureText, this.titleLabelX, this.titleLabelY + 12, 0x00AA00, false);
+            }
+        }
+    }
+    
+    @Override
+    public void containerTick() {
+        super.containerTick();
+        
+        // 定期从 blockEntity 同步数据到客户端,确保磁盘插入等操作的选区变化能实时更新
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null) {
+            // 先同步蓝图模式状态(优先级最高,因为会影响按钮的可交互性)
+            // 直接检查磁盘槽位是否有物品,而不是依赖 loadedStructure(只在服务端设置)
+            boolean newBlueprintMode = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+            if (newBlueprintMode != this.isBlueprintMode) {
+                this.isBlueprintMode = newBlueprintMode;
+                this.updateButtonsForBlueprintMode();
+            }
+            
+            // 同步 layerPositions
+            Map<Integer, Set<Integer>> newLayerPositions = blockEntity.getLayerPositions();
+            if (!this.layerPositions.equals(newLayerPositions)) {
+                // 深拷贝,避免共享引用
+                this.layerPositions = new HashMap<>();
+                for (Map.Entry<Integer, Set<Integer>> entry : newLayerPositions.entrySet()) {
+                    this.layerPositions.put(entry.getKey(), new HashSet<>(entry.getValue()));
+                }
+                // 数据变化时更新按钮贴图
+                this.updatePositionButtons();
+            }
+            
+            // 同步 selectedLayer
+            int newViewLayer = blockEntity.getSelectedLayer();
+            if (newViewLayer != this.currentViewLayer) {
+                this.currentViewLayer = newViewLayer;
+                // 层级变化时更新按钮贴图
+                this.updatePositionButtons();
+            }
+            
+            // 同步 isPickupMode
+            boolean newPickupMode = blockEntity.isPickupMode();
+            if (newPickupMode != this.isPickupMode) {
+                this.isPickupMode = newPickupMode;
+            }
+        }
     }
     
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // 检测蓝图模式变化(containerTick已经处理,这里作为备用)
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null) {
+            // 直接检查磁盘槽位是否有物品
+            boolean newBlueprintMode = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+            if (newBlueprintMode != this.isBlueprintMode) {
+                this.isBlueprintMode = newBlueprintMode;
+                this.updateButtonsForBlueprintMode();
+            }
+        }
+        
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         // 渲染3D预览
@@ -506,8 +613,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 禁用裁剪
         RenderSystem.disableScissor();
 
-        // 如果没有配置选区位置，显示提示文本（在裁剪区域外渲染，确保在最上层）
-        if (this.menu.getBlockEntity().getLayerPositions().isEmpty()) {
+        // 如果没有配置选区位置且不在蓝图模式下，显示提示文本（在裁剪区域外渲染，确保在最上层）
+        if (!this.isBlueprintMode && this.menu.getBlockEntity().getLayerPositions().isEmpty()) {
             Component emptyText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
             int textWidth = (int) (this.font.width(emptyText) * 0.8f);
             int textX = this.previewWindowX + (this.previewWindowWidth - textWidth) / 2;
@@ -619,11 +726,20 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 同时检查游戏时间，确保方块类型能实时切换
         long currentGameTime = this.minecraft.level.getGameTime();
         long currentBlockTypeTime = currentGameTime / (PREVIEW_BLOCK_SWITCH_INTERVAL * 2);
+        
+        // 获取当前结构UUID（用于检测结构变化）
+        String currentStructureUuid = "";
+        if (this.isBlueprintMode && blockEntity.getLoadedStructure() != null) {
+            currentStructureUuid = blockEntity.getLoadedStructure().uuid;
+        }
+        
         boolean needsRebuild = this.cachedPreviewLevelLike == null
             || !this.cachedLayerPositions.equals(this.layerPositions)
             || this.cachedViewLayer != this.currentViewLayer
             || this.cachedShowAllLayers != this.showAllLayers
             || this.cachedPickupMode != this.isPickupMode
+            || this.cachedBlueprintMode != this.isBlueprintMode
+            || !this.cachedStructureUuid.equals(currentStructureUuid)
             || this.cachedGameTimeBlockType != currentBlockTypeTime;
 
         if (needsRebuild) {
@@ -636,6 +752,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.cachedViewLayer = this.currentViewLayer;
             this.cachedShowAllLayers = this.showAllLayers;
             this.cachedPickupMode = this.isPickupMode;
+            this.cachedBlueprintMode = this.isBlueprintMode;
+            this.cachedStructureUuid = currentStructureUuid;
             this.cachedGameTimeBlockType = currentBlockTypeTime;
         }
 
@@ -691,7 +809,28 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD, overload)
         );
 
-        // 使用客户端本地的 layerPositions，确保快速拖动时预览能及时更新
+        // 蓝图模式：渲染磁盘中的结构
+        if (this.isBlueprintMode) {
+            var loadedStructure = blockEntity.getLoadedStructure();
+            if (loadedStructure != null && !loadedStructure.isEmpty()) {
+                // 渲染结构中的所有方块
+                for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blockPos : loadedStructure.blocks) {
+                    // 将结构方块位置映射到预览窗口中
+                    // 结构坐标可能从0开始，需要适配到5x5的预览范围内
+                    int x = blockPos.x();
+                    int y = blockPos.y();
+                    int z = blockPos.z();
+                    
+                    // 只渲染在预览范围内的方块（5x5x5）
+                    if (x >= 0 && x < 5 && y >= 0 && y < 5 && z >= 0 && z < 5) {
+                        previewLevelLike.setBlockState(new BlockPos(x, y, z), blockPos.state());
+                    }
+                }
+            }
+            return previewLevelLike;
+        }
+
+        // 普通模式：使用客户端本地的 layerPositions，确保快速拖动时预览能及时更新
         Map<Integer, Set<Integer>> layerPositions = this.layerPositions;
         if (layerPositions.isEmpty()) {
             // 没有选区时只渲染放置器

@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -457,6 +458,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      */
     @Nullable
     private BlockPos getNextTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown) {
+        // 蓝图模式：使用结构数据计算目标位置
+        var loadedStructure = entity.getLoadedStructure();
+        if (loadedStructure != null && !loadedStructure.isEmpty()) {
+            return getBlueprintTargetPosition(entity, facing, upsideDown, loadedStructure);
+        }
+        
+        // 普通模式：使用 layerPositions
         BlockPos basePos = entity.getBlockPos().relative(facing.getOpposite(), -4);
         
         Map<Integer, Set<Integer>> layerPositions = entity.getLayerPositions();
@@ -506,6 +514,91 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
         
         return null;
+    }
+    
+    /**
+     * 获取蓝图模式的目标位置
+     */
+    @Nullable
+    private BlockPos getBlueprintTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown, 
+        dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData structure) {
+        
+        // 构建蓝图位置列表（与普通模式一致，使用缓存）
+        List<BlockPos> allPositions = buildBlueprintPositionsForRenderer(entity, facing, upsideDown, structure);
+        
+        if (allPositions.isEmpty()) {
+            return null;
+        }
+        
+        int currentIndex = entity.getCurrentPlacementIndex();
+        if (currentIndex >= allPositions.size()) {
+            currentIndex = 0;
+        }
+        
+        // 从当前索引开始查找空位（与普通模式完全一致）
+        for (int i = 0; i < allPositions.size(); i++) {
+            int index = (currentIndex + i) % allPositions.size();
+            BlockPos targetPos = allPositions.get(index);
+            
+            if (entity.getLevel() == null) {
+                return null;
+            }
+            
+            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
+            
+            // 检查是否为空或可堆叠（与普通模式一致）
+            if (targetState.isAir()) {
+                return targetPos;
+            }
+            
+            if (!targetState.getFluidState().isEmpty()) {
+                return targetPos;
+            }
+            
+            // 检查是否可以堆叠
+            net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
+            if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
+                if (canBeStacked(targetState, heldBlockItem)) {
+                    return targetPos;
+                }
+            } else if (heldItem.isEmpty()) {
+                if (canBeStacked(targetState, null)) {
+                    return targetPos;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * 构建蓝图模式的位置列表（带缓存）
+     */
+    private List<BlockPos> buildBlueprintPositionsForRenderer(
+        SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown,
+        dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData structure) {
+        
+        String cacheKey = "blueprint_" + entity.getBlockPos().toShortString() + "_" + 
+            facing.getName() + "_" + upsideDown + "_" + structure.blocks.hashCode();
+        
+        if (this.positionCache.containsKey(cacheKey)) {
+            return this.positionCache.get(cacheKey);
+        }
+        
+        List<BlockPos> positions = new ArrayList<>();
+        BlockPos basePos = entity.getBlockPos().relative(facing.getOpposite(), -4);
+        Direction right = facing.getClockWise();
+        
+        for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blueprintBlock : structure.blocks) {
+            int yOffset = upsideDown ? blueprintBlock.y() - 4 : blueprintBlock.y();
+            BlockPos targetPos = basePos.atY(basePos.getY() + yOffset)
+                .relative(right, blueprintBlock.z() - 2)
+                .relative(right.getClockWise(), blueprintBlock.x() - 2);
+            positions.add(targetPos);
+        }
+        
+        this.positionCache.put(cacheKey, positions);
+        return positions;
     }
     
     /**
