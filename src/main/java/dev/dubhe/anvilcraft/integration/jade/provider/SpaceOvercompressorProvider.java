@@ -2,28 +2,15 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
-import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
-import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
-import snownee.jade.api.ITooltip;
-import snownee.jade.api.config.IPluginConfig;
 
-public enum SpaceOvercompressorProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum SpaceOvercompressorProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
-        CompoundTag serverData = blockAccessor.getServerData();
-        if (serverData.contains("storedMass")) {
-            long mass = serverData.getLongOr("storedMass", 0L);
-            tooltip.add(Component.translatable("tooltip.anvilcraft.space_overcompressor.stored_mass",
-                MassInjectRecipe.displayMassValue(mass)));
-        }
-    }
+    public static final Identifier UID = AnvilCraft.of("space_overcompressor");
 
     @Override
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
@@ -34,6 +21,6 @@ public enum SpaceOvercompressorProvider implements IBlockComponentProvider, ISer
 
     @Override
     public Identifier getUid() {
-        return AnvilCraft.of("space_overcompressor");
+        return UID;
     }
 }

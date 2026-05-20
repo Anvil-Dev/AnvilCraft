@@ -2821,8 +2821,10 @@ public class ModBlocks {
     }
 
     private static BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(Color color) {
-        return REGISTRUM.block(color + "_reinforced_concrete", ReinforcedConcreteBlock::new)
-            .initialProperties(() -> Blocks.TERRACOTTA)
+        return REGISTRUM.block(
+            color + "_reinforced_concrete",
+                p -> new ReinforcedConcreteBlock(p, color)
+            ).initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))

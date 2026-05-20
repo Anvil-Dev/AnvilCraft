@@ -1,16 +1,15 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlot;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -28,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     public final BatchCutterBlockEntity entity;
     private final Slot resultSlot;
     private final Level level;
-    private @Nullable List<RecipeHolder<StonecutterRecipe>> recipes;
+    private @Nullable List<RecipeHolder<StonecutterRecipe>> recipes = List.of();
 
     public BatchCutterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
@@ -188,13 +188,14 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     }
 
     public void onChanged() {
-        if (!(this.level instanceof ServerLevel serverLevel)) return;
         SingleRecipeInput input = this.entity.createDummyInput();
-        this.recipes = serverLevel.recipeAccess().getRecipes().stream()
-            .filter(holder -> holder.value().getType() == RecipeType.STONECUTTING)
-            .map(Util::<RecipeHolder<StonecutterRecipe>>cast)
-            .filter(holder -> holder.value().matches(input, serverLevel))
-            .toList();
+        List<RecipeHolder<StonecutterRecipe>> list = new ArrayList<>();
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)) {
+            if (holder.value().matches(input, this.level)) {
+                list.add(holder);
+            }
+        }
+        this.recipes = list;
         if (this.recipes.isEmpty()) {
             this.resultSlot.set(ItemStack.EMPTY);
         } else if (this.entity.getSelecting() >= this.recipes.size()) {

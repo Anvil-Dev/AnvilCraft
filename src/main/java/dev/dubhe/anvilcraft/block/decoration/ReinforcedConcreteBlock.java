@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.decoration;
 
+import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.ReinforcedConcreteHalf;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -18,10 +20,13 @@ import org.jspecify.annotations.Nullable;
 
 public class ReinforcedConcreteBlock extends Block {
     public static final EnumProperty<ReinforcedConcreteHalf> HALF = EnumProperty.create("half", ReinforcedConcreteHalf.class);
+    @Getter
+    private final Color color;
 
-    public ReinforcedConcreteBlock(Properties properties) {
+    public ReinforcedConcreteBlock(Properties properties, Color color) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, ReinforcedConcreteHalf.SINGLE));
+        this.color = color;
     }
 
     @Override

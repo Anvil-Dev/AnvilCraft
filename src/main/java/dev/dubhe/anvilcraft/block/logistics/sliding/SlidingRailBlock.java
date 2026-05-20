@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.block.logistics.sliding;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -11,6 +13,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.Rotation;
@@ -64,8 +67,8 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
         BlockPos pos = context.getClickedPos();
         if (
             (this.isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
-             || this.isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE)
-            && (this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
+                || this.isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE)
+                && (this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
                 || this.isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE)
         ) {
             axis = Axis.Y;
@@ -98,37 +101,36 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
     }
 
     @Override
-    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos fromPos) {
-        if (level instanceof Level actualLevel) {
-            if (this.isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
-                || this.isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
+        BlockState newState = state;
+        if (this.isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
+            || this.isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE
+        ) {
+            if (state.getValue(AXIS) != Axis.Y
+                && (this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
+                || this.isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE)
             ) {
-                if (state.getValue(AXIS) != Axis.Y
-                    && (this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
-                    || this.isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE)
-                ) {
-                    actualLevel.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.Y));
-                }
-                if (state.getValue(AXIS) == Axis.Y
-                    && this.isOtherRailInAxis(level, pos, Axis.Z, -1) != TriState.TRUE
-                    && this.isOtherRailInAxis(level, pos, Axis.Z, 1) != TriState.TRUE
-                ) {
-                    actualLevel.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.X));
-                }
-            } else if (
-                this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
-                    || this.isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE
+                state = state.setValue(AXIS, Axis.Y);
+            }
+            if (state.getValue(AXIS) == Axis.Y
+                && this.isOtherRailInAxis(level, pos, Axis.Z, -1) != TriState.TRUE
+                && this.isOtherRailInAxis(level, pos, Axis.Z, 1) != TriState.TRUE
             ) {
-                if (state.getValue(AXIS) == Axis.Y
-                    && this.isOtherRailInAxis(level, pos, Axis.X, -1) != TriState.TRUE
-                    && this.isOtherRailInAxis(level, pos, Axis.X, 1) != TriState.TRUE
-                ) {
-                    actualLevel.setBlockAndUpdate(pos, state.setValue(AXIS, Axis.Z));
-                }
+                state = state.setValue(AXIS, Axis.X);
+            }
+        } else if (
+            this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
+                || this.isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE
+        ) {
+            if (state.getValue(AXIS) == Axis.Y
+                && this.isOtherRailInAxis(level, pos, Axis.X, -1) != TriState.TRUE
+                && this.isOtherRailInAxis(level, pos, Axis.X, 1) != TriState.TRUE
+            ) {
+                state = state.setValue(AXIS, Axis.Z);
             }
         }
-        super.onNeighborChange(state, level, pos, fromPos);
-
+        super.onNeighborChange(state, level, pos, neighbourPos);
+        return newState;
     }
 
     private TriState isOtherRailInAxis(LevelReader level, BlockPos pos, Axis axis, int relative) {

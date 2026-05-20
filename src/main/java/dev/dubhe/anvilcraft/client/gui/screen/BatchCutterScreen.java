@@ -121,7 +121,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     protected void renderSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltip = null;
         if (!this.scrollable.canScroll() && this.head != 0) this.head = 0;
-        if (this.menu.getRecipes().isEmpty()) return;
+        if (this.menu.getRecipes() != null && this.menu.getRecipes().isEmpty()) return;
         int maxSize = this.scrollable.row() * this.scrollable.column();
         for (int i = this.head; i < this.head + Math.min(this.menu.getRecipes().size() - this.head, maxSize); i++) {
             int x = this.leftPos + 39 + 18 * (i % this.scrollable.column());

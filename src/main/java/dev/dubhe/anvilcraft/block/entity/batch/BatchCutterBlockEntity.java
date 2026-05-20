@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.network.BatchCutterSelectPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -102,7 +104,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
     public boolean craft(ServerLevel level) {
         if (this.handler.isEmpty()) return false;
         if (this.cantCraft()) return false;
-        
+
         BatchCutterCache cache = this.findCache(level);
         List<RecipeHolder<StonecutterRecipe>> recipes = cache.getRecipes();
         if (recipes.isEmpty()) return false;
@@ -116,7 +118,8 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
         ItemStack result = recipes.get(this.selecting).value().assemble(this.createInput());
         this.displayingStack = result.copy();
-        if (!level.isClientSide()) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        if (!level.isClientSide())
+            PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
         int times = IntStream.range(0, this.handler.size())
@@ -138,7 +141,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         return true;
     }
 
-    private BatchCutterCache findCache(ServerLevel level) {
+    private BatchCutterCache findCache(Level level) {
         Optional<BatchCutterCache> cacheOp = this.cache.stream()
             .filter(recipe -> recipe.test(this.handler))
             .findFirst();
@@ -146,9 +149,8 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             return cacheOp.get();
         } else {
             SingleRecipeInput input = this.createInput();
-            List<RecipeHolder<StonecutterRecipe>> recipes = level.recipeAccess().getRecipes().stream()
-                .filter(holder -> holder.value().getType() == RecipeType.STONECUTTING)
-                .map(Util::<RecipeHolder<StonecutterRecipe>>cast)
+            List<RecipeHolder<StonecutterRecipe>> recipes = RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)
+                .stream()
                 .filter(holder -> holder.value().matches(input, level))
                 .toList();
             BatchCutterCache cache = new BatchCutterCache(this.handler, recipes);
@@ -159,7 +161,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             return cache;
         }
     }
-    
+
     public SingleRecipeInput createInput() {
         return new SingleRecipeInput(ItemUtil.getStack(this.handler, 0));
     }
@@ -179,9 +181,8 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
 
     public void setSelecting(int selecting) {
         this.selecting = selecting;
-
-        if (!this.level.isClientSide()) return;
-        List<RecipeHolder<StonecutterRecipe>> recipes = this.findCache(Util.cast(this.level)).getRecipes();
+        if (this.level == null) return;
+        List<RecipeHolder<StonecutterRecipe>> recipes = this.findCache(this.level).getRecipes();
         if (recipes.isEmpty()) {
             this.updateDisplayItem(ItemStack.EMPTY);
         } else if (this.selecting >= recipes.size()) {
@@ -211,7 +212,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
          * 合成器缓存
          *
          * @param container 容器
-         * @param recipes    配方
+         * @param recipes   配方
          */
         public BatchCutterCache(
             PollableFilteredItemStackHandler container,
@@ -230,7 +231,8 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         public boolean test(PollableFilteredItemStackHandler container) {
             if (container.size() != this.container.getContainerSize()) return false;
             for (int i = 0; i < this.container.getContainerSize(); i++) {
-                if (!ItemStack.isSameItemSameComponents(ItemUtil.getStack(container, i), this.container.getItem(i))) return false;
+                if (!ItemStack.isSameItemSameComponents(ItemUtil.getStack(container, i), this.container.getItem(i)))
+                    return false;
             }
             return true;
         }
