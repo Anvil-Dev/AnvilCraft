@@ -148,39 +148,42 @@ public class DragonRodItem extends Item {
         boolean shouldDrop = !devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                              || level.random.nextDouble() <= 0.05;
 
-        if (!player.getAbilities().instabuild && shouldDrop) {
-            List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devourBlockPos, dragonRod);
-            Inventory inventory = player.getInventory();
-            for (ItemStack drop : dropList) {
-                if (drop.isEmpty()) continue;
-                ItemStack remaining = InventoryUtil.insertItem(inventory, drop);
-                if (!remaining.isEmpty()) {
-                    Block.popResource(level, devourBlockPos, remaining);
+        if (player.getAbilities().instabuild || !shouldDrop) {
+            level.destroyBlock(devourBlockPos, false);
+            return;
+        }
+
+        List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devourBlockPos, dragonRod);
+        Inventory inventory = player.getInventory();
+        for (ItemStack drop : dropList) {
+            if (drop.isEmpty()) continue;
+            ItemStack remaining = InventoryUtil.insertItem(inventory, drop);
+            if (!remaining.isEmpty()) {
+                Block.popResource(level, devourBlockPos, remaining);
+            }
+        }
+        // 特判雕纹书架一类
+        IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
+        if (source != null && dropList.isEmpty()) {
+            for (IntListIterator it = IntIterators.fromTo(0, source.getSlots()); it.hasNext(); ) {
+                int slot = it.nextInt();
+                ItemStack stack = source.getStackInSlot(slot);
+                if (stack.isEmpty()) continue;
+                stack = InventoryUtil.insertItem(inventory, stack);
+                if (!stack.isEmpty()) {
+                    Block.popResource(level, devourBlockPos, stack);
                 }
             }
-            // 特判雕纹书架一类
-            IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
-            if (source != null && dropList.isEmpty()) {
-                for (IntListIterator it = IntIterators.fromTo(0, source.getSlots()); it.hasNext(); ) {
-                    int slot = it.nextInt();
-                    ItemStack stack = source.getStackInSlot(slot);
-                    if (stack.isEmpty()) continue;
-                    stack = InventoryUtil.insertItem(inventory, stack);
-                    if (!stack.isEmpty()) {
-                        Block.popResource(level, devourBlockPos, stack);
-                    }
-                }
-            }
-            // 特判讲台
-            BlockEntity devouringBlockEntity = level.getBlockEntity(devourBlockPos);
-            if (devouringBlockEntity instanceof LecternBlockEntity lectern) {
-                ItemStack bookStack = lectern.getBook();
-                bookStack = InventoryUtil.insertItem(inventory, bookStack);
-                lectern.setBook(bookStack);
-                if (!bookStack.isEmpty()) {
-                    Block.popResource(level, devourBlockPos, bookStack);
-                    lectern.setBook(ItemStack.EMPTY);
-                }
+        }
+        // 特判讲台
+        BlockEntity devouringBlockEntity = level.getBlockEntity(devourBlockPos);
+        if (devouringBlockEntity instanceof LecternBlockEntity lectern) {
+            ItemStack bookStack = lectern.getBook();
+            bookStack = InventoryUtil.insertItem(inventory, bookStack);
+            lectern.setBook(bookStack);
+            if (!bookStack.isEmpty()) {
+                Block.popResource(level, devourBlockPos, bookStack);
+                lectern.setBook(ItemStack.EMPTY);
             }
         }
         if (!(devouringState.getBlock() instanceof DoublePlantBlock)) {

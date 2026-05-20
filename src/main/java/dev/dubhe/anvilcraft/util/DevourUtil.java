@@ -82,7 +82,7 @@ public class DevourUtil {
             BlockState devourState = level.getBlockState(devourBlockPos);
             if (!DevourUtil.shouldDevour(devourState)) continue;
             BlockPos normalizedBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
-            if (normalizedBlockPos.equals(devourBlockPos)) {
+            if (!normalizedBlockPos.equals(devourBlockPos)) {
                 devourBlockPos = normalizedBlockPos;
                 devourState = level.getBlockState(normalizedBlockPos);
             }
