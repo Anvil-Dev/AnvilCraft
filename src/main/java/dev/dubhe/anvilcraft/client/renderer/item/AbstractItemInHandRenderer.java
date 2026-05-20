@@ -33,7 +33,7 @@ public abstract class AbstractItemInHandRenderer {
         this.renderer.renderItem(entity, itemStack, displayContext, poseStack, collector, lightCoords);
     }
 
-    public abstract void render(
+    public abstract boolean render(
         AbstractClientPlayer player,
         float partialTicks,
         float pitch,

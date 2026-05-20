@@ -37,7 +37,7 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
         super.setOffHandItem(offHandItem);
     }
 
-    public void render(
+    public boolean render(
         AbstractClientPlayer player,
         float partialTicks,
         float pitch,
@@ -49,11 +49,10 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
         SubmitNodeCollector collector,
         int lightCoords
     ) {
-        if (
-            this.offHandItem.is(ModItems.CRAB_CLAW.get())
+        if (this.offHandItem.is(ModItems.CRAB_CLAW.get())
                 && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())
         ) {
-            this.crabClawItemRenderer.render(
+            return this.crabClawItemRenderer.render(
                 player,
                 partialTicks,
                 pitch,
@@ -67,7 +66,7 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
             );
         }
         if (stack.getItem() instanceof IExtraItemDisplay) {
-            this.extraItemRenderer.render(
+            return this.extraItemRenderer.render(
                 player,
                 partialTicks,
                 pitch,
@@ -80,5 +79,6 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
                 lightCoords
             );
         }
+        return false;
     }
 }

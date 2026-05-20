@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.ClientTickRecorder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
@@ -23,7 +24,7 @@ import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
+import java.util.List;
 
 public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlockEntity, FishTankRenderState> {
     public static final StandaloneModelKey<BlockStateModel> FIRE = new StandaloneModelKey<>(
@@ -64,9 +65,11 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         state.setIgnited(be.isIgnited());
         for (ItemStack stack : ItemHandlerUtil.getNonEmptyItemsFromHandler(be.getItemHandler())) {
-            state.getStacks().put(stack, FeatureRendererSupport.initialize(stack, this.resolver));
+            state.getStacks().add(Pair.of(stack, FeatureRendererSupport.initialize(stack, this.resolver)));
         }
         state.setFire(FeatureRendererSupport.initialize(FishTankRenderer.FIRE, be));
+        // seed workaround
+        state.setSeed(System.identityHashCode(be));
     }
 
     @Override
@@ -91,19 +94,22 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             submitNodeCollector,
             this.random,
             state.getFill(),
-            state.lightCoords
+            state.lightCoords,
+            state.getSeed()
         );
     }
 
     // Thanks for Create Mod, logics in this method are mostly from it.
     private static void submitItemsInTank(
-        Map<ItemStack, ItemClusterRenderState> items,
+        List<Pair<ItemStack, ItemClusterRenderState>> items,
         PoseStack pose,
         SubmitNodeCollector collector,
         RandomSource random,
         float fill,
-        int light
+        int light,
+        long seed
     ) {
+        random.setSeed(seed);
         final float randomOffsetDeg = random.nextIntBetweenInclusive(0, 50) - 25;
 
         pose.pushPose();
@@ -114,9 +120,9 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         float y = Mth.clamp(fill - TANK_W - 1 / 8F, TANK_W, 1 - TANK_W - 1 / 8F);
         float partAngleDeg = 360F / itemCount;
         Vec3 vec = itemCount == 1 ? new Vec3(0, y, 0) : new Vec3(0.125, y, 0);
-        for (Map.Entry<ItemStack, ItemClusterRenderState> entry : items.entrySet()) {
-            final ItemStack stack = entry.getKey();
-            final ItemClusterRenderState cluster = entry.getValue();
+        for (Pair<ItemStack, ItemClusterRenderState> entry : items) {
+            final ItemStack stack = entry.getFirst();
+            final ItemClusterRenderState cluster = entry.getSecond();
             pose.pushPose();
 
             if (fill > 0) {

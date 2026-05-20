@@ -6,10 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.BlockItem;
@@ -19,21 +20,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MaceItem;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
-public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
-    public static final StandaloneModelKey<BlockStateModel> HOLDING_ITEM =
-        new StandaloneModelKey<>(() -> "AnvilCraft: Crab Claw Holding Item Model");
-    public static final StandaloneModelKey<BlockStateModel> HOLDING_BLOCK =
-        new StandaloneModelKey<>(() -> "AnvilCraft: Crab Claw Holding Block Model");
+import java.util.List;
 
-    private final ItemStackRenderState itemRenderState = new ItemStackRenderState();
-    private final BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
+public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
+    public static final StandaloneModelKey<QuadCollection> HOLDING_ITEM =
+        new StandaloneModelKey<>(() -> "AnvilCraft: Crab Claw Holding Item Model");
+    public static final StandaloneModelKey<QuadCollection> HOLDING_BLOCK =
+        new StandaloneModelKey<>(() -> "AnvilCraft: Crab Claw Holding Block Model");
 
     protected CrabClawItemInHandRenderer(ItemModelResolver itemModelResolver, IItemRenderer renderer) {
         super(itemModelResolver, renderer);
     }
 
     @Override
-    public void render(
+    public boolean render(
         AbstractClientPlayer player,
         float partialTicks,
         float pitch,
@@ -46,7 +46,8 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         int lightCoords
     ) {
         if (hand == InteractionHand.OFF_HAND) {
-            return;
+            poseStack.popPose();
+            return true;
         }
         boolean flag = hand == InteractionHand.MAIN_HAND;
         HumanoidArm humanoidarm = flag ? player.getMainArm() : player.getMainArm().getOpposite();
@@ -61,16 +62,15 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                 collector,
                 lightCoords
             );
-            return;
+            return false;
         }
-        boolean isBlockItem = this.mainHandItem.getItem() instanceof BlockItem;
+
         switch (stack.getUseAnimation()) {
             case EAT:
             case DRINK:
-                if (
-                    player.isUsingItem()
-                        && player.getUseItemRemainingTicks() > 0
-                        && player.getUsedItemHand() == hand
+                if (player.isUsingItem()
+                    && player.getUseItemRemainingTicks() > 0
+                    && player.getUsedItemHand() == hand
                 ) {
                     poseStack.translate(0, -0.25F, 0.05F);
                 }
@@ -78,20 +78,43 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             case NONE:
                 break;
             default:
-                return;
+                return false;
         }
-        if (stack.getItem() instanceof FishingRodItem) return;
+        if (stack.getItem() instanceof FishingRodItem) {
+            return false;
+        }
 
-        // Render the crab claw holding model (standalone block model)
+        boolean isBlockItem = this.mainHandItem.getItem() instanceof BlockItem;
+        poseStack.pushPose();
+        if (isBlockItem) {
+            poseStack.translate(-0.32, 0.18, -0.3);
+            poseStack.scale(0.68f, 0.68f, 0.68f);
+            poseStack.mulPose(Axis.XP.rotationDegrees(30));
+            poseStack.mulPose(Axis.YP.rotationDegrees(-2));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-20));
+        } else {
+            poseStack.translate(-0.26, 0.5, -0.16);
+            poseStack.scale(0.68f, 0.68f, 0.68f);
+            poseStack.mulPose(Axis.XP.rotationDegrees(30));
+            poseStack.mulPose(Axis.YP.rotationDegrees(-10));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-70));
+        }
         Minecraft mc = Minecraft.getInstance();
-        mc.getModelManager().getStandaloneModel(isBlockItem ? HOLDING_BLOCK : HOLDING_ITEM).collectParts(
-            mc.level,
-            player.blockPosition(),
-            player.level().getBlockState(player.blockPosition()),
-            net.minecraft.util.RandomSource.create(),
-            this.blockModelRenderState.setupModel(new org.joml.Matrix4f(), false)
+        List<BakedQuad> all = mc.getModelManager()
+            .getStandaloneModel(isBlockItem ? HOLDING_BLOCK : HOLDING_ITEM)
+            .getAll();
+        collector.submitItem(
+            poseStack,
+            ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+            lightCoords,
+            OverlayTexture.NO_OVERLAY,
+            0,
+            new int[]{},
+            all,
+            stack.hasFoil() ? ItemStackRenderState.FoilType.STANDARD : ItemStackRenderState.FoilType.NONE
         );
-        this.blockModelRenderState.submit(poseStack, collector, lightCoords, OverlayTexture.NO_OVERLAY, 0);
+
+        poseStack.popPose();
 
         if (isBlockItem) {
             poseStack.mulPose(Axis.YP.rotationDegrees(60F * i));
@@ -107,16 +130,6 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                 poseStack.translate(0.08F * i, -0.1F, 0);
             }
         }
-
-        // Render the off-hand item on top of the claw
-        this.itemModelResolver.updateForTopItem(
-            this.itemRenderState,
-            this.offHandItem,
-            ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-            player.level(),
-            player,
-            player.getId() + ItemDisplayContext.FIRST_PERSON_RIGHT_HAND.ordinal()
-        );
-        this.itemRenderState.submit(poseStack, collector, lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        return false;
     }
 }

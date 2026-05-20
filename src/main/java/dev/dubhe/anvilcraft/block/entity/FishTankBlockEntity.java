@@ -194,13 +194,17 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.fluidHandler.deserialize(input.childOrEmpty("Fluid"));
         this.itemHandler.deserialize(input.childOrEmpty("Items"));
         this.ignited = input.getBooleanOr("ignited", false)
-            && FishTankBlockEntity.shouldIgnite(this.fluidHandler.getResource(0).toStack(this.fluidHandler.getAmountAsInt(0)));
+            && FishTankBlockEntity.shouldIgnite(this.fluidHandler.getResource(0).toStack(this.fluidHandler.getAmountAsInt(
+            0)));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.Collector(this.problemPath()), registries);
+        TagValueOutput output = TagValueOutput.createWithContext(
+            new ProblemReporter.Collector(this.problemPath()),
+            registries
+        );
         this.fluidHandler.serialize(output.child("Fluid"));
         this.itemHandler.serialize(output.child("Items"));
         tag.merge(output.buildResult());
@@ -226,7 +230,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             return true;
         } else {
             if (hitResult.getLocation().y - hitResult.getBlockPos().getY() < 5 / 8F) return false;
-            return FishTankBlockEntity.insertToTank(this.itemHandler, inHand);
+            ItemStack remain = FishTankBlockEntity.insertToTank(this.itemHandler, inHand);
+            if (remain.count() != inHand.count()) {
+                player.setItemInHand(InteractionHand.MAIN_HAND, remain.isEmpty() ? ItemStack.EMPTY : remain);
+            }
+            return false;
         }
     }
 
@@ -243,7 +251,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     ) {
         ItemStack stack = entity.getItem();
         if (entity.anvilcraft$isAdsorbable()) {
-            FishTankBlockEntity.insertToTank(handler, stack);
+            ItemStack remain = FishTankBlockEntity.insertToTank(handler, stack);
+            if (remain.isEmpty()) {
+                entity.discard();
+            } else {
+                entity.setItem(remain);
+            }
             return;
         }
         int remaining = stack.getCount();
@@ -277,27 +290,30 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
      *
      * @param handler 鱼缸物品处理器
      * @param stack   要放入的物品
-     * @return 是否放入成功
+     * @return 剩余物品
      */
-    public static boolean insertToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
-        if (handler == null) return false;
-        if (stack.is(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)) return false;
+    public static ItemStack insertToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
+        if (handler == null) return stack;
+        if (stack.is(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)) return stack;
         int count = stack.getCount();
         ItemResource resource = ItemResource.of(stack);
         try (Transaction root = Transaction.openRoot()) {
             for (int i = 8; i < 16; i++) {
+                int inserted;
                 try (Transaction transaction = Transaction.open(root)) {
-                    int inserted = handler.insert(i, resource, count, transaction);
+                    inserted = handler.insert(i, resource, count, transaction);
                     if (inserted == 0) continue;
-                    handler.insert(i, resource, inserted, transaction);
-                    count -= inserted;
-                    transaction.commit();
                 }
-                if (count <= 0) return true;
+                handler.insert(i, resource, inserted, root);
+                count -= inserted;
+                if (count <= 0) {
+                    root.commit();
+                    return stack.copyWithCount(count);
+                }
             }
             root.commit();
         }
-        return stack.getCount() != count;
+        return stack.copyWithCount(count);
     }
 
     /**
@@ -310,7 +326,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
      *                           {@link TriState#FALSE FALSE}为不提取
      * @return 提取出的所有物品
      */
-    public static @Unmodifiable List<ItemStack> extractAllFromTank(ResourceHandler<ItemResource> handler, TriState containsIngredient) {
+    public static @Unmodifiable List<ItemStack> extractAllFromTank(
+        ResourceHandler<ItemResource> handler,
+        TriState containsIngredient
+    ) {
         List<ItemStack> result = new ArrayList<>();
         try (Transaction root = Transaction.openRoot()) {
             for (int i = 0; i < 8; i++) {

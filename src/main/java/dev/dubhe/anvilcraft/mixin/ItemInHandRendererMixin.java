@@ -75,12 +75,12 @@ abstract class ItemInHandRendererMixin {
             value = "INVOKE",
             ordinal = 1,
             target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;"
-                     + "renderItem("
-                     + "Lnet/minecraft/world/entity/LivingEntity;"
-                     + "Lnet/minecraft/world/item/ItemStack;"
-                     + "Lnet/minecraft/world/item/ItemDisplayContext;"
-                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
-                     + "Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"
+                + "renderItem("
+                + "Lnet/minecraft/world/entity/LivingEntity;"
+                + "Lnet/minecraft/world/item/ItemStack;"
+                + "Lnet/minecraft/world/item/ItemDisplayContext;"
+                + "Lcom/mojang/blaze3d/vertex/PoseStack;"
+                + "Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"
         ),
         cancellable = true
     )
@@ -101,7 +101,7 @@ abstract class ItemInHandRendererMixin {
         if (this.anvilcraft$manager == null) return;
         this.anvilcraft$manager.setMainHandItem(this.mainHandItem);
         this.anvilcraft$manager.setOffHandItem(this.offHandItem);
-        this.anvilcraft$manager.render(
+        boolean rendered = this.anvilcraft$manager.render(
             player,
             frameInterp,
             pitch,
@@ -113,6 +113,8 @@ abstract class ItemInHandRendererMixin {
             submitNodeCollector,
             lightCoords
         );
-        ci.cancel();
+        if (rendered) {
+            ci.cancel();
+        }
     }
 }

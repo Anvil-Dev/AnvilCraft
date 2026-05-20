@@ -17,7 +17,6 @@ import org.joml.Matrix3x2fStack;
 import java.util.function.Consumer;
 
 public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
-    private final ItemStackRenderState itemRenderState = new ItemStackRenderState();
 
     protected ExtraItemDisplayRenderer(ItemModelResolver resolver, IItemRenderer renderer) {
         super(resolver, renderer);
@@ -51,7 +50,7 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
     }
 
     @Override
-    public void render(
+    public boolean render(
         AbstractClientPlayer player,
         float partialTicks,
         float pitch,
@@ -63,7 +62,7 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         SubmitNodeCollector collector,
         int lightCoords
     ) {
-        if (!(stack.getItem() instanceof IExtraItemDisplay display)) return;
+        if (!(stack.getItem() instanceof IExtraItemDisplay display)) return false;
         HumanoidArm humanoidarm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
         boolean flag = humanoidarm == HumanoidArm.LEFT;
         int i = flag ? -1 : 1;
@@ -82,5 +81,6 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
             lightCoords
         );
         poseStack.popPose();
+        return true;
     }
 }

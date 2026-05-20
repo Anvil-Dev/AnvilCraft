@@ -240,7 +240,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockPos pos,
         Player player,
         InteractionHand hand,
-        BlockHitResult hit) {
+        BlockHitResult hit
+    ) {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }

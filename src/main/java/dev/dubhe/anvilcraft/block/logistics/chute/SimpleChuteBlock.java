@@ -103,11 +103,9 @@ public class SimpleChuteBlock
     ) {
         if (state.getValue(WATERLOGGED)) ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         if (level.isClientSide()) return state;
-        Block neighbourBlock = neighbourState.getBlock();
-        if (ChuteBlock.isChuteBlock(neighbourBlock)) {
-            BlockState newState = this.getState(level, pos, state.getValue(FACING));
-            if (newState != null && newState != state) state = newState;
-        }
+        BlockState newState = this.getState(level, pos, state.getValue(FACING));
+        if (newState != null && newState != state) state = newState;
+
         state = this.checkPoweredState(level, pos, state);
         return state;
     }
@@ -119,7 +117,13 @@ public class SimpleChuteBlock
     }
 
     @Override
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+    public ItemStack getCloneItemStack(
+        LevelReader level,
+        BlockPos pos,
+        BlockState state,
+        boolean includeData,
+        Player player
+    ) {
         return new ItemStack(ModBlocks.CHUTE);
     }
 
@@ -141,7 +145,12 @@ public class SimpleChuteBlock
     }
 
     @Override
-    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+    protected void affectNeighborsAfterRemoval(
+        BlockState state,
+        ServerLevel level,
+        BlockPos pos,
+        boolean movedByPiston
+    ) {
         level.updateNeighbourForOutputSignal(pos, this);
     }
 
@@ -153,7 +162,8 @@ public class SimpleChuteBlock
         return createTickerHelper(
             blockEntityType,
             ModBlockEntities.SIMPLE_CHUTE.get(),
-            ((_, _, _, be) -> be.tick()));
+            ((_, _, _, be) -> be.tick())
+        );
     }
 
     @Override

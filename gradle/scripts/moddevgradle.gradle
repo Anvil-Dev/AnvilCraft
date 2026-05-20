@@ -47,6 +47,27 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
+        clientRenderDoc {
+            client()
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'anvillib.rendering.debugMode', 'true'
+            systemProperty('neoforge.rendernurse.renderdoc.library', file("libs/renderdoc.dll").absolutePath)
+            programArgument("--renderDebugLabels")
+            jvmArgument("-javaagent:" + file("libs/renderdoc-loader.jar").absolutePath)
+        }
+
+        clientRenderDocMSA {
+            client()
+            devLogin = true
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'anvillib.rendering.debugMode', 'true'
+            systemProperty('neoforge.rendernurse.renderdoc.library', file("libs/renderdoc.dll").absolutePath)
+            programArgument("--renderDebugLabels")
+            jvmArgument("-javaagent:" + file("libs/renderdoc-loader.jar").absolutePath)
+        }
+
         server {
             server()
             programArgument '--nogui'

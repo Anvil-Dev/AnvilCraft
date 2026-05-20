@@ -89,10 +89,10 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
             this.topPos,
             0,
             0,
-            this.getImageWidth(),
-            this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            176,
+            166,
+            256,
+            256
         );
 
         if (this.scrollable.canScroll()) {

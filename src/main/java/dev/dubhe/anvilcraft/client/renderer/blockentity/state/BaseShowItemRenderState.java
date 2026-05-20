@@ -13,5 +13,6 @@ public class BaseShowItemRenderState extends BlockEntityRenderState {
     private float rotation;
     @Nullable
     private ItemStack display;
+    @Nullable
     private ItemClusterRenderState displayState;
 }

@@ -29,11 +29,11 @@ public class RegisterAdditionalEventListener {
     public static void registerModels(ModelEvent.RegisterStandalone event) {
         event.register(
             CrabClawItemInHandRenderer.HOLDING_BLOCK,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("item/crab_claw_holding_block"))
+            SimpleUnbakedStandaloneModel.quadCollection(AnvilCraft.of("item/crab_claw_holding_block"))
         );
         event.register(
             CrabClawItemInHandRenderer.HOLDING_ITEM,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("item/crab_claw_holding_item"))
+            SimpleUnbakedStandaloneModel.quadCollection(AnvilCraft.of("item/crab_claw_holding_item"))
         );
         event.register(
             HeliostatsRenderer.HEAD,

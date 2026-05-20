@@ -55,10 +55,10 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
             this.topPos,
             0,
             0,
-            this.getImageWidth(),
-            this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            176,
+            166,
+            256,
+            256
         );
     }
 
