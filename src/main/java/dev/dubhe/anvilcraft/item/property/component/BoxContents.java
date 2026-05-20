@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -94,7 +95,9 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
     }
 
     public static class Mutable {
+        @Getter
         private final List<ItemStack> amulets;
+        @Getter
         private final List<ItemStack> totems;
         private int selection;
         private int usage;
@@ -104,6 +107,11 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             this.totems = new ArrayList<>(contents.totems);
             this.usage = BoxContents.computeUsage(contents.amulets, contents.totems);
             this.selection = contents.selection;
+        }
+
+        public void purge() {
+            this.amulets.removeIf(ItemStack::isEmpty);
+            this.totems.removeIf(ItemStack::isEmpty);
         }
 
         public Optional<ItemStack> tryInsert(ItemStack itemStack) {

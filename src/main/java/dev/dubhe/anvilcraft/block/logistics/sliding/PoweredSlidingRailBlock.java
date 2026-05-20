@@ -164,7 +164,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
                 BlockState state1 = level.getBlockState(pos1);
                 if (!(state1.getBlock() instanceof PoweredSlidingRailBlock other)) continue;
                 if (state1.getOptionalValue(FACING).map(Direction::getAxis).filter(axis::equals).isEmpty()) continue;
-                level.neighborChanged(pos1, other, Orientation.random(level.getRandom()));
+                //level.neighborChanged(pos1, other, null);
             }
         }
         return powered;

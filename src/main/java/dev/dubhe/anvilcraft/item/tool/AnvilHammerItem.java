@@ -77,7 +77,7 @@ public class AnvilHammerItem extends Item {
      */
     public AnvilHammerItem(Item.Properties properties) {
         super(properties
-            .equippable(EquipmentSlot.HEAD)
+            .equippableUnswappable(EquipmentSlot.HEAD)
             .component(
                 DataComponents.TOOL,
                 new Tool(List.of(), 1, 1, false)

@@ -40,13 +40,13 @@ public class ItemHandlerUtil {
                 ItemResource resource = source.getResource(srcIndex);
                 if (resource.isEmpty()) continue;
                 try (Transaction transaction = Transaction.open(root)) {
-                    int extracted = source.extract(srcIndex, resource, Integer.MAX_VALUE, transaction);
+                    int extracted = source.extract(srcIndex, resource, maxAmount, transaction);
                     if (extracted <= 0 || !predicate.test(resource, extracted)) continue;
                     int inserted = target.insert(resource, extracted, transaction);
                     if (inserted == 0) continue;
                     success = true;
                     maxAmount -= inserted;
-                    if (maxAmount <= 0) break;
+                    if (maxAmount < 0) break;
                     transaction.commit();
                 }
             }

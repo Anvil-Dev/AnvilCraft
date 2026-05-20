@@ -37,10 +37,11 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity, S extends Base
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         ItemStack stack = this.getDisplayItemStack(be);
-        if (stack == null || stack.isEmpty()) return;
         state.setRotation((be.getLevel().getGameTime() + partialTicks) * 2f);
         state.setDisplay(stack);
-        state.setDisplayState(FeatureRendererSupport.initialize(stack, this.resolver));
+        if (stack != null) {
+            state.setDisplayState(FeatureRendererSupport.initialize(stack, this.resolver));
+        }
     }
 
     @Nullable
@@ -49,6 +50,7 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity, S extends Base
     @Override
     public void submit(S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         ItemStack display = state.getDisplay();
+        if (display == null || display.isEmpty()) return;
         final RandomSource random = RandomSource.create(Item.getId(display.getItem()) + display.getDamageValue());
         ItemClusterRenderState cluster = state.getDisplayState();
         int amount = cluster.count;

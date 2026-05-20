@@ -558,15 +558,26 @@ public class DataGenUtil {
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> leveledPressurePlateBlock(
         Identifier texture
     ) {
-        return (ctx, provider) -> provider.blockStateOutput.accept(
-            MultiVariantGenerator.dispatch(ctx.get())
-                .with(BlockModelGenerators.createEmptyOrFullDispatch(
-                    PowerLevelPressurePlateBlock.POWER,
-                    1,
-                    BlockModelGenerators.plainVariant(texture.withPrefix("block/")),
-                    BlockModelGenerators.plainVariant(texture.withPrefix("block/").withSuffix("_down"))
-                ))
-        );
+        return (ctx, generator) -> {
+            Block block = ctx.get();
+            TextureMapping mapping = new TextureMapping()
+                .put(TextureSlot.TEXTURE, new Material(texture));
+            MultiVariant off = BlockModelGenerators.plainVariant(
+                ModelTemplates.PRESSURE_PLATE_UP.create(block, mapping, generator.modelOutput)
+            );
+            MultiVariant on = BlockModelGenerators.plainVariant(
+                ModelTemplates.PRESSURE_PLATE_DOWN.create(block, mapping, generator.modelOutput)
+            );
+            generator.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(ctx.get())
+                    .with(BlockModelGenerators.createEmptyOrFullDispatch(
+                        PowerLevelPressurePlateBlock.POWER,
+                        1,
+                        on,
+                        off
+                    ))
+            );
+        };
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> columnBlock(

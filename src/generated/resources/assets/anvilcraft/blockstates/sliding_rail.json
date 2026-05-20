@@ -2,7 +2,7 @@
   "variants": {
     "axis=x": {
       "model": "anvilcraft:block/sliding_rail",
-      "x": 90
+      "y": 90
     },
     "axis=y": {
       "model": "anvilcraft:block/sliding_rail_cross"

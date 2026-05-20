@@ -1054,7 +1054,7 @@ public class ModBlocks {
                 .with(PropertyDispatch.initial(SlidingRailBlock.AXIS)
                     .select(
                         Direction.Axis.X,
-                        BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail")).with(BlockModelGenerators.X_ROT_90)
+                        BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail")).with(BlockModelGenerators.Y_ROT_90)
                     )
                     .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail")))
                     .select(Direction.Axis.Y, BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail_cross")))
@@ -1112,7 +1112,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .item()
         .model(DataGenUtil::blockItem)
         .build()
@@ -2992,9 +2992,9 @@ public class ModBlocks {
     ) {
         Identifier location;
         if (block instanceof BlockEntry<? extends Block> entry) {
-            location = entry.getId();
+            location = entry.getId().withPrefix("block/");
         } else {
-            location = BuiltInRegistries.BLOCK.getKey(block.get());
+            location = BuiltInRegistries.BLOCK.getKey(block.get()).withPrefix("block/");
         }
         String id = type + "_pressure_plate";
         return REGISTRUM.block(id, plateBlockFactory)
@@ -3022,9 +3022,9 @@ public class ModBlocks {
     ) {
         Identifier location;
         if (block instanceof BlockEntry<? extends Block> entry) {
-            location = entry.getId();
+            location = entry.getId().withPrefix("block/");
         } else {
-            location = BuiltInRegistries.BLOCK.getKey(block.get());
+            location = BuiltInRegistries.BLOCK.getKey(block.get()).withPrefix("block/");
         }
         String id = type + "_pressure_plate";
         return REGISTRUM.block(id, plateBlockFactory)
