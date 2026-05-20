@@ -3,6 +3,9 @@ package dev.dubhe.anvilcraft.constant;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.resources.ResourceLocation;
 
+/**
+ * Shared texture resource locations used across the mod's GUI components.
+ */
 public class SharedTextures {
     // CRAFTING
     public static final ResourceLocation ERROR_SPRITE = textureGui("crafting/error");

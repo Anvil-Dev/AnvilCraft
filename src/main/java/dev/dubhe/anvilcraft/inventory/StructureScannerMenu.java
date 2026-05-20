@@ -114,7 +114,8 @@ public class StructureScannerMenu extends AbstractContainerMenu {
                     
                     if (index >= playerInventoryEnd) {
                         // 从快捷栏移动到主物品栏
-                        if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT, playerInventoryEnd, false)) {
+                        if (!this.moveItemStackTo(originalStack,
+                            STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT, playerInventoryEnd, false)) {
                             return ItemStack.EMPTY;
                         }
                     } else {

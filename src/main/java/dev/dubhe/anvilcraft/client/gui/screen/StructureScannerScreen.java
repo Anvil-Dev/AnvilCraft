@@ -64,9 +64,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     // 模式切换按钮
     private ToggleButton modeToggleButton;
     private boolean isScanMode = true;  // 默认为 redo 状态
-        
-    // 确认按钮
-    private TexturedButton confirmButton;
     
     // 文本输入框
     private EditBox nameInput;
@@ -196,7 +193,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(this.modeToggleButton);
         
         // 添加确认按钮
-        this.confirmButton = new TexturedButton(
+        TexturedButton confirmButton = new TexturedButton(
             this.leftPos + 8,
             this.topPos + 90,
             16,
@@ -207,7 +204,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             32,
             (btn) -> this.onConfirmClick()
         );
-        this.addRenderableWidget(this.confirmButton);
+        this.addRenderableWidget(confirmButton);
         
         // 添加文本输入框（完全参考铁砧的实现）
         this.nameInput = new EditBox(

@@ -31,36 +31,6 @@ public class SimpleIconButton extends Button {
         this.textureHeight = 20;
     }
 
-    /**
-     * 创建简单图标按钮（自定义尺寸）
-     * 
-     * @param x 按钮X坐标
-     * @param y 按钮Y坐标
-     * @param width 按钮宽度
-     * @param height 按钮高度
-     * @param texture 贴图路径
-     * @param texYDiff 悬停时的Y轴偏移
-     * @param textureWidth 贴图宽度
-     * @param textureHeight 贴图高度
-     * @param onPress 点击事件
-     */
-    public SimpleIconButton(
-        int x,
-        int y,
-        int width,
-        int height,
-        ResourceLocation texture,
-        int texYDiff,
-        int textureWidth,
-        int textureHeight,
-        OnPress onPress
-    ) {
-        super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
-        this.texture = texture;
-        this.textureWidth = textureWidth;
-        this.textureHeight = textureHeight;
-    }
-
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int pvOffset = 0;

@@ -1,20 +1,14 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
-import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.server.level.ServerLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,39 +25,6 @@ public class StructureSaveUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureSaveUtil.class);
     
     /**
-     * 保存扫描结果为结构文件
-     * 
-     * @param level 世界实例
-     * @param blockEntity 扫描器方块实体
-     * @param structureName 结构名称
-     * @return 是否保存成功
-     */
-    public static boolean saveStructure(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
-        if (level == null || level.isClientSide) {
-            LOGGER.error("Failed to save structure: level is null or on client side");
-            return false;
-        }
-        
-        List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = blockEntity.getScannedBlocks();
-        if (scannedBlocks.isEmpty()) {
-            LOGGER.warn("Cannot save structure: no blocks scanned");
-            return false;
-        }
-        
-        try {
-            CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
-            Path structureFile = getStructureDirectory(level).resolve(structureName + ".nbt");
-            saveNbtFile(structureTag, structureFile);
-            
-            LOGGER.info("Structure saved: {} ({} blocks)", structureFile.toAbsolutePath(), scannedBlocks.size());
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("Failed to save structure file: {}", e.getMessage(), e);
-            return false;
-        }
-    }
-    
-    /**
      * 保存结构数据到磁盘物品
      * 
      * @param level 世界实例
@@ -72,7 +33,7 @@ public class StructureSaveUtil {
      * @return 是否保存成功
      */
     public static boolean saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
-        if (level == null || level.isClientSide) {
+        if (level.isClientSide) {
             LOGGER.error("Failed to save structure: level is null or on client side");
             return false;
         }
@@ -103,7 +64,7 @@ public class StructureSaveUtil {
             saveNbtFile(structureTag, structureFile);
             
             // 创建磁盘副本并附加结构信息
-            ItemStack outputDisk = diskStack.copy();
+            final ItemStack outputDisk = diskStack.copy();
             CompoundTag customDataTag = new CompoundTag();
             customDataTag.putString("StructureUUID", uuid);
             customDataTag.putString("StructureName", structureName);
@@ -133,9 +94,9 @@ public class StructureSaveUtil {
         StructureScannerBlockEntity blockEntity,
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
     ) {
-        int rangeX = blockEntity.getRangeX().get();
-        int rangeY = blockEntity.getRangeY().get();
-        int rangeZ = blockEntity.getRangeZ().get();
+        final int rangeX = blockEntity.getRangeX().get();
+        final int rangeY = blockEntity.getRangeY().get();
+        final int rangeZ = blockEntity.getRangeZ().get();
             
         CompoundTag tag = new CompoundTag();
         tag.putInt("DataVersion", 3955);
@@ -163,7 +124,7 @@ public class StructureSaveUtil {
         // blocks 字段
         ListTag blocksTag = new ListTag();
         for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-            CompoundTag blockTag = new CompoundTag();
+            final CompoundTag blockTag = new CompoundTag();
                 
             ListTag posTag = new ListTag();
             posTag.add(IntTag.valueOf(data.x()));
@@ -199,41 +160,11 @@ public class StructureSaveUtil {
      * 路径: <world>/anvilcraft/structures/
      */
     private static Path getStructureDirectory(Level level) {
-        Path worldDir = level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
-        return worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
-    }
-    
-    /**
-     * 使用Minecraft原版API放置结构（用于测试）
-     */
-    public static boolean placeStructure(ServerLevel level, Path structureFile, BlockPos pos) {
-        try {
-            // 读取NBT文件
-            CompoundTag tag = NbtIo.readCompressed(structureFile, NbtAccounter.unlimitedHeap());
-            
-            // 创建StructureTemplate
-            StructureTemplate template = new StructureTemplate();
-            template.load(level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BLOCK), tag);
-            
-            LOGGER.info("加载结构模板: 尺寸={}", template.getSize());
-            
-            // 放置结构
-            StructurePlaceSettings settings = new StructurePlaceSettings();
-            template.placeInWorld(
-                level,
-                pos,
-                pos,
-                settings,
-                level.getRandom(),
-                2  // flags
-            );
-            
-            LOGGER.info("✅ 结构已放置在: {}", pos);
-            return true;
-            
-        } catch (IOException e) {
-            LOGGER.error("放置结构失败: {}", e.getMessage(), e);
-            return false;
+        var server = level.getServer();
+        if (server == null) {
+            throw new IllegalStateException("Server is null");
         }
+        Path worldDir = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+        return worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
     }
 }
