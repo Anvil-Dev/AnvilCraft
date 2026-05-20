@@ -52,13 +52,23 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
      * @param access          检查
      */
     public FrostSmithingMenu(MenuType<FrostSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        List<RecipeHolder<? extends IFrostSmithingRecipe>> recipes = ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
+        super(
+            type,
+            containerId,
+            playerInventory,
+            access,
+            FrostSmithingMenu.createInputSlotDefinitions(
+                ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
+                    .addAll(RecipesRecord.RECIPES.byType(ModRecipeTypes.PERMUTATION.get()))
+                    .addAll(RecipesRecord.RECIPES.byType(ModRecipeTypes.DEFORMATION.get()))
+                    .build()
+            )
+        );
+        this.level = playerInventory.player.level();
+        this.recipes = ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
             .addAll(RecipesRecord.RECIPES.byType(ModRecipeTypes.PERMUTATION.get()))
             .addAll(RecipesRecord.RECIPES.byType(ModRecipeTypes.DEFORMATION.get()))
             .build();
-        super(type, containerId, playerInventory, access, FrostSmithingMenu.createInputSlotDefinitions(recipes));
-        this.level = playerInventory.player.level();
-        this.recipes = recipes;
     }
 
     protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(List<RecipeHolder<? extends IFrostSmithingRecipe>> recipes) {
