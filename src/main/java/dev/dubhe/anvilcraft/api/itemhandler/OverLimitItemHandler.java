@@ -20,17 +20,21 @@ public class OverLimitItemHandler extends StacksResourceHandler<UnlimitedItemSta
     }
 
     public OverLimitItemHandler(int baseLimit, NonNullList<ItemStack> stacks) {
-        NonNullList<UnlimitedItemStack> result = NonNullList.createWithCapacity(stacks.size());
-        for (int i = 0, stacksSize = stacks.size(); i < stacksSize; i++) {
-            result.add(i, new UnlimitedItemStack(stacks.get(i)));
-        }
-        super(result, UnlimitedItemStack.EMPTY, UnlimitedItemStack.CODEC);
+        super(OverLimitItemHandler.transform(stacks), UnlimitedItemStack.EMPTY, UnlimitedItemStack.CODEC);
         this.baseLimit = baseLimit;
     }
 
     public OverLimitItemHandler(NonNullList<UnlimitedItemStack> stacks, int baseLimit) {
         super(stacks, UnlimitedItemStack.EMPTY, UnlimitedItemStack.CODEC);
         this.baseLimit = baseLimit;
+    }
+
+    private static NonNullList<UnlimitedItemStack> transform(NonNullList<ItemStack> stacks) {
+        NonNullList<UnlimitedItemStack> result = NonNullList.createWithCapacity(stacks.size());
+        for (int i = 0, stacksSize = stacks.size(); i < stacksSize; i++) {
+            result.add(i, new UnlimitedItemStack(stacks.get(i)));
+        }
+        return result;
     }
 
     @Override
