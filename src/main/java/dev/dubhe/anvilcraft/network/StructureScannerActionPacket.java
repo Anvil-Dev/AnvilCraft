@@ -37,6 +37,11 @@ public record StructureScannerActionPacket(String action, int value, String name
     public StructureScannerActionPacket(String action) {
         this(action, 0, "");
     }
+    
+    // 便捷构造函数（用于confirm动作）
+    public StructureScannerActionPacket(String action, String name) {
+        this(action, 0, name);
+    }
 
     @Override
     public Type<StructureScannerActionPacket> type() {
@@ -74,6 +79,47 @@ public record StructureScannerActionPacket(String action, int value, String name
                 }
                 // 同步范围到客户端
                 syncRangeToClient(player, blockEntity);
+            }
+            case "confirm" -> {
+                // 检查是否放入了结构磁盘
+                if (blockEntity.getDiskInventory().getItem(0).isEmpty()) {
+                    player.sendSystemMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§cPlease insert a structure disk to save the structure!"
+                        )
+                    );
+                    return;
+                }
+                
+                // 检查输出槽位是否为空
+                if (!blockEntity.getOutputInventory().getItem(0).isEmpty()) {
+                    player.sendSystemMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§cOutput slot is not empty, please take the item first!"
+                        )
+                    );
+                    return;
+                }
+                
+                // 保存结构文件
+                String structureName = name.isEmpty() ? "structure_" + System.currentTimeMillis() : name;
+                boolean success = dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
+                    player.level(), blockEntity, structureName
+                );
+                
+                if (success) {
+                    player.sendSystemMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§aStructure saved to disk: " + structureName
+                        )
+                    );
+                } else {
+                    player.sendSystemMessage(
+                        net.minecraft.network.chat.Component.literal(
+                            "§cFailed to save structure, check logs for details"
+                        )
+                    );
+                }
             }
             default -> {}
         }

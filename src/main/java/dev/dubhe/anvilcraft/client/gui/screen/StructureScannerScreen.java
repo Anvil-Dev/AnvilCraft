@@ -5,8 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
-import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
+import dev.dubhe.anvilcraft.client.gui.component.SimpleIconButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
+import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
@@ -15,7 +16,9 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.network.StructureScannerActionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,6 +41,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "structure_scanner");
     private static final ResourceLocation REDO_TEXTURE = SharedTextures.BUTTON_REDO;
     private static final ResourceLocation STOP_TEXTURE = SharedTextures.BUTTON_STOP;
+    private static final ResourceLocation CONFIRM_TEXTURE = SharedTextures.BUTTON_CONFIRM;
     
     // 预览窗口位置和尺寸
     private int previewWindowX;
@@ -60,6 +64,12 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     // 模式切换按钮
     private ToggleButton modeToggleButton;
     private boolean isScanMode = true;  // 默认为 redo 状态
+        
+    // 确认按钮
+    private TexturedButton confirmButton;
+    
+    // 文本输入框
+    private EditBox nameInput;
 
     public StructureScannerScreen(StructureScannerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -91,7 +101,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 return Component.literal(blockEntity != null ? blockEntity.getRangeX().get().toString() : "?");
             }
         ));
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new SimpleIconButton(
             this.leftPos + 84, this.topPos + 48, "minus", (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -100,7 +110,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
         }
         ));
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new SimpleIconButton(
             this.leftPos + 122, this.topPos + 48, "add", (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -122,7 +132,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 return Component.literal(blockEntity != null ? blockEntity.getRangeZ().get().toString() : "?");
             }
         ));
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new SimpleIconButton(
             this.leftPos + 84, this.topPos + 62, "minus", (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -131,7 +141,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
         }
         ));
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new SimpleIconButton(
             this.leftPos + 122, this.topPos + 62, "add", (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -153,7 +163,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 return Component.literal(blockEntity != null ? blockEntity.getRangeY().get().toString() : "?");
             }
         ));
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new SimpleIconButton(
             this.leftPos + 84, this.topPos + 76, "minus", (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -162,7 +172,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
         }
         ));
-        this.addRenderableWidget(new ItemCollectorButton(
+        this.addRenderableWidget(new SimpleIconButton(
             this.leftPos + 122, this.topPos + 76, "add", (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -184,6 +194,41 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         );
         this.modeToggleButton.setSelected(false);
         this.addRenderableWidget(this.modeToggleButton);
+        
+        // 添加确认按钮
+        this.confirmButton = new TexturedButton(
+            this.leftPos + 8,
+            this.topPos + 90,
+            16,
+            16,
+            CONFIRM_TEXTURE,
+            16,
+            16,
+            32,
+            (btn) -> this.onConfirmClick()
+        );
+        this.addRenderableWidget(this.confirmButton);
+        
+        // 添加文本输入框（完全参考铁砧的实现）
+        this.nameInput = new EditBox(
+            this.font,
+            this.leftPos + 28,
+            this.topPos + 94,
+            101,
+            16,
+            Component.literal("")
+        );
+        this.nameInput.setCanLoseFocus(true);
+        this.nameInput.setTextColor(-1);
+        this.nameInput.setTextColorUneditable(-1);
+        this.nameInput.setBordered(false);
+        this.nameInput.setMaxLength(50);
+        this.nameInput.setResponder(this::onNameInputChanged);
+        this.nameInput.setValue("");
+        this.nameInput.setMaxLength(32);
+        this.addRenderableWidget(this.nameInput);
+        this.setInitialFocus(this.nameInput);
+        this.nameInput.setEditable(true);
     }
 
     @Override
@@ -207,6 +252,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         
         // 渲染3D预览
         this.renderPreview(guiGraphics);
+        
+        // 渲染文本输入框（参考铁砧的实现）
+        this.nameInput.render(guiGraphics, mouseX, mouseY, partialTick);
         
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -498,7 +546,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return true;
         }
         
-        // 否则让父类处理（按钮点击等）
+        // 让父类和子组件处理点击事件（包括文本框的焦点处理）
         return super.mouseClicked(mouseX, mouseY, button);
     }
     
@@ -568,5 +616,54 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.modeToggleButton.setSelected(true);
             this.modeToggleButton.setTexture(REDO_TEXTURE);
         }
+    }
+    
+    /**
+     * 确认按钮点击事件
+     */
+    private void onConfirmClick() {
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null) {
+            return;
+        }
+        
+        // 获取输入的结构名称
+        String structureName = this.nameInput.getValue().trim();
+        if (structureName.isEmpty()) {
+            structureName = "structure_" + System.currentTimeMillis();
+        }
+        
+        // 发送确认数据包到服务器（包含结构名称）
+        PacketDistributor.sendToServer(new StructureScannerActionPacket("confirm", structureName));
+    }
+    
+    /**
+     * 文本输入框内容变化响应
+     */
+    private void onNameInputChanged(String text) {
+        // 可以在这里处理文本变化逻辑
+    }
+    
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        String string = this.nameInput.getValue();
+        this.init(minecraft, width, height);
+        this.nameInput.setValue(string);
+    }
+    
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // 优先处理ESC键，关闭GUI
+        if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
+            this.minecraft.player.closeContainer();
+            return true;
+        }
+        
+        // 只有当文本框有焦点时才处理文本输入
+        if (this.nameInput.isFocused() && this.nameInput.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+        
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 }

@@ -44,6 +44,21 @@ public class StructureScannerMenu extends AbstractContainerMenu {
             diskSlotX,
             diskSlotY
         ));
+        
+        // 添加输出槽位（1个槽位）
+        int outputSlotX = 8;
+        int outputSlotY = 65;
+        this.addSlot(new Slot(
+            this.blockEntity.getOutputInventory(),
+            0,
+            outputSlotX,
+            outputSlotY
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return false; // 禁止手动放入
+            }
+        });
 
         // 添加玩家物品栏（主物品栏3行9列）
         for (int row = 0; row < 3; ++row) {
@@ -65,10 +80,11 @@ public class StructureScannerMenu extends AbstractContainerMenu {
 
     // Slot索引常量
     private static final int STRUCTURE_DISK_SLOT_COUNT = 1;                 // Structure Disk物品栏1个槽位
+    private static final int OUTPUT_SLOT_COUNT = 1;                         // 输出槽位1个槽位
     private static final int PLAYER_INVENTORY_SLOT_COUNT = 27;  // 主物品栏3行9列
     private static final int HOTBAR_SLOT_COUNT = 9;             // 快捷栏1行9列
     private static final int VANILLA_SLOT_COUNT = PLAYER_INVENTORY_SLOT_COUNT + HOTBAR_SLOT_COUNT;
-    private static final int TOTAL_SLOT_COUNT = STRUCTURE_DISK_SLOT_COUNT + VANILLA_SLOT_COUNT;
+    private static final int TOTAL_SLOT_COUNT = STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT + VANILLA_SLOT_COUNT;
 
     @SuppressWarnings("checkstyle:RightCurly")
     @Override
@@ -79,9 +95,9 @@ public class StructureScannerMenu extends AbstractContainerMenu {
             ItemStack originalStack = slot.getItem();
             itemstack = originalStack.copy();
 
-            // Structure Disk槽位（索引0）的物品移动到玩家物品栏
-            if (index < STRUCTURE_DISK_SLOT_COUNT) {
-                if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
+            // Structure Disk槽位（索引0）或输出槽位（索引1）的物品移动到玩家物品栏
+            if (index < STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT) {
+                if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
             }
@@ -94,11 +110,11 @@ public class StructureScannerMenu extends AbstractContainerMenu {
                     }
                 } else {
                     // 其他物品在玩家物品栏内部移动（主物品栏<->快捷栏）
-                    int playerInventoryEnd = STRUCTURE_DISK_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+                    int playerInventoryEnd = STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
                     
                     if (index >= playerInventoryEnd) {
                         // 从快捷栏移动到主物品栏
-                        if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT, playerInventoryEnd, false)) {
+                        if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT, playerInventoryEnd, false)) {
                             return ItemStack.EMPTY;
                         }
                     } else {

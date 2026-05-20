@@ -33,7 +33,12 @@ public class SharedTextures {
     public static final ResourceLocation BUTTON_REVERSE_OFF = textureGui("machine/button_reverse_off");
     public static final ResourceLocation BUTTON_REDO = textureGui("machine/redo");
     public static final ResourceLocation BUTTON_STOP = textureGui("machine/stop");
-    public static final ResourceLocation CONFIRM = textureGui("machine/confirm");
+    public static final ResourceLocation BUTTON_CONFIRM = textureGui("machine/confirm");
+    /**
+     * @deprecated 使用 {@link #BUTTON_CONFIRM} 代替
+     */
+    @Deprecated
+    public static final ResourceLocation CONFIRM = BUTTON_CONFIRM;
     public static final ResourceLocation DISABLED_SLOT = textureGui("machine/disabled_slot");
     public static final ResourceLocation PLAYER_ALLOW = textureGui("machine/player_allow");
     public static final ResourceLocation PLAYER_NOT_ALLOW = textureGui("machine/player_not_allow");

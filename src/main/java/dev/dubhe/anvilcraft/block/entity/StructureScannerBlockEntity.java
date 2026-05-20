@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
@@ -24,6 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,8 +48,22 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
     };
     
+    /**
+     * -- GETTER --
+     *  获取输出物品栏
+     */
+    // 输出物品栏
+    @Getter
+    private final SimpleContainer outputInventory = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            StructureScannerBlockEntity.this.setChanged();
+        }
+    };
+    
     // Disk物品栏的ItemHandler包装器,带物品验证
-    private final IItemHandler diskItemHandler = new InvWrapper(diskInventory) {
+    private final IItemHandlerModifiable diskItemHandler = new InvWrapper(diskInventory) {
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             // 只允许放入结构磁盘
@@ -68,6 +85,18 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             return ItemStack.EMPTY;
         }
     };
+    
+    // 输出物品栏的ItemHandler包装器
+    private final IItemHandlerModifiable outputItemHandler = new InvWrapper(outputInventory) {
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            // 允许漏斗等外部设备取出物品
+            return super.extractItem(slot, amount, simulate);
+        }
+    };
+    
+    // 组合的ItemHandler
+    private final IItemHandler combinedItemHandler = new CombinedInvWrapper(diskItemHandler, outputItemHandler);
     
     // 扫描范围 - X轴
     @Getter
@@ -252,11 +281,18 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public Direction getDirection() {
+        if (this.level != null) {
+            return this.level.getBlockState(this.getBlockPos()).getValue(StructureScannerBlock.FACING);
+        }
         return Direction.NORTH;
     }
 
     @Override
     public void setDirection(Direction direction) {
+        if (this.level != null) {
+            this.level.setBlock(this.getBlockPos(), 
+                this.getBlockState().setValue(StructureScannerBlock.FACING, direction), 3);
+        }
     }
 
     @Override
@@ -272,7 +308,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public IItemHandler getItemHandler() {
-        return diskItemHandler;
+        return combinedItemHandler;
     }
 
     @Nullable
@@ -293,6 +329,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         super.saveAdditional(tag, provider);
         // 保存Disk物品栏
         tag.put("diskInventory", this.diskInventory.createTag(provider));
+        // 保存输出物品栏
+        tag.put("outputInventory", this.outputInventory.createTag(provider));
         // 保存扫描范围
         tag.putInt("rangeX", this.rangeX.index());
         tag.putInt("rangeY", this.rangeY.index());
@@ -320,6 +358,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         super.loadAdditional(tag, provider);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+        // 加载输出物品栏
+        this.outputInventory.fromTag(tag.getList("outputInventory", Tag.TAG_COMPOUND), provider);
         // 加载扫描范围
         this.rangeX.fromIndex(tag.getInt("rangeX"));
         this.rangeY.fromIndex(tag.getInt("rangeY"));
