@@ -81,10 +81,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             int slot = -1;
             int countInSlot = Integer.MAX_VALUE;
             for (int i = 15; i >= 8; i--) {
-                ItemResource resourceIn = this.getResource(i);
+                ItemResource resourceIn = this.getResourceDirect(i);
                 if (!resourceIn.isEmpty() && !resourceIn.equals(resource)) continue;
                 int amount = this.getAmountAsInt(i);
-                if (amount <= countInSlot && amount < this.getCapacityAsInt(i, resource)) {
+                if (amount <= countInSlot && amount < this.getCapacityAsIntDirect(i, resource)) {
                     slot = i;
                     countInSlot = amount;
                 }
@@ -158,7 +158,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.setChanged();
         Level level = this.getLevel();
         if (level == null) return;
-        level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+        level.sendBlockUpdated(
+            this.getBlockPos(),
+            this.getBlockState(),
+            this.getBlockState(),
+            Block.UPDATE_CLIENTS
+        );
     }
 
     @Override
@@ -189,7 +194,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.fluidHandler.deserialize(input.childOrEmpty("Fluid"));
         this.itemHandler.deserialize(input.childOrEmpty("Items"));
         this.ignited = input.getBooleanOr("ignited", false)
-                       && FishTankBlockEntity.shouldIgnite(this.fluidHandler.getResource(0).toStack(this.fluidHandler.getAmountAsInt(0)));
+            && FishTankBlockEntity.shouldIgnite(this.fluidHandler.getResource(0).toStack(this.fluidHandler.getAmountAsInt(0)));
     }
 
     @Override
@@ -271,7 +276,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
      * 向鱼缸中放入物品
      *
      * @param handler 鱼缸物品处理器
-     * @param stack 要放入的物品
+     * @param stack   要放入的物品
      * @return 是否放入成功
      */
     public static boolean insertToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
@@ -298,11 +303,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     /**
      * 从鱼缸中提取出所有物品
      *
-     * @param handler 鱼缸物品处理器
+     * @param handler            鱼缸物品处理器
      * @param containsIngredient 是否同时提取原料；<br>
-     *        {@link TriState#DEFAULT DEFAULT}为始终提取，<br>
-     *        {@link TriState#TRUE TRUE}为仅在产物为空时提取，<br>
-     *        {@link TriState#FALSE FALSE}为不提取
+     *                           {@link TriState#DEFAULT DEFAULT}为始终提取，<br>
+     *                           {@link TriState#TRUE TRUE}为仅在产物为空时提取，<br>
+     *                           {@link TriState#FALSE FALSE}为不提取
      * @return 提取出的所有物品
      */
     public static @Unmodifiable List<ItemStack> extractAllFromTank(ResourceHandler<ItemResource> handler, TriState containsIngredient) {
@@ -359,10 +364,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         int stepZ = direction.getStepZ();
         double halfWidth = (double) EntityType.ITEM.getWidth() / 2.0;
         double posX = (double) pos.getX() + 0.5
-                      + (stepX == 0 ? Mth.nextDouble(level.getRandom(), -0.25, 0.25) : (double) stepX * (0.5 + halfWidth));
+            + (stepX == 0 ? Mth.nextDouble(level.getRandom(), -0.25, 0.25) : (double) stepX * (0.5 + halfWidth));
         double posY = pos.getY() + 0.5;
         double posZ = (double) pos.getZ() + 0.5
-                      + (stepZ == 0 ? Mth.nextDouble(level.getRandom(), -0.25, 0.25) : (double) stepZ * (0.5 + halfWidth));
+            + (stepZ == 0 ? Mth.nextDouble(level.getRandom(), -0.25, 0.25) : (double) stepZ * (0.5 + halfWidth));
         double deltaX = stepX == 0 ? Mth.nextDouble(level.getRandom(), -0.1, 0.1) : (double) stepX * 0.1;
         double deltaY = Mth.nextDouble(level.getRandom(), 0.0, 0.1);
         double deltaZ = stepZ == 0 ? Mth.nextDouble(level.getRandom(), -0.1, 0.1) : (double) stepZ * 0.1;
