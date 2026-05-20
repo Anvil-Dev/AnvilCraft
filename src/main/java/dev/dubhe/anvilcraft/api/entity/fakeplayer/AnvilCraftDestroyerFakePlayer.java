@@ -44,20 +44,22 @@ public class AnvilCraftDestroyerFakePlayer {
     }
 
     public void disable(ServerPlayer player) {
-        ENABLED_DESTROYERS.stream()
-            .filter(destroyer -> destroyer.getUUID().equals(player.getUUID()))
-            .findFirst()
-            .ifPresent(destroyer -> {
-                destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                DISABLED_DESTROYERS.offer(destroyer);
-                ENABLED_DESTROYERS.remove(destroyer);
-            });
+        for (Destroyer destroyer : AnvilCraftDestroyerFakePlayer.ENABLED_DESTROYERS) {
+            if (!destroyer.getUUID().equals(player.getUUID())) continue;
+            destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            DISABLED_DESTROYERS.offer(destroyer);
+            ENABLED_DESTROYERS.remove(destroyer);
+            break;
+        }
     }
 
     public record Destroyer(ServerPlayer player, GameProfile profile) {
         public Destroyer(ServerLevel player, int profile) {
-            GameProfile gp = FAKE_PROFILE_FACTORY.apply(profile + 1);
-            this(FakePlayerFactory.get(player, gp), gp);
+            this(FakePlayerFactory.get(player, Destroyer.create(profile)), Destroyer.create(profile));
+        }
+
+        private static GameProfile create(int profile) {
+            return AnvilCraftDestroyerFakePlayer.FAKE_PROFILE_FACTORY.apply(profile + 1);
         }
 
         public UUID getUUID() {
