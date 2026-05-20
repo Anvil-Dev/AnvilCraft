@@ -55,6 +55,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
@@ -462,6 +463,98 @@ public class DataGenUtil {
         ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
     }
 
+    public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> horizontalFacingBlock(
+        BooleanProperty extra,
+        NonNullFunction<DataGenContext<Block, T>, Identifier> onTrueFac,
+        NonNullFunction<DataGenContext<Block, T>, Identifier> onFalseFac
+    ) {
+        return (ctx, generator) -> {
+            Identifier onTrue = onTrueFac.apply(ctx);
+            Identifier onFalse = onFalseFac.apply(ctx);
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                ctx.get()
+            ).with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING, extra).select(
+                Direction.NORTH,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R0))
+            ).select(
+                Direction.NORTH,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R0))
+            ).select(
+                Direction.EAST,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R90))
+            ).select(
+                Direction.EAST,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R90))
+            ).select(
+                Direction.SOUTH,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R180))
+            ).select(
+                Direction.SOUTH,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R180))
+            ).select(
+                Direction.WEST,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R270))
+            ).select(
+                Direction.WEST,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R270))
+            )));
+        };
+    }
+
+    public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> horizontalFacingBlockInverted(
+        BooleanProperty extra,
+        NonNullFunction<DataGenContext<Block, T>, Identifier> onTrueFac,
+        NonNullFunction<DataGenContext<Block, T>, Identifier> onFalseFac
+    ) {
+        return (ctx, generator) -> {
+            Identifier onTrue = onTrueFac.apply(ctx);
+            Identifier onFalse = onFalseFac.apply(ctx);
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                ctx.get()
+            ).with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING, extra).select(
+                Direction.NORTH,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R180))
+            ).select(
+                Direction.NORTH,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R180))
+            ).select(
+                Direction.EAST,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R270))
+            ).select(
+                Direction.EAST,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R270))
+            ).select(
+                Direction.SOUTH,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R0))
+            ).select(
+                Direction.SOUTH,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R0))
+            ).select(
+                Direction.WEST,
+                true,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R90))
+            ).select(
+                Direction.WEST,
+                false,
+                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R90))
+            )));
+        };
+    }
+
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> leveledPressurePlateBlock(
         Identifier texture
     ) {
@@ -517,15 +610,16 @@ public class DataGenUtil {
     }
 
     public static void dropOtherAndSelfWhenSilkTouch(RegistrumBlockLootTables tables, Block block, ItemLike other) {
-        tables.add(block, LootTable.lootTable()
-            .withPool(
-                LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0F))
-                    .add(AlternativesEntry.alternatives(
-                        LootItem.lootTableItem(block).when(DataGenUtil.hasSilkTouch(tables.getRegistries())),
-                        LootItem.lootTableItem(other).when(ExplosionCondition.survivesExplosion())
-                    ))
-            )
+        tables.add(
+            block, LootTable.lootTable()
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(AlternativesEntry.alternatives(
+                            LootItem.lootTableItem(block).when(DataGenUtil.hasSilkTouch(tables.getRegistries())),
+                            LootItem.lootTableItem(other).when(ExplosionCondition.survivesExplosion())
+                        ))
+                )
         );
     }
 

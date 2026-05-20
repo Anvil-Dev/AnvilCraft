@@ -904,75 +904,11 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::itemDetector)
-        .blockstate(() -> (ctx, generator) -> {
-            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                ctx.get()
-            ).with(PropertyDispatch.initial(ItemDetectorBlock.FACING, ItemDetectorBlock.POWERED).select(
-                Direction.SOUTH,
-                false,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R0))
-                        .build()
-                )
-            ).select(
-                Direction.WEST,
-                false,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R90))
-                        .build()
-                )
-            ).select(
-                Direction.NORTH,
-                false,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R180))
-                        .build()
-                )
-            ).select(
-                Direction.EAST,
-                false,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R270))
-                        .build()
-                )
-            ).select(
-                Direction.SOUTH,
-                true,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R0))
-                        .build()
-                )
-            ).select(
-                Direction.WEST,
-                true,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R90))
-                        .build()
-                )
-            ).select(
-                Direction.NORTH,
-                true,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R180))
-                        .build()
-                )
-            ).select(
-                Direction.EAST,
-                true,
-                new MultiVariant(
-                    WeightedList.<Variant>builder()
-                        .add(new Variant(ctx.getId().withPrefix("block/")).withYRot(Quadrant.R270))
-                        .build()
-                )
-            )));
-        })
+        .blockstate(() -> DataGenUtil.horizontalFacingBlockInverted(
+            ItemDetectorBlock.POWERED,
+            ctx -> ctx.getId().withPrefix("block/").withSuffix("_on"),
+            ctx -> ctx.getId().withPrefix("block/")
+        ))
         .simpleItem()
         .register();
 
@@ -982,7 +918,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::onlyState)
         .recipe(RegistrumBlockRecipeLoader::impactPile)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .build()
         .register();
 
@@ -997,6 +933,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::overseerBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+
     public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
         .block("shulker_container", ShulkerContainerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -2892,16 +2829,16 @@ public class ModBlocks {
             .build()
             .blockstate(() -> (ctx, generator) -> {
                 Identifier singleModel = generator.withParent(ModelTemplates.CUBE_ALL)
-                    .texture(TextureSlot.ALL, generator.modLoc("block/%s_reinforced_concrete" .formatted(color)), false)
-                    .build(generator.modLoc("block/%s_reinforced_concrete" .formatted(color)));
+                    .texture(TextureSlot.ALL, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete".formatted(color)));
                 Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete" .formatted(color)), false)
-                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top" .formatted(color)), false)
-                    .build(generator.modLoc("block/%s_reinforced_concrete_top" .formatted(color)));
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)));
                 Identifier bottomModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete" .formatted(color)), false)
-                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom" .formatted(color)), false)
-                    .build(generator.modLoc("block/%s_reinforced_concrete_bottom" .formatted(color)));
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)));
                 generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
                     .with(
                         PropertyDispatch.initial(ReinforcedConcreteBlock.HALF)
@@ -2939,7 +2876,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/%s_reinforced_concrete" .formatted(color))))
+            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
             .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteSlab(parent))
@@ -2965,7 +2902,7 @@ public class ModBlocks {
             .item()
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
             .build()
-            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/%s_reinforced_concrete" .formatted(color))))
+            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteStair(parent))
             .register();
@@ -2984,7 +2921,7 @@ public class ModBlocks {
         return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall" .formatted(color))))
+            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall".formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
             .item()
@@ -3012,7 +2949,7 @@ public class ModBlocks {
                     .put(TextureSlot.SIDE, new Material(generator.mcLoc("block/cauldron_side")))
                     .put(TextureSlot.TOP, new Material(generator.mcLoc("block/cauldron_top")))
                     .put(TextureSlot.PARTICLE, new Material(generator.mcLoc("block/cauldron_side")))
-                    .put(TextureSlot.CONTENT, new Material(generator.modLoc("block/%s_cement" .formatted(color))));
+                    .put(TextureSlot.CONTENT, new Material(generator.modLoc("block/%s_cement".formatted(color))));
                 generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
                     ctx.get(),
                     BlockModelGenerators.plainVariant(generator.withParent(ModelTemplates.CAULDRON_FULL, mapping).build(ctx.get()))
@@ -3198,7 +3135,7 @@ public class ModBlocks {
     }
 
     private static BlockEntry<LiquidBlock> registerCementLiquidBlock(Color color) {
-        return REGISTRUM.block("%s_cement" .formatted(color), p -> new LiquidBlock(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
+        return REGISTRUM.block("%s_cement".formatted(color), p -> new LiquidBlock(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
             .properties(it -> it.mapColor(DyeColor.byName(color.getSerializedName(), DyeColor.GRAY))
                 .replaceable()
                 .noCollision()
