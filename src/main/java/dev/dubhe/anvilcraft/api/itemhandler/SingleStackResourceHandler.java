@@ -6,7 +6,7 @@ import net.neoforged.neoforge.transfer.item.ItemStackResourceHandler;
 
 @Getter
 public class SingleStackResourceHandler extends ItemStackResourceHandler {
-    protected ItemStack stack;
+    protected ItemStack stack = ItemStack.EMPTY;
 
     @Override
     public void setStack(ItemStack stack) {

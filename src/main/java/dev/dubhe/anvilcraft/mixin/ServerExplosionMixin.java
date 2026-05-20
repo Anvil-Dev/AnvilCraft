@@ -11,10 +11,10 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.injection.IExplosionExtension;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 
 @Mixin(ServerExplosion.class)
-abstract class ExplosionMixin implements IExplosionExtension {
+abstract class ServerExplosionMixin implements IExplosionExtension {
 
     @Unique
     // public HashMap<Block, ArrayList<BlockTransform>> anvilcraft$blockTransformMap = new HashMap<>();
@@ -50,7 +50,7 @@ abstract class ExplosionMixin implements IExplosionExtension {
 
     @Shadow
     @Final
-    private Level level;
+    private ServerLevel level;
 
     @Inject(
         method = "interactWithBlocks",

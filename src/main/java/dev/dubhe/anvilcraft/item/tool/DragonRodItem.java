@@ -48,10 +48,9 @@ public class DragonRodItem extends Item {
     public static final Identifier COOLDOWN_GROUP = AnvilCraft.of("dragon_rods");
 
     public DragonRodItem(Properties properties) {
-        super(
-            properties
-                .component(ModComponents.DEVOUR_RANGE, DevourRange.THREE)
-                .rarity(Rarity.UNCOMMON)
+        super(properties
+            .component(ModComponents.DEVOUR_RANGE, DevourRange.THREE)
+            .rarity(Rarity.UNCOMMON)
         );
     }
 
@@ -169,7 +168,7 @@ public class DragonRodItem extends Item {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean canDevour(Player player, ItemStack dragonRod) {
         return dragonRod.getDamageValue() < dragonRod.getMaxDamage() - 1
-               && !player.getCooldowns().isOnCooldown(dragonRod);
+            && !player.getCooldowns().isOnCooldown(dragonRod);
     }
 
     public static int calculateDamage(ItemStack dragonRod) {
@@ -191,6 +190,6 @@ public class DragonRodItem extends Item {
         if (player.hasEffect(MobEffects.MINING_FATIGUE)) {
             cooldown += Objects.requireNonNull(player.getEffect(MobEffects.MINING_FATIGUE)).getAmplifier() * 60;
         }
-        return Math.max(cooldown, 80);
+        return Math.max(cooldown, 4);
     }
 }

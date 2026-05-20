@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -33,7 +34,9 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
         @Override
         protected void onContentChanged(ItemStack stack) {
             SimpleChuteBlockEntity.this.setChanged();
-            SimpleChuteBlockEntity.this.level.sendBlockUpdated(
+            Level level = SimpleChuteBlockEntity.this.level;
+            if (level == null) return;
+            level.sendBlockUpdated(
                 SimpleChuteBlockEntity.this.getBlockPos(),
                 SimpleChuteBlockEntity.this.getBlockState(),
                 SimpleChuteBlockEntity.this.getBlockState(),
@@ -70,7 +73,8 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
         if (this.level == null) return;
         if (this.cooldown > 0) this.cooldown--;
         this.tickedGameTime = this.level.getGameTime();
-        if (this.cooldown == 0 && !this.itemHandler.getResource(0).isEmpty()) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
+        if (this.cooldown == 0 && !this.itemHandler.getResource(0).isEmpty())
+            this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
         if (this.cooldown == 1) {
             BlockPos targetPos = this.getBlockPos().relative(this.getOutputDirection());
             BlockEntity targetBE = this.level.getBlockEntity(targetPos);
@@ -112,7 +116,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
                 }
                 if (sameItemCount >= stack.getMaxStackSize()) return;
                 int dropping = Math.min(stack.getCount(), stack.getMaxStackSize() - sameItemCount);
-                ItemStack remaining = stack.copyWithCount(stack.getCount() - dropping);
+                ItemStack remaining = stack.copyWithCount(dropping);
                 if (remaining.getCount() == 0) remaining = ItemStack.EMPTY;
                 ItemEntity itemEntity = new ItemEntity(
                     this.getLevel(),
@@ -126,7 +130,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
                 );
                 itemEntity.setDefaultPickUpDelay();
                 this.getLevel().addFreshEntity(itemEntity);
-                this.itemHandler.setStack(remaining);
+                this.itemHandler.setStack(stack.copyWithCount(stack.getCount() - dropping));
             }
         }
         this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());

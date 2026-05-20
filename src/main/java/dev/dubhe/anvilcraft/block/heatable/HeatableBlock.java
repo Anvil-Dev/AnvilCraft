@@ -96,7 +96,7 @@ public abstract class HeatableBlock extends Block {
         boolean movedByPiston
     ) {
         if (HeatRecorder.getTier(level, pos, state).orElse(HeatTier.NORMAL) == HeatTier.NORMAL) return;
-        for (Direction direction : orientation.getDirections()) {
+        for (Direction direction : Direction.values()) {
             BlockPos neighbourPos = pos.relative(direction);
             BlockState tnt = level.getBlockState(neighbourPos);
             if (tnt.is(Blocks.TNT)) {

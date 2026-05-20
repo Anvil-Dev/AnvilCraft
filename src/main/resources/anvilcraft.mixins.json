@@ -24,7 +24,7 @@
     "EnchantmentHelperMixin",
     "EnchantmentPredicateMixin",
     "EntityMixin",
-    "ExplosionMixin",
+    "ServerExplosionMixin",
     "FallingBlockEntityMixin",
     "FallingBlockMixin",
     "FlyingHitEntityMixin",

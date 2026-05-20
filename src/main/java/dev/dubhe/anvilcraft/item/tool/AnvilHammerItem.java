@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -75,7 +76,13 @@ public class AnvilHammerItem extends Item {
      * @param properties 物品属性
      */
     public AnvilHammerItem(Item.Properties properties) {
-        super(properties.equippable(EquipmentSlot.HEAD));
+        super(properties
+            .equippable(EquipmentSlot.HEAD)
+            .component(
+                DataComponents.TOOL,
+                new Tool(List.of(), 1, 1, false)
+            )
+        );
         this.modifiers = ItemAttributeModifiers.builder().add(
             Attributes.ATTACK_DAMAGE, new AttributeModifier(
                 BASE_ATTACK_DAMAGE_ID, this.getAttackDamageModifierAmount(),

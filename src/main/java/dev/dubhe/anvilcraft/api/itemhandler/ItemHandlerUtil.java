@@ -38,9 +38,10 @@ public class ItemHandlerUtil {
         try (Transaction root = Transaction.openRoot()) {
             for (int srcIndex = 0; srcIndex < source.size(); srcIndex++) {
                 ItemResource resource = source.getResource(srcIndex);
+                if (resource.isEmpty()) continue;
                 try (Transaction transaction = Transaction.open(root)) {
                     int extracted = source.extract(srcIndex, resource, Integer.MAX_VALUE, transaction);
-                    if (extracted <= 0 || predicate.test(resource, extracted)) continue;
+                    if (extracted <= 0 || !predicate.test(resource, extracted)) continue;
                     int inserted = target.insert(resource, extracted, transaction);
                     if (inserted == 0) continue;
                     success = true;
@@ -60,7 +61,7 @@ public class ItemHandlerUtil {
         BiPredicate<ItemResource, Integer> predicate,
         ResourceHandler<ItemResource> source
     ) {
-        return ItemHandlerUtil.exportToTarget(target, maxAmountWeight, predicate, source);
+        return ItemHandlerUtil.exportToTarget(source, maxAmountWeight, predicate, target);
     }
 
     public static void exportAllToTarget(
@@ -180,7 +181,7 @@ public class ItemHandlerUtil {
             if (level == null) return null;
             if (
                 level.getBlockState(inputPos).is(source)
-                && level.getBlockState(inputPos).getValue(BlockPlacerBlock.ORIENTATION).getDirection() == context
+                    && level.getBlockState(inputPos).getValue(BlockPlacerBlock.ORIENTATION).getDirection() == context
             ) {
                 i++;
                 inputPos = inputPos.relative(context.getOpposite());
@@ -210,7 +211,9 @@ public class ItemHandlerUtil {
             }
         } else {
             try (Transaction transaction = Transaction.openRoot()) {
-                stack.setCount(dest.insert(ItemResource.of(stack.getItem(), stack.getComponentsPatch()), stack.getCount(), transaction));
+                int stackCount = stack.getCount();
+                int inserted = dest.insert(ItemResource.of(stack.getItem(), stack.getComponentsPatch()), stackCount, transaction);
+                stack.setCount(inserted);
                 if (!simulate) transaction.commit();
             }
         }

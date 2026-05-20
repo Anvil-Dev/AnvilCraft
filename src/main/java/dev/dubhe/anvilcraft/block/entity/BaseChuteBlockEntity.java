@@ -172,7 +172,7 @@ public abstract class BaseChuteBlockEntity
                     if (sameItemCount >= slotLimit) continue;
                     int accessible = this.itemHandler.getAmountAsInt(i);
                     int dropping = Math.min(accessible, slotLimit - sameItemCount);
-                    ItemStack remaining = resource.toStack(accessible - dropping);
+                    ItemStack remaining = resource.toStack(dropping);
                     if (resource.isEmpty()) remaining = ItemStack.EMPTY;
                     ItemEntity itemEntity = new ItemEntity(
                         this.getLevel(),
@@ -187,7 +187,7 @@ public abstract class BaseChuteBlockEntity
                     this.applySpeed(itemEntity, this.getOutputDirection());
                     itemEntity.setDefaultPickUpDelay();
                     this.getLevel().addFreshEntity(itemEntity);
-                    this.itemHandler.set(i, resource, remaining.getCount());
+                    this.itemHandler.set(i, resource, accessible - dropping);
                     resetCD = true;
                     break;
                 }
@@ -214,10 +214,14 @@ public abstract class BaseChuteBlockEntity
             );
             for (ItemEntity itemEntity : itemEntities) {
                 ItemStack itemStack = itemEntity.getItem();
-                ItemStack remaining = ItemHandlerUtil.insertItem(this.itemHandler, itemStack, true);
-                if (remaining.getCount() == itemStack.getCount()) continue;
+                ItemStack inserted = ItemHandlerUtil.insertItem(this.itemHandler, itemStack, true);
+                if (inserted.isEmpty()) continue;
                 ItemHandlerUtil.insertItem(this.itemHandler, itemEntity.getItem(), false);
-                itemEntity.setItem(remaining);
+                if (inserted.count() == itemStack.count()) {
+                    itemEntity.discard();
+                } else {
+                    itemEntity.setItem(inserted.copyWithCount(itemStack.count() - inserted.count()));
+                }
                 resetCD = true;
             }
         }
