@@ -16,7 +16,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -303,11 +302,11 @@ public class AnvilMenuResult {
         return price;
     }
 
-    private @NotNull AnvilMenuResult.RenamingResult renaming(
+    private AnvilMenuResult.RenamingResult renaming(
         ItemStack inputLeft,
         ItemStack inputRight,
         @Nullable String itemName,
-        ChatFormatting extraFormat,
+        @Nullable ChatFormatting extraFormat,
         int price,
         ItemStack result
     ) {

@@ -19,7 +19,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +47,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     );
     public final BlockPattern pattern;
     public final ItemStackTemplate result;
-    private PlacementInfo placementInfo;
+    private @Nullable PlacementInfo placementInfo;
 
     public MultiblockRecipe(BlockPattern pattern, ItemStackTemplate result) {
         this.pattern = pattern;
@@ -58,7 +58,6 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         return new MultiblockBuilder();
     }
 
-    @Contract(" _, _ -> new")
     public static MultiblockBuilder builder(ItemLike item, int count) {
         return new MultiblockBuilder(item, count);
     }

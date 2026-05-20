@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -64,7 +63,6 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
         this.addRenderableWidget(this.directionButton);
     }
 
-    @Contract(pure = true)
     protected static BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
         int x, int y, Direction... skip) {
         return (i, j) -> new OutputDirectionButton(
