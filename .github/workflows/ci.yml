@@ -67,10 +67,15 @@ jobs:
         continue-on-error: true
 
       - name: gametest
-        uses: Anvil-Dev/dedicated-server-launch-test@1.21.1-neoforge
+        uses: Anvil-Dev/dedicated-server-launch-test@universal
         continue-on-error: false
         with:
-          mod: build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
+          mods: |
+            build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
+          minecraft_version: '26.1.2'
+          mod_loader: 'neoforge'
+          loader_version: '26.1.2.59-beta'
+          quiet-setup: 'True'
 
       - name: publish neoforge mc mod
         uses: Kir-Antipov/mc-publish@v3.3
@@ -78,9 +83,9 @@ jobs:
         with:
           name: "${{ steps.properties.outputs.mod_name }} For NeoForge v${{ steps.version.outputs.version }}"
           version: ${{ steps.version.outputs.version }}
-          game-versions: 1.21.1
+          game-versions: 26.1.2
           version-type: ${{ env.VERSION_TYPE }}
-          java: 21
+          java: ${{ steps.properties.outputs.java_version }}
           fail-mode: skip
           changelog: Early test version, please download and play with caution. 早期测试版本，请谨慎下载游玩
           dependencies: |

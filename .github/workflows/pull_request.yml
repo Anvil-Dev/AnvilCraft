@@ -58,7 +58,11 @@ jobs:
           path: build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
 
       - name: gametest
-        uses: Anvil-Dev/dedicated-server-launch-test@1.21.1-neoforge
+        uses: Anvil-Dev/dedicated-server-launch-test@universal
         with:
-          mod: build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
-          extra-mods: patchouli:1.21-87-neoforge cloth-config:15.0.140+neoforge
+          mods: |
+            build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
+          minecraft_version: '26.1.2'
+          mod_loader: 'neoforge'
+          loader_version: '26.1.2.59-beta'
+          quiet-setup: 'True'
