@@ -52,9 +52,8 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
      * @param access          检查
      */
     public EmberSmithingMenu(MenuType<EmberSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes = List.copyOf(
-            RecipesRecord.RECIPES.byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get())
-        );
+        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes =
+            List.copyOf(RecipesRecord.RECIPES.byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()));
         super(type, containerId, playerInventory, access, EmberSmithingMenu.createInputSlotDefinitions(recipes));
         this.level = playerInventory.player.level();
         this.recipes = recipes;
