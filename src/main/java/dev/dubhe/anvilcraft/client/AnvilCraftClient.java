@@ -98,14 +98,19 @@ public class AnvilCraftClient {
         }
 
         @Override
-        public @Nullable Identifier getArmorTexture(ItemStack itemStack, EquipmentClientInfo.LayerType type, EquipmentClientInfo.Layer layer, Identifier _default) {
+        public @Nullable Identifier getArmorTexture(
+            ItemStack itemStack,
+            EquipmentClientInfo.LayerType type,
+            EquipmentClientInfo.Layer layer,
+            Identifier defaultId
+        ) {
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                if (IonoCraftBackpackItem.getFlightTime(itemStack) > 0){
+                if (IonoCraftBackpackItem.getFlightTime(itemStack) > 0) {
                     return IonoCraftBackpackItem.TEXTURE;
                 }
                 return IonoCraftBackpackItem.TEXTURE_OFF;
             }
-            return IClientItemExtensions.super.getArmorTexture(itemStack, type, layer, _default);
+            return IClientItemExtensions.super.getArmorTexture(itemStack, type, layer, defaultId);
         }
     }
 }

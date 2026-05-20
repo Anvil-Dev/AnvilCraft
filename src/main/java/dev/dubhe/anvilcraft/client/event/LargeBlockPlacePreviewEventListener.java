@@ -61,7 +61,7 @@ public class LargeBlockPlacePreviewEventListener {
     );
 
     @SubscribeEvent
-    public static void on(ClientTickEvent.Pre event){
+    public static void on(ClientTickEvent.Pre event) {
         boundColor = 0xffffffff;
         if (failBoundCooldown > 0) {
             failBoundCooldown--;
@@ -75,7 +75,7 @@ public class LargeBlockPlacePreviewEventListener {
     @SubscribeEvent
     public static void renderHighlight(ExtractBlockOutlineRenderStateEvent event) {
 
-        event.addCustomRenderer((state, source, pose, translucentPass, levelRenderState) -> {
+        event.addCustomRenderer((_, source, pose, _, _) -> {
             Minecraft mc = Minecraft.getInstance();
             ClientLevel level = mc.level;
             LocalPlayer player = mc.player;

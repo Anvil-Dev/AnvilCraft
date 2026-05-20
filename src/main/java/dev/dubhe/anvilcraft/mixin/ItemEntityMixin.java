@@ -227,12 +227,12 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             }
 
             this.setDeltaMovement(this.getDeltaMovement().multiply(friction, 0.98, friction));
-//            if (this.onGround()) {
-//                Vec3 movement = this.getDeltaMovement();
-//                if (movement.y < 0.0) {
-//                    this.setDeltaMovement(movement.multiply(1.0, -0.5, 1.0));
-//                }
-//            }
+            // if (this.onGround()) {
+            //     Vec3 movement = this.getDeltaMovement();
+            //     if (movement.y < 0.0) {
+            //         this.setDeltaMovement(movement.multiply(1.0, -0.5, 1.0));
+            //     }
+            // }
         }
 
         boolean moved = Mth.floor(this.xo) != Mth.floor(this.getX())

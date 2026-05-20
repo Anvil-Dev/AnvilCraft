@@ -8,14 +8,12 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.JadeIds;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.BoxStyle;
-import snownee.jade.api.ui.ColorPalette;
 import snownee.jade.api.ui.JadeUI;
 import snownee.jade.api.view.ProgressView;
 
@@ -42,8 +40,14 @@ public enum PowerBlockClientProvider implements IBlockComponentProvider {
 
             tooltip.add(JadeUI.progress(
                 new ProgressView(
-                ProgressView.Part.of(percent, JadeUI.horizontalTiledSprite(RenderPipelines.GUI_TEXTURED, JadeIds.JADE("energy_progress"), 16, 16)),
-                Component.translatable("tooltip.anvilcraft.jade.power_information", UnitUtil.electricityUnit(consume, generate, original)).withColor(-1),
+                ProgressView.Part.of(
+                    percent,
+                    JadeUI.horizontalTiledSprite(RenderPipelines.GUI_TEXTURED, JadeIds.JADE("energy_progress"), 16, 16)
+                ),
+                Component.translatable(
+                    "tooltip.anvilcraft.jade.power_information",
+                    UnitUtil.electricityUnit(consume, generate, original)
+                ).withColor(color),
                 JadeUI.progressStyle(),
                 BoxStyle.nestedBox()
             )));

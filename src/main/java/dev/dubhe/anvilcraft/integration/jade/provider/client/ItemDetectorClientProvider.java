@@ -15,7 +15,6 @@ import snownee.jade.api.config.IPluginConfig;
 import java.util.Locale;
 import java.util.Optional;
 
-
 public enum ItemDetectorClientProvider implements IBlockComponentProvider {
     INSTANCE;
 

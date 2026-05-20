@@ -7,7 +7,6 @@ import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
 
-
 public enum ItemDetectorProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 

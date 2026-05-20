@@ -17,7 +17,9 @@ public class CachedLaserBlockEntityRenderer<T extends BaseLaserBlockEntity> impl
     }
 
     @Override
-    public LaserRenderState extractRenderState(BaseLaserBlockEntity blockEntity, LaserRenderState state, float partialTicks, Camera camera) {
+    public LaserRenderState extractRenderState(
+        BaseLaserBlockEntity blockEntity, LaserRenderState state, float partialTicks, Camera camera
+    ) {
         LaserRenderState.extractBase(blockEntity, state, null);
         state.extract(blockEntity);
         return state;

@@ -89,7 +89,10 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
 
             List<ChunkPos> chunkPosList = entity.getPoachingMapPositions(8);
             for (ChunkPos chunkPos : chunkPosList) {
-                if (ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.containsKey(level) && ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
+                if (
+                    ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.containsKey(level)
+                    && ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)
+                ) {
                     List<ItemCollectorBlockEntity> list = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level).get(chunkPos);
                     list.remove(entity);
                 }
@@ -116,7 +119,10 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
             return null;
         }
         return createTickerHelper(
-            type, ModBlockEntities.ITEM_COLLECTOR.get(), (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1, blockPos));
+            type,
+            ModBlockEntities.ITEM_COLLECTOR.get(),
+            (level1, blockPos, _, blockEntity) -> blockEntity.tick(level1, blockPos)
+        );
     }
 
     @Override

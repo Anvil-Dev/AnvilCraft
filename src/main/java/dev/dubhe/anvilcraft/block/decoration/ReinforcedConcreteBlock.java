@@ -15,8 +15,6 @@ import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.redstone.Orientation;
-import org.jspecify.annotations.Nullable;
 
 public class ReinforcedConcreteBlock extends Block {
     public static final EnumProperty<ReinforcedConcreteHalf> HALF = EnumProperty.create("half", ReinforcedConcreteHalf.class);
@@ -79,7 +77,7 @@ public class ReinforcedConcreteBlock extends Block {
                 if (this.checkHalf(belowState, ReinforcedConcreteHalf.SINGLE)) {
                     level.setBlock(pos.below(), state.setValue(HALF, ReinforcedConcreteHalf.BOTTOM), 2);
                 } else if (!this.checkHalf(belowState, ReinforcedConcreteHalf.BOTTOM)) {
-                   state = state.setValue(HALF, ReinforcedConcreteHalf.SINGLE);
+                    state = state.setValue(HALF, ReinforcedConcreteHalf.SINGLE);
                 }
                 break;
             case BOTTOM:

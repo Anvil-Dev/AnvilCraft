@@ -57,7 +57,14 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
     }
 
     // @Override
-    // protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+    // protected void neighborChanged(
+    //     BlockState state,
+    //     Level level,
+    //     BlockPos pos,
+    //     Block block,
+    //     @Nullable Orientation orientation,
+    //     boolean movedByPiston
+    // ) {
     //     super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
     //     if (level.isClientSide()) return;
     //     ISlidingRail.whenNeighborChanged(level, this.self(), pos, fromPos);

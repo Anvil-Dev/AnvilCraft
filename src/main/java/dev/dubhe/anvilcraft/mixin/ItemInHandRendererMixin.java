@@ -44,7 +44,12 @@ abstract class ItemInHandRendererMixin {
     private ItemInHandRendererManager anvilcraft$manager = null;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(Minecraft minecraft, EntityRenderDispatcher entityRenderDispatcher, ItemModelResolver itemModelResolver, CallbackInfo ci) {
+    private void init(
+        Minecraft minecraft,
+        EntityRenderDispatcher entityRenderDispatcher,
+        ItemModelResolver itemModelResolver,
+        CallbackInfo ci
+    ) {
         this.anvilcraft$manager = new ItemInHandRendererManager(itemModelResolver, this::renderItem);
     }
 
@@ -69,20 +74,27 @@ abstract class ItemInHandRendererMixin {
         @At(
             value = "INVOKE",
             ordinal = 1,
-            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"
+            target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;"
+                     + "renderItem("
+                     + "Lnet/minecraft/world/entity/LivingEntity;"
+                     + "Lnet/minecraft/world/item/ItemStack;"
+                     + "Lnet/minecraft/world/item/ItemDisplayContext;"
+                     + "Lcom/mojang/blaze3d/vertex/PoseStack;"
+                     + "Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"
         ),
         cancellable = true
     )
+    @SuppressWarnings("NameDoesntMatchTargetClass")
     private void renderArmWithItem(
         AbstractClientPlayer player,
-        float partialTicks,
+        float frameInterp,
         float pitch,
         InteractionHand hand,
-        float swingProgress,
-        ItemStack stack,
-        float equippedProgress,
+        float attack,
+        ItemStack itemStack,
+        float inverseArmHeight,
         PoseStack poseStack,
-        SubmitNodeCollector collector,
+        SubmitNodeCollector submitNodeCollector,
         int lightCoords,
         CallbackInfo ci
     ) {
@@ -91,17 +103,16 @@ abstract class ItemInHandRendererMixin {
         this.anvilcraft$manager.setOffHandItem(this.offHandItem);
         this.anvilcraft$manager.render(
             player,
-            partialTicks,
+            frameInterp,
             pitch,
             hand,
-            swingProgress,
-            stack,
-            equippedProgress,
+            attack,
+            itemStack,
+            inverseArmHeight,
             poseStack,
-            collector,
+            submitNodeCollector,
             lightCoords
         );
-        // TODO is cancel needed
-//        ci.cancel();
+        ci.cancel();
     }
 }

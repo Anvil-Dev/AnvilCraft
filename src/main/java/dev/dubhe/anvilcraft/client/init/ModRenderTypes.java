@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 
 public class ModRenderTypes {
 
-    //TODO use colored overlay and uniform
+    // TODO: use colored overlay and uniform
     public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
         "anvilcraft:laser_translucent",
         RenderSetup.builder(ModRenderPipelines.COLORED_OVERLAY)

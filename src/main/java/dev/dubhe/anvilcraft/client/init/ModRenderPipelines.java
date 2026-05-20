@@ -50,9 +50,6 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/lightning"))
         .build();
 
-
-
-
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(LASER_TRANSLUCENT);

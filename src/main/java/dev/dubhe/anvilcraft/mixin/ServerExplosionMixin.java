@@ -74,7 +74,7 @@ abstract class ServerExplosionMixin implements IExplosionExtension {
         BlockState state = this.level.getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof IHasMultiBlock multiBlock) {
-            multiBlock.onRemove(level, pos, state);
+            multiBlock.onRemove(this.level, pos, state);
         }
     }
 
@@ -82,7 +82,9 @@ abstract class ServerExplosionMixin implements IExplosionExtension {
         method = "calculateExplodedPositions",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
+            target = "Lnet/minecraft/server/level/ServerLevel;"
+                     + "getBlockState(Lnet/minecraft/core/BlockPos;)"
+                     + "Lnet/minecraft/world/level/block/state/BlockState;"
         )
     )
     private void anvilcraft$explosionBlockTransform0(

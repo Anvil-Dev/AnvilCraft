@@ -68,15 +68,6 @@ public class ClientEventListener {
     }
 
     @SubscribeEvent
-    public static void onRenderBlockOverlay(RenderBlockScreenEffectEvent event) {
-        if (event.getOverlayType() == RenderBlockScreenEffectEvent.OverlayType.BLOCK
-            && (event.getBlockState().is(ModBlocks.ACCELERATION_RING) || event.getBlockState().is(ModBlocks.DEFLECTION_RING))
-        ) {
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent
     public static void on(RegisterTextureAtlasesEvent event) {
         event.register(
             new AtlasManager.AtlasConfig(
@@ -85,6 +76,15 @@ public class ClientEventListener {
                 false
             )
         );
+    }
+
+    @SubscribeEvent
+    public static void onRenderBlockOverlay(RenderBlockScreenEffectEvent event) {
+        if (event.getOverlayType() == RenderBlockScreenEffectEvent.OverlayType.BLOCK
+            && (event.getBlockState().is(ModBlocks.ACCELERATION_RING) || event.getBlockState().is(ModBlocks.DEFLECTION_RING))
+        ) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
