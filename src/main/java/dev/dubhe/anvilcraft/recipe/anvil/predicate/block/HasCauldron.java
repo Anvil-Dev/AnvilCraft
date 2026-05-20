@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -242,8 +243,19 @@ public record HasCauldron(
         }
         if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) {
             IFluidHandler handler = holder.getFluidHandler();
-            handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-            handler.fill(new FluidStack(BuiltInRegistries.FLUID.get(fluid), (int) Math.round(mb)), IFluidHandler.FluidAction.EXECUTE);
+            FluidStack fluidInTank = handler.getFluidInTank(0);
+            Fluid target = BuiltInRegistries.FLUID.get(fluid);
+            if (fluidInTank.is(target)) {
+                int diff = (int) Math.round(mb) - fluidInTank.getAmount();
+                if (diff < 0) {
+                    handler.drain(-diff, IFluidHandler.FluidAction.EXECUTE);
+                } else {
+                    handler.fill(fluidInTank.copyWithAmount(diff), IFluidHandler.FluidAction.EXECUTE);
+                }
+            } else {
+                handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
+                handler.fill(new FluidStack(target, (int) Math.round(mb)), IFluidHandler.FluidAction.EXECUTE);
+            }
         } else {
             BlockState cauldron = HasCauldron.getDefaultCauldron(fluid).defaultBlockState();
             IntegerProperty property = CauldronUtil.LEVEL_4;
