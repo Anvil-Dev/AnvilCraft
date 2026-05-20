@@ -4,6 +4,7 @@ import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.model.PropertyDispatchWrap;
 import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
@@ -25,7 +26,6 @@ import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
-import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
@@ -33,7 +33,6 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
-import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.conditional.IsUsingItem;
@@ -69,6 +68,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.List;
 
+@SuppressWarnings("Convert2Lambda")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataGenUtil {
     public static <T extends Item> void energy(DataGenContext<Item, T> ctx, CreativeModeTabModifier modifier) {
@@ -80,99 +80,124 @@ public class DataGenUtil {
 
     @SuppressWarnings("unused")
     public static <R, A extends R, T> NonNullBiConsumer<DataGenContext<R, A>, T> noExtraModelOrState() {
-        return (ctx, generator) -> {
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<R, A> ctx, T generator) {
+            }
         };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> flatItem() {
-        return (ctx, generator) -> generator.generateFlatItem(ctx.get(), ModelTemplates.FLAT_ITEM);
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.generateFlatItem(ctx.get(), ModelTemplates.FLAT_ITEM);
+            }
+        };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> flatHandheldItem() {
-        return (ctx, generator) -> generator.generateFlatItem(ctx.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.generateFlatItem(ctx.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+            }
+        };
     }
 
     public static <T extends BlockItem> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> blockItem() {
-        return (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        };
     }
 
     public static <T extends BlockItem> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> blockItem(String suffix) {
-        return (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix(suffix));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix(suffix));
+            }
+        };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> multitool() {
-        return (ctx, generator) -> {
-            Item item = ctx.get();
-            ItemModel.Unbaked all = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item));
-            Identifier prefix = ModelLocationUtils.getModelLocation(item).withSuffix("_");
-            ItemModel.Unbaked brush = ItemModelUtils.plainModel(prefix.withSuffix("brush"));
-            ItemModel.Unbaked carrotRod = ItemModelUtils.plainModel(prefix.withSuffix("carrot_on_a_stick"));
-            ItemModel.Unbaked fishingRod = ItemModelUtils.plainModel(prefix.withSuffix("fishing_rod"));
-            ItemModel.Unbaked fishingRodCast = ItemModelUtils.plainModel(prefix.withSuffix("fishing_rod_cast"));
-            ItemModel.Unbaked flintAndSteel = ItemModelUtils.plainModel(prefix.withSuffix("flint_and_steel"));
-            ItemModel.Unbaked magnet = ItemModelUtils.plainModel(prefix.withSuffix("magnet"));
-            ItemModel.Unbaked shears = ItemModelUtils.plainModel(prefix.withSuffix("shears"));
-            ItemModel.Unbaked spyglass = ItemModelUtils.plainModel(prefix.withSuffix("spyglass"));
-            ItemModel.Unbaked warpedFungusRod = ItemModelUtils.plainModel(prefix.withSuffix("warped_fungus_on_a_stick"));
-            generator.itemModelOutput.accept(
-                item,
-                ItemModelUtils.select(
-                    new ComponentContents<>(ModComponents.MULTITOOL_MODE),
-                    all,
-                    ItemModelUtils.when(MultitoolMode.BRUSH, brush),
-                    ItemModelUtils.when(MultitoolMode.CARROT_ON_A_STICK, carrotRod),
-                    ItemModelUtils.when(
-                        MultitoolMode.FISHING_ROD,
-                        ItemModelUtils.conditional(
-                            new FishingRodCast(),
-                            fishingRodCast,
-                            fishingRod
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                Item item = ctx.get();
+                Identifier prefix = ModelLocationUtils.getModelLocation(item).withSuffix("_");
+                generator.itemModelOutput.accept(
+                    item,
+                    ItemModelUtils.select(
+                        new ComponentContents<>(ModComponents.MULTITOOL_MODE),
+                        ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item)),
+                        ItemModelUtils.when(MultitoolMode.BRUSH, ItemModelUtils.plainModel(prefix.withSuffix("brush"))),
+                        ItemModelUtils.when(
+                            MultitoolMode.CARROT_ON_A_STICK,
+                            ItemModelUtils.plainModel(prefix.withSuffix("carrot_on_a_stick"))
+                        ),
+                        ItemModelUtils.when(
+                            MultitoolMode.FISHING_ROD,
+                            ItemModelUtils.conditional(
+                                new FishingRodCast(),
+                                ItemModelUtils.plainModel(prefix.withSuffix("fishing_rod_cast")),
+                                ItemModelUtils.plainModel(prefix.withSuffix("fishing_rod"))
+                            )
+                        ),
+                        ItemModelUtils.when(MultitoolMode.FLINT_AND_STEEL, ItemModelUtils.plainModel(prefix.withSuffix("flint_and_steel"))),
+                        ItemModelUtils.when(MultitoolMode.MAGNET, ItemModelUtils.plainModel(prefix.withSuffix("magnet"))),
+                        ItemModelUtils.when(MultitoolMode.SHEARS, ItemModelUtils.plainModel(prefix.withSuffix("shears"))),
+                        ItemModelUtils.when(MultitoolMode.SPYGLASS, ItemModelUtils.plainModel(prefix.withSuffix("spyglass"))),
+                        ItemModelUtils.when(
+                            MultitoolMode.WARPED_FUNGUS_ON_A_STICK,
+                            ItemModelUtils.plainModel(prefix.withSuffix("warped_fungus_on_a_stick"))
                         )
-                    ),
-                    ItemModelUtils.when(MultitoolMode.FLINT_AND_STEEL, flintAndSteel),
-                    ItemModelUtils.when(MultitoolMode.MAGNET, magnet),
-                    ItemModelUtils.when(MultitoolMode.SHEARS, shears),
-                    ItemModelUtils.when(MultitoolMode.SPYGLASS, spyglass),
-                    ItemModelUtils.when(MultitoolMode.WARPED_FUNGUS_ON_A_STICK, warpedFungusRod)
-                )
-            );
+                    )
+                );
+            }
         };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> heavyHalberd() {
-        return (ctx, generator) -> {
-            Item item = ctx.get();
-            Identifier id = ModelLocationUtils.getModelLocation(item);
-            ItemModel.Unbaked normal = ItemModelUtils.plainModel(id);
-            ItemModel.Unbaked throwing = ItemModelUtils.plainModel(id.withSuffix("_throwing"));
-            generator.itemModelOutput.accept(
-                item,
-                ItemModelUtils.conditional(new IsUsingItem(), throwing, normal)
-            );
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                Item item = ctx.get();
+                Identifier id = ModelLocationUtils.getModelLocation(item);
+                generator.itemModelOutput.accept(
+                    item,
+                    ItemModelUtils.conditional(
+                        new IsUsingItem(),
+                        ItemModelUtils.plainModel(id.withSuffix("_throwing")),
+                        ItemModelUtils.plainModel(id)
+                    )
+                );
+            }
         };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> resonator() {
-        return (ctx, generator) -> {
-            Item item = ctx.get();
-            Identifier prefix = ModelLocationUtils.getModelLocation(item);
-            prefix = prefix.withPath(prefix.getPath().substring(0, prefix.getPath().length() - 9)); // 减掉resonator
-            ItemModel.Unbaked auto = ItemModelUtils.plainModel(prefix.withSuffix("resonator"));
-            ItemModel.Unbaked axe = ItemModelUtils.plainModel(prefix.withSuffix("resonance_axe"));
-            ItemModel.Unbaked hoe = ItemModelUtils.plainModel(prefix.withSuffix("resonance_hoe"));
-            ItemModel.Unbaked pickaxe = ItemModelUtils.plainModel(prefix.withSuffix("resonance_pickaxe"));
-            ItemModel.Unbaked shovel = ItemModelUtils.plainModel(prefix.withSuffix("resonance_shovel"));
-            generator.itemModelOutput.accept(
-                item,
-                ItemModelUtils.select(
-                    new ComponentContents<>(ModComponents.RESONATE_MODE),
-                    auto,
-                    ItemModelUtils.when(ResonateMode.AXE, axe),
-                    ItemModelUtils.when(ResonateMode.HOE, hoe),
-                    ItemModelUtils.when(ResonateMode.PICKAXE, pickaxe),
-                    ItemModelUtils.when(ResonateMode.SHOVEL, shovel)
-                )
-            );
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                Item item = ctx.get();
+                Identifier prefix = ModelLocationUtils.getModelLocation(item);
+                prefix = prefix.withPath(prefix.getPath().substring(0, prefix.getPath().length() - 9)); // 减掉resonator
+                generator.itemModelOutput.accept(
+                    item,
+                    ItemModelUtils.select(
+                        new ComponentContents<>(ModComponents.RESONATE_MODE),
+                        ItemModelUtils.plainModel(prefix.withSuffix("resonator")),
+                        ItemModelUtils.when(ResonateMode.AXE, ItemModelUtils.plainModel(prefix.withSuffix("resonance_axe"))),
+                        ItemModelUtils.when(ResonateMode.HOE, ItemModelUtils.plainModel(prefix.withSuffix("resonance_hoe"))),
+                        ItemModelUtils.when(ResonateMode.PICKAXE, ItemModelUtils.plainModel(prefix.withSuffix("resonance_pickaxe"))),
+                        ItemModelUtils.when(ResonateMode.SHOVEL, ItemModelUtils.plainModel(prefix.withSuffix("resonance_shovel")))
+                    )
+                );
+            }
         };
     }
 
@@ -187,52 +212,71 @@ public class DataGenUtil {
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> exhaustable(
         DataComponentType<? extends IIntegerComponent> exhaustable
     ) {
-        return (ctx, generator) -> {
-            Item item = ctx.get();
-            ItemModel.Unbaked normal = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item));
-            ItemModel.Unbaked off = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item).withSuffix("_exhausted"));
-            generator.itemModelOutput.accept(
-                item,
-                ItemModelUtils.conditional(
-                    new ComponentMatches(new DataComponentPredicate.Single<>(
-                        ModDataComponentPredicates.INT_COMP.get(),
-                        new IntegerComponentPredicate(exhaustable, 0)
-                    )),
-                    off,
-                    normal
-                )
-            );
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                Item item = ctx.get();
+                generator.itemModelOutput.accept(
+                    item,
+                    ItemModelUtils.conditional(
+                        new ComponentMatches(new DataComponentPredicate.Single<>(
+                            ModDataComponentPredicates.INT_COMP.get(),
+                            new IntegerComponentPredicate(exhaustable, 0)
+                        )),
+                        ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item).withSuffix("_exhausted")),
+                        ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item))
+                    )
+                );
+            }
         };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> onlyInfo() {
-        return (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))
-        );
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))
+                );
+            }
+        };
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> onlyState() {
-        return (ctx, generator) -> generator.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
-            ctx.get(),
-            BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
-        ));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                generator.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
+                    ctx.get(),
+                    BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
+                ));
+            }
+        };
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> simpleBlock() {
-        return (ctx, generator) -> generator.createTrivialCube(ctx.get());
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                generator.createTrivialCube(ctx.get());
+            }
+        };
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> transparentBlock() {
-        return (ctx, generator) -> {
-            Block block = ctx.get();
-            generator.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
-                block,
-                BlockModelGenerators.plainVariant(new TexturedModel(
-                    new TextureMapping().put(TextureSlot.ALL, new Material(ctx.getId().withPrefix("block/"), true)),
-                    ModelTemplates.CUBE_ALL
-                ).create(block, generator.modelOutput))
-            ));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Block block = ctx.get();
+                generator.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(
+                    block,
+                    BlockModelGenerators.plainVariant(new TexturedModel(
+                        new TextureMapping().put(TextureSlot.ALL, new Material(ctx.getId().withPrefix("block/"), true)),
+                        ModelTemplates.CUBE_ALL
+                    ).create(block, generator.modelOutput))
+                ));
+            }
         };
     }
 
@@ -294,21 +338,28 @@ public class DataGenUtil {
         NonNullFunction<DataGenContext<Block, ?>, Material> side,
         NonNullFunction<DataGenContext<Block, ?>, Identifier> blockModel
     ) {
-        return (ctx, generator) -> {
-            Block slab = ctx.get();
-            TextureMapping mapping = new TextureMapping()
-                .put(TextureSlot.TOP, top.apply(ctx))
-                .put(TextureSlot.BOTTOM, bottom.apply(ctx))
-                .put(TextureSlot.SIDE, side.apply(ctx));
-            Identifier bottomModel = ModelTemplates.SLAB_BOTTOM.create(slab, mapping, generator.modelOutput);
-            MultiVariant topVa = BlockModelGenerators.plainVariant(ModelTemplates.SLAB_TOP.create(slab, mapping, generator.modelOutput));
-            generator.blockStateOutput.accept(BlockModelGenerators.createSlab(
-                slab,
-                BlockModelGenerators.plainVariant(bottomModel),
-                topVa,
-                BlockModelGenerators.plainVariant(blockModel.apply(ctx)) // 移除_slab
-            ));
-            generator.registerSimpleItemModel(slab, bottomModel);
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Block slab = ctx.get();
+                TextureMapping mapping = new TextureMapping()
+                    .put(TextureSlot.TOP, top.apply(ctx))
+                    .put(TextureSlot.BOTTOM, bottom.apply(ctx))
+                    .put(TextureSlot.SIDE, side.apply(ctx));
+                Identifier bottomModel = ModelTemplates.SLAB_BOTTOM.create(slab, mapping, generator.modelOutput);
+                MultiVariant topVa = BlockModelGenerators.plainVariant(ModelTemplates.SLAB_TOP.create(
+                    slab,
+                    mapping,
+                    generator.modelOutput
+                ));
+                generator.blockStateOutput.accept(BlockModelGenerators.createSlab(
+                    slab,
+                    BlockModelGenerators.plainVariant(bottomModel),
+                    topVa,
+                    BlockModelGenerators.plainVariant(blockModel.apply(ctx)) // 移除_slab
+                ));
+                generator.registerSimpleItemModel(slab, bottomModel);
+            }
         };
     }
     // endregion
@@ -357,26 +408,29 @@ public class DataGenUtil {
         NonNullFunction<DataGenContext<Block, ?>, Material> bottom,
         NonNullFunction<DataGenContext<Block, ?>, Material> side
     ) {
-        return (ctx, generator) -> {
-            Block stairs = ctx.get();
-            TextureMapping mapping = new TextureMapping()
-                .put(TextureSlot.TOP, top.apply(ctx))
-                .put(TextureSlot.BOTTOM, bottom.apply(ctx))
-                .put(TextureSlot.SIDE, side.apply(ctx));
-            MultiVariant inner = BlockModelGenerators.plainVariant(
-                ModelTemplates.STAIRS_INNER.create(stairs, mapping, generator.modelOutput)
-            );
-            Identifier straight = ModelTemplates.STAIRS_STRAIGHT.create(stairs, mapping, generator.modelOutput);
-            MultiVariant outer = BlockModelGenerators.plainVariant(
-                ModelTemplates.STAIRS_OUTER.create(stairs, mapping, generator.modelOutput)
-            );
-            generator.blockStateOutput.accept(BlockModelGenerators.createStairs(
-                stairs,
-                inner,
-                BlockModelGenerators.plainVariant(straight),
-                outer
-            ));
-            generator.registerSimpleItemModel(stairs, straight);
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Block stairs = ctx.get();
+                TextureMapping mapping = new TextureMapping()
+                    .put(TextureSlot.TOP, top.apply(ctx))
+                    .put(TextureSlot.BOTTOM, bottom.apply(ctx))
+                    .put(TextureSlot.SIDE, side.apply(ctx));
+                MultiVariant inner = BlockModelGenerators.plainVariant(
+                    ModelTemplates.STAIRS_INNER.create(stairs, mapping, generator.modelOutput)
+                );
+                Identifier straight = ModelTemplates.STAIRS_STRAIGHT.create(stairs, mapping, generator.modelOutput);
+                MultiVariant outer = BlockModelGenerators.plainVariant(
+                    ModelTemplates.STAIRS_OUTER.create(stairs, mapping, generator.modelOutput)
+                );
+                generator.blockStateOutput.accept(BlockModelGenerators.createStairs(
+                    stairs,
+                    inner,
+                    BlockModelGenerators.plainVariant(straight),
+                    outer
+                ));
+                generator.registerSimpleItemModel(stairs, straight);
+            }
         };
     }
     // endregion
@@ -401,22 +455,25 @@ public class DataGenUtil {
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> wallBlock(
         NonNullFunction<DataGenContext<Block, T>, Material> wall
     ) {
-        return (ctx, generator) -> {
-            Block block = ctx.get();
-            TextureMapping mapping = new TextureMapping()
-                .put(TextureSlot.WALL, wall.apply(ctx));
-            MultiVariant post = BlockModelGenerators.plainVariant(
-                ModelTemplates.WALL_POST.create(block, mapping, generator.modelOutput)
-            );
-            MultiVariant low = BlockModelGenerators.plainVariant(
-                ModelTemplates.WALL_LOW_SIDE.create(block, mapping, generator.modelOutput)
-            );
-            MultiVariant high = BlockModelGenerators.plainVariant(
-                ModelTemplates.WALL_TALL_SIDE.create(block, mapping, generator.modelOutput)
-            );
-            generator.blockStateOutput.accept(BlockModelGenerators.createWall(block, post, low, high));
-            Identifier inventory = ModelTemplates.WALL_INVENTORY.create(block, mapping, generator.modelOutput);
-            generator.registerSimpleItemModel(block, inventory);
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Block block = ctx.get();
+                TextureMapping mapping = new TextureMapping()
+                    .put(TextureSlot.WALL, wall.apply(ctx));
+                MultiVariant post = BlockModelGenerators.plainVariant(
+                    ModelTemplates.WALL_POST.create(block, mapping, generator.modelOutput)
+                );
+                MultiVariant low = BlockModelGenerators.plainVariant(
+                    ModelTemplates.WALL_LOW_SIDE.create(block, mapping, generator.modelOutput)
+                );
+                MultiVariant high = BlockModelGenerators.plainVariant(
+                    ModelTemplates.WALL_TALL_SIDE.create(block, mapping, generator.modelOutput)
+                );
+                generator.blockStateOutput.accept(BlockModelGenerators.createWall(block, post, low, high));
+                Identifier inventory = ModelTemplates.WALL_INVENTORY.create(block, mapping, generator.modelOutput);
+                generator.registerSimpleItemModel(block, inventory);
+            }
         };
     }
     // endregion
@@ -441,26 +498,34 @@ public class DataGenUtil {
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> pressurePlateBlock(
         NonNullFunction<DataGenContext<Block, T>, Material> pressurePlate
     ) {
-        return (ctx, generator) -> {
-            Block block = ctx.get();
-            TextureMapping mapping = new TextureMapping()
-                .put(TextureSlot.TEXTURE, pressurePlate.apply(ctx));
-            MultiVariant off = BlockModelGenerators.plainVariant(
-                ModelTemplates.PRESSURE_PLATE_UP.create(block, mapping, generator.modelOutput)
-            );
-            MultiVariant on = BlockModelGenerators.plainVariant(
-                ModelTemplates.PRESSURE_PLATE_DOWN.create(block, mapping, generator.modelOutput)
-            );
-            generator.blockStateOutput.accept(BlockModelGenerators.createPressurePlate(block, off, on));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Block block = ctx.get();
+                TextureMapping mapping = new TextureMapping()
+                    .put(TextureSlot.TEXTURE, pressurePlate.apply(ctx));
+                MultiVariant off = BlockModelGenerators.plainVariant(
+                    ModelTemplates.PRESSURE_PLATE_UP.create(block, mapping, generator.modelOutput)
+                );
+                MultiVariant on = BlockModelGenerators.plainVariant(
+                    ModelTemplates.PRESSURE_PLATE_DOWN.create(block, mapping, generator.modelOutput)
+                );
+                generator.blockStateOutput.accept(BlockModelGenerators.createPressurePlate(block, off, on));
+            }
         };
     }
     // endregion
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> horizontalFacingBlock() {
-        return (ctx, generator) -> generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
-            ctx.get(),
-            BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
-        ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                    ctx.get(),
+                    BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
+                ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+            }
+        };
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> horizontalFacingBlock(
@@ -468,44 +533,47 @@ public class DataGenUtil {
         NonNullFunction<DataGenContext<Block, T>, Identifier> onTrueFac,
         NonNullFunction<DataGenContext<Block, T>, Identifier> onFalseFac
     ) {
-        return (ctx, generator) -> {
-            Identifier onTrue = onTrueFac.apply(ctx);
-            Identifier onFalse = onFalseFac.apply(ctx);
-            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                ctx.get()
-            ).with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING, extra).select(
-                Direction.NORTH,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R0))
-            ).select(
-                Direction.NORTH,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R0))
-            ).select(
-                Direction.EAST,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R90))
-            ).select(
-                Direction.EAST,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R90))
-            ).select(
-                Direction.SOUTH,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R180))
-            ).select(
-                Direction.SOUTH,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R180))
-            ).select(
-                Direction.WEST,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R270))
-            ).select(
-                Direction.WEST,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R270))
-            )));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Identifier onTrue = onTrueFac.apply(ctx);
+                Identifier onFalse = onFalseFac.apply(ctx);
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                    ctx.get()
+                ).with(PropertyDispatchWrap.initial(BlockStateProperties.HORIZONTAL_FACING, extra).select(
+                    Direction.NORTH,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R0))
+                ).select(
+                    Direction.NORTH,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R0))
+                ).select(
+                    Direction.EAST,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R90))
+                ).select(
+                    Direction.EAST,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R90))
+                ).select(
+                    Direction.SOUTH,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R180))
+                ).select(
+                    Direction.SOUTH,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R180))
+                ).select(
+                    Direction.WEST,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R270))
+                ).select(
+                    Direction.WEST,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R270))
+                ).dispatch()));
+            }
         };
     }
 
@@ -514,69 +582,75 @@ public class DataGenUtil {
         NonNullFunction<DataGenContext<Block, T>, Identifier> onTrueFac,
         NonNullFunction<DataGenContext<Block, T>, Identifier> onFalseFac
     ) {
-        return (ctx, generator) -> {
-            Identifier onTrue = onTrueFac.apply(ctx);
-            Identifier onFalse = onFalseFac.apply(ctx);
-            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                ctx.get()
-            ).with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING, extra).select(
-                Direction.NORTH,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R180))
-            ).select(
-                Direction.NORTH,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R180))
-            ).select(
-                Direction.EAST,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R270))
-            ).select(
-                Direction.EAST,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R270))
-            ).select(
-                Direction.SOUTH,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R0))
-            ).select(
-                Direction.SOUTH,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R0))
-            ).select(
-                Direction.WEST,
-                true,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R90))
-            ).select(
-                Direction.WEST,
-                false,
-                BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R90))
-            )));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Identifier onTrue = onTrueFac.apply(ctx);
+                Identifier onFalse = onFalseFac.apply(ctx);
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                    ctx.get()
+                ).with(PropertyDispatchWrap.initial(BlockStateProperties.HORIZONTAL_FACING, extra).select(
+                    Direction.NORTH,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R180))
+                ).select(
+                    Direction.NORTH,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R180))
+                ).select(
+                    Direction.EAST,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R270))
+                ).select(
+                    Direction.EAST,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R270))
+                ).select(
+                    Direction.SOUTH,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R0))
+                ).select(
+                    Direction.SOUTH,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R0))
+                ).select(
+                    Direction.WEST,
+                    true,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onTrue).withYRot(Quadrant.R90))
+                ).select(
+                    Direction.WEST,
+                    false,
+                    BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R90))
+                ).dispatch()));
+            }
         };
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> leveledPressurePlateBlock(
         Identifier texture
     ) {
-        return (ctx, generator) -> {
-            Block block = ctx.get();
-            TextureMapping mapping = new TextureMapping()
-                .put(TextureSlot.TEXTURE, new Material(texture));
-            MultiVariant off = BlockModelGenerators.plainVariant(
-                ModelTemplates.PRESSURE_PLATE_UP.create(block, mapping, generator.modelOutput)
-            );
-            MultiVariant on = BlockModelGenerators.plainVariant(
-                ModelTemplates.PRESSURE_PLATE_DOWN.create(block, mapping, generator.modelOutput)
-            );
-            generator.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(ctx.get())
-                    .with(BlockModelGenerators.createEmptyOrFullDispatch(
-                        PowerLevelPressurePlateBlock.POWER,
-                        1,
-                        on,
-                        off
-                    ))
-            );
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Block block = ctx.get();
+                TextureMapping mapping = new TextureMapping()
+                    .put(TextureSlot.TEXTURE, new Material(texture));
+                MultiVariant off = BlockModelGenerators.plainVariant(
+                    ModelTemplates.PRESSURE_PLATE_UP.create(block, mapping, generator.modelOutput)
+                );
+                MultiVariant on = BlockModelGenerators.plainVariant(
+                    ModelTemplates.PRESSURE_PLATE_DOWN.create(block, mapping, generator.modelOutput)
+                );
+                generator.blockStateOutput.accept(
+                    MultiVariantGenerator.dispatch(ctx.get())
+                        .with(BlockModelGenerators.createEmptyOrFullDispatch(
+                            PowerLevelPressurePlateBlock.POWER,
+                            1,
+                            on,
+                            off
+                        ))
+                );
+            }
         };
     }
 
@@ -584,18 +658,26 @@ public class DataGenUtil {
         Identifier side,
         Identifier end
     ) {
-        return (ctx, generator) -> {
-            Block b = ctx.get();
-            TextureMapping mapping = new TextureMapping()
-                .put(TextureSlot.SIDE, new Material(side))
-                .put(TextureSlot.END, new Material(end));
-            MultiVariant model = BlockModelGenerators.plainVariant(ModelTemplates.CUBE_COLUMN.create(b, mapping, generator.modelOutput));
-            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(b).with(
-                PropertyDispatch.initial(BlockStateProperties.AXIS)
-                    .select(Direction.Axis.Y, model)
-                    .select(Direction.Axis.Z, model.with(BlockModelGenerators.X_ROT_90))
-                    .select(Direction.Axis.X, model.with(VariantMutator.Z_ROT.withValue(Quadrant.R90)))
-            ));
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                Block b = ctx.get();
+                TextureMapping mapping = new TextureMapping()
+                    .put(TextureSlot.SIDE, new Material(side))
+                    .put(TextureSlot.END, new Material(end));
+                MultiVariant model = BlockModelGenerators.plainVariant(ModelTemplates.CUBE_COLUMN.create(
+                    b,
+                    mapping,
+                    generator.modelOutput
+                ));
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(b).with(
+                    PropertyDispatchWrap.initial(BlockStateProperties.AXIS)
+                        .select(Direction.Axis.Y, model)
+                        .select(Direction.Axis.Z, model.with(BlockModelGenerators.X_ROT_90))
+                        .select(Direction.Axis.X, model.with(VariantMutator.Z_ROT.withValue(Quadrant.R90)))
+                        .dispatch()
+                ));
+            }
         };
     }
 

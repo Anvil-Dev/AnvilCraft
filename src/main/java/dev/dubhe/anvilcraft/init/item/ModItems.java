@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init.item;
 import dev.anvilcraft.lib.v2.registrum.Registrum;
 import dev.anvilcraft.lib.v2.registrum.builders.ItemBuilder;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
@@ -103,7 +104,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -511,6 +511,7 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::energyWeaponPlatform)
         .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final ItemEntry<? extends SpectralSlingshotItem> SPECTRAL_SLINGSHOT = REGISTRUM
         .item("spectral_slingshot", SpectralSlingshotItem::new)
         .tag(
@@ -518,13 +519,22 @@ public class ModItems {
             ItemTags.CROSSBOW_ENCHANTABLE
         )
         .properties(properties -> properties.durability(1561))
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ctx.get()), SpectralSlingshotRenderer.Unbaked.INSTANCE)
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, SpectralSlingshotItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ctx.get()), SpectralSlingshotRenderer.Unbaked.INSTANCE)
+                );
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::spectralSlingshot)
         .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
         .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
         .properties(properties -> properties.stacksTo(1))
@@ -533,27 +543,31 @@ public class ModItems {
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.CROSSBOW_ENCHANTABLE
         )
-        .model(() -> (ctx, generator) -> {
-            Item item = ctx.get();
-            ItemModel.Unbaked normal = ItemModelUtils.specialModel(
-                ModelLocationUtils.getModelLocation(item),
-                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
-            );
-            ItemModel.Unbaked off = ItemModelUtils.specialModel(
-                generator.createFlatItemModel(item, "_off", ModelTemplates.FLAT_ITEM),
-                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
-            );
-            generator.itemModelOutput.accept(
-                item,
-                ItemModelUtils.conditional(
-                    new ComponentMatches(new DataComponentPredicate.Single<>(
-                        ModDataComponentPredicates.INT_COMP.get(),
-                        new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
-                    )),
-                    off,
-                    normal
-                )
-            );
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, SpectralWeaponLauncherItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                Item item = ctx.get();
+                generator.itemModelOutput.accept(
+                    item,
+                    ItemModelUtils.conditional(
+                        new ComponentMatches(new DataComponentPredicate.Single<>(
+                            ModDataComponentPredicates.INT_COMP.get(),
+                            new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
+                        )),
+                        ItemModelUtils.specialModel(
+                            generator.createFlatItemModel(item, "_off", ModelTemplates.FLAT_ITEM),
+                            SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                        ),
+                        ItemModelUtils.specialModel(
+                            ModelLocationUtils.getModelLocation(item),
+                            SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                        )
+                    )
+                );
+            }
         })
         .register();
 
@@ -844,11 +858,20 @@ public class ModItems {
 
     public static final ItemEntry<SeedsPackItem> SEEDS_PACK = REGISTRUM.item("seeds_pack", SeedsPackItem::new)
         .register();
+    @SuppressWarnings("Convert2Lambda")
     public static final ItemEntry<StructureToolItem> STRUCTURE_TOOL = REGISTRUM.item("structure_tool", StructureToolItem::new)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(
-            ctx.get(),
-            ModelLocationUtils.decorateItemModelLocation("paper")
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, StructureToolItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.createWithExistingModel(
+                    ctx.get(),
+                    ModelLocationUtils.decorateItemModelLocation("paper")
+                );
+            }
+        })
         .properties(properties -> properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
         .register();
 
