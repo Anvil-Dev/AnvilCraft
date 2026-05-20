@@ -9,7 +9,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -78,15 +77,14 @@ public class SilencerButton extends Button {
         this.setMessage(message);
         int color = 16777215 | Mth.ceil(this.alpha * 255.0F) << 24;
         Font font = Minecraft.getInstance().font;
-        graphics.text(font, message, this.getX() + 2, this.getY() + 3, color);
+        graphics.centeredText(font, message, this.getX() + this.width / 2, this.getY() + 3, color);
         if (this.isHovered()) {
             Component soundIdText = highlighted(
                 soundId.toString(), searchText.replaceFirst("#", ""), ChatFormatting.GRAY, ChatFormatting.YELLOW);
-            List<ClientTooltipComponent> tooltipComponents = List.of(
+            this.parent.setTooltipComponents(List.of(
                 ClientTooltipComponent.create(message.getVisualOrderText()),
                 ClientTooltipComponent.create(soundIdText.getVisualOrderText())
-            );
-            graphics.tooltip(font, tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
+            ));
         }
     }
 

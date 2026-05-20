@@ -8,10 +8,13 @@ import dev.dubhe.anvilcraft.network.SilencerAddMutedPacket;
 import dev.dubhe.anvilcraft.network.SilencerRemoveMutedPacket;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -52,6 +55,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Getter
     private String filterText = "";
+
+    @Setter
+    private List<ClientTooltipComponent> tooltipComponents;
 
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
@@ -272,14 +278,12 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int leftPos = (this.width - this.getImageWidth()) / 2;
-        int topPos = (this.height - this.getImageHeight()) / 2;
-        if (this.mouseInLeft(mouseX, mouseY, leftPos, topPos)) {
+        if (this.mouseInLeft(mouseX, mouseY, this.leftPos, this.topPos)) {
             if (this.filteredSounds.size() > 8) {
                 this.leftScrollOff = (int) Mth.clamp(this.leftScrollOff - scrollY, 0, this.filteredSounds.size() - 7);
             }
         } else {
-            if (this.mouseInRight(mouseX, mouseY, leftPos, topPos)) {
+            if (this.mouseInRight(mouseX, mouseY, this.leftPos, this.topPos)) {
                 if (this.mutedSounds.size() > 8) {
                     this.rightScrollOff =
                         (int) Mth.clamp(this.rightScrollOff - scrollY, 0, this.mutedSounds.size() - 7);
@@ -293,36 +297,24 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
      * 鼠标拖动事件
      */
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
-        int leftPos = (this.width - this.getImageWidth()) / 2;
-        int topPos = (this.height - this.getImageHeight()) / 2;
-        if (this.mouseInLeftSlider(event.x(), event.y(), leftPos, topPos)) {
+        if (this.isDraggingLeft) {
             int i = this.filteredSounds.size();
-            if (this.isDraggingLeft) {
-                int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
-                int k = j + SCROLL_BAR_HEIGHT;
-                int dragMax = i - 7;
-                float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
-                scroll = scroll * dragMax + 0.5F;
-                this.leftScrollOff = Mth.clamp((int) scroll, 0, dragMax);
-                return true;
-            } else {
-                return super.mouseDragged(event, dragX, dragY);
-            }
-        } else {
-            if (this.mouseInRightSlider(event.x(), event.y(), leftPos, topPos)) {
-                int i = this.mutedSounds.size();
-                if (this.isDraggingRight) {
-                    int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
-                    int k = j + SCROLL_BAR_HEIGHT;
-                    int dragMax = i - 7;
-                    float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
-                    scroll = scroll * dragMax + 0.5F;
-                    this.rightScrollOff = Mth.clamp((int) scroll, 0, dragMax);
-                    return true;
-                } else {
-                    return super.mouseDragged(event, dragX, dragY);
-                }
-            }
+            int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
+            int k = j + SCROLL_BAR_HEIGHT;
+            int dragMax = i - 7;
+            float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
+            scroll = scroll * dragMax + 0.5F;
+            this.leftScrollOff = Mth.clamp((int) scroll, 0, dragMax);
+            return true;
+        } else if (this.isDraggingRight) {
+            int i = this.mutedSounds.size();
+            int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
+            int k = j + SCROLL_BAR_HEIGHT;
+            int dragMax = i - 7;
+            float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
+            scroll = scroll * dragMax + 0.5F;
+            this.rightScrollOff = Mth.clamp((int) scroll, 0, dragMax);
+            return true;
         }
         return super.mouseDragged(event, dragX, dragY);
     }
@@ -348,7 +340,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int i = totalCount + 1 - 8;
         if (i > 1) {
             int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
-            int scrollY = (int) (posY + (scrollOff / (float) totalCount) * SCROLL_BAR_HEIGHT);
+            int scrollY = (int) (posY + (scrollOff / (totalCount - 7F)) * (SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT));
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
             graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
@@ -359,10 +351,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.tooltipComponents = null;
         super.extractContents(graphics, mouseX, mouseY, a);
         this.extractScroller(graphics, this.leftPos + 119, this.topPos + 35, this.filteredSounds.size(), this.leftScrollOff);
         this.extractScroller(graphics, this.leftPos + 245, this.topPos + 35, this.mutedSounds.size(), this.rightScrollOff);
-        this.extractTooltip(graphics, mouseX, mouseY);
     }
 
     public void handleSync(List<Identifier> sounds) {
@@ -394,8 +386,15 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
+    }
+
+    @Override
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
+        if (this.tooltipComponents == null) return;
+        graphics.tooltip(this.font, this.tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
     }
 }
