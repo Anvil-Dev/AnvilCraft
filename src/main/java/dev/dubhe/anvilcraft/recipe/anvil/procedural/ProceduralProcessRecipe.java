@@ -20,18 +20,23 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     public final BlockStatePredicate initialBlock;
+    // 这个不会参与判定，但是会决定它显示成什么
     public final List<ProceduralProcessStep> steps;
     public final ChanceBlockState resultBlock;
-    // 说实在的，这个resultBlock的作用不大——毕竟按理说应该写到最后一个步骤里。不过，还是暂且让它承担名义输出的作用了。
+    // 这个东西是给多圈loop的配方用的，如果是单圈的话可以直接写在最后一步里
     public final ItemStack icon;
+    public final int loop;
+    public final Optional<ProceduralProcessStep> multiLoopFirstStep;
 
-    //TODO：支持循环（实际上和直接写也没有太大区别，不过显示和写数据包上确实方便一些）
-    // （也可以写成builder和jei支持循环嘛）
+    //TODO：考虑重构方块->步骤的检索过程
+    //  用ppr配方rl和步数能够O(1)检索，但是有必要吗？
+    //  不过，wip方块对应的步骤种类数可能会稍微多一些
 
     //TODO：写一些方块操作配方
     // 目前是没有闪炼、时移、中子辐照对普通方块进行操作的配方的；不过，这些可能可以归并成“反向涂抹”？
@@ -40,13 +45,20 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     //TODO: 把方块涂抹里面的草方块配方迁移到正确的地方去
 
-    //TODO：考虑是否需要修改PROCEDURAL_RECIPE_INQUIRY的索引方式
-
-    public ProceduralProcessRecipe(BlockStatePredicate initialBlock, List<ProceduralProcessStep> steps, ChanceBlockState resultBlock, ItemStack icon) {
+    public ProceduralProcessRecipe(
+        BlockStatePredicate initialBlock,
+        List<ProceduralProcessStep> steps,
+        ChanceBlockState resultBlock,
+        ItemStack icon,
+        int loop,
+        Optional<ProceduralProcessStep> multiLoopFirstStep
+    ) {
         this.initialBlock = initialBlock;
         this.steps = steps;
         this.resultBlock = resultBlock;
         this.icon = icon;
+        this.loop = loop;
+        this.multiLoopFirstStep = multiLoopFirstStep;
     }
 
     public static WipBlockEntity getWipBlockFromContext(InWorldRecipeContext ctx) {

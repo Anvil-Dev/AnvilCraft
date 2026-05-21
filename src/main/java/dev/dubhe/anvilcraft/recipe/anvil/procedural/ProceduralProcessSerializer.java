@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.procedural;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
@@ -18,7 +19,9 @@ public class ProceduralProcessSerializer implements RecipeSerializer<ProceduralP
                 BlockStatePredicate.CODEC.fieldOf("initial_block").forGetter(ProceduralProcessRecipe::getInitialBlock),
                 ProceduralProcessStep.CODEC.listOf().fieldOf("steps").forGetter(ProceduralProcessRecipe::getSteps),
                 ChanceBlockState.CODEC.fieldOf("result_block").forGetter(ProceduralProcessRecipe::getResultBlock),
-                ItemStack.CODEC.fieldOf("icon").forGetter(ProceduralProcessRecipe::getIcon)
+                ItemStack.CODEC.fieldOf("icon").forGetter(ProceduralProcessRecipe::getIcon),
+                Codec.INT.fieldOf("loop").forGetter(ProceduralProcessRecipe::getLoop),
+                ProceduralProcessStep.CODEC.optionalFieldOf("multiple_loop_first_step").forGetter(ProceduralProcessRecipe::getMultiLoopFirstStep)
                 )
             .apply(ins, ProceduralProcessRecipe::new)
         );
@@ -33,6 +36,10 @@ public class ProceduralProcessSerializer implements RecipeSerializer<ProceduralP
             ProceduralProcessRecipe::getResultBlock,
             ItemStack.STREAM_CODEC,
             ProceduralProcessRecipe::getIcon,
+            ByteBufCodecs.INT,
+            ProceduralProcessRecipe::getLoop,
+            ByteBufCodecs.optional(ProceduralProcessStep.STREAM_CODEC),
+            ProceduralProcessRecipe::getMultiLoopFirstStep,
             ProceduralProcessRecipe::new
         );
 

@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
 public class ProceduralProcessRecipeLoader {
@@ -36,6 +38,20 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.HEAVY_IRON_BLOCK)
             .icon(ModBlocks.HEAVY_IRON_BLOCK.asStack())
             .save(provider, "nine_iron_blocks_procedural_example");
+        ProceduralProcessRecipeBuilder.of(Blocks.COPPER_BLOCK)
+            .addStep(
+                ItemInjectRecipe.builder().inputBlock(Blocks.IRON_BLOCK).requires(Items.IRON_BLOCK).resultBlock(ModBlocks.WIP_BLOCK).buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder().inputBlock(ModBlocks.WIP_BLOCK).requires(Items.IRON_BLOCK).resultBlock(ModBlocks.WIP_BLOCK).buildRecipe()
+            )
+            .result(ModBlocks.HEAVY_IRON_BLOCK)
+            .icon(ModBlocks.HEAVY_IRON_BLOCK.asStack())
+            .loop(4)
+            .multipleLoopFirstStep(
+                ItemInjectRecipe.builder().inputBlock(ModBlocks.WIP_BLOCK).requires(Items.IRON_BLOCK).resultBlock(ModBlocks.WIP_BLOCK).buildRecipe()
+            )
+            .save(provider, "iron_blocks_inject_procedural_loop_example");
     }
 
 }

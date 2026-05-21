@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<ProceduralProcessRecipe> {
@@ -22,6 +23,8 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     private final List<ProceduralProcessStep> steps = new ArrayList<>();
     private ChanceBlockState resultBlock = null;
     private ItemStack icon = null;
+    private int loop = 1;
+    private Optional<ProceduralProcessStep> mfs = Optional.empty();
 
     public ProceduralProcessRecipeBuilder(BlockStatePredicate initialBlock) {
         this.initialBlock = initialBlock;
@@ -62,6 +65,21 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         return this;
     }
 
+    public ProceduralProcessRecipeBuilder loop(int loop) {
+        this.loop = loop;
+        return this;
+    }
+
+    public ProceduralProcessRecipeBuilder multipleLoopFirstStep(ProceduralProcessStep step) {
+        this.mfs = Optional.of(step);
+        return this;
+    }
+
+    public ProceduralProcessRecipeBuilder multipleLoopFirstStep(AbstractProcessRecipe<?> stepContent) {
+        ProceduralProcessStep step = new ProceduralProcessStep(0, stepContent);
+        return this.multipleLoopFirstStep(step);
+    }
+
     @Override
     public @NotNull ProceduralProcessRecipe buildRecipe() {
         if (this.resultBlock == null) {
@@ -77,12 +95,17 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
             this.initialBlock,
             this.steps,
             this.resultBlock,
-            this.icon
+            this.icon,
+            this.loop,
+            this.mfs
         );
     }
 
     @Override
     public void validate(@NotNull ResourceLocation id) {
+        if (loop <= 0) {
+            throw new IllegalArgumentException("Loop count should be at least 1 (default is 1), got: " + loop);
+        }
         if (steps.isEmpty()) {
             throw new IllegalArgumentException("Procedural Procession must have at least one step, RecipeId: " + id);
         }
