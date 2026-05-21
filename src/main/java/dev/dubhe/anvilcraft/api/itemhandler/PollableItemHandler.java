@@ -31,7 +31,7 @@ public class PollableItemHandler extends ItemStacksResourceHandler {
     }
 
     protected int getCapacityAsIntDirect(int index, ItemResource resource) {
-        return Ints.saturatedCast(getCapacityAsLongDirect(index, resource));
+        return Ints.saturatedCast(this.getCapacityAsLongDirect(index, resource));
     }
 
     public long getCapacityAsLongDirect(int index, ItemResource resource) {
