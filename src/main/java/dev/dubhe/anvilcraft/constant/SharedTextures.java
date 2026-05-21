@@ -3,9 +3,6 @@ package dev.dubhe.anvilcraft.constant;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Shared texture resource locations used across the mod's GUI components.
- */
 public class SharedTextures {
     // CRAFTING
     public static final ResourceLocation ERROR_SPRITE = textureGui("crafting/error");
@@ -37,10 +34,14 @@ public class SharedTextures {
     public static final ResourceLocation BUTTON_REDO = textureGui("machine/redo");
     public static final ResourceLocation BUTTON_STOP = textureGui("machine/stop");
     public static final ResourceLocation BUTTON_CONFIRM = textureGui("machine/confirm");
+    
     /**
+     * 已弃用，请使用 {@link #BUTTON_CONFIRM} 代替。
+     *
      * @deprecated 使用 {@link #BUTTON_CONFIRM} 代替
      */
     @Deprecated
+    @SuppressWarnings("DeprecatedIsStillUsed")
     public static final ResourceLocation CONFIRM = BUTTON_CONFIRM;
     public static final ResourceLocation DISABLED_SLOT = textureGui("machine/disabled_slot");
     public static final ResourceLocation PLAYER_ALLOW = textureGui("machine/player_allow");

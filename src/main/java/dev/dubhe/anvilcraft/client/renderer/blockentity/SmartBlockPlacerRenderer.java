@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -576,7 +575,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 canPlace = true;
             } else if (!targetState.getFluidState().isEmpty()) {
                 canPlace = true;
-            } else if (heldBlock != null && canBeStacked(targetState, heldItem.getItem() instanceof net.minecraft.world.item.BlockItem ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
+            } else if (heldBlock != null && canBeStacked(
+                targetState, heldItem.getItem()
+                                 instanceof net.minecraft.world.item.BlockItem
+                             ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
                 canPlace = true;
             } else if (canBeStacked(targetState, null)) {
                 canPlace = true;
@@ -612,8 +614,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown,
         dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData structure) {
         
-        String cacheKey = "blueprint_" + entity.getBlockPos().toShortString() + "_" + 
-            facing.getName() + "_" + upsideDown + "_" + structure.blocks.hashCode();
+        String cacheKey = "blueprint_" + entity.getBlockPos().toShortString() + "_"
+                          + facing.getName() + "_" + upsideDown + "_" + structure.blocks.hashCode();
         
         if (this.positionCache.containsKey(cacheKey)) {
             return this.positionCache.get(cacheKey);
@@ -624,8 +626,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         Direction right = facing.getClockWise();
         
         for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blueprintBlock : structure.blocks) {
-            int yOffset = upsideDown ? blueprintBlock.y() - 4 : blueprintBlock.y();
-            BlockPos targetPos = basePos.atY(basePos.getY() + yOffset)
+            int yoffset = upsideDown ? blueprintBlock.y() - 4 : blueprintBlock.y();
+            BlockPos targetPos = basePos.atY(basePos.getY() + yoffset)
                 .relative(right, blueprintBlock.z() - 2)
                 .relative(right.getClockWise(), blueprintBlock.x() - 2);
             positions.add(targetPos);

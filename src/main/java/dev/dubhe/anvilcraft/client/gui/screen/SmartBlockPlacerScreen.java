@@ -928,36 +928,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 获取扫描器的朝向
         int scannerFacingValue = data.scannerFacing;
         
-        // 计算相对旋转角度
-        // Scanner朝向与放置器朝向是镜像对应的，需要转换
-        int scannerToPlacerMapping = switch (scannerFacingValue) {
-            case 2 -> 3;  // Scanner北 → 放置器南
-            case 3 -> 2;  // Scanner南 → 放置器北
-            case 4 -> 5;  // Scanner西 → 放置器东
-            case 5 -> 4;  // Scanner东 → 放置器西
-            default -> scannerFacingValue;
-        };
-        
-        // 转换为0-3的索引用于计算旋转 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
-        // 并根据放置器朝向应用修正：东+3, 西+1, 南+2, 北+0
-        int placerIndex = switch (placerFacing) {
-            case NORTH -> 0;  // 北：无修正
-            case EAST -> (1 + 3) % 4;  // 东：+3
-            case SOUTH -> (2 + 2) % 4;  // 南：+2
-            case WEST -> (3 + 1) % 4;   // 西：+1
-            default -> 0;
-        };
-        
-        int scannerIndex = switch (scannerToPlacerMapping) {
-            case 2 -> 0;  // NORTH
-            case 5 -> 1;  // EAST
-            case 3 -> 2;  // SOUTH
-            case 4 -> 3;  // WEST
-            default -> 0;
-        };
-        
-        // 计算旋转步数（顺时针）
-        int rotationSteps = (placerIndex - scannerIndex + 4) % 4;
+        // 计算相对旋转步数
+        int rotationSteps = this.calculatePreviewRotationSteps(placerFacing, scannerFacingValue);
         if (rotationSteps == 0) {
             // 不需要旋转，直接返回原始数据
             return data.blocks;
@@ -990,6 +962,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                     rotatedX = relZ;
                     rotatedZ = -relX;
                 }
+                default -> {
+                    // rotationSteps 为 0，不需要旋转
+                }
             }
             
             // 转换回绝对坐标
@@ -1003,6 +978,45 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
         
         return rotatedBlocks;
+    }
+    
+    /**
+     * 计算放置器和扫描器之间的相对旋转步数
+     * 
+     * @param placerFacing 放置器朝向
+     * @param scannerFacingValue 扫描器朝向值
+     * @return 旋转步数(0-3)
+     */
+    private int calculatePreviewRotationSteps(Direction placerFacing, int scannerFacingValue) {
+        // Scanner朝向与放置器朝向是镜像对应的，需要转换
+        int scannerToPlacerMapping = switch (scannerFacingValue) {
+            case 2 -> 3;  // Scanner北 → 放置器南
+            case 3 -> 2;  // Scanner南 → 放置器北
+            case 4 -> 5;  // Scanner西 → 放置器东
+            case 5 -> 4;  // Scanner东 → 放置器西
+            default -> scannerFacingValue;
+        };
+        
+        // 转换为0-3的索引用于计算旋转 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
+        // 并根据放置器朝向应用修正：东+3, 西+1, 南+2, 北+0
+        int placerIndex = switch (placerFacing) {
+            case NORTH -> 0;  // 北：无修正
+            case EAST -> (1 + 3) % 4;  // 东：+3
+            case SOUTH -> (2 + 2) % 4;  // 南：+2
+            case WEST -> (3 + 1) % 4;   // 西：+1
+            default -> 0;
+        };
+        
+        int scannerIndex = switch (scannerToPlacerMapping) {
+            case 2 -> 0;  // NORTH
+            case 5 -> 1;  // EAST
+            case 3 -> 2;  // SOUTH
+            case 4 -> 3;  // WEST
+            default -> 0;
+        };
+        
+        // 计算旋转步数（顺时针）
+        return (placerIndex - scannerIndex + 4) % 4;
     }
     
     /**

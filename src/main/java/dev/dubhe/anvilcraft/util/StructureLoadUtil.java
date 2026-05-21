@@ -1,16 +1,16 @@
 package dev.dubhe.anvilcraft.util;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +34,9 @@ public class StructureLoadUtil {
      * @param diskStack 结构磁盘物品
      * @return 结构数据，如果读取失败返回 null
      */
+    @Nullable
     public static StructureData loadStructureFromDisk(Level level, ItemStack diskStack) {
-        if (level == null) {
-            LOGGER.error("Failed to load structure: level is null");
-            return null;
-        }
-        
+
         // 从磁盘读取结构信息
         var customData = diskStack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) {
@@ -152,7 +149,7 @@ public class StructureLoadUtil {
         // 这种情况在单人游戏中不应该发生，但为了健壮性保留
         try {
             var minecraft = net.minecraft.client.Minecraft.getInstance();
-            if (minecraft != null && minecraft.level != null) {
+            if (minecraft.level != null) {
                 // 优先使用 integratedServer（单人游戏服务端）
                 var integratedServer = minecraft.getSingleplayerServer();
                 if (integratedServer != null) {

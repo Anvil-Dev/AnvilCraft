@@ -77,6 +77,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // 已加载的结构数据
     @Nullable
     private StructureLoadUtil.StructureData loadedStructure = null;
+    /**
+     * -- GETTER --
+     *  获取已加载的结构名称
+     */
     private String loadedStructureName = "";
     
     // 结构加载状态追踪 - 用于避免重复加载
@@ -204,7 +208,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     /**
      * 保存结构数据到NBT
+     *
+     * @param data 结构数据
+     * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
      */
+    @SuppressWarnings("unused")
     private CompoundTag saveStructureData(StructureLoadUtil.StructureData data, HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.putString("structureName", data.structureName);
@@ -225,7 +233,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             try {
                 net.minecraft.world.level.block.state.BlockState.CODEC.encodeStart(
                     net.minecraft.nbt.NbtOps.INSTANCE, blockPos.state()
-                ).result().ifPresent(encoded -> blockTag.put("state", (CompoundTag) encoded));
+                ).result().ifPresent(encoded -> blockTag.put("state", encoded));
             } catch (Exception e) {
                 org.slf4j.LoggerFactory.getLogger(SmartBlockPlacerBlockEntity.class)
                     .warn("Failed to save block state: {}", e.getMessage());
@@ -239,7 +247,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     /**
      * 从NBT加载结构数据
+     *
+     * @param tag NBT标签
+     * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
      */
+    @SuppressWarnings("unused")
     private StructureLoadUtil.StructureData loadStructureData(CompoundTag tag, HolderLookup.Provider provider) {
         StructureLoadUtil.StructureData data = new StructureLoadUtil.StructureData();
         data.structureName = tag.getString("structureName");
@@ -339,7 +351,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         } else {
             // 加载新结构（客户端和服务端都加载）
             StructureLoadUtil.StructureData data = StructureLoadUtil.loadStructureFromDisk(this.level, diskStack);
-            if (data != null && !data.isEmpty()) {
+            if (!data.isEmpty()) {
                 // 根据相对朝向旋转结构
                 this.rotateStructureData(data);
                 
@@ -375,21 +387,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public StructureLoadUtil.StructureData getLoadedStructure() {
         return this.loadedStructure;
     }
-    
-    /**
-     *
-     * 获取已加载的结构名称
-     */
-    public String getLoadedStructureName() {
-        return this.loadedStructureName;
-    }
-    
+
     /**
      * 根据放置器和扫描器的相对朝向旋转结构数据
      * 注意：Scanner的朝向与放置器是镜像对应的（Scanner南=放置器北，Scanner东=放置器西）
      */
+    @SuppressWarnings("checkstyle:OperatorWrap")
     private void rotateStructureData(StructureLoadUtil.StructureData data) {
-        if (this.level == null || this.getBlockPos() == null) return;
+        if (this.level == null) return;
         
         // 获取放置器的朝向（安全检查：确保方块State包含facing属性）
         BlockState state = this.level.getBlockState(this.getBlockPos());
@@ -397,50 +402,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         Direction placerFacing = state.getValue(HorizontalDirectionalBlock.FACING);
         int placerFacingValue = placerFacing.get3DDataValue();
-        
+                
         // 获取扫描器的朝向
         int scannerFacingValue = data.scannerFacing;
-        
-        // 计算相对旋转角度
-        // Scanner朝向与放置器朝向是镜像对应的，需要转换
-        // Scanner: NORTH(2), SOUTH(3), WEST(4), EAST(5)
-        // 放置器: NORTH(2), SOUTH(3), WEST(4), EAST(5)
-        // 转换关系：Scanner南(3)→放置器北(2)，Scanner东(5)→放置器西(4)
-        int scannerToPlacerMapping = switch (scannerFacingValue) {
-            case 2 -> 3;  // Scanner北 → 放置器南
-            case 3 -> 2;  // Scanner南 → 放置器北
-            case 4 -> 5;  // Scanner西 → 放置器东
-            case 5 -> 4;  // Scanner东 → 放置器西
-            default -> scannerFacingValue;
-        };
-        
-        // 转换为0-3的索引用于计算旋转 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
-        // 并根据放置器朝向应用修正：东+3, 西+1, 南+2, 北+0
-        int placerIndex = switch (placerFacing) {
-            case NORTH -> 0;  // 北：无修正
-            case EAST -> (1 + 3) % 4;  // 东：+3
-            case SOUTH -> (2 + 2) % 4;  // 南：+2
-            case WEST -> (3 + 1) % 4;   // 西：+1
-            default -> 0;
-        };
-        
-        int scannerIndex = switch (scannerToPlacerMapping) {
-            case 2 -> 0;  // NORTH
-            case 5 -> 1;  // EAST
-            case 3 -> 2;  // SOUTH
-            case 4 -> 3;  // WEST
-            default -> 0;
-        };
-        
-        // 计算旋转步数（顺时针）
-        int rotationSteps = (placerIndex - scannerIndex + 4) % 4;
+                
+        // 计算相对旋转步数
+        int rotationSteps = this.calculateRotationSteps(placerFacing, scannerFacingValue);
         
         if (rotationSteps == 0) return;  // 朝向相同，不需要旋转
         
         System.out.println("[SmartBlockPlacer] 结构旋转: Scanner=" + scannerFacingValue +
-                           ", Placer=" + placerFacingValue +
-                          ", 映射后Scanner=" + scannerToPlacerMapping + 
-                          ", 旋转步数=" + rotationSteps);
+                           ", Placer=" + placerFacingValue + 
+                           ", 旋转步数=" + rotationSteps);
         
         // 旋转所有方块
         List<StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
@@ -469,6 +442,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     rotatedX = relZ;
                     rotatedZ = -relX;
                 }
+                default -> {
+                    // rotationSteps 为 0，不需要旋转
+                }
             }
             
             // 转换回绝对坐标
@@ -487,6 +463,48 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
+     * 计算放置器和扫描器之间的相对旋转步数
+     * 
+     * @param placerFacing 放置器朝向
+     * @param scannerFacingValue 扫描器朝向值
+     * @return 旋转步数(0-3)
+     */
+    private int calculateRotationSteps(Direction placerFacing, int scannerFacingValue) {
+        // Scanner朝向与放置器朝向是镜像对应的,需要转换
+        // Scanner: NORTH(2), SOUTH(3), WEST(4), EAST(5)
+        // 放置器: NORTH(2), SOUTH(3), WEST(4), EAST(5)
+        // 转换关系:Scanner南(3)→放置器北(2),Scanner东(5)→放置器西(4)
+        int scannerToPlacerMapping = switch (scannerFacingValue) {
+            case 2 -> 3;  // Scanner北 → 放置器南
+            case 3 -> 2;  // Scanner南 → 放置器北
+            case 4 -> 5;  // Scanner西 → 放置器东
+            case 5 -> 4;  // Scanner东 → 放置器西
+            default -> scannerFacingValue;
+        };
+        
+        // 转换为0-3的索引用于计算旋转 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
+        // 并根据放置器朝向应用修正:东+3, 西+1, 南+2, 北+0
+        int placerIndex = switch (placerFacing) {
+            case NORTH -> 0;  // 北:无修正
+            case EAST -> (1 + 3) % 4;  // 东:+3
+            case SOUTH -> (2 + 2) % 4;  // 南:+2
+            case WEST -> (3 + 1) % 4;   // 西:+1
+            default -> 0;
+        };
+        
+        int scannerIndex = switch (scannerToPlacerMapping) {
+            case 2 -> 0;  // NORTH
+            case 5 -> 1;  // EAST
+            case 3 -> 2;  // SOUTH
+            case 4 -> 3;  // WEST
+            default -> 0;
+        };
+        
+        // 计算旋转步数(顺时针)
+        return (placerIndex - scannerIndex + 4) % 4;
+    }
+    
+    /**
      * 旋转方块的朝向属性
      */
     private BlockState rotateBlockState(BlockState state, int rotationSteps) {
@@ -495,10 +513,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         // 获取方块的FACING属性
         if (state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
             Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
-            
-            // 计算旋转后的朝向
-            int facingValue = facing.get3DDataValue();  // NORTH=2, EAST=5, SOUTH=3, WEST=4
-            int rotatedValue;
             
             // 转换为0-3的索引 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
             int facingIndex = switch (facing) {
@@ -663,6 +677,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             case PICKUP -> this.placeBlocks(level, pos);
             case MOVE -> this.moveBlocks(level, pos);
             case BLUEPRINT -> this.placeBlueprintBlocks(level, pos);
+            default -> {}
         }
     }
     
@@ -674,6 +689,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             case PICKUP -> this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
             case MOVE -> this.prepareMoveModeHeldBlock(level, pos);
             case BLUEPRINT -> this.prepareBlueprintModeHeldBlock(level, pos);
+            default -> {}
         }
     }
     
@@ -741,31 +757,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         // 没有找到有物品的方块
         this.currentHeldBlock = ItemStack.EMPTY;
-    }
-    
-    private void tickPickupMode(Level level, BlockPos pos) {
-        tickWorkMode(level, pos, WorkMode.PICKUP);
-    }
-    
-    private void tickMoveMode(Level level, BlockPos pos) {
-        tickWorkMode(level, pos, WorkMode.MOVE);
-    }
-    
-    /**
-     * 获取当前要放置的蓝图方块
-     */
-    @Nullable
-    private StructureLoadUtil.BlockPosition getCurrentBlueprintBlock() {
-        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
-            return null;
-        }
-        
-        // 根据 currentPlacementIndex 获取对应的结构方块
-        if (this.currentPlacementIndex >= 0 && this.currentPlacementIndex < this.loadedStructure.blocks.size()) {
-            return this.loadedStructure.blocks.get(this.currentPlacementIndex);
-        }
-        
-        return null;
     }
     
     /**
@@ -886,7 +877,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 BlockState targetState = level.getBlockState(targetPos);
                             
-                if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
+                if (targetState.isAir() || this.canBePlaced(level, targetState, null)) {
                     return true;
                 }
             }
@@ -927,29 +918,29 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     /**
-     * 判断是否不能放置方块
+     * 判断是否可以放置方块（覆盖已有方块）
      */
-    private boolean canNotBePlaced(Level level, BlockState blockState, @Nullable net.minecraft.world.item.BlockItem blockItem) {
+    private boolean canBePlaced(Level level, BlockState blockState, @Nullable net.minecraft.world.item.BlockItem blockItem) {
         if (level instanceof net.minecraft.server.level.ServerLevel) {
             if (!blockState.getFluidState().isEmpty()) {
-                return false;
+                return true;
             }
             if (blockState.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG) 
                 && blockState.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS) < 4) {
-                return blockItem != null && blockState.getBlock() != blockItem.getBlock();
+                return blockItem != null && blockState.getBlock() == blockItem.getBlock();
             }
             if (blockState.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE) 
                 && blockState.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES) < 4) {
-                return blockItem != null && blockState.getBlock() != blockItem.getBlock();
+                return blockItem != null && blockState.getBlock() == blockItem.getBlock();
             }
             if (blockState.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
                 if (blockState.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES) >= 4) {
-                    return true;
+                    return false;
                 }
-                return blockItem != null && blockState.getBlock() != blockItem.getBlock();
+                return blockItem != null && blockState.getBlock() == blockItem.getBlock();
             }
         }
-        return true;
+        return false;
     }
     
     /**
@@ -965,11 +956,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (targetState.isAir()) {
             return true;
         }
-        return !this.canNotBePlaced(level, targetState, blockItem);
+        return this.canBePlaced(level, targetState, blockItem);
     }
 
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
-        return !getBlockItemFromContainer(level, placerPos, false).isEmpty();
+        return !getBlockItemFromContainer(level, placerPos).isEmpty();
     }
 
     private Direction getFacing(BlockPos pos, Level level) {
@@ -984,14 +975,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         
         // 使用预提取逻辑，放置成功后才真正删除ItemEntity
-        executeUnifiedBlockOperationWithExtraction(level, placerPos, facing, upsideDown,
+        executeUnifiedBlockOperationWithExtraction(level, facing, upsideDown,
             () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
             (index) -> this.preExtractBlockItemFromContainer(level, placerPos),  // 预提取
             () -> this.peekBlockItemFromContainer(level, placerPos),
             (blockItem, blockItemObj, targetPos, extractionResult) -> {
                 this.currentHeldBlock = ItemStack.EMPTY;
                 BlockState newState = level.getBlockState(targetPos);
-                return !newState.isAir() && !this.canNotBePlaced(level, newState, blockItemObj);
+                return !newState.isAir() && this.canBePlaced(level, newState, blockItemObj);
             }
         );
     }
@@ -1233,7 +1224,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private void executeUnifiedBlockOperationWithExtraction(
         Level level, 
-        BlockPos placerPos, 
         Direction facing, 
         boolean upsideDown,
         java.util.function.Supplier<List<BlockPos>> positionProvider,
@@ -1280,8 +1270,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             // 预提取物品（不真正删除ItemEntity）
             ExtractionResult extractionResult = itemExtractor.apply(index);
-            if (extractionResult == null || extractionResult.getItemStack().isEmpty() || 
-                !(extractionResult.getItemStack().getItem() instanceof BlockItem blockItemObj)) {
+            if (extractionResult == null || extractionResult.getItemStack().isEmpty()
+                || !(extractionResult.getItemStack().getItem() instanceof BlockItem blockItemObj)) {
                 // 容器中没有物品或物品类型不对，立即停止
                 this.currentHeldBlock = ItemStack.EMPTY;  // 清空动画显示
                 this.currentPlacementIndex = (index + 1) % allPositions.size();
@@ -1339,8 +1329,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Direction right = facing.getClockWise();
         
         for (StructureLoadUtil.BlockPosition blueprintBlock : this.loadedStructure.blocks) {
-            int yOffset = upsideDown ? blueprintBlock.y() - 4 : blueprintBlock.y();
-            BlockPos targetPos = basePos.atY(basePos.getY() + yOffset)
+            int yoffset = upsideDown ? blueprintBlock.y() - 4 : blueprintBlock.y();
+            BlockPos targetPos = basePos.atY(basePos.getY() + yoffset)
                 .relative(right, blueprintBlock.z() - 2)
                 .relative(right.getClockWise(), blueprintBlock.x() - 2);
             positions.add(targetPos);
@@ -1371,7 +1361,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
             level, targetPos, orientation, blockItemObj, blockItem) != net.minecraft.world.InteractionResult.FAIL;
     }
-
 
     /**
      * 检查方块是否正在被智能放置器移动
@@ -1432,13 +1421,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private ItemStack peekBlockItemFromContainer(Level level, BlockPos placerPos) {
-        return this.getBlockItemFromContainer(level, placerPos, false);
-    }
-
-    private ItemStack extractBlockItemFromContainer(Level level, BlockPos placerPos) {
-        // 使用新的预提取逻辑
-        ExtractionResult result = preExtractBlockItemFromContainer(level, placerPos);
-        return result != null ? result.getItemStack() : ItemStack.EMPTY;
+        return this.getBlockItemFromContainer(level, placerPos);
     }
     
     /**
@@ -1529,7 +1512,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             level.addFreshEntity(bucketEntity);
         }
         
-        return new ExtractionResult(extracted, itemEntity, true, level, inputPos);
+        return new ExtractionResult(extracted, itemEntity, true);
     }
     
     /**
@@ -1540,7 +1523,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @param targetBlock 目标方块
      * @return 预览的物品，如果没有找到则返回 EMPTY
      */
-    private ItemStack peekSpecificBlockItemFromContainer(Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
+    private ItemStack peekSpecificBlockItemFromContainer(
+        Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
         Direction facing = this.getFacing(placerPos, level);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
 
@@ -1618,7 +1602,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @param targetBlock 目标方块
      * @return 提取的物品，如果没有找到则返回 EMPTY
      */
-    private ItemStack extractSpecificBlockItemFromContainer(Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
+    private ItemStack extractSpecificBlockItemFromContainer(
+        Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
         Direction facing = this.getFacing(placerPos, level);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
 
@@ -1706,7 +1691,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return extracted;
     }
 
-    private ItemStack getBlockItemFromContainer(Level level, BlockPos placerPos, boolean extract) {
+    private ItemStack getBlockItemFromContainer(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
 
@@ -1715,13 +1700,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
             ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
             if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
-                if (extract) {
-                    ItemStack extracted = itemHandler.extractItem(slot, 1, false);
-                    if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
-                        itemHandler.insertItem(slot, new ItemStack(net.minecraft.world.item.Items.BUCKET), false);
-                    }
-                    return extracted;
-                }
                 return blockItemStack.copy();
             }
         }
@@ -1741,11 +1719,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         for (slot = 0; slot < entityHandler.getSlots(); slot++) {
                             ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
                             if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
-                                if (!extract) {
-                                    return blockItemStack.copy();
-                                } else {
-                                    return entityHandler.extractItem(slot, 1, false);
-                                }
+                                return blockItemStack.copy();
                             }
                         }
                     }
@@ -1776,20 +1750,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return ItemStack.EMPTY;
         }
 
-        // 提取时先保存物品副本，再修改实体数量
-        ItemStack extracted = itemEntity.getItem().copyWithCount(1);
-        if (extract) {
-            int count = itemEntity.getItem().getCount();
-            if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
-                itemEntity.setItem(new ItemStack(net.minecraft.world.item.Items.BUCKET, count));
-                itemEntity.setDeltaMovement(0, 0, 0);
-            } else if (count > 1) {
-                itemEntity.getItem().setCount(count - 1);
-            } else {
-                itemEntity.discard();
-            }
-            return extracted;
-        }
         return itemEntity.getItem().copy();
     }
     
@@ -1798,41 +1758,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 用于支持"预提取"逻辑：先获取物品信息，放置成功后再真正删除
      */
     private static class ExtractionResult {
+        @Getter
         private final ItemStack itemStack;
         @Nullable
-        private final ItemEntity sourceItemEntity;  // 如果来源是ItemEntity，记录引用
+        private final ItemEntity sourceItemEntity;  // 如果来源是ItemEntity,记录引用
+        @Getter
         private final boolean fromItemEntity;
-        @Nullable
-        private final Level level;  // 用于生成空桶掉落物
-        @Nullable
-        private final BlockPos inputPos;  // 用于生成空桶掉落物的位置
-        
+            
         ExtractionResult(ItemStack itemStack, @Nullable ItemEntity sourceItemEntity, boolean fromItemEntity) {
-            this(itemStack, sourceItemEntity, fromItemEntity, null, null);
-        }
-        
-        ExtractionResult(ItemStack itemStack, @Nullable ItemEntity sourceItemEntity, boolean fromItemEntity, 
-                         @Nullable Level level, @Nullable BlockPos inputPos) {
             this.itemStack = itemStack;
             this.sourceItemEntity = sourceItemEntity;
             this.fromItemEntity = fromItemEntity;
-            this.level = level;
-            this.inputPos = inputPos;
         }
-        
-        public ItemStack getItemStack() {
-            return itemStack;
-        }
-        
-        @Nullable
-        public ItemEntity getSourceItemEntity() {
-            return sourceItemEntity;
-        }
-        
-        public boolean isFromItemEntity() {
-            return fromItemEntity;
-        }
-        
+
         /**
          * 确认提取：在放置成功后调用，真正删除或修改ItemEntity
          * 注意：细雪桶的返还已在预提取阶段处理，这里只需删除细雪桶
@@ -1927,8 +1865,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         );
         
         for (ItemEntity entity : entities) {
-            if (entity.getItem().getItem() == extractedItem.getItem() && 
-                ItemStack.isSameItemSameComponents(entity.getItem(), extractedItem)) {
+            if (entity.getItem().getItem() == extractedItem.getItem()
+                && ItemStack.isSameItemSameComponents(entity.getItem(), extractedItem)) {
                 // 可以堆叠，增加数量
                 int newCount = entity.getItem().getCount() + extractedItem.getCount();
                 entity.getItem().setCount(newCount);
