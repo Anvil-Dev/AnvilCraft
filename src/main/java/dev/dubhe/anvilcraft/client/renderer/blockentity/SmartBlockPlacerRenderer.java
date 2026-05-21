@@ -180,12 +180,28 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
 
             upperArmAngle += horizontalDist <= 2.0f ? -10f :
-                           (horizontalDist >= 4.0f ? -66f :
-                           -10f + (-50f) * (horizontalDist - 2.0f) / 2.0f);
+                           (horizontalDist >= 4.0f ? -50f :
+                           -10f + (-35f) * (horizontalDist - 2.0f) / 2.0f);
 
+            // 在2-4格距离范围内，根据仰角增加小臂角度的动态修正（温和版）
+            float forearmHeightCorrection = 0f;
+            if (horizontalDist > 2.0f && horizontalDist < 4.0f) {
+                // 3格距离附近，高度变化对小臂角度的影响更明显
+                float distFactor = 1.0f - Math.abs(horizontalDist - 3.0f); // 在3格时最大
+                forearmHeightCorrection = elevationAngle * 0.2f * distFactor;
+            }
+            forearmAngle += forearmHeightCorrection;
+            
             forearmAngle += horizontalDist >= 4.0f ? 40f : 0f;
 
-            float clawAngle = 45f - elevationAngle * -0.4f + (isOverRange ? -10f : 0f);
+            // 蟹钳角度增强：在3格距离附近适度增加对高度变化的敏感度
+            float clawHeightSensitivity = -0.4f;
+            if (horizontalDist > 2.0f && horizontalDist < 4.0f) {
+                // 在3格距离时，敏感度从-0.4增加到-0.7（微调版）
+                float distFactor = 1.0f - Math.abs(horizontalDist - 3.0f);
+                clawHeightSensitivity = -0.4f + (-0.3f) * distFactor;
+            }
+            float clawAngle = 45f - elevationAngle * clawHeightSensitivity + (isOverRange ? -10f : 0f);
 
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }

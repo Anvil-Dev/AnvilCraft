@@ -41,23 +41,26 @@ import java.util.Set;
 
 @SuppressWarnings("checkstyle:LineLength")
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "smart_block_placer");
+    private static final ResourceLocation BACKGROUND = SharedTextures.SMART_BLOCK_PLACER_BACKGROUND;
 
     private static final ResourceLocation[] LAYER_DEFAULT = {
-        SharedTextures.textureGui("machine/smart_block_placer/layer_1"),
-        SharedTextures.textureGui("machine/smart_block_placer/layer_2"),
-        SharedTextures.textureGui("machine/smart_block_placer/layer_3"),
-        SharedTextures.textureGui("machine/smart_block_placer/layer_4"),
-        SharedTextures.textureGui("machine/smart_block_placer/layer_5")
+        SharedTextures.SMART_BLOCK_PLACER_LAYER_1,
+        SharedTextures.SMART_BLOCK_PLACER_LAYER_2,
+        SharedTextures.SMART_BLOCK_PLACER_LAYER_3,
+        SharedTextures.SMART_BLOCK_PLACER_LAYER_4,
+        SharedTextures.SMART_BLOCK_PLACER_LAYER_5
     };
 
-    private static final ResourceLocation POSITION_SELECT = SharedTextures.textureGui("machine/smart_block_placer/position_select");
+    private static final ResourceLocation POSITION_SELECT = SharedTextures.SMART_BLOCK_PLACER_POSITION_SELECT;
 
-    private static final ResourceLocation LAYER_ALL = SharedTextures.textureGui("machine/smart_block_placer/layer_all");
-    private static final ResourceLocation LAYER_SINGLE = SharedTextures.textureGui("machine/smart_block_placer/layer_single");
+    private static final ResourceLocation LAYER_ALL = SharedTextures.SMART_BLOCK_PLACER_LAYER_ALL;
+    private static final ResourceLocation LAYER_SINGLE = SharedTextures.SMART_BLOCK_PLACER_LAYER_SINGLE;
 
-    private static final ResourceLocation PICKUP_MODE = SharedTextures.textureGui("machine/smart_block_placer/pickup_mode");
-    private static final ResourceLocation MOVE_MODE = SharedTextures.textureGui("machine/smart_block_placer/move_mode");
+    private static final ResourceLocation PICKUP_MODE = SharedTextures.SMART_BLOCK_PLACER_PICKUP_MODE;
+    private static final ResourceLocation MOVE_MODE = SharedTextures.SMART_BLOCK_PLACER_MOVE_MODE;
+    
+    // 蓝图模式贴图（已在SharedTextures中注册）
+    private static final ResourceLocation BLUEPRINT_MODE_BG = SharedTextures.SMART_BLOCK_PLACER_BLUEPRINT_MODE;
 
     private final List<TriStateButton> layerButtons = new ArrayList<>();
     private final TriStateButton[][] positionButtons = new TriStateButton[5][5];
@@ -133,7 +136,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     
     private void initLayerButtons() {
         this.layerButtons.clear();
-        int buttonX = this.leftPos + 8;
+        // 蓝图模式下向右移动105像素
+        int buttonX = this.leftPos + 8 + (this.isBlueprintMode ? 97 : 0);
         int buttonStartY = this.topPos + 18;
 
         for (int i = 4; i >= 0; i--) {
@@ -158,10 +162,19 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private void initPositionButtons() {
         int gridStartX = this.leftPos + 33;
         int gridStartY = this.topPos + 18;
-        // 蓝图模式下清空选区
-        Set<Integer> currentPositions = this.isBlueprintMode 
-            ? new HashSet<>() 
-            : this.layerPositions.getOrDefault(this.currentViewLayer, new HashSet<>());
+        
+        // 蓝图模式下不渲染位置选择按钮
+        if (this.isBlueprintMode) {
+            for (int row = 0; row < 5; row++) {
+                for (int col = 0; col < 5; col++) {
+                    this.positionButtons[row][col] = null;
+                }
+            }
+            return;
+        }
+        
+        // 正常模式下初始化位置按钮
+        Set<Integer> currentPositions = this.layerPositions.getOrDefault(this.currentViewLayer, new HashSet<>());
 
         for (int row = 0; row < 5; row++) {
             for (int col = 0; col < 5; col++) {
@@ -169,8 +182,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 boolean isSelected = currentPositions.contains(positionIndex);
 
                 TriStateButton button = this.createPositionButton(row, col, positionIndex, gridStartX, gridStartY, isSelected);
-                // 蓝图模式下禁用位置按钮
-                button.active = !this.isBlueprintMode;
                 this.positionButtons[row][col] = button;
                 this.addRenderableWidget(button);
             }
@@ -230,29 +241,42 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      * 根据蓝图模式更新按钮状态
      */
     private void updateButtonsForBlueprintMode() {
-        // Layer 按钮在蓝图模式下保持可用，用于分层查看结构
-        // for (TriStateButton button : this.layerButtons) {
-        //     button.active = !this.isBlueprintMode;
-        // }
+        // 重新初始化Layer按钮（蓝图模式下向右移动105像素）
+        this.removeLayerButtons();
+        this.initLayerButtons();
         
-        // 更新位置按钮
-        for (int row = 0; row < 5; row++) {
-            for (int col = 0; col < 5; col++) {
-                TriStateButton button = this.positionButtons[row][col];
-                if (button != null) {
-                    button.active = !this.isBlueprintMode;
-                    // 蓝图模式下清空选择状态
-                    if (this.isBlueprintMode) {
-                        button.setSelected(false);
+        // 蓝图模式下移除位置按钮
+        if (this.isBlueprintMode) {
+            for (int row = 0; row < 5; row++) {
+                for (int col = 0; col < 5; col++) {
+                    TriStateButton button = this.positionButtons[row][col];
+                    if (button != null) {
+                        this.removeWidget(button);
+                        this.positionButtons[row][col] = null;
                     }
                 }
             }
+        } else {
+            // 正常模式下重新初始化位置按钮
+            this.initPositionButtons();
         }
         
         // 蓝图模式下清空本地 layerPositions
         if (this.isBlueprintMode) {
             this.layerPositions.clear();
         }
+    }
+    
+    /**
+     * 移除所有Layer按钮
+     */
+    private void removeLayerButtons() {
+        for (TriStateButton button : this.layerButtons) {
+            if (button != null) {
+                this.removeWidget(button);
+            }
+        }
+        this.layerButtons.clear();
     }
     
     private TriStateButton createPositionButton(int row, int col, int positionIndex, int startX, int startY, boolean selected) {
@@ -330,12 +354,20 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
     
     private void updatePositionButtons() {
+        // 蓝图模式下不更新位置按钮
+        if (this.isBlueprintMode) {
+            return;
+        }
+        
         Set<Integer> positions = this.layerPositions.getOrDefault(this.currentViewLayer, new HashSet<>());
         for (int row = 0; row < 5; row++) {
             for (int col = 0; col < 5; col++) {
+                TriStateButton button = this.positionButtons[row][col];
+                if (button == null) continue;
+                
                 int positionIndex = row * 5 + col;
                 boolean isSelected = positions.contains(positionIndex);
-                this.positionButtons[row][col].setSelected(isSelected);
+                button.setSelected(isSelected);
                 
                 // 更新tooltip以反映当前层级的选择状态
                 List<Component> tooltipSelected = List.of(
@@ -344,7 +376,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 List<Component> tooltipUnselected = List.of(
                     Component.translatable("screen.anvilcraft.smart_block_placer.position.unselected", row + 1, col + 1)
                 );
-                this.positionButtons[row][col].setTooltips(isSelected ? tooltipSelected : tooltipUnselected);
+                button.setTooltips(isSelected ? tooltipSelected : tooltipUnselected);
             }
         }
     }
@@ -481,6 +513,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        
+        // 蓝图模式下渲染额外贴图（128×128）
+        if (this.isBlueprintMode) {
+            int blueprintX = i + (this.imageWidth - 128) / 2 - 60;
+            int blueprintY = j + (this.imageHeight - 128) / 2 - 19;
+            guiGraphics.blit(BLUEPRINT_MODE_BG, blueprintX, blueprintY, 0, 0, 128, 128, 128, 128);
+        }
     }
     
     @Override
@@ -626,7 +665,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity != null) {
             String structureName = blockEntity.getLoadedStructureName();
-            if (structureName != null && !structureName.isEmpty()) {
+            if (!structureName.isEmpty()) {
                 Component structureText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded", structureName);
                 int textX = this.titleLabelX + 216;
                 int textY = this.titleLabelY + 50;
@@ -824,10 +863,21 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         if (this.isBlueprintMode) {
             var loadedStructure = blockEntity.getLoadedStructure();
             if (loadedStructure != null && !loadedStructure.isEmpty()) {
-                // 渲染结构中的所有方块
-                for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blockPos : loadedStructure.blocks) {
-                    // 将结构方块位置映射到预览窗口中
-                    // 结构坐标可能从0开始，需要适配到5x5的预览范围内
+                // 获取放置器朝向
+                Direction placerFacing = Direction.NORTH;  // 默认
+                if (this.minecraft.level != null) {
+                    BlockState placerState = this.minecraft.level.getBlockState(blockEntity.getBlockPos());
+                    if (placerState.hasProperty(HorizontalDirectionalBlock.FACING)) {
+                        placerFacing = placerState.getValue(HorizontalDirectionalBlock.FACING);
+                    }
+                }
+                
+                // 对结构方块应用旋转（与服务端放置逻辑保持一致）
+                List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = 
+                    this.rotateStructureForPreview(loadedStructure, placerFacing);
+                
+                // 渲染旋转后的结构方块
+                for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blockPos : rotatedBlocks) {
                     int x = blockPos.x();
                     int y = blockPos.y();
                     int z = blockPos.z();
@@ -866,5 +916,129 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         return previewLevelLike;
+    }
+    
+    /**
+     * 为预览旋转结构方块（与SmartBlockPlacerBlockEntity.rotateStructureData保持一致）
+     */
+    private List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotateStructureForPreview(
+        dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData data,
+        Direction placerFacing
+    ) {
+        // 获取扫描器的朝向
+        int scannerFacingValue = data.scannerFacing;
+        
+        // 计算相对旋转角度
+        // Scanner朝向与放置器朝向是镜像对应的，需要转换
+        int scannerToPlacerMapping = switch (scannerFacingValue) {
+            case 2 -> 3;  // Scanner北 → 放置器南
+            case 3 -> 2;  // Scanner南 → 放置器北
+            case 4 -> 5;  // Scanner西 → 放置器东
+            case 5 -> 4;  // Scanner东 → 放置器西
+            default -> scannerFacingValue;
+        };
+        
+        // 转换为0-3的索引用于计算旋转 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
+        // 并根据放置器朝向应用修正：东+3, 西+1, 南+2, 北+0
+        int placerIndex = switch (placerFacing) {
+            case NORTH -> 0;  // 北：无修正
+            case EAST -> (1 + 3) % 4;  // 东：+3
+            case SOUTH -> (2 + 2) % 4;  // 南：+2
+            case WEST -> (3 + 1) % 4;   // 西：+1
+            default -> 0;
+        };
+        
+        int scannerIndex = switch (scannerToPlacerMapping) {
+            case 2 -> 0;  // NORTH
+            case 5 -> 1;  // EAST
+            case 3 -> 2;  // SOUTH
+            case 4 -> 3;  // WEST
+            default -> 0;
+        };
+        
+        // 计算旋转步数（顺时针）
+        int rotationSteps = (placerIndex - scannerIndex + 4) % 4;
+        if (rotationSteps == 0) {
+            // 不需要旋转，直接返回原始数据
+            return data.blocks;
+        }
+        
+        // 旋转所有方块
+        List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
+        int centerX = data.sizeX / 2;
+        int centerZ = data.sizeZ / 2;
+        
+        for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition block : data.blocks) {
+            // 计算相对于中心的坐标
+            int relX = block.x() - centerX;
+            int relZ = block.z() - centerZ;
+            
+            // 根据旋转步数旋转坐标
+            int rotatedX = relX;
+            int rotatedZ = relZ;
+            
+            switch (rotationSteps) {
+                case 1 -> {  // 90度顺时针: (x, z) -> (-z, x)
+                    rotatedX = -relZ;
+                    rotatedZ = relX;
+                }
+                case 2 -> {  // 180度: (x, z) -> (-x, -z)
+                    rotatedX = -relX;
+                    rotatedZ = -relZ;
+                }
+                case 3 -> {  // 270度顺时针: (x, z) -> (z, -x)
+                    rotatedX = relZ;
+                    rotatedZ = -relX;
+                }
+            }
+            
+            // 转换回绝对坐标
+            int newX = rotatedX + centerX;
+            int newZ = rotatedZ + centerZ;
+            
+            // 旋转方块朝向
+            BlockState rotatedState = this.rotateBlockStateForPreview(block.state(), rotationSteps);
+            
+            rotatedBlocks.add(new dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition(newX, block.y(), newZ, rotatedState));
+        }
+        
+        return rotatedBlocks;
+    }
+    
+    /**
+     * 旋转方块的朝向属性（用于预览）
+     */
+    private BlockState rotateBlockStateForPreview(BlockState state, int rotationSteps) {
+        if (rotationSteps == 0) return state;
+        
+        // 获取方块的FACING属性
+        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+            Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+            
+            // 转换为0-3的索引 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
+            int facingIndex = switch (facing) {
+                case NORTH -> 0;
+                case EAST -> 1;
+                case SOUTH -> 2;
+                case WEST -> 3;
+                default -> -1;
+            };
+            
+            if (facingIndex >= 0) {
+                // 旋转
+                int rotatedIndex = (facingIndex + rotationSteps) % 4;
+                Direction rotatedFacing = switch (rotatedIndex) {
+                    case 0 -> Direction.NORTH;
+                    case 1 -> Direction.EAST;
+                    case 2 -> Direction.SOUTH;
+                    case 3 -> Direction.WEST;
+                    default -> facing;
+                };
+                
+                return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
+            }
+        }
+        
+        return state;
     }
 }

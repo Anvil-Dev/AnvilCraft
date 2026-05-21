@@ -56,6 +56,7 @@ public class StructureLoadUtil {
         String fileName = tag.getString("StructureFile");
         String structureName = tag.contains("StructureName") ? tag.getString("StructureName") : "Unknown";
         String uuid = tag.contains("StructureUUID") ? tag.getString("StructureUUID") : "";
+        int scannerFacing = tag.contains("ScannerFacing") ? tag.getInt("ScannerFacing") : 2;  // 默认为NORTH
         
         try {
             // 获取结构文件路径
@@ -74,6 +75,7 @@ public class StructureLoadUtil {
             StructureData data = parseStructureNBT(structureTag, registry);
             data.structureName = structureName;
             data.uuid = uuid;
+            data.scannerFacing = scannerFacing;
             
             // LOGGER.debug("Structure loaded: {} ({} blocks)", structureName, data.blocks.size());
             return data;
@@ -179,6 +181,7 @@ public class StructureLoadUtil {
         public int sizeX = 0;
         public int sizeY = 0;
         public int sizeZ = 0;
+        public int scannerFacing = 2;  // 扫描时的朝向，默认为NORTH
         public List<BlockPosition> blocks = new ArrayList<>();
         
         public boolean isEmpty() {

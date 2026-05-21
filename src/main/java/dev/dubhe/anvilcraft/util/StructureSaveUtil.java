@@ -63,12 +63,17 @@ public class StructureSaveUtil {
             Path structureFile = getStructureDirectory(level).resolve(fileName + ".nbt");
             saveNbtFile(structureTag, structureFile);
             
+            // 获取扫描器的朝向
+            net.minecraft.core.Direction scannerFacing = blockEntity.getDirection();
+            
             // 创建磁盘副本并附加结构信息
             final ItemStack outputDisk = diskStack.copy();
             CompoundTag customDataTag = new CompoundTag();
             customDataTag.putString("StructureUUID", uuid);
             customDataTag.putString("StructureName", structureName);
             customDataTag.putString("StructureFile", fileName + ".nbt");
+            // 保存扫描时的朝向（用于智能放置器自动旋转）
+            customDataTag.putInt("ScannerFacing", scannerFacing.get3DDataValue());
             outputDisk.set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag));
             
             // 放入输出槽，清空输入槽和扫描结果
