@@ -7,10 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DevourUtil {
@@ -62,7 +59,7 @@ public class DevourUtil {
             }
         }
 
-        List<BlockPos> normalizedOriginalPoses = new ArrayList<>();
+        Set<BlockPos> normalizedOriginalPoses = new HashSet<>();
         // BlockPos.betweenClosed: down -> up
         Set<BlockPos> devourTargets = Streams
             .stream(BlockPos.betweenClosed(a, b))
@@ -85,11 +82,10 @@ public class DevourUtil {
                 return originalPos;
             })
             .collect(Collectors.toSet());
-        // include original pos
-        devourTargets.addAll(normalizedOriginalPoses);
 
         LinkedList<BlockPos> l = new LinkedList<>();
-        DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devourTargets);
+        // include original pos, not process twice
+        DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devourTargets, normalizedOriginalPoses);
 
         for (BlockPos devourBlockPos : devourTargets) {
             BlockState devourState = level.getBlockState(devourBlockPos);

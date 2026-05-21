@@ -35,10 +35,12 @@ public class DevouringLevelReader implements LevelReader {
     private static final BlockState AIR_STATE = Blocks.AIR.defaultBlockState();
     private final LevelReader parentLevel;
     private final Set<BlockPos> devouringPoses;
+    private final Set<BlockPos> multiParts;
 
-    public DevouringLevelReader(LevelReader parentLevel, Set<BlockPos> devouringPoses) {
+    public DevouringLevelReader(LevelReader parentLevel, Set<BlockPos> devouringPoses, Set<BlockPos> multiParts) {
         this.parentLevel = parentLevel;
         this.devouringPoses = devouringPoses;
+        this.multiParts = multiParts;
     }
 
     @Override
@@ -138,7 +140,7 @@ public class DevouringLevelReader implements LevelReader {
     @Override
     public BlockState getBlockState(BlockPos blockPos) {
         BlockState blockState = parentLevel.getBlockState(blockPos);
-        if (DevourUtil.canDevour(blockState) && devouringPoses.contains(blockPos)) {
+        if (DevourUtil.canDevour(blockState) && (devouringPoses.contains(blockPos) || multiParts.contains(blockPos))) {
             return AIR_STATE;
         }
         return blockState;
