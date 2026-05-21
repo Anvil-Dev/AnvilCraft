@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.anvil;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
+import dev.dubhe.anvilcraft.util.DevourUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -33,7 +34,7 @@ public class BlockDevourerBehavior implements IAnvilBehavior {
         );
         if (
             hitBlockState.getValue(BlockDevourerBlock.FACING) == Direction.DOWN
-            && BlockDevourerBlock.canDevour(level.getBlockState(hitBlockPos.below()))
+            && DevourUtil.canDevour(level.getBlockState(hitBlockPos.below()))
         ) {
             level.setBlockAndUpdate(hitBlockPos, Blocks.AIR.defaultBlockState());
             level.setBlockAndUpdate(hitBlockPos.below(), hitBlockState.setValue(BlockDevourerBlock.TRIGGERED, true));
