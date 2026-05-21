@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -17,18 +18,29 @@ import net.minecraft.world.phys.Vec3;
  * <p>该类用于定义配方中对炼药锅的要求，包括所需流体、消耗量和转换后的流体</p>
  *
  * @param fluid     流体ID
- * @param consume   消耗量（负数表示产生）
+ * @param consume   消耗量
  * @param transform 转换后的流体ID
+ * @param produce   产生量
  * @param chance    转换成功的概率
+ * @param ignited   是否需要点燃
  */
-public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLocation transform, float chance) {
+public record HasCauldronSimple(
+    ResourceLocation fluid,
+    int consume,
+    ResourceLocation transform,
+    int produce,
+    float chance,
+    boolean ignited
+) {
     /**
      * 构造一个简单的炼药锅条件
      *
      * @param fluid     流体ID
      * @param consume   消耗量
      * @param transform 转换后的流体ID
+     * @param produce   产生量
      * @param chance    转换成功的概率
+     * @param ignited   是否需要点燃
      */
     public HasCauldronSimple {
     }
@@ -47,9 +59,15 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
             ResourceLocation.CODEC
                 .optionalFieldOf("transform", HasCauldron.NULL)
                 .forGetter(HasCauldronSimple::transform),
+            Codec.INT
+                .optionalFieldOf("produce", 0)
+                .forGetter(HasCauldronSimple::produce),
             Codec.FLOAT
                 .optionalFieldOf("chance", 1.0f)
-                .forGetter(HasCauldronSimple::chance)
+                .forGetter(HasCauldronSimple::chance),
+            Codec.BOOL
+                .optionalFieldOf("ignited", false)
+                .forGetter(HasCauldronSimple::ignited)
         ).apply(instance, HasCauldronSimple::new)
     );
 
@@ -60,7 +78,7 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
      * @return HasCauldron谓词
      */
     public HasCauldron toHasCauldron(Vec3 offset) {
-        return new HasCauldron(offset, fluid, consume, transform, chance);
+        return new HasCauldron(offset, this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
     }
 
     /**
@@ -91,8 +109,12 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
         HasCauldronSimple::consume,
         ResourceLocation.STREAM_CODEC,
         HasCauldronSimple::transform,
+        ByteBufCodecs.INT,
+        HasCauldronSimple::produce,
         ByteBufCodecs.FLOAT,
         HasCauldronSimple::chance,
+        ByteBufCodecs.BOOL,
+        HasCauldronSimple::ignited,
         HasCauldronSimple::new
     );
 
@@ -122,7 +144,9 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
         private ResourceLocation fluid = HasCauldron.EMPTY;
         private int consume = 0;
         private ResourceLocation transform = HasCauldron.NULL;
+        private int produce = 0;
         private float chance = 1f;
+        private boolean ignited = false;
 
         /**
          * 创建一个空的构建器
@@ -164,6 +188,7 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
          */
         public Builder transform(ResourceLocation transform) {
             this.transform = transform;
+            if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
             return this;
         }
 
@@ -179,13 +204,34 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
         }
 
         /**
+         * 设置产生量
+         *
+         * @param produce 产生量
+         * @return 构建器实例
+         */
+        public Builder produce(int produce) {
+            this.produce = produce;
+            return this;
+        }
+
+        /**
          * 设置转换成功的概率
          *
          * @param chance 转换成功的概率
          * @return 构建器实例
          */
         public Builder chance(float chance) {
-            this.chance = chance;
+            this.chance = MathUtil.clampWithProportion(chance, 0, 1);
+            return this;
+        }
+
+        /**
+         * 设置需要点燃锅
+         *
+         * @return 构建器实例
+         */
+        public Builder ignite() {
+            this.ignited = true;
             return this;
         }
 
@@ -195,7 +241,7 @@ public record HasCauldronSimple(ResourceLocation fluid, int consume, ResourceLoc
          * @return HasCauldronSimple实例
          */
         public HasCauldronSimple build() {
-            return new HasCauldronSimple(fluid, consume, transform, chance);
+            return new HasCauldronSimple(this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
         }
     }
 }

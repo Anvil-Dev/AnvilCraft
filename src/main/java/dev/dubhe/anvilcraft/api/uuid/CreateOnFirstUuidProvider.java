@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.api.uuid;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.util.Lazy;
 import dev.dubhe.anvilcraft.init.ModUuidProviders;
-import dev.dubhe.anvilcraft.util.Lazy;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

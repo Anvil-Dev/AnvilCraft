@@ -78,49 +78,6 @@
             }
           ]
         }
-      },
-      {
-        "id": "patchouli",
-        "type": "extra",
-        "name": [
-          {
-            "translate": "integration.anvilcraft.guide.patchouli"
-          }
-        ],
-        "links": {
-          "target": [
-            {
-              "type": "mcmod",
-              "url": "https://www.mcmod.cn/class/1388.html"
-            },
-            {
-              "type": "curseforge",
-              "url": "https://www.curseforge.com/minecraft/mc-mods/patchouli"
-            },
-            {
-              "type": "modrinth",
-              "url": "https://modrinth.com/mod/patchouli"
-            },
-            {
-              "type": "github",
-              "url": "https://github.com/VazkiiMods/Patchouli"
-            }
-          ],
-          "extra": [
-            {
-              "type": "curseforge",
-              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-patchouli"
-            },
-            {
-              "type": "modrinth",
-              "url": "https://modrinth.com/project/anvilcraft-patchouli"
-            },
-            {
-              "type": "github",
-              "url": "https://github.com/Anvil-Dev/AnvilCraft-Patchouli"
-            }
-          ]
-        }
       }
     ],
     "recipe_query": [

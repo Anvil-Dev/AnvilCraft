@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -8,8 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.ListUtil;
-import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -182,6 +183,11 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.FROST_ANVIL.asItem(), "Wither proof");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Wither proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Wither proof");
 
         SHIFT.put(ModBlocks.SPECTRAL_ANVIL.asItem(),
             "When the upper magnet is demagnetized, a phantom shadow is created and falls downward. "
@@ -190,6 +196,10 @@ public class ItemTooltipManager {
             When powered by redstone, this block places a block in front of it.
             If struck by a falling anvil, the placement distance increases — the farther the anvil falls, the farther the block is placed.
             No internal inventory and must obtain blocks from dropped items or container inventories behind it""");
+        SHIFT.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), """
+            Advanced block placer with 5x5x5 placement area, configurable via GUI.
+            Supports pickup mode (from containers) and move mode (direct block movement).
+            Requires power supply, consumes 16 kW.""");
         SHIFT.put(ModBlocks.BLOCK_DEVOURER.asItem(), """
             When powered by redstone, this block instantly breaks a 3×3 area of blocks in front of it.
             If struck by a falling anvil, the breaking range increases — the farther the anvil falls, the larger the area it destroys.
@@ -241,6 +251,14 @@ public class ItemTooltipManager {
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
+        if (stack.has(ModComponents.STORED_ENERGY)) {
+            propertyTooltip(
+                "stored_energy",
+                tooltip,
+                ChatFormatting.GRAY,
+                UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
+            );
+        }
         if (stack.has(ModComponents.MULTIPHASE)) {
             if (AnvilCraftClient.CONFIG.showMultiphaseStoredId) {
                 propertyTooltip(
@@ -314,7 +332,7 @@ public class ItemTooltipManager {
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
 
-    private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color) {
+    private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color, Object... args) {
         int i = 0;
         for (int j = 0; j < tooltip.size(); j++) {
             if (tooltip.get(j).getContents() instanceof TranslatableContents t && t.getKey().contains("enchantment")
@@ -330,7 +348,7 @@ public class ItemTooltipManager {
         }
         tooltip.add(
             1 + i,
-            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName)).withStyle(color)
+            Component.translatable("tooltip.anvilcraft.property.%s".formatted(propertyName), args).withStyle(color)
         );
     }
 

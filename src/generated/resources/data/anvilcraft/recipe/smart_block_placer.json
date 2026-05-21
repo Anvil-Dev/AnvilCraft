@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "A": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:crab_claw"
+    },
+    "C": {
+      "item": "anvilcraft:processor"
+    },
+    "D": {
+      "item": "minecraft:hopper"
+    },
+    "E": {
+      "item": "anvilcraft:magnetoelectric_core"
+    }
+  },
+  "pattern": [
+    "AAB",
+    "AC ",
+    "DEA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:smart_block_placer"
+  }
+}

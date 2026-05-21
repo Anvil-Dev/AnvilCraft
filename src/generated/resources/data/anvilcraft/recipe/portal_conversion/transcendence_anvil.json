@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:portal_conversion",
+  "input": {
+    "blocks": "anvilcraft:transcendence_anvil"
+  },
+  "portal": "minecraft:end_portal",
+  "result": {
+    "block": "anvilcraft:spectral_anvil"
+  }
+}

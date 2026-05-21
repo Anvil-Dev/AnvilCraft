@@ -1,0 +1,23 @@
+{
+    DataVersion: 3955,
+    size: [3, 4, 1],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:cauldron"},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:water_cauldron{level:1}"},
+        {pos: [0, 1, 0], state: "minecraft:wet_sponge"},
+        {pos: [2, 1, 0], state: "minecraft:sponge"},
+        {pos: [2, 2, 0], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 3, 0], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:wet_sponge",
+        "minecraft:sponge",
+        "minecraft:barrier{waterlogged:false}",
+        "minecraft:cauldron",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:water_cauldron{level:1}",
+        "minecraft:anvil{facing:west}"
+    ]
+}

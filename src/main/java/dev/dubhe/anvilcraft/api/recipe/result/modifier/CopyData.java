@@ -6,18 +6,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
-import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 复制指定输入物品的数据。
@@ -43,9 +38,8 @@ public record CopyData(List<ICustomDataComponent<?>> types) implements IResultMo
 
     @Override
     public void modify(ResultContext ctx) {
-        Map<RecipeInputSlot, ItemStack> cache = new HashMap<>();
         for (ICustomDataComponent<?> type : this.types) {
-            CopyData.wrapModify(ctx, type, cache);
+            CopyData.wrappedMake(ctx, type);
         }
     }
 
@@ -54,20 +48,8 @@ public record CopyData(List<ICustomDataComponent<?>> types) implements IResultMo
         return ModResultModifierTypes.COPY_DATA.get();
     }
 
-    private static <T> void wrapModify(
-        ResultContext ctx, ICustomDataComponent<T> type, Map<RecipeInputSlot, ItemStack> cache
-    ) {
-        var required = type.getRequired();
-        List<Object> data = new ArrayList<>();
-        for (var entry : required) {
-            ItemStack source = cache.computeIfAbsent(entry.slot(), slot -> IResultModifier.getInput(ctx, slot));
-            Object value = source.get(entry.component());
-            if (value == null && !entry.isNullable()) throw new IllegalArgumentException(
-                "The value of type %s cannot be null in the %s.".formatted(entry.component(), entry.slot().getSerializedName())
-            );
-            data.add(value);
-        }
-        type.applyToStack(ctx.getResult(), type.make(data));
+    private static <T> void wrappedMake(ResultContext ctx, ICustomDataComponent<T> type) {
+        type.applyToStack(ctx.getResult(), type.make(ctx));
     }
 
     public static class Type implements IResultModifier.Type<CopyData> {

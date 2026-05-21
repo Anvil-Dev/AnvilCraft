@@ -1,13 +1,18 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
+import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -30,7 +35,7 @@ import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
 public class LargeFluidTankBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeFluidTankBlock>, IHammerRemovable {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeFluidTankBlock>, IHammerRemovable, IController {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
     public LargeFluidTankBlock(Properties properties) {
@@ -112,5 +117,32 @@ public class LargeFluidTankBlock
     @Override
     protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
+    }
+
+    @Override
+    public Block getBlock() {
+        return this;
+    }
+
+    @Override
+    public ResourceLocation getDefinitionId() {
+        return ModMultiblockDefinitions.LARGE_FLUID_TANK.location();
+    }
+
+    @Override
+    public void onFormed(Level level, MultiblockState state) {
+        level.getBlockEntity(state.getControllerPos(), ModBlockEntities.LARGE_FLUID_TANK.get())
+            .ifPresent(LargeFluidTankBlockEntity::onFormed);
+    }
+
+    @Override
+    public void onUnformed(Level level, MultiblockState state) {
+        level.getBlockEntity(state.getControllerPos(), ModBlockEntities.LARGE_FLUID_TANK.get())
+            .ifPresent(LargeFluidTankBlockEntity::onUnformed);
+    }
+
+    @Override
+    public BlockPos correctPos(ServerLevel level, BlockPos pos, BlockState state) {
+        return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
     }
 }

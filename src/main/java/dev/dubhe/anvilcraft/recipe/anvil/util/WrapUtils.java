@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.recipe.anvil.util;
 
-import dev.anvilcraft.lib.v2.recipe.component.BlockStatePredicate;
-import dev.anvilcraft.lib.v2.recipe.component.ChanceBlockState;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
+import dev.anvilcraft.lib.v2.recipe.outcome.SetBlock;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlock;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlockIngredient;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -91,7 +93,7 @@ public class WrapUtils {
      * @return 结果列表
      */
     public static @Unmodifiable List<IRecipeOutcome<?>> getOutcomes(ChanceBlockState result, int offsetY) {
-        return List.of(result.toSetBlock(new Vec3(0, offsetY, 0)));
+        return List.of(SetBlock.fromState(result, new Vec3(0, offsetY, 0)));
     }
 
     /**
@@ -118,7 +120,7 @@ public class WrapUtils {
         List<IRecipeOutcome<?>> outcomes = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) {
             ChanceBlockState result = results.get(i);
-            outcomes.add(result.toSetBlock(new Vec3(0, -i - 1, 0)));
+            outcomes.add(SetBlock.fromState(result, new Vec3(0, -i - 1, 0)));
         }
         return outcomes;
     }
@@ -176,10 +178,12 @@ public class WrapUtils {
      * @return 流体ID
      */
     public static ResourceLocation cauldron2Fluid(Block cauldron) {
+        ResourceLocation fluid = CompatUtil.getFluidFromCauldron(cauldron);
+        if (fluid != null) return fluid;
         ResourceLocation key = BuiltInRegistries.BLOCK.getKey(cauldron);
         String namespace = key.getNamespace();
         String path = key.getPath();
-        if (path.endsWith("_cauldron")) path = path.substring(0, path.length() - 9);
+        path = path.endsWith("_cauldron") ? path.substring(0, path.length() - 9) : "empty";
         return ResourceLocation.fromNamespaceAndPath(namespace, path);
     }
 }

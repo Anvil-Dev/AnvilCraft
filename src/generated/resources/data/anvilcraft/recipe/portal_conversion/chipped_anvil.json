@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:portal_conversion",
+  "input": {
+    "blocks": "minecraft:chipped_anvil"
+  },
+  "portal": "minecraft:end_portal",
+  "result": {
+    "block": "anvilcraft:spectral_anvil",
+    "chance": 0.02
+  }
+}

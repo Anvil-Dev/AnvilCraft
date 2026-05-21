@@ -13,11 +13,13 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEntity> {
     private static final float LIGHTNING_WIDTH = 1f;
+    private static final AABB BASE_RENDER_BBOX = new AABB(BlockPos.ZERO).inflate(17, 17, 17);
 
     @SuppressWarnings("unused")
     public TeslaTowerRenderer(BlockEntityRendererProvider.Context context) {
@@ -46,8 +48,8 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
                 return;
             }
             end = entity.getEyePosition();
-        } else if (blockEntity.getTargetLightingRot() != null) {
-            end = blockEntity.getTargetLightingRot().getCenter().add(0.0, 0.3, 0.0);
+        } else if (blockEntity.getTargetLightningRod() != null) {
+            end = blockEntity.getTargetLightningRod().getCenter().add(0.0, 0.3, 0.0);
         } else {
             return;
         }
@@ -123,5 +125,12 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
     @Override
     public boolean shouldRenderOffScreen(TeslaTowerBlockEntity blockEntity) {
         return true;
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(TeslaTowerBlockEntity blockEntity) {
+        return TeslaTowerRenderer.BASE_RENDER_BBOX
+            .move(blockEntity.getPos())
+            .move(0, 4, 0);
     }
 }

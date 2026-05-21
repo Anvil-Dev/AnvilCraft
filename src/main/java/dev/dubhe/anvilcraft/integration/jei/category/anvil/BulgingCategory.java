@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -113,14 +114,8 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
             20,
             12,
             RenderSupport.SINGLE_BLOCK);
-        BlockState state;
-        if (recipe.isFromWater()) {
-            state = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
-        } else if (recipe.isProduceFluid()) {
-            state = Blocks.CAULDRON.defaultBlockState();
-        } else {
-            state = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
-        }
+        Block material = recipe.getHasCauldron().getFluidCauldron();
+        BlockState state = CauldronUtil.fullState(material);
         RenderSupport.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 30);
@@ -236,5 +231,6 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.BULGING);
         registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.BULGING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftJeiPlugin.BULGING);
     }
 }

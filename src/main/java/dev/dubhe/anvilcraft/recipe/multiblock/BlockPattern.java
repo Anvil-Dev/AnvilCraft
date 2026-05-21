@@ -2,7 +2,8 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -32,7 +33,7 @@ public class BlockPattern {
 
     public static final Codec<BlockPattern> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.listOf().listOf().fieldOf("layers").forGetter(o -> o.layers),
-            Codec.unboundedMap(CodecUtil.CHAR_CODEC, BlockPredicateWithState.CODEC)
+            Codec.unboundedMap(CodecUtil.CHAR, BlockPredicateWithState.CODEC)
                 .fieldOf("symbols")
                 .forGetter(BlockPattern::getSymbols))
         .apply(ins, BlockPattern::new));
@@ -40,7 +41,7 @@ public class BlockPattern {
     public static final StreamCodec<RegistryFriendlyByteBuf, BlockPattern> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()).apply(ByteBufCodecs.list()),
         BlockPattern::getLayers,
-        ByteBufCodecs.map(HashMap::new, CodecUtil.CHAR_STREAM_CODEC, BlockPredicateWithState.STREAM_CODEC),
+        ByteBufCodecs.map(HashMap::new, StreamCodecUtil.CHAR, BlockPredicateWithState.STREAM_CODEC),
         BlockPattern::getSymbols,
         BlockPattern::new);
 

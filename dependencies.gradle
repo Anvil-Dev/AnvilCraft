@@ -6,10 +6,14 @@ dependencies {
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
     jarJar(libs.anvillib)
 
+    // Ageratum 藿香
+    implementation(libs.ageratum)
+    jarJar(libs.ageratum)
+
     // JEI
-    compileOnlyApi(libs.jeiCommonApi) { transitive = false }
-    compileOnlyApi(libs.jeiForgeApi) { transitive = false }
-    implementation(libs.jeiForgeImpl) { transitive = false }
+    compileOnlyApi(libs.jei.common.api) { transitive = false }
+    compileOnlyApi(libs.jei.forge.api) { transitive = false }
+    implementation(libs.jei.forge) { transitive = false }
 
     // Sodium, Iris, Embeddium
     compileOnly(libs.sodium)

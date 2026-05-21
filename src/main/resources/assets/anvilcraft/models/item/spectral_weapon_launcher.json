@@ -641,5 +641,13 @@
 		41,
 		42,
 		43
+	],
+	"overrides": [
+		{
+			"predicate": {
+				"custom_model_data": 1
+			},
+			"model": "anvilcraft:item/spectral_weapon_launcher_exhausted"
+		}
 	]
 }

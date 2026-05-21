@@ -4,7 +4,9 @@ import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumBlockstateProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
+import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
@@ -12,16 +14,17 @@ import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemSubPredicates;
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -65,38 +68,12 @@ public class DataGenUtil {
             .partialState().with(PowerLevelPressurePlateBlock.POWER, 15).addModels(new ConfiguredModel(pressurePlateDown));
     }
 
-    public static void diodeBlock(RegistrumBlockstateProvider provider, ResourceLocation id, DiodeBlock block) {
-        ModelFile diode = new ModelFile.ExistingModelFile(id.withPrefix("block/"), provider.models().existingFileHelper);
-        ModelFile diodeOn = new ModelFile.ExistingModelFile(
-            id.withPrefix("block/").withSuffix("_on"),
-            provider.models().existingFileHelper
-        );
-
-        provider.getVariantBuilder(block)
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.SOUTH).with(DiodeBlock.POWERED, false)
-            .addModels(new ConfiguredModel(diode))
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.WEST).with(DiodeBlock.POWERED, false)
-            .addModels(new ConfiguredModel(diode, 0, 90, false))
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.NORTH).with(DiodeBlock.POWERED, false)
-            .addModels(new ConfiguredModel(diode, 0, 180, false))
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, false)
-            .addModels(new ConfiguredModel(diode, 0, 270, false))
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.SOUTH).with(DiodeBlock.POWERED, true)
-            .addModels(new ConfiguredModel(diodeOn))
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.WEST).with(DiodeBlock.POWERED, true)
-            .addModels(new ConfiguredModel(diodeOn, 0, 90, false))
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.NORTH).with(DiodeBlock.POWERED, true)
-            .addModels(new ConfiguredModel(diodeOn, 0, 180, false))
-            .partialState()
-            .with(DiodeBlock.FACING, Direction.EAST).with(DiodeBlock.POWERED, true)
-            .addModels(new ConfiguredModel(diodeOn, 0, 270, false));
+    public static <T extends Item> void energy(DataGenContext<Item, T> ctx, CreativeModeTabModifier modifier) {
+        ItemStack stack = ctx.get().getDefaultInstance();
+        stack.set(ModComponents.STORED_ENERGY, 0);
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(1));
+        modifier.accept(stack.copy());
+        modifier.accept(ctx.get().getDefaultInstance());
     }
 
     @SuppressWarnings("unused")

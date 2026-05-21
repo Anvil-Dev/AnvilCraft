@@ -28,10 +28,10 @@ public class BulgingRecipeLoader {
         BulgingRecipeLoader.bulging(provider, Items.FIRE_CORAL, Items.FIRE_CORAL_BLOCK);
         BulgingRecipeLoader.bulging(provider, Items.HORN_CORAL, Items.HORN_CORAL_BLOCK);
         BulgingRecipeLoader.bulging(provider, Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK);
-        BulgingRecipeLoader.bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 333);
+        BulgingRecipeLoader.bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 250);
         BulgingRecipeLoader.bulging(provider, ModItemTags.FLOUR, ModFoodItems.DOUGH);
         BulgingRecipeLoader.bulging(provider, Items.DRIED_KELP, Items.KELP);
-        BulgingRecipeLoader.crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 333);
+        BulgingRecipeLoader.crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 250);
 
         VanillaConstants.CONCRETE_POWDERS.forEach(block -> bulging(provider, block, block.concrete));
 
@@ -44,7 +44,9 @@ public class BulgingRecipeLoader {
 
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
+            .consume(1000)
             .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
+            .produce(1000)
             .requires(ModItems.LIME_POWDER, 4)
             .requires(ModBlocks.CINERITE)
             .save(provider, AnvilCraft.of("bulging/cement_cauldron"));

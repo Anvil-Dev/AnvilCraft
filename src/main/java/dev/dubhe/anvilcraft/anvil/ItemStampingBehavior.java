@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.anvil;
 
-import dev.anvilcraft.lib.v2.recipe.component.ChanceItemStack;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;

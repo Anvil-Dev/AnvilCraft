@@ -73,7 +73,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         MenuType<RoyalGrindstoneMenu> type,
         int containerId,
         Inventory playerInventory,
-        ContainerLevelAccess access) {
+        ContainerLevelAccess access
+    ) {
         super(type, containerId);
         this.repairToolSlots = new SimpleContainer(1) {
             public void setChanged() {
@@ -99,17 +100,17 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
             }
         };
         this.access = access;
-        this.addSlot(new Slot(this.repairToolSlots, 0, 25, 34) {
+        this.addSlot(new Slot(this.repairToolSlots, 0, 15, 33) {
             public boolean mayPlace(ItemStack stack) {
                 return stack.isDamageableItem() || stack.is(Items.ENCHANTED_BOOK) || stack.isEnchanted();
             }
         });
-        this.addSlot(new Slot(this.repairMaterialSlots, 0, 89, 22) {
+        this.addSlot(new Slot(this.repairMaterialSlots, 0, 35, 21) {
             public boolean mayPlace(ItemStack stack) {
                 return isRepairMaterial(stack);
             }
         });
-        this.addSlot(new Slot(this.resultToolSlots, 2, 145, 34) {
+        this.addSlot(new Slot(this.resultToolSlots, 2, 152, 51) {
             public boolean mayPlace(ItemStack stack) {
                 return false;
             }
@@ -123,7 +124,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                 repairToolSlots.setItem(0, ItemStack.EMPTY);
             }
         });
-        this.addSlot(new Slot(this.resultMaterialSlots, 2, 89, 47) {
+        this.addSlot(new Slot(this.resultMaterialSlots, 2, 35, 45) {
             public boolean mayPlace(ItemStack stack) {
                 return false;
             }
@@ -161,8 +162,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         this.totalRepairCost = repairCost;
         ItemStack result = repairTool.copy();
         DataComponentType<ItemEnchantments> enchantmentComponent = result.is(Items.ENCHANTED_BOOK)
-            ? DataComponents.STORED_ENCHANTMENTS
-            : DataComponents.ENCHANTMENTS;
+                                                                   ? DataComponents.STORED_ENCHANTMENTS
+                                                                   : DataComponents.ENCHANTMENTS;
         ItemEnchantments enchantments = result.get(enchantmentComponent);
         ItemEnchantments.Mutable mutEnch = null;
         if (enchantments != null) {
@@ -272,7 +273,9 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
     public void slotsChanged(Container container) {
         super.slotsChanged(container);
         if (container.equals(this.repairMaterialSlots)
-            || container.equals(this.repairToolSlots)) resultToolSlots.setItem(2, createResult());
+            || container.equals(this.repairToolSlots)) {
+            resultToolSlots.setItem(2, createResult());
+        }
     }
 
     /**

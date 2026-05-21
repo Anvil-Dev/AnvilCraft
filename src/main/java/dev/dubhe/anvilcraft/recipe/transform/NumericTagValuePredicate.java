@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NumericTag;
@@ -55,7 +55,7 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
         LESS_OR_EQUAL((a, b) -> a <= b);
 
         public static final Codec<ValueFunction> CODEC = StringRepresentable.fromEnum(ValueFunction::values);
-        public static final StreamCodec<RegistryFriendlyByteBuf, ValueFunction> STREAM_CODEC = CodecUtil.enumStreamCodec(
+        public static final StreamCodec<RegistryFriendlyByteBuf, ValueFunction> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(
             ValueFunction.class
         );
         private final BiFunction<Long, Long, Boolean> fn;

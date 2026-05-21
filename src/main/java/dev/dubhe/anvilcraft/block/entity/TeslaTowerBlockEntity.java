@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.event.TeslaStrikeEvent;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
@@ -43,6 +44,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +64,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Getter
     private @Nullable UUID targetEntityUUID;
     @Getter
-    private @Nullable BlockPos targetLightingRot;
+    private @Nullable BlockPos targetLightningRod;
 
     public TeslaTowerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.TESLA_TOWER.get(), pos, blockState);
@@ -106,13 +108,13 @@ public class TeslaTowerBlockEntity extends BlockEntity
         if (this.targetEntityUUID != null) {
             tag.putUUID("TargetEntityUUID", this.targetEntityUUID);
         }
-        if (this.targetLightingRot != null) {
+        if (this.targetLightningRod != null) {
             tag.putIntArray(
-                "TargetLightingRot",
+                "TargetLightningRod",
                 new int[]{
-                    this.targetLightingRot.getX(),
-                    this.targetLightingRot.getY(),
-                    this.targetLightingRot.getZ()
+                    this.targetLightningRod.getX(),
+                    this.targetLightningRod.getY(),
+                    this.targetLightningRod.getZ()
                 }
             );
         }
@@ -131,11 +133,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
         } else {
             this.targetEntityUUID = null;
         }
-        if (tag.contains("TargetLightingRot")) {
-            int[] arr = tag.getIntArray("TargetLightingRot");
-            this.targetLightingRot = new BlockPos(arr[0], arr[1], arr[2]);
+        if (tag.contains("TargetLightningRod")) {
+            int[] arr = tag.getIntArray("TargetLightningRod");
+            this.targetLightningRod = new BlockPos(arr[0], arr[1], arr[2]);
         } else {
-            this.targetLightingRot = null;
+            this.targetLightningRod = null;
         }
         this.whiteList.clear();
         for (String key : tag.getAllKeys()) {
@@ -165,12 +167,27 @@ public class TeslaTowerBlockEntity extends BlockEntity
         } else if (state.getValue(TeslaTowerBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
+        if (this.getComponentType() == PowerComponentType.INVALID) {
+            this.targetEntity = null;
+            this.targetEntityUUID = null;
+            this.targetLightningRod = null;
+        }
         this.flushState(this.level, getBlockPos());
         this.flushState(this.level, getBlockPos().above(1));
         this.flushState(this.level, getBlockPos().above(2));
         this.flushState(this.level, getBlockPos().above(3));
         if (this.level.isClientSide()) return;
-        if (state.getValue(TeslaTowerBlock.OVERLOAD) || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) return;
+        if (state.getValue(TeslaTowerBlock.OVERLOAD) || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) {
+            final boolean hasChanged = this.targetEntity != null || this.targetEntityUUID != null || this.targetLightningRod != null;
+            this.targetEntity = null;
+            this.targetEntityUUID = null;
+            this.targetLightningRod = null;
+            if (hasChanged) {
+                this.setChanged();
+                this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+            }
+            return;
+        }
         if (this.tickCount > 0) {
             this.tickCount--;
             return;
@@ -180,15 +197,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
         AABB aabb = new AABB(this.getBlockPos().above(3)).expandTowards(8, 8, 8).expandTowards(-8, -8, -8);
         if (this.targetEntity != null) {
             if (!targetEntity.isAlive()) {
-                this.targetEntity = null;
-                this.targetEntityUUID = null;
-                this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+                this.clearTargetEntity(state);
             } else {
                 AABB boundingBox = this.targetEntity.getBoundingBox();
                 if (!aabb.intersects(boundingBox)) {
-                    this.targetEntity = null;
-                    this.targetEntityUUID = null;
-                    this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+                    this.clearTargetEntity(state);
                 }
             }
         }
@@ -197,24 +210,44 @@ public class TeslaTowerBlockEntity extends BlockEntity
             .filter(it -> this.whiteList.stream().noneMatch(it2 -> it2.left().match(it, it2.right())))
             .min((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()));
         if (target.isPresent()) {
-            this.targetEntity = target.get();
-            this.targetEntityUUID = target.get().getUUID();
+            LivingEntity targetEntity = target.get();
+            if (NeoForge.EVENT_BUS.post(new TeslaStrikeEvent.TargetEntity(this.level, this, targetEntity)).isCanceled()) {
+                this.clearTargetEntity(state);
+                return;
+            }
+            this.targetEntity = targetEntity;
+            this.targetEntityUUID = targetEntity.getUUID();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             this.targetEntity.hurt(this.level.damageSources().lightningBolt(), 5.0F);
         } else {
-            ArrayList<BlockPos> lightingRods = new ArrayList<>();
+            ArrayList<BlockPos> lightningRods = new ArrayList<>();
             BlockPos.betweenClosedStream(aabb)
                 .forEach(it -> {
-                    if (this.level.getBlockState(it).is(Blocks.LIGHTNING_ROD)) lightingRods.add(it.above(0));
+                    if (this.level.getBlockState(it).is(Blocks.LIGHTNING_ROD)) lightningRods.add(it.above(0));
                 });
-            Optional<BlockPos> targetBlock = lightingRods.stream()
+            Optional<BlockPos> targetBlock = lightningRods.stream()
                 .min((b1, b2) -> new DistanceComparator(getBlockPos().getCenter()).compare(b1.getCenter(), b2.getCenter()));
-            targetBlock.ifPresent(blockPos -> {
-                this.targetLightingRot = blockPos;
+            if (targetBlock.isEmpty()) return;
+            BlockPos targetLightningRod = targetBlock.get();
+            if (NeoForge.EVENT_BUS.post(new TeslaStrikeEvent.TargetBlock(this.level, this, targetLightningRod)).isCanceled()) {
+                this.targetLightningRod = null;
                 this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
-                ((LightningRodBlock) Blocks.LIGHTNING_ROD).onLightningStrike(this.level.getBlockState(blockPos), this.level, blockPos);
-            });
+                return;
+            }
+            this.targetLightningRod = targetLightningRod;
+            this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+            ((LightningRodBlock) Blocks.LIGHTNING_ROD).onLightningStrike(
+                this.level.getBlockState(targetLightningRod),
+                this.level,
+                targetLightningRod
+            );
         }
+    }
+
+    private void clearTargetEntity(BlockState state) {
+        this.targetEntity = null;
+        this.targetEntityUUID = null;
+        this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
     }
 
     public void initWhiteList(Player player) {

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
+import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -258,5 +260,26 @@ public class ItemHandlerUtil {
 
     public static boolean isEmptyContainer(ItemStack stack) {
         return ItemHandlerUtil.isEmptyContainer(stack.getCapability(Capabilities.ItemHandler.ITEM));
+    }
+
+    public static int hash(IItemHandler handler) {
+        int hash = 0;
+        for (int i = 0; i < handler.getSlots(); i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            hash *= 31;
+            hash += Item.getId(stack.getItem()) + stack.getDamageValue();
+        }
+        return hash;
+    }
+
+    public static @Unmodifiable List<ItemStack> getNonEmptyItemsFromHandler(IItemHandler handler) {
+        ImmutableList.Builder<ItemStack> builder = ImmutableList.builder();
+        for (int i = 0; i < handler.getSlots(); i++) {
+            ItemStack stack = handler.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            builder.add(stack);
+        }
+        return builder.build();
     }
 }

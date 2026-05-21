@@ -11,6 +11,7 @@ public class ModFluidTags {
     public static final TagKey<Fluid> OIL = bindC("oil");
     public static final TagKey<Fluid> CEMENT = bindC("cement");
     public static final TagKey<Fluid> EXPERIENCE = bindC("experience");
+    public static final TagKey<Fluid> IGNITABLE = bind("ignitable");
 
     public static final TagKey<Fluid> MENGER_SPONGE_CAN_ABSORB = bind("menger_sponge_can_absorb");
 

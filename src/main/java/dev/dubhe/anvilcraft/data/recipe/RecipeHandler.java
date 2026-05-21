@@ -33,10 +33,10 @@ public class RecipeHandler {
         AnvilCollisionCraftRecipeLoader.init(provider);
         MultipleToOneSmithingRecipeLoader.init(provider);
         CoolingRecipeLoader.init(provider);
-        PillRecipeLoader.init(provider);
         PermutationRecipeLoader.init(provider);
         DeformationRecipeLoader.init(provider);
         EnergyWeaponMakeRecipeLoader.init(provider);
+        PortalConversionRecipeLoader.init(provider);
         ProceduralProcessRecipeLoader.init(provider);
     }
 }

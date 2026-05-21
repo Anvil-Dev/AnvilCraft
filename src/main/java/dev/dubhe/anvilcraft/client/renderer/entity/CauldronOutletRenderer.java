@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.CauldronOutletModel;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -120,6 +121,6 @@ public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity>
 
     @Override
     public ResourceLocation getTextureLocation(CauldronOutletEntity entity) {
-        return ResourceLocation.fromNamespaceAndPath("anvilcraft", "textures/block/cauldron_outlet.png");
+        return AnvilCraft.of("textures/block/cauldron_outlet.png");
     }
 }

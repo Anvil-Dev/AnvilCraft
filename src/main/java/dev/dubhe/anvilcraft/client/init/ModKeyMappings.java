@@ -20,8 +20,8 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_UNKNOWN
     );
-    public static final Lazy<KeyMapping> SWITCH_RESONATE_MODE = register(
-        "switch_resonate_mode",
+    public static final Lazy<KeyMapping> SWITCH_TOOL_MODE = register(
+        "switch_tool_mode",
         KeyConflictContext.IN_GAME,
         Type.KEYSYM,
         GLFW.GLFW_KEY_LEFT_ALT
@@ -47,7 +47,7 @@ public class ModKeyMappings {
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(SWITCH_PHASE.get());
         event.register(TOGGLE_GOGGLE.get());
-        event.register(SWITCH_RESONATE_MODE.get());
+        event.register(SWITCH_TOOL_MODE.get());
         event.register(USE_PILL_BOX.get());
     }
 }

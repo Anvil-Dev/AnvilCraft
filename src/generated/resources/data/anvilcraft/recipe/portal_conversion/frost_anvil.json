@@ -1,0 +1,10 @@
+{
+  "type": "anvilcraft:portal_conversion",
+  "input": {
+    "blocks": "anvilcraft:frost_anvil"
+  },
+  "portal": "minecraft:end_portal",
+  "result": {
+    "block": "anvilcraft:spectral_anvil"
+  }
+}

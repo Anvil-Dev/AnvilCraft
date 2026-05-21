@@ -6,18 +6,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
-import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 复制并合并指定输入物品的数据。
@@ -46,9 +41,8 @@ public record MergeData(List<ICustomDataComponent<?>> types) implements IResultM
 
     @Override
     public void modify(ResultContext ctx) {
-        Map<RecipeInputSlot, ItemStack> cache = new HashMap<>();
         for (ICustomDataComponent<?> type : this.types) {
-            MergeData.wrapModify(ctx, type, cache);
+            MergeData.wrappedMake(ctx, type);
         }
     }
 
@@ -57,19 +51,8 @@ public record MergeData(List<ICustomDataComponent<?>> types) implements IResultM
         return ModResultModifierTypes.MERGE_DATA.get();
     }
 
-    private static <T> void wrapModify(
-        ResultContext ctx, ICustomDataComponent<T> type, Map<RecipeInputSlot, ItemStack> cache
-    ) {
-        var required = type.getRequired();
-        List<Object> data = new ArrayList<>();
-        for (var entry : required) {
-            ItemStack source = cache.computeIfAbsent(entry.slot(), slot -> IResultModifier.getInput(ctx, slot));
-            Object value = source.get(entry.component());
-            if (value == null && !entry.isNullable()) throw new IllegalArgumentException(
-                "The value of type %s cannot be null in the %s.".formatted(entry.component(), entry.slot().getSerializedName()));
-            data.add(value);
-        }
-        T newData = type.make(data);
+    private static <T> void wrappedMake(ResultContext ctx, ICustomDataComponent<T> type) {
+        T newData = type.make(ctx);
         T oldData = ctx.getResult().get(type.getDataComponentType());
         if (oldData != null && newData != null) {
             newData = type.merge(oldData, newData);

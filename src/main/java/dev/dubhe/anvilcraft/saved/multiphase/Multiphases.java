@@ -2,11 +2,11 @@ package dev.dubhe.anvilcraft.saved.multiphase;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;
 import dev.dubhe.anvilcraft.saved.datafixers.DataFixers;
-import dev.dubhe.anvilcraft.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.recover.RecoverEntry;
 import dev.dubhe.anvilcraft.util.recover.RecoverStation;
 import lombok.AccessLevel;

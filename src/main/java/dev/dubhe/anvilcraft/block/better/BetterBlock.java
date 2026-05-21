@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.better;
 
-import dev.dubhe.anvilcraft.util.Util;
+import dev.anvilcraft.lib.v2.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

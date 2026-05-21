@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.multiple;
 
-import dev.dubhe.anvilcraft.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 

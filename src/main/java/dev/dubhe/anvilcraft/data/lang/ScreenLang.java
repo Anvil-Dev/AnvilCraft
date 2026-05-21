@@ -40,8 +40,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");
         provider.add("screen.anvilcraft.slot.disable.tooltip", "Use item clicks to set filter");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_curse_count", "Removed curses: %1$s / %2$s");
-        provider.add("screen.anvilcraft.royal_grindstone.remove_repair_cost", "Removed repair cost: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.will_remove", "Will remove:");
+        provider.add("screen.anvilcraft.royal_grindstone.curse_count", "Curses: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.repair_cost", "Repair cost: %1$s / %2$s");
+        provider.add("screen.anvilcraft.royal_grindstone.gold_cost", "Gold cost: %1$s");
         provider.add("screen.anvilcraft.royal_grindstone.title", "Remove curse and repair cost");
         provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
@@ -108,8 +110,8 @@ public class ScreenLang {
         provider.add("block.anvilcraft.heliostats.invalid_placement", "Invalid placement");
         provider.add("block.anvilcraft.heliostats.placement_no_pos", "Irradiation position not set");
         provider.add("item.anvilcraft.heliostats.pos_set", "Will irradiate %s");
-        provider.add("item.anvilcraft.heliostats.no_rotation_angle", "Will irradiate %s");
         provider.add("tooltip.anvilcraft.heliostats.not_work", "Heliostats are not working");
+        provider.add("tooltip.anvilcraft.heliostats.no_rotation_angle", "  No possible rotation angle to irradiate the target");
         provider.add("tooltip.anvilcraft.heliostats.no_sun", "  No sunlight");
         provider.add("tooltip.anvilcraft.heliostats.obscured", "  The illumination path is obscured");
         provider.add("tooltip.anvilcraft.heliostats.too_far", "  The illumination pos is too far");
@@ -200,5 +202,19 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
+        
+        provider.add("screen.anvilcraft.smart_block_placer.layer.1", "Layer 1");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.2", "Layer 2");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.3", "Layer 3");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.4", "Layer 4");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.5", "Layer 5");
+        provider.add("screen.anvilcraft.smart_block_placer.layer_mode.all", "Show All Layers");
+        provider.add("screen.anvilcraft.smart_block_placer.layer_mode.single", "Show Layer %s / 5");
+        provider.add("screen.anvilcraft.smart_block_placer.operation_mode.pickup", "Pickup Mode: Retrieve blocks from containers behind");
+        provider.add("screen.anvilcraft.smart_block_placer.operation_mode.move", "Move Mode: Move the blocks behind to the placement position.");
+        provider.add("screen.anvilcraft.smart_block_placer.position.selected", "Position (%s, %s) - Selected");
+        provider.add("screen.anvilcraft.smart_block_placer.position.unselected", "Position (%s, %s) - Not selected");
+        provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");
+        provider.add("screen.anvilcraft.smart_block_placer.disk_slot", "Disk Slot: Place Disk and enable blueprint mode");
     }
 }

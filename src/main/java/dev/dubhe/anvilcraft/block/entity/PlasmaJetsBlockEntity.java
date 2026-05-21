@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -163,12 +164,12 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
                 break;
             }
         }
-        boolean cauldronExisting = level.getBlockState(cauldronPos).is(ModBlocks.FIRE_CAULDRON)
-                                   || level.getBlockState(cauldronPos).is(ModBlocks.OIL_CAULDRON)
-                                   || level.getBlockState(cauldronPos).is(Blocks.CAULDRON);
-        boolean belowCauldronIsNotHeater = !level.getBlockState(cauldronPos.below(1))
+        boolean cauldronExisting = PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
+                                   || level.getBlockState(this.cauldronPos).is(ModBlocks.OIL_CAULDRON)
+                                   || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON);
+        boolean belowCauldronIsNotHeater = !level.getBlockState(this.cauldronPos.below(1))
             .is(ModBlocks.HEATER);
-        boolean heaterOverload = level.getBlockState(cauldronPos.below(1))
+        boolean heaterOverload = level.getBlockState(this.cauldronPos.below(1))
             .getOptionalValue(HeaterBlock.OVERLOAD).orElse(true);
         if (wallBroken || blocked || !cauldronExisting || belowCauldronIsNotHeater || heaterOverload) {
             level.removeBlockEntity(this.getBlockPos());
@@ -180,11 +181,11 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
 
     protected void refreshDuration(Level level) {
         this.duration--;
-        if (level.getBlockState(cauldronPos).getOptionalValue(FireCauldronBlock.LEVEL).orElse(0) > 0
+        if (level.getBlockState(this.cauldronPos).getOptionalValue(FireCauldronBlock.LEVEL).orElse(0) > 0
             && this.duration + MAX_DURATION / 2 < MAX_DURATION
         ) {
             this.duration += MAX_DURATION / 2;
-            FireCauldronBlock.lowerFillLevel(level.getBlockState(cauldronPos), level, cauldronPos);
+            FireCauldronBlock.lowerFillLevel(level.getBlockState(this.cauldronPos), level, this.cauldronPos);
         }
         if (this.duration < 0) {
             level.removeBlock(this.getBlockPos(), false);
@@ -242,7 +243,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         if (
             this.cauldronPos != null
             && (
-                level.getBlockState(this.cauldronPos).is(ModBlocks.FIRE_CAULDRON)
+                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
                 || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON)
             )
         ) {
@@ -250,7 +251,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         }
         for (int i = 1; i < 6; i++) {
             if (
-                level.getBlockState(this.getBlockPos().below(i)).is(ModBlocks.FIRE_CAULDRON)
+                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.getBlockPos().below(i))
                 || level.getBlockState(this.getBlockPos().below(i)).is(ModBlocks.OIL_CAULDRON)
                 || level.getBlockState(this.getBlockPos().below(i)).is(Blocks.CAULDRON)
             ) {
