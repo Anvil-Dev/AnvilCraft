@@ -487,16 +487,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // 只渲染标题（方块名称），不渲染"物品栏"文字
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
-        
-        // 渲染已加载的结构名称
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity != null) {
-            String structureName = blockEntity.getLoadedStructureName();
-            if (structureName != null && !structureName.isEmpty()) {
-                Component structureText = Component.literal("Loaded: " + structureName);
-                guiGraphics.drawString(this.font, structureText, this.titleLabelX, this.titleLabelY + 12, 0x00AA00, false);
-            }
-        }
     }
     
     @Override
@@ -630,6 +620,27 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             guiGraphics.pose().popPose();
             // 恢复深度测试
             RenderSystem.enableDepthTest();
+        }
+        
+        // 渲染已加载的结构名称（提高图层，与"没有选区"文本一致）
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null) {
+            String structureName = blockEntity.getLoadedStructureName();
+            if (structureName != null && !structureName.isEmpty()) {
+                Component structureText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded", structureName);
+                int textX = this.titleLabelX + 216;
+                int textY = this.titleLabelY + 50;
+                
+                // 禁用深度测试，确保文本在最上层渲染
+                RenderSystem.disableDepthTest();
+                guiGraphics.pose().pushPose();
+                // 将Z轴向前移动，确保文本在最前面
+                guiGraphics.pose().translate(0, 0, 1000);
+                guiGraphics.drawString(this.font, structureText, textX, textY, 0x00AA00, false);
+                guiGraphics.pose().popPose();
+                // 恢复深度测试
+                RenderSystem.enableDepthTest();
+            }
         }
     }
     

@@ -144,6 +144,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         saveLayerPositions(tag);
         // 保存Disk物品栏
         tag.put("diskInventory", this.diskInventory.createTag(provider));
+        
+        // 保存结构缓存
+        if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
+            tag.put("cachedStructure", this.saveStructureData(this.loadedStructure, provider));
+            tag.putString("cachedStructureName", this.loadedStructureName);
+            tag.putString("cachedStructureUuid", this.loadedStructureUuid);
+        }
     }
 
     @Override
@@ -161,7 +168,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         loadLayerPositions(tag);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
-        // NBT加载后尝试加载结构
+        
+        // 优先从缓存加载结构数据
+        if (tag.contains("cachedStructure", Tag.TAG_COMPOUND)) {
+            this.loadedStructure = this.loadStructureData(tag.getCompound("cachedStructure"), provider);
+            this.loadedStructureName = tag.getString("cachedStructureName");
+            this.loadedStructureUuid = tag.getString("cachedStructureUuid");
+            this.hasStructureDisk = true;
+        }
+        
+        // NBT加载后尝试从磁盘更新结构（如果有磁盘的话）
         this.tryLoadStructure();
     }
     
@@ -186,6 +202,80 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 return stack.is(ModItems.STRUCTURE_DISK.get());
             }
         };
+    }
+    
+    /**
+     * 保存结构数据到NBT
+     */
+    private CompoundTag saveStructureData(StructureLoadUtil.StructureData data, HolderLookup.Provider provider) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("structureName", data.structureName);
+        tag.putString("uuid", data.uuid);
+        tag.putInt("sizeX", data.sizeX);
+        tag.putInt("sizeY", data.sizeY);
+        tag.putInt("sizeZ", data.sizeZ);
+        
+        // 保存方块列表
+        CompoundTag blocksTag = new CompoundTag();
+        for (int i = 0; i < data.blocks.size(); i++) {
+            StructureLoadUtil.BlockPosition blockPos = data.blocks.get(i);
+            CompoundTag blockTag = new CompoundTag();
+            blockTag.putInt("x", blockPos.x());
+            blockTag.putInt("y", blockPos.y());
+            blockTag.putInt("z", blockPos.z());
+            // 保存方块状态
+            try {
+                net.minecraft.world.level.block.state.BlockState.CODEC.encodeStart(
+                    net.minecraft.nbt.NbtOps.INSTANCE, blockPos.state()
+                ).result().ifPresent(encoded -> blockTag.put("state", (CompoundTag) encoded));
+            } catch (Exception e) {
+                org.slf4j.LoggerFactory.getLogger(SmartBlockPlacerBlockEntity.class)
+                    .warn("Failed to save block state: {}", e.getMessage());
+            }
+            blocksTag.put(String.valueOf(i), blockTag);
+        }
+        tag.put("blocks", blocksTag);
+        
+        return tag;
+    }
+    
+    /**
+     * 从NBT加载结构数据
+     */
+    private StructureLoadUtil.StructureData loadStructureData(CompoundTag tag, HolderLookup.Provider provider) {
+        StructureLoadUtil.StructureData data = new StructureLoadUtil.StructureData();
+        data.structureName = tag.getString("structureName");
+        data.uuid = tag.getString("uuid");
+        data.sizeX = tag.getInt("sizeX");
+        data.sizeY = tag.getInt("sizeY");
+        data.sizeZ = tag.getInt("sizeZ");
+        
+        // 加载方块列表
+        CompoundTag blocksTag = tag.getCompound("blocks");
+        for (String key : blocksTag.getAllKeys()) {
+            CompoundTag blockTag = blocksTag.getCompound(key);
+            int x = blockTag.getInt("x");
+            int y = blockTag.getInt("y");
+            int z = blockTag.getInt("z");
+            
+            // 加载方块状态
+            final net.minecraft.world.level.block.state.BlockState[] stateHolder = 
+                new net.minecraft.world.level.block.state.BlockState[]{net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()};
+            if (blockTag.contains("state", Tag.TAG_COMPOUND)) {
+                try {
+                    net.minecraft.world.level.block.state.BlockState.CODEC.parse(
+                        net.minecraft.nbt.NbtOps.INSTANCE, blockTag.getCompound("state")
+                    ).result().ifPresent(s -> stateHolder[0] = s);
+                } catch (Exception e) {
+                    org.slf4j.LoggerFactory.getLogger(SmartBlockPlacerBlockEntity.class)
+                        .warn("Failed to load block state: {}", e.getMessage());
+                }
+            }
+            
+            data.blocks.add(new StructureLoadUtil.BlockPosition(x, y, z, stateHolder[0]));
+        }
+        
+        return data;
     }
     
     /**
@@ -461,23 +551,51 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 准备蓝图模式的钳子方块
      */
     private void prepareBlueprintModeHeldBlock(Level level, BlockPos pos) {
-        // 获取当前要放置的方块
-        StructureLoadUtil.BlockPosition blockToPlace = getCurrentBlueprintBlock();
-        if (blockToPlace != null) {
-            // 智能查找：从容器中搜索结构需要的具体物品
-            net.minecraft.world.level.block.Block targetBlock = blockToPlace.state().getBlock();
-            ItemStack blockItem = this.extractSpecificBlockItemFromContainer(level, pos, targetBlock);
-            
-            if (!blockItem.isEmpty()) {
-                // 找到了，回滚（因为只是预览）
-                this.rollbackExtractedItem(level, pos, blockItem);
-                this.currentHeldBlock = blockItem.copy();
-            } else {
-                this.currentHeldBlock = ItemStack.EMPTY;
-            }
-        } else {
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
+            return;
         }
+        
+        Direction facing = this.getFacing(pos, level);
+        boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        List<BlockPos> allPositions = buildBlueprintPositions(pos, facing, upsideDown);
+        
+        if (allPositions.isEmpty()) {
+            this.currentHeldBlock = ItemStack.EMPTY;
+            return;
+        }
+        
+        // 重置索引（如果超出范围）
+        if (this.currentPlacementIndex >= allPositions.size()) {
+            this.currentPlacementIndex = 0;
+        }
+        
+        // 查找有物品的方块（与 placeBlueprintBlocks 逻辑一致）
+        for (int i = 0; i < allPositions.size(); i++) {
+            int index = (this.currentPlacementIndex + i) % allPositions.size();
+            BlockPos targetPos = allPositions.get(index);
+            
+            // 检查目标位置是否可以放置
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;
+            }
+            
+            // 获取当前索引需要的方块
+            Block requiredBlock = getRequiredBlockForPosition(index);
+            if (requiredBlock == null) {
+                continue;
+            }
+            
+            // 预览物品（不真正提取）
+            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+            if (!blockItem.isEmpty()) {
+                this.currentHeldBlock = blockItem.copy();
+                return;
+            }
+        }
+        
+        // 没有找到有物品的方块
+        this.currentHeldBlock = ItemStack.EMPTY;
     }
     
     private void tickPickupMode(Level level, BlockPos pos) {
@@ -827,13 +945,23 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ItemStack blockItem = this.extractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);
             if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
                 // 当前索引需要的方块没有，跳过继续查找
+                // 重要：清空 currentHeldBlock 以确保动画状态正确
+                if (!this.currentHeldBlock.isEmpty()) {
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    this.onChanged();
+                }
                 continue;
             }
             
-            // 找到了有物品的位置，放置方块
+            // 找到了有物品的位置，设置 currentHeldBlock 用于动画显示
+            this.currentHeldBlock = blockItem.copy();
+            this.onChanged();
+            
+            // 放置方块
             if (!this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem)) {
                 // 放置失败，回滚物品
                 this.rollbackExtractedItem(level, placerPos, blockItem);
+                this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (index + 1) % allPositions.size();
                 this.onChanged();
                 return;
@@ -1061,6 +1189,84 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private ItemStack extractBlockItemFromContainer(Level level, BlockPos placerPos) {
         return this.getBlockItemFromContainer(level, placerPos, true);
+    }
+    
+    /**
+     * 预览容器中特定方块物品（不提取）
+     * 
+     * @param level 世界
+     * @param placerPos 放置器位置
+     * @param targetBlock 目标方块
+     * @return 预览的物品，如果没有找到则返回 EMPTY
+     */
+    private ItemStack peekSpecificBlockItemFromContainer(Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
+        Direction facing = this.getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
+
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        int slot;
+        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
+            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
+            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                // 检查是否是需要的方块
+                if (blockItem.getBlock() == targetBlock) {
+                    return blockItemStack.copy();
+                }
+            }
+        }
+
+        if (itemHandler == null) {
+            AABB aabb = new AABB(inputPos);
+            List<Entity> rawEntities = level.getEntitiesOfClass(
+                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+            );
+            
+            for (Entity rawEntity : rawEntities) {
+                if (rawEntity instanceof ContainerEntity containerEntity) {
+                    IItemHandler entityHandler = ((Entity) containerEntity).getCapability(
+                        Capabilities.ItemHandler.ENTITY, null
+                    );
+                    if (entityHandler != null) {
+                        for (slot = 0; slot < entityHandler.getSlots(); slot++) {
+                            ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
+                            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                                if (blockItem.getBlock() == targetBlock) {
+                                    return blockItemStack.copy();
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        if (entities.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemEntity itemEntity = null;
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem blockItem) {
+                if (blockItem.getBlock() == targetBlock) {
+                    itemEntity = entity;
+                    break;
+                }
+            }
+        }
+
+        if (itemEntity == null) {
+            return ItemStack.EMPTY;
+        }
+
+        // 返回副本，不修改实体
+        return itemEntity.getItem().copy();
     }
     
     /**

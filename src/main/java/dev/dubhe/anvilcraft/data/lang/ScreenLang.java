@@ -216,5 +216,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.position.unselected", "Position (%s, %s) - Not selected");
         provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");
         provider.add("screen.anvilcraft.smart_block_placer.disk_slot", "Disk Slot: Place Disk and enable blueprint mode");
+        provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: %s");
     }
 }

@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -535,7 +536,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             currentIndex = 0;
         }
         
-        // 从当前索引开始查找空位（与普通模式完全一致）
+        // 获取当前钳子中的方块类型
+        net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
+        net.minecraft.world.level.block.Block heldBlock = null;
+        if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
+            heldBlock = heldBlockItem.getBlock();
+        }
+        
+        // 从当前索引开始查找
         for (int i = 0; i < allPositions.size(); i++) {
             int index = (currentIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
@@ -546,25 +554,35 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             
             net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
             
-            // 检查是否为空或可堆叠（与普通模式一致）
+            // 检查位置是否可以放置
+            boolean canPlace = false;
             if (targetState.isAir()) {
-                return targetPos;
+                canPlace = true;
+            } else if (!targetState.getFluidState().isEmpty()) {
+                canPlace = true;
+            } else if (heldBlock != null && canBeStacked(targetState, heldItem.getItem() instanceof net.minecraft.world.item.BlockItem ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
+                canPlace = true;
+            } else if (canBeStacked(targetState, null)) {
+                canPlace = true;
             }
             
-            if (!targetState.getFluidState().isEmpty()) {
-                return targetPos;
+            if (!canPlace) {
+                continue;
             }
             
-            // 检查是否可以堆叠
-            net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
-            if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
-                if (canBeStacked(targetState, heldBlockItem)) {
-                    return targetPos;
+            // 如果有 heldBlock，检查这个位置是否需要这种方块
+            if (heldBlock != null) {
+                // 获取这个位置在蓝图中需要的方块
+                if (index < structure.blocks.size()) {
+                    net.minecraft.world.level.block.Block requiredBlock = structure.blocks.get(index).state().getBlock();
+                    // 只返回与 heldBlock 匹配的位置
+                    if (requiredBlock == heldBlock) {
+                        return targetPos;
+                    }
                 }
-            } else if (heldItem.isEmpty()) {
-                if (canBeStacked(targetState, null)) {
-                    return targetPos;
-                }
+            } else {
+                // 没有 heldBlock，返回第一个空位
+                return targetPos;
             }
         }
         

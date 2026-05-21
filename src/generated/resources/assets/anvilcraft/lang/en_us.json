@@ -1058,6 +1058,7 @@
   "screen.anvilcraft.smart_block_placer.position.selected": "Position (%s, %s) - Selected",
   "screen.anvilcraft.smart_block_placer.position.unselected": "Position (%s, %s) - Not selected",
   "screen.anvilcraft.smart_block_placer.preview.empty": "No positions configured",
+  "screen.anvilcraft.smart_block_placer.structure.loaded": "Loaded: %s",
   "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description": "Put the Ember Metal Ingot or Ember Metal Block",
   "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to": "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations",
   "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.base_slot_description": "Put upgradable item",
