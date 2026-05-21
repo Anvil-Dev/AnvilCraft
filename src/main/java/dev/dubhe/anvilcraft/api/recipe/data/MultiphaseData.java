@@ -2,16 +2,19 @@ package dev.dubhe.anvilcraft.api.recipe.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
+import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
-import dev.dubhe.anvilcraft.util.ListUtil;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -19,18 +22,11 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseRef> {
-    private final List<RequiredEntry> required;
-
-    private MultiphaseData(List<RequiredEntry> required) {
-        this.required = required;
-    }
-
     public static MultiphaseData two() {
         return new Two();
     }
@@ -48,7 +44,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
             case Two.TYPE -> new Two();
             case Four.TYPE -> new Four();
             case Eight.TYPE -> new Eight();
-            case null, default -> throw new IllegalArgumentException("Find invalid type. Expect two, four and eight, get " + type);
+            case null, default -> throw new IllegalArgumentException("Find invalid type. Expect two, four or eight, get " + type);
         };
     }
 
@@ -60,11 +56,6 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
     @Override
     public Type getType() {
         return ModCustomDataComponents.MULTIPHASE.get();
-    }
-
-    @Override
-    public List<RequiredEntry> getRequired() {
-        return this.required;
     }
 
     @Override
@@ -104,36 +95,8 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
 
     protected abstract String type();
 
-    private static @Nullable Component processCustomName(@Nullable Object customName) {
-        return customName instanceof Component it ? it : null;
-    }
-
-    private static int processRepairCost(@Nullable Object repairCost) {
-        return repairCost instanceof Integer it ? it : 0;
-    }
-
-    private static ItemEnchantments processItemEnchantments(@Nullable Object enchantments) {
-        return enchantments instanceof ItemEnchantments it ? it : ItemEnchantments.EMPTY;
-    }
-
     private static class Two extends MultiphaseData {
-        private static final List<RequiredEntry> REQUIRED = new ArrayList<>();
         public static final String TYPE = "two";
-
-        Two() {
-            super(Two.getOrFillRequired());
-        }
-
-        @SuppressWarnings("SameReturnValue")
-        private static List<RequiredEntry> getOrFillRequired() {
-            if (!Two.REQUIRED.isEmpty()) return Two.REQUIRED;
-            for (int i = 0; i < 2; i++) {
-                Two.REQUIRED.add(new RequiredEntry(i, DataComponents.CUSTOM_NAME, true));
-                Two.REQUIRED.add(new RequiredEntry(i, DataComponents.REPAIR_COST, true));
-                Two.REQUIRED.add(new RequiredEntry(i, DataComponents.ENCHANTMENTS, true));
-            }
-            return Two.REQUIRED;
-        }
 
         @Override
         protected String type() {
@@ -141,15 +104,17 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
         }
 
         @Override
-        public MultiphaseRef make(List<Object> data) {
+        public MultiphaseRef make(ResultContext ctx) {
             LinkedList<Multiphase.Phase> phases = new LinkedList<>();
             for (int i = 0; i < 2; i++) {
-                int base = i * 3;
+                ItemStack stack = ctx.getInput(RecipeInputSlot.input(i));
                 phases.add(
                     Multiphase.Phase.create(i)
-                        .withCustomName(MultiphaseData.processCustomName(data.get(base)))
-                        .withRepairCost(MultiphaseData.processRepairCost(data.get(base + 1)))
-                        .withEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 2)))
+                        .withCustomName(stack.get(DataComponents.CUSTOM_NAME))
+                        .withItemName(ctx.getResult().getItem().getDescription().copy().append(Multiphase.makeSuffix(i)))
+                        .withRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0))
+                        .withEnchantments(stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
                 );
             }
             return new MultiphaseRef(new Multiphase(phases));
@@ -157,24 +122,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
     }
 
     private static class Four extends MultiphaseData {
-        private static final List<RequiredEntry> REQUIRED = new ArrayList<>();
         public static final String TYPE = "four";
-
-        Four() {
-            super(Four.getOrFillRequired());
-        }
-
-        @SuppressWarnings("SameReturnValue")
-        private static List<RequiredEntry> getOrFillRequired() {
-            if (!Four.REQUIRED.isEmpty()) return Four.REQUIRED;
-            Four.REQUIRED.add(new RequiredEntry(0, DataComponents.CUSTOM_NAME, true));
-            Four.REQUIRED.add(new RequiredEntry(2, DataComponents.CUSTOM_NAME, true));
-            for (int i = 0; i < 4; i++) {
-                Four.REQUIRED.add(new RequiredEntry(i, DataComponents.REPAIR_COST, true));
-                Four.REQUIRED.add(new RequiredEntry(i, DataComponents.ENCHANTMENTS, true));
-            }
-            return Four.REQUIRED;
-        }
 
         @Override
         protected String type() {
@@ -182,21 +130,21 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
         }
 
         @Override
-        public MultiphaseRef make(List<Object> data) {
+        public MultiphaseRef make(ResultContext ctx) {
             LinkedList<Multiphase.Phase> phases = new LinkedList<>();
-            Component[] customNames = new Component[] {
-                MultiphaseData.processCustomName(data.getFirst()),
-                MultiphaseData.processCustomName(data.get(1))
-            };
             for (int i = 0; i < 2; i++) {
-                int base = i * 4 + 2;
+                ItemStack stack = ctx.getInput(RecipeInputSlot.input(i * 2));
+                ItemStack stack1 = ctx.getInput(RecipeInputSlot.input(i * 2 + 1));
                 phases.add(
                     Multiphase.Phase.create(i)
-                        .withCustomName(customNames[i])
-                        .withRepairCost(MultiphaseData.processRepairCost(data.get(base)))
-                        .addRepairCost(MultiphaseData.processRepairCost(data.get(base + 2)))
-                        .withEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 1)))
-                        .addEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 3)))
+                        .withCustomName(stack.get(DataComponents.CUSTOM_NAME))
+                        .withItemName(ctx.getResult().getItem().getDescription().copy().append(Multiphase.makeSuffix(i)))
+                        .withRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0))
+                        .addRepairCost(stack1.getOrDefault(DataComponents.REPAIR_COST, 0))
+                        .withEnchantments(stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack1.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack1.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
                 );
             }
             return new MultiphaseRef(new Multiphase(phases));
@@ -204,24 +152,7 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
     }
 
     private static class Eight extends MultiphaseData {
-        private static final List<RequiredEntry> REQUIRED = new ArrayList<>();
         public static final String TYPE = "eight";
-
-        Eight() {
-            super(Eight.getOrFillRequired());
-        }
-
-        @SuppressWarnings("SameReturnValue")
-        private static List<RequiredEntry> getOrFillRequired() {
-            if (!Eight.REQUIRED.isEmpty()) return Eight.REQUIRED;
-            Eight.REQUIRED.add(new RequiredEntry(0, DataComponents.CUSTOM_NAME, true));
-            Eight.REQUIRED.add(new RequiredEntry(4, DataComponents.CUSTOM_NAME, true));
-            for (int i = 0; i < 8; i++) {
-                Eight.REQUIRED.add(new RequiredEntry(i, DataComponents.REPAIR_COST, true));
-                Eight.REQUIRED.add(new RequiredEntry(i, DataComponents.ENCHANTMENTS, true));
-            }
-            return Eight.REQUIRED;
-        }
 
         @Override
         protected String type() {
@@ -229,25 +160,29 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
         }
 
         @Override
-        public MultiphaseRef make(List<Object> data) {
+        public MultiphaseRef make(ResultContext ctx) {
             LinkedList<Multiphase.Phase> phases = new LinkedList<>();
-            Component[] customNames = new Component[] {
-                data.getFirst() instanceof Component it ? it : null,
-                data.get(1) instanceof Component it ? it : null
-            };
             for (int i = 0; i < 2; i++) {
-                int base = i * 8 + 2;
+                ItemStack stack = ctx.getInput(RecipeInputSlot.input(i * 4));
+                ItemStack stack1 = ctx.getInput(RecipeInputSlot.input(i * 4 + 1));
+                ItemStack stack2 = ctx.getInput(RecipeInputSlot.input(i * 4 + 2));
+                ItemStack stack3 = ctx.getInput(RecipeInputSlot.input(i * 4 + 3));
                 phases.add(
                     Multiphase.Phase.create(i)
-                        .withCustomName(customNames[i])
-                        .withRepairCost(MultiphaseData.processRepairCost(data.get(base)))
-                        .addRepairCost(MultiphaseData.processRepairCost(data.get(base + 2)))
-                        .addRepairCost(MultiphaseData.processRepairCost(data.get(base + 4)))
-                        .addRepairCost(MultiphaseData.processRepairCost(data.get(base + 6)))
-                        .withEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 1)))
-                        .addEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 3)))
-                        .addEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 5)))
-                        .addEnchantments(MultiphaseData.processItemEnchantments(data.get(base + 7)))
+                        .withCustomName(stack.get(DataComponents.CUSTOM_NAME))
+                        .withItemName(ctx.getResult().getItem().getDescription().copy().append(Multiphase.makeSuffix(i)))
+                        .withRepairCost(stack.getOrDefault(DataComponents.REPAIR_COST, 0))
+                        .addRepairCost(stack1.getOrDefault(DataComponents.REPAIR_COST, 0))
+                        .addRepairCost(stack2.getOrDefault(DataComponents.REPAIR_COST, 0))
+                        .addRepairCost(stack3.getOrDefault(DataComponents.REPAIR_COST, 0))
+                        .withEnchantments(stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack1.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack1.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack2.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack2.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack3.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY))
+                        .addEnchantments(stack3.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY))
                 );
             }
             return new MultiphaseRef(new Multiphase(phases));
@@ -255,7 +190,8 @@ public abstract class MultiphaseData implements ICustomDataComponent<MultiphaseR
     }
 
     public static class Type implements ICustomDataComponent.Type<MultiphaseData> {
-        public static final MapCodec<MultiphaseData> CODEC = Codec.STRING.fieldOf("input_type")
+        public static final MapCodec<MultiphaseData> CODEC = Codec.STRING
+            .fieldOf("input_type")
             .xmap(MultiphaseData::fromType, MultiphaseData::type);
         public static final StreamCodec<RegistryFriendlyByteBuf, MultiphaseData> STREAM_CODEC = ByteBufCodecs.STRING_UTF8
             .map(MultiphaseData::fromType, MultiphaseData::type).cast();

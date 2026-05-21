@@ -25,7 +25,7 @@
           "dest": {
             "type": "anvilcraft:item_enchantments",
             "component": "minecraft:enchantments",
-            "input": 0
+            "input": "input.0"
           },
           "input": "input.0",
           "orig": "anvilcraft:merciless_enchantments"

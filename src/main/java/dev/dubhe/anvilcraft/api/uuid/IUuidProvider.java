@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.uuid;
 
 import com.mojang.serialization.Codec;
-import dev.anvilcraft.lib.v2.recipe.util.ISerializer;
+import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

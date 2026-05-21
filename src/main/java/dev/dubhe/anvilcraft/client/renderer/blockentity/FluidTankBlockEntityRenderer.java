@@ -43,7 +43,7 @@ public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTa
          * // Uncomment to allow the liquid to rotate with the tank ms.pushPose(); ms.translate(0.5, 0.5, 0.5);
          * FacingToRotation.get(tank.getForward(), tank.getUp()).push(ms); ms.translate(-0.5, -0.5, -0.5);
          */
-        float fill = (float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity();
+        float fill = Math.min((float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity(), 1);
 
         drawFluidInTank(
             ms,

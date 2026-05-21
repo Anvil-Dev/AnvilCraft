@@ -4,15 +4,16 @@ import com.google.common.collect.Lists;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.entity.SpectralProjectileEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
@@ -89,11 +90,13 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     /**
      * 检查物品是否可以被装载（用于判断箭矢或具有攻击伤害的物品）
      *
-     * @param stack 要检查的物品堆堆
+     * @param weapon 将要装载的武器物品堆
+     * @param stack 要检查的物品堆
      * @return 如果物品是箭矢或具有正攻击伤害属性则返回true，否则返回false
      */
-    public static boolean checkLoadable(ItemStack stack) {
+    public boolean checkLoadable(ItemStack weapon, ItemStack stack) {
         // 装载箭矢的设定取消了：if (stack.is(ItemTags.ARROWS)) return true;
+        if (this.unableToUse(weapon)) return false;
         ItemAttributeModifiers modifiers = stack.getAttributeModifiers();
         double dmg = 0;
         for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
@@ -103,20 +106,21 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 }
             }
         }
-        return (dmg > 0);
+        return dmg > 0;
     }
 
     /**
      * 获取幻灵弹弓的弹药，即从另一只手获取物品
      *
      * @param player 玩家实体
-     * @return 弹药的物品堆，注意，这个东西返回的是一个引用！不是copy的值
+     * @return 弹药的物品堆
+     * @apiNote 对此方法返回的物品堆的修改会影响原物品
      */
     private static ItemStack getSlingShotAmmo(Player player) {
         ItemStack stack = player.getMainHandItem();
         ItemStack stack2 = player.getOffhandItem();
-        if (stack.is(ModItems.SPECTRAL_SLINGSHOT.asItem()) && checkLoadable(stack2)) return stack2;
-        if (stack2.is(ModItems.SPECTRAL_SLINGSHOT.asItem()) && checkLoadable(stack)) return stack;
+        if (stack.getItem() instanceof SpectralSlingshotItem item && item.checkLoadable(stack, stack2)) return stack2;
+        if (stack2.getItem() instanceof SpectralSlingshotItem item && item.checkLoadable(stack2, stack)) return stack;
         return ItemStack.EMPTY;
     }
 
@@ -128,6 +132,10 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         stack.set(ModComponents.CAN_TAKE_OUT_AMMO, can);
     }
 
+    public boolean unableToUse(ItemStack stack) {
+        return false;
+    }
+
     // 以下的代码大量从原版（neoforge融合后的）的弩物品的代码复制过来的
 
     @Override
@@ -136,7 +144,8 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         ChargedProjectiles chargedprojectiles = itemstack.get(DataComponents.CHARGED_PROJECTILES);
         if (chargedprojectiles != null && !chargedprojectiles.isEmpty()) {
             if (!player.isCrouching() && !player.getCooldowns().isOnCooldown(this)) {
-                this.performShooting(level, player, hand, itemstack, getShootingPower(chargedprojectiles), 1.0F, null);
+                if (this.unableToUse(itemstack)) return InteractionResultHolder.fail(itemstack);
+                this.performShooting(level, player, hand, itemstack, SpectralSlingshotItem.getShootingPower(), 1.0F, null);
                 int quickCharge = itemstack.getEnchantmentLevel(
                     player.level()
                         .holderLookup(Registries.ENCHANTMENT)
@@ -147,7 +156,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
             } else {
                 // 这个部分是卸载和替换弹药
                 ItemStack stack = chargedprojectiles.getItems().getFirst();
-                if (canTakeOutAmmo(itemstack)) player.addItem(stack); // 如果能拿出来，那么拿出来
+                if (SpectralSlingshotItem.canTakeOutAmmo(itemstack)) player.addItem(stack); // 如果能拿出来，那么拿出来
                 itemstack.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
                 // 装载走正常的使用流程
                 this.startSoundPlayed = false;
@@ -166,10 +175,9 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         }
     }
 
-    @SuppressWarnings("unused")
-    private static float getShootingPower(ChargedProjectiles projectile) {
+    private static float getShootingPower() {
         // 原版的弩是projectile.contains(Items.FIREWORK_ROCKET) ? 1.6F : 3.15F;，这里直接固定用箭矢的速度
-        return 1.6f;
+        return 3.15F;
     }
 
     @Override
@@ -272,12 +280,16 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     @Override
     protected Projectile createProjectile(Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
         // 这里完全另外写了，毕竟固定射出来一个特殊射弹
-        SpectralProjectileEntity projectile = SpectralProjectileEntity.of(level, shooter, ammo, weapon);
+        SpectralProjectileEntity projectile = SpectralProjectileEntity.of(level, shooter, ammo, weapon, this.getDamageAmplification());
         projectile.setSoundEvent(SoundEvents.CROSSBOW_HIT);
         if (isCrit) {
             projectile.setCritArrow(true);
         }
         return projectile;
+    }
+
+    protected double getDamageAmplification() {
+        return 0.5;
     }
 
     public void performShooting(
@@ -301,7 +313,10 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 // 这里的替换是因为爆掉的时候要返还弹药
                 // 注意这里写的是isCrit = false，不会暴击
                 this.spectralShoot(serverlevel, shooter, hand, weapon, chargedprojectiles.getItems(), velocity, inaccuracy, false, target);
-                // 触发器和进度相关的删掉了——因为它并不是弩。
+                if (shooter instanceof ServerPlayer serverplayer) {
+                    // 触发器删掉了——因为它并不是弩。
+                    serverplayer.awardStat(Stats.ITEM_USED.get(weapon.getItem()));
+                }
             }
         }
     }
@@ -440,16 +455,9 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         if (ammo.isEmpty()) {
             return List.of();
         } else {
-            Level var5 = shooter.level();
-            int var10000;
-            if (var5 instanceof ServerLevel serverlevel) {
-                // 这是原版的东西，是能让多重射击正常生效的东西
-                var10000 = EnchantmentHelper.processProjectileCount(serverlevel, weapon, shooter, 1);
-            } else {
-                var10000 = 1;
-            }
-
-            int i = var10000;
+            int i = shooter.level() instanceof ServerLevel serverlevel
+                    ? EnchantmentHelper.processProjectileCount(serverlevel, weapon, shooter, 1)
+                    : 1;
             List<ItemStack> list = new ArrayList<>(i);
             ItemStack itemStack1 = ammo.copy();
 
@@ -548,6 +556,5 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 }
             }
         }
-
     }
 }

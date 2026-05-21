@@ -3,12 +3,14 @@ package dev.dubhe.anvilcraft.init.block;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.level.block.Block;
@@ -28,6 +30,7 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 public class ModFluids {
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(
@@ -207,6 +210,14 @@ public class ModFluids {
         .bucket(ModItems.MELT_GEM_BUCKET)
         .tickRate(20)
         .explosionResistance(100);
+    public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
+        NeoForgeRegistries.FLUID_TYPES.key(),
+        ResourceLocation.withDefaultNamespace("powder_snow")
+    );
+    public static final DeferredHolder<Fluid, PowderSnowFluid> POWDER_SNOW = DeferredHolder.create(
+        Registries.FLUID,
+        ResourceLocation.withDefaultNamespace("powder_snow")
+    );
 
     public static void register(IEventBus eventBus) {
         FLUID_TYPES.register(eventBus);
@@ -240,6 +251,21 @@ public class ModFluids {
                 }
             )
         );
+    }
+
+    @SuppressWarnings("CodeBlock2Expr")
+    public static void registerVanilla(RegisterEvent event) {
+        event.register(NeoForgeRegistries.FLUID_TYPES.key(), helper -> {
+            helper.register(ModFluids.POWDER_SNOW_TYPE.getId(), new FluidType(
+                FluidType.Properties.create()
+                    .descriptionId(Blocks.POWDER_SNOW.getDescriptionId())
+                    .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL_POWDER_SNOW)
+                    .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY_POWDER_SNOW)
+            ));
+        });
+        event.register(Registries.FLUID, helper -> {
+            helper.register(ModFluids.POWDER_SNOW.getId(), new PowderSnowFluid());
+        });
     }
 
     public static void onRegisterFluidType(RegisterClientExtensionsEvent e) {
@@ -276,6 +302,12 @@ public class ModFluids {
                 0xB7EEDE,
                 2.0f
             ), MELT_GEM_TYPE
+        );
+        e.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.withDefaultNamespace("block/powder_snow"),
+                ResourceLocation.withDefaultNamespace("block/powder_snow")
+            ), POWDER_SNOW_TYPE
         );
     }
 

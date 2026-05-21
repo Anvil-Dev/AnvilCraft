@@ -2,22 +2,27 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
+    "A": [
+      {
+        "item": "anvilcraft:neutronium_ingot"
+      },
+      {
+        "item": "anvilcraft:charged_neutronium_ingot"
+      },
+      {
+        "item": "anvilcraft:stable_neutronium_ingot"
+      }
+    ],
     "B": {
+      "item": "anvilcraft:ember_metal_ingot"
+    },
+    "C": {
       "item": "anvilcraft:negative_matter_block"
-    },
-    "I": {
-      "tag": "anvilcraft:uncharged_neutronium_ingots"
-    },
-    "N": {
-      "item": "anvilcraft:negative_matter"
-    },
-    "V": {
-      "item": "anvilcraft:void_matter"
     }
   },
   "pattern": [
-    "NIN",
-    "NVN",
+    " A ",
+    "BCB",
     "BBB"
   ],
   "result": {

@@ -26,5 +26,14 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/laser")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/axis")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/advanced_comparator_indicator")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_base")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_upperarm")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_forearm")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_claw")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_claw_open")));
     }
 }

@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.Scrollable;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.FrostGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.FrostGrindstoneSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
-import dev.dubhe.anvilcraft.util.ListUtil;
-import dev.dubhe.anvilcraft.util.MathUtil;
-import dev.dubhe.anvilcraft.util.Scrollable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -38,16 +39,8 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
         }
 
         @Override
-        public void set(int targetIndex, int contentIndex) {
-        }
-
-        @Override
-        public void setEmpty(int targetIndex) {
-        }
-
-        @Override
-        public void scrollTo() {
-            FrostGrindstoneScreen.this.head = this.calculateRowCount() * this.column();
+        public void setHead(int head) {
+            FrostGrindstoneScreen.this.head = head;
         }
     };
     private int head = 0;
@@ -66,9 +59,15 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     }
 
     @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    }
+
+    @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override

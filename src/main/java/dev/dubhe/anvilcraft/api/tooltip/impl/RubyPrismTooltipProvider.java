@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -20,7 +20,7 @@ public class RubyPrismTooltipProvider extends ITooltipProvider.BlockEntityToolti
 
     @Override
     public List<Component> tooltip(BlockEntity e) {
-        if (Util.jadePresent.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) {
+        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) {
             return null;
         }
         if (e instanceof RubyPrismBlockEntity rubyPrismBlockEntity) {

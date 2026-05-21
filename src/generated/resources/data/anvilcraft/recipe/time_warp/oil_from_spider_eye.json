@@ -1,11 +1,12 @@
 {
   "type": "anvilcraft:time_warp",
-  "consume": -250,
+  "fluid": "minecraft:null",
   "ingredients": [
     {
       "count": 64,
       "items": "minecraft:spider_eye"
     }
   ],
+  "produce": 250,
   "transform": "anvilcraft:oil"
 }

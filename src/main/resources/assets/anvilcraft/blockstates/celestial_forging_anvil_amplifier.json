@@ -1,0 +1,152 @@
+{
+  "variants": {
+    "facing=north,half=bottom_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=bottom_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=bottom_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=bottom_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=mid_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier"
+    },
+    "facing=north,half=mid_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=mid_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=mid_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=top_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=top_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=top_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=north,half=top_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=bottom_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=bottom_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=bottom_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=bottom_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=mid_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=mid_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier",
+      "y": 90
+    },
+    "facing=east,half=mid_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=mid_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=top_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=top_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=top_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=east,half=top_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=bottom_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=bottom_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=bottom_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=bottom_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=mid_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=mid_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=mid_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=mid_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier",
+      "y": 180
+    },
+    "facing=south,half=top_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=top_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=top_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=south,half=top_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+
+    "facing=west,half=bottom_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=bottom_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=bottom_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=bottom_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=mid_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=mid_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=mid_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier",
+      "y": 270
+    },
+    "facing=west,half=mid_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=top_part": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=top_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=top_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    },
+    "facing=west,half=top_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_amplifier_part"
+    }
+  }
+}

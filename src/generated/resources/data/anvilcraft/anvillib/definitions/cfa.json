@@ -1,0 +1,52 @@
+{
+  "grid": [
+    [
+      "A   B",
+      "     ",
+      "  0  ",
+      "     ",
+      "C   D"
+    ]
+  ],
+  "mapping": {
+    "0": {
+      "blocks": "anvilcraft:celestial_forging_anvil"
+    },
+    "A": {
+      "blocks": "anvilcraft:celestial_forging_anvil_amplifier",
+      "properties": [
+        {
+          "facing": "north",
+          "half": "bottom_part"
+        }
+      ]
+    },
+    "B": {
+      "blocks": "anvilcraft:celestial_forging_anvil_amplifier",
+      "properties": [
+        {
+          "facing": "east",
+          "half": "bottom_w"
+        }
+      ]
+    },
+    "C": {
+      "blocks": "anvilcraft:celestial_forging_anvil_amplifier",
+      "properties": [
+        {
+          "facing": "west",
+          "half": "bottom_s"
+        }
+      ]
+    },
+    "D": {
+      "blocks": "anvilcraft:celestial_forging_anvil_amplifier",
+      "properties": [
+        {
+          "facing": "south",
+          "half": "bottom_ws"
+        }
+      ]
+    }
+  }
+}

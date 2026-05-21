@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
@@ -22,12 +23,14 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.SmartBlockPlacerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
+import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
@@ -46,6 +49,7 @@ import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
@@ -55,18 +59,17 @@ import net.minecraft.world.MenuProvider;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings("DataFlowIssue")
 public class ModMenuTypes {
-    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRUM
         .menu("batch_crafter", BatchCrafterMenu::new, () -> BatchCrafterScreen::new)
         .register();
+    public static final MenuEntry<BatchCutterMenu> BATCH_CUTTER = REGISTRUM
+        .menu("batch_cutter", BatchCutterMenu::new, () -> BatchCutterScreen::new)
+        .register();
 
-    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<ChuteMenu> CHUTE =
         REGISTRUM.menu("chute", ChuteMenu::new, () -> ChuteScreen::new).register();
 
-    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<MagneticChuteMenu> MAGNETIC_CHUTE = REGISTRUM
         .menu("magnetic_chute", MagneticChuteMenu::new, () -> MagneticChuteScreen::new)
         .register();
@@ -134,6 +137,10 @@ public class ModMenuTypes {
 
     public static final MenuEntry<PulseGeneratorMenu> PULSE_GENERATOR = REGISTRUM
         .menu("pulse_generator", PulseGeneratorMenu::new, () -> PulseGeneratorScreen::new)
+        .register();
+
+    public static final MenuEntry<SmartBlockPlacerMenu> SMART_BLOCK_PLACER = REGISTRUM
+        .menu("smart_block_placer", SmartBlockPlacerMenu::new, () -> SmartBlockPlacerScreen::new)
         .register();
 
     public static final MenuEntry<AdvancedComparatorMenu> ADVANCED_COMPARATOR = REGISTRUM

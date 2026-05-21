@@ -2,6 +2,9 @@ package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -15,11 +18,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 
+import java.util.List;
+
 public class FlexibleMultiPartBlockItem<
     P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>,
     T extends Property<E>,
     E extends Comparable<E>
     > extends BlockItem {
+    @Getter
     private final FlexibleMultiPartBlock<P, T, E> block;
 
     public FlexibleMultiPartBlockItem(FlexibleMultiPartBlock<P, T, E> block, Properties properties) {
@@ -40,7 +46,7 @@ public class FlexibleMultiPartBlockItem<
         return super.placeBlock(context, state);
     }
 
-    private int getMaxOffsetDistance(BlockState state, Direction clickedFace) {
+    public int getMaxOffsetDistance(BlockState state, Direction clickedFace) {
         Vec3i normal = clickedFace.getOpposite().getNormal();
         int i = 0;
         for (P part : this.block.getParts()) {
@@ -59,7 +65,7 @@ public class FlexibleMultiPartBlockItem<
         BlockState state = this.block.getPlacementState(new BlockPlaceContext(context));
         if (state == null) return InteractionResult.FAIL;
         if (result == InteractionResult.FAIL) {
-            return super.useOn(new UseOnContext(
+            InteractionResult interactionResult = super.useOn(new UseOnContext(
                 context.getLevel(),
                 context.getPlayer(),
                 context.getHand(),
@@ -69,6 +75,20 @@ public class FlexibleMultiPartBlockItem<
                     clickedFace,
                     context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(state, clickedFace)),
                     false)));
+            if (interactionResult == InteractionResult.FAIL && context.getLevel().isClientSide()) {
+                Level level = context.getLevel();
+                BlockPos pos = context.getClickedPos().relative(clickedFace, this.getMaxOffsetDistance(state, clickedFace));
+                List<BlockPos> errorPosList = new ObjectArrayList<>();
+                for (P part : this.block.getParts()) {
+                    BlockPos offset = pos.offset(part.getOffset(state.getValue(block.getAdditionalProperty())));
+                    if (!level.getBlockState(offset).canBeReplaced() || level.isOutsideBuildHeight(offset)) {
+                        errorPosList.add(offset);
+                    }
+                }
+                LargeBlockPlacePreviewEventListener.startFailBoundCooldown();
+                LargeBlockPlacePreviewEventListener.startFailBoundErrorCooldown(errorPosList);
+            }
+            return interactionResult;
         }
         return result;
     }

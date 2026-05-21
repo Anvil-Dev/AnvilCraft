@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.sliding;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.util.CodecUtil;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
@@ -20,13 +20,13 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, CompoundTag entit
         CompoundTag.CODEC.fieldOf("entityData").forGetter(SlidingBlockInfo::entityData)
     ).apply(ins, SlidingBlockInfo::new));
     public static final StreamCodec<ByteBuf, SlidingBlockInfo> SIMPLE_STREAM_CODEC = StreamCodec.composite(
-        CodecUtil.VEC3I_STREAM_CODEC, SlidingBlockInfo::offset,
-        CodecUtil.BLOCK_STATE_STREAM_CODEC, SlidingBlockInfo::state,
+        StreamCodecUtil.VEC3I, SlidingBlockInfo::offset,
+        StreamCodecUtil.BLOCK_STATE, SlidingBlockInfo::state,
         SlidingBlockInfo::new
     );
     public static final StreamCodec<ByteBuf, SlidingBlockInfo> STREAM_CODEC = StreamCodec.composite(
-        CodecUtil.VEC3I_STREAM_CODEC, SlidingBlockInfo::offset,
-        CodecUtil.BLOCK_STATE_STREAM_CODEC, SlidingBlockInfo::state,
+        StreamCodecUtil.VEC3I, SlidingBlockInfo::offset,
+        StreamCodecUtil.BLOCK_STATE, SlidingBlockInfo::state,
         ByteBufCodecs.COMPOUND_TAG, SlidingBlockInfo::entityData,
         SlidingBlockInfo::new
     );

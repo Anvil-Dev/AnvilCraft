@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.Event;
 
 @Getter
-public class BlockEntityEvent extends Event {
+public abstract class BlockEntityEvent extends Event {
     private final Level level;
     private final BlockEntity entity;
 

@@ -1,9 +1,12 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
+import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -29,10 +32,9 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
     }
 
     public static boolean trySpawn(BlockPos pos, Level level) {
-        BlockState cauldron = level.getBlockState(pos.below());
         BlockState heater = level.getBlockState(pos.below().below());
         if (
-            !cauldron.is(ModBlocks.FIRE_CAULDRON)
+            !PlasmaJetsBlock.isIgnitedOilCauldron(level, pos.below())
             || !heater.is(ModBlocks.HEATER)
             || heater.getValue(HeaterBlock.OVERLOAD)
         ) {
@@ -68,5 +70,12 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.PLASMA_JETS.create(pos, state);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static boolean isIgnitedOilCauldron(Level level, BlockPos pos) {
+        BlockCache cache = new BlockCache(level);
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+        return cauldron.isIgnited(cache, pos) && cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
     }
 }

@@ -52,7 +52,11 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
     ) {
         poseStack.pushPose();
         poseStack.translate(0.5, 1.3, 0.5);
-        if (!blockEntity.getNormalVector3f().equals(new Vector3f()) && !blockEntity.getNormalVector3f().equals(new Vector3f(Float.NaN))) {
+        if (
+            blockEntity.getWorkResult() != HeliostatsBlockEntity.WorkResult.NO_ROTATION_ANGLE
+            && !blockEntity.getNormalVector3f().equals(new Vector3f())
+            && !blockEntity.getNormalVector3f().equals(new Vector3f(Float.NaN))
+        ) {
             poseStack.mulPose(new Quaternionf().rotateY(getHorizontalAngle(
                 blockEntity.getNormalVector3f().x,
                 blockEntity.getNormalVector3f().z

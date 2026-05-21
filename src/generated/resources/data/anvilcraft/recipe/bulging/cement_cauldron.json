@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:bulging",
+  "consume": 1000,
   "fluid": "minecraft:water",
   "ingredients": [
     {
@@ -10,6 +11,7 @@
       "items": "anvilcraft:cinerite"
     }
   ],
+  "produce": 1000,
   "results": [],
   "transform": "anvilcraft:gray_cement"
 }

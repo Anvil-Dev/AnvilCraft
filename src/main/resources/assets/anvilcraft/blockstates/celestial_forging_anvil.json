@@ -1,0 +1,58 @@
+{
+  "variants": {
+    "half=top_center": {
+      "model": "anvilcraft:block/celestial_forging_anvil_base"
+    },
+    "half=bottom_center": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_e": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_n": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_wn": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_en": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=bottom_es": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_w": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_e": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_n": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_s": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_wn": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_ws": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_en": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    },
+    "half=top_es": {
+      "model": "anvilcraft:block/celestial_forging_anvil_part"
+    }
+  }
+}

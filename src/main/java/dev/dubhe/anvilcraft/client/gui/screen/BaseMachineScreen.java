@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.client.gui.component.OutputDirectionButton;
+import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,13 +17,14 @@ import org.jetbrains.annotations.Contract;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
+import javax.annotation.Nullable;
 
 public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
     @Setter
     private BiFunction<Integer, Integer, OutputDirectionButton> directionButtonSupplier;
 
     @Getter
-    private OutputDirectionButton directionButton = null;
+    private @Nullable OutputDirectionButton directionButton = null;
 
     @Getter
     private final Player player;
@@ -40,10 +42,24 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
         this.player = inventory.player;
     }
 
+    /**
+     * 基本机器 GUI
+     *
+     * @param menu      菜单
+     * @param inventory 玩家背包
+     * @param title     标题
+     */
+    public BaseMachineScreen(T menu, Inventory inventory, Component title, int outputDirBtnX, int outputDirBtnY) {
+        super(menu, inventory, title);
+        this.directionButtonSupplier = BaseMachineScreen.getDirectionButtonSupplier(outputDirBtnX, outputDirBtnY);
+        this.player = inventory.player;
+    }
+
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = Constant.SCREEN_TITLE_Y;
         this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(directionButton);
     }
@@ -67,6 +83,15 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBeforeTooltip(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    protected void renderBeforeTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
     }
 }

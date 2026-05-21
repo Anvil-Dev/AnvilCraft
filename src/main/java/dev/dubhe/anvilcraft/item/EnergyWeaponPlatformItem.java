@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.EnergyWeaponMakeMenu;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;

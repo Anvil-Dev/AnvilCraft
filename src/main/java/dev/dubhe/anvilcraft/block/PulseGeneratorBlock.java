@@ -2,12 +2,12 @@ package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -137,18 +137,29 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         boolean lastInputting = generator.isInputtingSignal();
         boolean nowInputting = PulseGeneratorBlock.getInputSignal(level, pos, stateGetter.get()) > 0;
         generator.setInputtingSignal(nowInputting);
-
         boolean canStart = switch (generator.getStartMode()) {
             case RISING_EDGE -> !lastInputting && nowInputting;
             case FALLING_EDGE -> lastInputting && !nowInputting;
-            case LOOP -> !generator.isDeadlock() && generator.getState() == PulseGeneratorBlockEntity.State.DEFAULT;
+            case LOOP -> !generator.isLocked();
         } && !generator.isProcessing();
+
         if (canStart) {
             this.startWaiting(level, pos, stateGetter, generator);
+            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         }
 
-        this.checkIsDeadlock(level, pos, stateGetter, generator);
-        this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
+        if (generator.getStartMode() == PulseGeneratorBlockEntity.Mode.LOOP) {
+            if (generator.isLocked() && !generator.isInputtingSignal()) {
+                this.startWaiting(level, pos, stateGetter, generator);
+                generator.setLocked(false);
+            } else {
+                generator.setLocked(generator.isInputtingSignal());
+            }
+        }
+        if (generator.isLocked()) {
+            generator.setState(PulseGeneratorBlockEntity.State.DEFAULT);
+            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
+        }
     }
 
     @Override
@@ -156,7 +167,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         Optional<PulseGeneratorBlockEntity> generatorOp = level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get());
         if (generatorOp.isEmpty()) return;
         PulseGeneratorBlockEntity generator = generatorOp.get();
-        if (!generator.isDeadlock()) {
+        if (!generator.isLocked()) {
             switch (generator.getState()) {
                 case WAITING -> this.startOutputting(level, pos, () -> state, generator);
                 case OUTPUTTING -> this.checkOnSignalEnd(level, pos, () -> state, generator);
@@ -167,23 +178,15 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         }
     }
 
-    protected void checkIsDeadlock(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
-        if (generator.getStartMode() == PulseGeneratorBlockEntity.Mode.LOOP) {
-            if (generator.isDeadlock() && !generator.isInputtingSignal()) {
-                this.startWaiting(level, pos, stateGetter, generator);
-                generator.setDeadlock(false);
-            } else {
-                generator.setDeadlock(generator.isInputtingSignal());
-            }
-        }
-        if (generator.isDeadlock()) {
-            generator.setState(PulseGeneratorBlockEntity.State.DEFAULT);
-            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
-        }
-    }
-
     public void startWaiting(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         generator.setState(PulseGeneratorBlockEntity.State.WAITING);
+        if (generator.getWaitingTime() == 1
+            && generator.getSignalDuration() == 0) {
+            generator.setState(PulseGeneratorBlockEntity.State.OUTPUTTING);
+            level.scheduleTick(pos, this, 1, TickPriority.LOW);
+            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
+            return;
+        }
         if (generator.getWaitingTime() != 0) {
             level.scheduleTick(pos, this, generator.getWaitingTime(), TickPriority.LOW);
         } else {
@@ -194,10 +197,10 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     protected void startOutputting(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         generator.setState(PulseGeneratorBlockEntity.State.OUTPUTTING);
         if (generator.getSignalDuration() != 0) {
-            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.VERY_LOW);
+            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.LOW);
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         } else {
-            this.updateBlockAndNeighbours(level, pos, generator::getBlockState, generator);
+            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
             this.checkOnSignalEnd(level, pos, stateGetter, generator);
         }
     }
@@ -274,10 +277,12 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof PulseGeneratorBlockEntity blockEntity && player instanceof ServerPlayer sp) {
             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-            sp.openMenu(blockEntity, buf -> {
-                buf.writeBlockPos(pos);
-                buf.writeNbt(blockEntity.constructDataNbt());
-            });
+            sp.openMenu(
+                blockEntity, buf -> {
+                    buf.writeBlockPos(pos);
+                    buf.writeNbt(blockEntity.constructDataNbt());
+                }
+            );
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
