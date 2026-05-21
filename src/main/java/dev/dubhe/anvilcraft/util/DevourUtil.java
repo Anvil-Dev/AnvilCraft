@@ -7,9 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DevourUtil {
@@ -69,8 +67,14 @@ public class DevourUtil {
                 int topY = bottomPos.getY() + deltaHeight;
                 return Streams
                     .stream(BlockPos.betweenClosed(bottomPos, bottomPos.atY(topY + chainCount)))
-                    .map(BlockPos::immutable)
-                    .takeWhile(pos -> pos.getY() <= topY || DevourUtil.shouldChainDevour(level.getBlockState(pos)));
+                    .takeWhile(pos -> pos.getY() <= topY || DevourUtil.shouldChainDevour(level.getBlockState(pos)))
+                    .map(originalPos -> {
+                        BlockPos normalizedBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, originalPos);
+                        if (!originalPos.equals(normalizedBlockPos)) {
+                            return normalizedBlockPos;
+                        }
+                        return originalPos.immutable();
+                    });
                 // in common devour OR chain until unchainable
             })
             .collect(Collectors.toSet());
@@ -80,12 +84,8 @@ public class DevourUtil {
 
         for (BlockPos devourBlockPos : devourTargets) {
             BlockState devourState = level.getBlockState(devourBlockPos);
-            if (!DevourUtil.shouldDevour(devourState)) continue;
-            BlockPos normalizedBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
-            if (!normalizedBlockPos.equals(devourBlockPos)) {
-                devourBlockPos = normalizedBlockPos;
-                devourState = level.getBlockState(normalizedBlockPos);
-            }
+            if (devourState.isAir()) continue;
+
             if (!devourState.canSurvive(devouringLevelReader, devourBlockPos)) {
                 l.addFirst(devourBlockPos);
             } else {

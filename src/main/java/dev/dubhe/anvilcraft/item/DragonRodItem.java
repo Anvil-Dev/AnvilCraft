@@ -115,6 +115,8 @@ public class DragonRodItem extends Item {
 
         for (BlockPos devouringPos : devouringPoses) {
             BlockState devouringState = level.getBlockState(devouringPos);
+            if (!DevourUtil.shouldDevour(devouringState)) continue;
+
             if (devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                 && level.random.nextDouble() > 0.05) {
                 level.destroyBlock(devouringPos, false);
