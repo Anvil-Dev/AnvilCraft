@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.client.support.LevelLikeDisplaySupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -13,7 +14,6 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextures;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
-import dev.dubhe.anvilcraft.util.RecipeUtil;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -168,11 +168,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     ) {
         this.cacheInput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getInputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern())
         );
         this.cacheOutput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
         );
 
         List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList();
@@ -216,11 +216,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
         LevelLike input = this.cacheInput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getInputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern())
         );
         LevelLike output = this.cacheOutput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
         );
         LevelLike rendered = input;
         switch (this.displayMode) {
@@ -363,14 +363,14 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
                         );
                         inputLevel.setAllLayersVisible(!inputLevel.isAllLayersVisible());
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
                         );
                         outputLevel.setAllLayersVisible(!outputLevel.isAllLayersVisible());
                         break;
@@ -389,14 +389,14 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
                         );
                         if (!inputLevel.isAllLayersVisible()) inputLevel.nextLayer();
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.nextLayer();
                         break;
@@ -415,14 +415,14 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
                         );
                         if (!inputLevel.isAllLayersVisible()) inputLevel.previousLayer();
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.previousLayer();
                         break;

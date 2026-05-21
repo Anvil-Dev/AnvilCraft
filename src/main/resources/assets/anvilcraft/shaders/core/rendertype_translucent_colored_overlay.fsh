@@ -3,7 +3,6 @@
 #moj_import <minecraft:fog.glsl>
 #moj_import <minecraft:dynamictransforms.glsl>
 
-//TODO THIS IS A BAD IMPLEMENTATION
 #ifdef OVERLAY_COLOR
 const vec4 color = vec4(OVERLAY_COLOR_R, OVERLAY_COLOR_G, OVERLAY_COLOR_B, OVERLAY_COLOR_A);
 #else

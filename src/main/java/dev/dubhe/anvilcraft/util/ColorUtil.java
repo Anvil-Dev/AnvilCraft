@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
@@ -98,5 +100,19 @@ public class ColorUtil {
             (int) Mth.lerp(ratio, g1, g2),
             (int) Mth.lerp(ratio, b1, b2)
         );
+    }
+
+    /// copied from ae2
+    public static int colorFromRatio(double ratio, boolean oneIsGreen) {
+        double p = ratio;
+
+        if (!oneIsGreen) {
+            p = 1 - p;
+        }
+
+        int r = (int) (255d * (Math.clamp(2 - 2 * p, 0, 1)));
+        int g = (int) (255d * (Math.clamp(2 * p, 0, 1)));
+
+        return 0xFF000000 + (r << 16) + (g << 8);
     }
 }

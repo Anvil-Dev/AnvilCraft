@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.storage;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -66,14 +65,17 @@ public class MobAmberBlock extends HasMobBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> type) {
+        Level level,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
         if (!level.isClientSide()) {
             return null;
         }
         return createTickerHelper(
             type,
             ModBlockEntities.MOB_AMBER_BLOCK.get(),
-            (level1, blockPos, _, blockEntity) -> blockEntity.clientTick((ClientLevel) level1, blockPos)
+            (level1, blockPos, _, blockEntity) -> blockEntity.clientTick(level1, blockPos)
         );
     }
 }

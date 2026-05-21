@@ -34,6 +34,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
@@ -67,19 +68,17 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
     }
 
     private void onContentsChanged() {
-        if (this.level == null || this.level.isClientSide()) {
-            this.setChanged();
+        if (this.level == null) {
             return;
         }
 
-        ServerLevel level = Util.cast(this.level);
-        RecipeManager manager = level.recipeAccess();
         SingleRecipeInput input = this.createDummyInput();
-        List<RecipeHolder<StonecutterRecipe>> recipes = manager.getRecipes().stream()
-            .filter(holder -> holder.value().getType() == RecipeType.STONECUTTING)
-            .map(Util::<RecipeHolder<StonecutterRecipe>>cast)
-            .filter(holder -> holder.value().matches(input, level))
-            .toList();
+        List<RecipeHolder<StonecutterRecipe>> recipes = new ArrayList<>();
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)) {
+            if (holder.value().matches(input, level)) {
+                recipes.add(holder);
+            }
+        }
         if (recipes.isEmpty()) {
             this.updateDisplayItem(ItemStack.EMPTY);
         } else if (this.selecting >= recipes.size()) {

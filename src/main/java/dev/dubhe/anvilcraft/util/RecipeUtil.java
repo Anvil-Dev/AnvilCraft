@@ -2,8 +2,6 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -13,8 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 
@@ -90,26 +85,6 @@ public class RecipeUtil {
                 return times;
             }
         }
-    }
-
-    // @OnlyIn(Dist.CLIENT)
-    public static LevelLike asLevelLike(BlockPattern pattern) {
-        @SuppressWarnings("DataFlowIssue")
-        LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
-
-        int size = pattern.getSize();
-        for (int y = size - 1; y >= 0; y--) {
-            for (int x = size - 1; x >= 0; x--) {
-                for (int z = size - 1; z >= 0; z--) {
-                    BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
-                    BlockState state = predicate.getDefaultState();
-                    if (state.isAir() && Math.max(levelLike.horizontalSize(), levelLike.verticalSize()) >= size) continue;
-                    levelLike.setBlockState(new BlockPos(x, y, z), state);
-                }
-            }
-        }
-
-        return levelLike;
     }
 
     private static final Int2ObjectMap<List<ItemStack>> INGREDIENT_CACHE = new Int2ObjectArrayMap<>();

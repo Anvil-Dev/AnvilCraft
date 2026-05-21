@@ -32,7 +32,7 @@ public class ResentfulAmberBlockEntity extends MobAmberBlockEntity {
     }
 
     // @OnlyIn(Dist.CLIENT)
-    public void clientTick(ClientLevel level, BlockPos blockPos) {
+    public void clientTick(Level level, BlockPos blockPos) {
         Entity displayEntity = getOrCreateDisplayEntity(level);
         if (displayEntity == null) return;
         Vec3 center = blockPos.getCenter();

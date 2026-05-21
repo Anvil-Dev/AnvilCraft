@@ -678,8 +678,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .defaultLoot()
         .item(HeliostatsItem::new)
-        .model(() -> (a, b) -> {
-        })
+        .model(DataGenUtil::onlyInfo)
         .build()
         .recipe(RegistrumBlockRecipeLoader::heliostats)
         .register();
@@ -3171,6 +3170,7 @@ public class ModBlocks {
             "exp_fluid",
             p -> new ExpFluidBlock(ModFluids.EXP_FLUID.get(), p)
         )
+        .blockstate(ModelProviderUtil::liquid)
         .properties(it -> it.mapColor(MapColor.COLOR_GREEN)
             .replaceable()
             .noCollision()
@@ -3179,7 +3179,6 @@ public class ModBlocks {
             .liquid()
             .sound(SoundType.EMPTY)
             .strength(100.0F))
-        .blockstate(ModelProviderUtil::liquid)
         .register();
 
     public static final BlockEntry<LiquidBlock> OIL = REGISTRUM.block(
@@ -3423,7 +3422,6 @@ public class ModBlocks {
 
     public static final BlockEntry<SlabBlock> CUT_FLINT_SLAB_BLOCK = REGISTRUM.block("cut_flint_slab", SlabBlock::new)
         .initialProperties(FLINT_BLOCK::get)
-        .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_flint_block")))
         .blockstate(() -> DataGenUtil.slabBlock(
             _ -> new Material(AnvilCraft.of("block/cut_flint_block")),
             _ -> new Material(AnvilCraft.of("block/cut_flint_block")),

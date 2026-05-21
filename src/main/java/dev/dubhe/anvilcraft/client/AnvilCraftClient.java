@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.client;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
-import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
@@ -24,7 +22,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
@@ -34,6 +34,7 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import org.jspecify.annotations.Nullable;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class AnvilCraftClient {
     public static IEventBus modEventBus = null;
     public static ModContainer modContainer = null;
@@ -43,19 +44,10 @@ public class AnvilCraftClient {
     public AnvilCraftClient(IEventBus modBus, ModContainer container) {
         modEventBus = modBus;
         modContainer = container;
-        modBus.addListener(GuiLayerRegistrationEventListener::onRegister);
-        modBus.addListener(ModKeyMappings::register);
-        modBus.addListener(AnvilCraftClient::registerClientExtensions);
-        modBus.addListener(AnvilCraftClient::registerCustomItemDecorations);
-        modBus.addListener(AnvilCraftClient::registerParticleProviders);
-        modBus.addListener(ModModelLayers::register);
-        modBus.addListener(ModModelLayers::createModel);
-        modBus.addListener(ModTooltipComponents::register);
-        modBus.addListener(ModFluids::registerFluidModel);
-        modBus.addListener(AnvilCraftClient::clientSetup);
         InspectionSupport.initializeClient();
     }
 
+    @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
         IntegrationHook.setModEventBus(modEventBus);
         IntegrationHook.setModContainer(modContainer);
@@ -72,16 +64,19 @@ public class AnvilCraftClient {
         });
     }
 
+    @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
     }
 
+    @SubscribeEvent
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
         e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
     }
 
+    @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
         e.registerSpriteSet(ModParticles.PLASMA_JETS.get(), PlasmaJetsParticle.Provider::new);
     }

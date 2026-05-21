@@ -17,38 +17,56 @@ import net.neoforged.neoforge.client.model.item.DynamicFluidContainerModel;
 
 import java.util.Optional;
 
+@SuppressWarnings("Convert2Lambda")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelProviderUtil {
     /**
      * 用于流体的BlockState生成器
      */
     public static <L extends LiquidBlock> NonNullBiConsumer<DataGenContext<Block, L>, RegistrumBlockModelGenerator> liquid() {
-        return (ctx, generator) -> generator.create(
-            ctx.get(),
-            generator.getBuilder()
-                .texture(TextureSlot.PARTICLE, generator.modLoc("block/" + ctx.getName()), false)
-                .build(ctx.get())
-        );
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Block, L> ctx,
+                RegistrumBlockModelGenerator generator
+            ) {
+                generator.create(
+                    ctx.get(),
+                    generator.getBuilder()
+                        .texture(TextureSlot.PARTICLE, generator.modLoc("block/" + ctx.getName()), false)
+                        .build(ctx.get())
+                );
+            }
+        };
     }
 
     /**
      * 用于流体的ItemModel生成器
      */
     public static NonNullBiConsumer<DataGenContext<Item, BucketItem>, RegistrumItemModelGenerator> bucket() {
-        return (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            new DynamicFluidContainerModel.Unbaked(
-                new DynamicFluidContainerModel.Textures(
-                    Optional.empty(),
-                    Optional.of(new Material(ModelLocationUtils.decorateItemModelLocation("bucket"))),
-                    Optional.of(new Material(ModelLocationUtils.decorateItemModelLocation("neoforge:mask/bucket_fluid_drip"))),
-                    Optional.empty()
-                ),
-                ctx.get().content,
-                false,
-                true,
-                true
-            )
-        );
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, BucketItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    new DynamicFluidContainerModel.Unbaked(
+                        new DynamicFluidContainerModel.Textures(
+                            Optional.empty(),
+                            Optional.of(new Material(ModelLocationUtils.decorateItemModelLocation("bucket"))),
+                            Optional.of(new Material(ModelLocationUtils.decorateItemModelLocation(
+                                "neoforge:mask/bucket_fluid_drip"))),
+                            Optional.empty()
+                        ),
+                        ctx.get().content,
+                        false,
+                        true,
+                        true
+                    )
+                );
+            }
+        };
     }
 }

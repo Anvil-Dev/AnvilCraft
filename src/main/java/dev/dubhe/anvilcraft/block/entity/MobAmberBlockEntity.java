@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -32,7 +31,7 @@ public class MobAmberBlockEntity extends HasMobBlockEntity {
     }
 
     // @OnlyIn(Dist.CLIENT)
-    public void clientTick(ClientLevel level, BlockPos blockPos) {
+    public void clientTick(Level level, BlockPos blockPos) {
         BlockState state = level.getBlockState(blockPos);
         Entity entity = getOrCreateDisplayEntity(level);
         if (!state.is(ModBlocks.MOB_AMBER_BLOCK) || !(entity instanceof LivingEntity displayEntity)) return;

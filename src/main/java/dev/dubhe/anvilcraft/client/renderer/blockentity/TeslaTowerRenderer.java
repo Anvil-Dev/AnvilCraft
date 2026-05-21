@@ -55,7 +55,15 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
     }
 
     @Override
-    public void submit(TeslaTowerRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+    public void submit(
+        TeslaTowerRenderState state,
+        PoseStack pose,
+        SubmitNodeCollector collector,
+        CameraRenderState camera
+    ) {
+        if (state.getStart() == null || state.getEnd() == null || state.getCamera() == null) {
+            return;
+        }
         collector.submitCustomGeometry(
             pose,
             ModRenderTypes.LIGHTNING,

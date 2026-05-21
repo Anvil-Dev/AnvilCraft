@@ -13,7 +13,6 @@ import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -31,15 +30,16 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
 public class PlasmaJetsBlockEntity extends BlockEntity {
     private static final int MAX_DURATION = 10 * 60 * 20;
     private final Set<TubeWallLayer> tubeWalls = new HashSet<>();
+    @Nullable
     private BlockPos cauldronPos = null;
     private int duration = 0;
 
@@ -115,13 +115,11 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         return new Pair<>(noMagnet, magnet);
     }
 
-    private static final BiConsumer<PlasmaJetsBlockEntity, Level> CLIENT_TICK = (entity, level) -> entity.clientTick((ClientLevel) level);
-
     public static void tick(Level level, BlockPos ignored, BlockState ignored1, PlasmaJetsBlockEntity entity) {
         if (level instanceof ServerLevel serverLevel) {
             entity.serverTick(serverLevel);
         } else if (level.isClientSide()) {
-            CLIENT_TICK.accept(entity, level);
+            entity.clientTick(level);
         }
     }
 
@@ -139,7 +137,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     // @OnlyIn(Dist.CLIENT)
-    private void clientTick(ClientLevel level) {
+    private void clientTick(Level level) {
         this.refreshCauldronPos(level);
         this.summonParticles(level);
     }
@@ -221,7 +219,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     // @OnlyIn(Dist.CLIENT)
-    protected void summonParticles(ClientLevel level) {
+    protected void summonParticles(Level level) {
         Vec3 start = this.getParticleStartPos(level);
         Vec3 vector = start.vectorTo(this.getParticleEndPos());
         RandomSource random = level.getRandom();
@@ -241,8 +239,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void refreshCauldronPos(Level level) {
-        if (
-            this.cauldronPos != null
+        if (this.cauldronPos != null
             && (
                 PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
                 || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON)

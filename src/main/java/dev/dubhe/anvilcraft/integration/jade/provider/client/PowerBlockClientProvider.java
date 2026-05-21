@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.integration.jade.provider.client;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
+import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -8,6 +10,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -30,13 +33,9 @@ public enum PowerBlockClientProvider implements IBlockComponentProvider {
             int generate = serverData.getIntOr("generate", 0);
             int consume = serverData.getIntOr("consume", 0);
 
-            int color;
-            float percent = (float) consume / generate;
-            if (percent < 0.75) {
-                color = 0xFFFFD700;
-            } else {
-                color = 0xFFFF0000;
-            }
+
+            float percent = Mth.clamp(MathUtil.safeDiv(consume, generate), 0, 1);
+            int color = ColorUtil.colorFromRatio(percent, false);
 
             tooltip.add(JadeUI.progress(
                 new ProgressView(
